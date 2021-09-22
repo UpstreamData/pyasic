@@ -33,3 +33,18 @@ class API:
 
         # return the data
         return data
+
+
+class BMMiner(API):
+    def __int__(self, port, ip):
+        super.__init__(port, ip)
+
+
+class CGMiner(API):
+    def __int__(self, port, ip):
+        super.__init__(port, ip)
+
+
+class BOSMiner(API):
+    def __int__(self, port, ip):
+        super.__init__(port, ip)
