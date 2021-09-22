@@ -36,15 +36,66 @@ class API:
 
 
 class BMMiner(API):
-    def __int__(self, port, ip):
-        super.__init__(port, ip)
+    def __init__(self, ip, port):
+        super().__init__(ip, port)
 
 
 class CGMiner(API):
-    def __int__(self, port, ip):
-        super.__init__(port, ip)
+    def __init__(self, ip, port):
+        super().__init__(ip, port)
 
 
 class BOSMiner(API):
-    def __int__(self, port, ip):
-        super.__init__(port, ip)
+    def __init__(self, ip, port):
+        super().__init__(ip, port)
+
+    def asccount(self):
+        return self.send_command("asccount")
+
+    def asc(self):
+        return self.send_command("asc")
+
+    def devdetails(self):
+        return self.send_command("devdetails")
+
+    def devs(self):
+        return self.send_command("devs")
+
+    def edevs(self):
+        return self.send_command("edevs")
+
+    def pools(self):
+        return self.send_command("pools")
+
+    def summary(self):
+        return self.send_command("summary")
+
+    def stats(self):
+        return self.send_command("stats")
+
+    def version(self):
+        return self.send_command("version")
+
+    def estats(self):
+        return self.send_command("estats")
+
+    def check(self):
+        return self.send_command("check")
+
+    def coin(self):
+        return self.send_command("coin")
+
+    def lcd(self):
+        return self.send_command("lcd")
+
+    def fans(self):
+        return self.send_command("fans")
+
+    def tempctrl(self):
+        return self.send_command("tempctrl")
+
+    def temps(self):
+        return self.send_command("temps")
+
+    def tunerstatus(self):
+        return self.send_command("tunerstatus")
