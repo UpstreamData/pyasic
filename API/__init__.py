@@ -21,11 +21,11 @@ class BaseMinerAPI:
         self.port = port
         self.ip = ip
 
-    async def multicommand(self, *commands: str):
+    async def multicommand(self, *commands: str) -> dict:
         command = "+".join(commands)
         return await self.send_command(command)
 
-    async def send_command(self, command, parameters: dict = None):
+    async def send_command(self, command, parameters: dict = None) -> dict:
         # get reader and writer streams
         reader, writer = await asyncio.open_connection(self.ip, self.port)
 
