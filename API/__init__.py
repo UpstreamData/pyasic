@@ -21,6 +21,10 @@ class BaseMinerAPI:
         self.port = port
         self.ip = ip
 
+    async def multicommand(self, *commands: str):
+        command = "+".join(commands)
+        return await self.send_command(command)
+
     async def send_command(self, command, parameters: dict = None):
         # get reader and writer streams
         reader, writer = await asyncio.open_connection(self.ip, self.port)
@@ -51,11 +55,20 @@ class BaseMinerAPI:
         await writer.wait_closed()
 
         # check if the data returned is correct or an error
-        if not data["STATUS"][0]["STATUS"] in ("S", "I"):
-            # this is an error
-            print(cmd)
-            print(data)
-            raise APIError(data["STATUS"][0]["Msg"])
+        # if status isn't a key, it is a multicommand
+        if "STATUS" not in data.keys():
+            for key in data.keys():
+                # make sure not to try to turn id into a dict
+                if not key == "id":
+                    # make sure they succeeded
+                    if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
+                        # this is an error
+                        raise APIError(data["STATUS"][0]["Msg"])
+        else:
+            # make sure the command succeeded
+            if data["STATUS"][0]["STATUS"] not in ("S", "I"):
+                # this is an error
+                raise APIError(data["STATUS"][0]["Msg"])
 
         # return the data
         return data
