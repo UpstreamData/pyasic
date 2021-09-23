@@ -2,6 +2,20 @@ import asyncio
 import json
 
 
+class APIError(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return f"{self.message}"
+        else:
+            return "Incorrect API parameters."
+
+
 class API:
     def __init__(self, port, ip):
         self.port = port
@@ -90,7 +104,6 @@ class BMMiner(API):
         return self.send_command("lcd")
 
 
-
 class BOSMiner(API):
     def __init__(self, ip, port):
         super().__init__(ip, port)
@@ -142,3 +155,6 @@ class BOSMiner(API):
 
     def tunerstatus(self):
         return self.send_command("tunerstatus")
+
+
+raise APIError
