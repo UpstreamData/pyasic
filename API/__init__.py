@@ -21,14 +21,14 @@ class BaseMinerAPI:
         self.port = port
         self.ip = ip
 
-    async def send_command(self, command, parameters=None):
+    async def send_command(self, command, parameters: dict = None):
         # get reader and writer streams
         reader, writer = await asyncio.open_connection(self.ip, self.port)
 
         # create the command
         cmd = {"command": command}
-        if parameters:
-            cmd["parameters"] = parameters
+        if parameters is not None:
+            cmd["parameter"] = parameters
 
         # send the command
         writer.write(json.dumps(cmd).encode('utf-8'))
@@ -53,6 +53,8 @@ class BaseMinerAPI:
         # check if the data returned is correct or an error
         if not data["STATUS"][0]["STATUS"] in ("S", "I"):
             # this is an error
+            print(cmd)
+            print(data)
             raise APIError(data["STATUS"][0]["Msg"])
 
         # return the data

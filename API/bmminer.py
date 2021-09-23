@@ -39,7 +39,7 @@ class BMMinerAPI(BaseMinerAPI):
         return await self.send_command("enablepool", parameters=n)
 
     async def addpool(self, url: str, username: str, password: str):
-        return await self.send_command("enablepool", parameters=f"{url}, {username}, {password}")
+        return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
 
     async def poolpriority(self, *n: int):
         return await self.send_command("poolpriority", parameters=f"{','.join(n)}")
