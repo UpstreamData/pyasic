@@ -86,7 +86,7 @@ class BMMinerAPI(BaseMinerAPI):
     async def stats(self):
         return await self.send_command("stats")
 
-    async def estats(self, old=False):
+    async def estats(self, old: bool = False):
         if old:
             return await self.send_command("estats", parameters="old")
         else:
@@ -104,13 +104,13 @@ class BMMinerAPI(BaseMinerAPI):
     async def debug(self, setting: str):
         return await self.send_command("debug", parameters=setting)
 
-    async def setconfig(self, name, n):
+    async def setconfig(self, name: str, n: int):
         return await self.send_command("setconfig", parameters=f"{name}, {n}")
 
     async def usbstats(self):
         return await self.send_command("usbstats")
 
-    async def pgaset(self, n, opt, val=None):
+    async def pgaset(self, n: int, opt: str, val: int = None):
         if val:
             return await self.send_command("pgaset", parameters=f"{n}, {opt}, {val}")
         else:
@@ -137,7 +137,7 @@ class BMMinerAPI(BaseMinerAPI):
     async def asccount(self):
         return await self.send_command("asccount")
 
-    async def ascset(self, n, opt, val=None):
+    async def ascset(self, n: int, opt: str, val: int = None):
         if val:
             return await self.send_command("ascset", parameters=f"{n}, {opt}, {val}")
         else:

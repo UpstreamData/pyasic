@@ -8,14 +8,20 @@ class BOSMinerAPI(BaseMinerAPI):
     async def asccount(self):
         return await self.send_command("asccount")
 
+    async def asc(self, n: int):
+        return await self.send_command("asc", parameters=n)
+
     async def devdetails(self):
         return await self.send_command("devdetails")
 
     async def devs(self):
         return await self.send_command("devs")
 
-    async def edevs(self):
-        return await self.send_command("edevs")
+    async def edevs(self, old: bool = False):
+        if old:
+            return await self.send_command("edevs", parameters="old")
+        else:
+            return await self.send_command("edevs")
 
     async def pools(self):
         return await self.send_command("pools")
@@ -41,6 +47,21 @@ class BOSMinerAPI(BaseMinerAPI):
     async def lcd(self):
         return await self.send_command("lcd")
 
+    async def switchpool(self, n: int):
+        return await self.send_command("switchpool", parameters=n)
+
+    async def enablepool(self, n: int):
+        return await self.send_command("enablepool", parameters=n)
+
+    async def disablepool(self, n: int):
+        return await self.send_command("disablepool", parameters=n)
+
+    async def addpool(self, url: str, username: str, password: str):
+        return await self.send_command("enablepool", parameters=f"{url}, {username}, {password}")
+
+    async def removepool(self, n: int):
+        return await self.send_command("removepool", parameters=n)
+
     async def fans(self):
         return await self.send_command("fans")
 
@@ -52,3 +73,9 @@ class BOSMinerAPI(BaseMinerAPI):
 
     async def tunerstatus(self):
         return await self.send_command("tunerstatus")
+
+    async def pause(self):
+        return await self.send_command("pause")
+
+    async def resume(self):
+        return await self.send_command("resume")
