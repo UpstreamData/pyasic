@@ -35,14 +35,60 @@ class API:
         return data
 
 
+class CGMiner(API):
+    def __init__(self, ip, port):
+        super().__init__(ip, port)
+
+
 class BMMiner(API):
     def __init__(self, ip, port):
         super().__init__(ip, port)
 
+    def version(self):
+        return self.send_command("version")
 
-class CGMiner(API):
-    def __init__(self, ip, port):
-        super().__init__(ip, port)
+    def config(self):
+        return self.send_command("config")
+
+    def summary(self):
+        return self.send_command("summary")
+
+    def pools(self):
+        return self.send_command("pools")
+
+    def devs(self):
+        return self.send_command("devs")
+
+    def edevs(self):
+        return self.send_command("edevs")
+
+    def pgacount(self):
+        return self.send_command("pgacount")
+
+    def notify(self):
+        return self.send_command("notify")
+
+    def devdetails(self):
+        return self.send_command("devdetails")
+
+    def stats(self):
+        return self.send_command("stats")
+
+    def estats(self):
+        return self.send_command("estats")
+
+    def check(self):
+        return self.send_command("check")
+
+    def coin(self):
+        return self.send_command("coin")
+
+    def asccount(self):
+        return self.send_command("asccount")
+
+    def lcd(self):
+        return self.send_command("lcd")
+
 
 
 class BOSMiner(API):
@@ -51,9 +97,6 @@ class BOSMiner(API):
 
     def asccount(self):
         return self.send_command("asccount")
-
-    def asc(self):
-        return self.send_command("asc")
 
     def devdetails(self):
         return self.send_command("devdetails")
