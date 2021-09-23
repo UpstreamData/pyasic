@@ -17,7 +17,7 @@ class APIError(Exception):
 
 
 class API:
-    def __init__(self, port, ip):
+    def __init__(self, ip, port):
         self.port = port
         self.ip = ip
 
@@ -45,116 +45,127 @@ class API:
         writer.close()
         await writer.wait_closed()
 
+        # check if the data returned is correct or an error
+        if not data["STATUS"][0]["STATUS"] == "S":
+            # this is an error
+            raise APIError(data["STATUS"][0]["Msg"])
+
         # return the data
         return data
 
 
 class CGMiner(API):
-    def __init__(self, ip, port):
+    def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 
 
 class BMMiner(API):
-    def __init__(self, ip, port):
+    def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 
-    def version(self):
-        return self.send_command("version")
+    async def version(self):
+        return await self.send_command("version")
 
-    def config(self):
-        return self.send_command("config")
+    async def config(self):
+        return await self.send_command("config")
 
-    def summary(self):
-        return self.send_command("summary")
+    async def summary(self):
+        return await self.send_command("summary")
 
-    def pools(self):
-        return self.send_command("pools")
+    async def pools(self):
+        return await self.send_command("pools")
 
-    def devs(self):
-        return self.send_command("devs")
+    async def devs(self):
+        return await self.send_command("devs")
 
-    def edevs(self):
-        return self.send_command("edevs")
+    async def edevs(self):
+        return await self.send_command("edevs")
 
-    def pgacount(self):
-        return self.send_command("pgacount")
+    async def pgacount(self):
+        return await self.send_command("pgacount")
 
-    def notify(self):
-        return self.send_command("notify")
+    async def notify(self):
+        return await self.send_command("notify")
 
-    def devdetails(self):
-        return self.send_command("devdetails")
+    async def devdetails(self):
+        return await self.send_command("devdetails")
 
-    def stats(self):
-        return self.send_command("stats")
+    async def stats(self):
+        return await self.send_command("stats")
 
-    def estats(self):
-        return self.send_command("estats")
+    async def estats(self):
+        return await self.send_command("estats")
 
-    def check(self):
-        return self.send_command("check")
+    async def check(self):
+        return await self.send_command("check")
 
-    def coin(self):
-        return self.send_command("coin")
+    async def coin(self):
+        return await self.send_command("coin")
 
-    def asccount(self):
-        return self.send_command("asccount")
+    async def asccount(self):
+        return await self.send_command("asccount")
 
-    def lcd(self):
-        return self.send_command("lcd")
+    async def lcd(self):
+        return await self.send_command("lcd")
 
 
 class BOSMiner(API):
-    def __init__(self, ip, port):
+    def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 
-    def asccount(self):
-        return self.send_command("asccount")
+    async def asccount(self):
+        return await self.send_command("asccount")
 
-    def devdetails(self):
-        return self.send_command("devdetails")
+    async def devdetails(self):
+        return await self.send_command("devdetails")
 
-    def devs(self):
-        return self.send_command("devs")
+    async def devs(self):
+        return await self.send_command("devs")
 
-    def edevs(self):
-        return self.send_command("edevs")
+    async def edevs(self):
+        return await self.send_command("edevs")
 
-    def pools(self):
-        return self.send_command("pools")
+    async def pools(self):
+        return await self.send_command("pools")
 
-    def summary(self):
-        return self.send_command("summary")
+    async def summary(self):
+        return await self.send_command("summary")
 
-    def stats(self):
-        return self.send_command("stats")
+    async def stats(self):
+        return await self.send_command("stats")
 
-    def version(self):
-        return self.send_command("version")
+    async def version(self):
+        return await self.send_command("version")
 
-    def estats(self):
-        return self.send_command("estats")
+    async def estats(self):
+        return await self.send_command("estats")
 
-    def check(self):
-        return self.send_command("check")
+    async def check(self):
+        return await self.send_command("check")
 
-    def coin(self):
-        return self.send_command("coin")
+    async def coin(self):
+        return await self.send_command("coin")
 
-    def lcd(self):
-        return self.send_command("lcd")
+    async def lcd(self):
+        return await self.send_command("lcd")
 
-    def fans(self):
-        return self.send_command("fans")
+    async def fans(self):
+        return await self.send_command("fans")
 
-    def tempctrl(self):
-        return self.send_command("tempctrl")
+    async def tempctrl(self):
+        return await self.send_command("tempctrl")
 
-    def temps(self):
-        return self.send_command("temps")
+    async def temps(self):
+        return await self.send_command("temps")
 
-    def tunerstatus(self):
-        return self.send_command("tunerstatus")
+    async def tunerstatus(self):
+        return await self.send_command("tunerstatus")
 
 
-raise APIError
+async def main():
+    bosminer = BOSMiner("172.16.1.199")
+    data = await bosminer.stats()
+    print(data)
+
+
+asyncio.get_event_loop().run_until_complete(main())
