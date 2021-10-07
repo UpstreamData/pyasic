@@ -1,6 +1,7 @@
 from miners.bosminer import BOSminer
 from miners.bmminer import BMMiner
 from miners.cgminer import CGMiner
+from miners.unknown_miner import UnknownMiner
 from API import APIError
 import asyncio
 import ipaddress
@@ -19,7 +20,7 @@ class MinerFactory:
                 return CGMiner(str(ip))
             elif version == "BMMiner":
                 return BMMiner(str(ip))
-        return f"Unknown: {str(ip)}"
+        return UnknownMiner(str(ip))
 
     async def _get_version_data(self, ip: ipaddress.ip_address):
         try:

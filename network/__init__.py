@@ -38,7 +38,7 @@ class MinerNetwork:
         for miner_ip in miner_ips:
             create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
         miners = await asyncio.gather(*create_miners_tasks)
-        print(miners)
+        return miners
 
 
     async def ping_miner(self, ip: ipaddress.ip_address):
