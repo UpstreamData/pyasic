@@ -22,6 +22,9 @@ class BaseMinerAPI:
         self.port = port
         self.ip = ipaddress.ip_address(ip)
 
+    def get_commands(self):
+        return [func for func in dir(self) if callable(getattr(self, func)) and not func.startswith("__") and func not in [func for func in dir(BaseMinerAPI) if callable(getattr(BaseMinerAPI, func))]]
+
     async def multicommand(self, *commands: str) -> dict:
         command = "+".join(commands)
         return await self.send_command(command)

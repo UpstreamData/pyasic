@@ -1,9 +1,12 @@
 from API.bosminer import BOSMinerAPI
+from API.bmminer import BMMinerAPI
 from network import MinerNetwork
 import asyncio
 
 
 async def main():
+    api = BMMinerAPI("192.168.1.1")
+    print(api.get_commands())
     miner_network = MinerNetwork("192.168.1.1")
     await miner_network.scan_network_for_miners()
 
