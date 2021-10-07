@@ -1,13 +1,11 @@
 from API.bosminer import BOSMinerAPI
+from network import MinerNetwork
 import asyncio
 
 
 async def main():
-    bosminer = BOSMinerAPI("172.16.1.199")
-    data_normal = await bosminer.asccount()
-    data_multi = await bosminer.multicommand("version", "config")
-    print(data_normal)
-    print(data_multi)
+    miner_network = MinerNetwork("192.168.1.1")
+    await miner_network.scan_network_for_miners()
 
-
-asyncio.get_event_loop().run_until_complete(main())
+if __name__ == '__main__':
+    asyncio.get_event_loop().run_until_complete(main())

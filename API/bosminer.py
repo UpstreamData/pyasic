@@ -48,19 +48,29 @@ class BOSMinerAPI(BaseMinerAPI):
         return await self.send_command("lcd")
 
     async def switchpool(self, n: int) -> dict:
-        return await self.send_command("switchpool", parameters=n)
+        # BOS has not implemented this yet, they will in the future
+        return NotImplementedError
+        # return await self.send_command("switchpool", parameters=n)
 
     async def enablepool(self, n: int) -> dict:
-        return await self.send_command("enablepool", parameters=n)
+        # BOS has not implemented this yet, they will in the future
+        return NotImplementedError
+        # return await self.send_command("enablepool", parameters=n)
 
     async def disablepool(self, n: int) -> dict:
-        return await self.send_command("disablepool", parameters=n)
+        # BOS has not implemented this yet, they will in the future
+        return NotImplementedError
+        # return await self.send_command("disablepool", parameters=n)
 
     async def addpool(self, url: str, username: str, password: str) -> dict:
-        return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
+        # BOS has not implemented this yet, they will in the future
+        return NotImplementedError
+        # return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
 
     async def removepool(self, n: int) -> dict:
-        return await self.send_command("removepool", parameters=n)
+        # BOS has not implemented this yet, they will in the future
+        return NotImplementedError
+        # return await self.send_command("removepool", parameters=n)
 
     async def fans(self) -> dict:
         return await self.send_command("fans")

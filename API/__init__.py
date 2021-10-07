@@ -1,5 +1,6 @@
 import asyncio
 import json
+import ipaddress
 
 
 class APIError(Exception):
@@ -17,17 +18,17 @@ class APIError(Exception):
 
 
 class BaseMinerAPI:
-    def __init__(self, ip, port):
+    def __init__(self, ip: str, port: int):
         self.port = port
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
 
     async def multicommand(self, *commands: str) -> dict:
         command = "+".join(commands)
         return await self.send_command(command)
 
-    async def send_command(self, command, parameters: dict = None) -> dict:
+    async def send_command(self, command: str, parameters: str = None) -> dict:
         # get reader and writer streams
-        reader, writer = await asyncio.open_connection(self.ip, self.port)
+        reader, writer = await asyncio.open_connection(str(self.ip), self.port)
 
         # create the command
         cmd = {"command": command}
