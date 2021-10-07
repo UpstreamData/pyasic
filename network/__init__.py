@@ -1,6 +1,7 @@
 import netifaces
 import ipaddress
 import asyncio
+from miners.miner_factory import MinerFactory
 
 PING_RETRIES: int = 3
 PING_TIMEOUT: int = 1
@@ -9,6 +10,7 @@ PING_TIMEOUT: int = 1
 class MinerNetwork:
     def __init__(self, ip_addr=None):
         self.network = None
+        self.miner_factory = MinerFactory()
         self.ip_addr = ip_addr
         self.connected_miners = {}
 
@@ -29,8 +31,15 @@ class MinerNetwork:
         scan_tasks = []
         for host in local_network.hosts():
             scan_tasks.append(self.ping_miner(host))
-        await asyncio.gather(*scan_tasks)
-        print(f"Found {len(self.connected_miners)} connected miners...")
+        miner_ips = await asyncio.gather(*scan_tasks)
+        miner_ips = list(filter(None, miner_ips))
+        print(f"Found {len(miner_ips)} connected miners...")
+        create_miners_tasks = []
+        for miner_ip in miner_ips:
+            create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
+        miners = await asyncio.gather(*create_miners_tasks)
+        print(miners)
+
 
     async def ping_miner(self, ip: ipaddress.ip_address):
         for i in range(PING_RETRIES):
@@ -42,10 +51,8 @@ class MinerNetwork:
                 writer.close()
                 # make sure the writer is closed
                 await writer.wait_closed()
-                # add miner to dict
-                self.connected_miners[ip] = {}
                 # ping was successful
-                return True
+                return ip
             except asyncio.exceptions.TimeoutError:
                 # ping failed if we time out
                 continue
@@ -56,4 +63,4 @@ class MinerNetwork:
             except Exception as e:
                 print(e)
             continue
-        return False
+        return
