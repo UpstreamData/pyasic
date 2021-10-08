@@ -40,7 +40,6 @@ class MinerNetwork:
         miners = await asyncio.gather(*create_miners_tasks)
         return miners
 
-
     async def ping_miner(self, ip: ipaddress.ip_address):
         for i in range(PING_RETRIES):
             connection_fut = asyncio.open_connection(str(ip), 4028)

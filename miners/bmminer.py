@@ -1,7 +1,5 @@
-from miners import BaseMiner
-from API.bosminer import BOSMinerAPI
 from API.bmminer import BMMinerAPI
-from API.cgminer import CGMinerAPI
+from miners import BaseMiner
 
 
 class BMMiner(BaseMiner):
