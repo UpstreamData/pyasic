@@ -13,9 +13,10 @@ class MinerFactory:
         version_data = await self._get_version_data(ip)
         version = None
         if version_data:
-            version = list(version_data['VERSION'][0].keys())[0]
+            version = list(version_data['VERSION'][0].keys())
         if version:
-            if version == "BOSminer":
+            print(version_data)
+            if "BOSminer" in version or "BOSminer+" in version:
                 return BOSminer(str(ip))
             elif version == "CGMiner":
                 return CGMiner(str(ip))
