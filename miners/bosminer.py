@@ -1,6 +1,7 @@
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
 import asyncssh
+import toml
 
 
 class BOSminer(BaseMiner):
@@ -18,7 +19,7 @@ class BOSminer(BaseMiner):
         # return created connection
         return conn
 
-    def send_ssh_command(self, cmd):
+    async def send_ssh_command(self, cmd):
         result = None
         conn = await self.get_ssh_connection('root', 'admin')
         for i in range(3):
@@ -51,3 +52,11 @@ class BOSminer(BaseMiner):
 
     async def reboot(self):
         await self.send_ssh_command('/sbin/reboot')
+
+    async def get_config(self):
+        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
+                                    server_host_key_algs=['ssh-rsa']) as conn:
+            async with conn.start_sftp_client() as sftp:
+                async with sftp.open('/etc/bosminer.toml') as file:
+                    toml_data = toml.loads(await file.read())
+        return toml_data
