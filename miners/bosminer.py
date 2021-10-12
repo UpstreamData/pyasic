@@ -9,7 +9,7 @@ class BOSminer(BaseMiner):
     def __init__(self, ip: str):
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
-        self.config = {}
+        self.config = None
 
     def __repr__(self):
         return f"BOSminer: {str(self.ip)}"
@@ -62,9 +62,38 @@ class BOSminer(BaseMiner):
                 async with sftp.open('/etc/bosminer.toml') as file:
                     toml_data = toml.loads(await file.read())
         self.config = toml_data
-        return toml_data
 
-    async def set_config_format(self):
-        self.config['format']['generator'] = 'upstream_data_configurator'
-        self.config['format']['timestamp'] = int(time.time())
-        return self.config
+    def update_config(self, config: dict):
+        self.config = config
+
+    async def change_config_format(self, update_config: bool = False):
+        if not self.config:
+            await self.get_config()
+        config = self.config
+        config['format']['generator'] = 'upstream_data_configurator'
+        config['format']['timestamp'] = int(time.time())
+        if update_config:
+            self.update_config(config)
+        return config
+
+    async def change_config_tuning(self, wattage: int, enabled: bool = True, update_config: bool = False):
+        if not self.config:
+            await self.get_config()
+        config = self.config
+        config['autotuning']['psu_power_limit'] = wattage
+        config['autotuning']['enabled'] = enabled
+        if update_config:
+            self.update_config(config)
+        return config
+
+    async def change_config_temp_ctrl(self, target: float = 80.0, hot: float = 100.0,
+                                      dangerous: float = 110.0, update_config: bool = False):
+        if not self.config:
+            await self.get_config()
+        config = self.config
+        config['target_temp'] = target
+        config['hot_temp'] = hot
+        config['dangerous_temp'] = dangerous
+        if update_config:
+            self.update_config(config)
+        return config
