@@ -8,13 +8,14 @@ class BOSminer(BaseMiner):
     def __init__(self, ip: str):
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
+        self.config = {}
 
     def __repr__(self):
         return f"BOSminer: {str(self.ip)}"
 
     async def get_ssh_connection(self, username: str, password: str) -> asyncssh.connect:
         """Create a new asyncssh connection"""
-        conn = await asyncssh.connect(self.ip, known_hosts=None, username=username, password=password,
+        conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=username, password=password,
                                       server_host_key_algs=['ssh-rsa'])
         # return created connection
         return conn
@@ -59,4 +60,5 @@ class BOSminer(BaseMiner):
             async with conn.start_sftp_client() as sftp:
                 async with sftp.open('/etc/bosminer.toml') as file:
                     toml_data = toml.loads(await file.read())
+        self.config = toml_data
         return toml_data

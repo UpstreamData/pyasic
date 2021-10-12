@@ -15,7 +15,6 @@ class MinerFactory:
         if version_data:
             version = list(version_data['VERSION'][0].keys())
         if version:
-            print(version_data)
             if "BOSminer" in version or "BOSminer+" in version:
                 return BOSminer(str(ip))
             elif version == "CGMiner":
