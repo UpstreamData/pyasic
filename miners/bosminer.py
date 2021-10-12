@@ -2,6 +2,7 @@ from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
 import asyncssh
 import toml
+import time
 
 
 class BOSminer(BaseMiner):
@@ -62,3 +63,8 @@ class BOSminer(BaseMiner):
                     toml_data = toml.loads(await file.read())
         self.config = toml_data
         return toml_data
+
+    async def set_config_format(self):
+        self.config['format']['generator'] = 'upstream_data_configurator'
+        self.config['format']['timestamp'] = int(time.time())
+        return self.config
