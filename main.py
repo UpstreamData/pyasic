@@ -10,7 +10,7 @@ async def main():
     good_list = list(filter(None, await asyncio.gather(*[miner.check_good_boards() for miner in miners])))
     print("\n".join(good_list))
     print(len(good_list))
-    print('\n'.join([f"{str(miner.ip)}" for miner in miners]))
+    # print('\n'.join([f"{str(miner.ip)}" for miner in miners]))
 
 async def main_bad():
     miner_network = MinerNetwork('192.168.1.1')

@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import time
+from operator import itemgetter
 
 import PySimpleGUI as sg
 import aiofiles
@@ -27,7 +28,7 @@ layout = [
             [sg.Listbox([], size=(20, 32), key="ip_list", select_mode='extended')]
         ]),
         sg.Column([
-            [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data")],
+            [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data"), sg.Button('SORT IP', key="sort_data_ip"), sg.Button('SORT HR', key="sort_data_hr"), sg.Button('SORT USER', key="sort_data_user")],
             [sg.Listbox([], size=(50, 32), key="hr_list")]
         ]),
         sg.Column([
@@ -79,7 +80,6 @@ async def import_config(ip):
     miner = await miner_factory.get_miner(ipaddress.ip_address(*ip))
     await miner.get_config()
     config = miner.config
-    print(config)
     await update_ui_with_data("config", toml.dumps(config))
     await update_ui_with_data("status", "")
 
@@ -148,7 +148,6 @@ async def get_data(ip_list: list):
     window["hr_list"].update(disabled=False)
     window["hr_list"].update([item['IP'] + " | " + str(item['TH/s']) + " TH/s | " + item['user'] for item in data])
     window["hr_list"].update(disabled=True)
-
     await update_ui_with_data("status", "")
 
 
@@ -196,6 +195,25 @@ async def generate_config():
     }
     window['config'].update(toml.dumps(config))
 
+async def sort_data(index: int):
+    await update_ui_with_data("status", "Sorting Data")
+    data_list = window['hr_list'].Values
+    new_list = []
+    for item in data_list:
+        item_data = [part.strip() for part in item.split("|")]
+        item_data[1] = item_data[1].replace(" TH/s", "")
+        item_data[0] = ipaddress.ip_address(item_data[0])
+        new_list.append(item_data)
+    if index == 1:
+        new_data_list = sorted(new_list, key=lambda x: float(x[index]))
+    else:
+        new_data_list = sorted(new_list, key=itemgetter(index))
+    new_data_list = [str(item[0]) + " | " + item[1] + " TH/s | " + item[2] for item in new_data_list]
+    window["hr_list"].update(disabled=False)
+    window["hr_list"].update(new_data_list)
+    window["hr_list"].update(disabled=True)
+    await update_ui_with_data("status", "")
+
 
 async def ui():
     while True:
@@ -231,6 +249,13 @@ async def ui():
             asyncio.create_task(get_data(value['ip_list']))
         if event == "generate_config":
             asyncio.create_task(generate_config())
+        if event == "sort_data_ip":
+            asyncio.create_task(sort_data(0))
+        if event == "sort_data_hr":
+            asyncio.create_task(sort_data(1))
+        if event == "sort_data_user":
+            print()
+            asyncio.create_task(sort_data(2))
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
 

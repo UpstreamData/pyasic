@@ -36,6 +36,7 @@ class BaseMinerAPI:
         except OSError as e:
             if e.winerror == "121":
                 print("Semaphore Timeout has Expired.")
+            return {}
 
         # create the command
         cmd = {"command": command}
@@ -50,11 +51,14 @@ class BaseMinerAPI:
         data = b""
 
         # loop to receive all the data
-        while True:
-            d = await reader.read(4096)
-            if not d:
-                break
-            data += d
+        try:
+            while True:
+                d = await reader.read(4096)
+                if not d:
+                    break
+                data += d
+        except Exception as e:
+            print(e)
 
         data = json.loads(data.decode('utf-8')[:-1])
 
