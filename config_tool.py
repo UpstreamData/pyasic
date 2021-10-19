@@ -13,12 +13,12 @@ from miners.miner_factory import MinerFactory
 from network import MinerNetwork
 
 layout = [
-    [sg.Text('Network IP: '), sg.InputText(key='miner_network', do_not_clear=True, size=(70, 1)),
+    [sg.Text('Network IP: '), sg.InputText(key='miner_network', do_not_clear=True, size=(90, 1)),
      sg.Button('Scan', key='scan'),
      sg.Text("", key="status")],
-    [sg.Text('IP List File: '), sg.Input(key="file_iplist", do_not_clear=True, size=(70, 1)), sg.FileBrowse(),
+    [sg.Text('IP List File: '), sg.Input(key="file_iplist", do_not_clear=True, size=(90, 1)), sg.FileBrowse(),
      sg.Button('Import', key="import_iplist")],
-    [sg.Text('Config File: '), sg.Input(key="file_config", do_not_clear=True, size=(70, 1)), sg.FileBrowse(),
+    [sg.Text('Config File: '), sg.Input(key="file_config", do_not_clear=True, size=(90, 1)), sg.FileBrowse(),
      sg.Button('Import', key="import_file_config"), sg.Button('Export', key="export_file_config")],
     [
         sg.Column([
@@ -27,8 +27,8 @@ layout = [
             [sg.Listbox([], size=(20, 32), key="ip_list", select_mode='extended')]
         ]),
         sg.Column([
-            [sg.Text("Hashrates: ", pad=(0, 0)), sg.Button('GET', key="get_hashrates")],
-            [sg.Listbox([], size=(25, 32), key="hr_list")]
+            [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data")],
+            [sg.Listbox([], size=(50, 32), key="hr_list")]
         ]),
         sg.Column([
             [sg.Text("Config"), sg.Button("IMPORT", key="import_config"), sg.Button("CONFIG", key="send_config"),
@@ -38,7 +38,7 @@ layout = [
     ],
 ]
 
-window = sg.Window('Test', layout)
+window = sg.Window('Upstream Config Util', layout)
 miner_factory = MinerFactory()
 
 
@@ -105,10 +105,8 @@ async def import_iplist(file_location):
 
 async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
-    config = toml.loads(config)
     config['format']['generator'] = 'upstream_config_util'
     config['format']['timestamp'] = int(time.time())
-    config = toml.dumps(config)
     tasks = []
     for ip in ips:
         tasks.append(miner_factory.get_miner(ip))
@@ -142,23 +140,24 @@ async def export_config_file(file_location, config):
     await update_ui_with_data("status", "")
 
 
-async def get_hashrates(ip_list: list):
-    await update_ui_with_data("status", "Getting HR")
+async def get_data(ip_list: list):
+    await update_ui_with_data("status", "Getting Data")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     ips.sort()
-    data = await asyncio.gather(*[get_formatted_hashrate(miner) for miner in ips])
+    data = await asyncio.gather(*[get_formatted_data(miner) for miner in ips])
     window["hr_list"].update(disabled=False)
-    window["hr_list"].update([item['IP'] + " | " + str(item['TH/s']) + " TH/s" for item in data])
+    window["hr_list"].update([item['IP'] + " | " + str(item['TH/s']) + " TH/s | " + item['user'] for item in data])
     window["hr_list"].update(disabled=True)
 
     await update_ui_with_data("status", "")
 
 
-async def get_formatted_hashrate(ip: ipaddress.ip_address):
+async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
-    data = await miner.api.summary()
-    mh5s = round(data['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
-    return {'TH/s': mh5s, 'IP': str(miner.ip)}
+    data = await miner.api.multicommand("summary", "pools")
+    mh5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
+    user = data['pools'][0]['POOLS'][0]['User']
+    return {'TH/s': mh5s, 'IP': str(miner.ip), 'user': user}
 
 
 async def generate_config():
@@ -228,8 +227,8 @@ async def ui():
             asyncio.create_task(import_config_file(value['file_config']))
         if event == "export_file_config":
             asyncio.create_task(export_config_file(value['file_config'], value["config"]))
-        if event == "get_hashrates":
-            asyncio.create_task(get_hashrates(value['ip_list']))
+        if event == "get_data":
+            asyncio.create_task(get_data(value['ip_list']))
         if event == "generate_config":
             asyncio.create_task(generate_config())
         if event == "__TIMEOUT__":

@@ -30,8 +30,12 @@ class BaseMinerAPI:
         return await self.send_command(command)
 
     async def send_command(self, command: str, parameters: str = None) -> dict:
-        # get reader and writer streams
-        reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+        try:
+            # get reader and writer streams
+            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+        except OSError as e:
+            if e.winerror == "121":
+                print("Semaphore Timeout has Expired.")
 
         # create the command
         cmd = {"command": command}
