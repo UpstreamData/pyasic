@@ -8,11 +8,12 @@ PING_TIMEOUT: int = 1
 
 
 class MinerNetwork:
-    def __init__(self, ip_addr=None):
+    def __init__(self, ip_addr=None, mask=None):
         self.network = None
         self.miner_factory = MinerFactory()
         self.ip_addr = ip_addr
         self.connected_miners = {}
+        self.mask = mask
 
     def get_network(self):
         if self.network:
@@ -22,7 +23,10 @@ class MinerNetwork:
             default_gateway = gateways['default'][netifaces.AF_INET][0]
         else:
             default_gateway = self.ip_addr
-        subnet_mask = netifaces.ifaddresses(gateways['default'][netifaces.AF_INET][1])[netifaces.AF_INET][0]['netmask']
+        if self.mask:
+            subnet_mask = self.mask
+        else:
+            subnet_mask = netifaces.ifaddresses(gateways['default'][netifaces.AF_INET][1])[netifaces.AF_INET][0]['netmask']
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
     async def scan_network_for_miners(self):

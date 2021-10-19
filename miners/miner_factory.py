@@ -6,28 +6,41 @@ from API import APIError
 import asyncio
 import ipaddress
 import json
+import typing
 
 
 class MinerFactory:
+    def __init__(self):
+        self.miners = {}
+
     async def get_miner(self, ip: ipaddress.ip_address):
+        if ip in self.miners:
+            return self.miners[ip]
         version_data = await self._get_version_data(ip)
         version = None
         if version_data:
             version = list(version_data['VERSION'][0].keys())
         if version:
             if "BOSminer" in version or "BOSminer+" in version:
-                return BOSminer(str(ip))
+                miner = BOSminer(str(ip))
             elif version == "CGMiner":
-                return CGMiner(str(ip))
+                miner = CGMiner(str(ip))
             elif version == "BMMiner":
-                return BMMiner(str(ip))
-        return UnknownMiner(str(ip))
+                miner = BMMiner(str(ip))
+            else:
+                miner = UnknownMiner(str(ip))
+        else:
+            miner = UnknownMiner(str(ip))
+        self.miners[ip] = miner
+        return miner
 
-    async def _get_version_data(self, ip: ipaddress.ip_address):
+    @staticmethod
+    async def _get_version_data(ip: ipaddress.ip_address):
         for i in range(3):
             try:
+                fut = asyncio.open_connection(str(ip), 4028)
                 # get reader and writer streams
-                reader, writer = await asyncio.open_connection(str(ip), 4028)
+                reader, writer = await asyncio.wait_for(fut, timeout=5)
 
                 # create the command
                 cmd = {"command": "version"}
@@ -70,6 +83,11 @@ class MinerFactory:
 
                 # return the data
                 return data
+            except OSError as e:
+                if e.winerror == 121:
+                    return None
+                else:
+                    print(ip, e)
             except Exception as e:
                 print(ip, e)
         return None

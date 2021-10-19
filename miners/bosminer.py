@@ -97,3 +97,32 @@ class BOSminer(BaseMiner):
         if update_config:
             self.update_config(config)
         return config
+
+    async def send_config(self, config):
+        toml_conf = toml.dumps(config)
+        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
+                                    server_host_key_algs=['ssh-rsa']) as conn:
+            async with conn.start_sftp_client() as sftp:
+                async with sftp.open('/etc/bosminer.toml', 'w+') as file:
+                    await file.write(toml_conf)
+            await conn.run("/etc/init.d/bosminer restart")
+
+    async def get_bad_boards(self):
+        devs = await self.api.devdetails()
+        bad = 0
+        chains = devs['DEVDETAILS']
+        for chain in chains:
+            if chain['Chips'] == 0:
+                bad += 1
+        if bad > 0:
+            return (str(self.ip), bad)
+
+    async def check_good_boards(self):
+        devs = await self.api.devdetails()
+        bad = 0
+        chains = devs['DEVDETAILS']
+        for chain in chains:
+            if chain['Chips'] == 0:
+                bad += 1
+        if not bad > 0:
+            return str(self.ip)

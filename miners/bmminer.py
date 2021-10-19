@@ -9,3 +9,6 @@ class BMMiner(BaseMiner):
 
     def __repr__(self):
         return f"BMMiner: {str(self.ip)}"
+
+    async def send_config(self):
+        return None

@@ -9,3 +9,6 @@ class CGMiner(BaseMiner):
 
     def __repr__(self):
         return f"CGMiner: {str(self.ip)}"
+
+    async def send_config(self):
+        return None
