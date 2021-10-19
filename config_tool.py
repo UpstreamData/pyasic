@@ -58,14 +58,20 @@ async def scan_network(network):
 
 
 async def miner_light(ips: list):
-    listbox = window['ip_list']
-    for ip in ips:
-        if ip in window["ip_list"].Values:
-            index = window["ip_list"].Values.index(ip)
-            if listbox.itemcget(index, "background") == 'red':
-                listbox.itemconfigure(index, bg='#f0f3f7', fg='#000000')
-            else:
-                listbox.itemconfigure(index, bg='red', fg='white')
+    await asyncio.gather(flip_light(ip) for ip in ips)
+
+
+async def flip_light(ip):
+    listbox = window['ip_list'].Widget
+    miner = await miner_factory.get_miner(ip)
+    if ip in window["ip_list"].Values:
+        index = window["ip_list"].Values.index(ip)
+        if listbox.itemcget(index, "background") == 'red':
+            listbox.itemconfigure(index, bg='#f0f3f7', fg='#000000')
+            await miner.fault_light_off()
+        else:
+            listbox.itemconfigure(index, bg='red', fg='white')
+            await miner.fault_light_on()
 
 
 async def import_config(ip):
@@ -86,7 +92,8 @@ async def import_iplist(file_location):
         ip_list = []
         async with aiofiles.open(file_location, mode='r') as file:
             async for line in file:
-                ips = [x.group() for x in re.finditer("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", line)]
+                ips = [x.group() for x in re.finditer(
+                    "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", line)]
                 for ip in ips:
                     if ip not in ip_list:
                         ip_list.append(ipaddress.ip_address(ip))
@@ -155,7 +162,39 @@ async def get_formatted_hashrate(ip: ipaddress.ip_address):
 
 
 async def generate_config():
-    config = {'group': [{'name': 'group', 'quota': 1, 'pool': [{'url': 'stratum2+tcp://us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt', 'user': 'UpstreamDataInc.test', 'password': '123'}, {'url': 'stratum2+tcp://stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt', 'user': 'UpstreamDataInc.test', 'password': '123'}, {'url': 'stratum+tcp://stratum.slushpool.com:3333', 'user': 'UpstreamDataInc.test', 'password': '123'}]}], 'format': {'version': '1.2+', 'model': 'Antminer S9', 'generator': 'upstream_config_util', 'timestamp': int(time.time())}, 'temp_control': {'target_temp': 80.0, 'hot_temp': 90.0, 'dangerous_temp': 120.0}, 'autotuning': {'enabled': True, 'psu_power_limit': 900}}
+    config = {'group': [{
+        'name': 'group',
+        'quota': 1,
+        'pool': [{
+            'url': 'stratum2+tcp://us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt',
+            'user': 'UpstreamDataInc.test',
+            'password': '123'
+        }, {
+            'url': 'stratum2+tcp://stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt',
+            'user': 'UpstreamDataInc.test',
+            'password': '123'
+        }, {
+            'url': 'stratum+tcp://stratum.slushpool.com:3333',
+            'user': 'UpstreamDataInc.test',
+            'password': '123'
+        }]
+    }],
+        'format': {
+            'version': '1.2+',
+            'model': 'Antminer S9',
+            'generator': 'upstream_config_util',
+            'timestamp': int(time.time())
+        },
+        'temp_control': {
+            'target_temp': 80.0,
+            'hot_temp': 90.0,
+            'dangerous_temp': 120.0
+        },
+        'autotuning': {
+            'enabled': True,
+            'psu_power_limit': 900
+        }
+    }
     window['config'].update(toml.dumps(config))
 
 
