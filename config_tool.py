@@ -3,6 +3,7 @@ import ipaddress
 import os
 import re
 import sys
+import time
 
 import PySimpleGUI as sg
 import aiofiles
@@ -31,7 +32,7 @@ layout = [
         ]),
         sg.Column([
             [sg.Text("Config"), sg.Button("IMPORT", key="import_config"), sg.Button("CONFIG", key="send_config"),
-             sg.Button("LIGHT", key="light")],
+             sg.Button("LIGHT", key="light"), sg.Button("GENERATE", key="generate_config")],
             [sg.Multiline(size=(50, 34), key="config", do_not_clear=True)],
         ])
     ],
@@ -72,6 +73,7 @@ async def import_config(ip):
     miner = await miner_factory.get_miner(ipaddress.ip_address(*ip))
     await miner.get_config()
     config = miner.config
+    print(config)
     await update_ui_with_data("config", toml.dumps(config))
     await update_ui_with_data("status", "")
 
@@ -96,6 +98,10 @@ async def import_iplist(file_location):
 
 async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
+    config = toml.loads(config)
+    config['format']['generator'] = 'upstream_config_util'
+    config['format']['timestamp'] = int(time.time())
+    config = toml.dumps(config)
     tasks = []
     for ip in ips:
         tasks.append(miner_factory.get_miner(ip))
@@ -120,12 +126,13 @@ async def import_config_file(file_location):
 
 async def export_config_file(file_location, config):
     await update_ui_with_data("status", "Exporting")
+    config = toml.loads(config)
+    config['format']['generator'] = 'upstream_config_util'
+    config['format']['timestamp'] = int(time.time())
+    config = toml.dumps(config)
     async with aiofiles.open(file_location, mode='w+') as file:
         await file.write(config)
     await update_ui_with_data("status", "")
-
-
-# TODO: Add get hashrates function to get hashrates in form of IP | HR  (192.168.1.1 | 13.5 TH/s)
 
 
 async def get_hashrates(ip_list: list):
@@ -145,6 +152,11 @@ async def get_formatted_hashrate(ip: ipaddress.ip_address):
     data = await miner.api.summary()
     mh5s = round(data['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
     return {'TH/s': mh5s, 'IP': str(miner.ip)}
+
+
+async def generate_config():
+    config = {'group': [{'name': 'group', 'quota': 1, 'pool': [{'url': 'stratum2+tcp://us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt', 'user': 'UpstreamDataInc.test', 'password': '123'}, {'url': 'stratum2+tcp://stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt', 'user': 'UpstreamDataInc.test', 'password': '123'}, {'url': 'stratum+tcp://stratum.slushpool.com:3333', 'user': 'UpstreamDataInc.test', 'password': '123'}]}], 'format': {'version': '1.2+', 'model': 'Antminer S9', 'generator': 'upstream_config_util', 'timestamp': int(time.time())}, 'temp_control': {'target_temp': 80.0, 'hot_temp': 90.0, 'dangerous_temp': 120.0}, 'autotuning': {'enabled': True, 'psu_power_limit': 900}}
+    window['config'].update(toml.dumps(config))
 
 
 async def ui():
@@ -179,6 +191,8 @@ async def ui():
             asyncio.create_task(export_config_file(value['file_config'], value["config"]))
         if event == "get_hashrates":
             asyncio.create_task(get_hashrates(value['ip_list']))
+        if event == "generate_config":
+            asyncio.create_task(generate_config())
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
 
