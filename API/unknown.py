@@ -49,25 +49,25 @@ class UnknownAPI(BaseMinerAPI):
 
     async def switchpool(self, n: int) -> dict:
         # BOS has not implemented this yet, they will in the future
-        return NotImplementedError
+        raise NotImplementedError
         # return await self.send_command("switchpool", parameters=n)
 
     async def enablepool(self, n: int) -> dict:
         # BOS has not implemented this yet, they will in the future
-        return NotImplementedError
+        raise NotImplementedError
         # return await self.send_command("enablepool", parameters=n)
 
     async def disablepool(self, n: int) -> dict:
         # BOS has not implemented this yet, they will in the future
-        return NotImplementedError
+        raise NotImplementedError
         # return await self.send_command("disablepool", parameters=n)
 
     async def addpool(self, url: str, username: str, password: str) -> dict:
         # BOS has not implemented this yet, they will in the future
-        return NotImplementedError
+        raise NotImplementedError
         # return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
 
     async def removepool(self, n: int) -> dict:
         # BOS has not implemented this yet, they will in the future
-        return NotImplementedError
+        raise NotImplementedError
         # return await self.send_command("removepool", parameters=n)

@@ -39,7 +39,7 @@ class CGMinerAPI(BaseMinerAPI):
         return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
 
     async def poolpriority(self, *n: int) -> dict:
-        return await self.send_command("poolpriority", parameters=f"{','.join(n)}")
+        return await self.send_command("poolpriority", parameters=f"{','.join([str(item) for item in n])}")
 
     async def poolquota(self, n: int, q: int) -> dict:
         return await self.send_command("poolquota", parameters=f"{n}, {q}")
@@ -93,7 +93,7 @@ class CGMinerAPI(BaseMinerAPI):
         return await self.send_command("check", parameters=command)
 
     async def failover_only(self, failover: bool) -> dict:
-        return self.send_command("failover-only", parameters=failover)
+        return await self.send_command("failover-only", parameters=failover)
 
     async def coin(self) -> dict:
         return await self.send_command("coin")

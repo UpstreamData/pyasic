@@ -12,6 +12,7 @@ async def main():
     print(len(good_list))
     # print('\n'.join([f"{str(miner.ip)}" for miner in miners]))
 
+
 async def main_bad():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()

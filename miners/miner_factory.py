@@ -6,14 +6,13 @@ from API import APIError
 import asyncio
 import ipaddress
 import json
-import typing
 
 
 class MinerFactory:
     def __init__(self):
         self.miners = {}
 
-    async def get_miner(self, ip: ipaddress.ip_address):
+    async def get_miner(self, ip: ipaddress.ip_address) -> BOSminer or CGMiner or BMMiner or UnknownMiner:
         if ip in self.miners:
             return self.miners[ip]
         version_data = await self._get_version_data(ip)
@@ -35,7 +34,7 @@ class MinerFactory:
         return miner
 
     @staticmethod
-    async def _get_version_data(ip: ipaddress.ip_address):
+    async def _get_version_data(ip: ipaddress.ip_address) -> dict or None:
         for i in range(3):
             try:
                 fut = asyncio.open_connection(str(ip), 4028)

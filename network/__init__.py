@@ -2,20 +2,24 @@ import netifaces
 import ipaddress
 import asyncio
 from miners.miner_factory import MinerFactory
+from miners.bmminer import BMMiner
+from miners.bosminer import BOSminer
+from miners.cgminer import CGMiner
+from miners.unknown import UnknownMiner
 
 PING_RETRIES: int = 3
 PING_TIMEOUT: int = 1
 
 
 class MinerNetwork:
-    def __init__(self, ip_addr=None, mask=None):
+    def __init__(self, ip_addr: str or None = None, mask: str or int or None = None) -> None:
         self.network = None
         self.miner_factory = MinerFactory()
         self.ip_addr = ip_addr
         self.connected_miners = {}
         self.mask = mask
 
-    def get_network(self):
+    def get_network(self) -> ipaddress.ip_network:
         if self.network:
             return self.network
         gateways = netifaces.gateways()
@@ -29,7 +33,7 @@ class MinerNetwork:
             subnet_mask = netifaces.ifaddresses(gateways['default'][netifaces.AF_INET][1])[netifaces.AF_INET][0]['netmask']
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
-    async def scan_network_for_miners(self):
+    async def scan_network_for_miners(self) -> None or list[BOSminer or BMMiner or CGMiner or UnknownMiner]:
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
         scan_tasks = []
@@ -44,7 +48,8 @@ class MinerNetwork:
         miners = await asyncio.gather(*create_miners_tasks)
         return miners
 
-    async def ping_miner(self, ip: ipaddress.ip_address):
+    @staticmethod
+    async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
         for i in range(PING_RETRIES):
             connection_fut = asyncio.open_connection(str(ip), 4028)
             try:

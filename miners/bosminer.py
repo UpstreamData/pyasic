@@ -6,12 +6,12 @@ import time
 
 
 class BOSminer(BaseMiner):
-    def __init__(self, ip: str):
+    def __init__(self, ip: str) -> None:
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
         self.config = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"BOSminer: {str(self.ip)}"
 
     async def get_ssh_connection(self, username: str, password: str) -> asyncssh.connect:
@@ -21,7 +21,7 @@ class BOSminer(BaseMiner):
         # return created connection
         return conn
 
-    async def send_ssh_command(self, cmd):
+    async def send_ssh_command(self, cmd: str) -> None:
         result = None
         conn = await self.get_ssh_connection('root', 'admin')
         for i in range(3):
@@ -43,19 +43,19 @@ class BOSminer(BaseMiner):
             else:
                 print(cmd)
 
-    async def fault_light_on(self):
+    async def fault_light_on(self) -> None:
         await self.send_ssh_command('miner fault_light on')
 
-    async def fault_light_off(self):
+    async def fault_light_off(self) -> None:
         await self.send_ssh_command('miner fault_light off')
 
-    async def bosminer_restart(self):
+    async def bosminer_restart(self) -> None:
         await self.send_ssh_command('/etc/init.d/bosminer restart')
 
-    async def reboot(self):
+    async def reboot(self) -> None:
         await self.send_ssh_command('/sbin/reboot')
 
-    async def get_config(self):
+    async def get_config(self) -> None:
         async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
                                     server_host_key_algs=['ssh-rsa']) as conn:
             async with conn.start_sftp_client() as sftp:
@@ -63,10 +63,10 @@ class BOSminer(BaseMiner):
                     toml_data = toml.loads(await file.read())
         self.config = toml_data
 
-    def update_config(self, config: dict):
+    def update_config(self, config: dict) -> None:
         self.config = config
 
-    async def change_config_format(self, update_config: bool = False):
+    async def change_config_format(self, update_config: bool = False) -> dict:
         if not self.config:
             await self.get_config()
         config = self.config
@@ -76,7 +76,7 @@ class BOSminer(BaseMiner):
             self.update_config(config)
         return config
 
-    async def change_config_tuning(self, wattage: int, enabled: bool = True, update_config: bool = False):
+    async def change_config_tuning(self, wattage: int, enabled: bool = True, update_config: bool = False) -> dict:
         if not self.config:
             await self.get_config()
         config = self.config
@@ -87,7 +87,7 @@ class BOSminer(BaseMiner):
         return config
 
     async def change_config_temp_ctrl(self, target: float = 80.0, hot: float = 100.0,
-                                      dangerous: float = 110.0, update_config: bool = False):
+                                      dangerous: float = 110.0, update_config: bool = False) -> dict:
         if not self.config:
             await self.get_config()
         config = self.config
@@ -98,7 +98,7 @@ class BOSminer(BaseMiner):
             self.update_config(config)
         return config
 
-    async def send_config(self, config):
+    async def send_config(self, config: dict) -> None:
         toml_conf = toml.dumps(config)
         async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
                                     server_host_key_algs=['ssh-rsa']) as conn:
@@ -107,7 +107,7 @@ class BOSminer(BaseMiner):
                     await file.write(toml_conf)
             await conn.run("/etc/init.d/bosminer restart")
 
-    async def get_bad_boards(self):
+    async def get_bad_boards(self) -> list:
         devs = await self.api.devdetails()
         bad = 0
         chains = devs['DEVDETAILS']
@@ -115,9 +115,9 @@ class BOSminer(BaseMiner):
             if chain['Chips'] == 0:
                 bad += 1
         if bad > 0:
-            return (str(self.ip), bad)
+            return [str(self.ip), bad]
 
-    async def check_good_boards(self):
+    async def check_good_boards(self) -> str:
         devs = await self.api.devdetails()
         bad = 0
         chains = devs['DEVDETAILS']
