@@ -149,7 +149,12 @@ async def get_data(ip_list: list):
     ips.sort()
     data = await asyncio.gather(*[get_formatted_data(miner) for miner in ips])
     window["hr_list"].update(disabled=False)
-    window["hr_list"].update([item['IP'] + " | " + str(item['TH/s']) + " TH/s | " + item['user'] + " | " + str(item['wattage']) + " W" for item in data])
+    window["hr_list"].update([item['IP'] + " | "
+                              + item['host'] + " | "
+                              + str(item['TH/s']) + " TH/s | "
+                              + item['user'] + " | "
+                              + str(item['wattage']) + " W"
+                              for item in data])
     window["hr_list"].update(disabled=True)
     await update_ui_with_data("status", "")
 
@@ -157,10 +162,11 @@ async def get_data(ip_list: list):
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     data = await miner.api.multicommand("summary", "pools", "tunerstatus")
+    host = await miner.get_hostname()
     wattage = data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
     mh5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
     user = data['pools'][0]['POOLS'][0]['User']
-    return {'TH/s': mh5s, 'IP': str(miner.ip), 'user': user, 'wattage': wattage}
+    return {'TH/s': mh5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
 
 
 async def generate_config():
@@ -206,18 +212,19 @@ async def sort_data(index: int):
     new_list = []
     for item in data_list:
         item_data = [part.strip() for part in item.split("|")]
-        item_data[3] = item_data[3].replace(" W", "")
-        item_data[1] = item_data[1].replace(" TH/s", "")
+        item_data[4] = item_data[4].replace(" W", "")
+        item_data[2] = item_data[2].replace(" TH/s", "")
         item_data[0] = ipaddress.ip_address(item_data[0])
         new_list.append(item_data)
-    if index == 1:
+    if index == 2:
         new_data_list = sorted(new_list, key=lambda x: float(x[index]))
     else:
         new_data_list = sorted(new_list, key=itemgetter(index))
     new_data_list = [str(item[0]) + " | "
-                     + item[1] + " TH/s | "
-                     + item[2] + " | "
-                     + str(item[3]) + " W"
+                     + item[1] + " | "
+                     + item[2] + " TH/s | "
+                     + item[3] + " | "
+                     + str(item[4]) + " W"
                      for item in new_data_list]
     window["hr_list"].update(disabled=False)
     window["hr_list"].update(new_data_list)

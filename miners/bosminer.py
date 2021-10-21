@@ -66,6 +66,12 @@ class BOSminer(BaseMiner):
     def update_config(self, config: dict) -> None:
         self.config = config
 
+    async def get_hostname(self) -> str:
+        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
+                                    server_host_key_algs=['ssh-rsa']) as conn:
+            data = await conn.run('cat /proc/sys/kernel/hostname')
+        return data.stdout.strip()
+
     async def change_config_format(self, update_config: bool = False) -> dict:
         if not self.config:
             await self.get_config()
