@@ -11,4 +11,14 @@ class CGMiner(BaseMiner):
         return f"CGMiner: {str(self.ip)}"
 
     async def send_config(self):
-        return None
+        return None # ignore for now
+
+    async def restart_backend(self) -> None:
+        return None # Murray
+
+    async def reboot(self) -> None:
+        return None # Murray
+
+
+    async def get_config(self) -> None:
+        return None # Murray
