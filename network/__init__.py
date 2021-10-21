@@ -43,6 +43,7 @@ class MinerNetwork:
         miner_ips = list(filter(None, miner_ips))
         print(f"Found {len(miner_ips)} connected miners...")
         create_miners_tasks = []
+        self.miner_factory.clear_cached_miners()
         for miner_ip in miner_ips:
             create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
         miners = await asyncio.gather(*create_miners_tasks)

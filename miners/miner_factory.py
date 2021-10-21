@@ -33,6 +33,9 @@ class MinerFactory:
         self.miners[ip] = miner
         return miner
 
+    def clear_cached_miners(self):
+        self.miners = {}
+
     @staticmethod
     async def _get_version_data(ip: ipaddress.ip_address) -> dict or None:
         for i in range(3):
