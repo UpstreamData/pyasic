@@ -12,3 +12,6 @@ class UnknownMiner(BaseMiner):
 
     async def send_config(self):
         return None
+
+    async def get_hostname(self):
+        return "Unknown"

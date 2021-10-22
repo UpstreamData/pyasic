@@ -271,8 +271,7 @@ async def ui():
         if event == "sort_data_hr":
             asyncio.create_task(sort_data(1))
         if event == "sort_data_user":
-            print()
-            asyncio.create_task(sort_data(2))
+            asyncio.create_task(sort_data(3))
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
 
