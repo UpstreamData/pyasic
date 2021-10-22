@@ -81,4 +81,5 @@ class CGMiner(BaseMiner):
             result = await conn.run(commands, check=True)
             result_handler(result)
             self.config = result.stdout
+            print(str(self.config))
         return None
