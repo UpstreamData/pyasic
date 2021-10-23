@@ -10,28 +10,30 @@ class BOSminer(BaseMiner):
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
         self.config = None
+        self.uname = 'root'
+        self.pwd = 'admin'
 
     def __repr__(self) -> str:
         return f"BOSminer: {str(self.ip)}"
 
-    async def get_ssh_connection(self, username: str, password: str) -> asyncssh.connect:
+    async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
-        conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=username, password=password,
+        conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=self.uname, password=self.pwd,
                                       server_host_key_algs=['ssh-rsa'])
         # return created connection
         return conn
 
     async def send_ssh_command(self, cmd: str) -> None:
         result = None
-        conn = await self.get_ssh_connection('root', 'admin')
-        for i in range(3):
-            try:
-                result = await conn.run(cmd)
-            except Exception as e:
-                print(f"{cmd} error: {e}")
-                if i == 3:
-                    return
-                continue
+        async with self._get_ssh_connection() as conn:
+            for i in range(3):
+                try:
+                    result = await conn.run(cmd)
+                except Exception as e:
+                    print(f"{cmd} error: {e}")
+                    if i == 3:
+                        return
+                    continue
         # let the user know the result of the command
         if result is not None:
             if result.stdout != "":
