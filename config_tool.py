@@ -31,7 +31,7 @@ layout = [
         ]),
         sg.Column([
             [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data"), sg.Button('SORT IP', key="sort_data_ip"),
-             sg.Button('SORT HR', key="sort_data_hr"), sg.Button('SORT USER', key="sort_data_user")],
+             sg.Button('SORT HR', key="sort_data_hr"), sg.Button('SORT USER', key="sort_data_user"), sg.Button('SORT W', key="sort_data_w")],
             [sg.Listbox([], size=(70, 32), key="hr_list")]
         ]),
         sg.Column([
@@ -163,8 +163,19 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     data = await miner.api.multicommand("summary", "pools", "tunerstatus")
     host = await miner.get_hostname()
-    wattage = data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
-    mh5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
+    if "tunerstatus" in data.keys():
+        wattage = data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
+    else:
+        wattage = 0
+    if "summary" in data.keys():
+        if 'MHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
+            mh5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
+        elif 'GHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
+            mh5s = round(float(data['summary'][0]['SUMMARY'][0]['GHS 5s']) / 1000, 2)
+        else:
+            mh5s = 0
+    else:
+        mh5s = 0
     user = data['pools'][0]['POOLS'][0]['User']
     return {'TH/s': mh5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
 
@@ -206,25 +217,41 @@ async def generate_config():
     window['config'].update(toml.dumps(config))
 
 
-async def sort_data(index: int):
+async def sort_data(index: int or str):
     await update_ui_with_data("status", "Sorting Data")
     data_list = window['hr_list'].Values
     new_list = []
+    indexes = {}
     for item in data_list:
         item_data = [part.strip() for part in item.split("|")]
-        item_data[4] = item_data[4].replace(" W", "")
-        item_data[2] = item_data[2].replace(" TH/s", "")
-        item_data[0] = ipaddress.ip_address(item_data[0])
+        for idx, part in enumerate(item_data):
+            if re.match("[0-9]* W", part):
+                item_data[idx] = item_data[idx].replace(" W", "")
+                indexes['wattage'] = idx
+            elif re.match("[0-9]*\.?[0-9]* TH\/s", part):
+                item_data[idx] = item_data[idx].replace(" TH/s", "")
+                indexes['hr'] = idx
+            elif re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", part):
+                item_data[idx] = ipaddress.ip_address(item_data[idx])
+                indexes['ip'] = idx
         new_list.append(item_data)
-    if index == 2:
-        new_data_list = sorted(new_list, key=lambda x: float(x[index]))
+    if not isinstance(index, str):
+        if index == indexes['hr']:
+            new_data_list = sorted(new_list, key=lambda x: float(x[index]))
+        else:
+            new_data_list = sorted(new_list, key=itemgetter(index))
     else:
-        new_data_list = sorted(new_list, key=itemgetter(index))
-    new_data_list = [str(item[0]) + " | "
+        if index.lower() not in indexes.keys():
+            return
+        elif index.lower() == 'hr':
+            new_data_list = sorted(new_list, key=lambda x: float(x[indexes[index]]))
+        else:
+            new_data_list = sorted(new_list, key=itemgetter(indexes[index]))
+    new_data_list = [str(item[indexes['ip']]) + " | "
                      + item[1] + " | "
-                     + item[2] + " TH/s | "
+                     + item[indexes['hr']] + " TH/s | "
                      + item[3] + " | "
-                     + str(item[4]) + " W"
+                     + str(item[indexes['wattage']]) + " W"
                      for item in new_data_list]
     window["hr_list"].update(disabled=False)
     window["hr_list"].update(new_data_list)
@@ -267,11 +294,13 @@ async def ui():
         if event == "generate_config":
             asyncio.create_task(generate_config())
         if event == "sort_data_ip":
-            asyncio.create_task(sort_data(0))
+            asyncio.create_task(sort_data('ip'))
         if event == "sort_data_hr":
-            asyncio.create_task(sort_data(1))
+            asyncio.create_task(sort_data('hr'))
         if event == "sort_data_user":
             asyncio.create_task(sort_data(3))
+        if event == "sort_data_w":
+            asyncio.create_task(sort_data('wattage'))
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
 

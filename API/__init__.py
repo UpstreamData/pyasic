@@ -33,6 +33,10 @@ class BaseMinerAPI:
                 ]
 
     async def multicommand(self, *commands: str) -> dict:
+        commands = [*commands]
+        for item in commands:
+            if item not in self.get_commands():
+                commands.remove(item)
         command = "+".join(commands)
         return await self.send_command(command)
 
@@ -80,9 +84,10 @@ class BaseMinerAPI:
                 # make sure not to try to turn id into a dict
                 if not key == "id":
                     # make sure they succeeded
-                    if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
-                        # this is an error
-                        raise APIError(data["STATUS"][0]["Msg"])
+                    if "STATUS" in data.keys():
+                        if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
+                            # this is an error
+                            raise APIError(data["STATUS"][0]["Msg"])
         else:
             # make sure the command succeeded
             if data["STATUS"][0]["STATUS"] not in ("S", "I"):
