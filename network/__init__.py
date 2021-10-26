@@ -1,4 +1,3 @@
-import netifaces
 import ipaddress
 import asyncio
 from miners.miner_factory import MinerFactory
@@ -22,15 +21,14 @@ class MinerNetwork:
     def get_network(self) -> ipaddress.ip_network:
         if self.network:
             return self.network
-        gateways = netifaces.gateways()
         if not self.ip_addr:
-            default_gateway = gateways['default'][netifaces.AF_INET][0]
+            default_gateway = "192.168.1.0"
         else:
             default_gateway = self.ip_addr
         if self.mask:
-            subnet_mask = self.mask
+            subnet_mask = str(self.mask)
         else:
-            subnet_mask = netifaces.ifaddresses(gateways['default'][netifaces.AF_INET][1])[netifaces.AF_INET][0]['netmask']
+            subnet_mask = "24"
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
     async def scan_network_for_miners(self) -> None or list[BOSminer or BMMiner or CGMiner or UnknownMiner]:
