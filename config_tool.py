@@ -247,6 +247,9 @@ async def sort_data(index: int or str):
             new_data_list = sorted(new_list, key=lambda x: float(x[indexes[index]]))
         else:
             new_data_list = sorted(new_list, key=itemgetter(indexes[index]))
+    new_ip_list = []
+    for item in new_data_list:
+        new_ip_list.append(item[indexes['ip']])
     new_data_list = [str(item[indexes['ip']]) + " | "
                      + item[1] + " | "
                      + item[indexes['hr']] + " TH/s | "
@@ -255,6 +258,7 @@ async def sort_data(index: int or str):
                      for item in new_data_list]
     window["hr_list"].update(disabled=False)
     window["hr_list"].update(new_data_list)
+    window['ip_list'].update(new_ip_list)
     window["hr_list"].update(disabled=True)
     await update_ui_with_data("status", "")
 

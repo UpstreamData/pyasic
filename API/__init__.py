@@ -71,7 +71,10 @@ class BaseMinerAPI:
         except Exception as e:
             print(e)
 
-        data = json.loads(data.decode('utf-8')[:-1])
+        try:
+            data = json.loads(data.decode('utf-8')[:-1])
+        except json.decoder.JSONDecodeError:
+            raise APIError(f"Decode Error: {data}")
 
         # close the connection
         writer.close()
