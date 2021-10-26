@@ -65,7 +65,7 @@ SAMPLE CONFIG
     ],
     "autotuning": {
         "enabled": True, # -> (default = True, bool), (bos: autotuning.enabled)
-        "wattage": 900, # -> (default = 900, bool, (bos: autotuning.psu_power_limit))
+        "wattage": 900, # -> (default = 900, int, (bos: autotuning.psu_power_limit))
     },
     "power_scaling": {
         "enabled": False, # -> (default = False, bool, (bos: power_scaling.enabled))
