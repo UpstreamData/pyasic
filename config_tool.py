@@ -62,7 +62,7 @@ async def scan_network(network):
 
 
 async def miner_light(ips: list):
-    await asyncio.gather(flip_light(ip) for ip in ips)
+    await asyncio.gather(*[flip_light(ip) for ip in ips])
 
 
 async def flip_light(ip):

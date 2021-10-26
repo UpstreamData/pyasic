@@ -25,7 +25,7 @@ class BOSminer(BaseMiner):
 
     async def send_ssh_command(self, cmd: str) -> None:
         result = None
-        async with self._get_ssh_connection() as conn:
+        async with (await self._get_ssh_connection()) as conn:
             for i in range(3):
                 try:
                     result = await conn.run(cmd)
@@ -58,8 +58,7 @@ class BOSminer(BaseMiner):
         await self.send_ssh_command('/sbin/reboot')
 
     async def get_config(self) -> None:
-        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
-                                    server_host_key_algs=['ssh-rsa']) as conn:
+        async with (await self._get_ssh_connection()) as conn:
             async with conn.start_sftp_client() as sftp:
                 async with sftp.open('/etc/bosminer.toml') as file:
                     toml_data = toml.loads(await file.read())
@@ -69,8 +68,7 @@ class BOSminer(BaseMiner):
         self.config = config
 
     async def get_hostname(self) -> str:
-        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
-                                    server_host_key_algs=['ssh-rsa']) as conn:
+        async with (await self._get_ssh_connection()) as conn:
             data = await conn.run('cat /proc/sys/kernel/hostname')
         return data.stdout.strip()
 
@@ -108,8 +106,7 @@ class BOSminer(BaseMiner):
 
     async def send_config(self, config: dict) -> None:
         toml_conf = toml.dumps(config)
-        async with asyncssh.connect(str(self.ip), known_hosts=None, username='root', password='admin',
-                                    server_host_key_algs=['ssh-rsa']) as conn:
+        async with (await self._get_ssh_connection()) as conn:
             async with conn.start_sftp_client() as sftp:
                 async with sftp.open('/etc/bosminer.toml', 'w+') as file:
                     await file.write(toml_conf)

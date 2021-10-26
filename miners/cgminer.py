@@ -27,7 +27,7 @@ class CGMiner(BaseMiner):
 
     async def send_ssh_command(self, cmd):
         result = None
-        async with self._get_ssh_connection() as conn:
+        async with (await self._get_ssh_connection()) as conn:
             for i in range(3):
                 try:
                     result = await conn.run(cmd)
@@ -86,7 +86,7 @@ class CGMiner(BaseMiner):
         await self.send_ssh_command(commands)
 
     async def get_config(self) -> None:
-        async with self._get_ssh_connection() as conn:
+        async with (await self._get_ssh_connection()) as conn:
             command = 'cat /etc/config/cgminer'
             result = await conn.run(command, check=True)
             self._result_handler(result)
