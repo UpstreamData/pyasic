@@ -1,0 +1,17 @@
+
+config cgminer 'default'
+	option pool1pw 'x'
+	option pool2pw 'x'
+	option pool3pw 'x'
+	option voltage_level_offset '0'
+	option fan '10'
+	option api_allow 'W:0/0'
+	option power_mode 'balance'
+	option pool1url 'stratum+tcp://ca.stratum.slushpool.com:3333'
+	option pool1user 'poolacct.worker1'
+	option pool2url 'stratum+tcp://ca.stratum.slushpool.com:3333'
+	option pool2user 'poolacct.worker2'
+	option pool3url 'stratum+tcp://ca.stratum.slushpool.com:3333'
+	option pool3user 'poolacct.worker3'
+	option ntp_enable 'openwrt'
+
