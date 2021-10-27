@@ -22,9 +22,9 @@ class MinerFactory:
         if version:
             if "BOSminer" in version or "BOSminer+" in version:
                 miner = BOSminer(str(ip))
-            elif version == "CGMiner":
+            if "CGMiner" in version:
                 miner = CGMiner(str(ip))
-            elif version == "BMMiner":
+            if "BMMiner" in version:
                 miner = BMMiner(str(ip))
             else:
                 miner = UnknownMiner(str(ip))
