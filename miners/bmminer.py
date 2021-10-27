@@ -10,6 +10,9 @@ class BMMiner(BaseMiner):
     def __repr__(self) -> str:
         return f"BMMiner: {str(self.ip)}"
 
+    async def get_hostname(self) -> str:
+        return "BMMiner Unknown"
+
     async def send_config(self):
         return None  # ignore for now
 

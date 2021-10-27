@@ -169,15 +169,18 @@ async def get_formatted_data(ip: ipaddress.ip_address):
         wattage = 0
     if "summary" in data.keys():
         if 'MHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
-            mh5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
+            th5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
         elif 'GHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
-            mh5s = round(float(data['summary'][0]['SUMMARY'][0]['GHS 5s']) / 1000, 2)
+            if not data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
+                th5s = round(float(data['summary'][0]['SUMMARY'][0]['GHS 5s']) / 1000, 2)
+            else:
+                th5s = 0
         else:
-            mh5s = 0
+            th5s = 0
     else:
-        mh5s = 0
+        th5s = 0
     user = data['pools'][0]['POOLS'][0]['User']
-    return {'TH/s': mh5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
+    return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
 
 
 async def generate_config():
