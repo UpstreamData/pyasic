@@ -14,6 +14,9 @@ class CGMiner(BaseMiner):
     def __repr__(self) -> str:
         return f"CGMiner: {str(self.ip)}"
 
+    async def get_hostname(self) -> str:
+        return "CGMiner Unknown"
+
     async def send_config(self):
         return None  # ignore for now
 
