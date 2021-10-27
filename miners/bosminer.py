@@ -2,8 +2,7 @@ from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
 import asyncssh
 import toml
-import time
-
+from config.bos import bos_config_convert, general_config_convert_bos
 
 class BOSminer(BaseMiner):
     def __init__(self, ip: str) -> None:
@@ -62,15 +61,16 @@ class BOSminer(BaseMiner):
             async with conn.start_sftp_client() as sftp:
                 async with sftp.open('/etc/bosminer.toml') as file:
                     toml_data = toml.loads(await file.read())
-        self.config = toml_data
+        cfg = await bos_config_convert(toml_data)
+        self.config = cfg
 
     async def get_hostname(self) -> str:
         async with (await self._get_ssh_connection()) as conn:
             data = await conn.run('cat /proc/sys/kernel/hostname')
         return data.stdout.strip()
 
-    async def send_config(self, config: dict) -> None:
-        toml_conf = toml.dumps(config)
+    async def send_config(self, yaml_config) -> None:
+        toml_conf = await general_config_convert_bos(yaml_config)
         async with (await self._get_ssh_connection()) as conn:
             async with conn.start_sftp_client() as sftp:
                 async with sftp.open('/etc/bosminer.toml', 'w+') as file:

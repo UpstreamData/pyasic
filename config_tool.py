@@ -9,6 +9,7 @@ from operator import itemgetter
 import PySimpleGUI as sg
 import aiofiles
 import toml
+import yaml
 
 from miners.miner_factory import MinerFactory
 from network import MinerNetwork
@@ -83,7 +84,7 @@ async def import_config(ip):
     miner = await miner_factory.get_miner(ipaddress.ip_address(*ip))
     await miner.get_config()
     config = miner.config
-    await update_ui_with_data("config", toml.dumps(config))
+    await update_ui_with_data("config", str(config))
     await update_ui_with_data("status", "")
 
 
@@ -108,8 +109,6 @@ async def import_iplist(file_location):
 
 async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
-    config['format']['generator'] = 'upstream_config_util'
-    config['format']['timestamp'] = int(time.time())
     tasks = []
     for ip in ips:
         tasks.append(miner_factory.get_miner(ip))
@@ -128,7 +127,7 @@ async def import_config_file(file_location):
     else:
         async with aiofiles.open(file_location, mode='r') as file:
             config = await file.read()
-    await update_ui_with_data("config", str(config))
+    await update_ui_with_data("config", config)
     await update_ui_with_data("status", "")
 
 
@@ -291,7 +290,7 @@ async def ui():
         if event == "import_iplist":
             asyncio.create_task(import_iplist(value["file_iplist"]))
         if event == "send_config":
-            asyncio.create_task(send_config(value['ip_list'], toml.loads(value['config'])))
+            asyncio.create_task(send_config(value['ip_list'], value['config']))
         if event == "import_file_config":
             asyncio.create_task(import_config_file(value['file_config']))
         if event == "export_file_config":
