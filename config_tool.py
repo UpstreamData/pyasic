@@ -9,7 +9,6 @@ from operator import itemgetter
 import PySimpleGUI as sg
 import aiofiles
 import toml
-import yaml
 
 from miners.miner_factory import MinerFactory
 from network import MinerNetwork
@@ -159,6 +158,14 @@ async def get_data(ip_list: list):
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):
+    # TODO: Fix bug with some whatsminers and asyncio:
+    # Traceback (most recent call last):
+    #   File "C:\Users\upstr\AppData\Local\Programs\Python\Python310\lib\asyncio\events.py", line 80, in _run
+    #       self._context.run(self._callback, *self._args)
+    #   File "C:\Users\upstr\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 162, in _call_connection_lost
+    #       self._sock.shutdown(socket.SHUT_RDWR)
+    #   OSError: [WinError 10038] An operation was attempted on something that is not a socket
+
     miner = await miner_factory.get_miner(ip)
     data = await miner.api.multicommand("summary", "pools", "tunerstatus")
     host = await miner.get_hostname()
