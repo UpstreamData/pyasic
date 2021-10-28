@@ -61,12 +61,37 @@ class MinerFactory:
                         break
                     data += d
 
-                data = json.loads(data.decode('utf-8')[:-1])
+                if data.endswith(b"\x00"):
+                    data = json.loads(data.decode('utf-8')[:-1])
+                else:
+                    # some stupid whatsminers need a different command
+                    fut = asyncio.open_connection(str(ip), 4028)
+                    # get reader and writer streams
+                    reader, writer = await asyncio.wait_for(fut, timeout=5)
+
+                    # create the command
+                    cmd = {"command": "get_version"}
+
+                    # send the command
+                    writer.write(json.dumps(cmd).encode('utf-8'))
+                    await writer.drain()
+
+                    # instantiate data
+                    data = b""
+
+                    # loop to receive all the data
+                    while True:
+                        d = await reader.read(4096)
+                        if not d:
+                            break
+                        data += d
+
+                    data = data.decode('utf-8').replace("\n", "")
+                    data = json.loads(data)
 
                 # close the connection
                 writer.close()
                 await writer.wait_closed()
-
                 # check if the data returned is correct or an error
                 # if status isn't a key, it is a multicommand
                 if "STATUS" not in data.keys():
@@ -78,11 +103,17 @@ class MinerFactory:
                                 # this is an error
                                 raise APIError(data["STATUS"][0]["Msg"])
                 else:
+                    # check for stupid whatsminer formatting
+                    if not isinstance(data["STATUS"], list):
+                        if data["STATUS"] not in ("S", "I"):
+                            raise APIError(data["Msg"])
+                        else:
+                            if "whatsminer" in data["Description"]:
+                                return {'STATUS': [{'STATUS': 'S', 'When': 1635435132, 'Code': 22, 'Msg': 'CGMiner versions', 'Description': 'cgminer 4.9.2'}], 'VERSION': [{'CGMiner': '4.9.2', 'API': '3.7'}], 'id': 1}
                     # make sure the command succeeded
-                    if data["STATUS"][0]["STATUS"] not in ("S", "I"):
+                    elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
                         # this is an error
                         raise APIError(data["STATUS"][0]["Msg"])
-
                 # return the data
                 return data
             except OSError as e:
@@ -90,6 +121,8 @@ class MinerFactory:
                     return None
                 else:
                     print(ip, e)
-            except Exception as e:
-                print(ip, e)
+            # except json.decoder.JSONDecodeError:
+                # print("Decode Error @ " + str(ip) + str(data))
+            # except Exception as e:
+                # print(ip, e)
         return None

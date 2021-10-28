@@ -72,7 +72,10 @@ class BaseMinerAPI:
             print(e)
 
         try:
-            data = json.loads(data.decode('utf-8')[:-1])
+            if data.endswith(b"\x00"):
+                data = json.loads(data.decode('utf-8')[:-1])
+            else:
+                data = json.loads(data.decode('utf-8'))
         except json.decoder.JSONDecodeError:
             raise APIError(f"Decode Error: {data}")
 
