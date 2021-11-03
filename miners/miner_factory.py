@@ -40,6 +40,7 @@ class MinerFactory:
     async def _get_version_data(ip: ipaddress.ip_address) -> dict or None:
         for i in range(3):
             try:
+                # open a connection to the miner
                 fut = asyncio.open_connection(str(ip), 4028)
                 # get reader and writer streams
                 reader, writer = await asyncio.wait_for(fut, timeout=5)

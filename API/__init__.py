@@ -25,6 +25,7 @@ class BaseMinerAPI:
         self.ip = ipaddress.ip_address(ip)
 
     def get_commands(self) -> list:
+        """Get a list of command accessible to a specific type of API on the miner."""
         return [func for func in
                 # each function in self
                 dir(self) if callable(getattr(self, func)) and
@@ -38,6 +39,7 @@ class BaseMinerAPI:
                 ]
 
     async def multicommand(self, *commands: str) -> dict:
+        """Creates and sends multiple commands as one command to the miner."""
         # split the commands into a proper list
         commands = [*commands]
 
@@ -54,6 +56,7 @@ class BaseMinerAPI:
         return await self.send_command(command)
 
     async def send_command(self, command: str, parameters: str or int or bool = None) -> dict:
+        """Send an API command to the miner and return the result."""
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(self.ip), self.port)
@@ -110,7 +113,8 @@ class BaseMinerAPI:
         return data
 
     @staticmethod
-    def validate_command_output(data):
+    def validate_command_output(data: dict) -> bool:
+        """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         # if status isn't a key, it is a multicommand
         if "STATUS" not in data.keys():
@@ -131,7 +135,8 @@ class BaseMinerAPI:
         return True
 
     @staticmethod
-    def load_api_data(data):
+    def load_api_data(data: bytes) -> None:
+        """Convert API data from JSON to dict"""
         try:
             # some json from the API returns with a null byte (\x00) on the end
             if data.endswith(b"\x00"):
