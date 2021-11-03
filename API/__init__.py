@@ -135,7 +135,7 @@ class BaseMinerAPI:
         return True
 
     @staticmethod
-    def load_api_data(data: bytes) -> None:
+    def load_api_data(data: bytes) -> dict:
         """Convert API data from JSON to dict"""
         try:
             # some json from the API returns with a null byte (\x00) on the end
@@ -148,3 +148,4 @@ class BaseMinerAPI:
         # handle bad json
         except json.decoder.JSONDecodeError:
             raise APIError(f"Decode Error: {data}")
+        return data
