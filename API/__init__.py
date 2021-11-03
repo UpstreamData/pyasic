@@ -18,14 +18,19 @@ class APIError(Exception):
 
 
 class BaseMinerAPI:
-    def __init__(self, ip: str, port: int) -> None:
+    def __init__(self, ip: str, port: int = 4028) -> None:
+        # api port, should be 4028
         self.port = port
+        # ip address of the miner
         self.ip = ipaddress.ip_address(ip)
 
     def get_commands(self) -> list:
         return [func for func in
+                # each function in self
                 dir(self) if callable(getattr(self, func)) and
+                # no __ methods
                 not func.startswith("__") and
+                # remove all functions that are in this base class
                 func not in
                 [func for func in
                  dir(BaseMinerAPI) if callable(getattr(BaseMinerAPI, func))
@@ -33,11 +38,18 @@ class BaseMinerAPI:
                 ]
 
     async def multicommand(self, *commands: str) -> dict:
+        # split the commands into a proper list
         commands = [*commands]
+
         for item in commands:
+            # make sure we can actually run the command, otherwise it will fail
             if item not in self.get_commands():
-                print(f"Removing command: {item}")
+                # if the command isnt allowed, remove it
+                print(f"Removing incorrect command: {item}")
                 commands.remove(item)
+
+        # standard multicommand format is "command1+command2"
+        # doesnt work for S19 which is dealt with in the send command function
         command = "+".join(commands)
         return await self.send_command(command)
 
@@ -45,6 +57,7 @@ class BaseMinerAPI:
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+        # handle OSError 121
         except OSError as e:
             if e.winerror == "121":
                 print("Semaphore Timeout has Expired.")
@@ -72,21 +85,18 @@ class BaseMinerAPI:
         except Exception as e:
             print(e)
 
-        try:
-            if data.endswith(b"\x00"):
-                data = json.loads(data.decode('utf-8')[:-1])
-            else:
-                data = json.loads(data.decode('utf-8'))
-        except json.decoder.JSONDecodeError:
-            raise APIError(f"Decode Error: {data}")
+        data = self.load_api_data(data)
 
         # close the connection
         writer.close()
         await writer.wait_closed()
 
+        # validate the command suceeded
+        # also handle for S19 not liking "command1+command2" format
         if not self.validate_command_output(data):
             try:
                 data = {}
+                # S19 handler, try again
                 for cmd in command.split("+"):
                     data[cmd] = []
                     data[cmd].append(await self.send_command(cmd))
@@ -99,7 +109,8 @@ class BaseMinerAPI:
 
         return data
 
-    def validate_command_output(self, data):
+    @staticmethod
+    def validate_command_output(data):
         # check if the data returned is correct or an error
         # if status isn't a key, it is a multicommand
         if "STATUS" not in data.keys():
@@ -118,3 +129,17 @@ class BaseMinerAPI:
                 if data["STATUS"][0]["STATUS"] not in ("S", "I"):
                     return False
         return True
+
+    @staticmethod
+    def load_api_data(data):
+        try:
+            # some json from the API returns with a null byte (\x00) on the end
+            if data.endswith(b"\x00"):
+                # handle the null byte
+                data = json.loads(data.decode('utf-8')[:-1])
+            else:
+                # no null byte
+                data = json.loads(data.decode('utf-8'))
+        # handle bad json
+        except json.decoder.JSONDecodeError:
+            raise APIError(f"Decode Error: {data}")
