@@ -16,9 +16,20 @@ async def main():
 async def main_bad():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()
-    bad_list = list(filter(None, await asyncio.gather(*[miner.get_bad_boards() for miner in miners])))
+    bad_list = list(filter(None, await asyncio.gather(*[miner.get_bad_boards() for miner in miners if isinstance(miner, BOSminer)])))
     print(bad_list)
     print(len(bad_list))
 
+
+async def braiins_update():
+    miners = [BOSminer('192.168.1.36')]
+    cmd = "wget -O /tmp/firmware.tar https://feeds.braiins-os.com/am1-s9/firmware_2021-10-27-0-a6497b86-21.09.3-plus_arm_cortex-a9_neon.tar && sysupgrade /tmp/firmware.tar"
+    tasks = []
+    for miner in miners:
+        if isinstance(miner, BOSminer):
+            tasks.append(miner.send_ssh_command(cmd))
+    results = await asyncio.gather(*tasks)
+    print(results)
+
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.new_event_loop().run_until_complete(braiins_update())

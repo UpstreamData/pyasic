@@ -27,16 +27,19 @@ layout = [
         sg.Column([
             [sg.Text("IP List:", pad=(0, 0)), sg.Text("", key="ip_count", pad=(1, 0), size=(3, 1)),
              sg.Button('ALL', key="select_all_ips")],
+            [sg.Text("")],
             [sg.Listbox([], size=(20, 32), key="ip_list", select_mode='extended')]
         ]),
         sg.Column([
             [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data"), sg.Button('SORT IP', key="sort_data_ip"),
              sg.Button('SORT HR', key="sort_data_hr"), sg.Button('SORT USER', key="sort_data_user"), sg.Button('SORT W', key="sort_data_w")],
+            [sg.Text("HR Total: ", pad=(0, 0)), sg.Text("", key="hr_total")],
             [sg.Listbox([], size=(70, 32), key="hr_list")]
         ]),
         sg.Column([
             [sg.Text("Config"), sg.Button("IMPORT", key="import_config"), sg.Button("CONFIG", key="send_config"),
              sg.Button("LIGHT", key="light"), sg.Button("GENERATE", key="generate_config")],
+            [sg.Text("")],
             [sg.Multiline(size=(50, 34), key="config", do_not_clear=True)],
         ])
     ],
@@ -146,6 +149,8 @@ async def get_data(ip_list: list):
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     ips.sort()
     data = await asyncio.gather(*[get_formatted_data(miner) for miner in ips])
+    total_hr = round(sum(d.get('TH/s', 0) for d in data), 2)
+    window["hr_total"].update(f"{total_hr} TH/s")
     window["hr_list"].update(disabled=False)
     window["hr_list"].update([item['IP'] + " | "
                               + item['host'] + " | "
