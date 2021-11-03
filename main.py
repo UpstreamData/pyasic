@@ -3,7 +3,7 @@ from miners.bosminer import BOSminer
 import asyncio
 
 
-async def main():
+async def good_boards():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()
     # print("\n".join([str(miner.ip) for miner in miners]))
@@ -13,7 +13,7 @@ async def main():
     # print('\n'.join([f"{str(miner.ip)}" for miner in miners]))
 
 
-async def main_bad():
+async def bad_boards():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()
     bad_list = list(filter(None, await asyncio.gather(*[miner.get_bad_boards() for miner in miners if isinstance(miner, BOSminer)])))
@@ -31,5 +31,15 @@ async def braiins_update():
     results = await asyncio.gather(*tasks)
     print(results)
 
+async def test_command():
+    miner_network = MinerNetwork('192.168.1.1')
+    miners = await miner_network.scan_network_for_miners()
+    tasks = miners[0].api.multicommand("summary", "pools", "tunerstatus")
+    data = await asyncio.gather(tasks)
+    print(data)
+
+
+
+
 if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(braiins_update())
+    asyncio.new_event_loop().run_until_complete(test_command())
