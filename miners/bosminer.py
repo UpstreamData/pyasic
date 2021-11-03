@@ -65,9 +65,13 @@ class BOSminer(BaseMiner):
         self.config = cfg
 
     async def get_hostname(self) -> str:
-        async with (await self._get_ssh_connection()) as conn:
-            data = await conn.run('cat /proc/sys/kernel/hostname')
-        return data.stdout.strip()
+        try:
+            async with (await self._get_ssh_connection()) as conn:
+                data = await conn.run('cat /proc/sys/kernel/hostname')
+            return data.stdout.strip()
+        except Exception as e:
+            print(self.ip, e)
+            return "BOSMiner Unknown"
 
     async def send_config(self, yaml_config) -> None:
         toml_conf = await general_config_convert_bos(yaml_config)
