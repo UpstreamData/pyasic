@@ -41,15 +41,6 @@ class CGMiner(BaseMiner):
                     continue
         # handle result
         self._result_handler(result)
-        if result is not None:
-            if result.stdout != "":
-                print(result.stdout)
-                if result.stderr != "":
-                    print("ERROR: " + result.stderr)
-            elif result.stderr != "":
-                print("ERROR: " + result.stderr)
-            else:
-                print(cmd)
 
     @staticmethod
     def _result_handler(result: asyncssh.process.SSHCompletedProcess) -> None:
@@ -60,6 +51,16 @@ class CGMiner(BaseMiner):
                 print("ssh stderr: \n" + result.stderrr)
             if len(result.stdout) <= 0 and len(result.stderr) <= 0:
                 print("ssh stdout stderr empty")
+            else:
+                print(cmd)
+            # if result.stdout != "":
+            #     print(result.stdout)
+            #     if result.stderr != "":
+            #         print("ERROR: " + result.stderr)
+            # elif result.stderr != "":
+            #     print("ERROR: " + result.stderr)
+            # else:
+            #     print(cmd)
 
     async def restart_cgminer(self) -> None:
         commands = ['cgminer-api restart',
