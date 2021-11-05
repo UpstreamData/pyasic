@@ -43,7 +43,10 @@ class MinerFactory:
                 # open a connection to the miner
                 fut = asyncio.open_connection(str(ip), 4028)
                 # get reader and writer streams
-                reader, writer = await asyncio.wait_for(fut, timeout=5)
+                try:
+                    reader, writer = await asyncio.wait_for(fut, timeout=7)
+                except asyncio.exceptions.TimeoutError:
+                    return None
 
                 # create the command
                 cmd = {"command": "version"}
@@ -68,7 +71,10 @@ class MinerFactory:
                     # some stupid whatsminers need a different command
                     fut = asyncio.open_connection(str(ip), 4028)
                     # get reader and writer streams
-                    reader, writer = await asyncio.wait_for(fut, timeout=5)
+                    try:
+                        reader, writer = await asyncio.wait_for(fut, timeout=7)
+                    except asyncio.exceptions.TimeoutError:
+                        return None
 
                     # create the command
                     cmd = {"command": "get_version"}
