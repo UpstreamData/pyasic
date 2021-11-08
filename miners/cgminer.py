@@ -51,8 +51,6 @@ class CGMiner(BaseMiner):
                 print("ssh stderr: \n" + result.stderrr)
             if len(result.stdout) <= 0 and len(result.stderr) <= 0:
                 print("ssh stdout stderr empty")
-            else:
-                print(cmd)
             # if result.stdout != "":
             #     print(result.stdout)
             #     if result.stderr != "":
