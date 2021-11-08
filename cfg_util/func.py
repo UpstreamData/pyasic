@@ -11,6 +11,8 @@ import toml
 from cfg_util.miner_factory import miner_factory
 from cfg_util.layout import window
 
+from config.bos import bos_config_convert, general_config_convert_bos
+
 
 async def update_ui_with_data(key, data, append=False):
     if append:
@@ -91,7 +93,7 @@ async def import_config_file(file_location):
     else:
         async with aiofiles.open(file_location, mode='r') as file:
             config = await file.read()
-    await update_ui_with_data("config", config)
+    await update_ui_with_data("config", await bos_config_convert(toml.loads(config)))
     await update_ui_with_data("status", "")
 
 
@@ -102,7 +104,7 @@ async def export_config_file(file_location, config):
     config['format']['timestamp'] = int(time.time())
     config = toml.dumps(config)
     async with aiofiles.open(file_location, mode='w+') as file:
-        await file.write(config)
+        await file.write(await general_config_convert_bos(config))
     await update_ui_with_data("status", "")
 
 
@@ -190,7 +192,7 @@ async def generate_config():
             'psu_power_limit': 900
         }
     }
-    window['config'].update(toml.dumps(config))
+    window['config'].update(await bos_config_convert(config))
 
 
 async def sort_data(index: int or str):
