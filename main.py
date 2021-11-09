@@ -31,14 +31,13 @@ async def braiins_update():
     results = await asyncio.gather(*tasks)
     print(results)
 
+
 async def test_command():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()
     tasks = miners[0].api.multicommand("summary", "pools", "tunerstatus")
     data = await asyncio.gather(tasks)
     print(data)
-
-
 
 
 if __name__ == '__main__':
