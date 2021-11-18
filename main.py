@@ -3,7 +3,12 @@ from miners.bosminer import BOSminer
 import asyncio
 from API.bosminer import BOSMinerAPI
 from API.cgminer import CGMinerAPI
+import sys
 
+
+# Fix bug with some whatsminers and asyncio because of a socket not being shut down:
+if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def good_boards():
     miner_network = MinerNetwork('192.168.1.1')
