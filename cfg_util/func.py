@@ -146,7 +146,10 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             th5s = 0
     else:
         th5s = 0
-    user = data['pools'][0]['POOLS'][0]['User']
+    if not data['pools'][0]['POOLS'] == []:
+        user = data['pools'][0]['POOLS'][0]['User']
+    else:
+        user = "Blank"
     return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
 
 

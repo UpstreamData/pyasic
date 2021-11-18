@@ -7,7 +7,7 @@ from miners.cgminer import CGMiner
 from miners.unknown import UnknownMiner
 
 PING_RETRIES: int = 3
-PING_TIMEOUT: int = 1
+PING_TIMEOUT: int = 3
 
 
 class MinerNetwork:

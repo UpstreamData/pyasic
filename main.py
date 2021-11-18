@@ -1,6 +1,8 @@
 from network import MinerNetwork
 from miners.bosminer import BOSminer
 import asyncio
+from API.bosminer import BOSMinerAPI
+from API.cgminer import CGMinerAPI
 
 
 async def good_boards():
@@ -39,6 +41,12 @@ async def test_command():
     data = await asyncio.gather(tasks)
     print(data)
 
+async def get_commands_from_miner_api():
+    miner = BOSMinerAPI("192.168.1.1")
+    print(miner.get_commands())
+    miner = CGMinerAPI("192.168.1.1")
+    print(miner.get_commands())
+
 
 if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(test_command())
+    asyncio.new_event_loop().run_until_complete(get_commands_from_miner_api())
