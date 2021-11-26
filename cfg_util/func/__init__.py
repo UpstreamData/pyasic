@@ -14,6 +14,8 @@ from cfg_util.func.data import safe_parse_api_data
 
 from config.bos import bos_config_convert, general_config_convert_bos
 
+from API import APIError
+
 
 async def update_ui_with_data(key, data, append=False):
     if append:
@@ -129,7 +131,10 @@ async def get_data(ip_list: list):
 
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
-    data = await miner.api.multicommand("summary", "pools", "tunerstatus")
+    try:
+        data = await miner.api.multicommand("summary", "pools", "tunerstatus")
+    except APIError:
+        return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
     if "tunerstatus" in data.keys():
         wattage = await safe_parse_api_data(data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
