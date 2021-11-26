@@ -10,6 +10,7 @@ import toml
 
 from cfg_util.miner_factory import miner_factory
 from cfg_util.layout import window
+from cfg_util.func.data import safe_parse_api_data
 
 from config.bos import bos_config_convert, general_config_convert_bos
 
@@ -131,23 +132,26 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     data = await miner.api.multicommand("summary", "pools", "tunerstatus")
     host = await miner.get_hostname()
     if "tunerstatus" in data.keys():
-        wattage = data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
+        wattage = await safe_parse_api_data(data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
+        # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
     else:
         wattage = 0
     if "summary" in data.keys():
         if 'MHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
-            th5s = round(data['summary'][0]['SUMMARY'][0]['MHS 5s'] / 1000000, 2)
+            th5s = round(await safe_parse_api_data(data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
         elif 'GHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
             if not data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
-                th5s = round(float(data['summary'][0]['SUMMARY'][0]['GHS 5s']) / 1000, 2)
+                th5s = round(float(await safe_parse_api_data(data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000, 2)
             else:
                 th5s = 0
         else:
             th5s = 0
     else:
         th5s = 0
-    if not data['pools'][0]['POOLS'] == []:
-        user = data['pools'][0]['POOLS'][0]['User']
+    if "pools" not in data.keys():
+        user = "?"
+    elif not data['pools'][0]['POOLS'] == []:
+        user = await safe_parse_api_data(data, 'pools', 0, 'POOLS', 0, 'User')
     else:
         user = "Blank"
     return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
