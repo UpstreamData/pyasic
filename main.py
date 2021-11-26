@@ -4,6 +4,7 @@ import asyncio
 from API.bosminer import BOSMinerAPI
 from API.cgminer import CGMinerAPI
 import sys
+from cfg_util.func.data import safe_parse_api_data
 
 
 # Fix bug with some whatsminers and asyncio because of a socket not being shut down:
@@ -42,8 +43,12 @@ async def braiins_update():
 async def test_command():
     miner_network = MinerNetwork('192.168.1.1')
     miners = await miner_network.scan_network_for_miners()
-    tasks = miners[0].api.multicommand("summary", "pools", "tunerstatus")
-    data = await asyncio.gather(tasks)
+    tasks = [miner.api.summary() for miner in miners]
+    data = await asyncio.gather(*tasks)
+    parse_tasks = []
+    for item in data:
+        parse_tasks.append(safe_parse_api_data(item, 'SUMMARY', 0, 'MHS 5s'))
+    data = await asyncio.gather(*parse_tasks)
     print(data)
 
 async def get_commands_from_miner_api():
@@ -54,4 +59,4 @@ async def get_commands_from_miner_api():
 
 
 if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(get_commands_from_miner_api())
+    asyncio.new_event_loop().run_until_complete(test_command())
