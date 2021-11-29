@@ -17,7 +17,8 @@ async def safe_parse_api_data(data: dict or list, *path: str or int, idx: int = 
             if isinstance(data, dict):
                 if path[idx] in data.keys():
                     parsed_data = await safe_parse_api_data(data[path[idx]], idx=idx+1, *path)
-                    if not parsed_data:
+                    # has to be == None, or else it fails on 0.0 hashrates
+                    if parsed_data == None:
                         raise APIError(f"Data parsing failed on path index {idx} - \nKey: {path[idx]} \nData: {data}")
                     return parsed_data
                 else:
@@ -32,7 +33,8 @@ async def safe_parse_api_data(data: dict or list, *path: str or int, idx: int = 
             if isinstance(data, list):
                 if len(data) > path[idx]:
                     parsed_data = await safe_parse_api_data(data[path[idx]], idx=idx+1, *path)
-                    if not parsed_data:
+                    # has to be == None, or else it fails on 0.0 hashrates
+                    if parsed_data == None:
                         raise APIError(f"Data parsing failed on path index {idx} - \nKey: {path[idx]} \nData: {data}")
                     return parsed_data
                 else:
