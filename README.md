@@ -16,7 +16,7 @@ if __name__ == '__main__':
     main()
 ```
 2. Make a build of the CFG Util for your system using cx_freeze and ```make_cfg_tool_exe.py```
-   1. Open either Command Prompt on Windows of Terminal on Mac or UNIX.
+   1. Open either Command Prompt on Windows or Terminal on Mac or UNIX.
    2. Navigate to this directory, and run ```make_cfg_tool_exe.py build``` on Windows or ```python3 make_cfg_tool_exe.py``` on Mac or UNIX.
 
 ### Interfacing with miners programmatically
