@@ -141,11 +141,15 @@ class BaseMinerAPI:
             # some json from the API returns with a null byte (\x00) on the end
             if data.endswith(b"\x00"):
                 # handle the null byte
-                data = json.loads(data.decode('utf-8')[:-1])
+                str_data = data.decode('utf-8')[:-1]
             else:
                 # no null byte
-                data = json.loads(data.decode('utf-8'))
+                str_data = data.decode('utf-8')
+            # fix an error with a bmminer return not having a specific comma that breaks json.loads()
+            str_data.replace("}{", "},{")
+            # parse the json
+            parsed_data = json.loads(str_data)
         # handle bad json
         except json.decoder.JSONDecodeError:
             raise APIError(f"Decode Error: {data}")
-        return data
+        return parsed_data
