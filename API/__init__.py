@@ -146,7 +146,7 @@ class BaseMinerAPI:
                 # no null byte
                 str_data = data.decode('utf-8')
             # fix an error with a bmminer return not having a specific comma that breaks json.loads()
-            str_data.replace("}{", "},{")
+            str_data = str_data.replace("}{", "},{")
             # parse the json
             parsed_data = json.loads(str_data)
         # handle bad json
