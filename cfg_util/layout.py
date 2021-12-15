@@ -6,7 +6,7 @@ layout = [
      sg.Button('Scan', key='scan'),
      sg.Text("", key="status")],
     [sg.Text('IP List File: '), sg.Input(key="file_iplist", do_not_clear=True, size=(110, 1)), sg.FileBrowse(),
-     sg.Button('Import', key="import_iplist")],
+     sg.Button('Import', key="import_iplist"), sg.Button('Export', key="export_iplist")],
     [sg.Text('Config File: '), sg.Input(key="file_config", do_not_clear=True, size=(110, 1)), sg.FileBrowse(),
      sg.Button('Import', key="import_file_config"), sg.Button('Export', key="export_file_config")],
     [

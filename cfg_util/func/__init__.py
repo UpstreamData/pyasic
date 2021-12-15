@@ -76,6 +76,23 @@ async def import_iplist(file_location):
     await update_ui_with_data("status", "")
 
 
+async def export_iplist(file_location, ip_list_selected):
+    await update_ui_with_data("status", "Exporting")
+    if not os.path.exists(file_location):
+        return
+    else:
+        if ip_list_selected is not None and not ip_list_selected == []:
+            async with aiofiles.open(file_location, mode='w') as file:
+                for item in ip_list_selected:
+                    await file.write(str(item) + "\n")
+        else:
+            async with aiofiles.open(file_location, mode='w') as file:
+                for item in window['ip_list'].Values:
+                    await file.write(str(item) + "\n")
+    await update_ui_with_data("status", "")
+
+
+
 async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
     tasks = []

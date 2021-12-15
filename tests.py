@@ -4,7 +4,6 @@ import asyncio
 from API.bosminer import BOSMinerAPI
 from API.cgminer import CGMinerAPI
 import sys
-from cfg_util.func.data import safe_parse_api_data
 
 
 # Fix bug with some whatsminers and asyncio because of a socket not being shut down:
