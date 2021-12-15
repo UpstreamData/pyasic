@@ -3,7 +3,7 @@ import sys
 
 from cfg_util.layout import window
 from cfg_util.func import scan_network, sort_data, send_config, miner_light, get_data, export_config_file, \
-    generate_config, import_config, import_iplist, import_config_file
+    generate_config, import_config, import_iplist, import_config_file, export_iplist
 
 from network import MinerNetwork
 
@@ -32,6 +32,8 @@ async def ui():
             asyncio.create_task(miner_light(value['ip_list']))
         if event == "import_iplist":
             asyncio.create_task(import_iplist(value["file_iplist"]))
+        if event == "export_iplist":
+            asyncio.create_task(export_iplist(value["file_iplist"], value['ip_list']))
         if event == "send_config":
             asyncio.create_task(send_config(value['ip_list'], value['config']))
         if event == "import_file_config":
