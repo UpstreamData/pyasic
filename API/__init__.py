@@ -126,6 +126,9 @@ class BaseMinerAPI:
                         if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
                             # this is an error
                             return False
+        elif "id" not in data.keys():
+            if data["STATUS"] not in ["S", "I"]:
+                return False
         else:
             # make sure the command succeeded
             if data["STATUS"][0]["STATUS"] not in ("S", "I"):
@@ -145,11 +148,16 @@ class BaseMinerAPI:
             else:
                 # no null byte
                 str_data = data.decode('utf-8')
+            # fix an error with a btminer return having an extra comma that breaks json.loads()
+            str_data = str_data.replace(",}", "}")
+            # fix an error with a btminer return having a newline that breaks json.loads()
+            str_data = str_data.replace("\n", "")
             # fix an error with a bmminer return not having a specific comma that breaks json.loads()
             str_data = str_data.replace("}{", "},{")
             # parse the json
             parsed_data = json.loads(str_data)
         # handle bad json
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError as e:
+            print(e)
             raise APIError(f"Decode Error: {data}")
         return parsed_data
