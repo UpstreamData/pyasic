@@ -1,6 +1,7 @@
 from miners.bosminer import BOSminer
 from miners.bmminer import BMMiner
 from miners.cgminer import CGMiner
+from miners.btminer import BTMiner
 from miners.unknown import UnknownMiner
 from API import APIError
 import asyncio
@@ -13,31 +14,42 @@ class MinerFactory:
         self.miners = {}
 
     async def get_miner(self, ip: ipaddress.ip_address) -> BOSminer or CGMiner or BMMiner or UnknownMiner:
+        """Decide a miner type using the IP address of the miner."""
+        # check if the miner already exists in cache
         if ip in self.miners:
             return self.miners[ip]
+        # get the version data
         version_data = await self._get_version_data(ip)
         version = None
         if version_data:
+            # if we got version data, get a list of the keys so we can check type of miner
             version = list(version_data['VERSION'][0].keys())
         if version:
+            # check version against different return miner types
             if "BOSminer" in version or "BOSminer+" in version:
                 miner = BOSminer(str(ip))
             elif "CGMiner" in version:
                 miner = CGMiner(str(ip))
             elif "BMMiner" in version:
                 miner = BMMiner(str(ip))
+            elif "BTMiner" in version:
+                miner = BTMiner(str(ip))
             else:
                 miner = UnknownMiner(str(ip))
         else:
+            # if we don't get version, miner type is unknown
             miner = UnknownMiner(str(ip))
+        # save the miner in cache
         self.miners[ip] = miner
         return miner
 
     def clear_cached_miners(self):
+        """Clear the miner factory cache."""
         self.miners = {}
 
     @staticmethod
     async def _get_version_data(ip: ipaddress.ip_address) -> dict or None:
+        """Get data on the version of the miner to return the right miner."""
         for i in range(3):
             try:
                 # open a connection to the miner
@@ -116,7 +128,7 @@ class MinerFactory:
                             raise APIError(data["Msg"])
                         else:
                             if "whatsminer" in data["Description"]:
-                                return {'STATUS': [{'STATUS': 'S', 'When': 1635435132, 'Code': 22, 'Msg': 'CGMiner versions', 'Description': 'cgminer 4.9.2'}], 'VERSION': [{'CGMiner': '4.9.2', 'API': '3.7'}], 'id': 1}
+                                return {"VERSION": [{"BTMiner": data["Description"]}]}
                     # make sure the command succeeded
                     elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
                         # this is an error
