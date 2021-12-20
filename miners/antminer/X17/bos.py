@@ -5,7 +5,7 @@ import toml
 from config.bos import bos_config_convert, general_config_convert_bos
 
 
-class BOSminer(BaseMiner):
+class BOSminerX17(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
@@ -14,7 +14,7 @@ class BOSminer(BaseMiner):
         self.pwd = 'admin'
 
     def __repr__(self) -> str:
-        return f"BOSminer: {str(self.ip)}"
+        return f"X17 - BOSminer: {str(self.ip)}"
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""

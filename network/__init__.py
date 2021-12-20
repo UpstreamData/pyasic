@@ -1,10 +1,6 @@
 import ipaddress
 import asyncio
 from miners.miner_factory import MinerFactory
-from miners.bmminer import BMMiner
-from miners.bosminer import BOSminer
-from miners.cgminer import CGMiner
-from miners.unknown import UnknownMiner
 
 PING_RETRIES: int = 3
 PING_TIMEOUT: int = 3
@@ -19,6 +15,7 @@ class MinerNetwork:
         self.mask = mask
 
     def get_network(self) -> ipaddress.ip_network:
+        """Get the network using the information passed to the MinerNetwork or from cache."""
         if self.network:
             return self.network
         if not self.ip_addr:
@@ -31,7 +28,8 @@ class MinerNetwork:
             subnet_mask = "24"
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
-    async def scan_network_for_miners(self) -> None or list[BOSminer or BMMiner or CGMiner or UnknownMiner]:
+    async def scan_network_for_miners(self) -> None or list:
+        """Scan the network for miners, and use the miner factory to get correct types."""
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
         scan_tasks = []
@@ -49,6 +47,7 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
+        """Send ping requests to a miner."""
         for i in range(PING_RETRIES):
             connection_fut = asyncio.open_connection(str(ip), 4028)
             try:

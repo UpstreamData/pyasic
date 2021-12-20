@@ -6,7 +6,27 @@ class CGMinerAPI(BaseMinerAPI):
         super().__init__(ip, port)
 
     async def version(self) -> dict:
+        """
+        API 'version' command.
+
+        Returns a dict containing version information.
+        """
         return await self.send_command("version")
+
+    async def config(self) -> dict:
+        """
+        API 'config' command.
+
+        Returns a dict containing some miner configuration information:
+            ASC Count <- the number of ASCs
+            PGA Count <- the number of PGAs
+            Pool Count <- the number of Pools
+            Strategy <- the current pool strategy
+            Log Interval <- the interval of logging
+            Device Code <- list of compiled device drivers
+            OS <- the current operating system
+        """
+        return await self.send_command("config")
 
     async def summary(self) -> dict:
         return await self.send_command("summary")
