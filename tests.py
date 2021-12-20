@@ -3,6 +3,7 @@ from miners.bosminer import BOSminer
 import asyncio
 from API.bosminer import BOSMinerAPI
 from API.cgminer import CGMinerAPI
+from API.btminer import BTMinerAPI
 import sys
 
 
@@ -56,6 +57,19 @@ async def get_commands_from_miner_api():
     miner = CGMinerAPI("192.168.1.1")
     print(miner.get_commands())
 
+async def restart_btminer_miner():
+    miner = BTMinerAPI("192.168.1.6")
+    print(await miner.summary())
+    print(await miner.pools())
+    print(await miner.devs())
+    print(await miner.edevs())
+    print(await miner.devdetails())
+    print(await miner.get_psu())
+    print(await miner.version())
+    print(await miner.status())
+    print(await miner.get_miner_info())
+    print(await miner.power_off())
+
 
 if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(test_command())
+    asyncio.new_event_loop().run_until_complete(restart_btminer_miner())
