@@ -16,7 +16,7 @@ from config.bos import bos_config_convert, general_config_convert_bos
 
 from API import APIError
 
-from settings import CFG_UTIL_GET_VERSION_THREADS as GET_VERSION_THREADS
+from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
 
 async def update_ui_with_data(key, data, append=False):
     if append:
@@ -101,11 +101,12 @@ async def send_config(ips: list, config):
     miners = await asyncio.gather(*tasks)
     tasks = []
     for miner in miners:
-        if len(tasks) < GET_VERSION_THREADS:
+        if len(tasks) < CONFIG_THREADS:
             tasks.append(miner.send_config(config))
         else:
             await asyncio.gather(*tasks)
             tasks = []
+        await asyncio.gather(*tasks)
     await update_ui_with_data("status", "")
 
 
