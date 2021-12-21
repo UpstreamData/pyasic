@@ -99,14 +99,14 @@ async def send_config(ips: list, config):
     for ip in ips:
         tasks.append(miner_factory.get_miner(ip))
     miners = await asyncio.gather(*tasks)
-    tasks = []
+    config_tasks = []
     for miner in miners:
-        if len(tasks) < CONFIG_THREADS:
-            tasks.append(miner.send_config(config))
+        if len(config_tasks) < CONFIG_THREADS:
+            config_tasks.append(miner.send_config(config))
         else:
-            await asyncio.gather(*tasks)
-            tasks = []
-        await asyncio.gather(*tasks)
+            await asyncio.gather(*config_tasks)
+            config_tasks = []
+    await asyncio.gather(*config_tasks)
     await update_ui_with_data("status", "")
 
 

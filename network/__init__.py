@@ -39,7 +39,8 @@ class MinerNetwork:
                 miner_ips_scan = await asyncio.gather(*scan_tasks)
                 miner_ips.extend(miner_ips_scan)
                 scan_tasks = []
-        await asyncio.gather(*scan_tasks)
+        miner_ips_scan = await asyncio.gather(*scan_tasks)
+        miner_ips.extend(miner_ips_scan)
         miner_ips = list(filter(None, miner_ips))
         print(f"Found {len(miner_ips)} connected miners...")
         create_miners_tasks = []
