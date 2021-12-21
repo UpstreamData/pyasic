@@ -8,6 +8,8 @@ import asyncio
 import ipaddress
 import json
 
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES
+
 
 class MinerFactory:
     def __init__(self):
@@ -19,11 +21,13 @@ class MinerFactory:
         if ip in self.miners:
             return self.miners[ip]
         # get the version data
-        version_data = await self._get_version_data(ip)
         version = None
-        if version_data:
-            # if we got version data, get a list of the keys so we can check type of miner
-            version = list(version_data['VERSION'][0].keys())
+        for i in range(GET_VERSION_RETRIES):
+            version_data = await self._get_version_data(ip)
+            if version_data:
+                # if we got version data, get a list of the keys so we can check type of miner
+                version = list(version_data['VERSION'][0].keys())
+                break
         if version:
             # check version against different return miner types
             if "BOSminer" in version or "BOSminer+" in version:
@@ -35,9 +39,11 @@ class MinerFactory:
             elif "BTMiner" in version:
                 miner = BTMiner(str(ip))
             else:
+                print(f"Bad API response: {version}")
                 miner = UnknownMiner(str(ip))
         else:
             # if we don't get version, miner type is unknown
+            print(f"No API response: {str(ip)}")
             miner = UnknownMiner(str(ip))
         # save the miner in cache
         self.miners[ip] = miner
