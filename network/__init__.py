@@ -1,9 +1,7 @@
 import ipaddress
 import asyncio
 from miners.miner_factory import MinerFactory
-
-PING_RETRIES: int = 3
-PING_TIMEOUT: int = 3
+from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT as PING_TIMEOUT, NETWORK_SCAN_THREADS as SCAN_THREADS
 
 
 class MinerNetwork:
@@ -29,13 +27,18 @@ class MinerNetwork:
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
     async def scan_network_for_miners(self) -> None or list:
-        """Scan the network for miners, and use the miner factory to get correct types."""
+        """Scan the network for miners, and """
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
         scan_tasks = []
+        miner_ips = []
         for host in local_network.hosts():
-            scan_tasks.append(self.ping_miner(host))
-        miner_ips = await asyncio.gather(*scan_tasks)
+            if len(scan_tasks) < SCAN_THREADS:
+                scan_tasks.append(self.ping_miner(host))
+            else:
+                miner_ips_scan = await asyncio.gather(*scan_tasks)
+                miner_ips.extend(miner_ips_scan)
+                scan_tasks = []
         miner_ips = list(filter(None, miner_ips))
         print(f"Found {len(miner_ips)} connected miners...")
         create_miners_tasks = []
@@ -47,7 +50,6 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
-        """Send ping requests to a miner."""
         for i in range(PING_RETRIES):
             connection_fut = asyncio.open_connection(str(ip), 4028)
             try:
@@ -64,7 +66,7 @@ class MinerNetwork:
                 continue
             except ConnectionRefusedError:
                 # handle for other connection errors
-                print("Unknown error...")
+                print(f"{str(ip)}: Connection Refused.")
             # ping failed, likely with an exception
             except Exception as e:
                 print(e)

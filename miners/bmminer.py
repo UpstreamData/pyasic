@@ -13,7 +13,7 @@ class BMMiner(BaseMiner):
     async def get_hostname(self) -> str:
         return "BMMiner Unknown"
 
-    async def send_config(self):
+    async def send_config(self, _):
         return None  # ignore for now
 
     async def restart_backend(self) -> None:

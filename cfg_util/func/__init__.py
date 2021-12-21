@@ -16,6 +16,7 @@ from config.bos import bos_config_convert, general_config_convert_bos
 
 from API import APIError
 
+from settings import CFG_UTIL_GET_VERSION_THREADS as GET_VERSION_THREADS
 
 async def update_ui_with_data(key, data, append=False):
     if append:
@@ -92,7 +93,6 @@ async def export_iplist(file_location, ip_list_selected):
     await update_ui_with_data("status", "")
 
 
-
 async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
     tasks = []
@@ -101,8 +101,11 @@ async def send_config(ips: list, config):
     miners = await asyncio.gather(*tasks)
     tasks = []
     for miner in miners:
-        tasks.append(miner.send_config(config))
-    await asyncio.gather(*tasks)
+        if len(tasks) < GET_VERSION_THREADS:
+            tasks.append(miner.send_config(config))
+        else:
+            await asyncio.gather(*tasks)
+            tasks = []
     await update_ui_with_data("status", "")
 
 

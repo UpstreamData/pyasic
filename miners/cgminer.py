@@ -22,10 +22,10 @@ class CGMiner(BaseMiner):
                     return data.stdout.strip()
                 else:
                     return "CGMiner Unknown"
-        except Exception as e:
+        except Exception:
             return "CGMiner Unknown"
 
-    async def send_config(self):
+    async def send_config(self, _):
         return None  # ignore for now
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
@@ -36,7 +36,7 @@ class CGMiner(BaseMiner):
                                           password=self.pwd,
                                           server_host_key_algs=['ssh-rsa'])
             return conn
-        except asyncssh.misc.PermissionDenied as e:
+        except asyncssh.misc.PermissionDenied:
             try:
                 conn = await asyncssh.connect(str(self.ip),
                                               known_hosts=None,
@@ -49,7 +49,6 @@ class CGMiner(BaseMiner):
         except OSError:
             print(str(self.ip) + " Connection refused.")
             return None
-
 
     async def send_ssh_command(self, cmd):
         result = None
