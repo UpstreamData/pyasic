@@ -71,5 +71,16 @@ async def restart_btminer_miner():
     print(await miner.power_off())
 
 
+async def scan_generator():
+    miners_all = []
+    miner_network = MinerNetwork('192.168.1.1', mask=22)
+    miners = miner_network.scan_network_generator()
+    async for miner in miners:
+        if miner:
+            miners_all.append(miner)
+    print(miners_all)
+    print(len(miners_all))
+
+
 if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(restart_btminer_miner())
+    asyncio.new_event_loop().run_until_complete(scan_generator())
