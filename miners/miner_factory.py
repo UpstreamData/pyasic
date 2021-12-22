@@ -15,6 +15,15 @@ class MinerFactory:
     def __init__(self):
         self.miners = {}
 
+    async def get_miner_generator(self, found_ips):
+        loop = asyncio.get_event_loop()
+        scan_tasks = []
+        for miner in found_ips:
+            scan_tasks.append(loop.create_task(self.get_miner(miner)))
+        scanned = asyncio.as_completed(scan_tasks)
+        for miner in scanned:
+            yield await miner
+
     async def get_miner(self, ip: ipaddress.ip_address) -> BOSminer or CGMiner or BMMiner or UnknownMiner:
         """Decide a miner type using the IP address of the miner."""
         # check if the miner already exists in cache

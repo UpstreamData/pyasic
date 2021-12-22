@@ -12,6 +12,9 @@ class MinerNetwork:
         self.connected_miners = {}
         self.mask = mask
 
+    def __len__(self):
+        return len([item for item in self.get_network().hosts()])
+
     def get_network(self) -> ipaddress.ip_network:
         """Get the network using the information passed to the MinerNetwork or from cache."""
         if self.network:
@@ -49,6 +52,23 @@ class MinerNetwork:
             create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
         miners = await asyncio.gather(*create_miners_tasks)
         return miners
+
+
+    async def scan_network_generator(self):
+        loop = asyncio.get_event_loop()
+        local_network = self.get_network()
+        scan_tasks = []
+        for host in local_network.hosts():
+            if len(scan_tasks) >= SCAN_THREADS:
+                scanned = asyncio.as_completed(scan_tasks)
+                scan_tasks = []
+                for miner in scanned:
+                    yield await miner
+            scan_tasks.append(loop.create_task(self.ping_miner(host)))
+        scanned = asyncio.as_completed(scan_tasks)
+        for miner in scanned:
+            yield await miner
+
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
