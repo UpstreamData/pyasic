@@ -1,7 +1,8 @@
 import ipaddress
 import asyncio
 from miners.miner_factory import MinerFactory
-from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT as PING_TIMEOUT, NETWORK_SCAN_THREADS as SCAN_THREADS
+from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT as PING_TIMEOUT, \
+    NETWORK_SCAN_THREADS as SCAN_THREADS
 
 
 class MinerNetwork:
@@ -53,7 +54,6 @@ class MinerNetwork:
         miners = await asyncio.gather(*create_miners_tasks)
         return miners
 
-
     async def scan_network_generator(self):
         loop = asyncio.get_event_loop()
         local_network = self.get_network()
@@ -68,7 +68,6 @@ class MinerNetwork:
         scanned = asyncio.as_completed(scan_tasks)
         for miner in scanned:
             yield await miner
-
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
