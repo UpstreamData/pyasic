@@ -324,4 +324,3 @@ class BTMinerAPI(BaseMinerAPI):
 
     async def get_miner_info(self):
         return await self.send_command("get_miner_info")
-

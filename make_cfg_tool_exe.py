@@ -15,13 +15,12 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-
 version = datetime.datetime.now()
 version = version.strftime("%y.%m.%d")
 print(version)
 setup(name="UpstreamCFGUtil.exe",
       version=version,
       description="Upstream Data Config Utility Build",
-      options={"build_exe":{"build_exe": f"{os.getcwd()}\\build\\UpstreamCFGUtil-{version}-{sys.platform}\\"}},
+      options={"build_exe": {"build_exe": f"{os.getcwd()}\\build\\UpstreamCFGUtil-{version}-{sys.platform}\\"}},
       executables=[Executable("config_tool.py", base=base, icon="icon.ico", target_name="UpstreamCFGUtil.exe")]
       )
