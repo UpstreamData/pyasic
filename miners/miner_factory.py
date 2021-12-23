@@ -15,10 +15,10 @@ class MinerFactory:
     def __init__(self):
         self.miners = {}
 
-    async def get_miner_generator(self, found_ips):
+    async def get_miner_generator(self, ips: list):
         loop = asyncio.get_event_loop()
         scan_tasks = []
-        for miner in found_ips:
+        for miner in ips:
             scan_tasks.append(loop.create_task(self.get_miner(miner)))
         scanned = asyncio.as_completed(scan_tasks)
         for miner in scanned:
