@@ -18,20 +18,31 @@ from API import APIError
 
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
 
-async def update_ui_with_data(key, data, append=False):
+
+async def update_ui_with_data(key, message, append=False):
     if append:
-        data = window[key].get_text() + data
-    window[key].update(data)
+        message = window[key].get_text() + message
+    window[key].update(message)
+
 
 async def update_prog_bar(amount):
     window["progress"].Update(amount)
+    percent_done = 100 * (amount / window['progress'].maxlen)
+    window["progress_percent"].Update(f"{round(percent_done, 2)} %")
+    if percent_done == 100:
+        window["progress_percent"].Update("")
+
+
+async def set_progress_bar_len(amount):
+    window["progress"].Update(0, max=amount)
+    window["progress"].maxlen = amount
 
 
 async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
     network_size = len(network)
     miner_generator = network.scan_network_generator()
-    window["progress"].Update(0, max=2*network_size)
+    await set_progress_bar_len(2 * network_size)
     progress_bar_len = 0
     miners = []
     async for miner in miner_generator:
@@ -39,7 +50,7 @@ async def scan_network(network):
             miners.append(miner)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-    progress_bar_len += network_size-len(miners)
+    progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
     get_miner_genenerator = miner_factory.get_miner_generator(miners)
     all_miners = []
@@ -114,20 +125,36 @@ async def export_iplist(file_location, ip_list_selected):
     await update_ui_with_data("status", "")
 
 
-async def send_config(ips: list, config):
-    await update_ui_with_data("status", "Configuring")
-    tasks = []
-    for ip in ips:
-        tasks.append(miner_factory.get_miner(ip))
-    miners = await asyncio.gather(*tasks)
+async def send_config_generator(miners: list, config):
+    loop = asyncio.get_event_loop()
     config_tasks = []
     for miner in miners:
-        if len(config_tasks) < CONFIG_THREADS:
-            config_tasks.append(miner.send_config(config))
-        else:
-            await asyncio.gather(*config_tasks)
+        if len(config_tasks) >= CONFIG_THREADS:
+            configured = asyncio.as_completed(config_tasks)
             config_tasks = []
-    await asyncio.gather(*config_tasks)
+            for sent_config in configured:
+                yield await sent_config
+        config_tasks.append(loop.create_task(miner.send_config(config)))
+    configured = asyncio.as_completed(config_tasks)
+    for sent_config in configured:
+        yield await sent_config
+
+
+async def send_config(ips: list, config):
+    await update_ui_with_data("status", "Configuring")
+    await set_progress_bar_len(2 * len(ips))
+    progress_bar_len = 0
+    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    all_miners = []
+    async for miner in get_miner_genenerator:
+        all_miners.append(miner)
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+
+    config_sender_generator = send_config_generator(all_miners, config)
+    async for _config_sender in config_sender_generator:
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
 
 
@@ -156,18 +183,18 @@ async def export_config_file(file_location, config):
 async def get_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
-    window["progress"].Update(0, max=len(ips))
+    await set_progress_bar_len(len(ips))
     progress_bar_len = 0
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
-    data = []
+    miner_data = []
     for all_data in data_gen:
-        data.append(await all_data)
+        miner_data.append(await all_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    data.sort(key=lambda x: ipaddress.ip_address(x['IP']))
+    miner_data.sort(key=lambda x: ipaddress.ip_address(x['IP']))
 
-    total_hr = round(sum(d.get('TH/s', 0) for d in data), 2)
+    total_hr = round(sum(d.get('TH/s', 0) for d in miner_data), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
     window["hr_list"].update(disabled=False)
     window["hr_list"].update([item['IP'] + " | "
@@ -175,7 +202,7 @@ async def get_data(ip_list: list):
                               + str(item['TH/s']) + " TH/s | "
                               + item['user'] + " | "
                               + str(item['wattage']) + " W"
-                              for item in data])
+                              for item in miner_data])
     window["hr_list"].update(disabled=True)
     await update_ui_with_data("status", "")
 
@@ -183,31 +210,31 @@ async def get_data(ip_list: list):
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     try:
-        data = await miner.api.multicommand("summary", "pools", "tunerstatus")
+        miner_data = await miner.api.multicommand("summary", "pools", "tunerstatus")
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
-    if "tunerstatus" in data.keys():
-        wattage = await safe_parse_api_data(data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
+    if "tunerstatus" in miner_data.keys():
+        wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
         # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
     else:
         wattage = 0
-    if "summary" in data.keys():
-        if 'MHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
-            th5s = round(await safe_parse_api_data(data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
-        elif 'GHS 5s' in data['summary'][0]['SUMMARY'][0].keys():
-            if not data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
-                th5s = round(float(await safe_parse_api_data(data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000, 2)
+    if "summary" in miner_data.keys():
+        if 'MHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
+            th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
+        elif 'GHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
+            if not miner_data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
+                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000, 2)
             else:
                 th5s = 0
         else:
             th5s = 0
     else:
         th5s = 0
-    if "pools" not in data.keys():
+    if "pools" not in miner_data.keys():
         user = "?"
-    elif not data['pools'][0]['POOLS'] == []:
-        user = await safe_parse_api_data(data, 'pools', 0, 'POOLS', 0, 'User')
+    elif not miner_data['pools'][0]['POOLS'] == []:
+        user = await safe_parse_api_data(miner_data, 'pools', 0, 'POOLS', 0, 'User')
     else:
         user = "Blank"
     return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
