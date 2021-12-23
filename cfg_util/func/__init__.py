@@ -31,7 +31,6 @@ async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
     network_size = len(network)
     miner_generator = network.scan_network_generator()
-    print(2*network_size)
     window["progress"].Update(0, max=2*network_size)
     progress_bar_len = 0
     miners = []
@@ -48,7 +47,7 @@ async def scan_network(network):
         all_miners.append(found_miner)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-
+    all_miners.sort(key=lambda x: x.ip)
     window["ip_list"].update([str(miner.ip) for miner in all_miners])
     await update_ui_with_data("ip_count", str(len(all_miners)))
     await update_ui_with_data("status", "")
@@ -157,8 +156,17 @@ async def export_config_file(file_location, config):
 async def get_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
-    ips.sort()
-    data = await asyncio.gather(*[get_formatted_data(miner) for miner in ips])
+    window["progress"].Update(0, max=len(ips))
+    progress_bar_len = 0
+    data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
+    data = []
+    for all_data in data_gen:
+        data.append(await all_data)
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+
+    data.sort(key=lambda x: ipaddress.ip_address(x['IP']))
+
     total_hr = round(sum(d.get('TH/s', 0) for d in data), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
     window["hr_list"].update(disabled=False)
