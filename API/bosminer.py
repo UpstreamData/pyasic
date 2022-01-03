@@ -206,6 +206,8 @@ class BOSMinerAPI(BaseMinerAPI):
         API 'pause' command.
 
         Pauses mining and stops power consumption and waits for resume command.
+
+        Returns a dict stating that the miner paused mining.
         """
         return await self.send_command("pause")
 
@@ -214,5 +216,7 @@ class BOSMinerAPI(BaseMinerAPI):
         API 'pause' command.
 
         Resumes mining on the miner.
+
+        Returns a dict stating that the miner resumed mining.
         """
         return await self.send_command("resume")
