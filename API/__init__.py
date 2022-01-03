@@ -53,7 +53,24 @@ class BaseMinerAPI:
         # standard multicommand format is "command1+command2"
         # doesnt work for S19 which is dealt with in the send command function
         command = "+".join(commands)
-        return await self.send_command(command)
+        data = None
+        try:
+            data = await self.send_command(command)
+        except APIError as e:
+            try:
+                data = {}
+                # S19 handler, try again
+                for cmd in command.split("+"):
+                    data[cmd] = []
+                    data[cmd].append(await self.send_command(cmd))
+            except APIError as e:
+                raise APIError(e)
+            except Exception as e:
+                print(e)
+        if data:
+            return data
+
+
 
     async def send_command(self, command: str, parameters: str or int or bool = None) -> dict:
         """Send an API command to the miner and return the result."""
@@ -95,18 +112,6 @@ class BaseMinerAPI:
         await writer.wait_closed()
 
         # validate the command suceeded
-        # also handle for S19 not liking "command1+command2" format
-        if not self.validate_command_output(data):
-            try:
-                data = {}
-                # S19 handler, try again
-                for cmd in command.split("+"):
-                    data[cmd] = []
-                    data[cmd].append(await self.send_command(cmd))
-            except Exception as e:
-                print(e)
-
-        # check again after second try
         if not self.validate_command_output(data):
             raise APIError(data["STATUS"][0]["Msg"])
 
