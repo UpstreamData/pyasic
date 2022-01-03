@@ -1,7 +1,8 @@
 import asyncio
 import sys
+import PySimpleGUI as sg
 
-from cfg_util.layout import window
+from cfg_util.layout import window, generate_config_layout
 from cfg_util.func import scan_network, sort_data, send_config, miner_light, get_data, export_config_file, \
     generate_config, import_config, import_iplist, import_config_file, export_iplist
 
@@ -11,7 +12,7 @@ from network import MinerNetwork
 async def ui():
     while True:
         event, value = window.read(timeout=10)
-        if event in (None, 'Close'):
+        if event in (None, 'Close', sg.WIN_CLOSED):
             sys.exit()
         if event == 'scan':
             if len(value['miner_network'].split("/")) > 1:
@@ -43,7 +44,7 @@ async def ui():
         if event == "get_data":
             asyncio.create_task(get_data(value['ip_list']))
         if event == "generate_config":
-            asyncio.create_task(generate_config())
+            await generate_config_ui()
         if event == "sort_data_ip":
             asyncio.create_task(sort_data('ip'))
         if event == "sort_data_hr":
@@ -54,3 +55,17 @@ async def ui():
             asyncio.create_task(sort_data('wattage'))
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
+
+
+async def generate_config_ui():
+    generate_config_window = sg.Window("Generate Config", generate_config_layout(), modal=True)
+    while True:
+        event, values = generate_config_window.read()
+        if event in (None, 'Close', sg.WIN_CLOSED):
+            break
+        if event == "generate_config_window_generate":
+            if values['generate_config_window_username']:
+                await generate_config(values['generate_config_window_username'], values['generate_config_window_workername'], values['generate_config_window_allow_v2'])
+                generate_config_window.close()
+                break
+
