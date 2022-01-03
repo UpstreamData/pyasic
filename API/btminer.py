@@ -6,7 +6,7 @@ import re
 import json
 import hashlib
 import binascii
-from Crypto.Cipher import AES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import base64
 
 
@@ -42,13 +42,17 @@ def _add_to_16(s: str) -> bytes:
 
 
 def parse_btminer_priviledge_data(token_data, data):
+    # get the encoded data from the dict
     enc_data = data['enc']
+    # get the aes key from the token data
     aeskey = hashlib.sha256(token_data['host_passwd_md5'].encode()).hexdigest()
+    # unhexlify the aes key
     aeskey = binascii.unhexlify(aeskey.encode())
-    aes = AES.new(aeskey, AES.MODE_ECB)
-    ret_msg = json.loads(str(
-        aes.decrypt(base64.decodebytes(bytes(
-            enc_data, encoding='utf8'))).rstrip(b'\0').decode("utf8")))
+    # create the required decryptor
+    aes = Cipher(algorithms.AES(aeskey), modes.ECB())
+    decryptor = aes.decryptor()
+    # decode the message with the decryptor
+    ret_msg = json.loads(decryptor.update(base64.decodebytes(bytes(enc_data, encoding='utf8'))).rstrip(b'\0').decode("utf8"))
     return ret_msg
 
 
@@ -60,13 +64,12 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     # unhexlify the encoded host_passwd
     aeskey = binascii.unhexlify(aeskey.encode())
     # create a new AES key
-    aes = AES.new(aeskey, AES.MODE_ECB)
+    aes = Cipher(algorithms.AES(aeskey), modes.ECB())
+    encryptor = aes.encryptor()
     # dump the command to json
     api_json_str = json.dumps(command)
     # encode the json command with the aes key
-    api_json_str_enc = str(base64.encodebytes(
-        aes.encrypt(_add_to_16(api_json_str))),
-        encoding='utf8').replace('\n', '')
+    api_json_str_enc = base64.encodebytes(encryptor.update(_add_to_16(api_json_str))).decode("utf-8").replace("\n", "")
     # label the data as being encoded
     data_enc = {'enc': 1, 'data': api_json_str_enc}
     # dump the labeled data to json

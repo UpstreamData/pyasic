@@ -56,7 +56,7 @@ class BaseMinerAPI:
         data = None
         try:
             data = await self.send_command(command)
-        except APIError as e:
+        except APIError:
             try:
                 data = {}
                 # S19 handler, try again
@@ -69,8 +69,6 @@ class BaseMinerAPI:
                 print(e)
         if data:
             return data
-
-
 
     async def send_command(self, command: str, parameters: str or int or bool = None) -> dict:
         """Send an API command to the miner and return the result."""
