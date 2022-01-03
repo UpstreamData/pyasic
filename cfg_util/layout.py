@@ -31,5 +31,15 @@ layout = [
         ])
     ],
 ]
+def generate_config_layout():
+    generate_config_layout = [
+        [sg.Text("Enter your pool username and password below to generate a config for SlushPool.")],
+        [sg.Text("")],
+        [sg.Text('Username:', size=(19, 1)), sg.InputText(key='generate_config_window_username', do_not_clear=True, size=(45, 1))],
+        [sg.Text('Worker Name (OPT):', size=(19, 1)), sg.InputText(key='generate_config_window_workername', do_not_clear=True, size=(45, 1))],
+        [sg.Text('Allow Stratum V2?:', size=(19, 1)), sg.Checkbox('', key='generate_config_window_allow_v2', default=True)],
+        [sg.Button("Generate", key="generate_config_window_generate")]
+    ]
+    return generate_config_layout
 
 window = sg.Window('Upstream Config Util', layout, icon=icon_of_window)

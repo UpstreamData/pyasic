@@ -36,6 +36,7 @@ async def update_prog_bar(amount):
 async def set_progress_bar_len(amount):
     window["progress"].Update(0, max=amount)
     window["progress"].maxlen = amount
+    window["progress_percent"].Update("0.0 %")
 
 
 async def scan_network(network):
@@ -240,21 +241,38 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
 
 
-async def generate_config():
+async def generate_config(username, workername, v2_allowed):
+    if username and workername:
+        user = f"{username}.{workername}"
+    elif username and not workername:
+        user = username
+    else:
+        return
+
+    if v2_allowed:
+        url_1 = 'stratum2+tcp://v2.us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt'
+        url_2 = 'stratum2+tcp://v2.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt'
+        url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
+    else:
+        url_1 = 'stratum+tcp://ca.stratum.slushpool.com:3333'
+        url_2 = 'stratum+tcp://us-east.stratum.slushpool.com:3333'
+        url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
+
+
     config = {'group': [{
         'name': 'group',
         'quota': 1,
         'pool': [{
-            'url': 'stratum2+tcp://us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt',
-            'user': 'UpstreamDataInc.test',
+            'url': url_1,
+            'user': user,
             'password': '123'
         }, {
-            'url': 'stratum2+tcp://stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt',
-            'user': 'UpstreamDataInc.test',
+            'url': url_2,
+            'user': user,
             'password': '123'
         }, {
-            'url': 'stratum+tcp://stratum.slushpool.com:3333',
-            'user': 'UpstreamDataInc.test',
+            'url': url_3,
+            'user': user,
             'password': '123'
         }]
     }],
