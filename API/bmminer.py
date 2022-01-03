@@ -29,7 +29,7 @@ class BMMinerAPI(BaseMinerAPI):
         """
         API 'config' command.
 
-        Returns some miner configuration information:
+        Returns a dict containing some miner configuration information:
             ASC Count <- the number of ASCs
             PGA Count <- the number of PGAs
             Pool Count <- the number of Pools
@@ -446,7 +446,6 @@ class BMMinerAPI(BaseMinerAPI):
 
         Parameters:
             n: the number of the ASC to disable.
-
         """
         return await self.send_command("ascdisable", parameters=n)
 
