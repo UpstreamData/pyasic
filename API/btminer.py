@@ -1,6 +1,6 @@
 from API import BaseMinerAPI, APIError
 
-from passlib.hash import md5_crypt
+from passlib.handlers import md5_crypt
 import asyncio
 import re
 import json
