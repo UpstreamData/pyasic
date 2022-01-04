@@ -21,6 +21,21 @@ if __name__ == '__main__':
    2. Navigate to this directory, and run ```make_cfg_tool_exe.py build``` on Windows or ```python3 make_cfg_tool_exe.py``` on Mac or UNIX.
 
 ### Interfacing with miners programmatically
+<br>
+
+##### Note: If you are trying to interface with Whatsminers, there is a bug in the way they are interacted with on Windows, so to fix that you need to change the event loop policy using this code: 
+```python
+# need to import these 2 libraries, you need asyncio anyway so make sure you have sys imported
+import sys
+import asyncio
+
+# if the computer is windows, set the event loop policy to a WindowsSelector policy
+if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+```
+
+##### It is likely a good idea to use this code in your program anyway to be preventative.
+<br>
 
 To write your own custom programs with this repo, you have many options.
 

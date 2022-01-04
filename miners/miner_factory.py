@@ -16,6 +16,14 @@ class MinerFactory:
         self.miners = {}
 
     async def get_miner_generator(self, ips: list):
+        """
+        Get Miner objects from ip addresses using an async generator.
+
+        Returns an asynchronous generator containing Miners.
+
+        Parameters:
+            ips: a list of ip addresses to get miners for.
+        """
         loop = asyncio.get_event_loop()
         scan_tasks = []
         for miner in ips:

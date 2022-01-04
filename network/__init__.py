@@ -31,7 +31,7 @@ class MinerNetwork:
         return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
 
     async def scan_network_for_miners(self) -> None or list:
-        """Scan the network for miners, and """
+        """Scan the network for miners, and return found miners as a list."""
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
         scan_tasks = []
@@ -55,6 +55,11 @@ class MinerNetwork:
         return miners
 
     async def scan_network_generator(self):
+        """
+        Scan the network for miners using an async generator.
+
+        Returns an asynchronous generator containing found miners.
+        """
         loop = asyncio.get_event_loop()
         local_network = self.get_network()
         scan_tasks = []
