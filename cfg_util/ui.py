@@ -9,12 +9,22 @@ from cfg_util.func.ui import sort_data
 
 from network import MinerNetwork
 
+import webbrowser
+
 
 async def ui():
     while True:
         event, value = window.read(timeout=10)
         if event in (None, 'Close', sg.WIN_CLOSED):
             sys.exit()
+        if isinstance(event, tuple):
+            if len(window["ip_table"].Values) > 0:
+                if event[0] == 'ip_table':
+                    if event[2][0] == -1:
+                        await sort_data(event[2][1])
+        if event == 'ip_table':
+            if value["ip_table"]:
+                webbrowser.open("http://" + window["ip_table"].Values[value["ip_table"][0]][0])
         if event == 'scan':
             if len(value['miner_network'].split("/")) > 1:
                 network = value['miner_network'].split("/")
@@ -46,16 +56,10 @@ async def ui():
             asyncio.create_task(get_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
         if event == "generate_config":
             await generate_config_ui()
-        if event == "sort_data_ip":
-            asyncio.create_task(sort_data(0))  # ip index in table
-        if event == "sort_data_hr":
-            asyncio.create_task(sort_data(2))  # HR index in table
-        if event == "sort_data_user":
-            asyncio.create_task(sort_data(3))  # user index in table
-        if event == "sort_data_w":
-            asyncio.create_task(sort_data(4))  # wattage index in table
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
+        else:
+            print(event)
 
 
 async def generate_config_ui():
