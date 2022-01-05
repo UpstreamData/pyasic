@@ -37,6 +37,7 @@ async def set_progress_bar_len(amount):
 
 async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
+    await update_ui_with_data("hr_total", "")
     network_size = len(network)
     miner_generator = network.scan_network_generator()
     await set_progress_bar_len(2 * network_size)
@@ -194,10 +195,8 @@ async def get_data(ip_list: list):
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
     ip_table_data = window["ip_table"].Values
     ordered_all_ips = [item[0] for item in ip_table_data]
-    miner_hr = []
     for all_data in data_gen:
         data_point = await all_data
-        miner_hr.append(data_point["TH/s"])
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
@@ -207,7 +206,8 @@ async def get_data(ip_list: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    total_hr = round(sum(miner_hr), 2)
+    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values]
+    total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
     await update_ui_with_data("status", "")
