@@ -104,9 +104,6 @@ class BOSMinerAPI(BaseMinerAPI):
 
         Returns a dict containing stats for all device/pool with more than 1 getwork,
         ignoring zombie devices.
-
-        Parameters:
-            old (optional): include zombie devices that became zombies less than 'old' seconds ago.
         """
         return await self.send_command("estats")
 

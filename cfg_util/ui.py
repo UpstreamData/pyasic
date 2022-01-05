@@ -3,8 +3,9 @@ import sys
 import PySimpleGUI as sg
 
 from cfg_util.layout import window, generate_config_layout
-from cfg_util.func import scan_network, sort_data, send_config, miner_light, get_data, export_config_file, \
-    generate_config, import_config, import_iplist, import_config_file, export_iplist
+from cfg_util.func.miners import scan_network, send_config, miner_light, get_data, generate_config, import_config
+from cfg_util.func.files import import_iplist, import_config_file, export_iplist, export_config_file
+from cfg_util.func.ui import sort_data
 
 from network import MinerNetwork
 

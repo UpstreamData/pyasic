@@ -1,6 +1,7 @@
 import toml
 import os
 
+# noinspection PyPep8
 try:
     with open(os.path.join(os.getcwd(), "settings.toml"), "r") as settings_file:
         settings = toml.loads(settings_file.read())

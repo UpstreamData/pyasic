@@ -46,7 +46,7 @@ class BaseMinerAPI:
         for item in commands:
             # make sure we can actually run the command, otherwise it will fail
             if item not in self.get_commands():
-                # if the command isnt allowed, remove it
+                # if the command isn't allowed, remove it
                 print(f"Removing incorrect command: {item}")
                 commands.remove(item)
 
