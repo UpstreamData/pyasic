@@ -67,10 +67,15 @@ class CGMiner(BaseMiner):
     @staticmethod
     def _result_handler(result: asyncssh.process.SSHCompletedProcess) -> None:
         if result is not None:
+            # noinspection PyUnresolvedReferences
             if len(result.stdout) > 0:
+                # noinspection PyUnresolvedReferences
                 print("ssh stdout: \n" + result.stdout)
+            # noinspection PyUnresolvedReferences
             if len(result.stderr) > 0:
+                # noinspection PyUnresolvedReferences
                 print("ssh stderr: \n" + result.stderrr)
+            # noinspection PyUnresolvedReferences
             if len(result.stdout) <= 0 and len(result.stderr) <= 0:
                 print("ssh stdout stderr empty")
             # if result.stdout != "":

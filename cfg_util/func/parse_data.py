@@ -1,6 +1,7 @@
 from API import APIError
 
 
+# noinspection PyPep8
 async def safe_parse_api_data(data: dict or list, *path: str or int, idx: int = 0):
     path = [*path]
     if len(path) == idx+1:
@@ -18,6 +19,7 @@ async def safe_parse_api_data(data: dict or list, *path: str or int, idx: int = 
                 if path[idx] in data.keys():
                     parsed_data = await safe_parse_api_data(data[path[idx]], idx=idx+1, *path)
                     # has to be == None, or else it fails on 0.0 hashrates
+                    # noinspection PyPep8
                     if parsed_data == None:
                         raise APIError(f"Data parsing failed on path index {idx} - \nKey: {path[idx]} \nData: {data}")
                     return parsed_data
@@ -34,6 +36,7 @@ async def safe_parse_api_data(data: dict or list, *path: str or int, idx: int = 
                 if len(data) > path[idx]:
                     parsed_data = await safe_parse_api_data(data[path[idx]], idx=idx+1, *path)
                     # has to be == None, or else it fails on 0.0 hashrates
+                    # noinspection PyPep8
                     if parsed_data == None:
                         raise APIError(f"Data parsing failed on path index {idx} - \nKey: {path[idx]} \nData: {data}")
                     return parsed_data

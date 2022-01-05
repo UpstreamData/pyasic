@@ -6,14 +6,14 @@
 ## Input Fields
 ### Network IP:
 * Defaults to 192.168.1.0/24 (192.168.1.0 - 192.168.1.255)
-* Enter any IP on your local network and it will automatically load your entire network with a /24 subnet (255 IP addresses)
+* Enter any IP on your local network, and it will automatically load your entire network with a /24 subnet (255 IP addresses)
 * You can also add a subnet mask by adding a / after the IP and entering the subnet mask
 * Press Scan to scan the selected network for miners
 
 ### IP List File:
 * Use the Browse button to select a file
 * Use the Import button to import all IP addresses from a file, regardless of where they are located in the file
-* Use the Export button to export all IP addresses (or all selected IP addresses if you select some) to a file, with each seperated by a new line
+* Use the Export button to export all IP addresses (or all selected IP addresses if you select some) to a file, with each separated by a new line
 
 ### Config File:
 * Use the Browse button to select a file
@@ -25,7 +25,7 @@
 ## Data Fields
 ### IP List:
 * This field contains all the IP addresses of miners that were either imported from a file or scanned
-* Select one by clicking, mutiple by holding CTRL and clicking, and select all between 2 chosen miners by holding SHIFT as you select them
+* Select one by clicking, multiple by holding CTRL and clicking, and select all between 2 chosen miners by holding SHIFT as you select them
 * Use the ALL button to select all IP addresses in the field, or unselect all if they are selected
 
 ### Data:

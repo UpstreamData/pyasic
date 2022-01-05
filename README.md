@@ -46,7 +46,7 @@ A basic script to find all miners on the network and get the hashrate from them 
 ```python
 import asyncio
 from network import MinerNetwork
-from cfg_util.func import safe_parse_api_data
+from cfg_util.func.parse_data import safe_parse_api_data
 
 async def get_hashrate():
     # Miner Network class allows for easy scanning of a network
@@ -80,7 +80,7 @@ You can also create your own miner without scanning if you know the IP:
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from cfg_util.func import safe_parse_api_data
+from cfg_util.func.parse_data import safe_parse_api_data
 
 async def get_miner_hashrate(ip: str):
     # Instantiate a Miner Factory to generate miners from their IP
@@ -106,7 +106,7 @@ Or generate a miner directly without the factory:
 ```python
 import asyncio
 from miners.bosminer import BOSminer
-from cfg_util.func import safe_parse_api_data
+from cfg_util.func.parse_data import safe_parse_api_data
 
 async def get_miner_hashrate(ip: str):
     # Create a BOSminer miner object
@@ -128,7 +128,7 @@ Or finally, just get the API directly:
 ```python
 import asyncio
 from API.bosminer import BOSMinerAPI
-from cfg_util.func import safe_parse_api_data
+from cfg_util.func.parse_data import safe_parse_api_data
 
 async def get_miner_hashrate(ip: str):
     # Create a BOSminerAPI object
