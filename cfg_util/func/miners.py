@@ -133,6 +133,52 @@ async def get_data(ip_list: list):
     await update_ui_with_data("status", "")
 
 
+async def scan_and_get_data(network):
+    await update_ui_with_data("status", "Scanning")
+    network_size = len(network)
+    miner_generator = network.scan_network_generator()
+    await set_progress_bar_len(3 * network_size)
+    progress_bar_len = 0
+    miners = []
+    async for miner in miner_generator:
+        if miner:
+            miners.append(miner)
+            # can output "Identifying" for each found item, but it gets a bit cluttered
+            # and could possibly be confusing for the end user because of timing on
+            # adding the IPs
+            # window["ip_table"].update([["Identifying...", "", "", "", ""] for miner in miners])
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+    progress_bar_len += network_size - len(miners)
+    asyncio.create_task(update_prog_bar(progress_bar_len))
+    get_miner_genenerator = miner_factory.get_miner_generator(miners)
+    all_miners = []
+    async for found_miner in get_miner_genenerator:
+        all_miners.append(found_miner)
+        all_miners.sort(key=lambda x: x.ip)
+        window["ip_table"].update([[str(miner.ip), "", "", "", ""] for miner in all_miners])
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+    data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in miners])
+    ip_table_data = window["ip_table"].Values
+    ordered_all_ips = [item[0] for item in ip_table_data]
+    progress_bar_len += network_size - len(miners)
+    await update_ui_with_data("status", "Getting Data")
+    for all_data in data_gen:
+        data_point = await all_data
+        if data_point["IP"] in ordered_all_ips:
+            ip_table_index = ordered_all_ips.index(data_point["IP"])
+            ip_table_data[ip_table_index] = [
+                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"], data_point['user'], str(data_point['wattage']) + " W"
+            ]
+            window["ip_table"].update(ip_table_data)
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+
+
+
+
+
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     try:
