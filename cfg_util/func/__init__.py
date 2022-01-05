@@ -13,6 +13,7 @@ from cfg_util.layout import window
 from cfg_util.miner_factory import miner_factory
 from config.bos import bos_config_convert, general_config_convert_bos
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
+from miners.btminer import BTMiner
 
 
 async def update_ui_with_data(key, message, append=False):
@@ -224,7 +225,10 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     if "tunerstatus" in miner_data.keys():
         wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
         # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
+    elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
+        wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
     else:
+        print(miner_data)
         wattage = 0
     if "summary" in miner_data.keys():
         if 'MHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
