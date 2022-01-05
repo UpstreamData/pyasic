@@ -1,5 +1,6 @@
 from API.btminer import BTMinerAPI
 from miners import BaseMiner
+from API import APIError
 
 
 class BTMiner(BaseMiner):
@@ -11,7 +12,11 @@ class BTMiner(BaseMiner):
         return f"BTMiner: {str(self.ip)}"
 
     async def get_hostname(self) -> str:
-        return "BTMiner Unknown"
+        try:
+            host_data = await self.api.get_miner_info("hostname")
+            print(host_data)
+        except APIError:
+            return "BTMiner Unknown"
 
     async def send_config(self, _):
         return None  # ignore for now
