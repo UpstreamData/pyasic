@@ -13,8 +13,9 @@ class BTMiner(BaseMiner):
 
     async def get_hostname(self) -> str:
         try:
-            host_data = await self.api.get_miner_info("hostname")
-            print(host_data)
+            host_data = await self.api.get_miner_info()
+            if host_data:
+                return host_data["Msg"]["hostname"]
         except APIError:
             return "BTMiner Unknown"
 

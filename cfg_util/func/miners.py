@@ -120,7 +120,7 @@ async def get_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point['user'], str(data_point['wattage']) + " W"
+                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"], data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
@@ -136,18 +136,11 @@ async def get_data(ip_list: list):
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     try:
-        miner_data = await miner.api.multicommand("summary", "pools", "tunerstatus")
+        miner_data = await miner.api.multicommand("summary", "devs",  "temps", "tunerstatus", "pools")
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
-    if "tunerstatus" in miner_data.keys():
-        wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
-        # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
-    elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
-        wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
-    else:
-        print(miner_data)
-        wattage = 0
+
     if "summary" in miner_data.keys():
         if 'MHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
             th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
@@ -161,13 +154,36 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             th5s = 0
     else:
         th5s = 0
+    temps = 0
+
+    if "temps" in miner_data.keys() and not miner_data["temps"][0]['TEMPS'] == []:
+        if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
+            for board in miner_data["temps"][0]['TEMPS']:
+                if board["Chip"] is not None and not board["Chip"] == 0.0:
+                    temps = board["Chip"]
+
+    elif "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
+        if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
+            for board in miner_data["devs"][0]['DEVS']:
+                if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
+                    temps = board['Chip Temp Avg']
+
     if "pools" not in miner_data.keys():
         user = "?"
     elif not miner_data['pools'][0]['POOLS'] == []:
         user = await safe_parse_api_data(miner_data, 'pools', 0, 'POOLS', 0, 'User')
     else:
         user = "Blank"
-    return {'TH/s': th5s, 'IP': str(miner.ip), 'host': host, 'user': user, 'wattage': wattage}
+
+    if "tunerstatus" in miner_data.keys():
+        wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
+        # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
+    elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
+        wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
+    else:
+        wattage = 0
+
+    return {'TH/s': th5s, 'IP': str(miner.ip), 'temp': round(temps), 'host': host, 'user': user, 'wattage': wattage}
 
 
 async def generate_config(username, workername, v2_allowed):

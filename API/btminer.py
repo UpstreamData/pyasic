@@ -525,24 +525,10 @@ class BTMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("status")
 
-    async def get_miner_info(self, info: str | list):
+    async def get_miner_info(self):
         """
         API 'get_miner_info' command.
 
-        Returns a dict containing requested information.
-
-        Parameters:
-            info: the info that you want to get.
-                "ip",
-                "proto",
-                "netmask",
-                "gateway",
-                "dns",
-                "hostname",
-                "mac",
-                "ledstat".
+        Returns a dict containing general miner info.
         """
-        if isinstance(info, str):
-            return await self.send_command("get_miner_info", parameters=info)
-        else:
-            return await self.send_command("get_miner_info", parameters=f"{','.join([str(item) for item in info])}")
+        return await self.send_command("get_miner_info")
