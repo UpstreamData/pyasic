@@ -42,14 +42,9 @@ class BaseMinerAPI:
         """Creates and sends multiple commands as one command to the miner."""
         # split the commands into a proper list
         commands = [*commands]
-
-        for item in commands:
-            # make sure we can actually run the command, otherwise it will fail
-            if item not in self.get_commands():
-                # if the command isn't allowed, remove it
-                print(f"Removing incorrect command: {item}")
-                commands.remove(item)
-
+        allowed_commands = self.get_commands()
+        # make sure we can actually run the command, otherwise it will fail
+        commands = [command for command in commands if command in allowed_commands]
         # standard multicommand format is "command1+command2"
         # doesnt work for S19 which is dealt with in the send command function
         command = "+".join(commands)

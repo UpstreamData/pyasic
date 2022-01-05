@@ -29,25 +29,25 @@ async def sort_data(index: int or str):
     data_list = window['ip_table'].Values
 
     # wattage
-    if re.match("[0-9]* W", data_list[0][index]):
+    if re.match("[0-9]* W", str(data_list[0][index])):
         new_list = sorted(data_list, key=lambda x: int(x[index].replace(" W", "")))
         if data_list == new_list:
             new_list = sorted(data_list, reverse=True, key=lambda x: int(x[index].replace(" W", "")))
 
     # hashrate
-    elif re.match("[0-9]*\.?[0-9]* TH\/s", data_list[0][index]):
+    elif re.match("[0-9]*\.?[0-9]* TH\/s", str(data_list[0][index])):
         new_list = sorted(data_list, key=lambda x: float(x[index].replace(" TH/s", "")))
         if data_list == new_list:
             new_list = sorted(data_list, reverse=True, key=lambda x: float(x[index].replace(" TH/s", "")))
 
     # ip addresses
     elif re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
-                  data_list[0][index]):
+                  str(data_list[0][index])):
         new_list = sorted(data_list, key=lambda x: ipaddress.ip_address(x[index]))
         if data_list == new_list:
             new_list = sorted(data_list, reverse=True, key=lambda x: ipaddress.ip_address(x[index]))
 
-    # everything else, hostname and user
+    # everything else, hostname, temp, and user
     else:
         new_list = sorted(data_list, key=lambda x: x[index])
         if data_list == new_list:
