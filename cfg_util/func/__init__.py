@@ -45,7 +45,10 @@ async def scan_network(network):
     async for miner in miner_generator:
         if miner:
             miners.append(miner)
-            window["ip_table"].update([["Identifying...", "", "", "", ""] for miner in miners])
+            # can output "Identifying" for each found item, but it gets a bit cluttered
+            # and could possibly be confusing for the end user because of timing on
+            # adding the IPs
+            # window["ip_table"].update([["Identifying...", "", "", "", ""] for miner in miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     progress_bar_len += network_size - len(miners)
