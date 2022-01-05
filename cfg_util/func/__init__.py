@@ -38,6 +38,7 @@ async def set_progress_bar_len(amount):
 async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
     await update_ui_with_data("hr_total", "")
+    window["ip_table"].update([])
     network_size = len(network)
     miner_generator = network.scan_network_generator()
     await set_progress_bar_len(2 * network_size)
