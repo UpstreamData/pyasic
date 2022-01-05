@@ -22,9 +22,9 @@ async def ui():
                 if event[0] == 'ip_table':
                     if event[2][0] == -1:
                         await sort_data(event[2][1])
-        if event == 'ip_table':
-            if value["ip_table"]:
-                webbrowser.open("http://" + window["ip_table"].Values[value["ip_table"][0]][0])
+        if event == 'open_in_web':
+            for row in value["ip_table"]:
+                webbrowser.open("http://" + window["ip_table"].Values[row][0])
         if event == 'scan':
             if len(value['miner_network'].split("/")) > 1:
                 network = value['miner_network'].split("/")
@@ -58,8 +58,6 @@ async def ui():
             await generate_config_ui()
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
-        else:
-            print(event)
 
 
 async def generate_config_ui():

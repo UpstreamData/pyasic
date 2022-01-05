@@ -16,7 +16,10 @@ layout = [
     [sg.Column([
         [sg.Column([
             [sg.Text("IP List:", pad=(0, 0)), sg.Text("", key="ip_count", pad=(0, 0), size=(3, 1)),
-             sg.Button('ALL', key="select_all_ips"), sg.Text("", pad=(40, 0))],
+             sg.Button('ALL', key="select_all_ips"),
+             sg.Button("GET DATA", key='get_data'),
+             sg.Button("OPEN IN WEB", key='open_in_web')],
+
             [sg.Text("HR Total: ", pad=(0, 0)), sg.Text("", key="hr_total")],
         ])],
         [sg.Table(
@@ -32,7 +35,6 @@ layout = [
             size=(105, 27),
             expand_x=True,
             enable_click_events=True,
-            bind_return_key=True
         )]
     ]),
         sg.Column([
