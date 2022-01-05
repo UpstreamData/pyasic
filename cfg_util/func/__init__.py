@@ -206,7 +206,7 @@ async def get_data(ip_list: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values]
+    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[2] == '']
     total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
