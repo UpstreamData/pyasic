@@ -1,21 +1,17 @@
+import asyncio
 import ipaddress
 import os
 import re
 import time
-from operator import itemgetter
-import asyncio
 
 import aiofiles
 import toml
 
-from cfg_util.miner_factory import miner_factory
-from cfg_util.layout import window
-from cfg_util.func.data import safe_parse_api_data
-
-from config.bos import bos_config_convert, general_config_convert_bos
-
 from API import APIError
-
+from cfg_util.func.data import safe_parse_api_data
+from cfg_util.layout import window
+from cfg_util.miner_factory import miner_factory
+from config.bos import bos_config_convert, general_config_convert_bos
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
 
 
@@ -60,7 +56,7 @@ async def scan_network(network):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     all_miners.sort(key=lambda x: x.ip)
-    window["ip_list"].update([str(miner.ip) for miner in all_miners])
+    window["ip_table"].update([[str(miner.ip), "", "", "", ""] for miner in all_miners])
     await update_ui_with_data("ip_count", str(len(all_miners)))
     await update_ui_with_data("status", "")
 
@@ -70,21 +66,24 @@ async def miner_light(ips: list):
 
 
 async def flip_light(ip):
-    listbox = window['ip_list'].Widget
+    ip_list = window['ip_table'].Widget
     miner = await miner_factory.get_miner(ip)
-    if ip in window["ip_list"].Values:
-        index = window["ip_list"].Values.index(ip)
-        if listbox.itemcget(index, "background") == 'red':
-            listbox.itemconfigure(index, bg='#f0f3f7', fg='#000000')
-            await miner.fault_light_off()
-        else:
-            listbox.itemconfigure(index, bg='red', fg='white')
-            await miner.fault_light_on()
+    index = [item[0] for item in window["ip_table"].Values].index(ip)
+    index_tags = ip_list.item(index)['tags']
+    if "light" not in index_tags:
+        ip_list.item(index, tags=([*index_tags, "light"]))
+        window['ip_table'].update(row_colors=[(index, "white", "red")])
+        await miner.fault_light_on()
+    else:
+        index_tags.remove("light")
+        ip_list.item(index, tags=index_tags)
+        window['ip_table'].update(row_colors=[(index, "black", "white")])
+        await miner.fault_light_off()
 
 
-async def import_config(ip):
+async def import_config(idx):
     await update_ui_with_data("status", "Importing")
-    miner = await miner_factory.get_miner(ipaddress.ip_address(*ip))
+    miner = await miner_factory.get_miner(ipaddress.ip_address(window["ip_table"].Values[idx[0]][0]))
     await miner.get_config()
     config = miner.config
     await update_ui_with_data("config", str(config))
@@ -105,7 +104,7 @@ async def import_iplist(file_location):
                     if ip not in ip_list:
                         ip_list.append(ipaddress.ip_address(ip))
     ip_list.sort()
-    window["ip_list"].update([str(ip) for ip in ip_list])
+    window["ip_table"].update([[str(ip), "", "", "", ""] for ip in ip_list])
     await update_ui_with_data("ip_count", str(len(ip_list)))
     await update_ui_with_data("status", "")
 
@@ -121,8 +120,8 @@ async def export_iplist(file_location, ip_list_selected):
                     await file.write(str(item) + "\n")
         else:
             async with aiofiles.open(file_location, mode='w') as file:
-                for item in window['ip_list'].Values:
-                    await file.write(str(item) + "\n")
+                for item in window['ip_table'].Values:
+                    await file.write(str(item[0]) + "\n")
     await update_ui_with_data("status", "")
 
 
@@ -197,14 +196,12 @@ async def get_data(ip_list: list):
 
     total_hr = round(sum(d.get('TH/s', 0) for d in miner_data), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
-    window["hr_list"].update(disabled=False)
-    window["hr_list"].update([item['IP'] + " | "
-                              + item['host'] + " | "
-                              + str(item['TH/s']) + " TH/s | "
-                              + item['user'] + " | "
-                              + str(item['wattage']) + " W"
-                              for item in miner_data])
-    window["hr_list"].update(disabled=True)
+    table_data = [
+        [
+            item["IP"], item["host"], str(item['TH/s']) + " TH/s", item['user'], str(item['wattage']) + " W"
+        ] for item in miner_data
+    ]
+    await update_ui_with_data("ip_table", table_data)
     await update_ui_with_data("status", "")
 
 
@@ -225,7 +222,8 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
         elif 'GHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
             if not miner_data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
-                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000, 2)
+                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000,
+                             2)
             else:
                 th5s = 0
         else:
@@ -257,7 +255,6 @@ async def generate_config(username, workername, v2_allowed):
         url_1 = 'stratum+tcp://ca.stratum.slushpool.com:3333'
         url_2 = 'stratum+tcp://us-east.stratum.slushpool.com:3333'
         url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
-
 
     config = {'group': [{
         'name': 'group',
@@ -297,45 +294,23 @@ async def generate_config(username, workername, v2_allowed):
 
 async def sort_data(index: int or str):
     await update_ui_with_data("status", "Sorting Data")
-    data_list = window['hr_list'].Values
-    new_list = []
-    indexes = {}
-    for item in data_list:
-        item_data = [part.strip() for part in item.split("|")]
-        for idx, part in enumerate(item_data):
-            if re.match("[0-9]* W", part):
-                item_data[idx] = item_data[idx].replace(" W", "")
-                indexes['wattage'] = idx
-            elif re.match("[0-9]*\.?[0-9]* TH\/s", part):
-                item_data[idx] = item_data[idx].replace(" TH/s", "")
-                indexes['hr'] = idx
-            elif re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", part):
-                item_data[idx] = ipaddress.ip_address(item_data[idx])
-                indexes['ip'] = idx
-        new_list.append(item_data)
-    if not isinstance(index, str):
-        if index == indexes['hr']:
-            new_data_list = sorted(new_list, key=lambda x: float(x[index]))
-        else:
-            new_data_list = sorted(new_list, key=itemgetter(index))
+    data_list = window['ip_table'].Values
+
+    # wattage
+    if re.match("[0-9]* W", data_list[0][index]):
+        new_list = sorted(data_list, key=lambda x: int(x[index].replace(" W", "")))
+
+    # hashrate
+    elif re.match("[0-9]*\.?[0-9]* TH\/s", data_list[0][index]):
+        new_list = sorted(data_list, key=lambda x: float(x[index].replace(" TH/s", "")))
+
+    # ip addresses
+    elif re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
+                  data_list[0][index]):
+        new_list = sorted(data_list, key=lambda x: ipaddress.ip_address(x[index]))
+
+    # everything else, hostname and user
     else:
-        if index.lower() not in indexes.keys():
-            return
-        elif index.lower() == 'hr':
-            new_data_list = sorted(new_list, key=lambda x: float(x[indexes[index]]))
-        else:
-            new_data_list = sorted(new_list, key=itemgetter(indexes[index]))
-    new_ip_list = []
-    for item in new_data_list:
-        new_ip_list.append(item[indexes['ip']])
-    new_data_list = [str(item[indexes['ip']]) + " | "
-                     + item[1] + " | "
-                     + item[indexes['hr']] + " TH/s | "
-                     + item[3] + " | "
-                     + str(item[indexes['wattage']]) + " W"
-                     for item in new_data_list]
-    window["hr_list"].update(disabled=False)
-    window["hr_list"].update(new_data_list)
-    window['ip_list'].update(new_ip_list)
-    window["hr_list"].update(disabled=True)
+        new_list = sorted(data_list, key=lambda x: x[index])
+    await update_ui_with_data("ip_table", new_list)
     await update_ui_with_data("status", "")

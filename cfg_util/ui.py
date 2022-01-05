@@ -22,37 +22,37 @@ async def ui():
                 miner_network = MinerNetwork(value['miner_network'])
             asyncio.create_task(scan_network(miner_network))
         if event == 'select_all_ips':
-            if value['ip_list'] == window['ip_list'].Values:
-                window['ip_list'].set_value([])
+            if len(value["ip_table"]) == len(window["ip_table"].Values):
+                window["ip_table"].update(select_rows=())
             else:
-                window['ip_list'].set_value(window['ip_list'].Values)
+                window["ip_table"].update(select_rows=([row for row in range(len(window["ip_table"].Values))]))
         if event == 'import_config':
-            if 2 > len(value['ip_list']) > 0:
-                asyncio.create_task(import_config(value['ip_list']))
+            if 2 > len(value['ip_table']) > 0:
+                asyncio.create_task(import_config(value['ip_table']))
         if event == 'light':
-            asyncio.create_task(miner_light(value['ip_list']))
+            asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "import_iplist":
             asyncio.create_task(import_iplist(value["file_iplist"]))
         if event == "export_iplist":
-            asyncio.create_task(export_iplist(value["file_iplist"], value['ip_list']))
+            asyncio.create_task(export_iplist(value["file_iplist"], [window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "send_config":
-            asyncio.create_task(send_config(value['ip_list'], value['config']))
+            asyncio.create_task(send_config([window['ip_table'].Values[item][0] for item in value['ip_table']], value['config']))
         if event == "import_file_config":
             asyncio.create_task(import_config_file(value['file_config']))
         if event == "export_file_config":
             asyncio.create_task(export_config_file(value['file_config'], value["config"]))
         if event == "get_data":
-            asyncio.create_task(get_data(value['ip_list']))
+            asyncio.create_task(get_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
         if event == "generate_config":
             await generate_config_ui()
         if event == "sort_data_ip":
-            asyncio.create_task(sort_data('ip'))
+            asyncio.create_task(sort_data(0))  # ip index in table
         if event == "sort_data_hr":
-            asyncio.create_task(sort_data('hr'))
+            asyncio.create_task(sort_data(2))  # HR index in table
         if event == "sort_data_user":
-            asyncio.create_task(sort_data(3))
+            asyncio.create_task(sort_data(3))  # user index in table
         if event == "sort_data_w":
-            asyncio.create_task(sort_data('wattage'))
+            asyncio.create_task(sort_data(4))  # wattage index in table
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
 
@@ -65,7 +65,8 @@ async def generate_config_ui():
             break
         if event == "generate_config_window_generate":
             if values['generate_config_window_username']:
-                await generate_config(values['generate_config_window_username'], values['generate_config_window_workername'], values['generate_config_window_allow_v2'])
+                await generate_config(values['generate_config_window_username'],
+                                      values['generate_config_window_workername'],
+                                      values['generate_config_window_allow_v2'])
                 generate_config_window.close()
                 break
-
