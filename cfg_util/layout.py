@@ -18,15 +18,7 @@ layout = [
             [sg.Text("IP List:", pad=(0, 0)), sg.Text("", key="ip_count", pad=(0, 0), size=(3, 1)),
              sg.Button('ALL', key="select_all_ips"), sg.Text("", pad=(40, 0))],
             [sg.Text("HR Total: ", pad=(0, 0)), sg.Text("", key="hr_total")],
-        ]),
-            sg.Column([
-                [sg.Text("Data: ", pad=(0, 0)), sg.Button('GET', key="get_data"),
-                 sg.Button('SORT IP', key="sort_data_ip"),
-                 sg.Button('SORT HR', key="sort_data_hr"), sg.Button('SORT USER', key="sort_data_user"),
-                 sg.Button('SORT W', key="sort_data_w")],
-                [sg.Text("")],
-            ])
-        ],
+        ])],
         [sg.Table(
             values=[],
             headings=["IP", "Hostname", "Hashrate", "Current User", "Wattage"],
@@ -37,15 +29,17 @@ layout = [
             col_widths=[14, 14, 14, 26, 7],
             background_color="white",
             text_color="black",
-            size=(105, 33),
+            size=(105, 27),
             expand_x=True,
+            enable_click_events=True,
+            bind_return_key=True
         )]
     ]),
         sg.Column([
             [sg.Text("Config"), sg.Button("IMPORT", key="import_config"), sg.Button("CONFIG", key="send_config"),
              sg.Button("LIGHT", key="light"), sg.Button("GENERATE", key="generate_config")],
             [sg.Text("")],
-            [sg.Multiline(size=(50, 34), key="config", do_not_clear=True)],
+            [sg.Multiline(size=(50, 28), key="config", do_not_clear=True)],
         ])
     ],
 ]
