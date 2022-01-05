@@ -183,25 +183,29 @@ async def export_config_file(file_location, config):
 async def get_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
+    if len(ips) == 0:
+        ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
     await set_progress_bar_len(len(ips))
     progress_bar_len = 0
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
-    miner_data = []
+    ip_table_data = window["ip_table"].Values
+    ordered_all_ips = [item[0] for item in ip_table_data]
+    miner_hr = []
     for all_data in data_gen:
-        miner_data.append(await all_data)
+        data_point = await all_data
+        miner_hr.append(data_point["TH/s"])
+        if data_point["IP"] in ordered_all_ips:
+            ip_table_index = ordered_all_ips.index(data_point["IP"])
+            ip_table_data[ip_table_index] = [
+                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point['user'], str(data_point['wattage']) + " W"
+            ]
+            window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    miner_data.sort(key=lambda x: ipaddress.ip_address(x['IP']))
-
-    total_hr = round(sum(d.get('TH/s', 0) for d in miner_data), 2)
+    total_hr = round(sum(miner_hr), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
-    table_data = [
-        [
-            item["IP"], item["host"], str(item['TH/s']) + " TH/s", item['user'], str(item['wattage']) + " W"
-        ] for item in miner_data
-    ]
-    await update_ui_with_data("ip_table", table_data)
+
     await update_ui_with_data("status", "")
 
 
