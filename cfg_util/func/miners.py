@@ -2,7 +2,7 @@ import asyncio
 import ipaddress
 import time
 
-from API import APIError
+from API import APIError, APIWarning
 from cfg_util.func.parse_data import safe_parse_api_data
 from cfg_util.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
 from cfg_util.layout import window
@@ -120,7 +120,8 @@ async def get_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"], data_point['user'], str(data_point['wattage']) + " W"
+                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
@@ -170,7 +171,8 @@ async def scan_and_get_data(network):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"], data_point['user'], str(data_point['wattage']) + " W"
+                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
@@ -181,15 +183,10 @@ async def scan_and_get_data(network):
     await update_ui_with_data("status", "")
 
 
-
-
-
-
-
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     try:
-        miner_data = await miner.api.multicommand("summary", "devs",  "temps", "tunerstatus", "pools", "stats")
+        miner_data = await miner.api.multicommand("summary", "devs", "temps", "tunerstatus", "pools", "stats")
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
@@ -223,7 +220,8 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     if "stats" in miner_data.keys() and not miner_data["stats"][0]['STATS'] == []:
         for temp in ["temp2", "temp1", "temp3"]:
             if temp in miner_data["stats"][0]['STATS'][1].keys():
-                if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][temp] == 0.0:
+                if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][
+                                                                                    temp] == 0.0:
                     temps = miner_data["stats"][0]['STATS'][1][temp]
 
     if "pools" not in miner_data.keys():

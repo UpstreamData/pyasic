@@ -17,7 +17,7 @@ class BTMiner(BaseMiner):
             if host_data:
                 return host_data["Msg"]["hostname"]
         except APIError:
-            return "BTMiner Unknown"
+            return "BTMiner ?"
 
     async def send_config(self, _):
         return None  # ignore for now
