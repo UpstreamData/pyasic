@@ -190,8 +190,11 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
-
+    temps = 0
     if "summary" in miner_data.keys():
+        if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
+            if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
+                temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
         if 'MHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
             th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
         elif 'GHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
@@ -204,13 +207,11 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             th5s = 0
     else:
         th5s = 0
-    temps = 0
     if "temps" in miner_data.keys() and not miner_data["temps"][0]['TEMPS'] == []:
         if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
             for board in miner_data["temps"][0]['TEMPS']:
                 if board["Chip"] is not None and not board["Chip"] == 0.0:
                     temps = board["Chip"]
-
     if "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
         if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
             for board in miner_data["devs"][0]['DEVS']:
@@ -233,12 +234,10 @@ async def get_formatted_data(ip: ipaddress.ip_address):
 
     if "tunerstatus" in miner_data.keys():
         wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
-        # data['tunerstatus'][0]['TUNERSTATUS'][0]['PowerLimit']
     elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
         wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
     else:
         wattage = 0
-
     return {'TH/s': th5s, 'IP': str(miner.ip), 'temp': round(temps), 'host': host, 'user': user, 'wattage': wattage}
 
 
