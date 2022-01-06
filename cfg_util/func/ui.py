@@ -7,7 +7,6 @@ import pyperclip
 
 
 def copy_from_table(table):
-    print("copy")
     selection = table.selection()
     copy_values = []
     for each in selection:
