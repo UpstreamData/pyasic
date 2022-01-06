@@ -1,9 +1,24 @@
 import asyncio
 import json
 import ipaddress
+import warnings
 
 
 class APIError(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return f"{self.message}"
+        else:
+            return "Incorrect API parameters."
+
+
+class APIWarning(Warning):
     def __init__(self, *args):
         if args:
             self.message = args[0]
@@ -41,10 +56,14 @@ class BaseMinerAPI:
     async def multicommand(self, *commands: str) -> dict:
         """Creates and sends multiple commands as one command to the miner."""
         # split the commands into a proper list
-        commands = [*commands]
+        user_commands = [*commands]
         allowed_commands = self.get_commands()
         # make sure we can actually run the command, otherwise it will fail
-        commands = [command for command in commands if command in allowed_commands]
+        commands = [command for command in user_commands if command in allowed_commands]
+        for item in list(set(user_commands) - set(commands)):
+            warnings.warn(f"""Removing incorrect command: {item}
+If you are sure you want to use this command please use API.send_command("{item}") instead.""",
+                          APIWarning)
         # standard multicommand format is "command1+command2"
         # doesnt work for S19 which is dealt with in the send command function
         command = "+".join(commands)
@@ -104,14 +123,15 @@ class BaseMinerAPI:
         writer.close()
         await writer.wait_closed()
 
-        # validate the command suceeded
-        if not self.validate_command_output(data):
-            raise APIError(data["STATUS"][0]["Msg"])
+        # validate the command succeeded
+        validation = self.validate_command_output(data)
+        if not validation[0]:
+            raise APIError(validation[1])
 
         return data
 
     @staticmethod
-    def validate_command_output(data: dict) -> bool:
+    def validate_command_output(data: dict) -> tuple[bool, str | None]:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         # if status isn't a key, it is a multicommand
@@ -120,20 +140,20 @@ class BaseMinerAPI:
                 # make sure not to try to turn id into a dict
                 if not key == "id":
                     # make sure they succeeded
-                    if "STATUS" in data.keys():
+                    if "STATUS" in data[key][0].keys():
                         if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
                             # this is an error
-                            return False
+                            return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
         elif "id" not in data.keys():
             if data["STATUS"] not in ["S", "I"]:
-                return False
+                return False, data["Msg"]
         else:
             # make sure the command succeeded
             if data["STATUS"][0]["STATUS"] not in ("S", "I"):
                 # this is an error
                 if data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                    return False
-        return True
+                    return False, data["STATUS"][0]["Msg"]
+        return True, None
 
     @staticmethod
     def load_api_data(data: bytes) -> dict:

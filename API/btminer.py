@@ -132,8 +132,9 @@ class BTMinerAPI(BaseMinerAPI):
                 print(e)
 
         # if it fails to validate, it is likely an error
-        if not self.validate_command_output(data):
-            raise APIError(data["Msg"])
+        validation = self.validate_command_output(data)
+        if not validation[0]:
+            raise APIError(validation[1])
 
         # return the parsed json as a dict
         return data
