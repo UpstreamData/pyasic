@@ -182,7 +182,7 @@ async def scan_and_get_data(network):
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
     try:
-        miner_data = await miner.api.multicommand("summary", "devs",  "temps", "tunerstatus", "pools")
+        miner_data = await miner.api.multicommand("summary", "devs",  "temps", "tunerstatus", "pools", "stats")
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
@@ -201,18 +201,23 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     else:
         th5s = 0
     temps = 0
-
     if "temps" in miner_data.keys() and not miner_data["temps"][0]['TEMPS'] == []:
         if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
             for board in miner_data["temps"][0]['TEMPS']:
                 if board["Chip"] is not None and not board["Chip"] == 0.0:
                     temps = board["Chip"]
 
-    elif "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
+    if "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
         if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
             for board in miner_data["devs"][0]['DEVS']:
                 if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
                     temps = board['Chip Temp Avg']
+
+    if "stats" in miner_data.keys() and not miner_data["stats"][0]['STATS'] == []:
+        for temp in ["temp2", "temp1", "temp3"]:
+            if temp in miner_data["stats"][0]['STATS'][1].keys():
+                if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][temp] == 0.0:
+                    temps = miner_data["stats"][0]['STATS'][1][temp]
 
     if "pools" not in miner_data.keys():
         user = "?"
