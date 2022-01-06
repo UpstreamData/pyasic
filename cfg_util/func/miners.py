@@ -200,11 +200,11 @@ async def get_formatted_data(ip: ipaddress.ip_address):
         if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
             if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
                 temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
-        if 'MHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
-            th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS 5s') / 1000000, 2)
-        elif 'GHS 5s' in miner_data['summary'][0]['SUMMARY'][0].keys():
-            if not miner_data['summary'][0]['SUMMARY'][0]['GHS 5s'] == "":
-                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS 5s')) / 1000,
+        if 'MHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
+            th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2)
+        elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
+            if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
+                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
                              2)
             else:
                 th5s = 0
