@@ -143,7 +143,7 @@ async def scan_and_get_data(network):
     async for miner in miner_generator:
         if miner:
             miners.append(miner)
-            # can output "Identifying" for each found item, but it gets a bit cluttered
+            # can output "Identifying" for each found item, but it gets a bit cluttereds
             # and could possibly be confusing for the end user because of timing on
             # adding the IPs
             # window["ip_table"].update([["Identifying...", "", "", "", ""] for miner in miners])
@@ -162,7 +162,8 @@ async def scan_and_get_data(network):
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in miners])
     ip_table_data = window["ip_table"].Values
     ordered_all_ips = [item[0] for item in ip_table_data]
-    progress_bar_len += network_size - len(miners)
+    progress_bar_len += (network_size - len(miners))
+    asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "Getting Data")
     for all_data in data_gen:
         data_point = await all_data
@@ -174,6 +175,12 @@ async def scan_and_get_data(network):
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
+    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[2] == '']
+    total_hr = round(sum(hashrate_list), 2)
+    await update_ui_with_data("hr_total", f"{total_hr} TH/s")
+    await update_ui_with_data("status", "")
+
+
 
 
 
