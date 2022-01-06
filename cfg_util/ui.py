@@ -6,7 +6,7 @@ from cfg_util.layout import window, generate_config_layout
 from cfg_util.func.miners import scan_network, send_config, miner_light, get_data, generate_config, import_config, \
     scan_and_get_data
 from cfg_util.func.files import import_iplist, import_config_file, export_iplist, export_config_file
-from cfg_util.func.ui import sort_data
+from cfg_util.func.ui import sort_data, copy_from_table
 
 from network import MinerNetwork
 
@@ -14,6 +14,9 @@ import webbrowser
 
 
 async def ui():
+    window.read(timeout=0)
+    table = window["ip_table"].Widget
+    table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
     while True:
         event, value = window.read(timeout=10)
         if event in (None, 'Close', sg.WIN_CLOSED):
