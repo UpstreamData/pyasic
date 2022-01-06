@@ -3,6 +3,22 @@ import re
 
 from cfg_util.layout import window
 
+import pyperclip
+
+
+def copy_from_table(table):
+    print("copy")
+    selection = table.selection()
+    copy_values = []
+    for each in selection:
+        try:
+            value = table.item(each)["values"][0]
+            copy_values.append(str(value))
+        except:
+            pass
+    copy_string = "\n".join(copy_values)
+    pyperclip.copy(copy_string)
+
 
 async def update_ui_with_data(key, message, append=False):
     if append:
