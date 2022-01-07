@@ -5,7 +5,7 @@ import toml
 from config.bos import bos_config_convert, general_config_convert_bos
 
 
-class BOSminerX17(BaseMiner):
+class BOSMinerX17(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)

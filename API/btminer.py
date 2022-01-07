@@ -516,6 +516,14 @@ class BTMinerAPI(BaseMinerAPI):
 
         Returns a dict containing version information.
         """
+        return await self.get_version()
+
+    async def get_version(self):
+        """
+        API 'get_version' command.
+
+        Returns a dict containing version information.
+        """
         return await self.send_command("get_version")
 
     async def status(self):
