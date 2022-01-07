@@ -22,7 +22,7 @@ class BMMiner(BaseMiner):
 
 
     async def get_hostname(self) -> str:
-        return "BMMiner Unknown"
+        return "?"
 
     async def send_config(self, _):
         return None  # ignore for now
