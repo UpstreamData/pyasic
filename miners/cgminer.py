@@ -7,12 +7,22 @@ class CGMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = CGMinerAPI(ip)
         super().__init__(ip, api)
+        self.model = None
         self.config = None
         self.uname = 'root'
         self.pwd = 'admin'
 
     def __repr__(self) -> str:
         return f"CGMiner: {str(self.ip)}"
+
+    async def get_model(self):
+        if self.model:
+            return self.model
+        version_data = await self.api.devdetails()
+        if version_data:
+            self.model = version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
+            return self.model
+        return None
 
     async def get_hostname(self) -> str:
         try:
