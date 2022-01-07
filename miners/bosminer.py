@@ -86,6 +86,12 @@ class BOSminer(BaseMiner):
             print(self.ip, e)
             return "BOSMiner Unknown"
 
+    async def get_model(self):
+        version_data = await self.api.devdetails()
+        if version_data:
+            return version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
+        return None
+
     async def send_config(self, yaml_config) -> None:
         """Configures miner with yaml config."""
         toml_conf = await general_config_convert_bos(yaml_config)

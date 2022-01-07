@@ -10,3 +10,8 @@ class BaseMiner:
     def __init__(self, ip: str, api: BMMinerAPI | BOSMinerAPI | CGMinerAPI | BTMinerAPI | UnknownAPI) -> None:
         self.ip = ipaddress.ip_address(ip)
         self.api = api
+        self.api_type = None
+        self.model = None
+
+    def _init(self):
+        pass
