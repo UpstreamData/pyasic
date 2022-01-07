@@ -89,11 +89,11 @@ class BOSminer(BaseMiner):
 
     async def get_model(self):
         if self.model:
-            return self.model
+            return self.model + " (BOS)"
         version_data = await self.api.devdetails()
         if version_data:
             self.model = version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
-            return self.model
+            return self.model + " (BOS)"
         return None
 
     async def send_config(self, yaml_config) -> None:
