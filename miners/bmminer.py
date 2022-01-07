@@ -5,10 +5,21 @@ from miners import BaseMiner
 class BMMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = BMMinerAPI(ip)
+        self.model = None
         super().__init__(ip, api)
 
     def __repr__(self) -> str:
         return f"BMMiner: {str(self.ip)}"
+
+    async def get_model(self):
+        if self.model:
+            return self.model
+        version_data = await self.api.devdetails()
+        if version_data:
+            self.model = version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
+            return self.model
+        return None
+
 
     async def get_hostname(self) -> str:
         return "BMMiner Unknown"

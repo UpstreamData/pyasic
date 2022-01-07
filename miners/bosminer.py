@@ -9,6 +9,7 @@ class BOSminer(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = BOSMinerAPI(ip)
         super().__init__(ip, api)
+        self.model = None
         self.config = None
         self.uname = 'root'
         self.pwd = 'admin'
@@ -87,9 +88,12 @@ class BOSminer(BaseMiner):
             return "BOSMiner Unknown"
 
     async def get_model(self):
+        if self.model:
+            return self.model
         version_data = await self.api.devdetails()
         if version_data:
-            return version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
+            self.model = version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
+            return self.model
         return None
 
     async def send_config(self, yaml_config) -> None:
