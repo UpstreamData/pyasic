@@ -23,18 +23,38 @@
 
 ---
 ## Data Fields
-### IP List:
-* This field contains all the IP addresses of miners that were either imported from a file or scanned
-* Select one by clicking, multiple by holding CTRL and clicking, and select all between 2 chosen miners by holding SHIFT as you select them
-* Use the ALL button to select all IP addresses in the field, or unselect all if they are selected
+### Buttons:
+* ALL: Selects all miners in the table, or deselects all if they are already all selected.
+* GET DATA: Gets data for the currently selected miners, or all miners if none are selected.
+  * Additionally, if no miners have been scanned, this will also run a scan then get data on those miners.
+* OPEN IN WEB: Opens all currently selected miners web interfaces in your default browser.
 
-### Data:
-* This field contains all data that is collected by selecting IP addresses and hitting GET
-* The GET button gets data on all selected IP addresses
-* The SORT IP button sorts the data list by IP address, as well as the IP List
-* The SORT HR button sorts the data list by hashrate, as well as the IP List
-* The SORT USER button sorts the data list by pool username, as well as the IP List
-* The SORT W button sorts the data list by wattage, as well as the IP List
+### Table:
+* Click any header in the table to sort that row.
+  * You can copy (CTRL + C) a list of IP's directly from the rows selected in the table.
+
+* #### IP:
+  * Contains all the IP's scanned
+
+* #### Model:
+  * The model of the miners scanned.
+
+* #### Hostname:
+  * The hostname of the miners scanned.
+  * ? will be displayed if the tool is unable to get it.
+
+* #### Hashrate:
+  * The hashrate of the miners scanned.
+
+* #### Temperature:
+  * The average board temperature of the miners scanned.
+
+* #### Current User:
+  * The current first pool user of the miners scanned.
+
+* #### Wattage
+  * The current wattage of the miners scanned.
+  * 0 W will be displayed if it is unknown.
 
 ### Config:
 * This field contains the configuration file either imported from a miner or from a file
