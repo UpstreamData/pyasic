@@ -10,6 +10,9 @@ class UnknownMiner(BaseMiner):
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"
 
+    def get_model(self):
+        return "Unknown"
+
     async def send_config(self, _):
         return None
 

@@ -12,6 +12,3 @@ class BaseMiner:
         self.api = api
         self.api_type = None
         self.model = None
-
-    def _init(self):
-        pass
