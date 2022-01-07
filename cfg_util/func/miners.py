@@ -3,7 +3,7 @@ import ipaddress
 import time
 import warnings
 
-from API import APIError, APIWarning
+from API import APIError
 from cfg_util.func.parse_data import safe_parse_api_data
 from cfg_util.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
 from cfg_util.layout import window
@@ -194,10 +194,7 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
-    try:
-        model = await miner.get_model()
-    except TypeError:
-        print(miner)
+    model = await miner.get_model()
     temps = 0
     if "summary" in miner_data.keys():
         if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
