@@ -1,5 +1,14 @@
-from miners.antminer.S9.bos import BOSMinerS9
-from miners.antminer.X17.bos import BOSMinerX17
+from miners.antminer.S9.bosminer import BOSMinerS9
+from miners.antminer.S9.bmminer import BMMinerS9
+from miners.antminer.S9.cgminer import CGMinerS9
+
+
+from miners.antminer.X17.bosminer import BOSMinerX17
+from miners.antminer.X17.bmminer import BMMinerX17
+from miners.antminer.X17.cgminer import CGMinerX17
+
+from miners.antminer.X19.bmminer import BMMinerX19
+from miners.antminer.X19.cgminer import CGMinerX19
 
 from miners.whatsminer.M20 import BTMinerM20
 from miners.whatsminer.M21 import BTMinerM21
@@ -7,10 +16,8 @@ from miners.whatsminer.M30 import BTMinerM30
 from miners.whatsminer.M31 import BTMinerM31
 from miners.whatsminer.M32 import BTMinerM32
 
-from miners.bosminer import BOSminer
 from miners.bmminer import BMMiner
 from miners.cgminer import CGMiner
-from miners.btminer import BTMiner
 from miners.unknown import UnknownMiner
 from API import APIError
 import asyncio
@@ -41,7 +48,7 @@ class MinerFactory:
         for miner in scanned:
             yield await miner
 
-    async def get_miner(self, ip: ipaddress.ip_address) -> BOSminer or CGMiner or BMMiner or BTMiner or UnknownMiner:
+    async def get_miner(self, ip: ipaddress.ip_address):
         """Decide a miner type using the IP address of the miner."""
         # check if the miner already exists in cache
         if ip in self.miners:
@@ -63,21 +70,21 @@ class MinerFactory:
                     if "BOSMiner" in api:
                         miner = BOSMinerS9(str(ip))
                     elif "CGMiner" in api:
-                        miner = CGMiner(str(ip))
+                        miner = CGMinerS9(str(ip))
                     elif "BMMiner" in api:
-                        miner = BMMiner(str(ip))
+                        miner = BMMinerS9(str(ip))
                 elif "17" in model:
                     if "BOSMiner" in api:
                         miner = BOSMinerX17(str(ip))
                     elif "CGMiner" in api:
-                        miner = CGMiner(str(ip))
+                        miner = CGMinerX17(str(ip))
                     elif "BMMiner" in api:
-                        miner = BMMiner(str(ip))
+                        miner = BMMinerX17(str(ip))
                 elif "19" in model:
                     if "CGMiner" in api:
-                        miner = CGMiner(str(ip))
+                        miner = CGMinerX19(str(ip))
                     elif "BMMiner" in api:
-                        miner = BMMiner(str(ip))
+                        miner = BMMinerX19(str(ip))
             elif "M20" in model:
                 miner = BTMinerM20(str(ip))
             elif "M21" in model:
@@ -116,6 +123,7 @@ class MinerFactory:
             else:
                 print(ip, e)
         return None
+
 
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
         try:
