@@ -124,7 +124,6 @@ class MinerFactory:
                 print(ip, e)
         return None
 
-
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
         try:
             # get reader and writer streams

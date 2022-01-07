@@ -1,26 +1,18 @@
-from API.bmminer import BMMinerAPI
-from miners import BaseMiner
+from miners.bmminer import BMMiner
 
 
-class BMMinerX19(BaseMiner):
+class BMMinerX19(BMMiner):
     def __init__(self, ip: str) -> None:
-        api = BMMinerAPI(ip)
-        super().__init__(ip, api)
+        super().__init__(ip)
 
     def __repr__(self) -> str:
-        return f"BMMiner: {str(self.ip)}"
+        return f"BMMinerX19: {str(self.ip)}"
 
-    async def get_hostname(self) -> str:
-        return "BMMiner Unknown"
-
-    async def send_config(self, _):
-        return None  # ignore for now
-
-    async def restart_backend(self) -> None:
-        return None  # Murray
-
-    async def reboot(self) -> None:
-        return None  # Murray
-
-    async def get_config(self) -> None:
-        return None  # Murray
+    async def get_model(self):
+        if self.model:
+            return self.model
+        version_data = await self.api.version()
+        if version_data:
+            self.model = version_data["VERSION"][0]["Type"].replace("Antminer ", "")
+            return self.model
+        return None
