@@ -66,7 +66,7 @@ class MinerFactory:
                 break
         if model:
             if "Antminer" in model:
-                if model == "Antminer S9":
+                if "Antminer S9" in model:
                     if "BOSMiner" in api:
                         miner = BOSMinerS9(str(ip))
                     elif "CGMiner" in api:
@@ -197,11 +197,11 @@ class MinerFactory:
             data = await self._send_api_command(str(ip), "version")
             if data.get("STATUS") and not data.get("STATUS") == "E":
                 if data["STATUS"][0].get("STATUS") in ["I", "S"]:
-                    if "BMMiner" in data["VERSION"][0].keys():
+                    if any("BMMiner" in string for string in data["VERSION"][0].keys()):
                         api = "BMMiner"
-                    elif "CGMiner" in data["VERSION"][0].keys():
+                    elif any("CGMiner" in string for string in data["VERSION"][0].keys()):
                         api = "CGMiner"
-                    elif "BOSminer" in data["VERSION"][0].keys() or "BOSminer+" in data["VERSION"][0].keys():
+                    elif any("BOSminer" in string for string in data["VERSION"][0].keys()):
                         api = "BOSMiner"
             elif data.get("Description") and "whatsminer" in data.get("Description"):
                 api = "BTMiner"
