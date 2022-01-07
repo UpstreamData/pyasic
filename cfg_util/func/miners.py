@@ -172,13 +172,13 @@ async def scan_and_get_data(network):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[2] == '']
+    hashrate_list = [float(item[3].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[3] == '']
     total_hr = round(sum(hashrate_list), 2)
     await update_ui_with_data("hr_total", f"{total_hr} TH/s")
     await update_ui_with_data("status", "")
@@ -191,6 +191,7 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
+    model = await miner.get_model()
     temps = 0
     if "summary" in miner_data.keys():
         if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
@@ -239,7 +240,9 @@ async def get_formatted_data(ip: ipaddress.ip_address):
         wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
     else:
         wattage = 0
-    return {'TH/s': th5s, 'IP': str(miner.ip), 'temp': round(temps), 'host': host, 'user': user, 'wattage': wattage}
+    return {'TH/s': th5s, 'IP': str(miner.ip), 'model': model,
+            'temp': round(temps), 'host': host, 'user': user,
+            'wattage': wattage}
 
 
 async def generate_config(username, workername, v2_allowed):
