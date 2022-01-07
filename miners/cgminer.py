@@ -31,9 +31,9 @@ class CGMiner(BaseMiner):
                     data = await conn.run('cat /proc/sys/kernel/hostname')
                     return data.stdout.strip()
                 else:
-                    return "CGMiner Unknown"
+                    return "?"
         except Exception:
-            return "CGMiner Unknown"
+            return "?"
 
     async def send_config(self, _):
         return None  # ignore for now

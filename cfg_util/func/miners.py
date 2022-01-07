@@ -120,7 +120,7 @@ async def get_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
