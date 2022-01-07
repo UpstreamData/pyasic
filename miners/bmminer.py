@@ -20,7 +20,6 @@ class BMMiner(BaseMiner):
             return self.model
         return None
 
-
     async def get_hostname(self) -> str:
         return "?"
 

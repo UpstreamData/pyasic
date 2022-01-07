@@ -1,6 +1,7 @@
 import asyncio
 import ipaddress
 import time
+import warnings
 
 from API import APIError, APIWarning
 from cfg_util.func.parse_data import safe_parse_api_data
@@ -22,6 +23,7 @@ async def import_config(idx):
 
 async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
+    await update_ui_with_data("ip_count", "")
     await update_ui_with_data("hr_total", "")
     window["ip_table"].update([])
     network_size = len(network)
@@ -127,7 +129,7 @@ async def get_data(ip_list: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    hashrate_list = [float(item[2].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[2] == '']
+    hashrate_list = [float(item[3].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[3] == '']
     total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
@@ -186,6 +188,7 @@ async def scan_and_get_data(network):
 
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
+    warnings.filterwarnings('ignore')
     try:
         miner_data = await miner.api.multicommand("summary", "devs", "temps", "tunerstatus", "pools", "stats")
     except APIError:
