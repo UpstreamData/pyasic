@@ -45,7 +45,7 @@ async def scan_network(network):
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
         all_miners.sort(key=lambda x: x.ip)
-        window["ip_table"].update([[str(miner.ip), "", "", "", ""] for miner in all_miners])
+        window["ip_table"].update([[str(miner.ip)] for miner in all_miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("ip_count", str(len(all_miners)))
@@ -147,7 +147,7 @@ async def scan_and_get_data(network):
             # can output "Identifying" for each found item, but it gets a bit cluttered
             # and could possibly be confusing for the end user because of timing on
             # adding the IPs
-            # window["ip_table"].update([["Identifying...", "", "", "", ""] for miner in miners])
+            # window["ip_table"].update([["Identifying..."] for miner in miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     progress_bar_len += network_size - len(miners)
@@ -157,7 +157,7 @@ async def scan_and_get_data(network):
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
         all_miners.sort(key=lambda x: x.ip)
-        window["ip_table"].update([[str(miner.ip), "", "", "", ""] for miner in all_miners])
+        window["ip_table"].update([[str(miner.ip)] for miner in all_miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("ip_count", str(len(all_miners)))
