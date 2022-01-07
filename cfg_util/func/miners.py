@@ -129,7 +129,7 @@ async def get_data(ip_list: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    hashrate_list = [float(item[3].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[3] == '']
+    hashrate_list = [float(item[3].replace(" TH/s", "")) if not item[3] == '' else 0 for item in window["ip_table"].Values]
     total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
@@ -194,7 +194,10 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     except APIError:
         return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
     host = await miner.get_hostname()
-    model = await miner.get_model()
+    try:
+        model = await miner.get_model()
+    except TypeError:
+        print(miner)
     temps = 0
     if "summary" in miner_data.keys():
         if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
