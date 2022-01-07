@@ -107,14 +107,21 @@ class MinerFactory:
         try:
             data = await self._send_api_command(str(ip), "devdetails")
             if data.get("STATUS"):
-                if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
+                if not isinstance(data["STATUS"], str):
+                    if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
+                        try:
+                            data = await self._send_api_command(str(ip), "version")
+                            model = data["VERSION"][0]["Type"]
+                        except:
+                            print(f"Get Model Exception: {ip}")
+                    else:
+                        model = data["DEVDETAILS"][0]["Model"]
+                else:
                     try:
                         data = await self._send_api_command(str(ip), "version")
                         model = data["VERSION"][0]["Type"]
                     except:
                         print(f"Get Model Exception: {ip}")
-                else:
-                    model = data["DEVDETAILS"][0]["Model"]
             if model:
                 return model
         except OSError as e:
