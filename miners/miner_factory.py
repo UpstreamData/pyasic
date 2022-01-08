@@ -106,22 +106,23 @@ class MinerFactory:
         model = None
         try:
             data = await self._send_api_command(str(ip), "devdetails")
-            if data.get("STATUS"):
-                if not isinstance(data["STATUS"], str):
-                    if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
+            if data:
+                if data.get("STATUS"):
+                    if not isinstance(data["STATUS"], str):
+                        if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
+                            try:
+                                data = await self._send_api_command(str(ip), "version")
+                                model = data["VERSION"][0]["Type"]
+                            except:
+                                print(f"Get Model Exception: {ip}")
+                        else:
+                            model = data["DEVDETAILS"][0]["Model"]
+                    else:
                         try:
                             data = await self._send_api_command(str(ip), "version")
                             model = data["VERSION"][0]["Type"]
                         except:
                             print(f"Get Model Exception: {ip}")
-                    else:
-                        model = data["DEVDETAILS"][0]["Model"]
-                else:
-                    try:
-                        data = await self._send_api_command(str(ip), "version")
-                        model = data["VERSION"][0]["Type"]
-                    except:
-                        print(f"Get Model Exception: {ip}")
             if model:
                 return model
         except OSError as e:
@@ -176,12 +177,11 @@ class MinerFactory:
             # fix an error with a bmminer return not having a specific comma that breaks json.loads()
             str_data = str_data.replace("}{", "},{")
             # parse the json
-            parsed_data = json.loads(str_data)
+            data = json.loads(str_data)
         # handle bad json
         except json.decoder.JSONDecodeError as e:
-            print(e)
-            raise APIError(f"Decode Error: {data}")
-        data = parsed_data
+            # raise APIError(f"Decode Error: {data}")
+            data = None
 
         # close the connection
         writer.close()
@@ -195,16 +195,17 @@ class MinerFactory:
         api = None
         try:
             data = await self._send_api_command(str(ip), "version")
-            if data.get("STATUS") and not data.get("STATUS") == "E":
-                if data["STATUS"][0].get("STATUS") in ["I", "S"]:
-                    if any("BMMiner" in string for string in data["VERSION"][0].keys()):
-                        api = "BMMiner"
-                    elif any("CGMiner" in string for string in data["VERSION"][0].keys()):
-                        api = "CGMiner"
-                    elif any("BOSminer" in string for string in data["VERSION"][0].keys()):
-                        api = "BOSMiner"
-            elif data.get("Description") and "whatsminer" in data.get("Description"):
-                api = "BTMiner"
+            if data:
+                if data.get("STATUS") and not data.get("STATUS") == "E":
+                    if data["STATUS"][0].get("STATUS") in ["I", "S"]:
+                        if any("BMMiner" in string for string in data["VERSION"][0].keys()):
+                            api = "BMMiner"
+                        elif any("CGMiner" in string for string in data["VERSION"][0].keys()):
+                            api = "CGMiner"
+                        elif any("BOSminer" in string for string in data["VERSION"][0].keys()):
+                            api = "BOSMiner"
+                elif data.get("Description") and "whatsminer" in data.get("Description"):
+                    api = "BTMiner"
             if api:
                 return api
         except OSError as e:

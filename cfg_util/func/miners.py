@@ -192,57 +192,65 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     try:
         miner_data = await miner.api.multicommand("summary", "devs", "temps", "tunerstatus", "pools", "stats")
     except APIError:
-        return {'TH/s': "Unknown", 'IP': str(miner.ip), 'host': "Unknown", 'user': "Unknown", 'wattage': 0}
+        return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown', 'wattage': 0}
+
     host = await miner.get_hostname()
     model = await miner.get_model()
     temps = 0
-    if "summary" in miner_data.keys():
-        if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
-            if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
-                temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
-        if 'MHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
-            th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2)
-        elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
-            if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
-                th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
-                             2)
+    if miner_data:
+        if "summary" in miner_data.keys():
+            if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
+                if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
+                    temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
+            if 'MHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
+                th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2)
+            elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
+                if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
+                    th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
+                                 2)
+                else:
+                    th5s = 0
             else:
                 th5s = 0
         else:
             th5s = 0
+        if "temps" in miner_data.keys() and not miner_data["temps"][0]['TEMPS'] == []:
+            if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
+                for board in miner_data["temps"][0]['TEMPS']:
+                    if board["Chip"] is not None and not board["Chip"] == 0.0:
+                        temps = board["Chip"]
+        if "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
+            if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
+                for board in miner_data["devs"][0]['DEVS']:
+                    if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
+                        temps = board['Chip Temp Avg']
+
+        if "stats" in miner_data.keys() and not miner_data["stats"][0]['STATS'] == []:
+            for temp in ["temp2", "temp1", "temp3"]:
+                if temp in miner_data["stats"][0]['STATS'][1].keys():
+                    if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][
+                                                                                        temp] == 0.0:
+                        temps = miner_data["stats"][0]['STATS'][1][temp]
+
+        if "pools" not in miner_data.keys():
+            user = "?"
+        elif not miner_data['pools'][0]['POOLS'] == []:
+            user = await safe_parse_api_data(miner_data, 'pools', 0, 'POOLS', 0, 'User')
+        else:
+            user = "Blank"
+
+        if "tunerstatus" in miner_data.keys():
+            wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
+        elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
+            wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
+        else:
+            wattage = 0
     else:
         th5s = 0
-    if "temps" in miner_data.keys() and not miner_data["temps"][0]['TEMPS'] == []:
-        if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
-            for board in miner_data["temps"][0]['TEMPS']:
-                if board["Chip"] is not None and not board["Chip"] == 0.0:
-                    temps = board["Chip"]
-    if "devs" in miner_data.keys() and not miner_data["devs"][0]['DEVS'] == []:
-        if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
-            for board in miner_data["devs"][0]['DEVS']:
-                if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
-                    temps = board['Chip Temp Avg']
-
-    if "stats" in miner_data.keys() and not miner_data["stats"][0]['STATS'] == []:
-        for temp in ["temp2", "temp1", "temp3"]:
-            if temp in miner_data["stats"][0]['STATS'][1].keys():
-                if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][
-                                                                                    temp] == 0.0:
-                    temps = miner_data["stats"][0]['STATS'][1][temp]
-
-    if "pools" not in miner_data.keys():
-        user = "?"
-    elif not miner_data['pools'][0]['POOLS'] == []:
-        user = await safe_parse_api_data(miner_data, 'pools', 0, 'POOLS', 0, 'User')
-    else:
-        user = "Blank"
-
-    if "tunerstatus" in miner_data.keys():
-        wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
-    elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
-        wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
-    else:
+        user = "Unknown"
         wattage = 0
+    if not model:
+        model = "Error"
     return {'TH/s': th5s, 'IP': str(miner.ip), 'model': model,
             'temp': round(temps), 'host': host, 'user': user,
             'wattage': wattage}
