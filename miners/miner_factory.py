@@ -2,7 +2,6 @@ from miners.antminer.S9.bosminer import BOSMinerS9
 from miners.antminer.S9.bmminer import BMMinerS9
 from miners.antminer.S9.cgminer import CGMinerS9
 
-
 from miners.antminer.X17.bosminer import BOSMinerX17
 from miners.antminer.X17.bmminer import BMMinerX17
 from miners.antminer.X17.cgminer import CGMinerX17
@@ -16,10 +15,9 @@ from miners.whatsminer.M30 import BTMinerM30
 from miners.whatsminer.M31 import BTMinerM31
 from miners.whatsminer.M32 import BTMinerM32
 
-from miners.bmminer import BMMiner
-from miners.cgminer import CGMiner
+from miners.avalonminer import CGMinerAvalon
+
 from miners.unknown import UnknownMiner
-from API import APIError
 import asyncio
 import ipaddress
 import json
@@ -85,6 +83,8 @@ class MinerFactory:
                         miner = CGMinerX19(str(ip))
                     elif "BMMiner" in api:
                         miner = BMMinerX19(str(ip))
+            elif "avalon" in model:
+                miner = CGMinerAvalon(str(ip))
             elif "M20" in model:
                 miner = BTMinerM20(str(ip))
             elif "M21" in model:
@@ -116,7 +116,10 @@ class MinerFactory:
                             except:
                                 print(f"Get Model Exception: {ip}")
                         else:
-                            model = data["DEVDETAILS"][0]["Model"]
+                            if not data["DEVDETAILS"][0]["Model"] == "":
+                                model = data["DEVDETAILS"][0]["Model"]
+                            else:
+                                model = data["DEVDETAILS"][0]["Driver"]
                     else:
                         try:
                             data = await self._send_api_command(str(ip), "version")
