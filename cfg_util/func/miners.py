@@ -224,13 +224,20 @@ async def get_formatted_data(ip: ipaddress.ip_address):
                 for board in miner_data["devs"][0]['DEVS']:
                     if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
                         temps = board['Chip Temp Avg']
-
         if "stats" in miner_data.keys() and not miner_data["stats"][0]['STATS'] == []:
             for temp in ["temp2", "temp1", "temp3"]:
                 if temp in miner_data["stats"][0]['STATS'][1].keys():
                     if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][
                                                                                         temp] == 0.0:
                         temps = miner_data["stats"][0]['STATS'][1][temp]
+            miner_data["stats"][0]['STATS'][0].keys()
+            if any("MM ID" in string for string in miner_data["stats"][0]['STATS'][0].keys()):
+                temp_all = []
+                for key in [string for string in miner_data["stats"][0]['STATS'][0].keys() if "MM ID" in string]:
+                    for value in [string for string in miner_data["stats"][0]['STATS'][0][key].split(" ") if
+                                  "TMax" in string]:
+                        temp_all.append(int(value.split("[")[1].replace("]", "")))
+                temps = round(sum(temp_all) / len(temp_all))
 
         if "pools" not in miner_data.keys():
             user = "?"
