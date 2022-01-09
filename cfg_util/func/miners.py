@@ -9,7 +9,7 @@ from cfg_util.func.ui import update_ui_with_data, update_prog_bar, set_progress_
 from cfg_util.layout import window
 from cfg_util.miner_factory import miner_factory
 from config.bos import bos_config_convert
-from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
+from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS
 
 
 async def import_config(idx):
@@ -74,6 +74,72 @@ async def flip_light(ip):
         await miner.fault_light_off()
 
 
+async def reboot_generator(miners: list):
+    loop = asyncio.get_event_loop()
+    reboot_tasks = []
+    for miner in miners:
+        if len(reboot_tasks) >= REBOOT_THREADS:
+            rebooted = asyncio.as_completed(reboot_tasks)
+            reboot_tasks = []
+            for done in rebooted:
+                yield await done
+        reboot_tasks.append(loop.create_task(miner.reboot()))
+    rebooted = asyncio.as_completed(reboot_tasks)
+    for done in rebooted:
+        yield await done
+
+
+async def reboot_miners(ips: list):
+    await update_ui_with_data("status", "Rebooting")
+    await set_progress_bar_len(2 * len(ips))
+    progress_bar_len = 0
+    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    all_miners = []
+    async for miner in get_miner_genenerator:
+        all_miners.append(miner)
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+
+    reboot_miners_generator = reboot_generator(all_miners)
+    async for _rebooter in reboot_miners_generator:
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+    await update_ui_with_data("status", "")
+
+
+async def restart_backend_generator(miners: list):
+    loop = asyncio.get_event_loop()
+    reboot_tasks = []
+    for miner in miners:
+        if len(reboot_tasks) >= REBOOT_THREADS:
+            rebooted = asyncio.as_completed(reboot_tasks)
+            reboot_tasks = []
+            for done in rebooted:
+                yield await done
+        reboot_tasks.append(loop.create_task(miner.restart_backend()))
+    rebooted = asyncio.as_completed(reboot_tasks)
+    for done in rebooted:
+        yield await done
+
+
+async def restart_miners_backend(ips: list):
+    await update_ui_with_data("status", "Rebooting")
+    await set_progress_bar_len(2 * len(ips))
+    progress_bar_len = 0
+    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    all_miners = []
+    async for miner in get_miner_genenerator:
+        all_miners.append(miner)
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+
+    reboot_miners_generator = reboot_generator(all_miners)
+    async for _rebooter in reboot_miners_generator:
+        progress_bar_len += 1
+        asyncio.create_task(update_prog_bar(progress_bar_len))
+    await update_ui_with_data("status", "")
+
+
 async def send_config_generator(miners: list, config):
     loop = asyncio.get_event_loop()
     config_tasks = []
@@ -122,14 +188,16 @@ async def get_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s",
+                data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    hashrate_list = [float(item[3].replace(" TH/s", "")) if not item[3] == '' else 0 for item in window["ip_table"].Values]
+    hashrate_list = [float(item[3].replace(" TH/s", "")) if not item[3] == '' else 0 for item in
+                     window["ip_table"].Values]
     total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
@@ -174,7 +242,8 @@ async def scan_and_get_data(network):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s", data_point["temp"],
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s",
+                data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
@@ -192,7 +261,8 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     try:
         miner_data = await miner.api.multicommand("summary", "devs", "temps", "tunerstatus", "pools", "stats")
     except APIError:
-        return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown', 'wattage': 0}
+        return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown',
+                'wattage': 0}
 
     host = await miner.get_hostname()
     model = await miner.get_model()
@@ -206,8 +276,9 @@ async def get_formatted_data(ip: ipaddress.ip_address):
                 th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2)
             elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
                 if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
-                    th5s = round(float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
-                                 2)
+                    th5s = round(
+                        float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
+                        2)
                 else:
                     th5s = 0
             else:

@@ -97,6 +97,9 @@ class CGMiner(BaseMiner):
             # else:
             #     print(cmd)
 
+    async def restart_backend(self) -> None:
+        await self.restart_cgminer()
+
     async def restart_cgminer(self) -> None:
         commands = ['cgminer-api restart',
                     '/usr/bin/cgminer-monitor >/dev/null 2>&1']

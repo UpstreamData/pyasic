@@ -61,7 +61,10 @@ class BOSminer(BaseMiner):
         """Sends command to turn off fault light on the miner."""
         await self.send_ssh_command('miner fault_light off')
 
-    async def restart_backend(self) -> None:
+    async def restart_backend(self):
+        await self.restart_bosminer()
+
+    async def restart_bosminer(self) -> None:
         """Restart bosminer hashing process."""
         await self.send_ssh_command('/etc/init.d/bosminer restart')
 
