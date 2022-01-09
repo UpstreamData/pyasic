@@ -123,7 +123,7 @@ async def restart_backend_generator(miners: list):
 
 
 async def restart_miners_backend(ips: list):
-    await update_ui_with_data("status", "Rebooting")
+    await update_ui_with_data("status", "Restarting Backends")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
     get_miner_genenerator = miner_factory.get_miner_generator(ips)

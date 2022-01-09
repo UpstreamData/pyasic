@@ -12,3 +12,9 @@ class BaseMiner:
         self.api = api
         self.api_type = None
         self.model = None
+
+    async def reboot(self):
+        return None
+
+    async def restart_backend(self):
+        return None

@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 
 from cfg_util.layout import window, generate_config_layout
 from cfg_util.func.miners import scan_network, send_config, miner_light, get_data, generate_config, import_config, \
-    scan_and_get_data
+    scan_and_get_data, restart_miners_backend, reboot_miners
 from cfg_util.func.files import import_iplist, import_config_file, export_iplist, export_config_file
 from cfg_util.func.ui import sort_data, copy_from_table
 
@@ -44,6 +44,10 @@ async def ui():
         if event == 'import_config':
             if 2 > len(value['ip_table']) > 0:
                 asyncio.create_task(import_config(value['ip_table']))
+        if event == "restart_miner_backend":
+            asyncio.create_task(restart_miners_backend([window['ip_table'].Values[item][0] for item in value['ip_table']]))
+        if event == "reboot_miners":
+            asyncio.create_task(reboot_miners([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == 'light':
             asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "import_iplist":
