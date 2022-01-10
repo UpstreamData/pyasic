@@ -1,7 +1,7 @@
-from miners.bosminer import BOSminer
+from miners.bosminer import BOSMiner
 
 
-class BOSMinerS9(BOSminer):
+class BOSMinerS9(BOSMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.model = "S9"

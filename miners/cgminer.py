@@ -1,5 +1,6 @@
 from miners import BaseMiner
 from API.cgminer import CGMinerAPI
+from API import APIError
 import asyncssh
 
 
@@ -18,7 +19,10 @@ class CGMiner(BaseMiner):
     async def get_model(self):
         if self.model:
             return self.model
-        version_data = await self.api.devdetails()
+        try:
+            version_data = await self.api.devdetails()
+        except APIError:
+            return None
         if version_data:
             self.model = version_data["DEVDETAILS"][0]["Model"].replace("Antminer ", "")
             return self.model

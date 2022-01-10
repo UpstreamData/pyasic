@@ -17,7 +17,14 @@ from miners.whatsminer.M32 import BTMinerM32
 
 from miners.avalonminer import CGMinerAvalon
 
+from miners.cgminer import CGMiner
+from miners.bmminer import BMMiner
+from miners.bosminer import BOSMiner
+
 from miners.unknown import UnknownMiner
+
+from API import APIError
+
 import asyncio
 import ipaddress
 import json
@@ -95,6 +102,14 @@ class MinerFactory:
                 miner = BTMinerM31(str(ip))
             elif "M32" in model:
                 miner = BTMinerM32(str(ip))
+        else:
+            if api:
+                if "BOSMiner" in api:
+                    miner = BOSMiner(str(ip))
+                elif "CGMiner" in api:
+                    miner = CGMiner(str(ip))
+                elif "BMMiner" in api:
+                    miner = BMMiner(str(ip))
         self.miners[ip] = miner
         return miner
 
@@ -110,26 +125,26 @@ class MinerFactory:
                 if data.get("STATUS"):
                     if not isinstance(data["STATUS"], str):
                         if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
-                            try:
-                                data = await self._send_api_command(str(ip), "version")
-                                model = data["VERSION"][0]["Type"]
-                            except:
-                                print(f"Get Model Exception: {ip}")
+                            data = await self._send_api_command(str(ip), "version")
+                            if data:
+                                if data.get("VERSION"):
+                                    if data["VERSION"][0].get("Type"):
+                                        model = data["VERSION"][0]["Type"]
                         else:
                             if not data["DEVDETAILS"][0]["Model"] == "":
                                 model = data["DEVDETAILS"][0]["Model"]
                             else:
                                 model = data["DEVDETAILS"][0]["Driver"]
                     else:
-                        try:
-                            data = await self._send_api_command(str(ip), "version")
-                            model = data["VERSION"][0]["Type"]
-                        except:
-                            print(f"Get Model Exception: {ip}")
+                        data = await self._send_api_command(str(ip), "version")
+                        model = data["VERSION"][0]["Type"]
             if model:
                 return model
+        except APIError as e:
+            return None
         except OSError as e:
             if e.winerror == 121:
+                print(e)
                 return None
             else:
                 print(ip, e)
@@ -191,7 +206,6 @@ class MinerFactory:
         await writer.wait_closed()
 
         return data
-
 
     async def _get_api_type(self, ip: ipaddress.ip_address or str) -> dict or None:
         """Get data on the version of the miner to return the right miner."""

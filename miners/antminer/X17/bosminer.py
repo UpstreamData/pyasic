@@ -1,7 +1,7 @@
-from miners.bosminer import BOSminer
+from miners.bosminer import BOSMiner
 
 
-class BOSMinerX17(BOSminer):
+class BOSMinerX17(BOSMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.api_type = "BOSMiner"
