@@ -196,8 +196,17 @@ async def get_data(ip_list: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    hashrate_list = [float(item[3].replace(" TH/s", "")) if not item[3] == '' else 0 for item in
-                     window["ip_table"].Values]
+    hashrate_list = []
+    hr_idx = 3
+    for item, _ in enumerate(window["ip_table"].Values):
+        if len(window["ip_table"].Values[item]) > hr_idx:
+            if not window["ip_table"].Values[item][hr_idx] == '':
+                hashrate_list.append(float(window["ip_table"].Values[item][hr_idx].replace(" TH/s", "")))
+            else:
+                hashrate_list.append(0)
+        else:
+            hashrate_list.append(0)
+
     total_hr = round(sum(hashrate_list), 2)
     window["hr_total"].update(f"{total_hr} TH/s")
 
