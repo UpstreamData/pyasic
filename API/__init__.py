@@ -62,7 +62,7 @@ class BaseMinerAPI:
         commands = [command for command in user_commands if command in allowed_commands]
         for item in list(set(user_commands) - set(commands)):
             warnings.warn(f"""Removing incorrect command: {item}
-If you are sure you want to use this command please use API.send_command("{item}") instead.""",
+If you are sure you want to use this command please use API.send_command("{item}", ignore_errors=True) instead.""",
                           APIWarning)
         # standard multicommand format is "command1+command2"
         # doesnt work for S19 which is dealt with in the send command function
@@ -84,7 +84,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         if data:
             return data
 
-    async def send_command(self, command: str, parameters: str or int or bool = None) -> dict:
+    async def send_command(self, command: str, parameters: str or int or bool = None, ignore_errors: bool = False) -> dict:
         """Send an API command to the miner and return the result."""
         try:
             # get reader and writer streams
@@ -123,10 +123,12 @@ If you are sure you want to use this command please use API.send_command("{item}
         writer.close()
         await writer.wait_closed()
 
-        # validate the command succeeded
-        validation = self.validate_command_output(data)
-        if not validation[0]:
-            raise APIError(validation[1])
+        # check for if the user wants to allow errors to return
+        if not ignore_errors:
+            # validate the command succeeded
+            validation = self.validate_command_output(data)
+            if not validation[0]:
+                raise APIError(validation[1])
 
         return data
 
