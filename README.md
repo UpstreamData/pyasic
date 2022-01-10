@@ -144,3 +144,138 @@ async def get_miner_hashrate(ip: str):
 if __name__ == '__main__':
     asyncio.new_event_loop().run_until_complete(get_miner_hashrate(str("192.168.1.69")))
 ```
+
+
+Now that you know that, lets move on to some common API functions that you might want to use.
+
+### Common commands:
+* Getting pool data:
+```python
+import asyncio
+import ipaddress
+from miners.miner_factory import MinerFactory
+from cfg_util.func.parse_data import safe_parse_api_data
+
+async def get_miner_pool_data(ip: str):
+    # Instantiate a Miner Factory to generate miners from their IP
+    miner_factory = MinerFactory()
+    # Make the string IP into an IP address
+    miner_ip = ipaddress.ip_address(ip)
+    # Wait for the factory to return the miner
+    miner = await miner_factory.get_miner(miner_ip)
+    # Get the API data
+    pools = await miner.api.pools()
+    # safe_parse_api_data parses the data from a miner API
+    # It will raise an APIError (from API import APIError) if there is a problem
+    data = await safe_parse_api_data(pools, 'POOLS')
+    # parse further from here to get all the pool info you want.
+    # each pool is on a different index eg:
+    # data[0] is pool 1
+    # data[1] is pool 2
+    # etc
+    print(data)
+
+if __name__ == '__main__':
+    asyncio.new_event_loop().run_until_complete(get_miner_pool_data(str("192.168.1.69")))
+```
+
+* Getting temperature data:
+
+This one is a bit tougher, lots of miners do this a different way, you might need to experiment a bit to find what works for you.
+BraiinsOS uses the "temps" command, Whatsminers has it in "devs", Avalonminers put it in "stats" as well as some other miners,
+but the spot I like to try first is in "summary".
+
+A pretty good example of really trying to make this robust is in ```cfg_util.func.miners``` in the ```get_formatted_data()``` function.
+```python
+import asyncio
+import ipaddress
+from miners.miner_factory import MinerFactory
+from cfg_util.func.parse_data import safe_parse_api_data
+
+async def get_miner_temperature_data(ip: str):
+    # Instantiate a Miner Factory to generate miners from their IP
+    miner_factory = MinerFactory()
+    # Make the string IP into an IP address
+    miner_ip = ipaddress.ip_address(ip)
+    # Wait for the factory to return the miner
+    miner = await miner_factory.get_miner(miner_ip)
+    # Get the API data
+    summary = await miner.api.summary()
+    # safe_parse_api_data parses the data from a miner API
+    # It will raise an APIError (from API import APIError) if there is a problem
+    data = await safe_parse_api_data(summary, 'SUMMARY', 0, "Temperature")
+    print(data)
+
+if __name__ == '__main__':
+    asyncio.new_event_loop().run_until_complete(get_miner_temperature_data(str("192.168.1.69")))
+```
+
+* Getting power data:
+
+How about data on the power usage of the miner?  This one only works for Whatsminers and BraiinsOS for now, and the Braiins one just uses the tuning setting, but its good enough for basic uses.
+
+```python
+import asyncio
+import ipaddress
+from miners.miner_factory import MinerFactory
+from cfg_util.func.parse_data import safe_parse_api_data
+
+async def get_miner_power_data(ip: str):
+    # Instantiate a Miner Factory to generate miners from their IP
+    miner_factory = MinerFactory()
+    # Make the string IP into an IP address
+    miner_ip = ipaddress.ip_address(ip)
+    # Wait for the factory to return the miner
+    miner = await miner_factory.get_miner(miner_ip)
+    # check if this can be sent the "tunerstatus" command, BraiinsOS only
+    if "tunerstatus" in miner.api.get_commands():
+        # send the command
+        tunerstatus = await miner.api.tunerstatus()
+        # parse the return
+        data = await safe_parse_api_data(tunerstatus, 'TUNERSTATUS', 0, "PowerLimit")
+    else:
+        # send the command
+        # whatsminers have the power info in summary
+        summary = await miner.api.summary()
+        # parse the return
+        data = await safe_parse_api_data(summary, 'SUMMARY', 0, "Power")
+
+        
+    print(data)
+if __name__ == '__main__':
+    asyncio.new_event_loop().run_until_complete(get_miner_power_data(str("192.168.1.69")))
+```
+
+* Multicommands:
+
+Multicommands make it much easier to get many types of data all at once.  The multicommand function will also remove any commands that your API can't handle automatically.
+How about we get the current pool user and hashrate in 1 command?
+
+```python
+import asyncio
+import ipaddress
+from miners.miner_factory import MinerFactory
+from cfg_util.func.parse_data import safe_parse_api_data
+
+async def get_miner_hashrate_and_pool(ip: str):
+    # Instantiate a Miner Factory to generate miners from their IP
+    miner_factory = MinerFactory()
+    # Make the string IP into an IP address
+    miner_ip = ipaddress.ip_address(ip)
+    # Wait for the factory to return the miner
+    miner = await miner_factory.get_miner(miner_ip)
+    # Get the API data
+    api_data = await miner.api.multicommand("pools", "summary")
+    if "pools" in api_data.keys():
+        user = await safe_parse_api_data(api_data, "pools", 0, "POOLS", 0, "User")
+        print(user)
+    if "summary" in api_data.keys():
+        hashrate = await safe_parse_api_data(api_data, "summary", 0, "SUMMARY", 0, "MHS av")
+        print(hashrate)
+
+
+if __name__ == '__main__':
+    asyncio.new_event_loop().run_until_complete(get_miner_hashrate_and_pool(str("192.168.1.9")))
+```
+
+

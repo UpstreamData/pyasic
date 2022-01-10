@@ -271,7 +271,7 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     host = await miner.get_hostname()
     model = await miner.get_model()
     if not model:
-        model = "Error"
+        model = "?"
     temps = 0
     th5s = 0
     wattage = 0
@@ -284,7 +284,8 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             # no devs command, it will fail in this case
             miner_data = await miner.api.multicommand("summary", "temps", "tunerstatus", "pools", "stats")
             print(miner_data)
-        except APIError:
+        except APIError as e:
+            print(e)
             return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown',
                     'wattage': 0}
     if miner_data:
