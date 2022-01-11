@@ -159,3 +159,17 @@ class CGMinerAvalon(CGMiner):
 
     def __repr__(self) -> str:
         return f"CGMinerAvalon: {str(self.ip)}"
+
+    def parse_estats(self, estats):
+        for estat in estats:
+            for key in estat:
+                if key[:5] == 'MM ID':
+                    self._parse_estat(estat, key)
+
+    def _parse_estat(self, estat, key):
+        module = estat[key]
+        module_info = re.match(self.pattern, module)
+        if not module_info:
+            return None
+        module_info = module_info.groupdict()
+        print(module_info)
