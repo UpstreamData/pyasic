@@ -131,10 +131,11 @@ class MinerFactory:
                                     if data["VERSION"][0].get("Type"):
                                         model = data["VERSION"][0]["Type"]
                         else:
-                            if not data["DEVDETAILS"][0]["Model"] == "":
-                                model = data["DEVDETAILS"][0]["Model"]
-                            else:
-                                model = data["DEVDETAILS"][0]["Driver"]
+                            if "DEVDETAILS" in data.keys() and not data["DEVDETAILS"] == []:
+                                if not data["DEVDETAILS"][0]["Model"] == "":
+                                    model = data["DEVDETAILS"][0]["Model"]
+                                else:
+                                    model = data["DEVDETAILS"][0]["Driver"]
                     else:
                         data = await self._send_api_command(str(ip), "version")
                         model = data["VERSION"][0]["Type"]
