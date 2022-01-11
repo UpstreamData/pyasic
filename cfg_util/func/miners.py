@@ -30,6 +30,7 @@ async def scan_network(network):
     miner_generator = network.scan_network_generator()
     await set_progress_bar_len(2 * network_size)
     progress_bar_len = 0
+    asyncio.create_task(update_prog_bar(progress_bar_len))
     miners = []
     async for miner in miner_generator:
         if miner:
@@ -159,6 +160,7 @@ async def send_config(ips: list, config):
     await update_ui_with_data("status", "Configuring")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
+    asyncio.create_task(update_prog_bar(progress_bar_len))
     get_miner_genenerator = miner_factory.get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
@@ -171,6 +173,7 @@ async def send_config(ips: list, config):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
+    await refresh_data(ips)
 
 
 async def refresh_data(ip_list: list):
@@ -180,9 +183,14 @@ async def refresh_data(ip_list: list):
     if len(ips) == 0:
         ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
     await set_progress_bar_len(len(ips))
+    progress_bar_len = 0
+    asyncio.create_task(update_prog_bar(progress_bar_len))
     reset_table_values = []
     for item in window["ip_table"].Values:
-        reset_table_values.append([item[0]])
+        if item[0] in ip_list:
+            reset_table_values.append([item[0]])
+        else:
+            reset_table_values.append(item)
     window["ip_table"].update(reset_table_values)
     progress_bar_len = 0
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
