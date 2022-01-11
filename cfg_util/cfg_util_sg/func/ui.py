@@ -1,7 +1,7 @@
 import ipaddress
 import re
 
-from cfg_util.layout import window
+from cfg_util.cfg_util_sg.layout import window
 
 import pyperclip
 
