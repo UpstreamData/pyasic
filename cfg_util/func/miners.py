@@ -173,12 +173,17 @@ async def send_config(ips: list, config):
     await update_ui_with_data("status", "")
 
 
-async def get_data(ip_list: list):
+async def refresh_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
+    await update_ui_with_data("hr_total", "")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     if len(ips) == 0:
         ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
     await set_progress_bar_len(len(ips))
+    reset_table_values = []
+    for item in window["ip_table"].Values:
+        reset_table_values.append([item[0]])
+    window["ip_table"].update(reset_table_values)
     progress_bar_len = 0
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in ips])
     ip_table_data = window["ip_table"].Values
@@ -215,6 +220,9 @@ async def get_data(ip_list: list):
 
 async def scan_and_get_data(network):
     await update_ui_with_data("status", "Scanning")
+    await update_ui_with_data("hr_total", "")
+    await update_ui_with_data("ip_count", "")
+    await update_ui_with_data("ip_table", [])
     network_size = len(network)
     miner_generator = network.scan_network_generator()
     await set_progress_bar_len(3 * network_size)

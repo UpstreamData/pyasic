@@ -3,7 +3,7 @@ import sys
 import PySimpleGUI as sg
 
 from cfg_util.layout import window, generate_config_layout
-from cfg_util.func.miners import scan_network, send_config, miner_light, get_data, generate_config, import_config, \
+from cfg_util.func.miners import scan_network, send_config, miner_light, refresh_data, generate_config, import_config, \
     scan_and_get_data, restart_miners_backend, reboot_miners
 from cfg_util.func.files import import_iplist, import_config_file, export_iplist, export_config_file
 from cfg_util.func.ui import sort_data, copy_from_table
@@ -35,7 +35,7 @@ async def ui():
                 miner_network = MinerNetwork(ip_addr=network[0], mask=network[1])
             else:
                 miner_network = MinerNetwork(value['miner_network'])
-            asyncio.create_task(scan_network(miner_network))
+            asyncio.create_task(scan_and_get_data(miner_network))
         if event == 'select_all_ips':
             if len(value["ip_table"]) == len(window["ip_table"].Values):
                 window["ip_table"].update(select_rows=())
@@ -60,16 +60,8 @@ async def ui():
             asyncio.create_task(import_config_file(value['file_config']))
         if event == "export_file_config":
             asyncio.create_task(export_config_file(value['file_config'], value["config"]))
-        if event == "get_data":
-            if len(window["ip_table"].Values) == 0:
-                if len(value['miner_network'].split("/")) > 1:
-                    network = value['miner_network'].split("/")
-                    miner_network = MinerNetwork(ip_addr=network[0], mask=network[1])
-                else:
-                    miner_network = MinerNetwork(value['miner_network'])
-                asyncio.create_task(scan_and_get_data(miner_network))
-            else:
-                asyncio.create_task(get_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
+        if event == "refresh_data":
+            asyncio.create_task(refresh_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
         if event == "generate_config":
             await generate_config_ui()
         if event == "__TIMEOUT__":

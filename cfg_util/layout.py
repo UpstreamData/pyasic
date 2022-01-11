@@ -35,7 +35,7 @@ layout = [
             [sg.Text("IP List:", pad=(0, 0)),
              sg.Text("", key="ip_count", pad=(0, 0), size=(3, 1)),
              sg.Button('ALL', key="select_all_ips"),
-             sg.Button("GET DATA", key='get_data'),
+             sg.Button("REFRESH DATA", key='refresh_data'),
              sg.Button("OPEN IN WEB", key='open_in_web'),
              sg.Button("REBOOT", key='reboot_miners'),
              sg.Button("RESTART BACKEND", key='restart_miner_backend')],
