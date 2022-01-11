@@ -1,6 +1,5 @@
-from cfg_util.miner_factory import miner_factory
-from cfg_util.layout import window
-from cfg_util.ui import ui
+from cfg_util.cfg_util_sg.miner_factory import miner_factory
+from cfg_util.cfg_util_sg.ui import ui
 
 import asyncio
 import sys
