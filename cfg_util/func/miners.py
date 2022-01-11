@@ -277,7 +277,10 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     warnings.filterwarnings('ignore')
     miner_data = None
     host = await miner.get_hostname()
-    model = await miner.get_model()
+    try:
+        model = await miner.get_model()
+    except APIError:
+        model = "?"
     if not model:
         model = "?"
     temps = 0
