@@ -3,9 +3,9 @@ from network import MinerNetwork
 from miners.bosminer import BOSMiner
 
 
-async def get_bos_bad_tuners():
+async def get_bos_bad_tuners(ip: str = "192.168.1.0", mask: int = 24):
     # create a miner network
-    miner_network = MinerNetwork("192.168.1.0")
+    miner_network = MinerNetwork(ip, mask=mask)
 
     # scan for miners
     miners = await miner_network.scan_network_for_miners()
@@ -29,7 +29,7 @@ async def get_bos_bad_tuners():
         bad_boards = []
         for board in item["tuner_status"]:
             # if its not stable or still testing, its bad
-            if board["status"] not in ["Stable", "Testing performance profile"]:
+            if board["status"] not in ["Stable", "Testing performance profile", "Tuning individual chips"]:
                 # remove the part about the board refusing to start
                 bad_boards.append({"board": board["board"],
                                    "error": board["status"].replace("Hashchain refused to start: ", "")})
