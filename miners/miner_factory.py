@@ -94,7 +94,10 @@ class MinerFactory:
                 if "Antminer S9" in model:
 
                     # handle the different API types
-                    if "BOSMiner" in api:
+                    if not api:
+                        print(ip)
+                        miner = BOSMinerS9(str(ip))
+                    elif "BOSMiner" in api:
                         miner = BOSMinerS9(str(ip))
                     elif "CGMiner" in api:
                         miner = CGMinerS9(str(ip))
