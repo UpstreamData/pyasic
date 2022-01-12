@@ -12,6 +12,8 @@ try:
     CFG_UTIL_CONFIG_THREADS: int = settings["config_threads"]
 
     MINER_FACTORY_GET_VERSION_RETRIES: int = settings["get_version_retries"]
+
+    WHATSMINER_PWD: str = settings["whatsminer_pwd"]
 except:
     NETWORK_PING_RETRIES: int = 3
     NETWORK_PING_TIMEOUT: int = 5
@@ -21,3 +23,5 @@ except:
     CFG_UTIL_CONFIG_THREADS: int = 300
 
     MINER_FACTORY_GET_VERSION_RETRIES: int = 3
+
+    WHATSMINER_PWD = "admin"
