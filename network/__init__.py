@@ -18,40 +18,75 @@ class MinerNetwork:
 
     def get_network(self) -> ipaddress.ip_network:
         """Get the network using the information passed to the MinerNetwork or from cache."""
+        # if we have a network cached already, use that
         if self.network:
             return self.network
+
+        # if there is no IP address passed, default to 192.168.1.0
         if not self.ip_addr:
             default_gateway = "192.168.1.0"
+        # if we do have an IP address passed, use that
         else:
             default_gateway = self.ip_addr
-        if self.mask:
-            subnet_mask = str(self.mask)
-        else:
+
+        # if there is no subnet mask passed, default to /24
+        if not self.mask:
             subnet_mask = "24"
-        return ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
+        # if we do have a mask passed, use that
+        else:
+            subnet_mask = str(self.mask)
+
+        # save the network and return it
+        self.network = ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
+        return self.network
 
     async def scan_network_for_miners(self) -> None or list:
         """Scan the network for miners, and return found miners as a list."""
+        # get the network
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
+
+        # create a list of tasks and miner IPs
         scan_tasks = []
         miner_ips = []
+
+        # for each IP in the network
         for host in local_network.hosts():
+
+            # make sure we don't exceed the allowed async tasks
             if len(scan_tasks) < SCAN_THREADS:
+                # add the task to the list
                 scan_tasks.append(self.ping_miner(host))
             else:
+                # run the scan tasks
                 miner_ips_scan = await asyncio.gather(*scan_tasks)
+                # add scanned miners to the list of found miners
                 miner_ips.extend(miner_ips_scan)
+                # empty the task list
                 scan_tasks = []
+        # do a final scan to empty out the list
         miner_ips_scan = await asyncio.gather(*scan_tasks)
         miner_ips.extend(miner_ips_scan)
+
+        # remove all None from the miner list
         miner_ips = list(filter(None, miner_ips))
         print(f"Found {len(miner_ips)} connected miners...")
+
+        # create a list of tasks to get miners
         create_miners_tasks = []
+
+        # clear cached miners
         self.miner_factory.clear_cached_miners()
+
+        # try to get each miner found
         for miner_ip in miner_ips:
+            # append to the list of tasks
             create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
+
+        # get all miners in the list
         miners = await asyncio.gather(*create_miners_tasks)
+
+        # return the miner objects
         return miners
 
     async def scan_network_generator(self):
@@ -60,16 +95,32 @@ class MinerNetwork:
 
         Returns an asynchronous generator containing found miners.
         """
+        # get the current event loop
         loop = asyncio.get_event_loop()
+
+        # get the network
         local_network = self.get_network()
+
+        # create a list of scan tasks
         scan_tasks = []
+
+        # for each ip on the network, loop through and scan it
         for host in local_network.hosts():
+            # make sure we don't exceed the allowed async tasks
             if len(scan_tasks) >= SCAN_THREADS:
+                # scanned is a loopable list of awaitables
                 scanned = asyncio.as_completed(scan_tasks)
+                # when we scan, empty the scan tasks
                 scan_tasks = []
+
+                # yield miners as they are scanned
                 for miner in scanned:
                     yield await miner
+
+            # add the ping to the list of tasks if we dont scan
             scan_tasks.append(loop.create_task(self.ping_miner(host)))
+
+        # do one last scan at the end to close out the list
         scanned = asyncio.as_completed(scan_tasks)
         for miner in scanned:
             yield await miner

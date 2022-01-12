@@ -1,4 +1,5 @@
 from API import BaseMinerAPI, APIError
+from settings import WHATSMINER_PWD
 
 from passlib.handlers.md5_crypt import md5_crypt
 import asyncio
@@ -16,7 +17,9 @@ import base64
 # admin with this tool, but they must be changed to
 # something else and set back to admin with this or
 # the privileged API will not work using admin as
-# the password.
+# the password.  If you change the password, you can
+# pass that to the this class as pwd, or added as
+# whatsminer_pwd in the settings.toml file.
 
 
 def _crypt(word: str, salt: str) -> str:
@@ -82,7 +85,10 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
 class BTMinerAPI(BaseMinerAPI):
     def __init__(self, ip, port=4028, pwd: str = "admin"):
         super().__init__(ip, port)
-        self.admin_pwd = pwd
+        if pwd:
+            self.admin_pwd = pwd
+        else:
+            self.admin_pwd = WHATSMINER_PWD
         self.current_token = None
 
     async def send_command(self, command: str | bytes, **kwargs) -> dict:

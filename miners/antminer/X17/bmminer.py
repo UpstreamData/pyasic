@@ -6,4 +6,4 @@ class BMMinerX17(BMMiner):
         super().__init__(ip)
 
     def __repr__(self) -> str:
-        return f"CGMinerX17: {str(self.ip)}"
+        return f"BMMinerX17: {str(self.ip)}"

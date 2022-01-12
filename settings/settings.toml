@@ -4,3 +4,5 @@ ping_timeout = 5
 scan_threads = 300
 config_threads = 300
 reboot_threads = 300
+
+whatsminer_pwd = "admin"
