@@ -2,6 +2,10 @@ from miners.antminer.S9.bosminer import BOSMinerS9
 from miners.antminer.S9.bmminer import BMMinerS9
 from miners.antminer.S9.cgminer import CGMinerS9
 
+from miners.antminer.T9.hive import HiveonT9
+from miners.antminer.T9.cgminer import CGMinerT9
+from miners.antminer.T9.bmminer import BMMinerT9
+
 from miners.antminer.X17.bosminer import BOSMinerX17
 from miners.antminer.X17.bmminer import BMMinerX17
 from miners.antminer.X17.cgminer import CGMinerX17
@@ -83,7 +87,6 @@ class MinerFactory:
             # if we find the model type, dont need to loop anymore
             if model:
                 break
-
         # make sure we have model information
         if model:
 
@@ -103,6 +106,16 @@ class MinerFactory:
                         miner = CGMinerS9(str(ip))
                     elif "BMMiner" in api:
                         miner = BMMinerS9(str(ip))
+                
+                elif "Antminer T9" in model:
+                    if "BMMiner" in api:
+                        if "Hiveon" in model:
+                            # hiveOS, return T9 Hive
+                            miner = HiveonT9(str(ip))
+                        else:
+                            miner = BMMinerT9(str(ip))
+                    elif "CGMiner" in api:
+                        miner = CGMinerT9(str(ip))
 
                 # X17 model logic
                 elif "17" in model:
@@ -172,7 +185,6 @@ class MinerFactory:
 
             # send the devdetails command to the miner (will fail with no boards/devices)
             data = await self._send_api_command(str(ip), "devdetails")
-
             # sometimes data is b'', check for that
             if data:
                 # status check, make sure the command succeeded
@@ -209,20 +221,18 @@ class MinerFactory:
                         data = await self._send_api_command(str(ip), "version")
                         model = data["VERSION"][0]["Type"]
 
-            # if we have a model, return it
-            if model:
-                return model
+            return model
 
         # if there are errors, we just return None
-        except APIError as e:
-            return None
+        except APIError:
+            return model
         except OSError as e:
             if e.winerror == 121:
                 print(e)
-                return None
+                return model
             else:
                 print(ip, e)
-        return None
+        return model
 
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
         try:
