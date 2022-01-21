@@ -111,9 +111,7 @@ class CGMiner(BaseMiner):
         await self.send_ssh_command(commands)
 
     async def reboot(self) -> None:
-        commands = ['reboot']
-        commands = ';'.join(commands)
-        await self.send_ssh_command(commands)
+        await self.send_ssh_command("reboot")
 
     async def start_cgminer(self) -> None:
         commands = ['mkdir -p /etc/tmp/',

@@ -174,10 +174,12 @@ If you are sure you want to use this command please use API.send_command("{item}
             str_data = str_data.replace("\n", "")
             # fix an error with a bmminer return not having a specific comma that breaks json.loads()
             str_data = str_data.replace("}{", "},{")
+            # fix an error with a bmminer return  having a specific comma that breaks json.loads()
+            str_data = str_data.replace("[,{", "[{")
             # parse the json
             parsed_data = json.loads(str_data)
         # handle bad json
         except json.decoder.JSONDecodeError as e:
             print(e)
-            raise APIError(f"Decode Error: {data}")
+            raise APIError(f"Decode Error: {str_data}")
         return parsed_data
