@@ -1,7 +1,4 @@
-import asyncio
-
 from miners.bmminer import BMMiner
-import json
 
 
 class HiveonT9(BMMiner):

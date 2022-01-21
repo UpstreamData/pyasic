@@ -112,13 +112,13 @@ class BOSMiner(BaseMiner):
     async def get_bad_boards(self) -> list:
         """Checks for and provides list of non working boards."""
         devs = await self.api.devdetails()
-        bad = 0
+        bad_boards = []
         chains = devs['DEVDETAILS']
         for chain in chains:
-            if chain['Chips'] == 0:
-                bad += 1
-        if bad > 0:
-            return [str(self.ip), bad]
+            if not chain['Chips'] == 63:
+                bad_boards.append({"board": chain["ID"], "chain": chain["ID"], "chip_count": chain['Chips'], "chip_status": "o"*chain['Chips']})
+
+        return bad_boards
 
     async def check_good_boards(self) -> str:
         """Checks for and provides list for working boards."""
