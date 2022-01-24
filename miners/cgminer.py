@@ -136,3 +136,6 @@ class CGMiner(BaseMiner):
             self._result_handler(result)
             self.config = result.stdout
             print(str(self.config))
+
+    async def get_board_info(self):
+        return None

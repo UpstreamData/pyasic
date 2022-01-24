@@ -172,7 +172,8 @@ async def send_config(ips: list, config):
     async for _config_sender in config_sender_generator:
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-    await update_ui_with_data("status", "")
+    await update_ui_with_data("status", "Getting Data")
+    await asyncio.sleep(3)
     await refresh_data(ips)
 
 

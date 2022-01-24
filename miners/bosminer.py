@@ -109,35 +109,32 @@ class BOSMiner(BaseMiner):
                     await file.write(toml_conf)
             await conn.run("/etc/init.d/bosminer restart")
 
-    async def get_board_info(self) -> list:
+    async def get_board_info(self) -> dict:
         """Gets data on each board and chain in the miner."""
         devdetails = await self.api.devdetails()
         devs = devdetails['DEVDETAILS']
-        boards = []
-        for idx, board in enumerate(devs):
-            boards.append({"board": board["ID"], "chains": []})
-            boards[idx]["chains"].append({
+        boards = {}
+        for board in devs:
+            boards[board["ID"]] = []
+            boards[board["ID"]].append({
                 "chain": board["ID"],
                 "chip_count": board['Chips'],
                 "chip_status": "o" * board['Chips']
             })
         return boards
 
-    async def get_bad_boards(self) -> list:
+    async def get_bad_boards(self) -> dict:
         """Checks for and provides list of non working boards."""
         boards = await self.get_board_info()
-        bad_boards = []
-        idx = 0
-        for board in boards:
-            bad_boards.append({"board": board["board"], "chains": []})
-            for chain in board["chains"]:
+        bad_boards = {}
+        for board in boards.keys():
+            for chain in boards[board]:
                 if not chain["chip_count"] == 63:
-                    bad_boards[idx]["chains"].append(chain)
-            if not bad_boards[idx]["chains"]:
-                del bad_boards[idx]
-                idx -= 1
-            idx += 1
+                    if board not in bad_boards.keys():
+                        bad_boards[board] = []
+                    bad_boards[board].append(chain)
         return bad_boards
+
 
     async def check_good_boards(self) -> str:
         """Checks for and provides list for working boards."""
