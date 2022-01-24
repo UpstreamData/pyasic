@@ -38,7 +38,6 @@ async def scan_network(network):
 
 async def refresh_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
-    await update_ui_with_data("hr_total", "")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     if len(ips) == 0:
         ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
@@ -60,29 +59,20 @@ async def refresh_data(ip_list: list):
         data_point = await all_data
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
-            ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s",
-                data_point["temp"],
-                data_point['user'], str(data_point['wattage']) + " W"
+            board_6 = " ".join([chain["chip_status"] for chain in data_point["data"][6]]).replace("o", "•")
+            board_7 = " ".join([chain["chip_status"] for chain in data_point["data"][7]]).replace("o", "•")
+            board_8 = " ".join([chain["chip_status"] for chain in data_point["data"][8]]).replace("o", "•")
+            data = [
+                data_point["IP"],
+                data_point["model"],
+                board_6,
+                board_7,
+                board_8
             ]
+            ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-
-    hashrate_list = []
-    hr_idx = 3
-    for item, _ in enumerate(window["ip_table"].Values):
-        if len(window["ip_table"].Values[item]) > hr_idx:
-            if not window["ip_table"].Values[item][hr_idx] == '':
-                hashrate_list.append(float(window["ip_table"].Values[item][hr_idx].replace(" TH/s", "")))
-            else:
-                hashrate_list.append(0)
-        else:
-            hashrate_list.append(0)
-
-    total_hr = round(sum(hashrate_list), 2)
-    window["hr_total"].update(f"{total_hr} TH/s")
-
     await update_ui_with_data("status", "")
 
 

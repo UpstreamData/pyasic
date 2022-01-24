@@ -112,6 +112,9 @@ class BOSMiner(BaseMiner):
     async def get_board_info(self) -> dict:
         """Gets data on each board and chain in the miner."""
         devdetails = await self.api.devdetails()
+        if not devdetails.get("DEVDETAILS"):
+            print("devdetails error", devdetails)
+            return {6: [], 7: [], 8: []}
         devs = devdetails['DEVDETAILS']
         boards = {}
         for board in devs:
