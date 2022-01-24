@@ -44,25 +44,3 @@ async def export_iplist(file_location, ip_list_selected):
                 for item in window['ip_table'].Values:
                     await file.write(str(item[0]) + "\n")
     await update_ui_with_data("status", "")
-
-
-async def import_config_file(file_location):
-    await update_ui_with_data("status", "Importing")
-    if not os.path.exists(file_location):
-        return
-    else:
-        async with aiofiles.open(file_location, mode='r') as file:
-            config = await file.read()
-    await update_ui_with_data("config", await bos_config_convert(toml.loads(config)))
-    await update_ui_with_data("status", "")
-
-
-async def export_config_file(file_location, config):
-    await update_ui_with_data("status", "Exporting")
-    config = toml.loads(config)
-    config['format']['generator'] = 'upstream_config_util'
-    config['format']['timestamp'] = int(time.time())
-    config = toml.dumps(config)
-    async with aiofiles.open(file_location, mode='w+') as file:
-        await file.write(await general_config_convert_bos(config))
-    await update_ui_with_data("status", "")

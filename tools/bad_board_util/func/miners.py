@@ -36,26 +36,6 @@ async def scan_network(network):
     await update_ui_with_data("status", "")
 
 
-async def miner_light(ips: list):
-    await asyncio.gather(*[flip_light(ip) for ip in ips])
-
-
-async def flip_light(ip):
-    ip_list = window['ip_table'].Widget
-    miner = await miner_factory.get_miner(ip)
-    index = [item[0] for item in window["ip_table"].Values].index(ip)
-    index_tags = ip_list.item(index)['tags']
-    if "light" not in index_tags:
-        ip_list.item(index, tags=([*index_tags, "light"]))
-        window['ip_table'].update(row_colors=[(index, "white", "red")])
-        await miner.fault_light_on()
-    else:
-        index_tags.remove("light")
-        ip_list.item(index, tags=index_tags)
-        window['ip_table'].update(row_colors=[(index, "black", "white")])
-        await miner.fault_light_off()
-
-
 async def refresh_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
     await update_ui_with_data("hr_total", "")
