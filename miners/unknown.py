@@ -18,3 +18,6 @@ class UnknownMiner(BaseMiner):
 
     async def get_hostname(self):
         return "Unknown"
+
+    async def get_board_info(self):
+        return None

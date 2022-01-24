@@ -40,3 +40,6 @@ class BTMiner(BaseMiner):
 
     async def get_config(self) -> None:
         return None
+
+    async def get_board_info(self):
+        return None
