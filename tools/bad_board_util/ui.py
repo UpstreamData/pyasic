@@ -3,7 +3,7 @@ import sys
 import PySimpleGUI as sg
 
 from tools.bad_board_util.layout import window
-from tools.bad_board_util.func.miners import refresh_data, scan_and_get_data, miner_light
+from tools.bad_board_util.func.miners import refresh_data, scan_and_get_data
 from tools.bad_board_util.func.files import import_iplist, export_iplist
 from tools.bad_board_util.func.ui import sort_data, copy_from_table
 
@@ -40,8 +40,6 @@ async def ui():
                 window["ip_table"].update(select_rows=())
             else:
                 window["ip_table"].update(select_rows=([row for row in range(len(window["ip_table"].Values))]))
-        if event == 'light':
-            asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "import_iplist":
             asyncio.create_task(import_iplist(value["file_iplist"]))
         if event == "export_iplist":
