@@ -111,13 +111,32 @@ async def scan_and_get_data(network):
     progress_bar_len += (network_size - len(miners))
     asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "Getting Data")
+    row_colors = []
     for all_data in data_gen:
         data_point = await all_data
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
-            board_6 = " ".join([chain["chip_status"] for chain in data_point["data"][6]]).replace("o", "•")
-            board_7 = " ".join([chain["chip_status"] for chain in data_point["data"][7]]).replace("o", "•")
-            board_8 = " ".join([chain["chip_status"] for chain in data_point["data"][8]]).replace("o", "•")
+            board_6 = ""
+            board_7 = ""
+            board_8 = ""
+            if data_point["data"]:
+                if 6 in data_point["data"].keys():
+                    board_6 = " ".join([chain["chip_status"] for chain in data_point["data"][6]]).replace("o", "•")
+                else:
+                    row_colors.append((ip_table_index, "white", "red"))
+                if 7 in data_point["data"].keys():
+                    board_7 = " ".join([chain["chip_status"] for chain in data_point["data"][7]]).replace("o", "•")
+                else:
+                    row_colors.append((ip_table_index, "white", "red"))
+                if 8 in data_point["data"].keys():
+                    board_8 = " ".join([chain["chip_status"] for chain in data_point["data"][8]]).replace("o", "•")
+                else:
+                    row_colors.append((ip_table_index, "white", "red"))
+                if False in [chain["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()][0]]:
+                    row_colors.append((ip_table_index, "white", "red"))
+            else:
+                row_colors.append((ip_table_index, "white", "red"))
+
             data = [
                 data_point["IP"],
                 data_point["model"],
@@ -126,7 +145,7 @@ async def scan_and_get_data(network):
                 board_8
             ]
             ip_table_data[ip_table_index] = data
-            window["ip_table"].update(ip_table_data)
+            window["ip_table"].update(ip_table_data, row_colors=row_colors)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")

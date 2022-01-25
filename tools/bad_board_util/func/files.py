@@ -1,14 +1,11 @@
 import ipaddress
 import os
 import re
-import time
 
 import aiofiles
-import toml
 
 from tools.bad_board_util.func.ui import update_ui_with_data
 from tools.bad_board_util.layout import window
-from config.bos import bos_config_convert, general_config_convert_bos
 
 
 async def import_iplist(file_location):

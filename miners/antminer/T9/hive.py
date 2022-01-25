@@ -21,10 +21,15 @@ class HiveonT9(BMMiner):
             for chain in board_chains[board]:
                 count = stats[f"chain_acn{chain}"]
                 chips = stats[f"chain_acs{chain}"].replace(" ", "")
+                if not count == 18 or "x" in chips:
+                    nominal = False
+                else:
+                    nominal = True
                 boards[board].append({
                     "chain": chain,
                     "chip_count": count,
-                    "chip_status": chips
+                    "chip_status": chips,
+                    "nominal": nominal
                 })
         return boards
 
