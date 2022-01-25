@@ -11,7 +11,8 @@ def copy_from_table(table):
     copy_values = []
     for each in selection:
         try:
-            value = table.item(each)["values"][0]
+            # value = table.item(each)["values"][0]
+            value = table.item(each)["values"]
             copy_values.append(str(value))
         except:
             pass
