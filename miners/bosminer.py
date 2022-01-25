@@ -119,10 +119,15 @@ class BOSMiner(BaseMiner):
         boards = {}
         for board in devs:
             boards[board["ID"]] = []
+            if not board['Chips'] == 63:
+                nominal = False
+            else:
+                nominal = True
             boards[board["ID"]].append({
                 "chain": board["ID"],
                 "chip_count": board['Chips'],
-                "chip_status": "o" * board['Chips']
+                "chip_status": "o" * board['Chips'],
+                "nominal": nominal
             })
         return boards
 
