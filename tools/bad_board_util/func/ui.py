@@ -12,10 +12,18 @@ def copy_from_table(table):
     for each in selection:
         try:
             # value = table.item(each)["values"][0]
-            value = table.item(each)["values"]
+            table_values = table.item(each)["values"]
+            ip = table_values[0]
+            model = table_values[1]
+            l_brd_chips = str(table_values[2])
+            c_brd_chips = str(table_values[4])
+            r_brd_chips = str(table_values[6])
+            all_values = [ip, model, l_brd_chips, c_brd_chips, r_brd_chips]
+            value = ", ".join(all_values)
+
             copy_values.append(str(value))
-        except:
-            pass
+        except Exception as e:
+            print("Copy Error:", e)
     copy_string = "\n".join(copy_values)
     pyperclip.copy(copy_string)
 
