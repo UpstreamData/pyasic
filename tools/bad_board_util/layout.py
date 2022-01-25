@@ -29,7 +29,16 @@ layout = [
     [sg.Table(
         values=[],
         font=("Arial", 9),
-        headings=["IP", "Model", "6 Count", "Board 6 Chips", "7 Count", "Board 7 Chips", "8 Count", "Board 8 Chips"],
+        headings=[
+            "IP",
+            "Model",
+            "L Count",
+            "Left Board Chips",
+            "C Count",
+            "Center Board Chips",
+            "R Count",
+            "Right Board Chips"
+        ],
         auto_size_columns=False,
         max_col_width=15,
         justification="center",
