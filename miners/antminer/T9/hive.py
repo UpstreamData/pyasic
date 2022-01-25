@@ -15,7 +15,7 @@ class HiveonT9(BMMiner):
         board_stats = await self.api.stats()
         stats = board_stats['STATS'][1]
         boards = {}
-        board_chains = {6: [2, 9, 10], 7: [3, 11, 12], 8: [4, 13, 14]}
+        board_chains = {0: [2, 9, 10], 1: [3, 11, 12], 2: [4, 13, 14]}
         for idx, board in enumerate(board_chains):
             boards[board] = []
             for chain in board_chains[board]:

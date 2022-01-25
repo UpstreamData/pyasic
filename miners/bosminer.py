@@ -13,6 +13,7 @@ class BOSMiner(BaseMiner):
         self.config = None
         self.uname = 'root'
         self.pwd = 'admin'
+        self.nominal_chips = 63
 
     def __repr__(self) -> str:
         return f"BOSminer: {str(self.ip)}"
@@ -117,14 +118,15 @@ class BOSMiner(BaseMiner):
             return {6: [], 7: [], 8: []}
         devs = devdetails['DEVDETAILS']
         boards = {}
+        offset = devs[0]["ID"]
         for board in devs:
-            boards[board["ID"]] = []
-            if not board['Chips'] == 63:
+            boards[board["ID"] - offset] = []
+            if not board['Chips'] == self.nominal_chips:
                 nominal = False
             else:
                 nominal = True
-            boards[board["ID"]].append({
-                "chain": board["ID"],
+            boards[board["ID"] - offset].append({
+                "chain": board["ID"] - offset,
                 "chip_count": board['Chips'],
                 "chip_status": "o" * board['Chips'],
                 "nominal": nominal

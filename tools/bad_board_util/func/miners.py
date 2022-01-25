@@ -60,20 +60,20 @@ async def refresh_data(ip_list: list):
         data_point = await all_data
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
-            board_6 = ""
-            board_7 = ""
-            board_8 = ""
+            board_left = ""
+            board_center = ""
+            board_right = ""
             if data_point["data"]:
-                if 6 in data_point["data"].keys():
-                    board_6 = " ".join([chain["chip_status"] for chain in data_point["data"][6]]).replace("o", "•")
+                if 0 in data_point["data"].keys():
+                    board_left = " ".join([chain["chip_status"] for chain in data_point["data"][0]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
-                if 7 in data_point["data"].keys():
-                    board_7 = " ".join([chain["chip_status"] for chain in data_point["data"][7]]).replace("o", "•")
+                if 1 in data_point["data"].keys():
+                    board_center = " ".join([chain["chip_status"] for chain in data_point["data"][1]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
-                if 8 in data_point["data"].keys():
-                    board_8 = " ".join([chain["chip_status"] for chain in data_point["data"][8]]).replace("o", "•")
+                if 2 in data_point["data"].keys():
+                    board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
                 if False in [chain["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()][0]]:
@@ -84,12 +84,12 @@ async def refresh_data(ip_list: list):
             data = [
                 data_point["IP"],
                 data_point["model"],
-                len(board_6),
-                board_6,
-                len(board_7),
-                board_7,
-                len(board_8),
-                board_8
+                len(board_left),
+                board_left,
+                len(board_center),
+                board_center,
+                len(board_right),
+                board_right
             ]
             ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data, row_colors=row_colors)
@@ -138,20 +138,20 @@ async def scan_and_get_data(network):
         data_point = await all_data
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
-            board_6 = ""
-            board_7 = ""
-            board_8 = ""
+            board_left = ""
+            board_center = ""
+            board_right = ""
             if data_point["data"]:
-                if 6 in data_point["data"].keys():
-                    board_6 = " ".join([chain["chip_status"] for chain in data_point["data"][6]]).replace("o", "•")
+                if 0 in data_point["data"].keys():
+                    board_left = " ".join([chain["chip_status"] for chain in data_point["data"][0]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
-                if 7 in data_point["data"].keys():
-                    board_7 = " ".join([chain["chip_status"] for chain in data_point["data"][7]]).replace("o", "•")
+                if 1 in data_point["data"].keys():
+                    board_center = " ".join([chain["chip_status"] for chain in data_point["data"][1]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
-                if 8 in data_point["data"].keys():
-                    board_8 = " ".join([chain["chip_status"] for chain in data_point["data"][8]]).replace("o", "•")
+                if 2 in data_point["data"].keys():
+                    board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
                 if False in [chain["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()][0]]:
@@ -162,12 +162,12 @@ async def scan_and_get_data(network):
             data = [
                 data_point["IP"],
                 data_point["model"],
-                len(board_6),
-                board_6,
-                len(board_7),
-                board_7,
-                len(board_8),
-                board_8
+                len(board_left),
+                board_left,
+                len(board_center),
+                board_center,
+                len(board_right),
+                board_right
             ]
             ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data, row_colors=row_colors)
