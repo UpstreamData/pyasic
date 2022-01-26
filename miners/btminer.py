@@ -28,18 +28,3 @@ class BTMiner(BaseMiner):
                 return host_data["Msg"]["hostname"]
         except APIError:
             return "?"
-
-    async def send_config(self, _):
-        return None  # ignore for now
-
-    async def restart_backend(self) -> None:
-        return None
-
-    async def reboot(self) -> None:
-        return None
-
-    async def get_config(self) -> None:
-        return None
-
-    async def get_board_info(self):
-        return None

@@ -39,9 +39,6 @@ class CGMiner(BaseMiner):
         except Exception:
             return "?"
 
-    async def send_config(self, _):
-        return None  # ignore for now
-
     async def _get_ssh_connection(self) -> asyncssh.connect:
         try:
             conn = await asyncssh.connect(str(self.ip),
@@ -137,5 +134,3 @@ class CGMiner(BaseMiner):
             self.config = result.stdout
             print(str(self.config))
 
-    async def get_board_info(self):
-        return None
