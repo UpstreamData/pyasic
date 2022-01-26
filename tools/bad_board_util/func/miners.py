@@ -158,22 +158,30 @@ async def scan_and_get_data(network):
                     row_colors.append((ip_table_index, "white", "red"))
             else:
                 row_colors.append((ip_table_index, "white", "red"))
+            board_left_chips = "\n".join(split_chips(board_left, 3))
+            board_center_chips = "\n".join(split_chips(board_center, 3))
+            board_right_chips = "\n".join(split_chips(board_right, 3))
 
             data = [
                 data_point["IP"],
                 data_point["model"],
                 len(board_left),
-                board_left,
+                board_left_chips,
                 len(board_center),
-                board_center,
+                board_center_chips,
                 len(board_right),
-                board_right
+                board_right_chips
             ]
             ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data, row_colors=row_colors)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
+
+
+def split_chips(string, number_of_splits):
+    k, m = divmod(len(string), number_of_splits)
+    return (string[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(number_of_splits))
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):

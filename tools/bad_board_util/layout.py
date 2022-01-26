@@ -4,22 +4,25 @@ icon_of_window = b'iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAAAXNSR0IArs4c6
 
 layout = [
     [sg.Text("", key="status", size=(9, 1)),
-     sg.ProgressBar(1000, key="progress", size=(104, 20), orientation='h'),
-     sg.Text("", key="progress_percent", size=(9, 1))],
+     sg.ProgressBar(1000, key="progress", size=(40, 20), orientation='h'),
+     sg.Text("", key="progress_percent", size=(9, 1)),
+     ],
 
     [sg.Text("", size=(100, 1))],
 
     [sg.Text('Network IP:', size=(9, 1)),
-     sg.InputText(key='miner_network', do_not_clear=True, size=(123, 1)),
-     sg.Button('Scan', key='scan')],
+     sg.InputText(key='miner_network', do_not_clear=True, size=(103, 1)),
+     sg.Button('Scan', key='scan'),
+     ],
 
     [sg.Text('IP List File:', size=(9, 1)),
-     sg.Input(key="file_iplist", do_not_clear=True, size=(123, 1)),
+     sg.Input(key="file_iplist", do_not_clear=True, size=(103, 1)),
      sg.FileBrowse(),
      sg.Button('Import', key="import_iplist"),
-     sg.Button('Export', key="export_iplist")],
+     sg.Button('Export', key="export_iplist"),
+     ],
 
-    [sg.Text("IP List:", pad=(0, 0)),
+    [sg.Text(" IP List:", pad=(0, 0)),
      sg.Text("", key="ip_count", pad=(0, 0), size=(3, 1)),
      sg.Button('ALL', key="select_all_ips"),
      sg.Button("REFRESH DATA", key='refresh_data'),
@@ -39,14 +42,15 @@ layout = [
             "R Count",
             "Right Board Chips"
         ],
+        row_height=45,
         auto_size_columns=False,
         max_col_width=15,
         justification="center",
         key="ip_table",
-        col_widths=[9, 7, 7, 40, 7, 40, 7, 40],
+        col_widths=[11, 7, 7, 30, 7, 30, 7, 30],
         background_color="white",
         text_color="black",
-        size=(125, 27),
+        size=(100, 8),
         expand_x=True,
         enable_click_events=True,
     )]
