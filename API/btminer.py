@@ -91,7 +91,7 @@ class BTMinerAPI(BaseMinerAPI):
             self.admin_pwd = WHATSMINER_PWD
         self.current_token = None
 
-    async def send_command(self, command: str | bytes, **kwargs) -> dict:
+    async def send_command(self, command: str | bytes, ignore_errors: bool = False, **kwargs) -> dict:
         """Send an API command to the miner and return the result."""
         # check if command is a string, if its bytes its encoded and needs to be send raw
         if isinstance(command, str):
@@ -137,10 +137,11 @@ class BTMinerAPI(BaseMinerAPI):
             except Exception as e:
                 print(e)
 
-        # if it fails to validate, it is likely an error
-        validation = self.validate_command_output(data)
-        if not validation[0]:
-            raise APIError(validation[1])
+        if not ignore_errors:
+            # if it fails to validate, it is likely an error
+            validation = self.validate_command_output(data)
+            if not validation[0]:
+                raise APIError(validation[1])
 
         # return the parsed json as a dict
         return data

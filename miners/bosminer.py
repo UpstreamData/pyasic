@@ -115,7 +115,7 @@ class BOSMiner(BaseMiner):
         devdetails = await self.api.devdetails()
         if not devdetails.get("DEVDETAILS"):
             print("devdetails error", devdetails)
-            return {6: [], 7: [], 8: []}
+            return {0: [], 1: [], 2: []}
         devs = devdetails['DEVDETAILS']
         boards = {}
         offset = devs[0]["ID"]
