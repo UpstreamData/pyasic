@@ -13,8 +13,27 @@ class BaseMiner:
         self.api_type = None
         self.model = None
 
+    async def get_board_info(self):
+        return None
+
+    async def get_config(self):
+        return None
+
+    async def get_hostname(self):
+        return None
+
+    async def get_model(self):
+        return None
+
     async def reboot(self):
         return None
 
     async def restart_backend(self):
         return None
+
+    async def send_config(self, yaml_config):
+        return None
+
+
+
+

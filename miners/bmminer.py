@@ -2,6 +2,7 @@ from API.bmminer import BMMinerAPI
 from miners import BaseMiner
 import asyncssh
 
+
 class BMMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         api = BMMinerAPI(ip)
@@ -10,7 +11,6 @@ class BMMiner(BaseMiner):
         self.config = None
         self.uname = 'root'
         self.pwd = 'admin'
-
 
     def __repr__(self) -> str:
         return f"BMMiner: {str(self.ip)}"
@@ -54,7 +54,7 @@ class BMMiner(BaseMiner):
             except Exception as e:
                 print(e)
         except OSError:
-            print(str(self.ip) + " Connection refused.")
+            print(str(self.ip) + ": Connection refused.")
             return None
 
     async def send_ssh_command(self, cmd):
@@ -68,19 +68,7 @@ class BMMiner(BaseMiner):
                     if i == 3:
                         return
                     continue
-
-    async def send_config(self, _):
-        return None  # ignore for now
-
-    async def restart_backend(self) -> None:
-        return None
+        return result
 
     async def reboot(self) -> None:
         await self.send_ssh_command("reboot")
-
-    async def get_config(self) -> None:
-        return None
-
-    async def get_board_info(self):
-        return None
-
