@@ -219,7 +219,10 @@ class MinerFactory:
                     else:
                         # if all that fails, try just version
                         data = await self._send_api_command(str(ip), "version")
-                        model = data["VERSION"][0]["Type"]
+                        if "VERSION" in data.keys():
+                            model = data["VERSION"][0]["Type"]
+                        else:
+                            print(data)
 
             return model
 
