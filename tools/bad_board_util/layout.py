@@ -4,7 +4,7 @@ icon_of_window = b'iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAAAXNSR0IArs4c6
 
 layout = [
     [sg.Text("", key="status", size=(9, 1)),
-     sg.ProgressBar(1000, key="progress", size=(40, 20), orientation='h'),
+     sg.ProgressBar(1000, key="progress", size=(74, 20), orientation='h'),
      sg.Text("", key="progress_percent", size=(9, 1)),
      ],
 
