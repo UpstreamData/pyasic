@@ -4,19 +4,19 @@ icon_of_window = b'iVBORw0KGgoAAAANSUhEUgAAAF4AAABeCAYAAACq0qNuAAAAAXNSR0IArs4c6
 
 layout = [
     [sg.Text("", key="status", size=(9, 1)),
-     sg.ProgressBar(1000, key="progress", size=(74, 20), orientation='h'),
+     sg.ProgressBar(1000, key="progress", size=(83, 20), orientation='h'),
      sg.Text("", key="progress_percent", size=(9, 1)),
      ],
 
     [sg.Text("", size=(100, 1))],
 
     [sg.Text('Network IP:', size=(9, 1)),
-     sg.InputText(key='miner_network', do_not_clear=True, size=(103, 1)),
+     sg.InputText(key='miner_network', do_not_clear=True, size=(113, 1)),
      sg.Button('Scan', key='scan'),
      ],
 
     [sg.Text('IP List File:', size=(9, 1)),
-     sg.Input(key="file_iplist", do_not_clear=True, size=(103, 1)),
+     sg.Input(key="file_iplist", do_not_clear=True, size=(113, 1)),
      sg.FileBrowse(),
      sg.Button('Import', key="import_iplist"),
      sg.Button('Export', key="export_iplist"),
@@ -47,10 +47,10 @@ layout = [
         max_col_width=15,
         justification="center",
         key="ip_table",
-        col_widths=[11, 7, 7, 30, 7, 30, 7, 30],
+        col_widths=[14, 7, 7, 30, 7, 30, 7, 30],
         background_color="white",
         text_color="black",
-        size=(100, 8),
+        size=(110, 8),
         expand_x=True,
         enable_click_events=True,
     )]

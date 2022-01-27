@@ -145,19 +145,19 @@ async def scan_and_get_data(network):
                 if 0 in data_point["data"].keys():
                     board_left = " ".join([chain["chip_status"] for chain in data_point["data"][0]]).replace("o", "•")
                 else:
-                    row_colors.append((ip_table_index, "white", "red"))
+                    row_colors.append((ip_table_index, "bad"))
                 if 1 in data_point["data"].keys():
                     board_center = " ".join([chain["chip_status"] for chain in data_point["data"][1]]).replace("o", "•")
                 else:
-                    row_colors.append((ip_table_index, "white", "red"))
+                    row_colors.append((ip_table_index, "bad"))
                 if 2 in data_point["data"].keys():
                     board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
                 else:
-                    row_colors.append((ip_table_index, "white", "red"))
+                    row_colors.append((ip_table_index, "bad"))
                 if False in [chain["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()][0]]:
                     row_colors.append((ip_table_index, "white", "red"))
             else:
-                row_colors.append((ip_table_index, "white", "red"))
+                row_colors.append((ip_table_index, "bad"))
             board_left_chips = "\n".join(split_chips(board_left, 3))
             board_center_chips = "\n".join(split_chips(board_center, 3))
             board_right_chips = "\n".join(split_chips(board_right, 3))
@@ -173,7 +173,11 @@ async def scan_and_get_data(network):
                 board_right_chips
             ]
             ip_table_data[ip_table_index] = data
-            window["ip_table"].update(ip_table_data, row_colors=row_colors)
+            window["ip_table"].update(ip_table_data)
+            table = window["ip_table"].Widget
+            table.tag_configure("bad", foreground="white", background="red")
+            for row in row_colors:
+                table.item(row[0] + 1, tags=row[1])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
@@ -189,5 +193,5 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     model = await miner.get_model()
     warnings.filterwarnings('ignore')
     board_data = await miner.get_board_info()
-    data = {"IP": str(ip), "model": model, "data": board_data}
+    data = {"IP": str(ip), "model": str(model), "data": board_data}
     return data
