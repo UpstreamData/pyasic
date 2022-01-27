@@ -59,10 +59,11 @@ async def import_config_file(file_location):
 
 async def export_config_file(file_location, config):
     await update_ui_with_data("status", "Exporting")
+    config = await general_config_convert_bos(config)
     config = toml.loads(config)
     config['format']['generator'] = 'upstream_config_util'
     config['format']['timestamp'] = int(time.time())
     config = toml.dumps(config)
     async with aiofiles.open(file_location, mode='w+') as file:
-        await file.write(await general_config_convert_bos(config))
+        await file.write(config)
     await update_ui_with_data("status", "")
