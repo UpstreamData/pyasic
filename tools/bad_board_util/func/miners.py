@@ -154,7 +154,7 @@ async def scan_and_get_data(network):
                     board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "bad"))
-                if False in [chain[0]["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()]]:
+                if False in [chain["nominal"] for board in [data_point["data"][key] for key in data_point["data"].keys()] for chain in board]:
                     row_colors.append((ip_table_index, "bad"))
             else:
                 row_colors.append((ip_table_index, "bad"))

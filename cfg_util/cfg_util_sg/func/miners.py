@@ -303,7 +303,6 @@ async def get_formatted_data(ip: ipaddress.ip_address):
         try:
             # no devs command, it will fail in this case
             miner_data = await miner.api.multicommand("summary", "temps", "tunerstatus", "pools", "stats")
-            print(miner_data)
         except APIError as e:
             print(e)
             return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown',
