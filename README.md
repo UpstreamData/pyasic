@@ -46,7 +46,7 @@ A basic script to find all miners on the network and get the hashrate from them 
 ```python
 import asyncio
 from network import MinerNetwork
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_hashrate():
@@ -82,7 +82,7 @@ You can also create your own miner without scanning if you know the IP:
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_hashrate(ip: str):
@@ -109,13 +109,13 @@ Or generate a miner directly without the factory:
 
 ```python
 import asyncio
-from miners.bosminer import BOSminer
-from tools.cfg_util import safe_parse_api_data
+from miners.bosminer import BOSMiner
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_hashrate(ip: str):
     # Create a BOSminer miner object
-    miner = BOSminer(ip)
+    miner = BOSMiner(ip)
     # Get the API data
     summary = await miner.api.summary()
     # safe_parse_api_data parses the data from a miner API
@@ -134,7 +134,7 @@ Or finally, just get the API directly:
 ```python
 import asyncio
 from API.bosminer import BOSMinerAPI
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_hashrate(ip: str):
@@ -163,7 +163,7 @@ Now that you know that, lets move on to some common API functions that you might
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_pool_data(ip: str):
@@ -202,7 +202,7 @@ A pretty good example of really trying to make this robust is in ```cfg_util.fun
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_temperature_data(ip: str):
@@ -232,7 +232,7 @@ How about data on the power usage of the miner?  This one only works for Whatsmi
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_power_data(ip: str):
@@ -271,7 +271,7 @@ How about we get the current pool user and hashrate in 1 command?
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util import safe_parse_api_data
+from tools.cfg_util.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_hashrate_and_pool(ip: str):
