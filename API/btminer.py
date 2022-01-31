@@ -7,29 +7,38 @@ import re
 import json
 import hashlib
 import binascii
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import \
+    Cipher, algorithms, modes
 import base64
 
 
 ### IMPORTANT ###
-# you need to change the password of the miners using
-# the whatsminer tool, then you can set them back to
-# admin with this tool, but they must be changed to
-# something else and set back to admin with this or
-# the privileged API will not work using admin as
-# the password.  If you change the password, you can
-# pass that to the this class as pwd, or added as
-# whatsminer_pwd in the settings.toml file.
+# you need to change the password of the miners using the whatsminer
+# tool, then you can set them back to admin with this tool, but they
+# must be changed to something else and set back to admin with this
+# or the privileged API will not work using admin as the password.  If
+# you change the password, you can pass that to the this class as pwd,
+# or add it as the whatsminer_pwd in the settings.toml file.
 
 
 def _crypt(word: str, salt: str) -> str:
+    """Encrypts a word with a salt, using a standard salt format.
+
+    Encrypts a word using a salt with the format
+    '\s*\$(\d+)\$([\w\./]*)\$'.  If this format is not used, a
+    ValueError is raised.
+
+    :param word: The word to be encrypted.
+    :param salt: The salt to encrypt the word.
+    :return: An MD5 hash of the word with the salt.
+    """
     # compile a standard format for the salt
     standard_salt = re.compile('\s*\$(\d+)\$([\w\./]*)\$')
     # check if the salt matches
     match = standard_salt.match(salt)
     # if the matching fails, the salt is incorrect
     if not match:
-        raise ValueError("salt format is not correct")
+        raise ValueError("Salt format is not correct.")
     # save the matched salt in a new variable
     new_salt = match.group(2)
     # encrypt the word with the salt using md5
@@ -37,18 +46,37 @@ def _crypt(word: str, salt: str) -> str:
     return result
 
 
-def _add_to_16(s: str) -> bytes:
-    """Add null bytes to a string until the length is 16"""
-    while len(s) % 16 != 0:
-        s += '\0'
-    return str.encode(s)  # return bytes
+def _add_to_16(string: str) -> bytes:
+    """Add null bytes to a string until the length is a multiple 16
+
+    :param string: The string to lengthen to a multiple of 16 and
+    encode.
+
+    :return: The input string as bytes with a multiple of 16 as the
+    length.
+    """
+    while len(string) % 16 != 0:
+        string += '\0'
+    return str.encode(string)  # return bytes
 
 
-def parse_btminer_priviledge_data(token_data, data):
+def parse_btminer_priviledge_data(token_data: dict, data: dict):
+    """Parses data returned from the BTMiner privileged API.
+
+    Parses data from the BTMiner privileged API using the the token
+    from the API in an AES format.
+
+    :param token_data: The token information from self.get_token().
+    :param data: The data to parse, returned from the API.
+
+    :return: A decoded dict version of the privileged command output.
+    """
     # get the encoded data from the dict
     enc_data = data['enc']
     # get the aes key from the token data
-    aeskey = hashlib.sha256(token_data['host_passwd_md5'].encode()).hexdigest()
+    aeskey = hashlib.sha256(
+        token_data['host_passwd_md5'].encode()
+    ).hexdigest()
     # unhexlify the aes key
     aeskey = binascii.unhexlify(aeskey.encode())
     # create the required decryptor
@@ -62,10 +90,23 @@ def parse_btminer_priviledge_data(token_data, data):
 
 
 def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
+    """Create a privileged command to send to the BTMiner API.
+
+    Creates a privileged command using the token from the API and the
+    command as a dict of {'command': cmd}, with cmd being any command
+    that the miner API accepts.
+
+    :param token_data: The token information from self.get_token().
+    :param command: The command to turn into a privileged command.
+
+    :return: The encrypted privileged command to be sent to the miner.
+    """
     # add token to command
     command['token'] = token_data['host_sign']
     # encode host_passwd data and get hexdigest
-    aeskey = hashlib.sha256(token_data['host_passwd_md5'].encode()).hexdigest()
+    aeskey = hashlib.sha256(
+        token_data['host_passwd_md5'].encode()
+    ).hexdigest()
     # unhexlify the encoded host_passwd
     aeskey = binascii.unhexlify(aeskey.encode())
     # create a new AES key
@@ -74,7 +115,13 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     # dump the command to json
     api_json_str = json.dumps(command)
     # encode the json command with the aes key
-    api_json_str_enc = base64.encodebytes(encryptor.update(_add_to_16(api_json_str))).decode("utf-8").replace("\n", "")
+    api_json_str_enc = base64.encodebytes(
+        encryptor.update(
+            _add_to_16(
+                api_json_str
+            )
+        )
+    ).decode("utf-8").replace("\n", "")
     # label the data as being encoded
     data_enc = {'enc': 1, 'data': api_json_str_enc}
     # dump the labeled data to json
@@ -83,23 +130,59 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
 
 
 class BTMinerAPI(BaseMinerAPI):
-    def __init__(self, ip, port=4028, pwd: str = "admin"):
+    """An abstraction of the API for MicroBT Whatsminers, BTMiner.
+
+    This class abstracts use of the BTMiner API, as well as the
+    methods for sending commands to it.  The self.send_command()
+    function handles sending a command to the miner asynchronously, and
+    as such is the base for many of the functions in this class, which
+    rely on it to send the command for them.
+
+    All privileged commands for BTMiner's API require that you change
+    the password of the miners using the whatsminer tool, and it can be
+    changed back to admin with this tool after.  Set the new password
+    either by passing it to the __init__ method, or changing it in
+    settings.toml.
+
+    Additionally, the API commands for the privileged API must be
+    encoded using a token from the miner, all privileged commands do
+    this automatically for you and will decode the output to look like
+    a normal output from a miner API.
+    """
+    def __init__(self, ip, port=4028, pwd: str = WHATSMINER_PWD):
         super().__init__(ip, port)
-        if pwd:
-            self.admin_pwd = pwd
-        else:
-            self.admin_pwd = WHATSMINER_PWD
+        self.admin_pwd = pwd
         self.current_token = None
 
-    async def send_command(self, command: str | bytes, ignore_errors: bool = False, **kwargs) -> dict:
-        """Send an API command to the miner and return the result."""
-        # check if command is a string, if its bytes its encoded and needs to be send raw
+    async def send_command(self,
+                           command: str | bytes,
+                           parameters: str or int or bool = None,
+                           ignore_errors: bool = False
+                           ) -> dict:
+        """Send a command to the miner API.
+
+        Send a command using an asynchronous connection, load the data,
+        parse encoded data if needed, and return the result.
+
+        :param command: The command to send to the miner.
+        :param parameters: Parameters to pass to the command.
+        :param ignore_errors: Ignore the E (Error) status code from the
+        API.
+
+        :return: The data received from the API after sending the
+        command.
+        """
+        # check if command is a string
+        # if its bytes its encoded and needs to be sent raw
         if isinstance(command, str):
             # if it is a string, put it into the standard command format
             command = json.dumps({"command": command}).encode("utf-8")
         try:
             # get reader and writer streams
-            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+            reader, writer = await asyncio.open_connection(
+                str(self.ip),
+                self.port
+            )
         # handle OSError 121
         except OSError as e:
             if e.winerror == "121":
@@ -129,11 +212,14 @@ class BTMinerAPI(BaseMinerAPI):
         writer.close()
         await writer.wait_closed()
 
-        # check if th returned data is encoded
+        # check if the returned data is encoded
         if 'enc' in data.keys():
             # try to parse the encoded data
             try:
-                data = parse_btminer_priviledge_data(self.current_token, data)
+                data = parse_btminer_priviledge_data(
+                    self.current_token,
+                    data
+                )
             except Exception as e:
                 print(e)
 
@@ -147,20 +233,35 @@ class BTMinerAPI(BaseMinerAPI):
         return data
 
     async def get_token(self):
-        """
-        API 'get_token' command.
+        """Gets token information from the API.
 
-        Returns an encoded token and md5 password, which are used for the privileged API.
+        :return: An encoded token and md5 password, which are used
+        for the privileged API.
         """
+        # get the token
         data = await self.send_command("get_token")
+
+        # encrypt the admin password with the salt
         pwd = _crypt(self.admin_pwd, "$1$" + data["Msg"]["salt"] + '$')
         pwd = pwd.split('$')
+
+        # take the 4th item from the pwd split
         host_passwd_md5 = pwd[3]
-        tmp = _crypt(pwd[3] + data["Msg"]["time"], "$1$" + data["Msg"]["newsalt"] + '$')
+
+        # encrypt the pwd with the time and new salt
+        tmp = _crypt(pwd[3] + data["Msg"]["time"],
+                     "$1$" + data["Msg"]["newsalt"] + '$'
+                     )
         tmp = tmp.split('$')
+
+        # take the 4th item from the encrypted pwd split
         host_sign = tmp[3]
-        self.current_token = {'host_sign': host_sign, 'host_passwd_md5': host_passwd_md5}
-        return {'host_sign': host_sign, 'host_passwd_md5': host_passwd_md5}
+
+        # set the current token
+        self.current_token = {'host_sign': host_sign,
+                              'host_passwd_md5': host_passwd_md5
+                              }
+        return self.current_token
 
     #### PRIVILEGED COMMANDS ####
     # Please read the top of this file to learn
@@ -168,9 +269,34 @@ class BTMinerAPI(BaseMinerAPI):
     # use these commands.
 
     async def update_pools(self,
-                           pool_1: str, worker_1: str, passwd_1: str,
-                           pool_2: str = None, worker_2: str = None, passwd_2: str = None,
-                           pool_3: str = None, worker_3: str = None, passwd_3: str = None):
+                           pool_1: str,
+                           worker_1: str,
+                           passwd_1: str,
+
+                           pool_2: str = None,
+                           worker_2: str = None,
+                           passwd_2: str = None,
+
+                           pool_3: str = None,
+                           worker_3: str = None,
+                           passwd_3: str = None
+                           ):
+        """Update the pools of the miner using the API.
+
+        Update the pools of the miner using the API, only works after
+        changing the password of the miner using the whatsminer tool.
+
+        :param pool_1: The URL to update pool 1 to.
+        :param worker_1: The worker name for pool 1 to update to.
+        :param passwd_1: The password for pool 1 to update to.
+        :param pool_2: The URL to update pool 2 to.
+        :param worker_2: The worker name for pool 2 to update to.
+        :param passwd_2: The password for pool 2 to update to.
+        :param pool_3: The URL to update pool 3 to.
+        :param worker_3: The worker name for pool 3 to update to.
+        :param passwd_3: The password for pool 3 to update to.
+        :return: A dict from the API to confirm the pools were updated.
+        """
         # get the token and password from the miner
         token_data = await self.get_token()
 
@@ -180,20 +306,36 @@ class BTMinerAPI(BaseMinerAPI):
         elif pool_2 and pool_3:
             command = {
                 "cmd": "update_pools",
-                "pool1": pool_1, "worker1": worker_1, "passwd1": passwd_1,
-                "pool2": pool_2, "worker2": worker_2, "passwd2": passwd_2,
-                "pool3": pool_3, "worker3": worker_3, "passwd3": passwd_3,
+
+                "pool1": pool_1,
+                "worker1": worker_1,
+                "passwd1": passwd_1,
+
+                "pool2": pool_2,
+                "worker2": worker_2,
+                "passwd2": passwd_2,
+
+                "pool3": pool_3,
+                "worker3": worker_3,
+                "passwd3": passwd_3,
             }
         elif pool_2:
             command = {
                 "cmd": "update_pools",
-                "pool1": pool_1, "worker1": worker_1, "passwd1": passwd_1,
-                "pool2": pool_2, "worker2": worker_2, "passwd2": passwd_2
+                "pool1": pool_1,
+                "worker1": worker_1,
+                "passwd1": passwd_1,
+
+                "pool2": pool_2,
+                "worker2": worker_2,
+                "passwd2": passwd_2
             }
         else:
             command = {
                 "cmd": "update_pools",
-                "pool1": pool_1, "worker1": worker_1, "passwd1": passwd_1,
+                "pool1": pool_1,
+                "worker1": worker_1,
+                "passwd1": passwd_1,
             }
         # encode the command with the token data
         enc_command = create_privileged_cmd(token_data, command)
@@ -201,10 +343,12 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def restart(self):
-        """
-        API 'restart_btminer' command
+        """Restart btminer using the API.
 
-        Returns a reply informing of the restart and restarts BTMiner.
+        Restart btminer using the API, only works after changing
+        the password of the miner using the whatsminer tool.
+
+        :return: A reply informing of the restart.
         """
         command = {"cmd": "restart_btminer"}
         token_data = await self.get_token()
@@ -212,15 +356,13 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def power_off(self, respbefore: bool = True):
-        """
-        API 'power_off' command.
+        """Power off the miner using the API.
 
-        Powers off the mining of the miner.
+        Power off the miner using the API, only works after changing
+        the password of the miner using the whatsminer tool.
 
-        Returns info on the power off.
-
-        Parameters:
-            respbefore (optional): respond before powering off.
+        :param respbefore: Whether to respond before powering off.
+        :return: A reply informing of the status of powering off.
         """
         if respbefore:
             command = {"cmd": "power_off", "respbefore": "true"}
@@ -231,12 +373,12 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def power_on(self):
-        """
-        API 'power_on' command.
+        """Power on the miner using the API.
 
-        Powers on the mining of the miner.
+        Power on the miner using the API, only works after changing
+        the password of the miner using the whatsminer tool.
 
-        Returns info on the power on.
+        :return: A reply informing of the status of powering on.
         """
         command = {"cmd": "power_on"}
         token_data = await self.get_token()
@@ -244,44 +386,53 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def reset_led(self):
-        """
-        API 'reset_led' command.
+        """Reset the LED on the miner using the API.
 
-        Resets the LED flashing to normal.
+        Reset the LED on the miner using the API, only works after
+        changing the password of the miner using the whatsminer tool.
 
-        Returns a confirmation of resetting the LED.
+        :return: A reply informing of the status of resetting the LED.
         """
         command = {"cmd": "set_led", "param": "auto"}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
-    async def set_led(self, color: str = "red", period: int = 2000, duration: int = 1000, start: int = 0):
-        """
-        API 'set_led' command.
+    async def set_led(self,
+                      color: str = "red",
+                      period: int = 2000,
+                      duration: int = 1000,
+                      start: int = 0
+                      ):
+        """Set the LED on the miner using the API.
 
-        Sets the LED to do some pattern set with parameters.
+        Set the LED on the miner using the API, only works after
+        changing the password of the miner using the whatsminer tool.
 
-        Returns a confirmation of setting the LED.
-        
-        Parameters:
-            color: 'red' or 'green'
-            period: flash cycle in ms
-            duration: led on time in the cycle in ms
-            start: led on time offset in the cycle in ms
+        :param color: The LED color to set, either 'red' or 'green'.
+        :param period: The flash cycle in ms.
+        :param duration: LED on time in the cycle in ms.
+        :param start: LED on time offset in the cycle in ms.
+        :return: A reply informing of the status of setting the LED.
         """
-        command = {"cmd": "set_led", "color": color, "period": period, "duration": duration, "start": start}
+        command = {"cmd": "set_led",
+                   "color": color,
+                   "period": period,
+                   "duration": duration,
+                   "start": start
+                   }
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
     async def set_low_power(self):
-        """
-        API 'set_low_power' command.
-        
-        Sets the miner to low power mode.
-        
-        Returns the status of setting the miner to low power mode.
+        """Set low power mode on the miner using the API.
+
+        Set low power mode on the miner using the API, only works after
+        changing the password of the miner using the whatsminer tool.
+
+        :return: A reply informing of the status of setting low power
+        mode.
         """
         command = {"cmd": "set_low_power"}
         token_data = await self.get_token()
@@ -294,12 +445,9 @@ class BTMinerAPI(BaseMinerAPI):
         return NotImplementedError
 
     async def reboot(self):
-        """
-        API 'reboot' command.
-        
-        Reboots the miner.
-        
-        Returns the status of the command then reboots.        
+        """Reboot the miner using the API.
+
+        :return: A reply informing of the status of the reboot.
         """
         command = {"cmd": "reboot"}
         token_data = await self.get_token()
@@ -307,12 +455,9 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def factory_reset(self):
-        """
-        API 'factory_reset' command.
+        """Reset the miner to factory defaults.
 
-        Resets the miner to factory defaults.
-
-        Returns the status of the command then resets.        
+        :return: A reply informing of the status of the reset.
         """
         command = {"cmd": "factory_reset"}
         token_data = await self.get_token()
@@ -320,48 +465,55 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def update_pwd(self, old_pwd: str, new_pwd: str):
-        """
-        API 'update_pwd' command.
+        """Update the admin user's password.
 
-        Updates the admin user's password.
-        
-        Returns the status of setting the password to the new password.
-        
-        Parameters:
-              old_pwd: the old admin password.
-              new_pwd: the new password to set. Max length of 8 bytes, using letters, numbers, and underscores.   
+        Update the admin user's password, only works after changing the
+        password of the miner using the whatsminer tool.  New password
+        has a max length of 8 bytes, using letters, numbers, and
+        underscores.
+
+        :param old_pwd: The old admin password.
+        :param new_pwd: The new password to set.
+        :return: A reply informing of the status of setting the
+        password.
         """
         # check if password length is greater than 8 bytes
         if len(new_pwd.encode('utf-8')) > 8:
             return APIError(
-                f"New password too long, the max length is 8.  Password size: {len(new_pwd.encode('utf-8'))}")
+                f"New password too long, the max length is 8.  "
+                f"Password size: {len(new_pwd.encode('utf-8'))}")
         command = {"cmd": "update_pwd", "old": old_pwd, "new": new_pwd}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
     async def set_target_freq(self, percent: int):
-        """
-        API 'set_target_freq' command.
+        """Update the target frequency.
 
-        Sets the frequency for the miner ot use.
+        Update the target frequency, only works after changing the
+        password of the miner using the whatsminer tool. The new
+        frequency must be between -10% and 100%.
 
-        Returns the status of setting the frequency.       
+        :param percent: The frequency % to set.
+        :return: A reply informing of the status of setting the
+        frequency.
         """
         if not -10 < percent < 100:
-            return APIError(f"Frequency % is outside of the allowed range.  Please set a % between -10 and 100")
+            return APIError(f"Frequency % is outside of the allowed "
+                            f"range.  Please set a % between -10 and "
+                            f"100")
         command = {"cmd": "set_target_freq", "percent": str(percent)}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
     async def enable_fast_boot(self):
-        """
-        API 'enable_fast_boot' command.
+        """Turn on fast boot.
 
-        Turns on the fast boot feature on the miner.
+        Turn on fast boot, only works after changing the password of
+        the miner using the whatsminer tool.
 
-        Returns the status of setting the fast boot to on.        
+        :return: A reply informing of the status of enabling fast boot.
         """
         command = {"cmd": "enable_btminer_fast_boot"}
         token_data = await self.get_token()
@@ -369,12 +521,12 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def disable_fast_boot(self):
-        """
-        API 'disable'_fast_boot' command.
+        """Turn off fast boot.
 
-        Turns off the fast boot feature on the miner.
+        Turn off fast boot, only works after changing the password of
+        the miner using the whatsminer tool.
 
-        Returns the status of setting the fast boot to off.        
+        :return: A reply informing of the status of disabling fast boot.
         """
         command = {"cmd": "disable_btminer_fast_boot"}
         token_data = await self.get_token()
@@ -382,12 +534,12 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def enable_web_pools(self):
-        """
-        API 'enable_web_pools' command.
+        """Turn on web pool updates.
 
-        Turns on the ability to change the pools through the web interface.
+        Turn on web pool updates, only works after changing the
+        password of the miner using the whatsminer tool.
 
-        Returns the status of setting the web pools to enabled.        
+        :return: A reply informing of the status of enabling web pools.
         """
         command = {"cmd": "enable_web_pools"}
         token_data = await self.get_token()
@@ -395,12 +547,13 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def disable_web_pools(self):
-        """
-        API 'disable_web_pools' command.
+        """Turn off web pool updates.
 
-        Turns off the ability to change the pools through the web interface.
+        Turn off web pool updates, only works after changing the
+        password of the miner using the whatsminer tool.
 
-        Returns the status of setting the web pools to disabled.        
+        :return: A reply informing of the status of disabling web
+        pools.
         """
         command = {"cmd": "disable_web_pools"}
         token_data = await self.get_token()
@@ -408,12 +561,15 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def set_hostname(self, hostname: str):
-        """
-        API 'set_hostname' command.
+        """Set the hostname of the miner.
 
-        Sets the hostname of the miner.
+        Set the hostname of the miner, only works after changing the
+        password of the miner using the whatsminer tool.
 
-        Returns the status of setting the hostname.        
+
+        :param hostname: The new hostname to use.
+        :return: A reply informing of the status of setting the
+        hostname.
         """
         command = {"cmd": "set_hostname", "hostname": hostname}
         token_data = await self.get_token()
@@ -421,47 +577,57 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def set_power_pct(self, percent: int):
-        """
-        API 'set_power_pct' command.
+        """Set the power percentage of the miner.
 
-        Sets the percent of power the miner should use.
+        Set the power percentage of the miner, only works after changing
+        the password of the miner using the whatsminer tool.
 
-        Returns the status of setting the power usage to this percent.
-
-        Parameters:
-            percent: the percent to set the power usage to, between 0 and 100.
+        :param percent: The power percentage to set.
+        :return: A reply informing of the status of setting the
+        power percentage.
         """
 
         if not 0 < percent < 100:
-            return APIError(f"Power PCT % is outside of the allowed range.  Please set a % between 0 and 100")
+            return APIError(f"Power PCT % is outside of the allowed "
+                            f"range.  Please set a % between 0 and "
+                            f"100")
         command = {"cmd": "set_power_pct", "percent": str(percent)}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
     async def pre_power_on(self, complete: bool, msg: str):
+        """Configure or check status of pre power on.
+
+        Configure or check status of pre power on, only works after
+        changing the password of the miner using the whatsminer tool.
+
+        :param complete: check whether pre power on is complete.
+        :param msg: the message to check.
+        "wait for adjust temp" or
+        "adjust complete" or
+        "adjust continue"
+        :return: A reply informing of the status of pre power on.
         """
-        API 'pre_power_on' command.
 
-        Preheats the miner for the 'power_on' command. Can also be used to query the status of pre powering on.
-
-        Returns status of pre powering on.
-
-        Parameters:
-              complete: check whether or not it is complete.
-              msg: the message to check. "wait for adjust temp" or "adjust complete" or "adjust continue"
-        """
-
-        if not msg == "wait for adjust temp" or "adjust complete" or "adjust continue":
+        if not msg == \
+                "wait for adjust temp" or \
+                "adjust complete" or \
+                "adjust continue":
             return APIError(
                 'Message is incorrect, please choose one of '
-                '["wait for adjust temp", "adjust complete", "adjust continue"]'
+                '["wait for adjust temp", '
+                '"adjust complete", '
+                '"adjust continue"]'
             )
         if complete:
             complete = "true"
         else:
             complete = "false"
-        command = {"cmd": "pre_power_on", "complete": complete, "msg": msg}
+        command = {"cmd": "pre_power_on",
+                   "complete": complete,
+                   "msg": msg
+                   }
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
@@ -469,82 +635,76 @@ class BTMinerAPI(BaseMinerAPI):
     #### END privileged COMMANDS ####
 
     async def summary(self):
-        """
-        API 'summary' command.
+        """Get the summary status from the miner.
 
-        Returns a dict containing the status summary of the miner.
+        :return: Summary status of the miner.
         """
         return await self.send_command("summary")
 
     async def pools(self):
-        """
-        API 'pools' command.
+        """Get the pool status from the miner.
 
-        Returns a dict containing the status of each pool.
+        :return: Pool status of the miner.
         """
         return await self.send_command("pools")
 
     async def devs(self):
-        """
-        API 'devs' command.
+        """Get data on each PGA/ASC with their details.
 
-        Returns a dict containing each PGA/ASC with their details.
+        :returns: Data on each PGA/ASC with their details.
         """
         return await self.send_command("devs")
 
     async def edevs(self):
-        """
-        API 'edevs' command.
+        """Get data on each PGA/ASC with their details, ignoring
+         blacklisted and zombie devices.
 
-        Returns a dict containing each PGA/ASC with their details,
-        ignoring blacklisted devices and zombie devices.
+        :returns: Data on each PGA/ASC with their details.
         """
         return await self.send_command("edevs")
 
     async def devdetails(self):
-        """
-        API 'devdetails' command.
+        """Get data on all devices with their static details.
 
-        Returns a dict containing all devices with their static details.
+        :returns: Data on all devices with their static details.
         """
         return await self.send_command("devdetails")
 
     async def get_psu(self):
-        """
-        API 'get_psu' command.
+        """Get data on the PSU and power information.
 
-        Returns a dict containing PSU and power information.
+        :returns: Data on the PSU and power information.
         """
         return await self.send_command("get_psu")
 
     async def version(self):
-        """
-        API 'get_version' command.
+        """Get version data for the miner.
 
-        Returns a dict containing version information.
+        Get version data for the miner.  This calls another function,
+        self.get_version(), but is named version to stay consistent
+        with the other miner APIs.
+
+        :returns: Version data for the miner.
         """
         return await self.get_version()
 
     async def get_version(self):
-        """
-        API 'get_version' command.
+        """Get version data for the miner.
 
-        Returns a dict containing version information.
+        :returns: Version data for the miner.
         """
         return await self.send_command("get_version")
 
     async def status(self):
-        """
-        API 'status' command.
+        """Get BTMiner status and firmware version.
 
-        Returns a dict containing BTMiner status and firmware version.
+        :returns: BTMiner status and firmware version.
         """
         return await self.send_command("status")
 
     async def get_miner_info(self):
-        """
-        API 'get_miner_info' command.
+        """Get general miner info.
 
-        Returns a dict containing general miner info.
+        :returns: General miner info.
         """
         return await self.send_command("get_miner_info")
