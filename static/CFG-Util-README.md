@@ -1,3 +1,12 @@
+
+
+
+[//]: # (If you can read this, you are viewing this document incorrectly.)
+[//]: # (This is a Markdown document.  Use an online Markdown viewer to)
+[//]: # (view this file, such as https://dillinger.io/)
+
+
+
 # CFG-Util
 
 ## Interact with bitcoin mining ASICs using a simple GUI.
