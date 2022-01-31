@@ -2,11 +2,11 @@ import asyncio
 import sys
 import PySimpleGUI as sg
 
-from cfg_util.cfg_util_sg.layout import window, generate_config_layout
-from cfg_util.cfg_util_sg.func.miners import send_config, miner_light, refresh_data, generate_config, import_config, \
+from tools.cfg_util.cfg_util_sg.layout import window, generate_config_layout
+from tools.cfg_util.cfg_util_sg.func.miners import send_config, miner_light, refresh_data, generate_config, import_config, \
     scan_and_get_data, restart_miners_backend, reboot_miners
-from cfg_util.cfg_util_sg.func.files import import_iplist, import_config_file, export_iplist, export_config_file
-from cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table
+from tools.cfg_util.cfg_util_sg.func.files import import_iplist, import_config_file, export_iplist, export_config_file
+from tools.cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table
 
 from network import MinerNetwork
 
