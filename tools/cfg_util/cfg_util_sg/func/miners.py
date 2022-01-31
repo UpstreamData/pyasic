@@ -4,10 +4,10 @@ import time
 import warnings
 
 from API import APIError
-from cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
-from cfg_util.cfg_util_sg.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
-from cfg_util.cfg_util_sg.layout import window
-from cfg_util.cfg_util_sg.miner_factory import miner_factory
+from tools.cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
+from tools.cfg_util.cfg_util_sg.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
+from tools.cfg_util.cfg_util_sg.layout import window
+from tools.cfg_util.cfg_util_sg.miner_factory import miner_factory
 from config.bos import bos_config_convert
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS
 

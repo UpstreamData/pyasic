@@ -6,8 +6,8 @@ import time
 import aiofiles
 import toml
 
-from cfg_util.cfg_util_sg.func.ui import update_ui_with_data
-from cfg_util.cfg_util_sg.layout import window
+from tools.cfg_util.cfg_util_sg.func.ui import update_ui_with_data
+from tools.cfg_util.cfg_util_sg.layout import window
 from config.bos import bos_config_convert, general_config_convert_bos
 
 
