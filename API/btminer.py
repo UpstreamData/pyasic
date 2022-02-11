@@ -1,24 +1,26 @@
-from API import BaseMinerAPI, APIError
-from settings import WHATSMINER_PWD
-
-from passlib.handlers.md5_crypt import md5_crypt
 import asyncio
 import re
 import json
 import hashlib
 import binascii
+import base64
+
+from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import \
     Cipher, algorithms, modes
-import base64
+
+from API import BaseMinerAPI, APIError
+from settings import WHATSMINER_PWD
+
 
 
 ### IMPORTANT ###
-# you need to change the password of the miners using the whatsminer
+# you need to change the password of the miners using the Whatsminer
 # tool, then you can set them back to admin with this tool, but they
 # must be changed to something else and set back to admin with this
 # or the privileged API will not work using admin as the password.  If
 # you change the password, you can pass that to the this class as pwd,
-# or add it as the whatsminer_pwd in the settings.toml file.
+# or add it as the Whatsminer_pwd in the settings.toml file.
 
 
 def _crypt(word: str, salt: str) -> str:
@@ -132,6 +134,8 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
 class BTMinerAPI(BaseMinerAPI):
     """An abstraction of the API for MicroBT Whatsminers, BTMiner.
 
+    Each method corresponds to an API command in BMMiner.
+
     This class abstracts use of the BTMiner API, as well as the
     methods for sending commands to it.  The self.send_command()
     function handles sending a command to the miner asynchronously, and
@@ -139,7 +143,7 @@ class BTMinerAPI(BaseMinerAPI):
     rely on it to send the command for them.
 
     All privileged commands for BTMiner's API require that you change
-    the password of the miners using the whatsminer tool, and it can be
+    the password of the miners using the Whatsminer tool, and it can be
     changed back to admin with this tool after.  Set the new password
     either by passing it to the __init__ method, or changing it in
     settings.toml.
@@ -148,6 +152,10 @@ class BTMinerAPI(BaseMinerAPI):
     encoded using a token from the miner, all privileged commands do
     this automatically for you and will decode the output to look like
     a normal output from a miner API.
+
+    :param ip: The IP of the miner to reference the API on.
+    :param port: The port to reference the API on.  Default is 4028.
+    :param pwd: The admin password of the miner.  Default is admin.
     """
     def __init__(self, ip, port=4028, pwd: str = WHATSMINER_PWD):
         super().__init__(ip, port)
@@ -265,7 +273,7 @@ class BTMinerAPI(BaseMinerAPI):
 
     #### PRIVILEGED COMMANDS ####
     # Please read the top of this file to learn
-    # how to configure the whatsminer API to
+    # how to configure the Whatsminer API to
     # use these commands.
 
     async def update_pools(self,
@@ -284,7 +292,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Update the pools of the miner using the API.
 
         Update the pools of the miner using the API, only works after
-        changing the password of the miner using the whatsminer tool.
+        changing the password of the miner using the Whatsminer tool.
 
         :param pool_1: The URL to update pool 1 to.
         :param worker_1: The worker name for pool 1 to update to.
@@ -343,10 +351,10 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_command(enc_command)
 
     async def restart(self):
-        """Restart btminer using the API.
+        """Restart BTMiner using the API.
 
-        Restart btminer using the API, only works after changing
-        the password of the miner using the whatsminer tool.
+        Restart BTMiner using the API, only works after changing
+        the password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the restart.
         """
@@ -359,7 +367,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Power off the miner using the API.
 
         Power off the miner using the API, only works after changing
-        the password of the miner using the whatsminer tool.
+        the password of the miner using the Whatsminer tool.
 
         :param respbefore: Whether to respond before powering off.
         :return: A reply informing of the status of powering off.
@@ -376,7 +384,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Power on the miner using the API.
 
         Power on the miner using the API, only works after changing
-        the password of the miner using the whatsminer tool.
+        the password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of powering on.
         """
@@ -389,7 +397,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Reset the LED on the miner using the API.
 
         Reset the LED on the miner using the API, only works after
-        changing the password of the miner using the whatsminer tool.
+        changing the password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of resetting the LED.
         """
@@ -407,7 +415,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Set the LED on the miner using the API.
 
         Set the LED on the miner using the API, only works after
-        changing the password of the miner using the whatsminer tool.
+        changing the password of the miner using the Whatsminer tool.
 
         :param color: The LED color to set, either 'red' or 'green'.
         :param period: The flash cycle in ms.
@@ -429,7 +437,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Set low power mode on the miner using the API.
 
         Set low power mode on the miner using the API, only works after
-        changing the password of the miner using the whatsminer tool.
+        changing the password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of setting low power
         mode.
@@ -468,7 +476,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Update the admin user's password.
 
         Update the admin user's password, only works after changing the
-        password of the miner using the whatsminer tool.  New password
+        password of the miner using the Whatsminer tool.  New password
         has a max length of 8 bytes, using letters, numbers, and
         underscores.
 
@@ -491,7 +499,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Update the target frequency.
 
         Update the target frequency, only works after changing the
-        password of the miner using the whatsminer tool. The new
+        password of the miner using the Whatsminer tool. The new
         frequency must be between -10% and 100%.
 
         :param percent: The frequency % to set.
@@ -511,7 +519,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Turn on fast boot.
 
         Turn on fast boot, only works after changing the password of
-        the miner using the whatsminer tool.
+        the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of enabling fast boot.
         """
@@ -524,7 +532,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Turn off fast boot.
 
         Turn off fast boot, only works after changing the password of
-        the miner using the whatsminer tool.
+        the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of disabling fast boot.
         """
@@ -537,7 +545,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Turn on web pool updates.
 
         Turn on web pool updates, only works after changing the
-        password of the miner using the whatsminer tool.
+        password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of enabling web pools.
         """
@@ -550,7 +558,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Turn off web pool updates.
 
         Turn off web pool updates, only works after changing the
-        password of the miner using the whatsminer tool.
+        password of the miner using the Whatsminer tool.
 
         :return: A reply informing of the status of disabling web
         pools.
@@ -564,7 +572,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Set the hostname of the miner.
 
         Set the hostname of the miner, only works after changing the
-        password of the miner using the whatsminer tool.
+        password of the miner using the Whatsminer tool.
 
 
         :param hostname: The new hostname to use.
@@ -580,7 +588,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Set the power percentage of the miner.
 
         Set the power percentage of the miner, only works after changing
-        the password of the miner using the whatsminer tool.
+        the password of the miner using the Whatsminer tool.
 
         :param percent: The power percentage to set.
         :return: A reply informing of the status of setting the
@@ -600,7 +608,7 @@ class BTMinerAPI(BaseMinerAPI):
         """Configure or check status of pre power on.
 
         Configure or check status of pre power on, only works after
-        changing the password of the miner using the whatsminer tool.
+        changing the password of the miner using the Whatsminer tool.
 
         :param complete: check whether pre power on is complete.
         :param msg: the message to check.
@@ -651,7 +659,7 @@ class BTMinerAPI(BaseMinerAPI):
     async def devs(self):
         """Get data on each PGA/ASC with their details.
 
-        :returns: Data on each PGA/ASC with their details.
+        :return: Data on each PGA/ASC with their details.
         """
         return await self.send_command("devs")
 
@@ -659,21 +667,21 @@ class BTMinerAPI(BaseMinerAPI):
         """Get data on each PGA/ASC with their details, ignoring
          blacklisted and zombie devices.
 
-        :returns: Data on each PGA/ASC with their details.
+        :return: Data on each PGA/ASC with their details.
         """
         return await self.send_command("edevs")
 
     async def devdetails(self):
         """Get data on all devices with their static details.
 
-        :returns: Data on all devices with their static details.
+        :return: Data on all devices with their static details.
         """
         return await self.send_command("devdetails")
 
     async def get_psu(self):
         """Get data on the PSU and power information.
 
-        :returns: Data on the PSU and power information.
+        :return: Data on the PSU and power information.
         """
         return await self.send_command("get_psu")
 
@@ -684,27 +692,27 @@ class BTMinerAPI(BaseMinerAPI):
         self.get_version(), but is named version to stay consistent
         with the other miner APIs.
 
-        :returns: Version data for the miner.
+        :return: Version data for the miner.
         """
         return await self.get_version()
 
     async def get_version(self):
         """Get version data for the miner.
 
-        :returns: Version data for the miner.
+        :return: Version data for the miner.
         """
         return await self.send_command("get_version")
 
     async def status(self):
         """Get BTMiner status and firmware version.
 
-        :returns: BTMiner status and firmware version.
+        :return: BTMiner status and firmware version.
         """
         return await self.send_command("status")
 
     async def get_miner_info(self):
         """Get general miner info.
 
-        :returns: General miner info.
+        :return: General miner info.
         """
         return await self.send_command("get_miner_info")
