@@ -2,34 +2,36 @@ from API import BaseMinerAPI
 
 
 class BMMinerAPI(BaseMinerAPI):
-    """
-    A class that abstracts the BMMiner API in the miners.
+    """An abstraction of the BMMiner API.
 
     Each method corresponds to an API command in BMMiner.
 
     BMMiner API documentation:
         https://github.com/jameshilliard/bmminer/blob/master/API-README
 
-    Parameters:
-        ip: the IP address of the miner.
-        port (optional): the port of the API on the miner (standard is 4028)
+    This class abstracts use of the BMMiner API, as well as the
+    methods for sending commands to it.  The self.send_command()
+    function handles sending a command to the miner asynchronously, and
+    as such is the base for many of the functions in this class, which
+    rely on it to send the command for them.
+
+    :param ip: The IP of the miner to reference the API on.
+    :param port: The port to reference the API on.  Default is 4028.
     """
     def __init__(self, ip: str, port: int = 4028) -> None:
         super().__init__(ip, port)
 
     async def version(self) -> dict:
-        """
-        API 'version' command.
+        """Get miner version info.
 
-        Returns a dict containing version information.
+        :return: Miner version information.
         """
         return await self.send_command("version")
 
     async def config(self) -> dict:
-        """
-        API 'config' command.
+        """Get some basic configuration info.
 
-        Returns a dict containing some miner configuration information:
+        :return: Some miner configuration information:
             ASC Count <- the number of ASCs
             PGA Count <- the number of PGAs
             Pool Count <- the number of Pools
@@ -45,151 +47,141 @@ class BMMinerAPI(BaseMinerAPI):
         return await self.send_command("config")
 
     async def summary(self) -> dict:
-        """
-        API 'summary' command.
+        """Get the status summary of the miner.
 
-        Returns a dict containing the status summary of the miner.
+        :return: The status summary of the miner.
         """
         return await self.send_command("summary")
 
     async def pools(self) -> dict:
-        """
-        API 'pools' command.
+        """Get pool information.
 
-        Returns a dict containing the status of each pool.
+        :return: Miner pool information.
         """
         return await self.send_command("pools")
 
     async def devs(self) -> dict:
-        """
-        API 'devs' command.
+        """Get data on each PGA/ASC with their details.
 
-        Returns a dict containing each PGA/ASC with their details.
+        :return: Data on each PGA/ASC with their details.
         """
         return await self.send_command("devs")
 
     async def edevs(self, old: bool = False) -> dict:
-        """
-        API 'edevs' command.
+        """Get data on each PGA/ASC with their details, ignoring
+         blacklisted and zombie devices.
 
-        Returns a dict containing each PGA/ASC with their details,
-        ignoring blacklisted devices and zombie devices.
+        :param old: Include zombie devices that became zombies less
+        than 'old' seconds ago
 
-        Parameters:
-            old (optional): include zombie devices that became zombies less than 'old' seconds ago
+        :return: Data on each PGA/ASC with their details.
         """
         if old:
-            return await self.send_command("edevs", parameters="old")
+            return await self.send_command("edevs", parameters=old)
         else:
             return await self.send_command("edevs")
 
     async def pga(self, n: int) -> dict:
-        """
-        API 'pga' command.
+        """Get data from PGA n.
 
-        Returns a dict containing the details of a single PGA of number N.
+        :param n: The PGA number to get data from.
 
-        Parameters:
-            n: the number of the PGA to get details of.
+        :return: Data on the PGA n.
         """
         return await self.send_command("pga", parameters=n)
 
     async def pgacount(self) -> dict:
-        """
-        API 'pgacount' command.
+        """Get data fon all PGAs.
 
-        Returns a dict containing the number of PGA devices.
+        :return: Data on the PGAs connected.
         """
         return await self.send_command("pgacount")
 
     async def switchpool(self, n: int) -> dict:
-        """
-        API 'switchpool' command.
+        """Switch pools to pool n.
 
-        Returns the STATUS section with the results of switching pools.
+        :param n: The pool to switch to.
 
-        Parameters:
-            n: the number of the pool to switch to.
+        :return: A confirmation of switching to pool n.
         """
         return await self.send_command("switchpool", parameters=n)
 
     async def enablepool(self, n: int) -> dict:
-        """
-        API 'enablepool' command.
+        """Enable pool n.
 
-        Returns the STATUS section with the results of enabling the pool.
+        :param n: The pool to enable.
 
-        Parameters:
-            n: the number of the pool to enable.
+        :return: A confirmation of enabling pool n.
         """
         return await self.send_command("enablepool", parameters=n)
 
-    async def addpool(self, url: str, username: str, password: str) -> dict:
-        """
-        API 'addpool' command.
+    async def addpool(self,
+                      url: str,
+                      username: str,
+                      password: str
+                      ) -> dict:
+        """Add a pool to the miner.
 
-        Returns the STATUS section with the results of adding the pool.
+        :param url: The URL of the new pool to add.
+        :param username: The users username on the new pool.
+        :param password: The worker password on the new pool.
 
-        Parameters:
-            url: the URL of the new pool to add.
-            username: the users username on the new pool.
-            password: the worker password on the new pool.
+        :return: A confirmation of adding the pool.
         """
-        return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
+        return await self.send_command("addpool",
+                                       parameters=f"{url}, "
+                                                  f"{username}, "
+                                                  f"{password}"
+                                       )
 
     async def poolpriority(self, *n: int) -> dict:
-        """
-        API 'poolpriority' command.
+        """Set pool priority.
 
-        Returns the STATUS section with the results of setting pool priority.
+        :param n: Pools in order of priority.
 
-        Parameters:
-            n: pool numbers in order of priority.
+        :return: A confirmation of setting pool priority.
         """
-        return await self.send_command("poolpriority", parameters=f"{','.join([str(item) for item in n])}")
+        pools = f"{','.join([str(item) for item in n])}"
+        return await self.send_command("poolpriority",
+                                       parameters=pools)
 
     async def poolquota(self, n: int, q: int) -> dict:
-        """
-        API 'poolquota' command.
+        """Set pool quota.
 
-        Returns the STATUS section with the results of setting pool quota.
+        :param n: Pool number to set quota on.
+        :param q: Quota to set the pool to.
 
-        Parameters:
-            n: pool number to set quota on.
-            q: quota to set the pool to.
+        :return: A confirmation of setting pool quota.
         """
-        return await self.send_command("poolquota", parameters=f"{n}, {q}")
+        return await self.send_command("poolquota",
+                                       parameters=f"{n}, "
+                                                  f"{q}"
+                                       )
 
     async def disablepool(self, n: int) -> dict:
-        """
-        API 'disablepool' command.
+        """Disable a pool.
 
-        Returns the STATUS section with the results of disabling the pool.
+        :param n: Pool to disable.
 
-        Parameters:
-            n: the number of the pool to disable.
+        :return: A confirmation of diabling the pool.
         """
         return await self.send_command("disablepool", parameters=n)
 
     async def removepool(self, n: int) -> dict:
-        """
-        API 'removepool' command.
+        """Remove a pool.
 
-        Returns the STATUS section with the results of removing the pool.
+        :param n: Pool to remove.
 
-        Parameters:
-            n: the number of the pool to remove.
+        :return: A confirmation of removing the pool.
         """
         return await self.send_command("removepool", parameters=n)
 
     async def save(self, filename: str = None) -> dict:
-        """
-        API 'save' command.
+        """Save the config.
 
-        Returns the STATUS section with the results of saving the config file..
+        :param filename: Filename to save the config as.
 
-        Parameters:
-            filename (optional): the filename to save the config as.
+        :return: A confirmation of saving the config.
         """
         if filename:
             return await self.send_command("save", parameters=filename)
@@ -197,146 +189,130 @@ class BMMinerAPI(BaseMinerAPI):
             return await self.send_command("save")
 
     async def quit(self) -> dict:
-        """
-        API 'quit' command.
+        """Quit BMMiner.
 
-        Returns a single "BYE" before BMMiner quits.
+        :return: A single "BYE" before BMMiner quits.
         """
         return await self.send_command("quit")
 
     async def notify(self) -> dict:
-        """
-        API 'notify' command.
+        """Notify the user of past errors.
 
-        Returns a dict containing the last status and count of each devices problem(s).
+        :return: The last status and count of each devices problem(s).
         """
         return await self.send_command("notify")
 
     async def privileged(self) -> dict:
-        """
-        API 'privileged' command.
+        """Check if you have privileged access.
 
-        Returns the STATUS section with an error if you have no privileged access.
+        :return: The STATUS section with an error if you have no
+        privileged access, or success if you have privileged access.
         """
         return await self.send_command("privileged")
 
     async def pgaenable(self, n: int) -> dict:
-        """
-        API 'pgaenable' command.
+        """Enable PGA n.
 
-        Returns the STATUS section with the results of enabling the PGA device N.
+        :param n: The PGA to enable.
 
-        Parameters:
-            n: the number of the PGA to enable.
+        :return: A confirmation of enabling PGA n.
         """
         return await self.send_command("pgaenable", parameters=n)
 
     async def pgadisable(self, n: int) -> dict:
-        """
-        API 'pgadisable' command.
+        """Disable PGA n.
 
-        Returns the STATUS section with the results of disabling the PGA device N.
+        :param n: The PGA to disable.
 
-        Parameters:
-            n: the number of the PGA to disable.
+        :return: A confirmation of disabling PGA n.
         """
         return await self.send_command("pgadisable", parameters=n)
 
     async def pgaidentify(self, n: int) -> dict:
-        """
-        API 'pgaidentify' command.
+        """Identify PGA n.
 
-        Returns the STATUS section with the results of identifying the PGA device N.
+        :param n: The PGA to identify.
 
-        Parameters:
-            n: the number of the PGA to identify.
+        :return: A confirmation of identifying PGA n.
         """
         return await self.send_command("pgaidentify", parameters=n)
 
     async def devdetails(self) -> dict:
-        """
-        API 'devdetails' command.
+        """Get data on all devices with their static details.
 
-        Returns a dict containing all devices with their static details.
+        :return: Data on all devices with their static details.
         """
         return await self.send_command("devdetails")
 
     async def restart(self) -> dict:
-        """
-        API 'restart' command.
+        """Restart BMMiner using the API.
 
-        Returns a single "RESTART" before BMMiner restarts.
+        :return: A reply informing of the restart.
         """
         return await self.send_command("restart")
 
     async def stats(self) -> dict:
-        """
-        API 'stats' command.
+        """Get stats of each device/pool with more than 1 getwork.
 
-        Returns a dict containing stats for all device/pool with more than 1 getwork.
+        :return: Stats of each device/pool with more than 1 getwork.
         """
         return await self.send_command("stats")
 
     async def estats(self, old: bool = False) -> dict:
-        """
-        API 'estats' command.
-
-        Returns a dict containing stats for all device/pool with more than 1 getwork,
+        """Get stats of each device/pool with more than 1 getwork,
         ignoring zombie devices.
 
-        Parameters:
-            old (optional): include zombie devices that became zombies less than 'old' seconds ago.
+        :param old: Include zombie devices that became zombies less
+        than 'old' seconds ago.
+
+        :return: Stats of each device/pool with more than 1 getwork,
+        ignoring zombie devices.
         """
         if old:
-            return await self.send_command("estats", parameters="old")
+            return await self.send_command("estats", parameters=old)
         else:
             return await self.send_command("estats")
 
     async def check(self, command: str) -> dict:
-        """
-        API 'check' command.
+        """Check if the command command exists in BMMiner.
 
-        Returns information about a command:
+        :param command: The command to check.
+
+        :return: Information about a command:
             Exists (Y/N) <- the command exists in this version
             Access (Y/N) <- you have access to use the command
-
-        Parameters:
-            command: the command to get information about.
         """
         return await self.send_command("check", parameters=command)
 
     async def failover_only(self, failover: bool) -> dict:
-        """
-        API 'failover-only' command.
+        """Set failover-only.
 
-        Returns the STATUS section with what failover-only was set to.
 
-        Parameters:
-            failover: what to set failover-only to.
+        :param failover: What to set failover-only to.
+
+        :return: Confirmation of setting failover-only.
         """
-        return await self.send_command("failover-only", parameters=failover)
+        return await self.send_command("failover-only",
+                                       parameters=failover
+                                       )
 
     async def coin(self) -> dict:
-        """
-        API 'coin' command.
+        """Get information on the current coin.
 
-        Returns information about the current coin being mined:
+        :return: Information about the current coin being mined:
             Hash Method <- the hashing algorithm
             Current Block Time <- blocktime as a float, 0 means none
-            Current Block Hash <- the hash of the current block, blank means none
+            Current Block Hash <- the hash of the current block, blank
+            means none
             LP <- whether LP is in use on at least 1 pool
             Network Difficulty: the current network difficulty
         """
         return await self.send_command("coin")
 
     async def debug(self, setting: str) -> dict:
-        """
-        API 'debug' command.
+        """Set a debug setting.
 
-        Returns which debug setting was enabled or disabled.
-
-        Parameters:
-            setting: which setting to switch to. Options are:
+        :param setting: Which setting to switch to. Options are:
                 Silent,
                 Quiet,
                 Verbose,
@@ -345,42 +321,36 @@ class BMMinerAPI(BaseMinerAPI):
                 PerDevice,
                 WorkTime,
                 Normal.
+
+        :return: Data on which debug setting was enabled or disabled.
         """
         return await self.send_command("debug", parameters=setting)
 
     async def setconfig(self, name: str, n: int) -> dict:
-        """
-        API 'setconfig' command.
+        """Set config of name to value n.
 
-        Returns the STATUS section with the results of setting 'name' to N.
-
-        Parameters:
-            name: name of the config setting to set. Options are:
+        :param name: The name of the config setting to set. Options are:
                 queue,
                 scantime,
                 expiry.
-            n: the value to set the 'name' setting to.
+        :param n: The value to set the 'name' setting to.
+
+        :return: The results of setting config of name to n.
         """
-        return await self.send_command("setconfig", parameters=f"{name}, {n}")
+        return await self.send_command("setconfig",
+                                       parameters=f"{name}, "
+                                                  f"{n}"
+                                       )
 
     async def usbstats(self) -> dict:
-        """
-        API 'usbstats' command.
+        """Get stats of all USB devices except ztex.
 
-        Returns a dict containing the stats of all USB devices except ztex.
+        :return: The stats of all USB devices except ztex.
         """
         return await self.send_command("usbstats")
 
     async def pgaset(self, n: int, opt: str, val: int = None) -> dict:
-        """
-        API 'pgaset' command.
-
-        Returns the STATUS section with the results of setting PGA N with opt[,val].
-
-        Parameters:
-            n: the PGA to set the options on.
-            opt: the option to set. Setting this to 'help' returns a help message.
-            val: the value to set the option to.
+        """Set PGA option opt to val on PGA n.
 
         Options:
             MMQ -
@@ -389,97 +359,96 @@ class BMMinerAPI(BaseMinerAPI):
             CMR -
                 opt: clock
                 val: 100 - 220
+
+        :param n: The PGA to set the options on.
+        :param opt: The option to set. Setting this to 'help'
+        returns a help message.
+        :param val: The value to set the option to.
+
+        :return: Confirmation of setting PGA n with opt[,val].
         """
         if val:
-            return await self.send_command("pgaset", parameters=f"{n}, {opt}, {val}")
+            return await self.send_command("pgaset",
+                                           parameters=f"{n}, "
+                                                      f"{opt}, "
+                                                      f"{val}"
+                                           )
         else:
-            return await self.send_command("pgaset", parameters=f"{n}, {opt}")
+            return await self.send_command("pgaset",
+                                           parameters=f"{n}, "
+                                                      f"{opt}")
 
     async def zero(self, which: str, summary: bool) -> dict:
-        """
-        API 'zero' command.
+        """Zero a device.
 
-        Returns the STATUS section with info on the zero and optional summary.
+        :param which: Which device to zero.
+            Setting this to 'all' zeros all devices.
+            Setting this to 'bestshare' zeros only the bestshare  values
+            for each pool and global.
+        :param summary: Whether or not to show a full summary.
 
-        Parameters:
-            which: which device to zero.
-                Setting this to 'all' zeros all devices.
-                Setting this to 'bestshare' zeros only the bestshare  values for each pool and global.
-            summary: whether or not to show a full summary.
+
+        :return: the STATUS section with info on the zero and optional
+        summary.
         """
         return await self.send_command("zero", parameters=f"{which}, {summary}")
 
     async def hotplug(self, n: int) -> dict:
-        """
-        API 'hotplug' command.
+        """Enable hotplug.
 
-        Returns the STATUS section with whether or not hotplug was enabled.
+        :param n: The device number to set hotplug on.
+
+        :return: Information on hotplug status.
         """
         return await self.send_command("hotplug", parameters=n)
 
     async def asc(self, n: int) -> dict:
-        """
-        API 'asc' command.
+        """Get data for ASC device n.
 
-        Returns a dict containing the details of a single ASC of number N.
+        :param n: The device to get data for.
 
-        n: the ASC device to get details of.
+        :return: The data for ASC device n.
         """
         return await self.send_command("asc", parameters=n)
 
     async def ascenable(self, n: int) -> dict:
-        """
-        API 'ascenable' command.
+        """Enable ASC device n.
 
-        Returns the STATUS section with the results of enabling the ASC device N.
+        :param n: The device to enable.
 
-        Parameters:
-            n: the number of the ASC to enable.
+        :return: Confirmation of enabling ASC device n.
         """
         return await self.send_command("ascenable", parameters=n)
 
     async def ascdisable(self, n: int) -> dict:
-        """
-        API 'ascdisable' command.
+        """Disable ASC device n.
 
-        Returns the STATUS section with the results of disabling the ASC device N.
+        :param n: The device to disable.
 
-        Parameters:
-            n: the number of the ASC to disable.
+        :return: Confirmation of disabling ASC device n.
         """
         return await self.send_command("ascdisable", parameters=n)
 
     async def ascidentify(self, n: int) -> dict:
-        """
-        API 'ascidentify' command.
+        """Identify ASC device n.
 
-        Returns the STATUS section with the results of identifying the ASC device N.
+        :param n: The device to identify.
 
-        Parameters:
-            n: the number of the PGA to identify.
+        :return: Confirmation of identifying ASC device n.
         """
         return await self.send_command("ascidentify", parameters=n)
 
     async def asccount(self) -> dict:
-        """
-        API 'asccount' command.
+        """Get data on the number of ASC devices and their info.
 
-        Returns a dict containing the number of ASC devices.
+        :return: Data on all ASC devices.
         """
         return await self.send_command("asccount")
 
     async def ascset(self, n: int, opt: str, val: int = None) -> dict:
-        """
-        API 'ascset' command.
+        """Set ASC n option opt to value val.
 
-        Returns the STATUS section with the results of setting ASC N with opt[,val].
-
-        Parameters:
-            n: the ASC to set the options on.
-            opt: the option to set. Setting this to 'help' returns a help message.
-            val: the value to set the option to.
-
-        Options:
+        Sets an option on the ASC n to a value.  Allowed options are:
             AVA+BTB -
                 opt: freq
                 val: 256 - 1024 (chip frequency)
@@ -513,6 +482,14 @@ class BMMinerAPI(BaseMinerAPI):
 
                 opt: clock
                 val: 0 - 15
+
+
+        :param n: The ASC to set the options on.
+        :param opt: The option to set. Setting this to 'help' returns a
+        help message.
+        :param val: The value to set the option to.
+
+        :return: Confirmation of setting option opt to value val.
         """
         if val:
             return await self.send_command("ascset", parameters=f"{n}, {opt}, {val}")
@@ -520,17 +497,15 @@ class BMMinerAPI(BaseMinerAPI):
             return await self.send_command("ascset", parameters=f"{n}, {opt}")
 
     async def lcd(self) -> dict:
-        """
-        API 'lcd' command.
+        """Get a general all-in-one status summary of the miner.
 
-        Returns a dict containing an all in one status summary of the miner.
+        :return: An all-in-one status summary of the miner.
         """
         return await self.send_command("lcd")
 
     async def lockstats(self) -> dict:
-        """
-        API 'lockstats' command.
+        """Write lockstats to STDERR.
 
-        Returns the STATUS section with the result of writing the lock stats to STDERR.
+        :return: The result of writing the lock stats to STDERR.
         """
         return await self.send_command("lockstats")
