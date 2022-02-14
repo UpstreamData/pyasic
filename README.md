@@ -3,6 +3,8 @@
 ## Usage
 To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements.txt``` on Windows or ```pip3 install -r requirements.txt``` on Mac or UNIX if the first command fails.
 
+For those of you who aren't comfortable with code and developer tools, there are windows builds of the GUI applications here -> (https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing)
+
 ### CFG Util
 *CFG Util is a GUI for interfacing with the miners easily, it is mostly self-explanatory.*
 
