@@ -16,17 +16,19 @@ layout = [
      sg.InputText(key='miner_network', do_not_clear=True, size=(115, 1)),
      sg.Button('Scan', key='scan')],
 
-    [sg.Text('IP List File:', size=(9, 1)),
-     sg.Input(key="file_iplist", do_not_clear=True, size=(115, 1)),
-     sg.FileBrowse(),
-     sg.Button('Import', key="import_iplist"),
-     sg.Button('Export', key="export_iplist")],
-
     [sg.Text('Config File:', size=(9, 1)),
      sg.Input(key="file_config", do_not_clear=True, size=(115, 1)),
      sg.FileBrowse(),
      sg.Button('Import', key="import_file_config"),
      sg.Button('Export', key="export_file_config")],
+
+    [sg.Text('IP List File:', size=(9, 1)),
+     sg.Input(key="file_iplist", do_not_clear=True, size=(115, 1)),
+     sg.FileBrowse(),
+     sg.Button('Import', key="import_iplist"),
+     sg.Button('Export', key="export_iplist"),
+     sg.Button('Export CSV', key="export_csv")],
+
 
     [sg.Column([
 
