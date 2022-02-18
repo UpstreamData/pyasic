@@ -47,7 +47,13 @@ layout = [
 
         [sg.Table(
             values=[],
-            headings=["IP", "Model", "Hostname", "Hashrate", "Temperature", "Current User", "Wattage"],
+            headings=["IP",
+                      "Model",
+                      "Hostname",
+                      "Hashrate",
+                      "Temperature",
+                      "Current User",
+                      "Wattage"],
             auto_size_columns=False,
             max_col_width=15,
             justification="center",

@@ -46,11 +46,14 @@ async def ui():
             if 2 > len(value['ip_table']) > 0:
                 asyncio.create_task(import_config(value['ip_table']))
         if event == "restart_miner_backend":
-            asyncio.create_task(restart_miners_backend([window['ip_table'].Values[item][0] for item in value['ip_table']]))
+            if len(window["ip_table"].Values) > 0:
+                asyncio.create_task(restart_miners_backend([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "reboot_miners":
-            asyncio.create_task(reboot_miners([window['ip_table'].Values[item][0] for item in value['ip_table']]))
+            if len(window["ip_table"].Values) > 0:
+                asyncio.create_task(reboot_miners([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == 'light':
-            asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
+            if len(window["ip_table"].Values) > 0:
+                asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
         if event == "import_iplist":
             asyncio.create_task(import_iplist(value["file_iplist"]))
         if event == "export_iplist":
@@ -58,13 +61,15 @@ async def ui():
         if event == "export_csv":
             asyncio.create_task(export_csv(value["file_iplist"], [window['ip_table'].Values[item] for item in value['ip_table']]))
         if event == "send_config":
-            asyncio.create_task(send_config([window['ip_table'].Values[item][0] for item in value['ip_table']], value['config']))
+            if len(window["ip_table"].Values) > 0:
+                asyncio.create_task(send_config([window['ip_table'].Values[item][0] for item in value['ip_table']], value['config']))
         if event == "import_file_config":
             asyncio.create_task(import_config_file(value['file_config']))
         if event == "export_file_config":
             asyncio.create_task(export_config_file(value['file_config'], value["config"]))
         if event == "refresh_data":
-            asyncio.create_task(refresh_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
+            if len(window["ip_table"].Values) > 0:
+                asyncio.create_task(refresh_data([window["ip_table"].Values[item][0] for item in value["ip_table"]]))
         if event == "generate_config":
             await generate_config_ui()
         if event == "__TIMEOUT__":

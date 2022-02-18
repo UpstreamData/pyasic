@@ -6,6 +6,48 @@ from tools.cfg_util.cfg_util_sg.layout import window
 import pyperclip
 
 
+def disable_buttons():
+    button_list = ["scan",
+                   "import_file_config",
+                   "export_file_config",
+                   "import_iplist",
+                   "export_iplist",
+                   "export_csv",
+                   "select_all_ips",
+                   "refresh_data",
+                   "open_in_web",
+                   "reboot_miners",
+                   "restart_miner_backend",
+                   "import_config",
+                   "send_config",
+                   "light",
+                   "generate_config",
+                   ]
+    for button in button_list:
+        window[button].Update(disabled=True)
+
+
+def enable_buttons():
+    button_list = ["scan",
+                   "import_file_config",
+                   "export_file_config",
+                   "import_iplist",
+                   "export_iplist",
+                   "export_csv",
+                   "select_all_ips",
+                   "refresh_data",
+                   "open_in_web",
+                   "reboot_miners",
+                   "restart_miner_backend",
+                   "import_config",
+                   "send_config",
+                   "light",
+                   "generate_config",
+                   ]
+    for button in button_list:
+        window[button].Update(disabled=False)
+
+
 def copy_from_table(table):
     selection = table.selection()
     copy_values = []
@@ -40,6 +82,9 @@ async def set_progress_bar_len(amount):
 
 
 async def sort_data(index: int or str):
+    if window["scan"].disabled:
+        print("disabled")
+        return
     await update_ui_with_data("status", "Sorting Data")
     data_list = window['ip_table'].Values
 

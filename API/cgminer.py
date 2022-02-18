@@ -364,9 +364,12 @@ class CGMinerAPI(BaseMinerAPI):
         :return: Confirmation of setting PGA n with opt[,val].
         """
         if val:
-            return await self.send_command("pgaset", parameters=f"{n}, {opt}, {val}")
+            return await self.send_command("pgaset", parameters=f"{n}, "
+                                                                f"{opt}, "
+                                                                f"{val}")
         else:
-            return await self.send_command("pgaset", parameters=f"{n}, {opt}")
+            return await self.send_command("pgaset", parameters=f"{n}, "
+                                                                f"{opt}")
 
     async def zero(self, which: str, summary: bool) -> dict:
         """Zero a device.
@@ -381,7 +384,8 @@ class CGMinerAPI(BaseMinerAPI):
         :return: the STATUS section with info on the zero and optional
         summary.
         """
-        return await self.send_command("zero", parameters=f"{which}, {summary}")
+        return await self.send_command("zero", parameters=f"{which}, "
+                                                          f"{summary}")
 
     async def hotplug(self, n: int) -> dict:
         """Enable hotplug.
@@ -482,9 +486,12 @@ class CGMinerAPI(BaseMinerAPI):
         :return: Confirmation of setting option opt to value val.
         """
         if val:
-            return await self.send_command("ascset", parameters=f"{n}, {opt}, {val}")
+            return await self.send_command("ascset", parameters=f"{n}, "
+                                                                f"{opt}, "
+                                                                f"{val}")
         else:
-            return await self.send_command("ascset", parameters=f"{n}, {opt}")
+            return await self.send_command("ascset", parameters=f"{n}, "
+                                                                f"{opt}")
 
     async def lcd(self) -> dict:
         """Get a general all-in-one status summary of the miner.

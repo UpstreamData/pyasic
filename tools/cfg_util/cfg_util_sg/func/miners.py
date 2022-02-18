@@ -9,6 +9,7 @@ from tools.cfg_util.cfg_util_sg.func.ui import update_ui_with_data, update_prog_
 from tools.cfg_util.cfg_util_sg.layout import window
 from tools.cfg_util.cfg_util_sg.miner_factory import miner_factory
 from config.bos import bos_config_convert
+from tools.cfg_util.cfg_util_sg.func.ui import enable_buttons, disable_buttons
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS
 
 
@@ -22,6 +23,7 @@ async def import_config(idx):
 
 
 async def scan_network(network):
+    disable_buttons()
     await update_ui_with_data("status", "Scanning")
     await update_ui_with_data("ip_count", "")
     await update_ui_with_data("hr_total", "")
@@ -53,10 +55,13 @@ async def scan_network(network):
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("ip_count", str(len(all_miners)))
     await update_ui_with_data("status", "")
+    enable_buttons()
 
 
 async def miner_light(ips: list):
+    disable_buttons()
     await asyncio.gather(*[flip_light(ip) for ip in ips])
+    enable_buttons
 
 
 async def flip_light(ip):
@@ -91,6 +96,7 @@ async def reboot_generator(miners: list):
 
 
 async def reboot_miners(ips: list):
+    disable_buttons()
     await update_ui_with_data("status", "Rebooting")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
@@ -106,6 +112,7 @@ async def reboot_miners(ips: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
+    enable_buttons()
 
 
 async def restart_backend_generator(miners: list):
@@ -124,6 +131,7 @@ async def restart_backend_generator(miners: list):
 
 
 async def restart_miners_backend(ips: list):
+    disable_buttons()
     await update_ui_with_data("status", "Restarting Backends")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
@@ -139,6 +147,7 @@ async def restart_miners_backend(ips: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
+    enable_buttons()
 
 
 async def send_config_generator(miners: list, config):
@@ -157,6 +166,7 @@ async def send_config_generator(miners: list, config):
 
 
 async def send_config(ips: list, config):
+    disable_buttons()
     await update_ui_with_data("status", "Configuring")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
@@ -175,9 +185,11 @@ async def send_config(ips: list, config):
     await update_ui_with_data("status", "Getting Data")
     await asyncio.sleep(3)
     await refresh_data(ips)
+    enable_buttons()
 
 
 async def refresh_data(ip_list: list):
+    disable_buttons()
     await update_ui_with_data("status", "Getting Data")
     await update_ui_with_data("hr_total", "")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
@@ -225,9 +237,11 @@ async def refresh_data(ip_list: list):
     window["hr_total"].update(f"{total_hr} TH/s")
 
     await update_ui_with_data("status", "")
+    enable_buttons()
 
 
 async def scan_and_get_data(network):
+    disable_buttons()
     await update_ui_with_data("status", "Scanning")
     await update_ui_with_data("hr_total", "")
     await update_ui_with_data("ip_count", "")
@@ -279,6 +293,7 @@ async def scan_and_get_data(network):
     total_hr = round(sum(hashrate_list), 2)
     await update_ui_with_data("hr_total", f"{total_hr} TH/s")
     await update_ui_with_data("status", "")
+    enable_buttons()
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):
