@@ -17,6 +17,7 @@ def disable_buttons(func):
                    "send_config",
                    "light",
                    "generate_config",
+                   "send_miner_ssh_command_window",
                    ]
 
     # handle the inner function that the decorator is wrapping

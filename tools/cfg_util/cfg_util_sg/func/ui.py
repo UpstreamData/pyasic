@@ -19,6 +19,20 @@ def copy_from_table(table):
     pyperclip.copy(copy_string)
 
 
+def copy_from_ssh_table(table):
+    selection = table.selection()
+    copy_values = []
+    for each in selection:
+        try:
+            value = ", ".join(table.item(each)["values"])
+            copy_values.append(str(value))
+        except:
+            pass
+    copy_string = "\n".join(copy_values)
+    pyperclip.copy(copy_string)
+
+
+
 async def update_ui_with_data(key, message, append=False):
     if append:
         message = window[key].get_text() + message

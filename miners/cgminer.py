@@ -72,31 +72,7 @@ class CGMiner(BaseMiner):
                     if i == 3:
                         return
                     continue
-        # handle result
-        self._result_handler(result)
-
-    @staticmethod
-    def _result_handler(result: asyncssh.process.SSHCompletedProcess) -> None:
-        if result is not None:
-            # noinspection PyUnresolvedReferences
-            if len(result.stdout) > 0:
-                # noinspection PyUnresolvedReferences
-                print("ssh stdout: \n" + result.stdout)
-            # noinspection PyUnresolvedReferences
-            if len(result.stderr) > 0:
-                # noinspection PyUnresolvedReferences
-                print("ssh stderr: \n" + result.stderrr)
-            # noinspection PyUnresolvedReferences
-            if len(result.stdout) <= 0 and len(result.stderr) <= 0:
-                print("ssh stdout stderr empty")
-            # if result.stdout != "":
-            #     print(result.stdout)
-            #     if result.stderr != "":
-            #         print("ERROR: " + result.stderr)
-            # elif result.stderr != "":
-            #     print("ERROR: " + result.stderr)
-            # else:
-            #     print(cmd)
+        return result
 
     async def restart_backend(self) -> None:
         await self.restart_cgminer()
@@ -133,4 +109,3 @@ class CGMiner(BaseMiner):
             self._result_handler(result)
             self.config = result.stdout
             print(str(self.config))
-

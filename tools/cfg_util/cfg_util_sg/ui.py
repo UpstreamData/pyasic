@@ -3,12 +3,13 @@ import sys
 import PySimpleGUI as sg
 import tkinter as tk
 
-from tools.cfg_util.cfg_util_sg.layout import window, generate_config_layout
+from tools.cfg_util.cfg_util_sg.layout import window, generate_config_layout, send_ssh_cmd_layout
 from tools.cfg_util.cfg_util_sg.func.miners import send_config, miner_light, refresh_data, generate_config, import_config, \
-    scan_and_get_data, restart_miners_backend, reboot_miners
+    scan_and_get_data, restart_miners_backend, reboot_miners, send_miners_ssh_commands
 from tools.cfg_util.cfg_util_sg.func.files import import_iplist, \
     import_config_file, export_iplist, export_config_file, export_csv
-from tools.cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table
+from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
+from tools.cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table, copy_from_ssh_table
 
 from network import MinerNetwork
 
@@ -54,6 +55,12 @@ async def ui():
         if event == "reboot_miners":
             if len(window["ip_table"].Values) > 0:
                 asyncio.create_task(reboot_miners([window['ip_table'].Values[item][0] for item in value['ip_table']]))
+        if event == "send_miner_ssh_command_window":
+            ips = [window['ip_table'].Values[item][0] for item in value['ip_table']]
+            if len(ips) == 0:
+                ips = [item[0] for item in window["ip_table"].Values]
+            if not len(ips) == 0:
+                await generate_ssh_cmd_ui(ips)
         if event == 'light':
             if len(window["ip_table"].Values) > 0:
                 asyncio.create_task(miner_light([window['ip_table'].Values[item][0] for item in value['ip_table']]))
@@ -92,3 +99,21 @@ async def generate_config_ui():
                                       values['generate_config_window_allow_v2'])
                 generate_config_window.close()
                 break
+
+
+@disable_buttons
+async def generate_ssh_cmd_ui(selected_miners: list):
+    ssh_cmd_window = sg.Window("Send Command", send_ssh_cmd_layout(selected_miners), modal=True)
+    ssh_cmd_window.read(timeout=0)
+    table = ssh_cmd_window["ssh_cmd_table"].Widget
+    table.bind("<Control-Key-c>", lambda x: copy_from_ssh_table(table))
+    # left justify the results
+    table.column(1, anchor=tk.W)
+    while True:
+        event, values = ssh_cmd_window.read(timeout=0)
+        if event in (None, 'Close', sg.WIN_CLOSED):
+            break
+        if event == "ssh_command_window_send_cmd":
+            asyncio.create_task(send_miners_ssh_commands(selected_miners, values["ssh_command_window_cmd"], ssh_cmd_window))
+        if event == "__TIMEOUT__":
+            await asyncio.sleep(0)

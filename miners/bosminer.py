@@ -25,7 +25,7 @@ class BOSMiner(BaseMiner):
         # return created connection
         return conn
 
-    async def send_ssh_command(self, cmd: str) -> None:
+    async def send_ssh_command(self, cmd: str):
         """Sends SSH command to miner."""
         # creates result variable
         result = None
@@ -42,17 +42,8 @@ class BOSMiner(BaseMiner):
                     if i == 3:
                         return
                     continue
+        return result
 
-        # let the user know the result of the command
-        if result is not None:
-            if result.stdout != "":
-                print(result.stdout)
-                if result.stderr != "":
-                    print("ERROR: " + result.stderr)
-            elif result.stderr != "":
-                print("ERROR: " + result.stderr)
-            else:
-                print(cmd)
 
     async def fault_light_on(self) -> None:
         """Sends command to turn on fault light on the miner."""

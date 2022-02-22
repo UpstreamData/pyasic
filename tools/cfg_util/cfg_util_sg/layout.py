@@ -40,7 +40,8 @@ layout = [
              sg.Button("REFRESH DATA", key='refresh_data'),
              sg.Button("OPEN IN WEB", key='open_in_web'),
              sg.Button("REBOOT", key='reboot_miners'),
-             sg.Button("RESTART BACKEND", key='restart_miner_backend')],
+             sg.Button("RESTART BACKEND", key='restart_miner_backend'),
+             sg.Button("SEND SSH COMMAND", key='send_miner_ssh_command_window')],
 
             [sg.Text("HR Total: ", pad=(0, 0)), sg.Text("", key="hr_total")],
         ])],
@@ -100,6 +101,33 @@ def generate_config_layout():
         [sg.Button("Generate", key="generate_config_window_generate")]
     ]
     return config_layout
+
+
+def send_ssh_cmd_layout(miner_list: list):
+    cmd_layout = [
+        [sg.Text('Command:', size=(9, 1)),
+         sg.InputText(key='ssh_command_window_cmd', do_not_clear=True, size=(95, 1)),
+         sg.Button("Send Command", key='ssh_command_window_send_cmd')
+        ],
+        [sg.Text("")],
+        [sg.Table(
+            values=[[ip, ""] for ip in miner_list],
+            headings=["IP",
+                      "Result"],
+            auto_size_columns=False,
+            max_col_width=15,
+            justification="center",
+            key="ssh_cmd_table",
+            col_widths=[15, 90],
+            background_color="white",
+            text_color="black",
+            size=(105, 27),
+            expand_x=True,
+            enable_click_events=True,
+        )]
+
+    ]
+    return cmd_layout
 
 
 window = sg.Window('Upstream Config Util', layout, icon=icon_of_window)
