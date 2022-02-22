@@ -165,6 +165,7 @@ async def scan_and_get_data(network):
             data = [
                 data_point["IP"],
                 data_point["model"],
+                (len(board_left) + len(board_center) + len(board_right)),
                 len(board_left),
                 board_left_chips,
                 len(board_center),
