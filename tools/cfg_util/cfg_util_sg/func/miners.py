@@ -78,6 +78,52 @@ async def flip_light(ip):
         await miner.fault_light_off()
 
 
+async def send_command_generator(miners: list, command: str):
+    loop = asyncio.get_event_loop()
+    command_tasks = []
+    for miner in miners:
+        if len(command_tasks) >= CONFIG_THREADS:
+            cmd_sent = asyncio.as_completed(command_tasks)
+            command_tasks = []
+            for done in cmd_sent:
+                yield await done
+        command_tasks.append(loop.create_task(send_ssh_command(miner, command)))
+    cmd_sent = asyncio.as_completed(command_tasks)
+    for done in cmd_sent:
+        yield await done
+
+
+async def send_ssh_command(miner, command: str):
+    proc = await miner.send_ssh_command(command)
+    return {"IP": miner.ip, "proc": proc}
+
+
+async def send_miners_ssh_commands(ips: list, command: str, ssh_cmd_window):
+    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    all_miners = []
+    async for miner in get_miner_genenerator:
+        all_miners.append(miner)
+
+    data = []
+    send_cmd_generator = send_command_generator(all_miners, command)
+    async for command_sent in send_cmd_generator:
+        data.append(command_sent)
+
+    proc_table_data = [[ip, ""] for ip in ips]
+    for item in data:
+
+        if item["proc"].returncode == 0:
+            return_data = item["proc"].stdout
+        else:
+            return_data = item["proc"].stderr
+        if str(item["IP"]) in ips:
+            proc_table_index = ips.index(str(item["IP"]))
+            proc_table_data[proc_table_index] = [
+                str(item["IP"]), return_data.replace("\n", " "),
+            ]
+            ssh_cmd_window["ssh_cmd_table"].update(proc_table_data)
+
+
 async def reboot_generator(miners: list):
     loop = asyncio.get_event_loop()
     reboot_tasks = []
