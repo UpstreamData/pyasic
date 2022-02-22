@@ -40,7 +40,7 @@ async def set_progress_bar_len(amount):
 
 
 async def sort_data(index: int or str):
-    if window["scan"].disabled:
+    if window["scan"].Disabled:
         print("disabled")
         return
     await update_ui_with_data("status", "Sorting Data")
