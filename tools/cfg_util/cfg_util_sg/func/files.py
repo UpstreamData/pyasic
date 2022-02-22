@@ -39,13 +39,13 @@ async def export_csv(file_location, ip_list_selected):
             async with aiofiles.open(file_location, mode='w') as file:
                 for item in ip_list_selected:
                     await file.write(str(
-                        ", ".join([str(part) for part in item])
+                        ", ".join([str(part).rstrip().lstrip() for part in item])
                     ) + "\n")
         else:
             async with aiofiles.open(file_location, mode='w') as file:
                 for item in window['ip_table'].Values:
                     await file.write(str(
-                        ", ".join([str(part) for part in item])
+                        ", ".join([str(part).rstrip().lstrip() for part in item])
                     ) + "\n")
     await update_ui_with_data("status", "")
 

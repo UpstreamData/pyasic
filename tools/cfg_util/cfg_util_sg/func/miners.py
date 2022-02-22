@@ -209,7 +209,7 @@ async def refresh_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s",
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s ",
                 data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
@@ -222,7 +222,7 @@ async def refresh_data(ip_list: list):
     for item, _ in enumerate(window["ip_table"].Values):
         if len(window["ip_table"].Values[item]) > hr_idx:
             if not window["ip_table"].Values[item][hr_idx] == '':
-                hashrate_list.append(float(window["ip_table"].Values[item][hr_idx].replace(" TH/s", "")))
+                hashrate_list.append(float(window["ip_table"].Values[item][hr_idx].replace(" TH/s ", "")))
             else:
                 hashrate_list.append(0)
         else:
@@ -276,14 +276,14 @@ async def scan_and_get_data(network):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s",
+                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s ",
                 data_point["temp"],
                 data_point['user'], str(data_point['wattage']) + " W"
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-    hashrate_list = [float(item[3].replace(" TH/s", "")) for item in window["ip_table"].Values if not item[3] == '']
+    hashrate_list = [float(item[3].replace(" TH/s ", "")) for item in window["ip_table"].Values if not item[3] == '']
     total_hr = round(sum(hashrate_list), 2)
     await update_ui_with_data("hr_total", f"{total_hr} TH/s")
     await update_ui_with_data("status", "")
@@ -323,14 +323,14 @@ async def get_formatted_data(ip: ipaddress.ip_address):
                 if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
                     if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
                         temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
-                # hashrate data, this is the only place to get this for most miners as far as I know
+                # hashrate data
                 if 'MHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
-                    th5s = round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2)
+                    th5s = format(round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2), ".2f").rjust(6, " ")
                 elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
                     if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
-                        th5s = round(
+                        th5s = format(round(
                             float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
-                            2)
+                            2), ".2f").rjust(6, " ")
 
         # alternate temperature data, for BraiinsOS
         if "temps" in miner_data.keys():

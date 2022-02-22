@@ -1,6 +1,7 @@
 import asyncio
 import sys
 import PySimpleGUI as sg
+import tkinter as tk
 
 from tools.cfg_util.cfg_util_sg.layout import window, generate_config_layout
 from tools.cfg_util.cfg_util_sg.func.miners import send_config, miner_light, refresh_data, generate_config, import_config, \
@@ -18,6 +19,8 @@ async def ui():
     window.read(timeout=0)
     table = window["ip_table"].Widget
     table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
+    # left justify the hostnames
+    table.column(2, anchor=tk.W)
     while True:
         event, value = window.read(timeout=10)
         if event in (None, 'Close', sg.WIN_CLOSED):
