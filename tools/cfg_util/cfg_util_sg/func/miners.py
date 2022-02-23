@@ -65,7 +65,7 @@ async def miner_light(ips: list):
 async def flip_light(ip):
     ip_list = window['ip_table'].Widget
     miner = await miner_factory.get_miner(ip)
-    index = [item[0] for item in window["ip_table"].Values].index(ip)
+    index = [item[0] for item in window["ip_table"].Values].index(ip) + 1
     index_tags = ip_list.item(index)['tags']
     if "light" not in index_tags:
         ip_list.item(index, tags=([*index_tags, "light"]))
