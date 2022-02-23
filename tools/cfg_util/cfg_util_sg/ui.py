@@ -20,6 +20,8 @@ async def ui():
     window.read(timeout=0)
     table = window["ip_table"].Widget
     table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
+    # light tag shows red row for fault lights
+    table.tag_configure("light", foreground="white", background="red")
     # left justify the hostnames
     table.column(2, anchor=tk.W)
     while True:

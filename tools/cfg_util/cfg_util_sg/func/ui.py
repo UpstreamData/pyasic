@@ -55,35 +55,45 @@ async def set_progress_bar_len(amount):
 
 async def sort_data(index: int or str):
     if window["scan"].Disabled:
-        print("disabled")
         return
     await update_ui_with_data("status", "Sorting Data")
     data_list = window['ip_table'].Values
+    table = window["ip_table"].Widget
+    all_data = []
+    for idx, item in enumerate(data_list):
+        all_data.append({"data": item, "tags": table.item(int(idx) + 1)["tags"]})
 
     # wattage
-    if re.match("[0-9]* W", str(data_list[0][index])):
-        new_list = sorted(data_list, key=lambda x: int(x[index].replace(" W", "")))
-        if data_list == new_list:
-            new_list = sorted(data_list, reverse=True, key=lambda x: int(x[index].replace(" W", "")))
+    if re.match("[0-9]* W", str(all_data[0]["data"][index])):
+        new_list = sorted(all_data, key=lambda x: int(x["data"][index].replace(" W", "")))
+        if all_data == new_list:
+            new_list = sorted(all_data, reverse=True, key=lambda x: int(x["data"][index].replace(" W", "")))
 
     # hashrate
-    elif re.match("[0-9]*\.?[0-9]* TH\/s", str(data_list[0][index])):
-        new_list = sorted(data_list, key=lambda x: float(x[index].replace(" TH/s", "")))
-        if data_list == new_list:
-            new_list = sorted(data_list, reverse=True, key=lambda x: float(x[index].replace(" TH/s", "")))
+    elif re.match("[0-9]*\.?[0-9]* TH\/s", str(all_data[0]["data"][index])):
+        new_list = sorted(all_data, key=lambda x: float(x["data"][index].replace(" TH/s", "")))
+        if all_data == new_list:
+            new_list = sorted(all_data, reverse=True, key=lambda x: float(x["data"][index].replace(" TH/s", "")))
 
     # ip addresses
     elif re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
-                  str(data_list[0][index])):
-        new_list = sorted(data_list, key=lambda x: ipaddress.ip_address(x[index]))
-        if data_list == new_list:
-            new_list = sorted(data_list, reverse=True, key=lambda x: ipaddress.ip_address(x[index]))
+                  str(all_data[0]["data"][index])):
+        new_list = sorted(all_data, key=lambda x: ipaddress.ip_address(x["data"][index]))
+        if all_data == new_list:
+            new_list = sorted(all_data, reverse=True, key=lambda x: ipaddress.ip_address(x["data"][index]))
 
     # everything else, hostname, temp, and user
     else:
-        new_list = sorted(data_list, key=lambda x: x[index])
-        if data_list == new_list:
-            new_list = sorted(data_list, reverse=True, key=lambda x: x[index])
+        new_list = sorted(all_data, key=lambda x: x["data"][index])
+        if all_data == new_list:
+            new_list = sorted(all_data, reverse=True, key=lambda x: x["data"][index])
 
-    await update_ui_with_data("ip_table", new_list)
+    new_data = []
+    for item in new_list:
+        new_data.append(item["data"])
+
+    await update_ui_with_data("ip_table", new_data)
+    for idx, item in enumerate(new_list):
+        table.item(idx + 1, tags=item["tags"])
+
     await update_ui_with_data("status", "")
