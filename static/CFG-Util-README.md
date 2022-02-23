@@ -36,6 +36,9 @@
 * ALL: Selects all miners in the table, or deselects all if they are already all selected.
 * REFRESH DATA: Refreshes data for the currently selected miners, or all miners if none are selected.
 * OPEN IN WEB: Opens all currently selected miners web interfaces in your default browser.
+* REBOOT: Reboots all selected miners.
+* RESTART BACKEND: Restarts the mining process on the miner (bosminer daemon, bmminer daemon, cgminer daemon, etc).
+* SEND SSH COMMAND: Open a new window to send a SSH command to all selected miners (or all miners if none are selected).
 
 ### Table:
 * Click any header in the table to sort that row.
