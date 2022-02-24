@@ -1,15 +1,22 @@
-import socketio
-from sanic import Sanic
+import json
+import asyncio
+import uvicorn
+from fastapi import FastAPI
+from fastapi import Request
+from fastapi import WebSocket
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
-app = Sanic("App")
+app = FastAPI()
 
-# attach socketio
-sio = socketio.AsyncServer(async_mode="sanic")
-sio.attach(app)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-app.static('/', "./public/index.html")
-app.static('/index.css', "./static/index.css")
-app.static('/index.js', "./static/index.js")
 
-app.static('/scan', "./public/scan.html")
-app.static('/settings', "./public/settings.html")
+@app.route("/")
+def dashboard(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="127.0.0.1", port=80, debug=True)
