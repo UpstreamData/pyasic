@@ -30,7 +30,6 @@ class BTMiner(BaseMiner):
         except APIError:
             return "?"
 
-
     async def get_board_info(self) -> dict:
         """Gets data on each board and chain in the miner."""
         devs = await self.api.devs()
@@ -56,4 +55,3 @@ class BTMiner(BaseMiner):
             else:
                 print(board)
         return boards
-

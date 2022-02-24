@@ -56,10 +56,14 @@ class CGMiner(BaseMiner):
                                               server_host_key_algs=['ssh-rsa'])
                 return conn
             except Exception as e:
-                print(e)
+                print("Exception raised:", self.ip)
+                raise e
         except OSError:
             print(str(self.ip) + " Connection refused.")
             return None
+        except Exception as e:
+            print("Exception raised:", self.ip)
+            raise e
 
     async def send_ssh_command(self, cmd):
         result = None

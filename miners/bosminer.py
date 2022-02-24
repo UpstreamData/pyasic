@@ -20,8 +20,12 @@ class BOSMiner(BaseMiner):
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
-        conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=self.uname, password=self.pwd,
-                                      server_host_key_algs=['ssh-rsa'])
+        try:
+            conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=self.uname, password=self.pwd,
+                                          server_host_key_algs=['ssh-rsa'])
+        except Exception as e:
+            print("Exception raised:", self.ip)
+            raise e
         # return created connection
         return conn
 
