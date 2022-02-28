@@ -5,9 +5,14 @@
         <div class="input-group mb-3">
           <span class="input-group-text" id="scan-ip">Subnet</span>
           <input type="text" class="form-control" id="messageText" placeholder="192.168.1.0/24" aria-describedby="scan-ip">
-          <button class="btn btn-primary" onclick="sendMessage()" type="button" id="scanButton">Scan</button>
+          <button class="btn btn-danger" onclick="cancelScan()" style="display:none;" type="button" id="cancelButton">Cancel</button>
+          <button class="btn btn-primary" onclick="scanMiners()" type="button" id="scanButton">Scan</button>
         </div>
     </form>
+</div>
+
+<div class="row w-100">
+    <button class="btn btn-primary mb-4" onclick="addMiners()" type="button" id="addButton">Add Selected Miners</button>
 </div>
 
 <div class="row w-100">
@@ -55,6 +60,13 @@
                 document.getElementById("scanButton").disabled = false
                 document.getElementById("selectAllCheckbox").disabled = false
                 document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
+                document.getElementById("cancelButton").style = "display:none;"
+            } else if (event.data == "Cancelled") {
+                document.getElementById("scanButton").innerHTML = "Scan"
+                document.getElementById("scanButton").disabled = false
+                document.getElementById("selectAllCheckbox").disabled = false
+                document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
+                document.getElementById("cancelButton").style = "display:none;"
             } else {
                 var miner_data = JSON.parse(event.data)
                 var miners = document.getElementById('minerTable')
@@ -84,7 +96,7 @@
                 });
             };
         };
-        function sendMessage(event) {
+        function scanMiners(event) {
             var input = document.getElementById("messageText")
             var miners = document.getElementById('minerTable')
             miners.innerHTML = ""
@@ -92,6 +104,7 @@
             document.getElementById("scanButton").innerHTML = "Scanning..."
             document.getElementById("scanButton").disabled = true
             document.getElementById("selectAllCheckbox").disabled = true
+            document.getElementById("cancelButton").style = ""
             if (input.value != "") {
                 ws.send(input.value)
                 event.preventDefault()
@@ -99,6 +112,13 @@
                 ws.send("192.168.1.0/24")
             };
         }
+        function cancelScan(event) {
+            document.getElementById("scanStatus").innerHTML = "Canceling..."
+            document.getElementById("scanButton").innerHTML = "Canceling..."
+            document.getElementById("cancelButton").style = "display:none;"
+            ws.send("-Cancel-")
+        }
+
     </script>
 
 {% endblock content %}
