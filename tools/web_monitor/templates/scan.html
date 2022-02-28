@@ -12,7 +12,7 @@
 </div>
 
 <div class="row w-100">
-    <button class="btn btn-primary mb-4" onclick="addMiners()" type="button" id="addButton">Add Selected Miners</button>
+    <button class="btn btn-primary mb-4 mx-1" onclick="addMiners()" type="button" id="addButton">Add Selected Miners</button>
 </div>
 
 <div class="row w-100">
@@ -53,6 +53,9 @@
         });
     </script>
     <script>
+        window.post = function(url, data) {
+          return fetch(url, {method: "POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+        }
         var ws = new WebSocket("ws://localhost:80/scan/ws");
         ws.onmessage = function(event) {
             if (event.data == "Done") {
@@ -72,11 +75,11 @@
                 var miners = document.getElementById('minerTable')
                 miners.innerHTML = ""
                 miner_data.forEach(function(miner) {
-                    console.log(miner)
                     var tr = document.createElement('tr')
+                    tr.id = miner["ip"]
 
                     var checkbox_td = document.createElement('td')
-                    checkbox_td.innerHTML = '<input type="checkbox" class="select-item checkbox" name="select-item" value="' + miner["ip"] + '" />'
+                    checkbox_td.innerHTML = '<input type="checkbox" class="select-item checkbox" name="minerCheckboxes" value="' + miner["ip"] + '" />'
                     checkbox_td.className = "active"
 
                     var ip_td = document.createElement('td')
@@ -111,14 +114,27 @@
             } else {
                 ws.send("192.168.1.0/24")
             };
-        }
+        };
         function cancelScan(event) {
             document.getElementById("scanStatus").innerHTML = "Canceling..."
             document.getElementById("scanButton").innerHTML = "Canceling..."
             document.getElementById("cancelButton").style = "display:none;"
             ws.send("-Cancel-")
-        }
-
+        };
+        function addMiners(event) {
+            var checkedBoxes = document.querySelectorAll('input[name=minerCheckboxes]:checked');
+            if !(checkedBoxes.length == 0) {
+                var minerList = [];
+                for (i = 0; i< checkedBoxes.length; i++) {
+                    minerList.push(checkedBoxes[i].defaultValue);
+                }
+                post("{{url_for('add_miners_scan')}}", {miners: minerList})
+                for (i = 0; i< minerList.length; i++) {
+                    var tr_to_remove = document.getElementById(minerList[i])
+                    tr_to_remove.remove()
+                }
+            };
+        };
     </script>
 
 {% endblock content %}
