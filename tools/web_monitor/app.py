@@ -26,8 +26,8 @@ def scan(request: Request):
 
 
 @app.post("/scan/add_miners")
-def add_miners_scan(request: Request):
-    print(request)
+async def add_miners_scan(request: Request):
+    print(await request.json())
     return scan
 
 
