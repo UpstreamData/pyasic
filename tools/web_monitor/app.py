@@ -51,9 +51,9 @@ async def websocket_scan(websocket: WebSocket):
                 for miner in all_miners:
                     send_miners.append({"ip": str(miner["ip"]), "model": miner["model"]})
                 await websocket.send_json(send_miners)
-
             await websocket.send_text("Done")
     except WebSocketDisconnect:
+        print("Websocket disconnected.")
         pass
 
 

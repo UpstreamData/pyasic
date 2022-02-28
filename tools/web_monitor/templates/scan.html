@@ -4,8 +4,8 @@
     <form action="" onsubmit="sendMessage(event)">
         <div class="input-group mb-3">
           <span class="input-group-text" id="scan-ip">Subnet</span>
-          <input type="text" class="form-control" id="messageText" placeholder="192.168.1.1/24" aria-describedby="scan-ip">
-          <button class="btn btn-primary" onclick="sendMessage()" type="button">Scan</button>
+          <input type="text" class="form-control" id="messageText" placeholder="192.168.1.0/24" aria-describedby="scan-ip">
+          <button class="btn btn-primary" onclick="sendMessage()" type="button" id="scanButton">Scan</button>
         </div>
     </form>
 </div>
@@ -19,7 +19,7 @@
                 </th>
                 <th>IP</th>
                 <th>Model</th>
-                <th id="scanStatus" class="col-2"></th>
+                <th id="scanStatus" class="col-2">0 Miners</th>
             </tr>
         </thead>
         <tbody id="minerTable">
@@ -51,45 +51,53 @@
         var ws = new WebSocket("ws://localhost:80/scan/ws");
         ws.onmessage = function(event) {
             if (event.data == "Done") {
+                document.getElementById("scanButton").innerHTML = "Scan"
+                document.getElementById("scanButton").disabled = false
                 document.getElementById("selectAllCheckbox").disabled = false
                 document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
             } else {
-                document.getElementById("selectAllCheckbox").disabled = true
-                document.getElementById("scanStatus").innerHTML = "Scanning..."
+                var miner_data = JSON.parse(event.data)
+                var miners = document.getElementById('minerTable')
+                miners.innerHTML = ""
+                miner_data.forEach(function(miner) {
+                    console.log(miner)
+                    var tr = document.createElement('tr')
+
+                    var checkbox_td = document.createElement('td')
+                    checkbox_td.innerHTML = '<input type="checkbox" class="select-item checkbox" name="select-item" value="' + miner["ip"] + '" />'
+                    checkbox_td.className = "active"
+
+                    var ip_td = document.createElement('td')
+                    ip_td.innerHTML = miner["ip"]
+
+                    var model_td = document.createElement('td')
+                    model_td.innerHTML = miner["model"]
+
+                    var empty_td = document.createElement('td')
+
+                    tr.append(checkbox_td)
+                    tr.append(ip_td)
+                    tr.append(model_td)
+                    tr.append(empty_td)
+
+                    miners.append(tr)
+                });
             };
-            var miner_data = JSON.parse(event.data)
-            var miners = document.getElementById('minerTable')
-            miners.innerHTML = ""
-            miner_data.forEach(function(miner) {
-                console.log(miner)
-                var tr = document.createElement('tr')
-
-                var checkbox_td = document.createElement('td')
-                checkbox_td.innerHTML = '<input type="checkbox" class="select-item checkbox" name="select-item" value="' + miner["ip"] + '" />'
-                checkbox_td.className = "active"
-
-                var ip_td = document.createElement('td')
-                ip_td.innerHTML = miner["ip"]
-
-                var model_td = document.createElement('td')
-                model_td.innerHTML = miner["model"]
-
-                var empty_td = document.createElement('td')
-
-                tr.append(checkbox_td)
-                tr.append(ip_td)
-                tr.append(model_td)
-                tr.append(empty_td)
-
-                miners.append(tr)
-            });
         };
         function sendMessage(event) {
             var input = document.getElementById("messageText")
+            var miners = document.getElementById('minerTable')
+            miners.innerHTML = ""
             document.getElementById("scanStatus").innerHTML = "Scanning..."
-            ws.send(input.value)
-            input.value = ''
-            event.preventDefault()
+            document.getElementById("scanButton").innerHTML = "Scanning..."
+            document.getElementById("scanButton").disabled = true
+            document.getElementById("selectAllCheckbox").disabled = true
+            if (input.value != "") {
+                ws.send(input.value)
+                event.preventDefault()
+            } else {
+                ws.send("192.168.1.0/24")
+            };
         }
     </script>
 
