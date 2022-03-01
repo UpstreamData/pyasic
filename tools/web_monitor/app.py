@@ -1,4 +1,5 @@
 import json
+import datetime
 import os
 import asyncio
 import uvicorn
@@ -35,6 +36,22 @@ def scan(request: Request):
 @app.get("/miner")
 def miner(request: Request, miner_ip):
     return get_miner
+
+
+@app.websocket("/miner/{miner_ip}/ws")
+async def miner_websocket(websocket: WebSocket, miner_ip):
+    await websocket.accept()
+    try:
+        while True:
+            # print(miner_ip)
+            await asyncio.sleep(.1)
+            data = {"hashrate": 1.11, "datetime": datetime.datetime.now().isoformat()}
+            await websocket.send_json(data)
+
+    except WebSocketDisconnect:
+        print("Websocket disconnected.")
+        pass
+
 
 
 @app.get("/miner/{miner_ip}")

@@ -1,4 +1,62 @@
 {% extends 'navbar.html'%}
 {% block content %}
-{{miner}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
+<h2 class="mt-2 ms-4">{{miner}}</h2>
+<canvas id="line-chart" width="600" height="360" class="mt-3"></canvas>
+
+<script>
+var ws = new WebSocket("ws://localhost:80/miner/{{miner}}/ws");
+let all_data = []
+let all_labels = []
+ws.onmessage = function(event) {
+    var new_data = JSON.parse(event.data)
+    datetime = luxon.DateTime.fromISO(new_data["datetime"]).toLocal();
+    if (minerDataChart.data.labels.length > 49) minerDataChart.data.labels.shift();
+    if (minerDataChart.data.datasets[0].data.length > 49) minerDataChart.data.datasets[0].data.shift();
+    minerDataChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
+    minerDataChart.data.datasets[0].data.push(new_data["hashrate"]);
+    minerDataChart.update();
+};
+
+var ctx = document.getElementById("line-chart").getContext("2d");
+var width = window.innerWidth || document.body.clientWidth;
+var chartGradient = ctx.createLinearGradient(0, 0, width, 0)
+chartGradient.addColorStop(0, '#D0368A');
+chartGradient.addColorStop(1, '#708AD4');
+
+var minerDataChart = new Chart(document.getElementById("line-chart"), {
+  type: 'line',
+  data: {
+    labels: [
+    ],
+    datasets: [{
+          label: "Hashrate",
+          borderColor: chartGradient,
+          pointBorderColor: chartGradient,
+          pointBackgroundColor: chartGradient,
+          pointHoverBackgroundColor: chartGradient,
+          pointHoverBorderColor: chartGradient,
+        data: [
+        ],
+      }
+    ]
+  },
+  options: {
+      plugins: {
+            legend: {
+                display: false
+            }
+      },
+    scales: {
+        x: {
+            ticks: {
+                maxTicksLimit: 8,
+                maxRotation: 0
+            }
+        }
+    }
+  }
+});
+</script>
 {% endblock content %}
