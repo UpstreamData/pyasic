@@ -1,4 +1,5 @@
 import json
+import os
 import asyncio
 import uvicorn
 from fastapi import FastAPI
@@ -17,17 +18,43 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def dashboard(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "cur_miners": get_current_miner_list()
+    })
 
 
 @app.get("/scan")
 def scan(request: Request):
-    return templates.TemplateResponse("scan.html", {"request": request})
+    return templates.TemplateResponse("scan.html", {
+        "request": request,
+        "cur_miners": get_current_miner_list()
+    })
+
+
+@app.get("/miner")
+def miner(request: Request, miner_ip):
+    return get_miner
+
+@app.get("/miner/{miner_ip}")
+def get_miner(request: Request, miner_ip):
+    return miner_ip
+
+def get_current_miner_list():
+    cur_miners = []
+    if os.path.exists(os.path.join(os.getcwd(), "miner_list.txt")):
+        with open(os.path.join(os.getcwd(), "miner_list.txt")) as file:
+            for line in file.readlines():
+                cur_miners.append(line.strip())
+    return cur_miners
 
 
 @app.post("/scan/add_miners")
 async def add_miners_scan(request: Request):
-    print(await request.json())
+    miners = await request.json()
+    with open("miner_list.txt", "a+") as file:
+        for miner in miners["miners"]:
+            file.write(miner + "\n")
     return scan
 
 
@@ -56,6 +83,7 @@ async def websocket_scan(websocket: WebSocket):
 
 
 async def do_websocket_scan(websocket: WebSocket, network_ip: str):
+    cur_miners = get_current_miner_list()
     try:
         if "/" in network_ip:
             network_ip, network_subnet = network_ip.split("/")
@@ -65,7 +93,7 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
         miner_generator = network.scan_network_generator()
         miners = []
         async for miner in miner_generator:
-            if miner:
+            if miner and str(miner) not in cur_miners:
                 miners.append(miner)
 
         get_miner_genenerator = miner_factory.get_miner_generator(miners)
