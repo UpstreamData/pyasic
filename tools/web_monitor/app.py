@@ -43,15 +43,21 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
     await websocket.accept()
     try:
         while True:
-            # print(miner_ip)
-            await asyncio.sleep(.1)
-            data = {"hashrate": 1.11, "datetime": datetime.datetime.now().isoformat()}
+            miner = await miner_factory.get_miner(str(miner_ip))
+            miner_summary = await miner.api.summary()
+            print(miner_summary)
+            if 'MHS av' in miner_summary['SUMMARY'][0].keys():
+                hashrate = format(round(miner_summary['SUMMARY'][0]['MHS av']/1000000, 2), ".2f")
+            elif 'GHS av' in miner_summary['summary'][0]['SUMMARY'][0].keys():
+                hashrate = format(round(miner_summary['SUMMARY'][0]['GHS av']/1000, 2), ".2f")
+            else:
+                hashrate = 0
+            data = {"hashrate": hashrate, "datetime": datetime.datetime.now().isoformat()}
             await websocket.send_json(data)
-
+            await asyncio.sleep(5)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
-
 
 
 @app.get("/miner/{miner_ip}")
