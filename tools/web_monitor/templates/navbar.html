@@ -70,25 +70,15 @@
               Miners
             </a>
             <div class="collapse mt-1" id="miners-collapse" style="">
-              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li>
-                  <a href="#" class="text-white rounded">
-                    <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
-                    192.168.1.1
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="text-white rounded">
-                    <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
-                    192.168.1.2
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="text-white rounded">
-                    <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
-                    192.168.1.3
-                  </a>
-                </li>
+              <ul class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
+                {% for miner in cur_miners %}
+                  <li>
+                    <a href="{{url_for('miner')}}/{{miner}}" class="text-white rounded">
+                      <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
+                      {{miner}}
+                    </a>
+                  </li>
+                {% endfor %}
               </ul>
             </div>
           </li>
