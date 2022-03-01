@@ -49,6 +49,11 @@ var minerDataChart = new Chart(document.getElementById("line-chart"), {
             }
       },
     scales: {
+        y: {
+            min: 0, // minimum value
+            stepSize: 1
+        },
+
         x: {
             ticks: {
                 maxTicksLimit: 8,
