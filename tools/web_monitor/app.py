@@ -36,9 +36,15 @@ def scan(request: Request):
 def miner(request: Request, miner_ip):
     return get_miner
 
+
 @app.get("/miner/{miner_ip}")
 def get_miner(request: Request, miner_ip):
-    return miner_ip
+    return templates.TemplateResponse("miner.html", {
+        "request": request,
+        "cur_miners": get_current_miner_list(),
+        "miner": miner_ip
+    })
+
 
 def get_current_miner_list():
     cur_miners = []
