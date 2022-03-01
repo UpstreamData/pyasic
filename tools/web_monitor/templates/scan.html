@@ -64,12 +64,14 @@
                 document.getElementById("selectAllCheckbox").disabled = false
                 document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
                 document.getElementById("cancelButton").style = "display:none;"
+                enableCheckboxes();
             } else if (event.data == "Cancelled") {
                 document.getElementById("scanButton").innerHTML = "Scan"
                 document.getElementById("scanButton").disabled = false
                 document.getElementById("selectAllCheckbox").disabled = false
                 document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
                 document.getElementById("cancelButton").style = "display:none;"
+                enableCheckboxes();
             } else {
                 var miner_data = JSON.parse(event.data)
                 var miners = document.getElementById('minerTable')
@@ -97,6 +99,7 @@
 
                     miners.append(tr)
                 });
+                disableCheckboxes();
             };
         };
         function scanMiners(event) {
@@ -123,7 +126,7 @@
         };
         function addMiners(event) {
             var checkedBoxes = document.querySelectorAll('input[name=minerCheckboxes]:checked');
-            if !(checkedBoxes.length == 0) {
+            if (checkedBoxes.length != 0) {
                 var minerList = [];
                 for (i = 0; i< checkedBoxes.length; i++) {
                     minerList.push(checkedBoxes[i].defaultValue);
@@ -133,6 +136,19 @@
                     var tr_to_remove = document.getElementById(minerList[i])
                     tr_to_remove.remove()
                 }
+                document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
+            };
+        };
+        function disableCheckboxes() {
+            var checkBoxes = document.querySelectorAll('input[name=minerCheckboxes]');
+            for (i = 0; i< checkBoxes.length; i++) {
+                checkBoxes[i].disabled = true
+            };
+        };
+        function enableCheckboxes() {
+            var checkBoxes = document.querySelectorAll('input[name=minerCheckboxes]');
+            for (i = 0; i< checkBoxes.length; i++) {
+                checkBoxes[i].disabled = false
             };
         };
     </script>
