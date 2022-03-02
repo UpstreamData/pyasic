@@ -47,21 +47,42 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
             try:
                 cur_miner = await asyncio.wait_for(miner_factory.get_miner(str(miner_ip)), 5)
 
-                data = await asyncio.wait_for(cur_miner.api.multicommand("summary", "fans"), 5)
+                data = await asyncio.wait_for(cur_miner.api.multicommand("summary", "fans", "stats"), 5)
 
-                miner_summary = data["summary"][0]
+                miner_summary = None
+                miner_stats = None
                 miner_fans = None
+                if "summary" in data.keys():
+                    miner_summary = data["summary"][0]
+                elif "SUMMARY" in data.keys():
+                    miner_summary = data
+                    miner_fans = {"FANS": []}
+                    for item in ["Fan Speed In", "Fan Speed Out"]:
+                        if item in miner_summary["SUMMARY"][0].keys():
+                            miner_fans["FANS"].append({"RPM": miner_summary["SUMMARY"][0][item]})
+
                 if "fans" in data.keys():
                     miner_fans = data["fans"][0]
 
-                if 'MHS av' in miner_summary['SUMMARY'][0].keys():
-                    hashrate = format(
-                        round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
-                              2), ".2f")
-                elif 'GHS av' in miner_summary['summary'][0]['SUMMARY'][0].keys():
-                    hashrate = format(
-                        round(miner_summary['SUMMARY'][0]['GHS av'] / 1000, 2),
-                        ".2f")
+                if "stats" in data.keys():
+                    miner_stats = data["stats"][0]
+                    miner_fans = {"FANS": []}
+                    for item in ["fan1", "fan2", "fan3", "fan4"]:
+                        if item in miner_stats["STATS"][1].keys():
+                            miner_fans["FANS"].append({"RPM": miner_stats["STATS"][1][item]})
+
+
+                if miner_summary:
+                    if 'MHS av' in miner_summary['SUMMARY'][0].keys():
+                        hashrate = format(
+                            round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
+                                  2), ".2f")
+                    elif 'GHS av' in miner_summary['SUMMARY'][0].keys():
+                        hashrate = format(
+                            round(miner_summary['SUMMARY'][0]['GHS av'] / 1000, 2),
+                            ".2f")
+                    else:
+                        hashrate = 0
                 else:
                     hashrate = 0
 
@@ -70,6 +91,9 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 if miner_fans:
                     for fan in miner_fans["FANS"]:
                         fan_speeds.append(fan["RPM"])
+
+                while len(fan_speeds) < 5:
+                    fan_speeds.append(0)
 
 
                 data = {"hashrate": hashrate,
@@ -81,7 +105,8 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 data = {"error": "The miner is not responding."}
                 await websocket.send_json(data)
                 await asyncio.sleep(.5)
-            except KeyError:
+            except KeyError as e:
+                print(e)
                 data = {"error": "The miner returned incorrect data."}
                 await websocket.send_json(data)
                 await asyncio.sleep(.5)
