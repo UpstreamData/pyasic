@@ -20,13 +20,13 @@
         <canvas id="line-chart" class="grad-border mt-3" width="600" height="360"></canvas>
     </div>
     <div class="col-2 mt-2">
-        <div class="d-flex justify-content-center">Fan 1</div>
+        <div class="d-flex justify-content-center" id="fan1">Fan 1</div>
         <canvas class="mb-2" id="fan-chart-1" width="100" height="100"></canvas>
-        <div class="d-flex justify-content-center">Fan 2</div>
+        <div class="d-flex justify-content-center" id="fan2">Fan 2</div>
         <canvas class="mb-2" id="fan-chart-2" width="100" height="100"></canvas>
-        <div class="d-flex justify-content-center">Fan 3</div>
+        <div class="d-flex justify-content-center" id="fan3">Fan 3</div>
         <canvas class="mb-2" id="fan-chart-3" width="100" height="100"></canvas>
-        <div class="d-flex justify-content-center">Fan 4</div>
+        <div class="d-flex justify-content-center" id="fan4">Fan 4</div>
         <canvas class="mb-2" id="fan-chart-4" width="100" height="100"></canvas>
     </div>
 </div>
@@ -58,6 +58,18 @@ ws.onmessage = function(event) {
         if (minerDataChart.data.datasets[0].data.length > 50) minerDataChart.data.datasets[0].data.shift();
         minerDataChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
         minerDataChart.data.datasets[0].data.push(new_data["hashrate"]);
+        fan1Chart.data.datasets[0].data = [new_data["fans"][0], 6000-new_data["fans"][0]]
+        fan2Chart.data.datasets[0].data = [new_data["fans"][1], 6000-new_data["fans"][1]]
+        fan3Chart.data.datasets[0].data = [new_data["fans"][2], 6000-new_data["fans"][2]]
+        fan4Chart.data.datasets[0].data = [new_data["fans"][3], 6000-new_data["fans"][3]]
+        document.getElementById("fan1").innerHTML = "Fan 1: " + new_data["fans"][0]
+        document.getElementById("fan2").innerHTML = "Fan 2: " + new_data["fans"][1]
+        document.getElementById("fan3").innerHTML = "Fan 3: " + new_data["fans"][2]
+        document.getElementById("fan4").innerHTML = "Fan 4: " + new_data["fans"][3]
+        fan1Chart.update();
+        fan2Chart.update();
+        fan3Chart.update();
+        fan4Chart.update();
         minerDataChart.update();
     };
 };
@@ -144,7 +156,7 @@ var options_fans = {
 
 var fanCtx = document.getElementById("fan-chart-1").getContext("2d");
 var fanWidth = document.getElementById("fan-chart-1").width;
-var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, -(1/2)*fanWidth)
+var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, -fanWidth)
 fanChartGradient.addColorStop(0, '#D0368A');
 fanChartGradient.addColorStop(1, '#708AD4');
 
@@ -155,7 +167,7 @@ var fan1Chart = new Chart(document.getElementById("fan-chart-1"), {
         labels: ["Fan 1"],
         datasets: [
             {
-                data: [100, 100],
+                data: [0, 6000],
                 // add colors
                 backgroundColor: [
                     fanChartGradient,
@@ -172,7 +184,7 @@ var fan2Chart = new Chart(document.getElementById("fan-chart-2"), {
         labels: ["Fan 2"],
         datasets: [
             {
-                data: [300, 100],
+                data: [0, 6000],
                 // add colors
                 backgroundColor: [
                     fanChartGradient,
@@ -189,7 +201,7 @@ var fan3Chart = new Chart(document.getElementById("fan-chart-3"), {
         labels: ["Fan 3"],
         datasets: [
             {
-                data: [200, 100],
+                data: [0, 6000],
                 // add colors
                 backgroundColor: [
                     fanChartGradient,
@@ -206,7 +218,7 @@ var fan4Chart = new Chart(document.getElementById("fan-chart-4"), {
         labels: ["Fan 4"],
         datasets: [
             {
-                data: [500, 100],
+                data: [0, 6000],
                 // add colors
                 backgroundColor: [
                     fanChartGradient,
