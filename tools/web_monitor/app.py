@@ -1,4 +1,5 @@
 import json
+import ipaddress
 import datetime
 import os
 import asyncio
@@ -86,6 +87,7 @@ def get_current_miner_list():
         with open(os.path.join(os.getcwd(), "miner_list.txt")) as file:
             for line in file.readlines():
                 cur_miners.append(line.strip())
+    cur_miners = sorted(cur_miners, key=lambda x: ipaddress.ip_address(x))
     return cur_miners
 
 
