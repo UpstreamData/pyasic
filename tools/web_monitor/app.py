@@ -64,9 +64,11 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
             except asyncio.exceptions.TimeoutError:
                 data = {"error": "The miner is not responding."}
                 await websocket.send_json(data)
+                await asyncio.sleep(.5)
             except KeyError:
                 data = {"error": "The miner returned incorrect data."}
                 await websocket.send_json(data)
+                await asyncio.sleep(.5)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
