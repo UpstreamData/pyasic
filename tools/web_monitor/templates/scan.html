@@ -106,8 +106,8 @@
             var input = document.getElementById("messageText")
             var miners = document.getElementById('minerTable')
             miners.innerHTML = ""
-            document.getElementById("scanStatus").innerHTML = "Scanning..."
-            document.getElementById("scanButton").innerHTML = "Scanning..."
+            document.getElementById("scanStatus").innerHTML = "<span class='spinner-border spinner-border-sm'></span> Scanning"
+            document.getElementById("scanButton").innerHTML = "<span class='spinner-border spinner-border-sm'></span> Scanning"
             document.getElementById("scanButton").disabled = true
             document.getElementById("selectAllCheckbox").disabled = true
             document.getElementById("cancelButton").style = ""
