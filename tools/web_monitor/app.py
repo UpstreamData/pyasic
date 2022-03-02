@@ -46,7 +46,14 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
         while True:
             try:
                 cur_miner = await asyncio.wait_for(miner_factory.get_miner(str(miner_ip)), 5)
-                miner_summary = await asyncio.wait_for(cur_miner.api.summary(), 5)
+
+                data = await asyncio.wait_for(cur_miner.api.multicommand("summary", "fans"), 5)
+
+                miner_summary = data["summary"][0]
+                miner_fans = None
+                if "fans" in data.keys():
+                    miner_fans = data["fans"][0]
+
                 if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                     hashrate = format(
                         round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
@@ -57,7 +64,16 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         ".2f")
                 else:
                     hashrate = 0
+
+                fan_speeds = []
+
+                if miner_fans:
+                    for fan in miner_fans["FANS"]:
+                        fan_speeds.append(fan["RPM"])
+
+
                 data = {"hashrate": hashrate,
+                        "fans": fan_speeds,
                         "datetime": datetime.datetime.now().isoformat()}
                 await websocket.send_json(data)
                 await asyncio.sleep(5)
