@@ -142,16 +142,23 @@ var options_fans = {
     }
 };
 
+var fanCtx = document.getElementById("fan-chart-1").getContext("2d");
+var fanWidth = document.getElementById("fan-chart-1").width*(3/4);
+var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, 0)
+fanChartGradient.addColorStop(0, '#D0368A');
+fanChartGradient.addColorStop(1, '#708AD4');
+
+
 var fan1Chart = new Chart(document.getElementById("fan-chart-1"), {
     type: "doughnut",
     data: {
         labels: ["Fan 1"],
         datasets: [
             {
-                data: [100, 200],
+                data: [100, 100],
                 // add colors
                 backgroundColor: [
-                    "rgba(103, 0, 221, 1)",
+                    fanChartGradient,
                     "rgba(199, 199, 199, 1)"
                 ]
             },
@@ -165,10 +172,10 @@ var fan2Chart = new Chart(document.getElementById("fan-chart-2"), {
         labels: ["Fan 2"],
         datasets: [
             {
-                data: [100, 200],
+                data: [300, 100],
                 // add colors
                 backgroundColor: [
-                    "rgba(103, 0, 221, 1)",
+                    fanChartGradient,
                     "rgba(199, 199, 199, 1)"
                 ]
             },
@@ -182,10 +189,10 @@ var fan3Chart = new Chart(document.getElementById("fan-chart-3"), {
         labels: ["Fan 3"],
         datasets: [
             {
-                data: [100, 200],
+                data: [200, 100],
                 // add colors
                 backgroundColor: [
-                    "rgba(103, 0, 221, 1)",
+                    fanChartGradient,
                     "rgba(199, 199, 199, 1)"
                 ]
             },
@@ -199,10 +206,10 @@ var fan4Chart = new Chart(document.getElementById("fan-chart-4"), {
         labels: ["Fan 4"],
         datasets: [
             {
-                data: [100, 200],
+                data: [500, 100],
                 // add colors
                 backgroundColor: [
-                    "rgba(103, 0, 221, 1)",
+                    fanChartGradient,
                     "rgba(199, 199, 199, 1)"
                 ]
             },
