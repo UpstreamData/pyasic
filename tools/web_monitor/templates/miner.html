@@ -143,8 +143,8 @@ var options_fans = {
 };
 
 var fanCtx = document.getElementById("fan-chart-1").getContext("2d");
-var fanWidth = document.getElementById("fan-chart-1").width*(3/4);
-var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, 0)
+var fanWidth = document.getElementById("fan-chart-1").width;
+var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, -(1/2)*fanWidth)
 fanChartGradient.addColorStop(0, '#D0368A');
 fanChartGradient.addColorStop(1, '#708AD4');
 
