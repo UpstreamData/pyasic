@@ -45,8 +45,8 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
     try:
         while True:
             try:
-                miner = await asyncio.wait_for(miner_factory.get_miner(str(miner_ip)), 5)
-                miner_summary = await asyncio.wait_for(miner.api.summary(), 5)
+                cur_miner = await asyncio.wait_for(miner_factory.get_miner(str(miner_ip)), 5)
+                miner_summary = await asyncio.wait_for(cur_miner.api.summary(), 5)
                 if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                     hashrate = format(
                         round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
