@@ -135,6 +135,8 @@
                 for (i = 0; i< minerList.length; i++) {
                     var tr_to_remove = document.getElementById(minerList[i])
                     tr_to_remove.remove()
+                    var navbar_miners = document.getElementById("navMiners")
+                    navbar_miners.innerHTML += '<li><a href="/miner/' + minerList[i] + '" class="nav-link text-white"><svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>' + minerList[i] + '</a></li>'
                 }
                 document.getElementById("scanStatus").innerHTML = document.getElementById('minerTable').rows.length + " Miners"
             };

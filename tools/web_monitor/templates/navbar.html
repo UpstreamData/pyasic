@@ -62,7 +62,7 @@
               Miners
             </a>
             <div class="collapse mt-1" id="miners-collapse" style="">
-              <ul class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
+              <ul id="navMiners" class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
                   <li>
                   <a href="{{url_for('scan')}}" class="nav-link {% if request.path == '/scan' %}active{% else %}text-white{% endif %}">
                     <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#scan"></use></svg>
