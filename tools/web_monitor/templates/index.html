@@ -1,4 +1,48 @@
 {% extends 'navbar.html'%}
 {% block content %}
-<p>Hi</p>
+<div id="data"></div>
+
+<div class="col" id="errors">
+
+
+
+
+</div>
+
+
+<script>
+var ws = new WebSocket("ws://localhost:80/dashboard/ws");
+let all_data = []
+let all_labels = []
+ws.onmessage = function(event) {
+    var new_data = JSON.parse(event.data)
+    if (new_data.hasOwnProperty("error")) {
+        var err_container = document.getElementById("errorContainer")
+        var err_code = document.getElementById("errorCode")
+        err_code.innerHTML = new_data['error']
+        err_container.classList.remove("invisible")
+    } else {
+        div = document.getElementById("data")
+        errors = document.getElementById("errors")
+        div.innerHTML = ""
+        for (i = 0; i< new_data["miners"].length; i++) {
+            if (new_data["miners"][i].hasOwnProperty("error")) {
+                if (!document.getElementById(new_data["miners"][i]["ip"] + "_error")) {
+                    errors.innerHTML += "<div id='" + new_data["miners"][i]["ip"] + "_error" +
+                    "' class='d-flex align-items-center p-1 alert alert-danger'><strong class='p-0 m-0'>" +
+                    new_data["miners"][i]["ip"] + ": " +
+                    new_data["miners"][i]["error"] +
+                    "</strong><div class='spinner-border spinner-border-sm ms-auto'></div></div>"
+                }
+            } else {
+                if (document.getElementById(new_data["miners"][i]["ip"] + "_error")) {
+                    document.getElementById(new_data["miners"][i]["ip"] + "_error").remove()
+                }
+                div.innerHTML += new_data["miners"][i]["ip"] + ": " + new_data["miners"][i]["hashrate"] + "\n"
+            }
+        }
+
+    };
+};
+</script>
 {% endblock content %}
