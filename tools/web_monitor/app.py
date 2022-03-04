@@ -154,7 +154,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         "fans": fan_speeds,
                         "datetime": datetime.datetime.now().isoformat()}
                 await websocket.send_json(data)
-                await asyncio.sleep(5)
+                await asyncio.sleep(1)
             except asyncio.exceptions.TimeoutError:
                 data = {"error": "The miner is not responding."}
                 await websocket.send_json(data)

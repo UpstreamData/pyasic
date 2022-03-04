@@ -134,7 +134,7 @@ var minerDataChart = new Chart(document.getElementById("line-chart"), {
   options: {
       animation: {
         easing: 'easeInSine',
-        duration: 250
+        duration: 0
       },
       plugins: {
         chartAreaBorder: {
@@ -177,7 +177,8 @@ var minerDataChart = new Chart(document.getElementById("line-chart"), {
 
 var options_fans = {
     animation: {
-        duration: 0,
+        easing: 'easeInSine',
+        duration: 250,
     },
     aspectRatio: 1.5,
     events: [],
