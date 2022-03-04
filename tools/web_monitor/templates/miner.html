@@ -52,6 +52,15 @@
     </div>
 </div>
 
+
+<div class="d-flex align-items-center mt-4 ms-4 alert alert-secondary">
+    <div class="mx-auto">Model:</div>
+    <div class="mx-auto fw-bolder" id="minerModel">?</div>
+    <div class="mx-auto" style="border-left: 1px solid grey; height: 50px;"></div>
+    <div class="mx-auto">Hashrate:</div>
+    <div class="mx-auto fw-bolder" id="minerHashrate">?</div>
+</div>
+
 <div id="errorContainer" class="d-flex align-items-center mt-4 ms-4 alert alert-danger invisible">
     <strong id="errorCode"></strong>
   <div class="spinner-border ms-auto"></div>
@@ -68,6 +77,8 @@ ws.onmessage = function(event) {
         var err_code = document.getElementById("errorCode")
         err_code.innerHTML = new_data['error']
         err_container.classList.remove("invisible")
+        var miner_hr = document.getElementById("minerHashrate")
+        miner_hr.innerHTML = "?"
     } else {
         var chart = document.getElementById("line-chart")
         var err_container = document.getElementById("errorContainer")
@@ -92,6 +103,10 @@ ws.onmessage = function(event) {
         fan3Chart.update();
         fan4Chart.update();
         minerDataChart.update();
+        var miner_hr = document.getElementById("minerHashrate")
+        miner_hr.innerHTML = new_data["hashrate"] + " TH/s"
+        var miner_model = document.getElementById("minerModel")
+        miner_model.innerHTML = new_data["model"]
     };
 };
 
