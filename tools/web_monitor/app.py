@@ -44,14 +44,13 @@ async def dashboard_websocket(websocket: WebSocket):
                 data_point = await all_data
                 all_miner_data.append(data_point)
             all_miner_data.sort(key=lambda x: x["ip"])
-            try:
-                await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
-                                           "miners": all_miner_data})
-            except websockets.exceptions.ConnectionClosedOK:
-                print("disconnected")
+            await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
+                                       "miners": all_miner_data})
             await asyncio.sleep(5)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
+        pass
+    except websockets.exceptions.ConnectionClosedOK:
         pass
 
 
@@ -167,7 +166,9 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 await asyncio.sleep(.5)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
+    except websockets.exceptions.ConnectionClosedOK:
         pass
+
 
 
 @app.get("/miner/{miner_ip}")
@@ -219,6 +220,7 @@ async def websocket_scan(websocket: WebSocket):
                 cur_task = None
     except WebSocketDisconnect:
         print("Websocket disconnected.")
+    except websockets.exceptions.ConnectionClosedOK:
         pass
 
 
