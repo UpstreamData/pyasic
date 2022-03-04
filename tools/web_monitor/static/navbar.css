@@ -151,6 +151,7 @@ main {
 }
 
 .nav-pills .nav-link.active {
+  color: #212529;
   background-image: linear-gradient(180deg, #D0368A 0%, #708AD4 99%);
 }
 
