@@ -4,6 +4,7 @@ import datetime
 import os
 import asyncio
 import uvicorn
+import websockets.exceptions
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import WebSocket, WebSocketDisconnect
@@ -19,11 +20,67 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
+def index():
+    return dashboard()
+
+
+@app.get("/dashboard")
 def dashboard(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
         "cur_miners": get_current_miner_list()
     })
+
+
+@app.websocket("/dashboard/ws")
+async def dashboard_websocket(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            miners = get_current_miner_list()
+            all_miner_data = []
+            data_gen = asyncio.as_completed([get_miner_data_dashboard(miner) for miner in miners])
+            for all_data in data_gen:
+                data_point = await all_data
+                all_miner_data.append(data_point)
+            all_miner_data.sort(key=lambda x: x["ip"])
+            try:
+                await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
+                                           "miners": all_miner_data})
+            except websockets.exceptions.ConnectionClosedOK:
+                print("disconnected")
+            await asyncio.sleep(5)
+    except WebSocketDisconnect:
+        print("Websocket disconnected.")
+        pass
+
+
+async def get_miner_data_dashboard(miner_ip):
+    try:
+        miner = await asyncio.wait_for(miner_factory.get_miner(miner_ip), 5)
+
+        miner_summary = await asyncio.wait_for(miner.api.summary(), 5)
+        if miner_summary:
+            if 'MHS av' in miner_summary['SUMMARY'][0].keys():
+                hashrate = format(
+                    round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
+                          2), ".2f")
+            elif 'GHS av' in miner_summary['SUMMARY'][0].keys():
+                hashrate = format(
+                    round(miner_summary['SUMMARY'][0]['GHS av'] / 1000, 2),
+                    ".2f")
+            else:
+                hashrate = 0
+        else:
+            hashrate = 0
+
+        return {"ip": str(miner.ip), "hashrate": hashrate}
+
+    except asyncio.exceptions.TimeoutError:
+        return {"ip": miner_ip, "error": "The miner is not responding."}
+
+    except KeyError:
+        return {"ip": miner_ip, "error": "The miner returned unusable/unsupported data."}
 
 
 @app.get("/scan")
@@ -35,7 +92,7 @@ def scan(request: Request):
 
 
 @app.get("/miner")
-def miner(request: Request, miner_ip):
+def miner(_request: Request, _miner_ip):
     return get_miner
 
 
@@ -71,7 +128,6 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         if item in miner_stats["STATS"][1].keys():
                             miner_fans["FANS"].append({"RPM": miner_stats["STATS"][1][item]})
 
-
                 if miner_summary:
                     if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                         hashrate = format(
@@ -95,7 +151,6 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 while len(fan_speeds) < 5:
                     fan_speeds.append(0)
 
-
                 data = {"hashrate": hashrate,
                         "fans": fan_speeds,
                         "datetime": datetime.datetime.now().isoformat()}
@@ -107,7 +162,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 await asyncio.sleep(.5)
             except KeyError as e:
                 print(e)
-                data = {"error": "The miner returned incorrect data."}
+                data = {"error": "The miner returned unusable/unsupported data."}
                 await websocket.send_json(data)
                 await asyncio.sleep(.5)
     except WebSocketDisconnect:
