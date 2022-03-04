@@ -5,8 +5,8 @@ import os
 import asyncio
 import uvicorn
 import websockets.exceptions
-from fastapi import FastAPI
-from fastapi import Request
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -46,7 +46,7 @@ async def dashboard_websocket(websocket: WebSocket):
             all_miner_data.sort(key=lambda x: x["ip"])
             await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
                                        "miners": all_miner_data})
-            await asyncio.sleep(.1)
+            await asyncio.sleep(1)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
@@ -178,6 +178,18 @@ def get_miner(request: Request, miner_ip):
         "cur_miners": get_current_miner_list(),
         "miner": miner_ip
     })
+
+
+@app.get("/miner/{miner_ip}/remove")
+def get_miner(request: Request, miner_ip):
+    miners = get_current_miner_list()
+    miners.remove(miner_ip)
+    with open("miner_list.txt", "w") as file:
+        for miner in miners:
+            file.write(miner + "\n")
+
+    return RedirectResponse(request.url_for('dashboard'))
+
 
 
 def get_current_miner_list():

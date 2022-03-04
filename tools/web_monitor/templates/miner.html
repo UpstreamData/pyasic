@@ -8,7 +8,28 @@
     </div>
     <div class="col">
         <div class="d-flex flex-row-reverse">
-        <a class="btn btn-outline-danger mx-1" href="#" role="button">Remove</a>
+        <button type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#removeModal">
+          Remove Miner
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="removeModalLabel">Remove Miner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Do you really want to remove this miner?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" href="{{url_for('miner')}}/{{miner}}/remove" role="button">Remove</a>
+              </div>
+            </div>
+          </div>
+        </div>
         <a class="btn btn-primary mx-1" target="_blank" href="http://{{miner}}" role="button">Web Interface</a>
         </div>
     </div>
