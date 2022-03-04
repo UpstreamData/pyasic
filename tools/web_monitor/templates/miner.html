@@ -121,14 +121,28 @@ var minerDataChart = new Chart(document.getElementById("line-chart"), {
           borderWidth: 1
         },
         legend: {
-            display: false
+            labels: {
+                color: chartGradient
+            }
+        },
+        tooltip: {
+            callbacks: {
+                label: function(data) {
+                    return data.dataset.data[data.dataIndex] + " TH/s";
+                }
+            }
         }
       },
     scales: {
         y: {
             min: 0, // minimum value
             suggestedMax: 10,
-            stepSize: 1
+            stepSize: 1,
+            ticks: {
+                callback: function(value, index, ticks) {
+                    return value + " TH/s";
+                }
+            }
         },
         x: {
             ticks: {

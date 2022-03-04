@@ -46,7 +46,7 @@ async def dashboard_websocket(websocket: WebSocket):
             all_miner_data.sort(key=lambda x: x["ip"])
             await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
                                        "miners": all_miner_data})
-            await asyncio.sleep(5)
+            await asyncio.sleep(.1)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
