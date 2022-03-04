@@ -20,8 +20,8 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
-def index():
-    return dashboard()
+def index(request: Request):
+    return RedirectResponse(request.url_for('dashboard'))
 
 
 @app.get("/dashboard")
