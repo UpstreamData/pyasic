@@ -27,7 +27,6 @@ ws.onmessage = function(event) {
                 document.getElementById(new_data["miners"][i]["ip"] + "_error").remove()
             }
             total_hashrate += parseFloat(new_data["miners"][i]["hashrate"])
-            console.log(total_hashrate)
         }
     };
     var chart = document.getElementById("line-chart")
@@ -85,17 +84,34 @@ var minerDataChart = new Chart(document.getElementById("line-chart"), {
           borderColor: chartGradient,
           borderWidth: 1
         },
+        legend: {
+            labels: {
+                color: chartGradient
+            }
+        },
+        tooltip: {
+            callbacks: {
+                label: function(data) {
+                    return data.dataset.data[data.dataIndex] + " TH/s";
+                }
+            }
+        }
       },
     scales: {
         y: {
             min: 0, // minimum value
             suggestedMax: 100,
-            stepSize: 10
+            stepSize: 10,
+            ticks: {
+                callback: function(value, index, ticks) {
+                    return value + " TH/s";
+                }
+            }
         },
         x: {
             ticks: {
                 maxTicksLimit: 6,
-                maxRotation: 0
+                maxRotation: 0,
             }
         }
     }
