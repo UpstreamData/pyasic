@@ -51,27 +51,27 @@
       <div class="position-sticky pt-3">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item mb-1 mx-2">
-            <a href="{{url_for('dashboard')}}" class="nav-link text-white {% if request.path == '/' %}active{% endif %}">
+            <a href="{{url_for('dashboard')}}" class="nav-link {% if request.path == '/dashboard' %}active{% else %}text-white{% endif %}">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#dashboard"></use></svg>
               Dashboard
             </a>
           </li>
           <li class="nav-item mb-1 mx-2">
-            <a href="" class="nav-link text-white {% if request.path == '/scan' or request.path.split('/')[1] == 'miner' %}active{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
+            <a href="" class="nav-link {% if request.path == '/scan' or request.path.split('/')[1] == 'miner' %}active{% else %}text-white{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#miners"></use></svg>
               Miners
             </a>
             <div class="collapse mt-1" id="miners-collapse" style="">
               <ul class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
                   <li>
-                  <a href="{{url_for('scan')}}" class="nav-link text-white {% if request.path == '/scan' %}active{% endif %}">
+                  <a href="{{url_for('scan')}}" class="nav-link {% if request.path == '/scan' %}active{% else %}text-white{% endif %}">
                     <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#scan"></use></svg>
                     Add Miners
                   </a>
                 </li>
                 {% for miner in cur_miners %}
                   <li>
-                    <a href="{{url_for('miner')}}/{{miner}}" class="text-white nav-link {% if request.path == '/miner/' + miner %}active{% endif %}">
+                    <a href="{{url_for('miner')}}/{{miner}}" class="nav-link {% if request.path == '/miner/' + miner %}active{% else %}text-white{% endif %}">
                       <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
                       {{miner}}
                     </a>
