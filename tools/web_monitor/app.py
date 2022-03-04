@@ -105,6 +105,8 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
 
                 data = await asyncio.wait_for(cur_miner.api.multicommand("summary", "fans", "stats"), 5)
 
+                miner_model = await cur_miner.get_model()
+
                 miner_summary = None
                 miner_stats = None
                 miner_fans = None
@@ -152,7 +154,8 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
 
                 data = {"hashrate": hashrate,
                         "fans": fan_speeds,
-                        "datetime": datetime.datetime.now().isoformat()}
+                        "datetime": datetime.datetime.now().isoformat(),
+                        "model": miner_model}
                 await websocket.send_json(data)
                 await asyncio.sleep(1)
             except asyncio.exceptions.TimeoutError:
