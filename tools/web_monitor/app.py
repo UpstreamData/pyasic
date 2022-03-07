@@ -322,4 +322,4 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=80)
+    uvicorn.run("app:app", host="127.0.0.1", port=11115)
