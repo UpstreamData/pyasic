@@ -363,7 +363,7 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     if miner_data:
         # get all data from summary
         if "summary" in miner_data.keys():
-            if not miner_data["summary"][0].get("SUMMARY") == []:
+            if not miner_data["summary"][0].get("SUMMARY") == [] and "SUMMARY" in miner_data["summary"][0].keys():
                 # temperature data, this is the idea spot to get this
                 if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
                     if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
