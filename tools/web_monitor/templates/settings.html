@@ -1,0 +1,46 @@
+{% extends 'navbar.html'%}
+{% block content %}
+<div class="row my-2">
+    <div class="col">
+        <div class="d-flex flex-row-reverse">
+        <button type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#removeModal">
+          Remove All Miners
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="removeModalLabel">Remove Miner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Do you really want to remove all miners?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" href="{{url_for('remove_all_miners')}}" role="button">Remove</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+    </div>
+</div>
+    <form method="post" action="/settings/update">
+    <div class="input-group mb-3">
+      <span class="input-group-text">Graph Data Sleep Time</span>
+      <input type="number" class="form-control" value="{{settings['graph_data_sleep_time']}}" name="graph_data_sleep_time" id="graph_data_sleep_time">
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Miner Data Timeout</span>
+      <input type="number" class="form-control" value="{{settings['miner_data_timeout']}}" name="miner_data_timeout" id="miner_data_timeout">
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Miner Identification Timeout</span>
+      <input type="number" class="form-control" value="{{settings['miner_identify_timeout']}}" name="miner_identify_timeout" id=" ">
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Submit</button>
+</form>
+{% endblock content %}
