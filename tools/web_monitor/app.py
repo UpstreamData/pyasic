@@ -1,17 +1,18 @@
-import json
-import ipaddress
-import datetime
-import os
 import asyncio
+import datetime
+import ipaddress
+import os
+
 import uvicorn
 import websockets.exceptions
 from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
 from fastapi import WebSocket, WebSocketDisconnect
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from tools.web_monitor.miner_factory import miner_factory
+from fastapi.templating import Jinja2Templates
+
 from network import MinerNetwork
+from tools.web_monitor.miner_factory import miner_factory
 
 app = FastAPI()
 
@@ -39,13 +40,15 @@ async def dashboard_websocket(websocket: WebSocket):
         while True:
             miners = get_current_miner_list()
             all_miner_data = []
-            data_gen = asyncio.as_completed([get_miner_data_dashboard(miner) for miner in miners])
+            data_gen = asyncio.as_completed(
+                [get_miner_data_dashboard(miner_ip) for miner_ip in miners])
             for all_data in data_gen:
                 data_point = await all_data
                 all_miner_data.append(data_point)
             all_miner_data.sort(key=lambda x: x["ip"])
-            await websocket.send_json({"datetime": datetime.datetime.now().isoformat(),
-                                       "miners": all_miner_data})
+            await websocket.send_json(
+                {"datetime": datetime.datetime.now().isoformat(),
+                 "miners": all_miner_data})
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
@@ -56,9 +59,9 @@ async def dashboard_websocket(websocket: WebSocket):
 
 async def get_miner_data_dashboard(miner_ip):
     try:
-        miner = await asyncio.wait_for(miner_factory.get_miner(miner_ip), 5)
+        miner_ip = await asyncio.wait_for(miner_factory.get_miner(miner_ip), 5)
 
-        miner_summary = await asyncio.wait_for(miner.api.summary(), 5)
+        miner_summary = await asyncio.wait_for(miner_ip.api.summary(), 5)
         if miner_summary:
             if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                 hashrate = format(
@@ -73,13 +76,14 @@ async def get_miner_data_dashboard(miner_ip):
         else:
             hashrate = 0
 
-        return {"ip": str(miner.ip), "hashrate": hashrate}
+        return {"ip": str(miner_ip.ip), "hashrate": hashrate}
 
     except asyncio.exceptions.TimeoutError:
-        return {"ip": miner_ip, "error": "The miner is not responding."}
+        return {"ip": miner_ip, "error": "The miner_ip is not responding."}
 
     except KeyError:
-        return {"ip": miner_ip, "error": "The miner returned unusable/unsupported data."}
+        return {"ip": miner_ip,
+                "error": "The miner_ip returned unusable/unsupported data."}
 
 
 @app.get("/scan")
@@ -101,14 +105,15 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
     try:
         while True:
             try:
-                cur_miner = await asyncio.wait_for(miner_factory.get_miner(str(miner_ip)), 5)
+                cur_miner = await asyncio.wait_for(
+                    miner_factory.get_miner(str(miner_ip)), 5)
 
-                data = await asyncio.wait_for(cur_miner.api.multicommand("summary", "fans", "stats"), 5)
+                data = await asyncio.wait_for(
+                    cur_miner.api.multicommand("summary", "fans", "stats"), 5)
 
                 miner_model = await cur_miner.get_model()
 
                 miner_summary = None
-                miner_stats = None
                 miner_fans = None
                 if "summary" in data.keys():
                     miner_summary = data["summary"][0]
@@ -117,7 +122,8 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                     miner_fans = {"FANS": []}
                     for item in ["Fan Speed In", "Fan Speed Out"]:
                         if item in miner_summary["SUMMARY"][0].keys():
-                            miner_fans["FANS"].append({"RPM": miner_summary["SUMMARY"][0][item]})
+                            miner_fans["FANS"].append(
+                                {"RPM": miner_summary["SUMMARY"][0][item]})
 
                 if "fans" in data.keys():
                     miner_fans = data["fans"][0]
@@ -127,16 +133,19 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                     miner_fans = {"FANS": []}
                     for item in ["fan1", "fan2", "fan3", "fan4"]:
                         if item in miner_stats["STATS"][1].keys():
-                            miner_fans["FANS"].append({"RPM": miner_stats["STATS"][1][item]})
+                            miner_fans["FANS"].append(
+                                {"RPM": miner_stats["STATS"][1][item]})
 
                 if miner_summary:
                     if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                         hashrate = format(
-                            round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
-                                  2), ".2f")
+                            round(
+                                miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
+                                2), ".2f")
                     elif 'GHS av' in miner_summary['SUMMARY'][0].keys():
                         hashrate = format(
-                            round(miner_summary['SUMMARY'][0]['GHS av'] / 1000, 2),
+                            round(miner_summary['SUMMARY'][0]['GHS av'] / 1000,
+                                  2),
                             ".2f")
                     else:
                         hashrate = 0
@@ -164,14 +173,14 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 await asyncio.sleep(.5)
             except KeyError as e:
                 print(e)
-                data = {"error": "The miner returned unusable/unsupported data."}
+                data = {
+                    "error": "The miner returned unusable/unsupported data."}
                 await websocket.send_json(data)
                 await asyncio.sleep(.5)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
     except websockets.exceptions.ConnectionClosedOK:
         pass
-
 
 
 @app.get("/miner/{miner_ip}")
@@ -183,16 +192,15 @@ def get_miner(request: Request, miner_ip):
     })
 
 
-@app.get("/miner/{miner_ip}/remove")
+@app.get("/miner_ip/{miner_ip}/remove")
 def get_miner(request: Request, miner_ip):
     miners = get_current_miner_list()
     miners.remove(miner_ip)
     with open("miner_list.txt", "w") as file:
-        for miner in miners:
-            file.write(miner + "\n")
+        for miner_ip in miners:
+            file.write(miner_ip + "\n")
 
     return RedirectResponse(request.url_for('dashboard'))
-
 
 
 def get_current_miner_list():
@@ -209,8 +217,8 @@ def get_current_miner_list():
 async def add_miners_scan(request: Request):
     miners = await request.json()
     with open("miner_list.txt", "a+") as file:
-        for miner in miners["miners"]:
-            file.write(miner + "\n")
+        for miner_ip in miners["miners"]:
+            file.write(miner_ip + "\n")
     return scan
 
 
@@ -230,7 +238,8 @@ async def websocket_scan(websocket: WebSocket):
                         cur_task = None
                 await websocket.send_text("Cancelled")
             else:
-                cur_task = asyncio.create_task(do_websocket_scan(websocket, ws_data))
+                cur_task = asyncio.create_task(
+                    do_websocket_scan(websocket, ws_data))
             if cur_task and cur_task.done():
                 cur_task = None
     except WebSocketDisconnect:
@@ -249,9 +258,9 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
             network = MinerNetwork(network_ip)
         miner_generator = network.scan_network_generator()
         miners = []
-        async for miner in miner_generator:
-            if miner and str(miner) not in cur_miners:
-                miners.append(miner)
+        async for miner_ip in miner_generator:
+            if miner_ip and str(miner_ip) not in cur_miners:
+                miners.append(miner_ip)
 
         get_miner_genenerator = miner_factory.get_miner_generator(miners)
         all_miners = []
@@ -260,13 +269,14 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
                 {"ip": found_miner.ip, "model": await found_miner.get_model()})
             all_miners.sort(key=lambda x: x["ip"])
             send_miners = []
-            for miner in all_miners:
+            for miner_ip in all_miners:
                 send_miners.append(
-                    {"ip": str(miner["ip"]), "model": miner["model"]})
+                    {"ip": str(miner_ip["ip"]), "model": miner_ip["model"]})
             await websocket.send_json(send_miners)
         await websocket.send_text("Done")
     except asyncio.CancelledError:
         raise
+
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=80)
