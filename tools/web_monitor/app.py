@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 
 from network import MinerNetwork
 from tools.web_monitor.miner_factory import miner_factory
+from tools.web_monitor.web_settings import MINER_DATA_TIMEOUT, MINER_IDENTIFY_TIMEOUT, GRAPH_SLEEP_TIME
 
 app = FastAPI()
 
@@ -49,7 +50,7 @@ async def dashboard_websocket(websocket: WebSocket):
             await websocket.send_json(
                 {"datetime": datetime.datetime.now().isoformat(),
                  "miners": all_miner_data})
-            await asyncio.sleep(1)
+            await asyncio.sleep(GRAPH_SLEEP_TIME)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
@@ -59,9 +60,9 @@ async def dashboard_websocket(websocket: WebSocket):
 
 async def get_miner_data_dashboard(miner_ip):
     try:
-        miner_ip = await asyncio.wait_for(miner_factory.get_miner(miner_ip), 5)
+        miner_ip = await asyncio.wait_for(miner_factory.get_miner(miner_ip), MINER_IDENTIFY_TIMEOUT)
 
-        miner_summary = await asyncio.wait_for(miner_ip.api.summary(), 5)
+        miner_summary = await asyncio.wait_for(miner_ip.api.summary(), MINER_DATA_TIMEOUT)
         if miner_summary:
             if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                 hashrate = format(
@@ -106,10 +107,10 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
         while True:
             try:
                 cur_miner = await asyncio.wait_for(
-                    miner_factory.get_miner(str(miner_ip)), 5)
+                    miner_factory.get_miner(str(miner_ip)), MINER_IDENTIFY_TIMEOUT)
 
                 data = await asyncio.wait_for(
-                    cur_miner.api.multicommand("summary", "fans", "stats"), 5)
+                    cur_miner.api.multicommand("summary", "fans", "stats"), MINER_DATA_TIMEOUT)
 
                 miner_model = await cur_miner.get_model()
 
@@ -166,7 +167,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         "datetime": datetime.datetime.now().isoformat(),
                         "model": miner_model}
                 await websocket.send_json(data)
-                await asyncio.sleep(1)
+                await asyncio.sleep(GRAPH_SLEEP_TIME)
             except asyncio.exceptions.TimeoutError:
                 data = {"error": "The miner is not responding."}
                 await websocket.send_json(data)
@@ -211,6 +212,20 @@ def get_current_miner_list():
                 cur_miners.append(line.strip())
     cur_miners = sorted(cur_miners, key=lambda x: ipaddress.ip_address(x))
     return cur_miners
+
+
+@app.get("/settings")
+async def settings(request: Request):
+    return templates.TemplateResponse("settings.html", {
+        "request": request,
+        "cur_miners": get_current_miner_list(),
+    })
+
+@app.get("/remove_all_miners")
+async def remove_all_miners(request: Request):
+    file = open("miner_list.txt", "w")
+    file.close()
+    return RedirectResponse(request.url_for("settings"))
 
 
 @app.post("/scan/add_miners")
