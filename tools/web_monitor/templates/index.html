@@ -38,7 +38,7 @@ ws.onmessage = function(event) {
         if (minerDataChart.data.labels.length > 50) minerDataChart.data.labels.shift();
         if (minerDataChart.data.datasets[0].data.length > 50) minerDataChart.data.datasets[0].data.shift();
         minerDataChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
-        minerDataChart.data.datasets[0].data.push(total_hashrate);
+        minerDataChart.data.datasets[0].data.push(total_hashrate.toFixed(2));
         minerDataChart.update();
     }
 };
