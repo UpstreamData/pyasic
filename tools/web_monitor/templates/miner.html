@@ -1,0 +1,285 @@
+{% extends 'navbar.html'%}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
+<div class="row mt-2">
+    <div class="col">
+        <h2 class="ms-4">{{miner}}</h2>
+    </div>
+    <div class="col">
+        <div class="d-flex flex-row-reverse">
+        <button type="button" class="btn btn-outline-danger mx-1" data-bs-toggle="modal" data-bs-target="#removeModal">
+          Remove Miner
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="removeModalLabel">Remove Miner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Do you really want to remove this miner?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger" href="{{url_for('miner')}}/{{miner}}/remove" role="button">Remove</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="btn btn-primary mx-1" target="_blank" href="http://{{miner}}" role="button">Web Interface</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-10">
+        <canvas id="line-chart" class="grad-border mt-3" width="600" height="360"></canvas>
+    </div>
+    <div class="col-2 mt-2">
+        <div class="d-flex justify-content-center" id="fan1">Fan 1</div>
+        <canvas class="mb-2" id="fan-chart-1" width="100" height="100"></canvas>
+        <div class="d-flex justify-content-center" id="fan2">Fan 2</div>
+        <canvas class="mb-2" id="fan-chart-2" width="100" height="100"></canvas>
+        <div class="d-flex justify-content-center" id="fan3">Fan 3</div>
+        <canvas class="mb-2" id="fan-chart-3" width="100" height="100"></canvas>
+        <div class="d-flex justify-content-center" id="fan4">Fan 4</div>
+        <canvas class="mb-2" id="fan-chart-4" width="100" height="100"></canvas>
+    </div>
+</div>
+
+
+<div class="d-flex align-items-center mt-4 ms-4 alert alert-secondary">
+    <div class="mx-auto">Model:</div>
+    <div class="mx-auto fw-bolder" id="minerModel">?</div>
+    <div class="mx-auto" style="border-left: 1px solid grey; height: 50px;"></div>
+    <div class="mx-auto">Hashrate:</div>
+    <div class="mx-auto fw-bolder" id="minerHashrate">?</div>
+</div>
+
+<div id="errorContainer" class="d-flex align-items-center mt-4 ms-4 alert alert-danger invisible">
+    <strong id="errorCode"></strong>
+  <div class="spinner-border ms-auto"></div>
+</div>
+
+<script>
+var ws = new WebSocket("ws://localhost:80/miner/{{miner}}/ws");
+let all_data = []
+let all_labels = []
+ws.onmessage = function(event) {
+    var new_data = JSON.parse(event.data)
+    if (new_data.hasOwnProperty("error")) {
+        var err_container = document.getElementById("errorContainer")
+        var err_code = document.getElementById("errorCode")
+        err_code.innerHTML = new_data['error']
+        err_container.classList.remove("invisible")
+        var miner_hr = document.getElementById("minerHashrate")
+        miner_hr.innerHTML = "?"
+    } else {
+        var chart = document.getElementById("line-chart")
+        var err_container = document.getElementById("errorContainer")
+        if (!err_container.classList.hasOwnProperty("invisible")) {
+            err_container.classList.add("invisible")
+        }
+        datetime = luxon.DateTime.fromISO(new_data["datetime"]).toLocal();
+        if (minerDataChart.data.labels.length > 50) minerDataChart.data.labels.shift();
+        if (minerDataChart.data.datasets[0].data.length > 50) minerDataChart.data.datasets[0].data.shift();
+        minerDataChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
+        minerDataChart.data.datasets[0].data.push(new_data["hashrate"].toFixed(2));
+        fan1Chart.data.datasets[0].data = [new_data["fans"][0], 6000-new_data["fans"][0]]
+        fan2Chart.data.datasets[0].data = [new_data["fans"][1], 6000-new_data["fans"][1]]
+        fan3Chart.data.datasets[0].data = [new_data["fans"][2], 6000-new_data["fans"][2]]
+        fan4Chart.data.datasets[0].data = [new_data["fans"][3], 6000-new_data["fans"][3]]
+        document.getElementById("fan1").innerHTML = "Fan 1: " + new_data["fans"][0]
+        document.getElementById("fan2").innerHTML = "Fan 2: " + new_data["fans"][1]
+        document.getElementById("fan3").innerHTML = "Fan 3: " + new_data["fans"][2]
+        document.getElementById("fan4").innerHTML = "Fan 4: " + new_data["fans"][3]
+        fan1Chart.update();
+        fan2Chart.update();
+        fan3Chart.update();
+        fan4Chart.update();
+        minerDataChart.update();
+        var miner_hr = document.getElementById("minerHashrate")
+        miner_hr.innerHTML = new_data["hashrate"].toFixed(2) + " TH/s"
+        var miner_model = document.getElementById("minerModel")
+        miner_model.innerHTML = new_data["model"]
+    };
+};
+
+var ctx = document.getElementById("line-chart").getContext("2d");
+var width = document.getElementById("line-chart").width;
+var chartGradient = ctx.createLinearGradient(0, 0, width, 0)
+chartGradient.addColorStop(0, '#D0368A');
+chartGradient.addColorStop(1, '#708AD4');
+
+const chartAreaBorder = {
+  id: 'chartAreaBorder',
+  beforeDraw(chart, args, options) {
+    const {ctx, chartArea: {left, top, width, height}} = chart;
+    ctx.save();
+    ctx.strokeStyle = options.borderColor;
+    ctx.lineWidth = options.borderWidth;
+    ctx.strokeRect(left, top, width, height);
+    ctx.restore();
+  }
+};
+
+var minerDataChart = new Chart(document.getElementById("line-chart"), {
+  type: 'line',
+  data: {
+    labels: [
+    ],
+    datasets: [{
+          label: "Hashrate",
+          borderColor: chartGradient,
+          pointBorderColor: chartGradient,
+          pointBackgroundColor: chartGradient,
+          pointHoverBackgroundColor: chartGradient,
+          pointHoverBorderColor: chartGradient,
+        data: [
+        ],
+      }
+    ]
+  },
+  plugins: [chartAreaBorder],
+  options: {
+      animation: {
+        easing: 'easeInSine',
+        duration: 0
+      },
+      plugins: {
+        chartAreaBorder: {
+          borderColor: chartGradient,
+          borderWidth: 1
+        },
+        legend: {
+            labels: {
+                color: chartGradient
+            }
+        },
+        tooltip: {
+            callbacks: {
+                label: function(data) {
+                    return data.dataset.data[data.dataIndex] + " TH/s";
+                }
+            }
+        }
+      },
+    scales: {
+        y: {
+            min: 0, // minimum value
+            suggestedMax: 10,
+            stepSize: 1,
+            ticks: {
+                callback: function(value, index, ticks) {
+                    return value + " TH/s";
+                }
+            }
+        },
+        x: {
+            ticks: {
+                maxTicksLimit: 6,
+                maxRotation: 0
+            }
+        }
+    }
+  }
+});
+
+var options_fans = {
+    animation: {
+        easing: 'easeInSine',
+        duration: 250,
+    },
+    aspectRatio: 1.5,
+    events: [],
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+        }
+    }
+};
+
+var fanCtx = document.getElementById("fan-chart-1").getContext("2d");
+var fanWidth = document.getElementById("fan-chart-1").width;
+var fanChartGradient = fanCtx.createLinearGradient(0, 0, fanWidth, -fanWidth)
+fanChartGradient.addColorStop(0, '#D0368A');
+fanChartGradient.addColorStop(1, '#708AD4');
+
+
+var fan1Chart = new Chart(document.getElementById("fan-chart-1"), {
+    type: "doughnut",
+    data: {
+        labels: ["Fan 1"],
+        datasets: [
+            {
+                data: [0, 6000],
+                // add colors
+                backgroundColor: [
+                    fanChartGradient,
+                    "rgba(199, 199, 199, 1)"
+                ]
+            },
+        ]
+    },
+    options: options_fans
+});
+var fan2Chart = new Chart(document.getElementById("fan-chart-2"), {
+    type: "doughnut",
+    data: {
+        labels: ["Fan 2"],
+        datasets: [
+            {
+                data: [0, 6000],
+                // add colors
+                backgroundColor: [
+                    fanChartGradient,
+                    "rgba(199, 199, 199, 1)"
+                ]
+            },
+        ]
+    },
+    options: options_fans
+});
+var fan3Chart = new Chart(document.getElementById("fan-chart-3"), {
+    type: "doughnut",
+    data: {
+        labels: ["Fan 3"],
+        datasets: [
+            {
+                data: [0, 6000],
+                // add colors
+                backgroundColor: [
+                    fanChartGradient,
+                    "rgba(199, 199, 199, 1)"
+                ]
+            },
+        ]
+    },
+    options: options_fans
+});
+var fan4Chart = new Chart(document.getElementById("fan-chart-4"), {
+    type: "doughnut",
+    data: {
+        labels: ["Fan 4"],
+        datasets: [
+            {
+                data: [0, 6000],
+                // add colors
+                backgroundColor: [
+                    fanChartGradient,
+                    "rgba(199, 199, 199, 1)"
+                ]
+            },
+        ]
+    },
+    options: options_fans
+});
+
+</script>
+{% endblock content %}
