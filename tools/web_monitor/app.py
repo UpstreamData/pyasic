@@ -13,7 +13,7 @@ from fastapi.templating import Jinja2Templates
 
 from network import MinerNetwork
 from tools.web_monitor.miner_factory import miner_factory
-from tools.web_monitor.web_settings import MINER_DATA_TIMEOUT, MINER_IDENTIFY_TIMEOUT, GRAPH_SLEEP_TIME
+from tools.web_monitor.web_settings import get_current_settings, update_settings
 
 app = FastAPI()
 
@@ -37,6 +37,7 @@ def dashboard(request: Request):
 @app.websocket("/dashboard/ws")
 async def dashboard_websocket(websocket: WebSocket):
     await websocket.accept()
+    graph_sleep_time = get_current_settings()["graph_data_sleep_time"]
     try:
         while True:
             miners = get_current_miner_list()
@@ -50,7 +51,7 @@ async def dashboard_websocket(websocket: WebSocket):
             await websocket.send_json(
                 {"datetime": datetime.datetime.now().isoformat(),
                  "miners": all_miner_data})
-            await asyncio.sleep(GRAPH_SLEEP_TIME)
+            await asyncio.sleep(graph_sleep_time)
     except WebSocketDisconnect:
         print("Websocket disconnected.")
         pass
@@ -60,9 +61,13 @@ async def dashboard_websocket(websocket: WebSocket):
 
 async def get_miner_data_dashboard(miner_ip):
     try:
-        miner_ip = await asyncio.wait_for(miner_factory.get_miner(miner_ip), MINER_IDENTIFY_TIMEOUT)
+        settings = get_current_settings()
+        miner_identify_timeout = settings["miner_identify_timeout"]
+        miner_data_timeout = settings["miner_data_timeout"]
 
-        miner_summary = await asyncio.wait_for(miner_ip.api.summary(), MINER_DATA_TIMEOUT)
+        miner_ip = await asyncio.wait_for(miner_factory.get_miner(miner_ip), miner_identify_timeout)
+
+        miner_summary = await asyncio.wait_for(miner_ip.api.summary(), miner_data_timeout)
         if miner_summary:
             if 'MHS av' in miner_summary['SUMMARY'][0].keys():
                 hashrate = format(
@@ -103,14 +108,18 @@ def miner(_request: Request, _miner_ip):
 @app.websocket("/miner/{miner_ip}/ws")
 async def miner_websocket(websocket: WebSocket, miner_ip):
     await websocket.accept()
+    settings = get_current_settings()
+    miner_identify_timeout = settings["miner_identify_timeout"]
+    miner_data_timeout = settings["miner_data_timeout"]
+
     try:
         while True:
             try:
                 cur_miner = await asyncio.wait_for(
-                    miner_factory.get_miner(str(miner_ip)), MINER_IDENTIFY_TIMEOUT)
+                    miner_factory.get_miner(str(miner_ip)), miner_identify_timeout)
 
                 data = await asyncio.wait_for(
-                    cur_miner.api.multicommand("summary", "fans", "stats"), MINER_DATA_TIMEOUT)
+                    cur_miner.api.multicommand("summary", "fans", "stats"), miner_data_timeout)
 
                 miner_model = await cur_miner.get_model()
 
@@ -167,7 +176,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         "datetime": datetime.datetime.now().isoformat(),
                         "model": miner_model}
                 await websocket.send_json(data)
-                await asyncio.sleep(GRAPH_SLEEP_TIME)
+                await asyncio.sleep(settings["graph_sleep_time"])
             except asyncio.exceptions.TimeoutError:
                 data = {"error": "The miner is not responding."}
                 await websocket.send_json(data)
@@ -214,12 +223,31 @@ def get_current_miner_list():
     return cur_miners
 
 
-@app.get("/settings")
+@app.route("/settings", methods=["GET", "POST"])
 async def settings(request: Request):
     return templates.TemplateResponse("settings.html", {
         "request": request,
         "cur_miners": get_current_miner_list(),
+        "settings": get_current_settings()
     })
+
+
+@app.post("/settings/update")
+async def update_settings_page(request: Request):
+    data = await request.form()
+    graph_data_sleep_time = data.get('graph_data_sleep_time')
+    miner_data_timeout = data.get('miner_data_timeout')
+    miner_identify_timeout = data.get('miner_identify_timeout')
+    new_settings = {
+        "graph_data_sleep_time": int(graph_data_sleep_time),
+        "miner_data_timeout": int(miner_data_timeout),
+        "miner_identify_timeout": int(miner_identify_timeout),
+    }
+    update_settings(new_settings)
+    return RedirectResponse(request.url_for("settings"))
+
+
+
 
 @app.get("/remove_all_miners")
 async def remove_all_miners(request: Request):

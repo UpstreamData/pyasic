@@ -1,13 +1,20 @@
 import toml
 import os
 
-try:
-    with open(os.path.join(os.getcwd(), "web_settings.toml"), "r") as settings_file:
-        settings = toml.loads(settings_file.read())
-    GRAPH_SLEEP_TIME: int = settings["graph_data_sleep_time"]
-    MINER_DATA_TIMEOUT: int = settings["miner_data_timeout"]
-    MINER_IDENTIFY_TIMEOUT: int = settings["miner_identify_timeout"]
-except:
-    GRAPH_SLEEP_TIME: int = 1
-    MINER_DATA_TIMEOUT: int = 5
-    MINER_IDENTIFY_TIMEOUT: int = 5
+
+def get_current_settings():
+    try:
+        with open(os.path.join(os.getcwd(), "web_settings.toml"), "r") as settings_file:
+            settings = toml.loads(settings_file.read())
+    except:
+        settings = {
+            "graph_data_sleep_time": 1,
+            "miner_data_timeout": 5,
+            "miner_identify_timeout": 5,
+        }
+    return settings
+
+
+def update_settings(settings):
+    with open(os.path.join(os.getcwd(), "web_settings.toml"), "w") as settings_file:
+        settings_file.write(toml.dumps(settings))
