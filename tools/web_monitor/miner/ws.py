@@ -30,7 +30,6 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                     cur_miner.api.multicommand("summary", "fans", "stats"),
                     miner_data_timeout
                 )
-                print(data)
                 miner_model = await cur_miner.get_model()
 
                 miner_summary = None
@@ -85,7 +84,6 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                         "datetime": datetime.datetime.now().isoformat(),
                         "model": miner_model}
                 await websocket.send_json(data)
-                print(data)
                 await asyncio.sleep(settings["graph_data_sleep_time"])
             except asyncio.exceptions.TimeoutError:
                 data = {"error": "The miner is not responding."}
