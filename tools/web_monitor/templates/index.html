@@ -3,13 +3,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
 <canvas id="line-chart" class="grad-border mt-3 mb-4" width="600" height="360"></canvas>
-{% if cur_miners|length == 0 %}<a role="button" href="{{url_for('scan')}}" id="noMiners" class="w-100 btn btn-info">Click here to add miners.</a>{% endif %}
+{% if cur_miners|length == 0 %}<a role="button" href="/scan" id="noMiners" class="w-100 btn btn-info">Click here to add miners.</a>{% endif %}
 
 
 <div id="errors"></div>
 
 <script>
-var ws = new WebSocket("ws://localhost:80/dashboard/ws");
+if (!window.WebSocket) alert("WebSocket not supported by this browser");
+var ws = new WebSocket("ws://{{request.url.hostname}}:80/dashboard/ws");
 let all_data = []
 let all_labels = []
 ws.onmessage = function(event) {
@@ -21,7 +22,7 @@ ws.onmessage = function(event) {
             if (new_data["miners"][i].hasOwnProperty("error")) {
                 if (!document.getElementById(new_data["miners"][i]["ip"] + "_error")) {
                     errors.innerHTML += "<div id='" + new_data["miners"][i]["ip"] + "_error" +
-                    "' class='d-flex align-items-center p-1 mb-1 ms-4 alert alert-danger'><strong class='p-0 m-0'>" +
+                    "' class='d-flex align-items-center p-1 mb-1 alert alert-danger'><strong class='p-0 m-0'>" +
                     new_data["miners"][i]["ip"] + ": " +
                     new_data["miners"][i]["error"] +
                     "</strong><div class='spinner-border spinner-border-sm ms-auto'></div></div>"
