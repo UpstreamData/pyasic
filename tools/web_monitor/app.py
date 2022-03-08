@@ -17,8 +17,8 @@ from tools.web_monitor.web_settings import get_current_settings, update_settings
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 
 @app.get("/")
@@ -322,4 +322,4 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="127.0.0.1", port=11115)
+    uvicorn.run("app:app", host="0.0.0.0", port=80)

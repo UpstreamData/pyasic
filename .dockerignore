@@ -1,0 +1,8 @@
+# Ignore VENV
+venv
+
+# Ignore builds
+build
+
+# Ignore github files
+.github
