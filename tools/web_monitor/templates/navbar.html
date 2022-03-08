@@ -6,6 +6,8 @@
     <link href="{{ url_for('static', path='/navbar.css')}}" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src * gap: data: blob: 'unsafe-inline' 'unsafe-eval' ws: wss:;">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -31,9 +33,9 @@
     </svg>
 
 
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="d-md-none col-md-3 col-lg-2 me-0 px-3" style="height: 50px;" href="#"></a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+<header class="navbar navbar-dark sticky-top bg-dark flex-xl-nowrap p-0 shadow">
+  <a class="d-lg-none col-lg-3 col-xl-2 me-0 px-3" style="height: 50px;" href="#"></a>
+  <button class="navbar-toggler position-absolute d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -47,31 +49,31 @@
 
 <div class="container-fluid">
   <div class="row">
-    <nav id="sidebarMenu" class="text-white bg-dark col-md-3 col-lg-2 d-md-block sidebar collapse">
+    <nav id="sidebarMenu" class="text-white bg-dark col-lg-3 col-xl-2 d-lg-block sidebar collapse">
       <div class="position-sticky pt-3">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item mb-1 mx-2">
-            <a href="{{url_for('dashboard')}}" class="nav-link {% if request.path == '/dashboard' %}active{% else %}text-white{% endif %}">
+            <a href="/dashboard" class="nav-link {% if request.path.strip('/') == 'dashboard' %}active{% else %}text-white{% endif %}">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#dashboard"></use></svg>
               Dashboard
             </a>
           </li>
           <li class="nav-item mb-1 mx-2">
-            <a href="" class="nav-link {% if request.path == '/scan' or request.path.split('/')[1] == 'miner' %}active{% else %}text-white{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
+            <a href="" class="nav-link {% if request.path.strip('/') == 'scan' or request.path.split('/')[1] == 'miner' %}active{% else %}text-white{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#miners"></use></svg>
               Miners
             </a>
             <div class="collapse mt-1" id="miners-collapse" style="">
               <ul id="navMiners" class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
                   <li>
-                  <a href="{{url_for('scan')}}" class="nav-link {% if request.path == '/scan' %}active{% else %}text-white{% endif %}">
+                  <a href="/scan" class="nav-link {% if request.path.strip('/') == 'scan' %}active{% else %}text-white{% endif %}">
                     <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#scan"></use></svg>
                     Add Miners
                   </a>
                 </li>
                 {% for miner in cur_miners %}
                   <li>
-                    <a href="{{url_for('miner')}}/{{miner}}" class="nav-link {% if request.path == '/miner/' + miner %}active{% else %}text-white{% endif %}">
+                    <a href="/miner/{{miner}}" class="nav-link {% if request.path.strip('/') == 'miner/' + miner %}active{% else %}text-white{% endif %}">
                       <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
                       {{miner}}
                     </a>
@@ -85,7 +87,7 @@
           <li class="border-top my-3"></li>
 
           <li class="nav-item mb-1 mx-2">
-            <a href="/settings" class="nav-link {% if request.path == '/settings' %}active{% else %}text-white{% endif %}">
+            <a href="/settings" class="nav-link {% if request.path.strip('/') == 'settings' %}active{% else %}text-white{% endif %}">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#settings"></use></svg>
               Settings
             </a>
@@ -95,7 +97,7 @@
     </nav>
 
 
-    <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 ps-4">
+    <div class="col-lg-9 ms-md-auto col-xl-10 px-lg-4 ps-4">
     {% block content %}
 
     {% endblock content %}
