@@ -5,7 +5,7 @@ import websockets.exceptions
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 
 from tools.web_monitor.func import get_current_miner_list
-from tools.web_monitor.settings.func import get_current_settings
+from tools.web_monitor._settings.func import get_current_settings
 from tools.web_monitor.dashboard.func import get_miner_data_dashboard
 
 
