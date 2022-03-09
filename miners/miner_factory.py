@@ -106,7 +106,7 @@ class MinerFactory:
                         miner = CGMinerS9(str(ip))
                     elif "BMMiner" in api:
                         miner = BMMinerS9(str(ip))
-                
+
                 elif "Antminer T9" in model:
                     if "BMMiner" in api:
                         if "Hiveon" in model:
@@ -227,24 +227,18 @@ class MinerFactory:
             return model
 
         # if there are errors, we just return None
-        except APIError:
-            return model
+        except APIError as e:
+            print(e)
         except OSError as e:
-            if e.winerror == 121:
-                print(e)
-                return model
-            else:
-                print(ip, e)
+            print(e)
         return model
 
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
-        # handle OSError 121
         except OSError as e:
-            if e.winerror == "121":
-                print("Semaphore Timeout has Expired.")
+            print(e)
             return {}
 
         # create the command

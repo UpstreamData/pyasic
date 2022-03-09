@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 
 from tools.web_monitor.template import templates
 from tools.web_monitor.func import get_current_miner_list
-from tools.web_monitor.settings.func import get_current_settings, update_settings
+from tools.web_monitor._settings.func import get_current_settings, update_settings
 
 
 router = APIRouter()
