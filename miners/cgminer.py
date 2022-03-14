@@ -110,6 +110,5 @@ class CGMiner(BaseMiner):
         async with (await self._get_ssh_connection()) as conn:
             command = 'cat /etc/config/cgminer'
             result = await conn.run(command, check=True)
-            self._result_handler(result)
             self.config = result.stdout
             print(str(self.config))
