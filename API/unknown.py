@@ -2,6 +2,12 @@ from API import BaseMinerAPI
 
 
 class UnknownAPI(BaseMinerAPI):
+    """An abstraction of an API for a miner which is unknown.
+
+    This class is designed to try to be a intersection of as many miner APIs
+    and API commands as possible (API ⋂ API), to ensure that it can be used
+    with as many APIs as possible.
+    """
     def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 
