@@ -2,6 +2,7 @@ import asyncio
 import ipaddress
 import time
 import warnings
+import logging
 
 from API import APIError
 from tools.cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
@@ -15,10 +16,12 @@ from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_
 
 async def import_config(idx):
     await update_ui_with_data("status", "Importing")
+    logging.debug(f"{window['ip_table'].Values[idx[0]][0]}: Importing config.")
     miner = await miner_factory.get_miner(ipaddress.ip_address(window["ip_table"].Values[idx[0]][0]))
     await miner.get_config()
     config = miner.config
     await update_ui_with_data("config", str(config))
+    logging.debug(f"{window['ip_table'].Values[idx[0]][0]}: Config import completed.")
     await update_ui_with_data("status", "")
 
 
@@ -287,6 +290,9 @@ async def scan_and_get_data(network):
     await update_ui_with_data("ip_table", [])
     network_size = len(network)
     miner_generator = network.scan_network_generator()
+
+    logging.info(f"Scanning network: {str(network)}")
+
     await set_progress_bar_len(3 * network_size)
     progress_bar_len = 0
     miners = []
@@ -299,6 +305,8 @@ async def scan_and_get_data(network):
             # window["ip_table"].update([["Identifying..."] for miner in miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
+    logging.info(f"Found {len(miners)} Miners")
+    logging.debug(f"Found miners: {miners}")
     progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
     get_miner_genenerator = miner_factory.get_miner_generator(miners)
@@ -309,6 +317,8 @@ async def scan_and_get_data(network):
         window["ip_table"].update([[str(miner.ip)] for miner in all_miners])
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
+    logging.info(f"Resolved {len(all_miners)} Miners")
+    logging.debug(f"Resolved to miner types: {all_miners}")
     await update_ui_with_data("ip_count", str(len(all_miners)))
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in miners])
     ip_table_data = window["ip_table"].Values
@@ -316,6 +326,7 @@ async def scan_and_get_data(network):
     progress_bar_len += (network_size - len(miners))
     asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "Getting Data")
+    logging.debug("Getting data on miners.")
     for all_data in data_gen:
         data_point = await all_data
         if data_point["IP"] in ordered_all_ips:
@@ -336,6 +347,7 @@ async def scan_and_get_data(network):
 
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await miner_factory.get_miner(ip)
+    logging.debug(f"Getting data for miner: {miner.ip}")
     warnings.filterwarnings('ignore')
     miner_data = None
     host = await miner.get_hostname()
@@ -357,10 +369,11 @@ async def get_formatted_data(ip: ipaddress.ip_address):
             # no devs command, it will fail in this case
             miner_data = await miner.api.multicommand("summary", "temps", "tunerstatus", "pools", "stats")
         except APIError as e:
-            print(e)
+            logging.warning(f"{str(ip)}: {e}")
             return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown',
                     'wattage': 0}
     if miner_data:
+        logging.info(f"Received miner data for miner: {miner.ip}")
         # get all data from summary
         if "summary" in miner_data.keys():
             if not miner_data["summary"][0].get("SUMMARY") == [] and "SUMMARY" in miner_data["summary"][0].keys():
@@ -422,9 +435,13 @@ async def get_formatted_data(ip: ipaddress.ip_address):
         elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
             wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
 
-    return {'TH/s': th5s, 'IP': str(miner.ip), 'model': model,
+    ret_data = {'TH/s': th5s, 'IP': str(miner.ip), 'model': model,
             'temp': round(temps), 'host': host, 'user': user,
             'wattage': wattage}
+
+    logging.debug(f"{ret_data}")
+
+    return ret_data
 
 
 async def generate_config(username, workername, v2_allowed):
