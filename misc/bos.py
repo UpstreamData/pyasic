@@ -22,7 +22,7 @@ async def get_bos_bad_tuners(ip: str = "192.168.1.0", mask: int = 24):
     # run all the tuner status commands
     tuner_status = await asyncio.gather(*tuner_tasks)
 
-    # create a list of all miners with bad board tuner status'
+    # create a list of all miners with bad board tuner status
     bad_tuner_miners = []
     for item in tuner_status:
         # loop through and get each miners' bad board count

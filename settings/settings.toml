@@ -12,3 +12,9 @@ reboot_threads = 300
 # If you change the password, you can pass that password here.
 
 whatsminer_pwd = "admin"
+
+### DEBUG MODE ###
+# change this to debug = true
+# to enable debug mode.
+# debug = false
+debug = true
