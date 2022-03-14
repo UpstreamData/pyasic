@@ -1,3 +1,12 @@
+# TODO: Add Logging
+
+# TODO: Add debug mode to settings?
+
+# TODO: Add an option to append the last octet of the IP
+#  address to the workername when configuring
+
+
+
 from tools.bad_board_util.miner_factory import miner_factory
 from tools.bad_board_util.ui import ui
 
