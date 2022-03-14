@@ -2,64 +2,63 @@ from API import BaseMinerAPI
 
 
 class BOSMinerAPI(BaseMinerAPI):
-    """
-    A class that abstracts the BOSMiner API in the miners.
+    """An abstraction of the BOSMiner API.
 
     Each method corresponds to an API command in BOSMiner.
 
     BOSMiner API documentation:
         https://docs.braiins.com/os/plus-en/Development/1_api.html
 
-    Parameters:
-        ip: the IP address of the miner.
-        port (optional): the port of the API on the miner (standard is 4028)
+    This class abstracts use of the BOSMiner API, as well as the
+    methods for sending commands to it.  The self.send_command()
+    function handles sending a command to the miner asynchronously, and
+    as such is the base for many of the functions in this class, which
+    rely on it to send the command for them.
+
+    :param ip: The IP of the miner to reference the API on.
+    :param port: The port to reference the API on.  Default is 4028.
     """
     def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 
     async def asccount(self) -> dict:
-        """
-        API 'asccount' command.
+        """Get data on the number of ASC devices and their info.
 
-        Returns a dict containing the number of ASC devices.
+        :return: Data on all ASC devices.
         """
         return await self.send_command("asccount")
 
     async def asc(self, n: int) -> dict:
-        """
-        API 'asc' command.
+        """Get data for ASC device n.
 
-        Returns a dict containing the details of a single ASC of number N.
+        :param n: The device to get data for.
 
-        n: the ASC device to get details of.
+        :return: The data for ASC device n.
         """
         return await self.send_command("asc", parameters=n)
 
     async def devdetails(self) -> dict:
-        """
-        API 'devdetails' command.
+        """Get data on all devices with their static details.
 
-        Returns a dict containing all devices with their static details.
+        :return: Data on all devices with their static details.
         """
         return await self.send_command("devdetails")
 
     async def devs(self) -> dict:
-        """
-        API 'devs' command.
+        """Get data on each PGA/ASC with their details.
 
-        Returns a dict containing each PGA/ASC with their details.
+        :return: Data on each PGA/ASC with their details.
         """
         return await self.send_command("devs")
 
     async def edevs(self, old: bool = False) -> dict:
-        """
-        API 'edevs' command.
+        """Get data on each PGA/ASC with their details, ignoring
+         blacklisted and zombie devices.
 
-        Returns a dict containing each PGA/ASC with their details,
-        ignoring blacklisted devices and zombie devices.
+        :param old: Include zombie devices that became zombies less
+        than 'old' seconds ago
 
-        Parameters:
-            old (optional): include zombie devices that became zombies less than 'old' seconds ago
+        :return: Data on each PGA/ASC with their details.
         """
         if old:
             return await self.send_command("edevs", parameters="old")
@@ -67,77 +66,76 @@ class BOSMinerAPI(BaseMinerAPI):
             return await self.send_command("edevs")
 
     async def pools(self) -> dict:
-        """
-        API 'pools' command.
+        """Get pool information.
 
-        Returns a dict containing the status of each pool.
+        :return: Miner pool information.
         """
         return await self.send_command("pools")
 
     async def summary(self) -> dict:
-        """
-        API 'summary' command.
+        """Get the status summary of the miner.
 
-        Returns a dict containing the status summary of the miner.
+        :return: The status summary of the miner.
         """
         return await self.send_command("summary")
 
     async def stats(self) -> dict:
-        """
-        API 'stats' command.
+        """Get stats of each device/pool with more than 1 getwork.
 
-        Returns a dict containing stats for all device/pool with more than 1 getwork.
+        :return: Stats of each device/pool with more than 1 getwork.
         """
         return await self.send_command("stats")
 
     async def version(self) -> dict:
-        """
-        API 'version' command.
+        """Get miner version info.
 
-        Returns a dict containing version information.
+        :return: Miner version information.
         """
         return await self.send_command("version")
 
-    async def estats(self) -> dict:
-        """
-        API 'estats' command.
+    async def estats(self, old: bool = False) -> dict:
+        """Get stats of each device/pool with more than 1 getwork,
+        ignoring zombie devices.
 
-        Returns a dict containing stats for all device/pool with more than 1 getwork,
+        :param old: Include zombie devices that became zombies less
+        than 'old' seconds ago.
+
+        :return: Stats of each device/pool with more than 1 getwork,
         ignoring zombie devices.
         """
-        return await self.send_command("estats")
+        if old:
+            return await self.send_command("estats", parameters=old)
+        else:
+            return await self.send_command("estats")
 
     async def check(self, command: str) -> dict:
-        """
-        API 'check' command.
+        """Check if the command command exists in BOSMiner.
 
-        Returns information about a command:
+        :param command: The command to check.
+
+        :return: Information about a command:
             Exists (Y/N) <- the command exists in this version
             Access (Y/N) <- you have access to use the command
-
-        Parameters:
-            command: the command to get information about.
         """
         return await self.send_command("check", parameters=command)
 
     async def coin(self) -> dict:
-        """
-        API 'coin' command.
+        """Get information on the current coin.
 
-        Returns information about the current coin being mined:
+        :return: Information about the current coin being mined:
             Hash Method <- the hashing algorithm
             Current Block Time <- blocktime as a float, 0 means none
-            Current Block Hash <- the hash of the current block, blank means none
+            Current Block Hash <- the hash of the current block, blank
+            means none
             LP <- whether LP is in use on at least 1 pool
             Network Difficulty: the current network difficulty
         """
         return await self.send_command("coin")
 
     async def lcd(self) -> dict:
-        """
-        API 'lcd' command.
+        """Get a general all-in-one status summary of the miner.
 
-        Returns a dict containing an all in one status summary of the miner.
+        :return: An all-in-one status summary of the miner.
         """
         return await self.send_command("lcd")
 
@@ -167,53 +165,43 @@ class BOSMinerAPI(BaseMinerAPI):
         # return await self.send_command("removepool", parameters=n)
 
     async def fans(self) -> dict:
-        """
-        API 'fans' command.
+        """Get fan data.
 
-        Returns a dict containing information on fans and fan speeds.
+        :return: Data on the fans of the miner.
         """
         return await self.send_command("fans")
 
     async def tempctrl(self) -> dict:
-        """
-        API 'tempctrl' command.
+        """Get temperature control data.
 
-        Returns a dict containing temp control configuration.
+        :return: Data about the temp control settings of the miner.
         """
         return await self.send_command("tempctrl")
 
     async def temps(self) -> dict:
-        """
-        API 'temps' command.
+        """Get temperature data.
 
-        Returns a dict containing temperature information.
+        :return: Data on the temps of the miner.
         """
         return await self.send_command("temps")
 
     async def tunerstatus(self) -> dict:
-        """
-        API 'tunerstatus' command.
+        """Get tuner status data
 
-        Returns a dict containing tuning stats.
+        :return: Data on the status of autotuning.
         """
         return await self.send_command("tunerstatus")
 
     async def pause(self) -> dict:
-        """
-        API 'pause' command.
+        """Pause mining.
 
-        Pauses mining and stops power consumption and waits for resume command.
-
-        Returns a dict stating that the miner paused mining.
+        :return: Confirmation of pausing mining.
         """
         return await self.send_command("pause")
 
     async def resume(self) -> dict:
-        """
-        API 'pause' command.
+        """Resume mining.
 
-        Resumes mining on the miner.
-
-        Returns a dict stating that the miner resumed mining.
+        :return: Confirmation of resuming mining.
         """
         return await self.send_command("resume")

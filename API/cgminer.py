@@ -2,14 +2,14 @@ from API import BaseMinerAPI
 
 
 class CGMinerAPI(BaseMinerAPI):
-    """An abstraction of the BMMiner API.
+    """An abstraction of the CGMiner API.
 
-    Each method corresponds to an API command in BMMiner.
+    Each method corresponds to an API command in GGMiner.
 
     CGMiner API documentation:
         https://github.com/ckolivas/cgminer/blob/master/API-README
 
-    This class abstracts use of the BMMiner API, as well as the
+    This class abstracts use of the CGMiner API, as well as the
     methods for sending commands to it.  The self.send_command()
     function handles sending a command to the miner asynchronously, and
     as such is the base for many of the functions in this class, which
@@ -185,7 +185,7 @@ class CGMinerAPI(BaseMinerAPI):
             return await self.send_command("save")
 
     async def quit(self) -> dict:
-        """Quit BMMiner.
+        """Quit CGMiner.
 
         :return: A single "BYE" before CGMiner quits.
         """
@@ -270,7 +270,7 @@ class CGMinerAPI(BaseMinerAPI):
             return await self.send_command("estats")
 
     async def check(self, command: str) -> dict:
-        """Check if the command command exists in BMMiner.
+        """Check if the command command exists in CGMiner.
 
         :param command: The command to check.
 
