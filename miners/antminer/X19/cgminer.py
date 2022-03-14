@@ -1,4 +1,5 @@
 from miners.cgminer import CGMiner
+import logging
 
 
 class CGMinerX19(CGMiner):
@@ -11,9 +12,12 @@ class CGMinerX19(CGMiner):
 
     async def get_model(self):
         if self.model:
+            logging.debug(f"Found model for {self.ip}: {self.model}")
             return self.model
         version_data = await self.api.version()
         if version_data:
             self.model = version_data["VERSION"][0]["Type"].replace("Antminer ", "")
+            logging.debug(f"Found model for {self.ip}: {self.model}")
             return self.model
+        logging.warning(f"Failed to get model for miner: {self}")
         return None
