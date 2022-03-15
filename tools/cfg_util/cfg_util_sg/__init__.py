@@ -1,5 +1,9 @@
 # TODO: Add Logging
 
+# TODO: Add an option to append the last octet of the IP
+#  address to the workername when configuring
+
+
 import asyncio
 import sys
 import logging
