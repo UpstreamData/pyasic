@@ -39,7 +39,7 @@ class BMMiner(BaseMiner):
                 else:
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
-        except Exception:
+        except Exception as e:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
@@ -85,3 +85,4 @@ class BMMiner(BaseMiner):
     async def reboot(self) -> None:
         logging.debug(f"{self}: Sending reboot command.")
         await self.send_ssh_command("reboot")
+        logging.debug(f"{self}: Reboot command completed.")
