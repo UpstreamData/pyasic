@@ -4,7 +4,7 @@ import warnings
 
 from tools.bad_board_util.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
 from tools.bad_board_util.layout import window
-from tools.bad_board_util.miner_factory import miner_factory
+from miners.miner_factory import MinerFactory
 
 
 async def scan_network(network):
@@ -24,7 +24,7 @@ async def scan_network(network):
         asyncio.create_task(update_prog_bar(progress_bar_len))
     progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
-    get_miner_genenerator = miner_factory.get_miner_generator(miners)
+    get_miner_genenerator = MinerFactory().get_miner_generator(miners)
     all_miners = []
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
@@ -118,7 +118,7 @@ async def scan_and_get_data(network):
         asyncio.create_task(update_prog_bar(progress_bar_len))
     progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
-    get_miner_genenerator = miner_factory.get_miner_generator(miners)
+    get_miner_genenerator = MinerFactory().get_miner_generator(miners)
     all_miners = []
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
@@ -190,7 +190,7 @@ def split_chips(string, number_of_splits):
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):
-    miner = await miner_factory.get_miner(ip)
+    miner = await MinerFactory().get_miner(ip)
     model = await miner.get_model()
     warnings.filterwarnings('ignore')
     board_data = await miner.get_board_info()

@@ -8,7 +8,6 @@ from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT 
 class MinerNetwork:
     def __init__(self, ip_addr: str or None = None, mask: str or int or None = None) -> None:
         self.network = None
-        self.miner_factory = MinerFactory()
         self.ip_addr = ip_addr
         self.connected_miners = {}
         self.mask = mask
@@ -50,6 +49,9 @@ class MinerNetwork:
         local_network = self.get_network()
         print(f"Scanning {local_network} for miners...")
 
+        # clear cached miners
+        MinerFactory().clear_cached_miners()
+
         # create a list of tasks and miner IPs
         scan_tasks = []
         miner_ips = []
@@ -79,13 +81,10 @@ class MinerNetwork:
         # create a list of tasks to get miners
         create_miners_tasks = []
 
-        # clear cached miners
-        self.miner_factory.clear_cached_miners()
-
         # try to get each miner found
         for miner_ip in miner_ips:
             # append to the list of tasks
-            create_miners_tasks.append(self.miner_factory.get_miner(miner_ip))
+            create_miners_tasks.append(MinerFactory().get_miner(miner_ip))
 
         # get all miners in the list
         miners = await asyncio.gather(*create_miners_tasks)

@@ -1,6 +1,5 @@
 # TODO: Add Logging
 
-from tools.bad_board_util.miner_factory import miner_factory
 from tools.bad_board_util.ui import ui
 
 import asyncio

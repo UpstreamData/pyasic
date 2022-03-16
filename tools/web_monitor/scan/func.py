@@ -4,7 +4,7 @@ from fastapi import WebSocket
 
 from network import MinerNetwork
 from tools.web_monitor.func import get_current_miner_list
-from tools.web_monitor.miner_factory import miner_factory
+from miners.miner_factory import MinerFactory
 
 
 async def do_websocket_scan(websocket: WebSocket, network_ip: str):
@@ -21,7 +21,7 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
             if miner_ip and str(miner_ip) not in cur_miners:
                 miners.append(miner_ip)
 
-        get_miner_generator = miner_factory.get_miner_generator(miners)
+        get_miner_generator = MinerFactory().get_miner_generator(miners)
         all_miners = []
         async for found_miner in get_miner_generator:
             all_miners.append(
