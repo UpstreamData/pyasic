@@ -392,7 +392,7 @@ async def get_formatted_data(ip: ipaddress.ip_address):
 
         # alternate temperature data, for BraiinsOS
         if "temps" in miner_data.keys():
-            if not miner_data["temps"][0]['TEMPS'] == []:
+            if not miner_data["temps"][0].get('TEMPS') == []:
                 if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
                     for board in miner_data["temps"][0]['TEMPS']:
                         if board["Chip"] is not None and not board["Chip"] == 0.0:
