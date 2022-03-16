@@ -1,6 +1,5 @@
 from API.bmminer import BMMinerAPI
 from miners import BaseMiner
-import asyncssh
 import logging
 
 
@@ -42,32 +41,6 @@ class BMMiner(BaseMiner):
         except Exception as e:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
-
-    async def _get_ssh_connection(self) -> asyncssh.connect:
-        try:
-            conn = await asyncssh.connect(str(self.ip),
-                                          known_hosts=None,
-                                          username=self.uname,
-                                          password=self.pwd,
-                                          server_host_key_algs=['ssh-rsa'])
-            return conn
-        except asyncssh.misc.PermissionDenied:
-            try:
-                conn = await asyncssh.connect(str(self.ip),
-                                              known_hosts=None,
-                                              username="admin",
-                                              password="admin",
-                                              server_host_key_algs=['ssh-rsa'])
-                return conn
-            except Exception as e:
-                logging.warning(f"{self} raised an exception: {e}")
-                raise e
-        except OSError:
-            logging.warning(f"Connection refused: {self} ")
-            return None
-        except Exception as e:
-            logging.warning(f"{self} raised an exception: {e}")
-            raise e
 
     async def send_ssh_command(self, cmd):
         result = None

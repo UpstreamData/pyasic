@@ -1,6 +1,5 @@
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
-import asyncssh
 import toml
 from config.bos import bos_config_convert, general_config_convert_bos
 import logging
@@ -17,20 +16,6 @@ class BOSMiner(BaseMiner):
 
     def __repr__(self) -> str:
         return f"BOSminer: {str(self.ip)}"
-
-    async def _get_ssh_connection(self) -> asyncssh.connect:
-        """Create a new asyncssh connection"""
-        try:
-            conn = await asyncssh.connect(str(self.ip), known_hosts=None, username=self.uname, password=self.pwd,
-                                          server_host_key_algs=['ssh-rsa'])
-        except OSError:
-            logging.warning(f"Connection refused: {self} ")
-            return None
-        except Exception as e:
-            logging.warning(f"{self} raised an exception: {e}")
-            raise e
-        # return created connection
-        return conn
 
     async def send_ssh_command(self, cmd: str):
         """Sends SSH command to miner."""
@@ -50,7 +35,6 @@ class BOSMiner(BaseMiner):
                         return
                     continue
         return result
-
 
     async def fault_light_on(self) -> None:
         """Sends command to turn on fault light on the miner."""
@@ -169,7 +153,6 @@ class BOSMiner(BaseMiner):
                         bad_boards[board] = []
                     bad_boards[board].append(chain)
         return bad_boards
-
 
     async def check_good_boards(self) -> str:
         """Checks for and provides list for working boards."""
