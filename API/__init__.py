@@ -2,6 +2,7 @@ import asyncio
 import json
 import ipaddress
 import warnings
+import logging
 
 
 class APIError(Exception):
@@ -55,6 +56,7 @@ class BaseMinerAPI:
 
     async def multicommand(self, *commands: str) -> dict:
         """Creates and sends multiple commands as one command to the miner."""
+        logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # split the commands into a proper list
         user_commands = [*commands]
         allowed_commands = self.get_commands()
@@ -70,7 +72,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         data = None
         try:
             data = await self.send_command(command)
-        except APIError:
+        except APIError as e:
             try:
                 data = {}
                 # S19 handler, try again
@@ -80,8 +82,9 @@ If you are sure you want to use this command please use API.send_command("{item}
             except APIError as e:
                 raise APIError(e)
             except Exception as e:
-                print(e)
+                logging.warning(f"{self.ip}: API Multicommand Error: {e}")
         if data:
+            logging.debug(f"{self.ip}: Received multicommand data.")
             return data
 
     async def send_command(self, command: str, parameters: str or int or bool = None, ignore_errors: bool = False) -> dict:
@@ -115,7 +118,7 @@ If you are sure you want to use this command please use API.send_command("{item}
                     break
                 data += d
         except Exception as e:
-            print(e)
+            logging.warning(f"{self.ip}: API Command Error: {e}")
 
         data = self.load_api_data(data)
 
@@ -128,6 +131,7 @@ If you are sure you want to use this command please use API.send_command("{item}
             # validate the command succeeded
             validation = self.validate_command_output(data)
             if not validation[0]:
+                logging.warning(f"{self.ip}: API Command Error: {validation[1]}")
                 raise APIError(validation[1])
 
         return data
@@ -160,6 +164,7 @@ If you are sure you want to use this command please use API.send_command("{item}
     @staticmethod
     def load_api_data(data: bytes) -> dict:
         """Convert API data from JSON to dict"""
+        str_data = None
         try:
             # some json from the API returns with a null byte (\x00) on the end
             if data.endswith(b"\x00"):
@@ -180,6 +185,5 @@ If you are sure you want to use this command please use API.send_command("{item}
             parsed_data = json.loads(str_data)
         # handle bad json
         except json.decoder.JSONDecodeError as e:
-            print(e)
             raise APIError(f"Decode Error: {str_data}")
         return parsed_data
