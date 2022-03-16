@@ -2,10 +2,10 @@ from miners.cgminer import CGMiner
 import re
 
 
-class CGMinerAvalon(CGMiner):
+class CGMinerAvalon8(CGMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.model = "Avalon"
+        self.model = "Avalon 8"
         self.api_type = "CGMiner"
         self.pattern = re.compile(r'Ver\[(?P<Ver>[-0-9A-Fa-f+]+)\]\s'
                                    'DNA\[(?P<DNA>[0-9A-Fa-f]+)\]\s'
@@ -158,7 +158,7 @@ class CGMinerAvalon(CGMiner):
                                    )
 
     def __repr__(self) -> str:
-        return f"CGMinerAvalon: {str(self.ip)}"
+        return f"CGMinerAvalon8: {str(self.ip)}"
 
     def parse_estats(self, estats):
         for estat in estats:

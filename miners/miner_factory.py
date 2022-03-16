@@ -19,7 +19,8 @@ from miners.whatsminer.M30 import BTMinerM30
 from miners.whatsminer.M31 import BTMinerM31
 from miners.whatsminer.M32 import BTMinerM32
 
-from miners.avalonminer import CGMinerAvalon
+from miners.avalonminer.Avalon8 import CGMinerAvalon8
+from miners.avalonminer.Avalon10 import CGMinerAvalon10
 
 from miners.cgminer import CGMiner
 from miners.bmminer import BMMiner
@@ -147,9 +148,12 @@ class MinerFactory:
                     elif "BMMiner" in api:
                         miner = BMMinerX19(str(ip))
 
-            # Avalonminer V8
+            # Avalonminers
             elif "avalon" in model:
-                miner = CGMinerAvalon(str(ip))
+                if model == "avalon10":
+                    miner = CGMinerAvalon10(str(ip))
+                else:
+                    miner = CGMinerAvalon8(str(ip))
 
             # Whatsminers
             elif "M20" in model:
