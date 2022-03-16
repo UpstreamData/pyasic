@@ -4,7 +4,7 @@ import datetime
 import websockets.exceptions
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 
-from tools.web_monitor.miner_factory import miner_factory
+from miners.miner_factory import MinerFactory
 from tools.web_monitor._settings.func import get_current_settings
 
 
@@ -22,7 +22,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
         while True:
             try:
                 cur_miner = await asyncio.wait_for(
-                    miner_factory.get_miner(str(miner_ip)),
+                    MinerFactory().get_miner(str(miner_ip)),
                     miner_identify_timeout
                 )
 

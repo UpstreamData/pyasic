@@ -8,7 +8,7 @@ from API import APIError
 from tools.cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
 from tools.cfg_util.cfg_util_sg.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
 from tools.cfg_util.cfg_util_sg.layout import window
-from tools.cfg_util.cfg_util_sg.miner_factory import miner_factory
+from miners.miner_factory import MinerFactory
 from config.bos import bos_config_convert
 from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
 from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS
@@ -17,7 +17,7 @@ from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_
 async def import_config(idx):
     await update_ui_with_data("status", "Importing")
     logging.debug(f"{window['ip_table'].Values[idx[0]][0]}: Importing config.")
-    miner = await miner_factory.get_miner(ipaddress.ip_address(window["ip_table"].Values[idx[0]][0]))
+    miner = await MinerFactory().get_miner(ipaddress.ip_address(window["ip_table"].Values[idx[0]][0]))
     await miner.get_config()
     config = miner.config
     await update_ui_with_data("config", str(config))
@@ -48,7 +48,7 @@ async def scan_network(network):
         asyncio.create_task(update_prog_bar(progress_bar_len))
     progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
-    get_miner_genenerator = miner_factory.get_miner_generator(miners)
+    get_miner_genenerator = MinerFactory().get_miner_generator(miners)
     all_miners = []
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
@@ -67,7 +67,7 @@ async def miner_light(ips: list):
 
 async def flip_light(ip):
     ip_list = window['ip_table'].Widget
-    miner = await miner_factory.get_miner(ip)
+    miner = await MinerFactory().get_miner(ip)
     index = [item[0] for item in window["ip_table"].Values].index(ip)
     index_tags = ip_list.item(index + 1)['tags']
     if "light" not in index_tags:
@@ -101,7 +101,7 @@ async def send_ssh_command(miner, command: str):
 
 
 async def send_miners_ssh_commands(ips: list, command: str, ssh_cmd_window):
-    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    get_miner_genenerator = MinerFactory().get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
         all_miners.append(miner)
@@ -146,7 +146,7 @@ async def reboot_miners(ips: list):
     await update_ui_with_data("status", "Rebooting")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
-    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    get_miner_genenerator = MinerFactory().get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
         all_miners.append(miner)
@@ -180,7 +180,7 @@ async def restart_miners_backend(ips: list):
     await update_ui_with_data("status", "Restarting Backends")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
-    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    get_miner_genenerator = MinerFactory().get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
         all_miners.append(miner)
@@ -215,7 +215,7 @@ async def send_config(ips: list, config):
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
     asyncio.create_task(update_prog_bar(progress_bar_len))
-    get_miner_genenerator = miner_factory.get_miner_generator(ips)
+    get_miner_genenerator = MinerFactory().get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
         all_miners.append(miner)
@@ -290,6 +290,7 @@ async def scan_and_get_data(network):
     await update_ui_with_data("ip_table", [])
     network_size = len(network)
     miner_generator = network.scan_network_generator()
+    MinerFactory().clear_cached_miners()
 
     logging.info(f"Scanning network: {str(network)}")
 
@@ -309,7 +310,7 @@ async def scan_and_get_data(network):
     logging.debug(f"Found miners: {miners}")
     progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
-    get_miner_genenerator = miner_factory.get_miner_generator(miners)
+    get_miner_genenerator = MinerFactory().get_miner_generator(miners)
     all_miners = []
     async for found_miner in get_miner_genenerator:
         all_miners.append(found_miner)
@@ -346,7 +347,7 @@ async def scan_and_get_data(network):
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):
-    miner = await miner_factory.get_miner(ip)
+    miner = await MinerFactory().get_miner(ip)
     logging.debug(f"Getting data for miner: {miner.ip}")
     warnings.filterwarnings('ignore')
     miner_data = None

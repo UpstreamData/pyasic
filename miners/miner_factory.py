@@ -37,8 +37,18 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES
 
 
 class MinerFactory:
+    _instance = None
+
     def __init__(self):
         self.miners = {}
+
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super(
+                MinerFactory,
+                cls
+            ).__new__(cls)
+        return cls._instance
 
     async def get_miner_generator(self, ips: list):
         """
