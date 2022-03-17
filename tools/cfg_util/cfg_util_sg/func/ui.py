@@ -6,6 +6,14 @@ from tools.cfg_util.cfg_util_sg.layout import window
 import pyperclip
 
 
+def table_select_all():
+    window["ip_table"].update(
+        select_rows=(
+            [row for row in range(len(window["ip_table"].Values))]
+        )
+    )
+
+
 def copy_from_table(table):
     selection = table.selection()
     copy_values = []

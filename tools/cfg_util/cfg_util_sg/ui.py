@@ -9,7 +9,7 @@ from tools.cfg_util.cfg_util_sg.func.miners import send_config, miner_light, ref
 from tools.cfg_util.cfg_util_sg.func.files import import_iplist, \
     import_config_file, export_iplist, export_config_file, export_csv
 from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
-from tools.cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table, copy_from_ssh_table
+from tools.cfg_util.cfg_util_sg.func.ui import sort_data, copy_from_table, table_select_all, copy_from_ssh_table
 
 from network import MinerNetwork
 
@@ -20,6 +20,7 @@ async def ui():
     window.read(timeout=0)
     table = window["ip_table"].Widget
     table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
+    table.bind("<Control-Key-a>", lambda x: table_select_all())
     # light tag shows red row for fault lights
     table.tag_configure("light", foreground="white", background="red")
     # left justify the hostnames
