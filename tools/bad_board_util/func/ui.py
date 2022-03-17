@@ -49,6 +49,8 @@ async def set_progress_bar_len(amount):
 
 
 async def sort_data(index: int or str):
+    if window["scan"].Disabled:
+        return
     await update_ui_with_data("status", "Sorting Data")
     data_list = window['ip_table'].Values
     table = window["ip_table"].Widget

@@ -25,7 +25,7 @@ async def ui():
     # left justify the hostnames
     table.column(2, anchor=tk.W)
     while True:
-        event, value = window.read(timeout=10)
+        event, value = window.read(timeout=0)
         if event in (None, 'Close', sg.WIN_CLOSED):
             sys.exit()
         if isinstance(event, tuple):
