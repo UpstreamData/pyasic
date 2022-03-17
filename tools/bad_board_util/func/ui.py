@@ -15,10 +15,11 @@ def copy_from_table(table):
             table_values = table.item(each)["values"]
             ip = table_values[0]
             model = table_values[1]
-            l_brd_chips = str(table_values[2])
-            c_brd_chips = str(table_values[4])
-            r_brd_chips = str(table_values[6])
-            all_values = [ip, model, l_brd_chips, c_brd_chips, r_brd_chips]
+            total = str(table_values[2])
+            l_brd_chips = str(table_values[3])
+            c_brd_chips = str(table_values[5])
+            r_brd_chips = str(table_values[7])
+            all_values = [ip, model, total, l_brd_chips, c_brd_chips, r_brd_chips]
             value = ", ".join(all_values)
 
             copy_values.append(str(value))
