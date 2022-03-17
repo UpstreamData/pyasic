@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 from tools.bad_board_util.layout import window
 from tools.bad_board_util.func.miners import refresh_data, scan_and_get_data
 from tools.bad_board_util.func.files import import_iplist, export_iplist
-from tools.bad_board_util.func.ui import sort_data, copy_from_table
+from tools.bad_board_util.func.ui import sort_data, copy_from_table, table_select_all
 
 from network import MinerNetwork
 
@@ -16,6 +16,7 @@ async def ui():
     window.read(timeout=0)
     table = window["ip_table"].Widget
     table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
+    table.bind("<Control-Key-a>", lambda x: table_select_all())
     while True:
         event, value = window.read(timeout=0)
         if event in (None, 'Close', sg.WIN_CLOSED):
