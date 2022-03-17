@@ -1,5 +1,7 @@
 import ipaddress
 import asyncio
+
+from network.net_range import MinerNetworkRange
 from miners.miner_factory import MinerFactory
 from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT as PING_TIMEOUT, \
     NETWORK_SCAN_THREADS as SCAN_THREADS
@@ -18,29 +20,32 @@ class MinerNetwork:
     def __repr__(self):
         return str(self.network)
 
-
     def get_network(self) -> ipaddress.ip_network:
         """Get the network using the information passed to the MinerNetwork or from cache."""
         # if we have a network cached already, use that
         if self.network:
             return self.network
 
-        # if there is no IP address passed, default to 192.168.1.0
-        if not self.ip_addr:
-            default_gateway = "192.168.1.0"
-        # if we do have an IP address passed, use that
+        if "-" in self.ip_addr:
+            print("getting network")
+            self.network = MinerNetworkRange(self.ip_addr)
         else:
-            default_gateway = self.ip_addr
+            # if there is no IP address passed, default to 192.168.1.0
+            if not self.ip_addr:
+                default_gateway = "192.168.1.0"
+            # if we do have an IP address passed, use that
+            else:
+                default_gateway = self.ip_addr
 
-        # if there is no subnet mask passed, default to /24
-        if not self.mask:
-            subnet_mask = "24"
-        # if we do have a mask passed, use that
-        else:
-            subnet_mask = str(self.mask)
+            # if there is no subnet mask passed, default to /24
+            if not self.mask:
+                subnet_mask = "24"
+            # if we do have a mask passed, use that
+            else:
+                subnet_mask = str(self.mask)
 
-        # save the network and return it
-        self.network = ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
+            # save the network and return it
+            self.network = ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
         return self.network
 
     async def scan_network_for_miners(self) -> None or list:

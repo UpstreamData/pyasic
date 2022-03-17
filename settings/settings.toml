@@ -16,5 +16,5 @@ whatsminer_pwd = "admin"
 ### DEBUG MODE ###
 # change this to debug = true
 # to enable debug mode.
-debug = false
-# debug = true
+# debug = false
+debug = true

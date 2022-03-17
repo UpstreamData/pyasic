@@ -3,8 +3,8 @@ from settings import DEBUG
 
 
 logging.basicConfig(
-    filename="logfile.txt",
-    filemode="a",
+    # filename="logfile.txt",
+    # filemode="a",
     format='[%(levelname)s][%(asctime)s](%(name)s) - %(message)s',
     datefmt='%x %X'
 )
