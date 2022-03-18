@@ -163,7 +163,7 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = None
 
     async def send_command(self,
-                           command: str | bytes,
+                           command: str or bytes,
                            parameters: str or int or bool = None,
                            ignore_errors: bool = False
                            ) -> dict:
