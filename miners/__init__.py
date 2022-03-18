@@ -9,7 +9,7 @@ import logging
 
 
 class BaseMiner:
-    def __init__(self, ip: str, api: BMMinerAPI | BOSMinerAPI | CGMinerAPI | BTMinerAPI | UnknownAPI) -> None:
+    def __init__(self, ip: str, api: BMMinerAPI or BOSMinerAPI or CGMinerAPI or BTMinerAPI or UnknownAPI) -> None:
         self.ip = ipaddress.ip_address(ip)
         self.uname = None
         self.pwd = None

@@ -137,7 +137,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         return data
 
     @staticmethod
-    def validate_command_output(data: dict) -> tuple[bool, str | None]:
+    def validate_command_output(data: dict) -> tuple:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         # if status isn't a key, it is a multicommand
