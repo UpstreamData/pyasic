@@ -155,11 +155,11 @@ main {
   background-image: linear-gradient(180deg, #D0368A 0%, #708AD4 99%);
 }
 
-.nav-link:hover {
+.navbar-link:hover {
   background-image: linear-gradient(180deg, #760A45 0%, #23449F 99%);
 }
 
-.nav-link {
+.navbar-link {
     transition: unset;
     color: unset;
 }
