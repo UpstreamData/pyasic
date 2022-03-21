@@ -112,8 +112,12 @@ ws.onmessage = function(event) {
         datetime = luxon.DateTime.fromISO(new_data["datetime"]).toLocal();
         if (minerDataChart.data.labels.length > 50) minerDataChart.data.labels.shift();
         if (minerDataChart.data.datasets[0].data.length > 50) minerDataChart.data.datasets[0].data.shift();
+        if (minerTempChart.data.labels.length > 50) minerTempChart.data.labels.shift();
+        if (minerTempChart.data.datasets[0].data.length > 50) minerTempChart.data.datasets[0].data.shift();
         minerDataChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
         minerDataChart.data.datasets[0].data.push(new_data["hashrate"].toFixed(2));
+        minerTempChart.data.labels.push(datetime.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS));
+        minerTempChart.data.datasets[0].data.push(new_data["temp"].toFixed(2));
         fan1Chart.data.datasets[0].data = [new_data["fans"][0], 6000-new_data["fans"][0]]
         fan2Chart.data.datasets[0].data = [new_data["fans"][1], 6000-new_data["fans"][1]]
         fan3Chart.data.datasets[0].data = [new_data["fans"][2], 6000-new_data["fans"][2]]
@@ -127,6 +131,7 @@ ws.onmessage = function(event) {
         fan3Chart.update();
         fan4Chart.update();
         minerDataChart.update();
+        minerTempChart.update();
         var miner_hr = document.getElementById("minerHashrate")
         miner_hr.innerHTML = new_data["hashrate"].toFixed(2) + " TH/s"
         var miner_model = document.getElementById("minerModel")
