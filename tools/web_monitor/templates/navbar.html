@@ -53,27 +53,27 @@
       <div class="position-sticky pt-3">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item mb-1 mx-2">
-            <a href="/dashboard" class="nav-link {% if request.path.strip('/') == 'dashboard' %}active{% else %}text-white{% endif %}">
+            <a href="/dashboard" class="nav-link navbar-link {% if request.path.strip('/') == 'dashboard' %}active{% else %}text-white{% endif %}">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#dashboard"></use></svg>
               Dashboard
             </a>
           </li>
           <li class="nav-item mb-1 mx-2">
-            <a href="" class="nav-link {% if request.path.strip('/') == 'scan' or request.path.split('/')[1] == 'miner' %}active{% else %}text-white{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
+            <a href="" class="nav-link navbar-link {% if request.path.strip('/') == 'scan' or request.path.split('/')[1] == 'miner' %}active{% else %}text-white{% endif %}" data-bs-toggle="collapse" data-bs-target="#miners-collapse" aria-expanded="false">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#miners"></use></svg>
               Miners
             </a>
             <div class="collapse mt-1" id="miners-collapse" style="">
               <ul id="navMiners" class="btn-toggle-nav overflow-auto list-unstyled fw-normal pb-1 small">
                   <li>
-                  <a href="/scan" class="nav-link {% if request.path.strip('/') == 'scan' %}active{% else %}text-white{% endif %}">
+                  <a href="/scan" class="nav-link navbar-link {% if request.path.strip('/') == 'scan' %}active{% else %}text-white{% endif %}">
                     <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#scan"></use></svg>
                     Add Miners
                   </a>
                 </li>
                 {% for miner in cur_miners %}
                   <li>
-                    <a href="/miner/{{miner}}" class="nav-link {% if request.path.strip('/') == 'miner/' + miner %}active{% else %}text-white{% endif %}">
+                    <a href="/miner/{{miner}}" class="nav-link navbar-link {% if request.path.strip('/') == 'miner/' + miner %}active{% else %}text-white{% endif %}">
                       <svg class="bi me-2 mt-1" width="16" height="16"><use xlink:href="#miner"></use></svg>
                       {{miner}}
                     </a>
@@ -87,7 +87,7 @@
           <li class="border-top my-3"></li>
 
           <li class="nav-item mb-1 mx-2">
-            <a href="/settings" class="nav-link {% if request.path.strip('/') == 'settings' %}active{% else %}text-white{% endif %}">
+            <a href="/settings" class="nav-link navbar-link {% if request.path.strip('/') == 'settings' %}active{% else %}text-white{% endif %}">
               <svg class="bi me-2" width="16" height="16"><use xlink:href="#settings"></use></svg>
               Settings
             </a>
