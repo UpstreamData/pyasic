@@ -185,4 +185,4 @@ async def general_config_convert_bos(yaml_config):
                 out_config["power_scaling"]["shutdown_duration"] = config[opt]["shutdown_duration"]
             else:
                 out_config["power_scaling"]["shutdown_duration"] = 3.0
-    return toml.dumps(out_config)
+    return out_config

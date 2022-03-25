@@ -16,12 +16,13 @@ from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_
 
 async def import_config(idx):
     await update_ui_with_data("status", "Importing")
-    logging.debug(f"{window['ip_table'].Values[idx[0]][0]}: Importing config.")
-    miner = await MinerFactory().get_miner(ipaddress.ip_address(window["ip_table"].Values[idx[0]][0]))
+    miner_ip = window['ip_table'].Values[idx[0]][0]
+    logging.debug(f"{miner_ip}: Importing config.")
+    miner = await MinerFactory().get_miner(ipaddress.ip_address(miner_ip))
     await miner.get_config()
     config = miner.config
     await update_ui_with_data("config", str(config))
-    logging.debug(f"{window['ip_table'].Values[idx[0]][0]}: Config import completed.")
+    logging.debug(f"{miner_ip}: Config import completed.")
     await update_ui_with_data("status", "")
 
 
@@ -462,23 +463,24 @@ async def generate_config(username, workername, v2_allowed):
         url_2 = 'stratum+tcp://us-east.stratum.slushpool.com:3333'
         url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
 
-    config = {'group': [{
-        'name': 'group',
-        'quota': 1,
-        'pool': [{
-            'url': url_1,
-            'user': user,
-            'password': '123'
-        }, {
-            'url': url_2,
-            'user': user,
-            'password': '123'
-        }, {
-            'url': url_3,
-            'user': user,
-            'password': '123'
-        }]
-    }],
+    config = {
+        'group': [{
+            'name': 'group',
+            'quota': 1,
+            'pool': [{
+                'url': url_1,
+                'user': user,
+                'password': '123'
+            }, {
+                'url': url_2,
+                'user': user,
+                'password': '123'
+            }, {
+                'url': url_3,
+                'user': user,
+                'password': '123'
+            }]
+        }],
         'format': {
             'version': '1.2+',
             'model': 'Antminer S9',
