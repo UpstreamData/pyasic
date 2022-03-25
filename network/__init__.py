@@ -135,25 +135,29 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
-        for i in range(PING_RETRIES):
-            connection_fut = asyncio.open_connection(str(ip), 4028)
-            try:
-                # get the read and write streams from the connection
-                reader, writer = await asyncio.wait_for(connection_fut, timeout=PING_TIMEOUT)
-                # immediately close connection, we know connection happened
-                writer.close()
-                # make sure the writer is closed
-                await writer.wait_closed()
-                # ping was successful
-                return ip
-            except asyncio.exceptions.TimeoutError:
-                # ping failed if we time out
-                continue
-            except ConnectionRefusedError:
-                # handle for other connection errors
-                print(f"{str(ip)}: Connection Refused.")
-            # ping failed, likely with an exception
-            except Exception as e:
-                print(e)
+        return await ping_miner(ip)
+
+
+async def ping_miner(ip: ipaddress.ip_address, port=4028) -> None or ipaddress.ip_address:
+    for i in range(PING_RETRIES):
+        connection_fut = asyncio.open_connection(str(ip), port)
+        try:
+            # get the read and write streams from the connection
+            reader, writer = await asyncio.wait_for(connection_fut, timeout=PING_TIMEOUT)
+            # immediately close connection, we know connection happened
+            writer.close()
+            # make sure the writer is closed
+            await writer.wait_closed()
+            # ping was successful
+            return ip
+        except asyncio.exceptions.TimeoutError:
+            # ping failed if we time out
             continue
-        return
+        except ConnectionRefusedError:
+            # handle for other connection errors
+            print(f"{str(ip)}: Connection Refused.")
+        # ping failed, likely with an exception
+        except Exception as e:
+            print(e)
+        continue
+    return
