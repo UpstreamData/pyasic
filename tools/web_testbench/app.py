@@ -1,9 +1,7 @@
 from fastapi import FastAPI, WebSocket, Request
 from fastapi.websockets import WebSocketDisconnect
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-import websockets.exceptions
 import asyncio
+from fastapi.staticfiles import StaticFiles
 
 import uvicorn
 import os
