@@ -17,7 +17,7 @@ def index(request: Request):
 
 @router.get("/dashboard")
 def dashboard(request: Request):
-    print()
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "cur_miners": get_current_miner_list()}
-    )
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "cur_miners": get_current_miner_list()
+    })
