@@ -257,4 +257,5 @@ export function generate_layout(miners) {
             generate_graphs(miner, hr_canvas, temp_canvas, fan_1_canvas, fan_2_canvas);
         }
     });
+<<<<<<< HEAD
 }
