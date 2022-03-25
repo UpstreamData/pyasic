@@ -107,7 +107,7 @@ class BOSMiner(BaseMiner):
     async def send_config(self, yaml_config) -> None:
         """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
-        toml_conf = await general_config_convert_bos(yaml_config)
+        toml_conf = toml.dumps(await general_config_convert_bos(yaml_config))
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:

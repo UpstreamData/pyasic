@@ -80,7 +80,7 @@ async def import_config_file(file_location):
 
 async def export_config_file(file_location, config):
     await update_ui_with_data("status", "Exporting")
-    config = await general_config_convert_bos(config)
+    config = toml.dumps(await general_config_convert_bos(config))
     config = toml.loads(config)
     config['format']['generator'] = 'upstream_config_util'
     config['format']['timestamp'] = int(time.time())
