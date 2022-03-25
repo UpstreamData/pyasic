@@ -44,6 +44,10 @@ class BaseMiner:
             logging.warning(f"{self} raised an exception: {e}")
             raise e
 
+    async def send_file(self, src, dest):
+        conn = self._get_ssh_connection()
+        await asyncssh.scp((conn, src), dest)
+
     async def get_board_info(self):
         return None
 
