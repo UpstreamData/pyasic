@@ -12,6 +12,7 @@ from miners.antminer.X17.cgminer import CGMinerX17
 
 from miners.antminer.X19.bmminer import BMMinerX19
 from miners.antminer.X19.cgminer import CGMinerX19
+from miners.antminer.X19.bosminer import BOSMinerX19
 
 from miners.whatsminer.M20 import BTMinerM20
 from miners.whatsminer.M21 import BTMinerM21
@@ -141,8 +142,9 @@ class MinerFactory:
 
                 # X19 logic
                 elif "19" in model:
-
                     # handle the different API types
+                    if "BOSMiner" in api:
+                        miner = BOSMinerX19(str(ip))
                     if "CGMiner" in api:
                         miner = CGMinerX19(str(ip))
                     elif "BMMiner" in api:
