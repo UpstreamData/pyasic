@@ -1,4 +1,3 @@
-import { sio } from "./sio.js"
 import { generate_graphs } from "./generate_graphs.js"
 
 
@@ -42,13 +41,13 @@ function checkLight(ip, checkbox) {
     }
 }
 
-export function generate_layout(data_graph) {
+export function generate_layout(miners) {
     // get the container for all the charts and data
     var container_all = document.getElementById('chart_container');
     // empty the container out
     container_all.innerHTML = ""
 
-    data_graph.miners.forEach(function(miner) {
+    miners.forEach(function(miner) {
 
         // create main div column for all data to sit inside
         var column = document.createElement('div');
