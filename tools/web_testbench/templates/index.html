@@ -3,13 +3,9 @@
 <head>
     <!-- Include chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- Include JQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <!-- Include Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
-    <!-- Include socketIO -->
-    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js" integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
@@ -19,5 +15,274 @@
             <div id="chart_container" class="row row-cols-1 row-cols-sm-2 row-cols-md-4" style="height:1500px;"></div>
         </div>
     </div>
+
+<script>
+var options_hr = {
+    animation: {
+        duration: 0,
+    },
+    responsive: true,
+    aspectRatio: .75,
+    plugins: {
+        legend: {
+            display: false,
+        }
+    },
+    scales: {
+        y: {
+            ticks: { stepSize: .6 },
+            min: 0,
+            suggestedMax: 3.6,
+            grid: {
+                color: function(context) {
+                    if (context.tick.value == 2.4) {
+                        return "rgba(0, 0, 0, 1)";
+                    } else if (context.tick.value > 2.4) {
+                        return "rgba(103, 221, 0, 1)";
+                    } else if (context.tick.value < 2.4) {
+                        return "rgba(221, 0, 103, 1)";
+                    }
+                }
+            }
+        }
+    }
+};
+
+var options_temp = {
+    animation: {
+        duration: 0,
+    },
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+        }
+    },
+    aspectRatio: .75,
+};
+
+var options_fans = {
+    animation: {
+        duration: 0,
+    },
+    aspectRatio: 1.5,
+    events: [],
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+        }
+    }
+};
+
+
+
+
+var ws = new WebSocket("ws://{{request.url.hostname}}:80/ws");
+    ws.onmessage = function(event) {
+        var data = JSON.parse(event.data)
+        if (data.hasOwnProperty("miners")) {
+            var container_all = document.getElementById('chart_container');
+            container_all.innerHTML = ""
+            data["miners"].forEach(function(miner) {
+                // create column with ID being the IP for later use
+                var column = document.createElement('div');
+                column.className = "col border border-dark p-3"
+                column.id = miner
+
+                // create IP address header
+                var header = document.createElement('button');
+                header.className = "text-center btn btn-primary w-100"
+                header.onclick = function(){window.open("http://" + miner, '_blank');}
+                header.innerHTML += miner
+
+                column.append(header)
+
+                // create install stdout
+                var row_text = document.createElement('div');
+                row_text.className = "row p-3"
+                row_text.id = miner + "-stdout"
+
+                // create text area for data
+                var text_area = document.createElement('textarea');
+                text_area.rows = "10"
+                text_area.className = "form-control"
+                text_area.style = "font-size: 12px"
+                text_area.disabled = true
+                text_area.readonly = true
+
+                row_text.append(text_area)
+
+                column.append(row_text)
+
+
+                // create hr and temp canvas
+                var hr_canvas = document.createElement('canvas');
+                hr_canvas.width = 125
+                hr_canvas.height = 125
+                hr_canvas.id = miner + "-hr"
+
+                var temp_canvas = document.createElement('canvas');
+                temp_canvas.width = 125
+                temp_canvas.height = 125
+                temp_canvas.id = miner + "-temp"
+
+                // create fan 1 title
+                var fan_1_title = document.createElement('p');
+                fan_1_title.innerHTML += "Fan L: 0 RPM";
+                fan_1_title.className = "text-center"
+
+                // create fan 2 title
+                var fan_2_title = document.createElement('p');
+                fan_2_title.innerHTML += "Fan R: 0 RPM";
+                fan_2_title.className = "text-center"
+
+                // create fan 1 canvas
+                var fan_1_canvas = document.createElement('canvas');
+                fan_1_canvas.width = 100
+                fan_1_canvas.height = 100
+                fan_1_canvas.id = miner + "-fan-1"
+
+                // create fan 2 canvas
+                var fan_2_canvas = document.createElement('canvas');
+                fan_2_canvas.width = 100
+                fan_2_canvas.height = 100
+                fan_2_canvas.id = miner + "-fan-2"
+
+
+                // create row for hr and temp data
+                var row_hr = document.createElement('div');
+                row_hr.className = "row"
+
+                // create row for titles of fans
+                var row_fan_title = document.createElement('div');
+                row_fan_title.className = "row"
+
+                // create row for fan graphs
+                var row_fan = document.createElement('div');
+                row_fan.className = "row"
+
+                // create hr container
+                var container_col_hr = document.createElement('div');
+                container_col_hr.className = "col w-50 ps-0 pe-4"
+
+                // create temp container
+                var container_col_temp = document.createElement('div');
+                container_col_temp.className = "col w-50 ps-0 pe-4"
+
+                // create fan title 1 container
+                var container_col_title_fan_1 = document.createElement('div');
+                container_col_title_fan_1.className = "col"
+
+                // create fan title 2 container
+                var container_col_title_fan_2 = document.createElement('div');
+                container_col_title_fan_2.className = "col"
+
+                // create fan 1 data container
+                var container_col_fan_1 = document.createElement('div');
+                container_col_fan_1.className = "col w-50 ps-3 pe-1"
+
+                // create fan 2 data container
+                var container_col_fan_2 = document.createElement('div');
+                container_col_fan_2.className = "col w-50 ps-3 pe-1"
+
+                // append canvases to the appropriate container columns
+                container_col_hr.append(hr_canvas)
+                container_col_temp.append(temp_canvas)
+                container_col_title_fan_1.append(fan_1_title)
+                container_col_title_fan_2.append(fan_2_title)
+                container_col_fan_1.append(fan_1_canvas)
+                container_col_fan_2.append(fan_2_canvas)
+
+                // add container columns to the correct rows
+                row_hr.append(container_col_hr)
+                row_hr.append(container_col_temp)
+                row_fan_title.append(container_col_title_fan_1)
+                row_fan_title.append(container_col_title_fan_2)
+                row_fan.append(container_col_fan_1)
+                row_fan.append(container_col_fan_2)
+
+                // create miner graph container
+                var miner_graphs = document.createElement('div');
+                miner_graphs.id = miner + "-graphs"
+
+                // append the rows to the column
+                miner_graphs.append(row_hr)
+                miner_graphs.append(row_fan_title)
+                miner_graphs.append(row_fan)
+                column.append(miner_graphs)
+
+                container_all.append(column)
+
+                                var chart_hr = new Chart(hr_canvas, {
+                    type: "bar",
+                    data: {
+                        labels: ["Hashrate"],
+                        datasets: [],
+                    },
+                    options: options_hr
+                });
+
+                var chart_temp = new Chart(temp_canvas, {
+                    type: "bar",
+                    data: {
+                        labels: ["Temps"],
+                        datasets: [],
+                    },
+                    options: options_temp,
+                });
+
+                var chart_fan_1 = new Chart(fan_1_canvas, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Fan L"],
+                        datasets: [
+                            {
+                                data: [],
+                                // add colors
+                                backgroundColor: [
+                                    "rgba(103, 0, 221, 1)",
+                                    "rgba(199, 199, 199, 1)"
+                                ]
+                            },
+                        ]
+                    },
+                    options: options_fans
+                });
+
+
+                // create the fan 2 chart
+                var chart_fan_2 = new Chart(fan_2_canvas, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Fan R"],
+                        datasets: [
+                            {
+                                data: [],
+                                backgroundColor: [
+                                    "rgba(103, 0, 221, 1)",
+                                    "rgba(199, 199, 199, 1)"
+                                ]
+                            },
+                        ]
+                    },
+                    options: options_fans
+                });
+
+            });
+        }
+        if (data.hasOwnProperty("HR")) {
+            var miner_stdout = document.getElementById(data["IP"] + "-stdout")
+            miner_stdout.hidden = true
+            var hr_graph = Chart.getChart(data["IP"] + "-hr")
+            var temp_graph = Chart.getChart(data["IP"] + "-temp")
+            var fan_1_graph = Chart.getChart(data["IP"] + "-fan-1")
+            var fan_2_graph = Chart.getChart(data["IP"] + "-fan-2")
+        } else {
+            console.log(data)
+        }
+    }
+</script>
+
 </body>
 </html>
