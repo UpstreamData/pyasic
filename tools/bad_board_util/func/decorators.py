@@ -2,13 +2,14 @@ from tools.bad_board_util.layout import window
 
 
 def disable_buttons(func):
-    button_list = ["scan",
-                   "import_iplist",
-                   "export_iplist",
-                   "select_all_ips",
-                   "refresh_data",
-                   "open_in_web"
-                   ]
+    button_list = [
+        "scan",
+        "import_iplist",
+        "export_iplist",
+        "select_all_ips",
+        "refresh_data",
+        "open_in_web",
+    ]
 
     # handle the inner function that the decorator is wrapping
     async def inner(*args, **kwargs):

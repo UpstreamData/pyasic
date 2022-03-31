@@ -15,7 +15,9 @@ WHATSMINER_PWD = "admin"
 DEBUG = False
 
 try:
-    with open(os.path.join(os.path.dirname(__file__), "settings.toml"), "r") as settings_file:
+    with open(
+        os.path.join(os.path.dirname(__file__), "settings.toml"), "r"
+    ) as settings_file:
         settings = toml.loads(settings_file.read())
 except:
     pass

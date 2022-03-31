@@ -2,23 +2,24 @@ from tools.cfg_util.cfg_util_sg.layout import window
 
 
 def disable_buttons(func):
-    button_list = ["scan",
-                   "import_file_config",
-                   "export_file_config",
-                   "import_iplist",
-                   "export_iplist",
-                   "export_csv",
-                   "select_all_ips",
-                   "refresh_data",
-                   "open_in_web",
-                   "reboot_miners",
-                   "restart_miner_backend",
-                   "import_config",
-                   "send_config",
-                   "light",
-                   "generate_config",
-                   "send_miner_ssh_command_window",
-                   ]
+    button_list = [
+        "scan",
+        "import_file_config",
+        "export_file_config",
+        "import_iplist",
+        "export_iplist",
+        "export_csv",
+        "select_all_ips",
+        "refresh_data",
+        "open_in_web",
+        "reboot_miners",
+        "restart_miner_backend",
+        "import_config",
+        "send_config",
+        "light",
+        "generate_config",
+        "send_miner_ssh_command_window",
+    ]
 
     # handle the inner function that the decorator is wrapping
     async def inner(*args, **kwargs):

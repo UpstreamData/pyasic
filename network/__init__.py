@@ -3,12 +3,17 @@ import asyncio
 
 from network.net_range import MinerNetworkRange
 from miners.miner_factory import MinerFactory
-from settings import NETWORK_PING_RETRIES as PING_RETRIES, NETWORK_PING_TIMEOUT as PING_TIMEOUT, \
-    NETWORK_SCAN_THREADS as SCAN_THREADS
+from settings import (
+    NETWORK_PING_RETRIES as PING_RETRIES,
+    NETWORK_PING_TIMEOUT as PING_TIMEOUT,
+    NETWORK_SCAN_THREADS as SCAN_THREADS,
+)
 
 
 class MinerNetwork:
-    def __init__(self, ip_addr: str or None = None, mask: str or int or None = None) -> None:
+    def __init__(
+        self, ip_addr: str or None = None, mask: str or int or None = None
+    ) -> None:
         self.network = None
         self.ip_addr = ip_addr
         self.connected_miners = {}
@@ -45,7 +50,9 @@ class MinerNetwork:
                 subnet_mask = str(self.mask)
 
             # save the network and return it
-            self.network = ipaddress.ip_network(f"{default_gateway}/{subnet_mask}", strict=False)
+            self.network = ipaddress.ip_network(
+                f"{default_gateway}/{subnet_mask}", strict=False
+            )
         return self.network
 
     async def scan_network_for_miners(self) -> None or list:
@@ -139,7 +146,9 @@ class MinerNetwork:
             connection_fut = asyncio.open_connection(str(ip), 4028)
             try:
                 # get the read and write streams from the connection
-                reader, writer = await asyncio.wait_for(connection_fut, timeout=PING_TIMEOUT)
+                reader, writer = await asyncio.wait_for(
+                    connection_fut, timeout=PING_TIMEOUT
+                )
                 # immediately close connection, we know connection happened
                 writer.close()
                 # make sure the writer is closed

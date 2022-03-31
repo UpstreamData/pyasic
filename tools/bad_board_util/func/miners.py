@@ -2,7 +2,11 @@ import asyncio
 import ipaddress
 import warnings
 
-from tools.bad_board_util.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
+from tools.bad_board_util.func.ui import (
+    update_ui_with_data,
+    update_prog_bar,
+    set_progress_bar_len,
+)
 from tools.bad_board_util.layout import window
 from miners.miner_factory import MinerFactory
 from tools.bad_board_util.func.decorators import disable_buttons
@@ -43,7 +47,10 @@ async def refresh_data(ip_list: list):
     await update_ui_with_data("status", "Getting Data")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     if len(ips) == 0:
-        ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
+        ips = [
+            ipaddress.ip_address(ip)
+            for ip in [item[0] for item in window["ip_table"].Values]
+        ]
     await set_progress_bar_len(len(ips))
     progress_bar_len = 0
     asyncio.create_task(update_prog_bar(progress_bar_len))
@@ -68,18 +75,29 @@ async def refresh_data(ip_list: list):
             board_right = ""
             if data_point["data"]:
                 if 0 in data_point["data"].keys():
-                    board_left = " ".join([chain["chip_status"] for chain in data_point["data"][0]]).replace("o", "•")
+                    board_left = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][0]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
                 if 1 in data_point["data"].keys():
-                    board_center = " ".join([chain["chip_status"] for chain in data_point["data"][1]]).replace("o", "•")
+                    board_center = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][1]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
                 if 2 in data_point["data"].keys():
-                    board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
+                    board_right = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][2]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "white", "red"))
-                if False in [chain["nominal"] for chain in [data_point["data"][key] for key in data_point["data"].keys()][0]]:
+                if False in [
+                    chain["nominal"]
+                    for chain in [
+                        data_point["data"][key] for key in data_point["data"].keys()
+                    ][0]
+                ]:
                     row_colors.append((ip_table_index, "white", "red"))
             else:
                 row_colors.append((ip_table_index, "white", "red"))
@@ -92,7 +110,7 @@ async def refresh_data(ip_list: list):
                 len(board_center),
                 board_center,
                 len(board_right),
-                board_right
+                board_right,
             ]
             ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data, row_colors=row_colors)
@@ -134,7 +152,7 @@ async def scan_and_get_data(network):
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in miners])
     ip_table_data = window["ip_table"].Values
     ordered_all_ips = [item[0] for item in ip_table_data]
-    progress_bar_len += (network_size - len(miners))
+    progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "Getting Data")
     row_colors = []
@@ -147,18 +165,30 @@ async def scan_and_get_data(network):
             board_right = ""
             if data_point["data"]:
                 if 0 in data_point["data"].keys():
-                    board_left = " ".join([chain["chip_status"] for chain in data_point["data"][0]]).replace("o", "•")
+                    board_left = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][0]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "bad"))
                 if 1 in data_point["data"].keys():
-                    board_center = " ".join([chain["chip_status"] for chain in data_point["data"][1]]).replace("o", "•")
+                    board_center = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][1]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "bad"))
                 if 2 in data_point["data"].keys():
-                    board_right = " ".join([chain["chip_status"] for chain in data_point["data"][2]]).replace("o", "•")
+                    board_right = " ".join(
+                        [chain["chip_status"] for chain in data_point["data"][2]]
+                    ).replace("o", "•")
                 else:
                     row_colors.append((ip_table_index, "bad"))
-                if False in [chain["nominal"] for board in [data_point["data"][key] for key in data_point["data"].keys()] for chain in board]:
+                if False in [
+                    chain["nominal"]
+                    for board in [
+                        data_point["data"][key] for key in data_point["data"].keys()
+                    ]
+                    for chain in board
+                ]:
                     row_colors.append((ip_table_index, "bad"))
             else:
                 row_colors.append((ip_table_index, "bad"))
@@ -175,7 +205,7 @@ async def scan_and_get_data(network):
                 len(board_center),
                 board_center_chips,
                 len(board_right),
-                board_right_chips
+                board_right_chips,
             ]
             ip_table_data[ip_table_index] = data
             window["ip_table"].update(ip_table_data)
@@ -190,13 +220,16 @@ async def scan_and_get_data(network):
 
 def split_chips(string, number_of_splits):
     k, m = divmod(len(string), number_of_splits)
-    return (string[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(number_of_splits))
+    return (
+        string[i * k + min(i, m) : (i + 1) * k + min(i + 1, m)]
+        for i in range(number_of_splits)
+    )
 
 
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await MinerFactory().get_miner(ip)
     model = await miner.get_model()
-    warnings.filterwarnings('ignore')
+    warnings.filterwarnings("ignore")
     board_data = await miner.get_board_info()
     data = {"IP": str(ip), "model": str(model), "data": board_data}
     return data

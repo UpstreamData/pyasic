@@ -11,10 +11,9 @@ router.include_router(ws_router)
 
 @router.get("/")
 def scan(request: Request):
-    return templates.TemplateResponse("scan.html", {
-        "request": request,
-        "cur_miners": get_current_miner_list()
-    })
+    return templates.TemplateResponse(
+        "scan.html", {"request": request, "cur_miners": get_current_miner_list()}
+    )
 
 
 @router.post("/add_miners")

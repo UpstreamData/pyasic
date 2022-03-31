@@ -13,4 +13,4 @@ def get_miner(request: Request, miner_ip):
         for miner_ip in miners:
             file.write(miner_ip + "\n")
 
-    return RedirectResponse(request.url_for('dashboard'))
+    return RedirectResponse(request.url_for("dashboard"))

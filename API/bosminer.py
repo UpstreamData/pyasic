@@ -18,6 +18,7 @@ class BOSMinerAPI(BaseMinerAPI):
     :param ip: The IP of the miner to reference the API on.
     :param port: The port to reference the API on.  Default is 4028.
     """
+
     def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 

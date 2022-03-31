@@ -6,12 +6,10 @@ import binascii
 import base64
 
 from passlib.handlers.md5_crypt import md5_crypt
-from cryptography.hazmat.primitives.ciphers import \
-    Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from API import BaseMinerAPI, APIError
 from settings import WHATSMINER_PWD
-
 
 
 ### IMPORTANT ###
@@ -35,7 +33,7 @@ def _crypt(word: str, salt: str) -> str:
     :return: An MD5 hash of the word with the salt.
     """
     # compile a standard format for the salt
-    standard_salt = re.compile('\s*\$(\d+)\$([\w\./]*)\$')
+    standard_salt = re.compile("\s*\$(\d+)\$([\w\./]*)\$")
     # check if the salt matches
     match = standard_salt.match(salt)
     # if the matching fails, the salt is incorrect
@@ -58,7 +56,7 @@ def _add_to_16(string: str) -> bytes:
     length.
     """
     while len(string) % 16 != 0:
-        string += '\0'
+        string += "\0"
     return str.encode(string)  # return bytes
 
 
@@ -74,20 +72,20 @@ def parse_btminer_priviledge_data(token_data: dict, data: dict):
     :return: A decoded dict version of the privileged command output.
     """
     # get the encoded data from the dict
-    enc_data = data['enc']
+    enc_data = data["enc"]
     # get the aes key from the token data
-    aeskey = hashlib.sha256(
-        token_data['host_passwd_md5'].encode()
-    ).hexdigest()
+    aeskey = hashlib.sha256(token_data["host_passwd_md5"].encode()).hexdigest()
     # unhexlify the aes key
     aeskey = binascii.unhexlify(aeskey.encode())
     # create the required decryptor
     aes = Cipher(algorithms.AES(aeskey), modes.ECB())
     decryptor = aes.decryptor()
     # decode the message with the decryptor
-    ret_msg = json.loads(decryptor.update(
-        base64.decodebytes(bytes(enc_data, encoding='utf8'))
-    ).rstrip(b'\0').decode("utf8"))
+    ret_msg = json.loads(
+        decryptor.update(base64.decodebytes(bytes(enc_data, encoding="utf8")))
+        .rstrip(b"\0")
+        .decode("utf8")
+    )
     return ret_msg
 
 
@@ -104,11 +102,9 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     :return: The encrypted privileged command to be sent to the miner.
     """
     # add token to command
-    command['token'] = token_data['host_sign']
+    command["token"] = token_data["host_sign"]
     # encode host_passwd data and get hexdigest
-    aeskey = hashlib.sha256(
-        token_data['host_passwd_md5'].encode()
-    ).hexdigest()
+    aeskey = hashlib.sha256(token_data["host_passwd_md5"].encode()).hexdigest()
     # unhexlify the encoded host_passwd
     aeskey = binascii.unhexlify(aeskey.encode())
     # create a new AES key
@@ -117,18 +113,16 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     # dump the command to json
     api_json_str = json.dumps(command)
     # encode the json command with the aes key
-    api_json_str_enc = base64.encodebytes(
-        encryptor.update(
-            _add_to_16(
-                api_json_str
-            )
-        )
-    ).decode("utf-8").replace("\n", "")
+    api_json_str_enc = (
+        base64.encodebytes(encryptor.update(_add_to_16(api_json_str)))
+        .decode("utf-8")
+        .replace("\n", "")
+    )
     # label the data as being encoded
-    data_enc = {'enc': 1, 'data': api_json_str_enc}
+    data_enc = {"enc": 1, "data": api_json_str_enc}
     # dump the labeled data to json
     api_packet_str = json.dumps(data_enc)
-    return api_packet_str.encode('utf-8')
+    return api_packet_str.encode("utf-8")
 
 
 class BTMinerAPI(BaseMinerAPI):
@@ -157,16 +151,18 @@ class BTMinerAPI(BaseMinerAPI):
     :param port: The port to reference the API on.  Default is 4028.
     :param pwd: The admin password of the miner.  Default is admin.
     """
+
     def __init__(self, ip, port=4028, pwd: str = WHATSMINER_PWD):
         super().__init__(ip, port)
         self.admin_pwd = pwd
         self.current_token = None
 
-    async def send_command(self,
-                           command: str or bytes,
-                           parameters: str or int or bool = None,
-                           ignore_errors: bool = False
-                           ) -> dict:
+    async def send_command(
+        self,
+        command: str or bytes,
+        parameters: str or int or bool = None,
+        ignore_errors: bool = False,
+    ) -> dict:
         """Send a command to the miner API.
 
         Send a command using an asynchronous connection, load the data,
@@ -187,10 +183,7 @@ class BTMinerAPI(BaseMinerAPI):
             command = json.dumps({"command": command}).encode("utf-8")
         try:
             # get reader and writer streams
-            reader, writer = await asyncio.open_connection(
-                str(self.ip),
-                self.port
-            )
+            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
         # handle OSError 121
         except OSError as e:
             if e.winerror == "121":
@@ -221,13 +214,10 @@ class BTMinerAPI(BaseMinerAPI):
         await writer.wait_closed()
 
         # check if the returned data is encoded
-        if 'enc' in data.keys():
+        if "enc" in data.keys():
             # try to parse the encoded data
             try:
-                data = parse_btminer_priviledge_data(
-                    self.current_token,
-                    data
-                )
+                data = parse_btminer_priviledge_data(self.current_token, data)
             except Exception as e:
                 print(e)
 
@@ -250,25 +240,24 @@ class BTMinerAPI(BaseMinerAPI):
         data = await self.send_command("get_token")
 
         # encrypt the admin password with the salt
-        pwd = _crypt(self.admin_pwd, "$1$" + data["Msg"]["salt"] + '$')
-        pwd = pwd.split('$')
+        pwd = _crypt(self.admin_pwd, "$1$" + data["Msg"]["salt"] + "$")
+        pwd = pwd.split("$")
 
         # take the 4th item from the pwd split
         host_passwd_md5 = pwd[3]
 
         # encrypt the pwd with the time and new salt
-        tmp = _crypt(pwd[3] + data["Msg"]["time"],
-                     "$1$" + data["Msg"]["newsalt"] + '$'
-                     )
-        tmp = tmp.split('$')
+        tmp = _crypt(pwd[3] + data["Msg"]["time"], "$1$" + data["Msg"]["newsalt"] + "$")
+        tmp = tmp.split("$")
 
         # take the 4th item from the encrypted pwd split
         host_sign = tmp[3]
 
         # set the current token
-        self.current_token = {'host_sign': host_sign,
-                              'host_passwd_md5': host_passwd_md5
-                              }
+        self.current_token = {
+            "host_sign": host_sign,
+            "host_passwd_md5": host_passwd_md5,
+        }
         return self.current_token
 
     #### PRIVILEGED COMMANDS ####
@@ -276,19 +265,18 @@ class BTMinerAPI(BaseMinerAPI):
     # how to configure the Whatsminer API to
     # use these commands.
 
-    async def update_pools(self,
-                           pool_1: str,
-                           worker_1: str,
-                           passwd_1: str,
-
-                           pool_2: str = None,
-                           worker_2: str = None,
-                           passwd_2: str = None,
-
-                           pool_3: str = None,
-                           worker_3: str = None,
-                           passwd_3: str = None
-                           ):
+    async def update_pools(
+        self,
+        pool_1: str,
+        worker_1: str,
+        passwd_1: str,
+        pool_2: str = None,
+        worker_2: str = None,
+        passwd_2: str = None,
+        pool_3: str = None,
+        worker_3: str = None,
+        passwd_3: str = None,
+    ):
         """Update the pools of the miner using the API.
 
         Update the pools of the miner using the API, only works after
@@ -314,15 +302,12 @@ class BTMinerAPI(BaseMinerAPI):
         elif pool_2 and pool_3:
             command = {
                 "cmd": "update_pools",
-
                 "pool1": pool_1,
                 "worker1": worker_1,
                 "passwd1": passwd_1,
-
                 "pool2": pool_2,
                 "worker2": worker_2,
                 "passwd2": passwd_2,
-
                 "pool3": pool_3,
                 "worker3": worker_3,
                 "passwd3": passwd_3,
@@ -333,10 +318,9 @@ class BTMinerAPI(BaseMinerAPI):
                 "pool1": pool_1,
                 "worker1": worker_1,
                 "passwd1": passwd_1,
-
                 "pool2": pool_2,
                 "worker2": worker_2,
-                "passwd2": passwd_2
+                "passwd2": passwd_2,
             }
         else:
             command = {
@@ -406,12 +390,13 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
-    async def set_led(self,
-                      color: str = "red",
-                      period: int = 2000,
-                      duration: int = 1000,
-                      start: int = 0
-                      ):
+    async def set_led(
+        self,
+        color: str = "red",
+        period: int = 2000,
+        duration: int = 1000,
+        start: int = 0,
+    ):
         """Set the LED on the miner using the API.
 
         Set the LED on the miner using the API, only works after
@@ -423,12 +408,13 @@ class BTMinerAPI(BaseMinerAPI):
         :param start: LED on time offset in the cycle in ms.
         :return: A reply informing of the status of setting the LED.
         """
-        command = {"cmd": "set_led",
-                   "color": color,
-                   "period": period,
-                   "duration": duration,
-                   "start": start
-                   }
+        command = {
+            "cmd": "set_led",
+            "color": color,
+            "period": period,
+            "duration": duration,
+            "start": start,
+        }
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
@@ -486,10 +472,11 @@ class BTMinerAPI(BaseMinerAPI):
         password.
         """
         # check if password length is greater than 8 bytes
-        if len(new_pwd.encode('utf-8')) > 8:
+        if len(new_pwd.encode("utf-8")) > 8:
             return APIError(
                 f"New password too long, the max length is 8.  "
-                f"Password size: {len(new_pwd.encode('utf-8'))}")
+                f"Password size: {len(new_pwd.encode('utf-8'))}"
+            )
         command = {"cmd": "update_pwd", "old": old_pwd, "new": new_pwd}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
@@ -507,9 +494,11 @@ class BTMinerAPI(BaseMinerAPI):
         frequency.
         """
         if not -10 < percent < 100:
-            return APIError(f"Frequency % is outside of the allowed "
-                            f"range.  Please set a % between -10 and "
-                            f"100")
+            return APIError(
+                f"Frequency % is outside of the allowed "
+                f"range.  Please set a % between -10 and "
+                f"100"
+            )
         command = {"cmd": "set_target_freq", "percent": str(percent)}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
@@ -596,9 +585,11 @@ class BTMinerAPI(BaseMinerAPI):
         """
 
         if not 0 < percent < 100:
-            return APIError(f"Power PCT % is outside of the allowed "
-                            f"range.  Please set a % between 0 and "
-                            f"100")
+            return APIError(
+                f"Power PCT % is outside of the allowed "
+                f"range.  Please set a % between 0 and "
+                f"100"
+            )
         command = {"cmd": "set_power_pct", "percent": str(percent)}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
@@ -618,12 +609,9 @@ class BTMinerAPI(BaseMinerAPI):
         :return: A reply informing of the status of pre power on.
         """
 
-        if not msg == \
-                "wait for adjust temp" or \
-                "adjust complete" or \
-                "adjust continue":
+        if not msg == "wait for adjust temp" or "adjust complete" or "adjust continue":
             return APIError(
-                'Message is incorrect, please choose one of '
+                "Message is incorrect, please choose one of "
                 '["wait for adjust temp", '
                 '"adjust complete", '
                 '"adjust continue"]'
@@ -632,10 +620,7 @@ class BTMinerAPI(BaseMinerAPI):
             complete = "true"
         else:
             complete = "false"
-        command = {"cmd": "pre_power_on",
-                   "complete": complete,
-                   "msg": msg
-                   }
+        command = {"cmd": "pre_power_on", "complete": complete, "msg": msg}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)

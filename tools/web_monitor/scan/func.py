@@ -25,12 +25,14 @@ async def do_websocket_scan(websocket: WebSocket, network_ip: str):
         all_miners = []
         async for found_miner in get_miner_generator:
             all_miners.append(
-                {"ip": found_miner.ip, "model": await found_miner.get_model()})
+                {"ip": found_miner.ip, "model": await found_miner.get_model()}
+            )
             all_miners.sort(key=lambda x: x["ip"])
             send_miners = []
             for miner_ip in all_miners:
                 send_miners.append(
-                    {"ip": str(miner_ip["ip"]), "model": miner_ip["model"]})
+                    {"ip": str(miner_ip["ip"]), "model": miner_ip["model"]}
+                )
             await websocket.send_json(send_miners)
         await websocket.send_text("Done")
     except asyncio.CancelledError:

@@ -26,8 +26,7 @@ async def websocket_scan(websocket: WebSocket):
                         cur_task = None
                 await websocket.send_text("Cancelled")
             else:
-                cur_task = asyncio.create_task(
-                    do_websocket_scan(websocket, ws_data))
+                cur_task = asyncio.create_task(do_websocket_scan(websocket, ws_data))
             if cur_task and cur_task.done():
                 cur_task = None
     except WebSocketDisconnect:

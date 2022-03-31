@@ -19,20 +19,26 @@ version = version.strftime("%y.%m.%d")
 print(version)
 
 
-setup(name="UpstreamBoardUtil.exe",
-      version=version,
-      description="Upstream Data Board Utility Build",
-      options={
-          "build_exe": {
-              "build_exe": f"{os.getcwd()}\\build\\board_util\\UpstreamBoardUtil-{version}-{sys.platform}\\",
-              "include_msvcr": True,
-              "add_to_path": True
-          },
-      },
-      executables=[Executable(
-          "board_util.py",
-          base=base,
-          icon="icon.ico",
-          target_name="UpstreamBoardUtil.exe"
-      )]
-      )
+setup(
+    name="UpstreamBoardUtil.exe",
+    version=version,
+    description="Upstream Data Board Utility Build",
+    options={
+        "build_exe": {
+            "build_exe": f"{os.getcwd()}\\build\\board_util\\UpstreamBoardUtil-{version}-{sys.platform}\\",
+            "include_files": [
+                os.path.join(os.getcwd(), "settings/settings.toml"),
+            ],
+            "include_msvcr": True,
+            "add_to_path": True,
+        },
+    },
+    executables=[
+        Executable(
+            "board_util.py",
+            base=base,
+            icon="icon.ico",
+            target_name="UpstreamBoardUtil.exe",
+        )
+    ],
+)

@@ -46,10 +46,7 @@ class MinerFactory:
 
     def __new__(cls):
         if not cls._instance:
-            cls._instance = super(
-                MinerFactory,
-                cls
-            ).__new__(cls)
+            cls._instance = super(MinerFactory, cls).__new__(cls)
         return cls._instance
 
     async def get_miner_generator(self, ips: list):
@@ -221,7 +218,10 @@ class MinerFactory:
                                         model = data["VERSION"][0]["Type"]
                         else:
                             # make sure devdetails actually contains data, if its empty, there are no devices
-                            if "DEVDETAILS" in data.keys() and not data["DEVDETAILS"] == []:
+                            if (
+                                "DEVDETAILS" in data.keys()
+                                and not data["DEVDETAILS"] == []
+                            ):
 
                                 # check for model, for most miners
                                 if not data["DEVDETAILS"][0]["Model"] == "":
@@ -261,7 +261,7 @@ class MinerFactory:
         cmd = {"command": command}
 
         # send the command
-        writer.write(json.dumps(cmd).encode('utf-8'))
+        writer.write(json.dumps(cmd).encode("utf-8"))
         await writer.drain()
 
         # instantiate data
@@ -281,10 +281,10 @@ class MinerFactory:
             # some json from the API returns with a null byte (\x00) on the end
             if data.endswith(b"\x00"):
                 # handle the null byte
-                str_data = data.decode('utf-8')[:-1]
+                str_data = data.decode("utf-8")[:-1]
             else:
                 # no null byte
-                str_data = data.decode('utf-8')
+                str_data = data.decode("utf-8")
             # fix an error with a btminer return having an extra comma that breaks json.loads()
             str_data = str_data.replace(",}", "}")
             # fix an error with a btminer return having a newline that breaks json.loads()
@@ -321,19 +321,27 @@ class MinerFactory:
                     if data["STATUS"][0].get("STATUS") in ["I", "S"]:
 
                         # check if there are any BMMiner strings in any of the dict keys
-                        if any("BMMiner" in string for string in data["VERSION"][0].keys()):
+                        if any(
+                            "BMMiner" in string for string in data["VERSION"][0].keys()
+                        ):
                             api = "BMMiner"
 
                         # check if there are any CGMiner strings in any of the dict keys
-                        elif any("CGMiner" in string for string in data["VERSION"][0].keys()):
+                        elif any(
+                            "CGMiner" in string for string in data["VERSION"][0].keys()
+                        ):
                             api = "CGMiner"
 
                         # check if there are any BOSMiner strings in any of the dict keys
-                        elif any("BOSminer" in string for string in data["VERSION"][0].keys()):
+                        elif any(
+                            "BOSminer" in string for string in data["VERSION"][0].keys()
+                        ):
                             api = "BOSMiner"
 
                 # if all that fails, check the Description to see if it is a whatsminer
-                elif data.get("Description") and "whatsminer" in data.get("Description"):
+                elif data.get("Description") and "whatsminer" in data.get(
+                    "Description"
+                ):
                     api = "BTMiner"
 
             # return the API if we found it

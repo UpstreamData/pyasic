@@ -12,13 +12,12 @@ router.include_router(ws_router)
 
 @router.get("/")
 def index(request: Request):
-    return RedirectResponse(request.url_for('dashboard'))
+    return RedirectResponse(request.url_for("dashboard"))
 
 
 @router.get("/dashboard")
 def dashboard(request: Request):
     print()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "cur_miners": get_current_miner_list()
-    })
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "cur_miners": get_current_miner_list()}
+    )
