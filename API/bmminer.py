@@ -18,6 +18,7 @@ class BMMinerAPI(BaseMinerAPI):
     :param ip: The IP of the miner to reference the API on.
     :param port: The port to reference the API on.  Default is 4028.
     """
+
     def __init__(self, ip: str, port: int = 4028) -> None:
         super().__init__(ip, port)
 
@@ -115,11 +116,7 @@ class BMMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("enablepool", parameters=n)
 
-    async def addpool(self,
-                      url: str,
-                      username: str,
-                      password: str
-                      ) -> dict:
+    async def addpool(self, url: str, username: str, password: str) -> dict:
         """Add a pool to the miner.
 
         :param url: The URL of the new pool to add.
@@ -128,11 +125,9 @@ class BMMinerAPI(BaseMinerAPI):
 
         :return: A confirmation of adding the pool.
         """
-        return await self.send_command("addpool",
-                                       parameters=f"{url}, "
-                                                  f"{username}, "
-                                                  f"{password}"
-                                       )
+        return await self.send_command(
+            "addpool", parameters=f"{url}, " f"{username}, " f"{password}"
+        )
 
     async def poolpriority(self, *n: int) -> dict:
         """Set pool priority.
@@ -142,8 +137,7 @@ class BMMinerAPI(BaseMinerAPI):
         :return: A confirmation of setting pool priority.
         """
         pools = f"{','.join([str(item) for item in n])}"
-        return await self.send_command("poolpriority",
-                                       parameters=pools)
+        return await self.send_command("poolpriority", parameters=pools)
 
     async def poolquota(self, n: int, q: int) -> dict:
         """Set pool quota.
@@ -153,10 +147,7 @@ class BMMinerAPI(BaseMinerAPI):
 
         :return: A confirmation of setting pool quota.
         """
-        return await self.send_command("poolquota",
-                                       parameters=f"{n}, "
-                                                  f"{q}"
-                                       )
+        return await self.send_command("poolquota", parameters=f"{n}, " f"{q}")
 
     async def disablepool(self, n: int) -> dict:
         """Disable a pool.
@@ -292,9 +283,7 @@ class BMMinerAPI(BaseMinerAPI):
 
         :return: Confirmation of setting failover-only.
         """
-        return await self.send_command("failover-only",
-                                       parameters=failover
-                                       )
+        return await self.send_command("failover-only", parameters=failover)
 
     async def coin(self) -> dict:
         """Get information on the current coin.
@@ -337,10 +326,7 @@ class BMMinerAPI(BaseMinerAPI):
 
         :return: The results of setting config of name to n.
         """
-        return await self.send_command("setconfig",
-                                       parameters=f"{name}, "
-                                                  f"{n}"
-                                       )
+        return await self.send_command("setconfig", parameters=f"{name}, " f"{n}")
 
     async def usbstats(self) -> dict:
         """Get stats of all USB devices except ztex.
@@ -368,15 +354,11 @@ class BMMinerAPI(BaseMinerAPI):
         :return: Confirmation of setting PGA n with opt[,val].
         """
         if val:
-            return await self.send_command("pgaset",
-                                           parameters=f"{n}, "
-                                                      f"{opt}, "
-                                                      f"{val}"
-                                           )
+            return await self.send_command(
+                "pgaset", parameters=f"{n}, " f"{opt}, " f"{val}"
+            )
         else:
-            return await self.send_command("pgaset",
-                                           parameters=f"{n}, "
-                                                      f"{opt}")
+            return await self.send_command("pgaset", parameters=f"{n}, " f"{opt}")
 
     async def zero(self, which: str, summary: bool) -> dict:
         """Zero a device.

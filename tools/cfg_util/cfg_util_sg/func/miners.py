@@ -6,17 +6,24 @@ import logging
 
 from API import APIError
 from tools.cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
-from tools.cfg_util.cfg_util_sg.func.ui import update_ui_with_data, update_prog_bar, set_progress_bar_len
+from tools.cfg_util.cfg_util_sg.func.ui import (
+    update_ui_with_data,
+    update_prog_bar,
+    set_progress_bar_len,
+)
 from tools.cfg_util.cfg_util_sg.layout import window
 from miners.miner_factory import MinerFactory
 from config.bos import bos_config_convert
 from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
-from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS, CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS
+from settings import (
+    CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS,
+    CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS,
+)
 
 
 async def import_config(idx):
     await update_ui_with_data("status", "Importing")
-    miner_ip = window['ip_table'].Values[idx[0]][0]
+    miner_ip = window["ip_table"].Values[idx[0]][0]
     logging.debug(f"{miner_ip}: Importing config.")
     miner = await MinerFactory().get_miner(ipaddress.ip_address(miner_ip))
     await miner.get_config()
@@ -67,10 +74,10 @@ async def miner_light(ips: list):
 
 
 async def flip_light(ip):
-    ip_list = window['ip_table'].Widget
+    ip_list = window["ip_table"].Widget
     miner = await MinerFactory().get_miner(ip)
     index = [item[0] for item in window["ip_table"].Values].index(ip)
-    index_tags = ip_list.item(index + 1)['tags']
+    index_tags = ip_list.item(index + 1)["tags"]
     if "light" not in index_tags:
         index_tags.append("light")
         ip_list.item(index + 1, tags=index_tags)
@@ -122,7 +129,8 @@ async def send_miners_ssh_commands(ips: list, command: str, ssh_cmd_window):
         if str(item["IP"]) in ips:
             proc_table_index = ips.index(str(item["IP"]))
             proc_table_data[proc_table_index] = [
-                str(item["IP"]), return_data.replace("\n", " "),
+                str(item["IP"]),
+                return_data.replace("\n", " "),
             ]
             ssh_cmd_window["ssh_cmd_table"].update(proc_table_data)
 
@@ -238,7 +246,10 @@ async def refresh_data(ip_list: list):
     await update_ui_with_data("hr_total", "")
     ips = [ipaddress.ip_address(ip) for ip in ip_list]
     if len(ips) == 0:
-        ips = [ipaddress.ip_address(ip) for ip in [item[0] for item in window["ip_table"].Values]]
+        ips = [
+            ipaddress.ip_address(ip)
+            for ip in [item[0] for item in window["ip_table"].Values]
+        ]
     await set_progress_bar_len(len(ips))
     progress_bar_len = 0
     asyncio.create_task(update_prog_bar(progress_bar_len))
@@ -258,9 +269,13 @@ async def refresh_data(ip_list: list):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s ",
+                data_point["IP"],
+                data_point["model"],
+                data_point["host"],
+                str(data_point["TH/s"]) + " TH/s ",
                 data_point["temp"],
-                data_point['user'], str(data_point['wattage']) + " W"
+                data_point["user"],
+                str(data_point["wattage"]) + " W",
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
@@ -270,8 +285,10 @@ async def refresh_data(ip_list: list):
     hr_idx = 3
     for item, _ in enumerate(window["ip_table"].Values):
         if len(window["ip_table"].Values[item]) > hr_idx:
-            if not window["ip_table"].Values[item][hr_idx] == '':
-                hashrate_list.append(float(window["ip_table"].Values[item][hr_idx].replace(" TH/s ", "")))
+            if not window["ip_table"].Values[item][hr_idx] == "":
+                hashrate_list.append(
+                    float(window["ip_table"].Values[item][hr_idx].replace(" TH/s ", ""))
+                )
             else:
                 hashrate_list.append(0)
         else:
@@ -325,7 +342,7 @@ async def scan_and_get_data(network):
     data_gen = asyncio.as_completed([get_formatted_data(miner) for miner in miners])
     ip_table_data = window["ip_table"].Values
     ordered_all_ips = [item[0] for item in ip_table_data]
-    progress_bar_len += (network_size - len(miners))
+    progress_bar_len += network_size - len(miners)
     asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "Getting Data")
     logging.debug("Getting data on miners.")
@@ -334,14 +351,22 @@ async def scan_and_get_data(network):
         if data_point["IP"] in ordered_all_ips:
             ip_table_index = ordered_all_ips.index(data_point["IP"])
             ip_table_data[ip_table_index] = [
-                data_point["IP"], data_point["model"], data_point["host"], str(data_point['TH/s']) + " TH/s ",
+                data_point["IP"],
+                data_point["model"],
+                data_point["host"],
+                str(data_point["TH/s"]) + " TH/s ",
                 data_point["temp"],
-                data_point['user'], str(data_point['wattage']) + " W"
+                data_point["user"],
+                str(data_point["wattage"]) + " W",
             ]
             window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
-    hashrate_list = [float(item[3].replace(" TH/s ", "")) for item in window["ip_table"].Values if not item[3] == '']
+    hashrate_list = [
+        float(item[3].replace(" TH/s ", ""))
+        for item in window["ip_table"].Values
+        if not item[3] == ""
+    ]
     total_hr = round(sum(hashrate_list), 2)
     await update_ui_with_data("hr_total", f"{total_hr} TH/s")
     await update_ui_with_data("status", "")
@@ -350,7 +375,7 @@ async def scan_and_get_data(network):
 async def get_formatted_data(ip: ipaddress.ip_address):
     miner = await MinerFactory().get_miner(ip)
     logging.debug(f"Getting data for miner: {miner.ip}")
-    warnings.filterwarnings('ignore')
+    warnings.filterwarnings("ignore")
     miner_data = None
     host = await miner.get_hostname()
     try:
@@ -365,81 +390,144 @@ async def get_formatted_data(ip: ipaddress.ip_address):
     user = "?"
 
     try:
-        miner_data = await miner.api.multicommand("summary", "devs", "temps", "tunerstatus", "pools", "stats")
+        miner_data = await miner.api.multicommand(
+            "summary", "devs", "temps", "tunerstatus", "pools", "stats"
+        )
     except APIError:
         try:
             # no devs command, it will fail in this case
-            miner_data = await miner.api.multicommand("summary", "temps", "tunerstatus", "pools", "stats")
+            miner_data = await miner.api.multicommand(
+                "summary", "temps", "tunerstatus", "pools", "stats"
+            )
         except APIError as e:
             logging.warning(f"{str(ip)}: {e}")
-            return {'TH/s': 0, 'IP': str(miner.ip), 'model': 'Unknown', 'temp': 0, 'host': 'Unknown', 'user': 'Unknown',
-                    'wattage': 0}
+            return {
+                "TH/s": 0,
+                "IP": str(miner.ip),
+                "model": "Unknown",
+                "temp": 0,
+                "host": "Unknown",
+                "user": "Unknown",
+                "wattage": 0,
+            }
     if miner_data:
         logging.info(f"Received miner data for miner: {miner.ip}")
         # get all data from summary
         if "summary" in miner_data.keys():
-            if not miner_data["summary"][0].get("SUMMARY") == [] and "SUMMARY" in miner_data["summary"][0].keys():
+            if (
+                not miner_data["summary"][0].get("SUMMARY") == []
+                and "SUMMARY" in miner_data["summary"][0].keys()
+            ):
                 # temperature data, this is the idea spot to get this
-                if "Temperature" in miner_data['summary'][0]['SUMMARY'][0].keys():
-                    if not round(miner_data['summary'][0]['SUMMARY'][0]["Temperature"]) == 0:
-                        temps = miner_data['summary'][0]['SUMMARY'][0]["Temperature"]
+                if "Temperature" in miner_data["summary"][0]["SUMMARY"][0].keys():
+                    if (
+                        not round(miner_data["summary"][0]["SUMMARY"][0]["Temperature"])
+                        == 0
+                    ):
+                        temps = miner_data["summary"][0]["SUMMARY"][0]["Temperature"]
                 # hashrate data
-                if 'MHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
-                    th5s = format(round(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'MHS av') / 1000000, 2), ".2f").rjust(6, " ")
-                elif 'GHS av' in miner_data['summary'][0]['SUMMARY'][0].keys():
-                    if not miner_data['summary'][0]['SUMMARY'][0]['GHS av'] == "":
-                        th5s = format(round(
-                            float(await safe_parse_api_data(miner_data, 'summary', 0, 'SUMMARY', 0, 'GHS av')) / 1000,
-                            2), ".2f").rjust(6, " ")
+                if "MHS av" in miner_data["summary"][0]["SUMMARY"][0].keys():
+                    th5s = format(
+                        round(
+                            await safe_parse_api_data(
+                                miner_data, "summary", 0, "SUMMARY", 0, "MHS av"
+                            )
+                            / 1000000,
+                            2,
+                        ),
+                        ".2f",
+                    ).rjust(6, " ")
+                elif "GHS av" in miner_data["summary"][0]["SUMMARY"][0].keys():
+                    if not miner_data["summary"][0]["SUMMARY"][0]["GHS av"] == "":
+                        th5s = format(
+                            round(
+                                float(
+                                    await safe_parse_api_data(
+                                        miner_data, "summary", 0, "SUMMARY", 0, "GHS av"
+                                    )
+                                )
+                                / 1000,
+                                2,
+                            ),
+                            ".2f",
+                        ).rjust(6, " ")
 
         # alternate temperature data, for BraiinsOS
         if "temps" in miner_data.keys():
-            if not miner_data["temps"][0].get('TEMPS') == []:
-                if "Chip" in miner_data["temps"][0]['TEMPS'][0].keys():
-                    for board in miner_data["temps"][0]['TEMPS']:
+            if not miner_data["temps"][0].get("TEMPS") == []:
+                if "Chip" in miner_data["temps"][0]["TEMPS"][0].keys():
+                    for board in miner_data["temps"][0]["TEMPS"]:
                         if board["Chip"] is not None and not board["Chip"] == 0.0:
                             temps = board["Chip"]
         # alternate temperature data, for Whatsminers
         if "devs" in miner_data.keys():
-            if not miner_data["devs"][0].get('DEVS') == []:
-                if "Chip Temp Avg" in miner_data["devs"][0]['DEVS'][0].keys():
-                    for board in miner_data["devs"][0]['DEVS']:
-                        if board['Chip Temp Avg'] is not None and not board['Chip Temp Avg'] == 0.0:
-                            temps = board['Chip Temp Avg']
+            if not miner_data["devs"][0].get("DEVS") == []:
+                if "Chip Temp Avg" in miner_data["devs"][0]["DEVS"][0].keys():
+                    for board in miner_data["devs"][0]["DEVS"]:
+                        if (
+                            board["Chip Temp Avg"] is not None
+                            and not board["Chip Temp Avg"] == 0.0
+                        ):
+                            temps = board["Chip Temp Avg"]
         # alternate temperature data
         if "stats" in miner_data.keys():
-            if not miner_data["stats"][0]['STATS'] == []:
+            if not miner_data["stats"][0]["STATS"] == []:
                 for temp in ["temp2", "temp1", "temp3"]:
-                    if temp in miner_data["stats"][0]['STATS'][1].keys():
-                        if miner_data["stats"][0]['STATS'][1][temp] is not None and not miner_data["stats"][0]['STATS'][1][temp] == 0.0:
-                            temps = miner_data["stats"][0]['STATS'][1][temp]
+                    if temp in miner_data["stats"][0]["STATS"][1].keys():
+                        if (
+                            miner_data["stats"][0]["STATS"][1][temp] is not None
+                            and not miner_data["stats"][0]["STATS"][1][temp] == 0.0
+                        ):
+                            temps = miner_data["stats"][0]["STATS"][1][temp]
             # alternate temperature data, for Avalonminers
-            miner_data["stats"][0]['STATS'][0].keys()
-            if any("MM ID" in string for string in miner_data["stats"][0]['STATS'][0].keys()):
+            miner_data["stats"][0]["STATS"][0].keys()
+            if any(
+                "MM ID" in string
+                for string in miner_data["stats"][0]["STATS"][0].keys()
+            ):
                 temp_all = []
-                for key in [string for string in miner_data["stats"][0]['STATS'][0].keys() if "MM ID" in string]:
-                    for value in [string for string in miner_data["stats"][0]['STATS'][0][key].split(" ") if
-                                  "TMax" in string]:
+                for key in [
+                    string
+                    for string in miner_data["stats"][0]["STATS"][0].keys()
+                    if "MM ID" in string
+                ]:
+                    for value in [
+                        string
+                        for string in miner_data["stats"][0]["STATS"][0][key].split(" ")
+                        if "TMax" in string
+                    ]:
                         temp_all.append(int(value.split("[")[1].replace("]", "")))
                 temps = round(sum(temp_all) / len(temp_all))
 
         # pool information
         if "pools" in miner_data.keys():
-            if not miner_data['pools'][0].get('POOLS') == []:
-                user = await safe_parse_api_data(miner_data, 'pools', 0, 'POOLS', 0, 'User')
+            if not miner_data["pools"][0].get("POOLS") == []:
+                user = await safe_parse_api_data(
+                    miner_data, "pools", 0, "POOLS", 0, "User"
+                )
             else:
-                print(miner_data['pools'][0])
+                print(miner_data["pools"][0])
                 user = "Blank"
 
         # braiins tuner status / wattage
         if "tunerstatus" in miner_data.keys():
-            wattage = await safe_parse_api_data(miner_data, "tunerstatus", 0, 'TUNERSTATUS', 0, "PowerLimit")
+            wattage = await safe_parse_api_data(
+                miner_data, "tunerstatus", 0, "TUNERSTATUS", 0, "PowerLimit"
+            )
         elif "Power" in miner_data["summary"][0]["SUMMARY"][0].keys():
-            wattage = await safe_parse_api_data(miner_data, "summary", 0, 'SUMMARY', 0, "Power")
+            wattage = await safe_parse_api_data(
+                miner_data, "summary", 0, "SUMMARY", 0, "Power"
+            )
 
-    ret_data = {'TH/s': th5s, 'IP': str(miner.ip), 'model': model,
-            'temp': round(temps), 'host': host, 'user': user,
-            'wattage': wattage}
+    ret_data = {
+        "TH/s": th5s,
+        "IP": str(miner.ip),
+        "model": model,
+        "temp": round(temps),
+        "host": host,
+        "user": user,
+        "wattage": wattage,
+    }
 
     logging.debug(f"{ret_data}")
 
@@ -455,46 +543,37 @@ async def generate_config(username, workername, v2_allowed):
         return
 
     if v2_allowed:
-        url_1 = 'stratum2+tcp://v2.us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt'
-        url_2 = 'stratum2+tcp://v2.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt'
-        url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
+        url_1 = "stratum2+tcp://v2.us-east.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt"
+        url_2 = "stratum2+tcp://v2.stratum.slushpool.com/u95GEReVMjK6k5YqiSFNqqTnKU4ypU2Wm8awa6tmbmDmk1bWt"
+        url_3 = "stratum+tcp://stratum.slushpool.com:3333"
     else:
-        url_1 = 'stratum+tcp://ca.stratum.slushpool.com:3333'
-        url_2 = 'stratum+tcp://us-east.stratum.slushpool.com:3333'
-        url_3 = 'stratum+tcp://stratum.slushpool.com:3333'
+        url_1 = "stratum+tcp://ca.stratum.slushpool.com:3333"
+        url_2 = "stratum+tcp://us-east.stratum.slushpool.com:3333"
+        url_3 = "stratum+tcp://stratum.slushpool.com:3333"
 
     config = {
-        'group': [{
-            'name': 'group',
-            'quota': 1,
-            'pool': [{
-                'url': url_1,
-                'user': user,
-                'password': '123'
-            }, {
-                'url': url_2,
-                'user': user,
-                'password': '123'
-            }, {
-                'url': url_3,
-                'user': user,
-                'password': '123'
-            }]
-        }],
-        'format': {
-            'version': '1.2+',
-            'model': 'Antminer S9',
-            'generator': 'upstream_config_util',
-            'timestamp': int(time.time())
+        "group": [
+            {
+                "name": "group",
+                "quota": 1,
+                "pool": [
+                    {"url": url_1, "user": user, "password": "123"},
+                    {"url": url_2, "user": user, "password": "123"},
+                    {"url": url_3, "user": user, "password": "123"},
+                ],
+            }
+        ],
+        "format": {
+            "version": "1.2+",
+            "model": "Antminer S9",
+            "generator": "upstream_config_util",
+            "timestamp": int(time.time()),
         },
-        'temp_control': {
-            'target_temp': 80.0,
-            'hot_temp': 90.0,
-            'dangerous_temp': 120.0
+        "temp_control": {
+            "target_temp": 80.0,
+            "hot_temp": 90.0,
+            "dangerous_temp": 120.0,
         },
-        'autotuning': {
-            'enabled': True,
-            'psu_power_limit': 900
-        }
+        "autotuning": {"enabled": True, "psu_power_limit": 900},
     }
-    window['config'].update(await bos_config_convert(config))
+    window["config"].update(await bos_config_convert(config))

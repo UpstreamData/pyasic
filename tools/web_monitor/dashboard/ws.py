@@ -21,14 +21,18 @@ async def dashboard_websocket(websocket: WebSocket):
             miners = get_current_miner_list()
             all_miner_data = []
             data_gen = asyncio.as_completed(
-                [get_miner_data_dashboard(miner_ip) for miner_ip in miners])
+                [get_miner_data_dashboard(miner_ip) for miner_ip in miners]
+            )
             for all_data in data_gen:
                 data_point = await all_data
                 all_miner_data.append(data_point)
             all_miner_data.sort(key=lambda x: x["ip"])
             await websocket.send_json(
-                {"datetime": datetime.datetime.now().isoformat(),
-                 "miners": all_miner_data})
+                {
+                    "datetime": datetime.datetime.now().isoformat(),
+                    "miners": all_miner_data,
+                }
+            )
             await asyncio.sleep(graph_sleep_time)
     except WebSocketDisconnect:
         print("Websocket disconnected.")

@@ -53,16 +53,18 @@ class BTMiner(BaseMiner):
         for board in devs:
             boards[board["ID"] - offset] = []
             if "Effective Chips" in board.keys():
-                if not board['Effective Chips'] in self.nominal_chips:
+                if not board["Effective Chips"] in self.nominal_chips:
                     nominal = False
                 else:
                     nominal = True
-                boards[board["ID"] - offset].append({
-                    "chain": board["ID"] - offset,
-                    "chip_count": board['Effective Chips'],
-                    "chip_status": "o" * board['Effective Chips'],
-                    "nominal": nominal
-                })
+                boards[board["ID"] - offset].append(
+                    {
+                        "chain": board["ID"] - offset,
+                        "chip_count": board["Effective Chips"],
+                        "chip_status": "o" * board["Effective Chips"],
+                        "nominal": nominal,
+                    }
+                )
             else:
                 logging.warning(f"Incorrect board data from {self}: {board}")
                 print(board)

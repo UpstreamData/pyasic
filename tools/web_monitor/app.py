@@ -12,8 +12,11 @@ from tools.web_monitor._settings import router as settings_router
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(
-    directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
+    name="static",
+)
 
 app.include_router(dashboard_router, tags=["dashboard"])
 app.include_router(miner_router, tags=["miner"], prefix="/miner")

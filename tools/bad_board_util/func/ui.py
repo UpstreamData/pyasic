@@ -8,9 +8,7 @@ import pyperclip
 
 def table_select_all():
     window["ip_table"].update(
-        select_rows=(
-            [row for row in range(len(window["ip_table"].Values))]
-        )
+        select_rows=([row for row in range(len(window["ip_table"].Values))])
     )
 
 
@@ -45,7 +43,7 @@ async def update_ui_with_data(key, message, append=False):
 
 async def update_prog_bar(amount):
     window["progress"].Update(amount)
-    percent_done = 100 * (amount / window['progress'].maxlen)
+    percent_done = 100 * (amount / window["progress"].maxlen)
     window["progress_percent"].Update(f"{round(percent_done, 2)} %")
     if percent_done == 100:
         window["progress_percent"].Update("")
@@ -61,17 +59,25 @@ async def sort_data(index: int or str):
     if window["scan"].Disabled:
         return
     await update_ui_with_data("status", "Sorting Data")
-    data_list = window['ip_table'].Values
+    data_list = window["ip_table"].Values
     table = window["ip_table"].Widget
     all_data = []
     for idx, item in enumerate(data_list):
         all_data.append({"data": item, "tags": table.item(int(idx) + 1)["tags"]})
     # ip addresses
-    if re.match("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
-                  str(all_data[0]["data"][index])):
-        new_list = sorted(all_data, key=lambda x: ipaddress.ip_address(x["data"][index]))
+    if re.match(
+        "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
+        str(all_data[0]["data"][index]),
+    ):
+        new_list = sorted(
+            all_data, key=lambda x: ipaddress.ip_address(x["data"][index])
+        )
         if all_data == new_list:
-            new_list = sorted(all_data, reverse=True, key=lambda x: ipaddress.ip_address(x["data"][index]))
+            new_list = sorted(
+                all_data,
+                reverse=True,
+                key=lambda x: ipaddress.ip_address(x["data"][index]),
+            )
 
     # everything else, model, chips
     else:
