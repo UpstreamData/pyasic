@@ -24,7 +24,7 @@ class BOSMinerS9(BOSMiner):
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
                 logging.debug(f"{self}: Opening config file.")
-                async with sftp.open('/etc/bosminer.toml', 'w+') as file:
+                async with sftp.open("/etc/bosminer.toml", "w+") as file:
                     await file.write(toml_conf)
             logging.debug(f"{self}: Restarting BOSMiner")
             await conn.run("/etc/init.d/bosminer restart")

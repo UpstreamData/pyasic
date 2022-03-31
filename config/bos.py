@@ -8,7 +8,7 @@ async def bos_config_convert(config: dict):
     for opt in config:
         if opt == "format":
             out_config["format"] = config[opt]
-            out_config["format"]["generator"] = 'upstream_config_util'
+            out_config["format"]["generator"] = "upstream_config_util"
             out_config["format"]["timestamp"] = int(time.time())
         elif opt == "temp_control":
             out_config["temperature"] = {}
@@ -47,20 +47,28 @@ async def bos_config_convert(config: dict):
                 out_config["pool_groups"][idx]["pools"] = []
                 out_config["pool_groups"][idx] = {}
                 if "name" in config[opt][idx].keys():
-                    out_config["pool_groups"][idx]["group_name"] = config[opt][idx]["name"]
+                    out_config["pool_groups"][idx]["group_name"] = config[opt][idx][
+                        "name"
+                    ]
                 else:
                     out_config["pool_groups"][idx]["group_name"] = f"group_{idx}"
                 if "quota" in config[opt][idx].keys():
                     out_config["pool_groups"][idx]["quota"] = config[opt][idx]["quota"]
                 else:
                     out_config["pool_groups"][idx]["quota"] = 1
-                out_config["pool_groups"][idx]["pools"] = [{} for _item in range(len(config[opt][idx]["pool"]))]
+                out_config["pool_groups"][idx]["pools"] = [
+                    {} for _item in range(len(config[opt][idx]["pool"]))
+                ]
                 for pool_idx in range(len(config[opt][idx]["pool"])):
-                    out_config["pool_groups"][idx]["pools"][pool_idx]["url"] = config[opt][idx]["pool"][pool_idx]["url"]
-                    out_config["pool_groups"][idx]["pools"][pool_idx]["username"] = config[opt][idx]["pool"][pool_idx][
-                        "user"]
-                    out_config["pool_groups"][idx]["pools"][pool_idx]["password"] = config[opt][idx]["pool"][pool_idx][
-                        "password"]
+                    out_config["pool_groups"][idx]["pools"][pool_idx]["url"] = config[
+                        opt
+                    ][idx]["pool"][pool_idx]["url"]
+                    out_config["pool_groups"][idx]["pools"][pool_idx][
+                        "username"
+                    ] = config[opt][idx]["pool"][pool_idx]["user"]
+                    out_config["pool_groups"][idx]["pools"][pool_idx][
+                        "password"
+                    ] = config[opt][idx]["pool"][pool_idx]["password"]
         elif opt == "autotuning":
             out_config["autotuning"] = {}
             if "enabled" in config[opt].keys():
@@ -82,15 +90,21 @@ async def bos_config_convert(config: dict):
             else:
                 out_config["power_scaling"]["power_step"] = 100
             if "min_psu_power_limit" in config[opt].keys():
-                out_config["power_scaling"]["min_psu_power_limit"] = config[opt]["min_psu_power_limit"]
+                out_config["power_scaling"]["min_psu_power_limit"] = config[opt][
+                    "min_psu_power_limit"
+                ]
             else:
                 out_config["power_scaling"]["min_psu_power_limit"] = 800
             if "shutdown_enabled" in config[opt].keys():
-                out_config["power_scaling"]["shutdown_enabled"] = config[opt]["shutdown_enabled"]
+                out_config["power_scaling"]["shutdown_enabled"] = config[opt][
+                    "shutdown_enabled"
+                ]
             else:
                 out_config["power_scaling"]["shutdown_enabled"] = False
             if "shutdown_duration" in config[opt].keys():
-                out_config["power_scaling"]["shutdown_duration"] = config[opt]["shutdown_duration"]
+                out_config["power_scaling"]["shutdown_duration"] = config[opt][
+                    "shutdown_duration"
+                ]
             else:
                 out_config["power_scaling"]["shutdown_duration"] = 3.0
     return yaml.dump(out_config, sort_keys=False)
@@ -102,7 +116,7 @@ async def general_config_convert_bos(yaml_config):
     for opt in config:
         if opt == "format":
             out_config["format"] = config[opt]
-            out_config["format"]["generator"] = 'upstream_config_util'
+            out_config["format"]["generator"] = "upstream_config_util"
             out_config["format"]["timestamp"] = int(time.time())
         elif opt == "temperature":
             out_config["temp_control"] = {}
@@ -148,11 +162,19 @@ async def general_config_convert_bos(yaml_config):
                     out_config["group"][idx]["quota"] = config[opt][idx]["quota"]
                 else:
                     out_config["group"][idx]["quota"] = 1
-                out_config["group"][idx]["pool"] = [{} for _item in range(len(config[opt][idx]["pools"]))]
+                out_config["group"][idx]["pool"] = [
+                    {} for _item in range(len(config[opt][idx]["pools"]))
+                ]
                 for pool_idx in range(len(config[opt][idx]["pools"])):
-                    out_config["group"][idx]["pool"][pool_idx]["url"] = config[opt][idx]["pools"][pool_idx]["url"]
-                    out_config["group"][idx]["pool"][pool_idx]["user"] = config[opt][idx]["pools"][pool_idx]["username"]
-                    out_config["group"][idx]["pool"][pool_idx]["password"] = config[opt][idx]["pools"][pool_idx]["password"]
+                    out_config["group"][idx]["pool"][pool_idx]["url"] = config[opt][
+                        idx
+                    ]["pools"][pool_idx]["url"]
+                    out_config["group"][idx]["pool"][pool_idx]["user"] = config[opt][
+                        idx
+                    ]["pools"][pool_idx]["username"]
+                    out_config["group"][idx]["pool"][pool_idx]["password"] = config[
+                        opt
+                    ][idx]["pools"][pool_idx]["password"]
         elif opt == "autotuning":
             out_config["autotuning"] = {}
             if "enabled" in config[opt].keys():
@@ -174,15 +196,21 @@ async def general_config_convert_bos(yaml_config):
             else:
                 out_config["power_scaling"]["power_step"] = 100
             if "min_psu_power_limit" in config[opt].keys():
-                out_config["power_scaling"]["min_psu_power_limit"] = config[opt]["min_psu_power_limit"]
+                out_config["power_scaling"]["min_psu_power_limit"] = config[opt][
+                    "min_psu_power_limit"
+                ]
             else:
                 out_config["power_scaling"]["min_psu_power_limit"] = 800
             if "shutdown_enabled" in config[opt].keys():
-                out_config["power_scaling"]["shutdown_enabled"] = config[opt]["shutdown_enabled"]
+                out_config["power_scaling"]["shutdown_enabled"] = config[opt][
+                    "shutdown_enabled"
+                ]
             else:
                 out_config["power_scaling"]["shutdown_enabled"] = False
             if "shutdown_duration" in config[opt].keys():
-                out_config["power_scaling"]["shutdown_duration"] = config[opt]["shutdown_duration"]
+                out_config["power_scaling"]["shutdown_duration"] = config[opt][
+                    "shutdown_duration"
+                ]
             else:
                 out_config["power_scaling"]["shutdown_duration"] = 3.0
     return out_config

@@ -16,8 +16,7 @@ def miner(_request: Request, _miner_ip):
 
 @router.get("/{miner_ip}")
 def get_miner(request: Request, miner_ip):
-    return templates.TemplateResponse("miner.html", {
-        "request": request,
-        "cur_miners": get_current_miner_list(),
-        "miner": miner_ip
-    })
+    return templates.TemplateResponse(
+        "miner.html",
+        {"request": request, "cur_miners": get_current_miner_list(), "miner": miner_ip},
+    )

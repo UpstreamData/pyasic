@@ -9,8 +9,8 @@ class BMMiner(BaseMiner):
         super().__init__(ip, api)
         self.model = None
         self.config = None
-        self.uname = 'root'
-        self.pwd = 'admin'
+        self.uname = "root"
+        self.pwd = "admin"
 
     def __repr__(self) -> str:
         return f"BMMiner: {str(self.ip)}"
@@ -31,7 +31,7 @@ class BMMiner(BaseMiner):
         try:
             async with (await self._get_ssh_connection()) as conn:
                 if conn is not None:
-                    data = await conn.run('cat /proc/sys/kernel/hostname')
+                    data = await conn.run("cat /proc/sys/kernel/hostname")
                     host = data.stdout.strip()
                     logging.debug(f"Found hostname for {self.ip}: {host}")
                     return host

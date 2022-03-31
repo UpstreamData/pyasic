@@ -12,7 +12,7 @@ router.include_router(ws_router)
 
 @router.get("/")
 def index(request: Request):
-    return RedirectResponse(request.url_for('dashboard'))
+    return RedirectResponse(request.url_for("dashboard"))
 
 
 @router.get("/dashboard")

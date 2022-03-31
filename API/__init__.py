@@ -42,17 +42,22 @@ class BaseMinerAPI:
 
     def get_commands(self) -> list:
         """Get a list of command accessible to a specific type of API on the miner."""
-        return [func for func in
-                # each function in self
-                dir(self) if callable(getattr(self, func)) and
-                # no __ methods
-                not func.startswith("__") and
-                # remove all functions that are in this base class
-                func not in
-                [func for func in
-                 dir(BaseMinerAPI) if callable(getattr(BaseMinerAPI, func))
-                 ]
-                ]
+        return [
+            func
+            for func in
+            # each function in self
+            dir(self)
+            if callable(getattr(self, func)) and
+            # no __ methods
+            not func.startswith("__") and
+            # remove all functions that are in this base class
+            func
+            not in [
+                func
+                for func in dir(BaseMinerAPI)
+                if callable(getattr(BaseMinerAPI, func))
+            ]
+        ]
 
     async def multicommand(self, *commands: str) -> dict:
         """Creates and sends multiple commands as one command to the miner."""
@@ -63,9 +68,11 @@ class BaseMinerAPI:
         # make sure we can actually run the command, otherwise it will fail
         commands = [command for command in user_commands if command in allowed_commands]
         for item in list(set(user_commands) - set(commands)):
-            warnings.warn(f"""Removing incorrect command: {item}
+            warnings.warn(
+                f"""Removing incorrect command: {item}
 If you are sure you want to use this command please use API.send_command("{item}", ignore_errors=True) instead.""",
-                          APIWarning)
+                APIWarning,
+            )
         # standard multicommand format is "command1+command2"
         # doesnt work for S19 which is dealt with in the send command function
         command = "+".join(commands)
@@ -87,7 +94,12 @@ If you are sure you want to use this command please use API.send_command("{item}
             logging.debug(f"{self.ip}: Received multicommand data.")
             return data
 
-    async def send_command(self, command: str, parameters: str or int or bool = None, ignore_errors: bool = False) -> dict:
+    async def send_command(
+        self,
+        command: str,
+        parameters: str or int or bool = None,
+        ignore_errors: bool = False,
+    ) -> dict:
         """Send an API command to the miner and return the result."""
         try:
             # get reader and writer streams
@@ -104,7 +116,7 @@ If you are sure you want to use this command please use API.send_command("{item}
             cmd["parameter"] = parameters
 
         # send the command
-        writer.write(json.dumps(cmd).encode('utf-8'))
+        writer.write(json.dumps(cmd).encode("utf-8"))
         await writer.drain()
 
         # instantiate data
@@ -169,10 +181,10 @@ If you are sure you want to use this command please use API.send_command("{item}
             # some json from the API returns with a null byte (\x00) on the end
             if data.endswith(b"\x00"):
                 # handle the null byte
-                str_data = data.decode('utf-8')[:-1]
+                str_data = data.decode("utf-8")[:-1]
             else:
                 # no null byte
-                str_data = data.decode('utf-8')
+                str_data = data.decode("utf-8")
             # fix an error with a btminer return having an extra comma that breaks json.loads()
             str_data = str_data.replace(",}", "}")
             # fix an error with a btminer return having a newline that breaks json.loads()

@@ -13,7 +13,7 @@ class HiveonT9(BMMiner):
     async def get_board_info(self) -> dict:
         """Gets data on each board and chain in the miner."""
         board_stats = await self.api.stats()
-        stats = board_stats['STATS'][1]
+        stats = board_stats["STATS"][1]
         boards = {}
         board_chains = {0: [2, 9, 10], 1: [3, 11, 12], 2: [4, 13, 14]}
         for idx, board in enumerate(board_chains):
@@ -25,12 +25,14 @@ class HiveonT9(BMMiner):
                     nominal = False
                 else:
                     nominal = True
-                boards[board].append({
-                    "chain": chain,
-                    "chip_count": count,
-                    "chip_status": chips,
-                    "nominal": nominal
-                })
+                boards[board].append(
+                    {
+                        "chain": chain,
+                        "chip_count": count,
+                        "chip_status": chips,
+                        "nominal": nominal,
+                    }
+                )
         return boards
 
     async def get_bad_boards(self) -> dict:

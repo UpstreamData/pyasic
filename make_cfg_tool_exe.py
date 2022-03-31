@@ -19,13 +19,25 @@ version = version.strftime("%y.%m.%d")
 print(version)
 
 
-setup(name="UpstreamCFGUtil.exe",
-      version=version,
-      description="Upstream Data Config Utility Build",
-      options={"build_exe": {"build_exe": f"{os.getcwd()}\\build\\UpstreamCFGUtil-{version}-{sys.platform}\\",
-                             "include_files": [os.path.join(os.getcwd(), "settings/settings.toml"),
-                                               os.path.join(os.getcwd(), "static/CFG-Util-README.md")],
-                             },
-               },
-      executables=[Executable("config_tool.py", base=base, icon="icon.ico", target_name="UpstreamCFGUtil.exe")]
-      )
+setup(
+    name="UpstreamCFGUtil.exe",
+    version=version,
+    description="Upstream Data Config Utility Build",
+    options={
+        "build_exe": {
+            "build_exe": f"{os.getcwd()}\\build\\UpstreamCFGUtil-{version}-{sys.platform}\\",
+            "include_files": [
+                os.path.join(os.getcwd(), "settings/settings.toml"),
+                os.path.join(os.getcwd(), "static/CFG-Util-README.md"),
+            ],
+        },
+    },
+    executables=[
+        Executable(
+            "config_tool.py",
+            base=base,
+            icon="icon.ico",
+            target_name="UpstreamCFGUtil.exe",
+        )
+    ],
+)
