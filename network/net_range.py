@@ -9,6 +9,7 @@ class MinerNetworkRange:
         {ip_range_1_start}-{ip_range_1_end}, {ip_range_2_start}-{ip_range_2_end}
 
     """
+
     def __init__(self, ip_range: str):
         ip_ranges = ip_range.replace(" ", "").split(",")
         self.host_ips = []

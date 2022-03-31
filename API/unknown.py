@@ -8,6 +8,7 @@ class UnknownAPI(BaseMinerAPI):
     and API commands as possible (API ⋂ API), to ensure that it can be used
     with as many APIs as possible.
     """
+
     def __init__(self, ip, port=4028):
         super().__init__(ip, port)
 

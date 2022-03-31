@@ -11,23 +11,21 @@ async def get_miner_data_dashboard(miner_ip):
         miner_data_timeout = settings["miner_data_timeout"]
 
         miner_ip = await asyncio.wait_for(
-            MinerFactory().get_miner(miner_ip),
-            miner_identify_timeout
+            MinerFactory().get_miner(miner_ip), miner_identify_timeout
         )
 
         miner_summary = await asyncio.wait_for(
-            miner_ip.api.summary(),
-            miner_data_timeout
+            miner_ip.api.summary(), miner_data_timeout
         )
         if miner_summary:
-            if 'MHS av' in miner_summary['SUMMARY'][0].keys():
+            if "MHS av" in miner_summary["SUMMARY"][0].keys():
                 hashrate = format(
-                    round(miner_summary['SUMMARY'][0]['MHS av'] / 1000000,
-                          2), ".2f")
-            elif 'GHS av' in miner_summary['SUMMARY'][0].keys():
+                    round(miner_summary["SUMMARY"][0]["MHS av"] / 1000000, 2), ".2f"
+                )
+            elif "GHS av" in miner_summary["SUMMARY"][0].keys():
                 hashrate = format(
-                    round(miner_summary['SUMMARY'][0]['GHS av'] / 1000, 2),
-                    ".2f")
+                    round(miner_summary["SUMMARY"][0]["GHS av"] / 1000, 2), ".2f"
+                )
             else:
                 hashrate = 0
         else:
@@ -39,5 +37,7 @@ async def get_miner_data_dashboard(miner_ip):
         return {"ip": miner_ip, "error": "The miner is not responding."}
 
     except KeyError:
-        return {"ip": miner_ip,
-                "error": "The miner returned unusable/unsupported data."}
+        return {
+            "ip": miner_ip,
+            "error": "The miner returned unusable/unsupported data.",
+        }

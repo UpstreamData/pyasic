@@ -9,7 +9,11 @@ import logging
 
 
 class BaseMiner:
-    def __init__(self, ip: str, api: BMMinerAPI or BOSMinerAPI or CGMinerAPI or BTMinerAPI or UnknownAPI) -> None:
+    def __init__(
+        self,
+        ip: str,
+        api: BMMinerAPI or BOSMinerAPI or CGMinerAPI or BTMinerAPI or UnknownAPI,
+    ) -> None:
         self.ip = ipaddress.ip_address(ip)
         self.uname = None
         self.pwd = None
@@ -20,19 +24,23 @@ class BaseMiner:
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
         try:
-            conn = await asyncssh.connect(str(self.ip),
-                                          known_hosts=None,
-                                          username=self.uname,
-                                          password=self.pwd,
-                                          server_host_key_algs=['ssh-rsa'])
+            conn = await asyncssh.connect(
+                str(self.ip),
+                known_hosts=None,
+                username=self.uname,
+                password=self.pwd,
+                server_host_key_algs=["ssh-rsa"],
+            )
             return conn
         except asyncssh.misc.PermissionDenied:
             try:
-                conn = await asyncssh.connect(str(self.ip),
-                                              known_hosts=None,
-                                              username="admin",
-                                              password="admin",
-                                              server_host_key_algs=['ssh-rsa'])
+                conn = await asyncssh.connect(
+                    str(self.ip),
+                    known_hosts=None,
+                    username="admin",
+                    password="admin",
+                    server_host_key_algs=["ssh-rsa"],
+                )
                 return conn
             except Exception as e:
                 logging.warning(f"{self} raised an exception: {e}")
