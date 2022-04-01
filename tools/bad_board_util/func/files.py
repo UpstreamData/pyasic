@@ -1,11 +1,49 @@
 import ipaddress
 import os
 import re
+import xlsxwriter
 
 import aiofiles
 
 from tools.bad_board_util.func.ui import update_ui_with_data
 from tools.bad_board_util.layout import window
+from tools.bad_board_util.func.decorators import disable_buttons
+
+
+@disable_buttons
+async def save_report(file_location):
+    data = []
+    workbook = xlsxwriter.Workbook(file_location)
+    sheet = workbook.add_worksheet()
+    for line in window["ip_table"].Values:
+        data.append([line[0], line[1], line[2], line[3], line[5], line[7]])
+
+    data = sorted(data, reverse=True, key=lambda x: x[2])
+
+    headers = [
+        "IP",
+        "Miner Model",
+        "Total Chip Count",
+        "Left Board Chips",
+        "Center Board Chips",
+        "Right Board Chips",
+    ]
+    print(data)
+    row = 0
+    col = 0
+    for item in headers:
+        sheet.write(row, col, item)
+        col += 1
+
+    row = 1
+    for line in data:
+        col = 0
+        for point in line:
+            sheet.write(row, col, point)
+            col += 1
+        row += 1
+
+    workbook.close()
 
 
 async def import_iplist(file_location):
