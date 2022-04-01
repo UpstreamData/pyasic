@@ -11,6 +11,7 @@ class BOSMiner(BaseMiner):
         super().__init__(ip, api)
         self.model = None
         self.config = None
+        self.version = None
         self.uname = "root"
         self.pwd = "admin"
         self.nominal_chips = 63
@@ -104,6 +105,18 @@ class BOSMiner(BaseMiner):
                 )
                 logging.debug(f"Found model for {self.ip}: {self.model} (BOS)")
                 return self.model + " (BOS)"
+        logging.warning(f"Failed to get model for miner: {self}")
+        return None
+
+    async def get_version(self):
+        if self.version:
+            logging.debug(f"Found version for {self.ip}: {self.version}")
+            return self.version
+        version_data = await self.send_ssh_command("cat /etc/bos_version")
+        if version_data:
+            self.version = version_data.stdout.split("-")[5]
+            logging.debug(f"Found version for {self.ip}: {self.version}")
+            return self.version
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
