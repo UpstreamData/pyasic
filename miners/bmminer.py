@@ -55,6 +55,15 @@ class BMMiner(BaseMiner):
                     continue
         return result
 
+    async def get_config(self):
+        pools = await self.api.pools()
+        pool_data = []
+        if not pools:
+            return
+        for pool in pools["POOLS"]:
+            pool_data.append({"url": pool["URL"], "user": pool["User"], "pwd": "123"})
+        return pool_data
+
     async def reboot(self) -> None:
         logging.debug(f"{self}: Sending reboot command.")
         await self.send_ssh_command("reboot")
