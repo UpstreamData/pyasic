@@ -9,6 +9,7 @@ from fastapi.templating import Jinja2Templates
 
 from tools.web_testbench._network import miner_network
 from tools.web_testbench.feeds import update_installer_files
+from miners.miner_factory import MinerFactory
 
 app = FastAPI()
 
@@ -51,9 +52,18 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        await websocket.send_json(
-            {"miners": [str(miner) for miner in miner_network.hosts()]}
-        )
+        miners = []
+        for host in miner_network.hosts():
+            if host in MinerFactory().miners.keys():
+                miners.append(
+                    {
+                        "IP": str(host),
+                        "Light_On": await MinerFactory().miners[host].get_light(),
+                    }
+                )
+            else:
+                miners.append({"IP": str(host), "Light_On": None})
+        await websocket.send_json({"miners": miners})
         ConnectionManager._connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
@@ -73,7 +83,14 @@ async def ws(websocket: WebSocket):
     await ConnectionManager().connect(websocket)
     try:
         while True:
-            data = await websocket.receive()
+            data = await websocket.receive_json()
+            if "IP" in data.keys():
+                print(data)
+                miner = await MinerFactory().get_miner(data["IP"])
+                if data["Data"] == "unlight":
+                    miner.fault_light_off()
+                if data["Data"] == "light":
+                    miner.fault_light_on()
     except WebSocketDisconnect:
         ConnectionManager().disconnect(websocket)
     except RuntimeError:
