@@ -216,6 +216,28 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
                 miner_graphs.append(row_fan)
                 column.append(miner_graphs)
 
+
+                // create light button container
+                var container_light = document.createElement('div');
+                container_light.className = "form-check form-switch d-flex justify-content-evenly"
+
+                // create light button
+                var light_switch = document.createElement('input');
+                light_switch.type = "checkbox"
+                light_switch.id = miner + "-light"
+                light_switch.className = "form-check-input"
+
+                // add a light label to the button
+                var label_light = document.createElement("label");
+                label_light.setAttribute("for", "light_" + miner.IP);
+                label_light.innerHTML = "Light";
+
+                // add the button and label to the container
+                container_light.append(label_light)
+                container_light.append(light_switch)
+
+                column.append(container_light)
+
                 container_all.append(column)
 
                 var chart_hr = new Chart(hr_canvas, {
@@ -321,7 +343,6 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
 			var fan_2_rpm = data["Fans"]["fan_1"]["RPM"]
 			var fan_2_title = document.getElementById(data["IP"] + "-fan_r");
 			fan_2_title.innerHTML = "Fan R: " + fan_2_rpm + " RPM";
-			console.log(fan_2_rpm);
 			if (fan_2_rpm == 0){
                 var secondary_col_2 = "rgba(97, 4, 4, 1)"
             } else {
@@ -335,9 +356,18 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
             miner_graphs.hidden = true
             var miner_stdout = document.getElementById(data["IP"] + "-stdout_text")
             miner_stdout.hidden = false
-            miner_stdout.innerHTML += data["text"]
-        }
+            miner_stdout.innerHTML = data["text"] + miner_stdout.innerHTML
+        };
+        if (data.hasOwnProperty("Light")) {
+            if (data["Light"] == "show") {
+
+            } else {
+
+            }
+        };
+
     }
+
 </script>
 
 </body>
