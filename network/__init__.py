@@ -145,12 +145,16 @@ class MinerNetwork:
         return await ping_miner(ip)
 
 
-async def ping_miner(ip: ipaddress.ip_address, port=4028) -> None or ipaddress.ip_address:
+async def ping_miner(
+    ip: ipaddress.ip_address, port=4028
+) -> None or ipaddress.ip_address:
     for i in range(PING_RETRIES):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
             # get the read and write streams from the connection
-            reader, writer = await asyncio.wait_for(connection_fut, timeout=PING_TIMEOUT)
+            reader, writer = await asyncio.wait_for(
+                connection_fut, timeout=PING_TIMEOUT
+            )
             # immediately close connection, we know connection happened
             writer.close()
             # make sure the writer is closed
