@@ -17,7 +17,7 @@
     </div>
 
 <script>
-var options_hr = {
+    var options_hr = {
     animation: {
         duration: 0,
     },
@@ -78,7 +78,7 @@ var options_fans = {
 
 
 
-var ws = new WebSocket("ws://{{request.url.hostname}}:80/ws");
+var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{{request.url.port}}{% else %}80{% endif %}/ws");
     ws.onmessage = function(event) {
         var data = JSON.parse(event.data)
         if (data.hasOwnProperty("miners")) {
@@ -131,11 +131,13 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:80/ws");
                 var fan_1_title = document.createElement('p');
                 fan_1_title.innerHTML += "Fan L: 0 RPM";
                 fan_1_title.className = "text-center"
+                fan_1_title.id = miner + "-fan_l"
 
                 // create fan 2 title
                 var fan_2_title = document.createElement('p');
                 fan_2_title.innerHTML += "Fan R: 0 RPM";
                 fan_2_title.className = "text-center"
+                fan_2_title.id = miner + "-fan_r"
 
                 // create fan 1 canvas
                 var fan_1_canvas = document.createElement('canvas');
@@ -214,7 +216,7 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:80/ws");
 
                 container_all.append(column)
 
-                                var chart_hr = new Chart(hr_canvas, {
+                var chart_hr = new Chart(hr_canvas, {
                     type: "bar",
                     data: {
                         labels: ["Hashrate"],
@@ -278,6 +280,54 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:80/ws");
             var temp_graph = Chart.getChart(data["IP"] + "-temp")
             var fan_1_graph = Chart.getChart(data["IP"] + "-fan-1")
             var fan_2_graph = Chart.getChart(data["IP"] + "-fan-2")
+
+			// update hr graph data and call the Update method
+			var hr_data = []
+			hr_data.push({label: "Board 6", data: [data["HR"]["board_6"]["HR"]], backgroundColor: ["rgba(0, 19, 97, 1)"]});
+			hr_data.push({label: "Board 7", data: [data["HR"]["board_7"]["HR"]], backgroundColor: ["rgba(0, 84, 219, 1)"]});
+			hr_data.push({label: "Board 8", data: [data["HR"]["board_8"]["HR"]], backgroundColor: ["rgba(36, 180, 224, 1)"]});
+			hr_graph.data.datasets = hr_data;
+			hr_graph.update();
+
+			// update temp graph data and call the Update method
+			var temp_data = []
+			temp_data.push({label: "Board 6 Chips", data: [data["Temps"]["board_6"]["Chip"]], backgroundColor: ["rgba(6, 92, 39, 1)"]});
+			temp_data.push({label: "Board 6", data: [data["Temps"]["board_6"]["Board"]], backgroundColor: ["rgba(255, 15, 58, 1)"]});
+			temp_data.push({label: "Board 7 Chips", data: [data["Temps"]["board_7"]["Chip"]], backgroundColor: ["rgba(6, 92, 39, 1)"]});
+			temp_data.push({label: "Board 7", data: [data["Temps"]["board_7"]["Board"]], backgroundColor: ["rgba(255, 15, 58, 1)"]});
+			temp_data.push({label: "Board 8 Chips", data: [data["Temps"]["board_8"]["Chip"]], backgroundColor: ["rgba(6, 92, 39, 1)"]});
+			temp_data.push({label: "Board 8", data: [data["Temps"]["board_8"]["Board"]], backgroundColor: ["rgba(255, 15, 58, 1)"]});
+			temp_graph.data.datasets = temp_data;
+			temp_graph.update();
+
+			// update fan 1 graph data and call the Update method
+			var fan_1_rpm = data["Fans"]["fan_0"]["RPM"]
+			var fan_1_title = document.getElementById(data["IP"] + "-fan_l");
+            fan_1_title.innerHTML = "Fan L: " + fan_1_rpm + " RPM";
+			if (fan_1_rpm == 0){
+                var secondary_col_1 = "rgba(97, 4, 4, 1)"
+            } else {
+                var secondary_col_1 = "rgba(199, 199, 199, 1)"
+            }
+			var fan_1_data = [{label: "Fan Speed", data: [fan_1_rpm, 6000-fan_1_rpm], backgroundColor: ["rgba(103, 0, 221, 1)", secondary_col_1]}]
+			fan_1_graph.data.datasets = fan_1_data;
+			fan_1_graph.update();
+
+			// update fan 2 graph data and call the Update method
+			var fan_2_rpm = data["Fans"]["fan_1"]["RPM"]
+			var fan_2_title = document.getElementById(data["IP"] + "-fan_r");
+			fan_2_title.innerHTML = "Fan R: " + fan_2_rpm + " RPM";
+			console.log(fan_2_rpm);
+			if (fan_2_rpm == 0){
+                var secondary_col_2 = "rgba(97, 4, 4, 1)"
+            } else {
+                var secondary_col_2 = "rgba(199, 199, 199, 1)"
+            }
+			var fan_2_data = [{label: "Fan Speed", data: [fan_2_rpm, 6000-fan_2_rpm], backgroundColor: ["rgba(103, 0, 221, 1)", secondary_col_2]}]
+			fan_2_graph.data.datasets = fan_2_data;
+			fan_2_graph.update();
+
+
         } else {
             console.log(data)
         }
