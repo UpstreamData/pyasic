@@ -8,34 +8,35 @@ import os
 from fastapi.templating import Jinja2Templates
 
 from tools.web_testbench import miner_network
+from tools.web_testbench.feeds import update_installer_files
 
 app = FastAPI()
 
-app.mount("/public", StaticFiles(
-    directory=os.path.join(os.path.dirname(__file__), "public")), name="public")
+app.mount(
+    "/public",
+    StaticFiles(directory=os.path.join(os.path.dirname(__file__), "public")),
+    name="public",
+)
 
 templates = Jinja2Templates(
-    directory=os.path.join(os.path.dirname(__file__), "templates"))
+    directory=os.path.join(os.path.dirname(__file__), "templates")
+)
 
 miner_data = {
-    'IP': '192.168.1.10',
-    'Light': 'show',
-    'Fans': {
-        'fan_0': {'RPM': 4620},
-        'fan_1': {'RPM': 4560},
-        'fan_2': {'RPM': 0},
-        'fan_3': {'RPM': 0}
+    "IP": "192.168.1.10",
+    "Light": "show",
+    "Fans": {
+        "fan_0": {"RPM": 4620},
+        "fan_1": {"RPM": 4560},
+        "fan_2": {"RPM": 0},
+        "fan_3": {"RPM": 0},
     },
-    'HR': {
-        'board_6': {'HR': 4.85},
-        'board_7': {'HR': 0.0},
-        'board_8': {'HR': 0.81}
+    "HR": {"board_6": {"HR": 4.85}, "board_7": {"HR": 0.0}, "board_8": {"HR": 0.81}},
+    "Temps": {
+        "board_6": {"Board": 85.6875, "Chip": 93.0},
+        "board_7": {"Board": 0.0, "Chip": 0.0},
+        "board_8": {"Board": 0.0, "Chip": 0.0},
     },
-    'Temps': {
-        'board_6': {'Board': 85.6875, 'Chip': 93.0},
-        'board_7': {'Board': 0.0, 'Chip': 0.0},
-        'board_8': {'Board': 0.0, 'Chip': 0.0}
-    }
 }
 
 
@@ -45,15 +46,14 @@ class ConnectionManager:
 
     def __new__(cls):
         if not cls._instance:
-            cls._instance = super(
-                ConnectionManager,
-                cls
-            ).__new__(cls)
+            cls._instance = super(ConnectionManager, cls).__new__(cls)
         return cls._instance
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        await websocket.send_json({"miners": [str(miner) for miner in miner_network.hosts()]})
+        await websocket.send_json(
+            {"miners": [str(miner) for miner in miner_network.hosts()]}
+        )
         ConnectionManager._connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
@@ -80,22 +80,31 @@ async def ws(websocket: WebSocket):
         ConnectionManager().disconnect(websocket)
 
 
-
 @app.get("/")
 def dashboard(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-    })
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+        },
+    )
+
+
+@app.on_event("startup")
+async def update_installer():
+    await update_installer_files()
 
 
 @app.on_event("startup")
 def start_monitor():
     asyncio.create_task(monitor())
 
+
 async def monitor():
     while True:
         await ConnectionManager().broadcast_json(miner_data)
         await asyncio.sleep(5)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=80)
