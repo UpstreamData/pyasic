@@ -33,6 +33,7 @@ class testbenchMiner:
             MinerFactory().miners.remove(self.host)
 
     async def wait_for_disconnect(self):
+        await self.add_to_output("Waiting for disconnect...")
         while await ping_miner(self.host):
             await asyncio.sleep(1)
 
@@ -40,19 +41,25 @@ class testbenchMiner:
         if not await ping_miner(self.host):
             return
         await self.remove_from_cache()
-        miner = MinerFactory().get_miner(self.host)
+        miner = await MinerFactory().get_miner(self.host)
+        await self.add_to_output("Found miner: " + miner)
         if isinstance(miner, BOSMinerS9):
+            await self.add_to_output("Already running BraiinsOS, updating.")
             self.state = UPDATE
             return
         if await ping_miner(self.host, 22):
+            await self.add_to_output("Miner is unlocked, installing.")
             self.state = INSTALL
             return
+        await self.add_to_output("Miner needs unlock, unlocking.")
         self.state = UNLOCK
 
     async def install_unlock(self):
         if await self.ssh_unlock():
+            await self.add_to_output("Unlocked miner, installing.")
             self.state = INSTALL
             return
+        await self.add_to_output("Failed to unlock miner, please pin reset.")
         self.state = START
         await self.wait_for_disconnect()
 
@@ -76,12 +83,14 @@ class testbenchMiner:
         # get stdout of the install
         while True:
             stdout = await proc.stderr.readuntil(b"\r")
+            await self.add_to_output(stdout)
             if stdout == b"":
                 break
         await proc.wait()
         while not await ping_miner(self.host):
             await asyncio.sleep(3)
         await asyncio.sleep(5)
+        await self.add_to_output("Install complete, configuring.")
         self.state = REFERRAL
 
     async def install_update(self):
@@ -91,8 +100,10 @@ class testbenchMiner:
             await miner.send_file(UPDATE_FILE_S9, "/tmp/firmware.tar")
             await miner.send_ssh_command("sysupgrade /tmp/firmware.tar")
         except:
+            await self.add_to_output("Failed to update, restarting.")
             self.state = START
             return
+        await self.add_to_output("Update complete, configuring.")
         self.state = REFERRAL
 
     async def install_referral(self):
@@ -106,17 +117,25 @@ class testbenchMiner:
                     "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
                 )
             except:
+                await self.add_to_output(
+                    "Failed to add referral and configure, restarting."
+                )
                 self.state = START
                 return
         else:
+            await self.add_to_output(
+                "Failed to add referral and configure, restarting."
+            )
             self.state = START
             return
+        await self.add_to_output("Configuration complete.")
         self.state = DONE
 
     async def get_web_data(self):
         miner = await MinerFactory().get_miner(self.host)
 
         if not isinstance(miner, BOSMinerS9):
+            await self.add_to_output("Miner type changed, restarting.")
             self.state = START
             return
         try:
