@@ -7,7 +7,7 @@ from network.net_range import MinerNetworkRange
 from miners.miner_factory import MinerFactory
 from miners.antminer.S9.bosminer import BOSMinerS9
 
-miner_network = MinerNetworkRange("192.168.1.1-192.168.1.38")
+miner_network = MinerNetworkRange("192.168.1.10-192.168.1.33")
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -15,17 +15,10 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 
 
 # static states
-(
-    START,
-    UNLOCK,
-    INSTALL,
-    UPDATE,
-    REFERRAL,
-    DONE
-) = range(6)
+(START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE) = range(6)
 
 
-class testbenchMiner():
+class testbenchMiner:
     def __init__(self, host: ip_address):
         self.host = host
         self.state = START
@@ -66,7 +59,8 @@ class testbenchMiner():
         proc = await asyncio.create_subprocess_shell(
             f'{os.path.join(os.path.dirname(__file__), "files", "asicseer_installer.exe")} -p -f {str(self.host)} root',
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
+            stderr=asyncio.subprocess.PIPE,
+        )
         stdout, stderr = await proc.communicate()
         if str(stdout).find("webUI") != -1:
             return False
@@ -76,11 +70,12 @@ class testbenchMiner():
         proc = await asyncio.create_subprocess_shell(
             f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/',
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
+            stderr=asyncio.subprocess.PIPE,
+        )
         # get stdout of the install
         while True:
-            stdout = await proc.stderr.readuntil(b'\r')
-            if stdout == b'':
+            stdout = await proc.stderr.readuntil(b"\r")
+            if stdout == b"":
                 break
         await proc.wait()
         while not await ping_miner(self.host):
@@ -103,10 +98,12 @@ class testbenchMiner():
         miner = await MinerFactory().get_miner(self.host)
         if os.path.exists(REFERRAL_FILE_S9):
             try:
-                await miner.send_file(REFERRAL_FILE_S9, '/tmp/referral.ipk')
-                await miner.send_file(CONFIG_FILE, '/etc/bosminer.toml')
+                await miner.send_file(REFERRAL_FILE_S9, "/tmp/referral.ipk")
+                await miner.send_file(CONFIG_FILE, "/etc/bosminer.toml")
 
-                await miner.send_ssh_command('opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart')
+                await miner.send_ssh_command(
+                    "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
+                )
             except:
                 self.state = START
                 return
@@ -124,16 +121,20 @@ class testbenchMiner():
         try:
             all_data = await miner.api.multicommand("devs", "temps", "fans")
 
-            devs_raw = all_data['devs'][0]
-            temps_raw = all_data['temps'][0]
-            fans_raw = all_data['fans'][0]
+            devs_raw = all_data["devs"][0]
+            temps_raw = all_data["temps"][0]
+            fans_raw = all_data["fans"][0]
 
             # parse temperature data
             temps_data = {}
-            for board in range(len(temps_raw['TEMPS'])):
+            for board in range(len(temps_raw["TEMPS"])):
                 temps_data[f"board_{temps_raw['TEMPS'][board]['ID']}"] = {}
-                temps_data[f"board_{temps_raw['TEMPS'][board]['ID']}"]["Board"] = temps_raw['TEMPS'][board]['Board']
-                temps_data[f"board_{temps_raw['TEMPS'][board]['ID']}"]["Chip"] = temps_raw['TEMPS'][board]['Chip']
+                temps_data[f"board_{temps_raw['TEMPS'][board]['ID']}"][
+                    "Board"
+                ] = temps_raw["TEMPS"][board]["Board"]
+                temps_data[f"board_{temps_raw['TEMPS'][board]['ID']}"][
+                    "Chip"
+                ] = temps_raw["TEMPS"][board]["Chip"]
 
             # parse individual board and chip temperature data
             for board in temps_data.keys():
@@ -144,25 +145,27 @@ class testbenchMiner():
 
             # parse hashrate data
             hr_data = {}
-            for board in range(len(devs_raw['DEVS'])):
+            for board in range(len(devs_raw["DEVS"])):
                 hr_data[f"board_{devs_raw['DEVS'][board]['ID']}"] = {}
                 hr_data[f"board_{devs_raw['DEVS'][board]['ID']}"]["HR"] = round(
-                    devs_raw['DEVS'][board]['MHS 5s'] / 1000000,
-                    2)
+                    devs_raw["DEVS"][board]["MHS 5s"] / 1000000, 2
+                )
 
             # parse fan data
             fans_data = {}
-            for fan in range(len(fans_raw['FANS'])):
+            for fan in range(len(fans_raw["FANS"])):
                 fans_data[f"fan_{fans_raw['FANS'][fan]['ID']}"] = {}
-                fans_data[f"fan_{fans_raw['FANS'][fan]['ID']}"]['RPM'] = fans_raw['FANS'][fan]['RPM']
+                fans_data[f"fan_{fans_raw['FANS'][fan]['ID']}"]["RPM"] = fans_raw[
+                    "FANS"
+                ][fan]["RPM"]
 
             # set the miner data
             miner_data = {
-                'IP': self.host,
+                "IP": self.host,
                 "Light": "show",
-                'Fans': fans_data,
-                'HR': hr_data,
-                'Temps': temps_data
+                "Fans": fans_data,
+                "HR": hr_data,
+                "Temps": temps_data,
             }
 
             # return stats

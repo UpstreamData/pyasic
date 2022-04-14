@@ -207,6 +207,7 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
                 // create miner graph container
                 var miner_graphs = document.createElement('div');
                 miner_graphs.id = miner + "-graphs"
+                miner_graphs.hidden = true
 
                 // append the rows to the column
                 miner_graphs.append(row_hr)
@@ -273,9 +274,11 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
 
             });
         }
-        if (data.hasOwnProperty("HR")) {
+        else if (data.hasOwnProperty("HR")) {
             var miner_stdout = document.getElementById(data["IP"] + "-stdout")
             miner_stdout.hidden = true
+            var miner_graphs = document.getElementById(data["IP"] + "-graphs")
+            miner_graphs.hidden = false
             var hr_graph = Chart.getChart(data["IP"] + "-hr")
             var temp_graph = Chart.getChart(data["IP"] + "-temp")
             var fan_1_graph = Chart.getChart(data["IP"] + "-fan-1")
@@ -326,9 +329,11 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
 			var fan_2_data = [{label: "Fan Speed", data: [fan_2_rpm, 6000-fan_2_rpm], backgroundColor: ["rgba(103, 0, 221, 1)", secondary_col_2]}]
 			fan_2_graph.data.datasets = fan_2_data;
 			fan_2_graph.update();
-
-
         } else {
+            var miner_graphs = document.getElementById(data["IP"] + "-graphs")
+            console.log(data["IP"] + "-graphs");
+            console.log(miner_graphs);
+            // miner_graphs.hidden = true
             console.log(data)
         }
     }
