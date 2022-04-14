@@ -20,6 +20,7 @@ class BaseMiner:
         self.api = api
         self.api_type = None
         self.model = None
+        self.light = None
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
@@ -55,6 +56,9 @@ class BaseMiner:
     async def send_file(self, src, dest):
         conn = self._get_ssh_connection()
         await asyncssh.scp((conn, src), dest)
+
+    async def check_light(self):
+        return self.light
 
     async def get_board_info(self):
         return None

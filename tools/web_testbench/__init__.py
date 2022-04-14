@@ -17,18 +17,10 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 (START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE) = range(6)
 
 
-class testbenchMiner:
+class TestbenchMiner:
     def __init__(self, host: ip_address):
         self.host = host
         self.state = START
-        self.light = False
-
-    async def fault_light(self):
-        miner = await MinerFactory().get_miner(self.host)
-        if self.light:
-            await miner.fault_light_off()
-        else:
-            await miner.fault_light_on()
 
     async def add_to_output(self, message):
         await ConnectionManager().broadcast_json(
