@@ -91,7 +91,7 @@
 </div>
 
 <script>
-var ws = new WebSocket("ws://{{request.url.hostname}}:80/miner/{{miner}}/ws");
+var ws = new WebSocket("ws://{{request.url.hostname}}:{{request.url.port}}/miner/{{miner}}/ws");
 let all_data = []
 let all_labels = []
 ws.onmessage = function(event) {

@@ -56,7 +56,7 @@
         window.post = function(url, data) {
           return fetch(url, {method: "POST", headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
         }
-        var ws = new WebSocket("ws://{{request.url.hostname}}:80/scan/ws");
+        var ws = new WebSocket("ws://{{request.url.hostname}}:{{request.url.port}}/scan/ws");
         ws.onmessage = function(event) {
             if (event.data == "Done") {
                 document.getElementById("scanButton").innerHTML = "Scan"
