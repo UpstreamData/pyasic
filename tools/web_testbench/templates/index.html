@@ -105,7 +105,8 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
 
                 // create text area for data
                 var text_area = document.createElement('textarea');
-                text_area.rows = "10"
+                text_area.id = miner + "-stdout_text"
+                text_area.rows = "15"
                 text_area.className = "form-control"
                 text_area.style = "font-size: 12px"
                 text_area.disabled = true
@@ -331,10 +332,10 @@ var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.url.port %}{
 			fan_2_graph.update();
         } else {
             var miner_graphs = document.getElementById(data["IP"] + "-graphs")
-            console.log(data["IP"] + "-graphs");
-            console.log(miner_graphs);
-            // miner_graphs.hidden = true
-            console.log(data)
+            miner_graphs.hidden = true
+            var miner_stdout = document.getElementById(data["IP"] + "-stdout_text")
+            miner_stdout.hidden = false
+            miner_stdout.innerHTML += data["text"]
         }
     }
 </script>
