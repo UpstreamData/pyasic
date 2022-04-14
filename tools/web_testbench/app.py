@@ -7,7 +7,7 @@ import uvicorn
 import os
 from fastapi.templating import Jinja2Templates
 
-from tools.web_testbench import miner_network
+from tools.web_testbench._network import miner_network
 from tools.web_testbench.feeds import update_installer_files
 
 app = FastAPI()
@@ -102,8 +102,11 @@ def start_monitor():
 
 async def monitor():
     while True:
-        await ConnectionManager().broadcast_json(miner_data)
+        await ConnectionManager().broadcast_json(
+            {"IP": "192.168.1.11", "text": "hello\n"}
+        )
         await asyncio.sleep(5)
+        await ConnectionManager().broadcast_json(miner_data)
 
 
 if __name__ == "__main__":

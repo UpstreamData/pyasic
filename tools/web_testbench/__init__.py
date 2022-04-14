@@ -3,11 +3,10 @@ import asyncio
 import os
 
 from network import ping_miner
-from network.net_range import MinerNetworkRange
 from miners.miner_factory import MinerFactory
 from miners.antminer.S9.bosminer import BOSMinerS9
-
-miner_network = MinerNetworkRange("192.168.1.10-192.168.1.33")
+from tools.web_testbench._network import miner_network
+from tools.web_testbench.app import ConnectionManager
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -24,7 +23,9 @@ class testbenchMiner:
         self.state = START
 
     async def add_to_output(self, message):
-        # send a message to web server
+        await ConnectionManager().broadcast_json(
+            {"IP": self.host, "text": str(message)}
+        )
         return
 
     async def remove_from_cache(self):
