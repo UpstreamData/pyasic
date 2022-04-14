@@ -21,6 +21,14 @@ class testbenchMiner:
     def __init__(self, host: ip_address):
         self.host = host
         self.state = START
+        self.light = False
+
+    async def fault_light(self):
+        miner = await MinerFactory().get_miner(self.host)
+        if self.light:
+            await miner.fault_light_off()
+        else:
+            await miner.fault_light_on()
 
     async def add_to_output(self, message):
         await ConnectionManager().broadcast_json(
@@ -194,9 +202,11 @@ class testbenchMiner:
             return
 
     async def install_done(self):
+        await self.add_to_output("Waiting for disconnect...")
         while await ping_miner(self.host) and self.state == DONE:
-            print(await self.get_web_data())
+            await ConnectionManager().broadcast_json(await self.get_web_data())
             await asyncio.sleep(1)
+        self.state = START
 
     async def install_loop(self):
         while True:

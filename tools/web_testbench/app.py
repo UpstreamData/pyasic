@@ -101,12 +101,14 @@ def start_monitor():
 
 
 async def monitor():
+    i = 0
     while True:
         await ConnectionManager().broadcast_json(
-            {"IP": "192.168.1.11", "text": "hello\n"}
+            {"IP": "192.168.1.11", "text": f"hello - {i}\n"}
         )
         await asyncio.sleep(5)
         await ConnectionManager().broadcast_json(miner_data)
+        i += 1
 
 
 if __name__ == "__main__":
