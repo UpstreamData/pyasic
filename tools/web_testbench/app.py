@@ -34,14 +34,17 @@ async def ws(websocket: WebSocket):
             data = await websocket.receive_json()
             if "IP" in data.keys():
                 miner = await MinerFactory().get_miner(data["IP"])
-                if data["Data"] == "unlight":
-                    if data["IP"] in ConnectionManager.lit_miners:
-                        ConnectionManager.lit_miners.remove(data["IP"])
-                    await miner.fault_light_off()
-                if data["Data"] == "light":
-                    if data["IP"] not in ConnectionManager().lit_miners:
-                        ConnectionManager.lit_miners.append(data["IP"])
-                    await miner.fault_light_on()
+                try:
+                    if data["Data"] == "unlight":
+                        if data["IP"] in ConnectionManager.lit_miners:
+                            ConnectionManager.lit_miners.remove(data["IP"])
+                        await miner.fault_light_off()
+                    if data["Data"] == "light":
+                        if data["IP"] not in ConnectionManager().lit_miners:
+                            ConnectionManager.lit_miners.append(data["IP"])
+                        await miner.fault_light_on()
+                except AttributeError:
+                    await ConnectionManager().broadcast_json({"IP": data["IP"], "text": "Fault light command failed, miner is not running BraiinsOS."})
     except WebSocketDisconnect:
         ConnectionManager().disconnect(websocket)
     except RuntimeError:
