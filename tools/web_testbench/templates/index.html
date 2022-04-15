@@ -227,7 +227,8 @@ ws.onmessage = function(event) {
 
             // create light button container
             var container_light = document.createElement('div');
-            container_light.className = "form-check form-switch d-flex justify-content-evenly"
+            container_light.className = "form-check form-switch justify-content-evenly"
+            container_light.style = "display: none;"
             container_light.id = miner["IP"] + "-light_container"
 
             // create light button
@@ -365,7 +366,7 @@ ws.onmessage = function(event) {
         var fan_2_data = [{label: "Fan Speed", data: [fan_2_rpm, 6000-fan_2_rpm], backgroundColor: ["rgba(103, 0, 221, 1)", secondary_col_2]}]
         fan_2_graph.data.datasets = fan_2_data;
         fan_2_graph.update();
-    } else {
+    } else if (data.hasOwnProperty("text")) {
         var miner_graphs = document.getElementById(data["IP"] + "-graphs")
         miner_graphs.hidden = true
         var miner_stdout = document.getElementById(data["IP"] + "-stdout_text")
@@ -374,12 +375,14 @@ ws.onmessage = function(event) {
     };
     if (data.hasOwnProperty("Light")) {
         light_box = document.getElementById(data["IP"] + "-light_container")
+        console.log(data)
         if (data["Light"] == "show") {
-            light_box.hidden = false
-        } else {
-            light_box.hidden = true
+            console.log(light_box)
+            light_box.style = "display: flex;"
+        } else if (data["Light"] == "hide") {
+            light_box.style = "display: none;"
         }
-    };
+    }
 }
 
 </script>
