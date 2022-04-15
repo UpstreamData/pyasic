@@ -47,6 +47,7 @@ class TestbenchMiner:
             await asyncio.sleep(1)
 
     async def install_start(self):
+        await ConnectionManager().broadcast_json({"IP": str(self.host), "Light": "hide"})
         if not await ping_miner(self.host, 80):
             await self.add_to_output("Waiting for miner connection...")
             return
