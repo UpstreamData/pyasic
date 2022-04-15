@@ -1,17 +1,16 @@
 from ipaddress import ip_address
 import asyncio
 import os
-import datetime
 
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer.S9.bosminer import BOSMinerS9
 from tools.web_testbench.connections import ConnectionManager
+from tools.web_testbench.feeds import get_local_versions
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
-
 
 # static states
 (START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE) = range(6)
@@ -21,11 +20,20 @@ class TestbenchMiner:
     def __init__(self, host: ip_address):
         self.host = host
         self.state = START
+        self.latest_version = None
+
+    async def get_bos_version(self):
+        miner = await MinerFactory().get_miner(self.host)
+        result = await miner.send_ssh_command("cat /etc/bos_version")
+        version_base = result.stdout
+        version_base = version_base.strip()
+        version_base = version_base.split("-")
+        version = version_base[-2]
+        return version
 
     async def add_to_output(self, message):
-        print(datetime.datetime.now())
         await ConnectionManager().broadcast_json(
-            {"IP": str(self.host), "text": str(message) + "\n"}
+            {"IP": str(self.host), "text": str(message).replace("\r", "") + "\n"}
         )
         return
 
@@ -39,13 +47,17 @@ class TestbenchMiner:
             await asyncio.sleep(1)
 
     async def install_start(self):
-        if not await ping_miner(self.host):
+        if not await ping_miner(self.host, 80):
             await self.add_to_output("Waiting for miner connection...")
             return
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
-        await self.add_to_output("Found miner: " + miner)
+        await self.add_to_output("Found miner: " + str(miner))
         if isinstance(miner, BOSMinerS9):
+            if await self.get_bos_version() == self.latest_version:
+                await self.add_to_output("Already running the latest version of BraiinsOS, configuring.")
+                self.state = REFERRAL
+                return
             await self.add_to_output("Already running BraiinsOS, updating.")
             self.state = UPDATE
             return
@@ -84,8 +96,11 @@ class TestbenchMiner:
         )
         # get stdout of the install
         while True:
-            stdout = await proc.stderr.readuntil(b"\r")
-            await self.add_to_output(stdout)
+            try:
+                stdout = await proc.stderr.readuntil(b"\r")
+            except asyncio.exceptions.IncompleteReadError:
+                break
+            await self.add_to_output(stdout.decode("utf-8").strip())
             if stdout == b"":
                 break
         await proc.wait()
@@ -96,40 +111,38 @@ class TestbenchMiner:
         self.state = REFERRAL
 
     async def install_update(self):
+        await self.add_to_output("Updating miner...")
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
         try:
             await miner.send_file(UPDATE_FILE_S9, "/tmp/firmware.tar")
             await miner.send_ssh_command("sysupgrade /tmp/firmware.tar")
-        except:
+        except Exception as e:
+            print(e)
             await self.add_to_output("Failed to update, restarting.")
             self.state = START
             return
+        await asyncio.sleep(10)
         await self.add_to_output("Update complete, configuring.")
         self.state = REFERRAL
 
     async def install_referral(self):
+        while not await ping_miner(self.host):
+            await asyncio.sleep(1)
         miner = await MinerFactory().get_miner(self.host)
-        if os.path.exists(REFERRAL_FILE_S9):
-            try:
-                await miner.send_file(REFERRAL_FILE_S9, "/tmp/referral.ipk")
-                await miner.send_file(CONFIG_FILE, "/etc/bosminer.toml")
-
-                await miner.send_ssh_command(
-                    "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
-                )
-            except:
-                await self.add_to_output(
-                    "Failed to add referral and configure, restarting."
-                )
-                self.state = START
-                return
-        else:
+        try:
+            await miner.send_file(REFERRAL_FILE_S9, "/tmp/referral.ipk")
+            await miner.send_file(CONFIG_FILE, "/etc/bosminer.toml")
+            await miner.send_ssh_command(
+                "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
+            )
+        except Exception as e:
             await self.add_to_output(
                 "Failed to add referral and configure, restarting."
             )
             self.state = START
             return
+        await asyncio.sleep(5)
         await self.add_to_output("Configuration complete.")
         self.state = DONE
 
@@ -183,7 +196,7 @@ class TestbenchMiner:
 
             # set the miner data
             miner_data = {
-                "IP": self.host,
+                "IP": str(self.host),
                 "Light": "show",
                 "Fans": fans_data,
                 "HR": hr_data,
@@ -198,11 +211,13 @@ class TestbenchMiner:
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")
         while await ping_miner(self.host) and self.state == DONE:
-            await ConnectionManager().broadcast_json(await self.get_web_data())
+            data = await self.get_web_data()
+            await ConnectionManager().broadcast_json(data)
             await asyncio.sleep(1)
         self.state = START
 
     async def install_loop(self):
+        self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
         while True:
             if self.state == START:
                 await self.install_start()
