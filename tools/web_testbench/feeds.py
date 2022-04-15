@@ -109,6 +109,23 @@ async def get_latest_install_file(session, version, feeds_path, install_file):
 
 
 async def update_installer_files():
+    feeds_path = os.path.join(
+        os.path.dirname(__file__), "files", "bos-toolbox", "feeds"
+    )
+    feeds_versions = await get_local_versions()
+    async with aiohttp.ClientSession() as session:
+        version = await get_latest_version(session)
+
+        if version not in feeds_versions:
+            update_file = await get_update_file(session, version)
+            install_file = await get_feeds_file(session, version)
+            await get_latest_update_file(session, update_file)
+            await get_latest_install_file(session, version, feeds_path, install_file)
+        else:
+            logging.info("Feeds are up to date.")
+
+
+async def get_local_versions():
     feeds_versions = []
     feeds_path = os.path.join(
         os.path.dirname(__file__), "files", "bos-toolbox", "feeds"
@@ -127,16 +144,8 @@ async def update_installer_files():
             ver = line.strip().split("\t")[0]
             feeds_versions.append(ver)
 
-    async with aiohttp.ClientSession() as session:
-        version = await get_latest_version(session)
+    return feeds_versions
 
-        if version not in feeds_versions:
-            update_file = await get_update_file(session, version)
-            install_file = await get_feeds_file(session, version)
-            await get_latest_update_file(session, update_file)
-            await get_latest_install_file(session, version, feeds_path, install_file)
-        else:
-            logging.info("Feeds are up to date.")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from tools.web_testbench._network import miner_network
 class ConnectionManager:
     _instance = None
     _connections = []
+    lit_miners = []
 
     def __new__(cls):
         if not cls._instance:
@@ -16,16 +17,17 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         miners = []
+        print(ConnectionManager.lit_miners)
         for host in miner_network.hosts():
-            if host in MinerFactory().miners.keys():
+            if str(host) in ConnectionManager.lit_miners:
                 miners.append(
                     {
                         "IP": str(host),
-                        "Light_On": await MinerFactory().miners[host].get_light(),
+                        "Light_On": True,
                     }
                 )
             else:
-                miners.append({"IP": str(host), "Light_On": None})
+                miners.append({"IP": str(host), "Light_On": False})
         await websocket.send_json({"miners": miners})
         ConnectionManager._connections.append(websocket)
 
