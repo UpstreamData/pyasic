@@ -35,9 +35,13 @@ async def ws(websocket: WebSocket):
             if "IP" in data.keys():
                 miner = await MinerFactory().get_miner(data["IP"])
                 if data["Data"] == "unlight":
-                    miner.fault_light_off()
+                    if data["IP"] in ConnectionManager.lit_miners:
+                        ConnectionManager.lit_miners.remove(data["IP"])
+                    await miner.fault_light_off()
                 if data["Data"] == "light":
-                    miner.fault_light_on()
+                    if data["IP"] not in ConnectionManager().lit_miners:
+                        ConnectionManager.lit_miners.append(data["IP"])
+                    await miner.fault_light_on()
     except WebSocketDisconnect:
         ConnectionManager().disconnect(websocket)
     except RuntimeError:

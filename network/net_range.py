@@ -19,8 +19,12 @@ class MinerNetworkRange:
             end_ip = ipaddress.ip_address(end)
             networks = ipaddress.summarize_address_range(start_ip, end_ip)
             for network in networks:
+                self.host_ips.append(network.network_address)
                 for host in network.hosts():
-                    self.host_ips.append(host)
+                    if host not in self.host_ips:
+                        self.host_ips.append(host)
+                if network.broadcast_address not in self.host_ips:
+                    self.host_ips.append(network.broadcast_address)
 
     def hosts(self):
         for x in self.host_ips:

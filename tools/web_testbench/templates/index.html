@@ -238,7 +238,7 @@ ws.onmessage = function(event) {
             }
             light_switch.id = miner["IP"] + "-light"
             light_switch.className = "form-check-input"
-            light_switch.addEventListener("click", function(){lightMiner(miner, light_switch);}, false);
+            light_switch.addEventListener("click", function(){lightMiner(miner["IP"], light_switch);}, false);
 
 
             // add a light label to the button
