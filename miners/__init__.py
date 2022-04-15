@@ -54,8 +54,8 @@ class BaseMiner:
             raise e
 
     async def send_file(self, src, dest):
-        conn = self._get_ssh_connection()
-        await asyncssh.scp((conn, src), dest)
+        async with (await self._get_ssh_connection()) as conn:
+            await asyncssh.scp(src, (conn, dest))
 
     async def check_light(self):
         return self.light
