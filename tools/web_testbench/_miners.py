@@ -1,6 +1,7 @@
 from ipaddress import ip_address
 import asyncio
 import os
+import logging
 
 from network import ping_miner
 from miners.miner_factory import MinerFactory
@@ -119,7 +120,7 @@ class TestbenchMiner:
             await miner.send_file(UPDATE_FILE_S9, "/tmp/firmware.tar")
             await miner.send_ssh_command("sysupgrade /tmp/firmware.tar")
         except Exception as e:
-            print(e)
+            logging.warning(f"{str(self.host)} Exception: {e}")
             await self.add_to_output("Failed to update, restarting.")
             self.state = START
             return
