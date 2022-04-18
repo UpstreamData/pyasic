@@ -32,7 +32,6 @@ class MinerNetwork:
             return self.network
 
         if "-" in self.ip_addr:
-            print("getting network")
             self.network = MinerNetworkRange(self.ip_addr)
         else:
             # if there is no IP address passed, default to 192.168.1.0
