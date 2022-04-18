@@ -57,7 +57,7 @@ class TestbenchMiner:
         await self.add_to_output("Found miner: " + str(miner))
         if isinstance(miner, BOSMinerS9):
             if await self.get_bos_version() == self.latest_version:
-                await self.add_to_output("Already running the latest version of BraiinsOS, configuring.")
+                await self.add_to_output(f"Already running the latest version of BraiinsOS, {self.latest_version}, configuring.")
                 self.state = REFERRAL
                 return
             await self.add_to_output("Already running BraiinsOS, updating.")
@@ -173,6 +173,11 @@ class TestbenchMiner:
                     "Chip"
                 ] = temps_raw["TEMPS"][board]["Chip"]
 
+            if len(temps_data.keys()) < 3:
+                for board in [6, 7, 8]:
+                    if f"board_{board}" not in temps_data.keys():
+                        temps_data[f"board_{board}"] = {"Chip": 0, "Board": 0}
+
             # parse individual board and chip temperature data
             for board in temps_data.keys():
                 if "Board" not in temps_data[board].keys():
@@ -212,11 +217,17 @@ class TestbenchMiner:
 
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")
-        while await ping_miner(self.host) and self.state == DONE:
-            data = await self.get_web_data()
-            await ConnectionManager().broadcast_json(data)
-            await asyncio.sleep(1)
+        try:
+            while await ping_miner(self.host) and self.state == DONE:
+                data = await self.get_web_data()
+                await ConnectionManager().broadcast_json(data)
+                await asyncio.sleep(1)
+        except:
+            self.state = START
+            await self.add_to_output("Miner disconnected, waiting for new miner.")
+            return
         self.state = START
+        await self.add_to_output("Miner disconnected, waiting for new miner.")
 
     async def install_loop(self):
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
