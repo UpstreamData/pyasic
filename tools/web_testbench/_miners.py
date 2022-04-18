@@ -2,6 +2,7 @@ from ipaddress import ip_address
 import asyncio
 import os
 import logging
+import datetime
 
 from network import ping_miner
 from miners.miner_factory import MinerFactory
@@ -22,6 +23,7 @@ class TestbenchMiner:
         self.host = host
         self.state = START
         self.latest_version = None
+        self.start_time = None
 
     async def get_bos_version(self):
         miner = await MinerFactory().get_miner(self.host)
@@ -32,10 +34,20 @@ class TestbenchMiner:
         version = version_base[-2]
         return version
 
+    def get_online_time(self):
+        online_time = "0:00:00"
+        if self.start_time:
+            online_time = str(datetime.datetime.now() - self.start_time)
+        return online_time
+
     async def add_to_output(self, message):
-        await ConnectionManager().broadcast_json(
-            {"IP": str(self.host), "text": str(message).replace("\r", "") + "\n"}
-        )
+        data = {
+            "IP": str(self.host),
+            "text": str(message).replace("\r", "") + "\n",
+            "online": self.get_online_time(),
+        }
+
+        await ConnectionManager().broadcast_json(data)
         return
 
     async def remove_from_cache(self):
@@ -48,8 +60,9 @@ class TestbenchMiner:
             await asyncio.sleep(1)
 
     async def install_start(self):
+        self.start_time = datetime.datetime.now()
         await ConnectionManager().broadcast_json(
-            {"IP": str(self.host), "Light": "hide"}
+            {"IP": str(self.host), "Light": "hide", "online": self.get_online_time()}
         )
         if not await ping_miner(self.host, 80):
             await self.add_to_output("Waiting for miner connection...")
@@ -227,6 +240,7 @@ class TestbenchMiner:
                 "Fans": fans_data,
                 "HR": hr_data,
                 "Temps": temps_data,
+                "online": self.get_online_time(),
             }
 
             # return stats
@@ -252,6 +266,7 @@ class TestbenchMiner:
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
         while True:
             if self.state == START:
+                self.start_time = None
                 await self.install_start()
             if self.state == UNLOCK:
                 await self.install_unlock()

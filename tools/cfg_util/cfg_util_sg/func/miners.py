@@ -196,8 +196,8 @@ async def restart_miners_backend(ips: list):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    reboot_miners_generator = reboot_generator(all_miners)
-    async for _rebooter in reboot_miners_generator:
+    restart_backend_gen = restart_backend_generator(all_miners)
+    async for _rebooter in restart_backend_gen:
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
