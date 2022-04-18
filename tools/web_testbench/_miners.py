@@ -46,7 +46,7 @@ class TestbenchMiner:
             "IP": str(self.host),
             "text": str(message).replace("\r", "") + "\n",
             "Light": "hide",
-            "online": self.get_online_time()
+            "online": self.get_online_time(),
         }
 
         await ConnectionManager().broadcast_json(data)
@@ -190,11 +190,14 @@ class TestbenchMiner:
             self.state = START
             return
         try:
-            all_data = await miner.api.multicommand("devs", "temps", "fans")
+            all_data = await miner.api.multicommand(
+                "devs", "temps", "fans", "tunerstatus"
+            )
 
             devs_raw = all_data["devs"][0]
             temps_raw = all_data["temps"][0]
             fans_raw = all_data["fans"][0]
+            tunerstatus_raw = all_data["tunerstatus"][0]
 
             # parse temperature data
             temps_data = {}
@@ -235,6 +238,16 @@ class TestbenchMiner:
                     "FANS"
                 ][fan]["RPM"]
 
+            # parse tuner data
+            tuner_data = {}
+            if tunerstatus_raw:
+                for board in tunerstatus_raw["TUNERSTATUS"][0]["TunerChainStatus"]:
+                    tuner_data[f"board_{board['HashchainIndex']}"] = {
+                        "power_limit": board["PowerLimitWatt"],
+                        "real_power": board["ApproximatePowerConsumptionWatt"],
+                        "status": board["Status"],
+                    }
+
             # set the miner data
             miner_data = {
                 "IP": str(self.host),
@@ -243,6 +256,7 @@ class TestbenchMiner:
                 "HR": hr_data,
                 "Temps": temps_data,
                 "online": self.get_online_time(),
+                "Tuner": tuner_data,
             }
 
             # return stats
@@ -253,7 +267,10 @@ class TestbenchMiner:
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")
         try:
-            while await asyncio.wait_for(ping_miner(self.host), PING_TIMEOUT+3) and self.state == DONE:
+            while (
+                await asyncio.wait_for(ping_miner(self.host), PING_TIMEOUT + 3)
+                and self.state == DONE
+            ):
                 data = await self.get_web_data()
                 await ConnectionManager().broadcast_json(data)
                 await asyncio.sleep(1)
