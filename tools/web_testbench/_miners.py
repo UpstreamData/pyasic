@@ -48,7 +48,9 @@ class TestbenchMiner:
             await asyncio.sleep(1)
 
     async def install_start(self):
-        await ConnectionManager().broadcast_json({"IP": str(self.host), "Light": "hide"})
+        await ConnectionManager().broadcast_json(
+            {"IP": str(self.host), "Light": "hide"}
+        )
         if not await ping_miner(self.host, 80):
             await self.add_to_output("Waiting for miner connection...")
             return
@@ -57,7 +59,9 @@ class TestbenchMiner:
         await self.add_to_output("Found miner: " + str(miner))
         if isinstance(miner, BOSMinerS9):
             if await self.get_bos_version() == self.latest_version:
-                await self.add_to_output(f"Already running the latest version of BraiinsOS, {self.latest_version}, configuring.")
+                await self.add_to_output(
+                    f"Already running the latest version of BraiinsOS, {self.latest_version}, configuring."
+                )
                 self.state = REFERRAL
                 return
             await self.add_to_output("Already running BraiinsOS, updating.")
@@ -90,13 +94,11 @@ class TestbenchMiner:
             return False
         return True
 
-
     async def fix_file_exists_bug(self):
         miner = await MinerFactory().get_miner(self.host)
         await miner.send_ssh_command(
             "rm /lib/ld-musl-armhf.so.1; rm /usr/lib/openssh/sftp-server; rm /usr/sbin/fw_printenv"
         )
-
 
     async def do_install(self):
         error = False
