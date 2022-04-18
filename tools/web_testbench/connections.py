@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+import logging
 
 from miners.miner_factory import MinerFactory
 from tools.web_testbench._network import miner_network
@@ -17,7 +18,6 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         miners = []
-        print(ConnectionManager.lit_miners)
         for host in miner_network.hosts():
             if str(host) in ConnectionManager.lit_miners:
                 miners.append(
@@ -32,7 +32,7 @@ class ConnectionManager:
         ConnectionManager._connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        print("Disconnected")
+        logging.info("Disconnected")
         ConnectionManager._connections.remove(websocket)
 
     async def broadcast_json(self, data: dict):
