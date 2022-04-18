@@ -44,7 +44,12 @@ async def ws(websocket: WebSocket):
                             ConnectionManager.lit_miners.append(data["IP"])
                         await miner.fault_light_on()
                 except AttributeError:
-                    await ConnectionManager().broadcast_json({"IP": data["IP"], "text": "Fault light command failed, miner is not running BraiinsOS."})
+                    await ConnectionManager().broadcast_json(
+                        {
+                            "IP": data["IP"],
+                            "text": "Fault light command failed, miner is not running BraiinsOS.",
+                        }
+                    )
     except WebSocketDisconnect:
         ConnectionManager().disconnect(websocket)
     except RuntimeError:
