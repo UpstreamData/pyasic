@@ -9,6 +9,7 @@ from miners.miner_factory import MinerFactory
 from miners.antminer.S9.bosminer import BOSMinerS9
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
+from settings import NETWORK_PING_TIMEOUT as PING_TIMEOUT
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -252,7 +253,7 @@ class TestbenchMiner:
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")
         try:
-            while await ping_miner(self.host) and self.state == DONE:
+            while await asyncio.wait_for(ping_miner(self.host), PING_TIMEOUT+3) and self.state == DONE:
                 data = await self.get_web_data()
                 await ConnectionManager().broadcast_json(data)
                 await asyncio.sleep(1)
