@@ -92,16 +92,17 @@ ws.onmessage = function(event) {
     if (data.hasOwnProperty("online")) {
         timer = document.getElementById(data["IP"] + "-timer")
         if (data["online"] == "0:00:00") {
-            if (timer.className.contains("btn-success")) {
-                timer.className.remove("btn-success")
-                timer.className += ("btn-secondary")
+            if (timer.classList.contains("btn-success")) {
+                timer.classList.remove("btn-success")
+                timer.className += " btn-secondary"
             }
         } else {
-            if (timer.className.contains("btn-secondary")) {
-                timer.className.remove("btn-secondary")
-                timer.className += ("btn-success")
+            if (timer.classList.contains("btn-secondary")) {
+                timer.classList.remove("btn-secondary")
+                timer.className += " btn-success"
             }
         }
+        timer.innerHTML = data["online"]
     };
     if (data.hasOwnProperty("miners")) {
         var container_all = document.getElementById('chart_container');
@@ -401,9 +402,7 @@ ws.onmessage = function(event) {
         var miner_stdout_text = document.getElementById(data["IP"] + "-stdout_text")
         miner_stdout.hidden = false
         miner_stdout_text.innerHTML = data["text"] + miner_stdout_text.innerHTML
-    } else {
-        console.log(data)
-    };
+    }
     if (data.hasOwnProperty("Light")) {
         light_box = document.getElementById(data["IP"] + "-light_container")
         if (data["Light"] == "show") {
