@@ -37,7 +37,7 @@ class TestbenchMiner:
     def get_online_time(self):
         online_time = "0:00:00"
         if self.start_time:
-            online_time = str(datetime.datetime.now() - self.start_time)
+            online_time = str(datetime.datetime.now() - self.start_time).split(".")[0]
         return online_time
 
     async def add_to_output(self, message):
@@ -60,13 +60,13 @@ class TestbenchMiner:
             await asyncio.sleep(1)
 
     async def install_start(self):
+        if not await ping_miner(self.host, 80):
+            await self.add_to_output("Waiting for miner connection...")
+            return
         self.start_time = datetime.datetime.now()
         await ConnectionManager().broadcast_json(
             {"IP": str(self.host), "Light": "hide", "online": self.get_online_time()}
         )
-        if not await ping_miner(self.host, 80):
-            await self.add_to_output("Waiting for miner connection...")
-            return
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
         await self.add_to_output("Found miner: " + str(miner))
@@ -258,9 +258,11 @@ class TestbenchMiner:
         except:
             self.state = START
             await self.add_to_output("Miner disconnected, waiting for new miner.")
+            self.start_time = None
             return
         self.state = START
         await self.add_to_output("Miner disconnected, waiting for new miner.")
+        self.start_time = None
 
     async def install_loop(self):
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
