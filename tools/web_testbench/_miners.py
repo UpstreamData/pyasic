@@ -44,7 +44,8 @@ class TestbenchMiner:
         data = {
             "IP": str(self.host),
             "text": str(message).replace("\r", "") + "\n",
-            "online": self.get_online_time(),
+            "Light": "hide",
+            "online": self.get_online_time()
         }
 
         await ConnectionManager().broadcast_json(data)
