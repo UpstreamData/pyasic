@@ -89,6 +89,20 @@ function lightMiner(ip, checkbox) {
 };
 ws.onmessage = function(event) {
     var data = JSON.parse(event.data)
+    if (data.hasOwnProperty("online")) {
+        timer = document.getElementById(data["IP"] + "-timer")
+        if (data["online"] == "0:00:00") {
+            if (timer.className.contains("btn-success")) {
+                timer.className.remove("btn-success")
+                timer.className += ("btn-secondary")
+            }
+        } else {
+            if (timer.className.contains("btn-secondary")) {
+                timer.className.remove("btn-secondary")
+                timer.className += ("btn-success")
+            }
+        }
+    };
     if (data.hasOwnProperty("miners")) {
         var container_all = document.getElementById('chart_container');
         container_all.innerHTML = ""
@@ -98,13 +112,27 @@ ws.onmessage = function(event) {
             column.className = "col border border-dark p-3"
             column.id = miner["IP"]
 
+            // create button group
+            var button_group = document.createElement("div");
+            button_group.className = "btn-group w-100"
+
             // create IP address header
             var header = document.createElement('button');
-            header.className = "text-center btn btn-primary w-100"
+            header.className = "text-center btn btn-primary"
             header.onclick = function(){window.open("http://" + miner["IP"], '_blank');}
             header.innerHTML += miner["IP"]
 
-            column.append(header)
+            // create online timer
+            var timer = document.createElement('button');
+            timer.className = "text-center btn btn-secondary"
+            timer.disabled = true
+            timer.innerHTML = "0:00:00"
+            timer.id = miner["IP"] + "-timer"
+
+            button_group.append(header)
+            button_group.append(timer)
+
+            column.append(button_group)
 
             // create install stdout
             var row_text = document.createElement('div');
