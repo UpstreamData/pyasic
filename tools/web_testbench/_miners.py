@@ -90,7 +90,16 @@ class TestbenchMiner:
             return False
         return True
 
+
+    async def fix_file_exists_bug(self):
+        miner = await MinerFactory().get_miner(self.host)
+        await miner.send_ssh_command(
+            "rm /lib/ld-musl-armhf.so.1; rm /usr/lib/openssh/sftp-server; rm /usr/sbin/fw_printenv"
+        )
+
+
     async def do_install(self):
+        error = False
         proc = await asyncio.create_subprocess_shell(
             f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/',
             stdout=asyncio.subprocess.PIPE,
@@ -102,13 +111,21 @@ class TestbenchMiner:
                 stdout = await proc.stderr.readuntil(b"\r")
             except asyncio.exceptions.IncompleteReadError:
                 break
-            await self.add_to_output(stdout.decode("utf-8").strip())
+            stdout_data = stdout.decode("utf-8").strip()
+            if "ERROR:File" in stdout_data:
+                error = True
+            await self.add_to_output(stdout_data)
             if stdout == b"":
                 break
         await proc.wait()
         while not await ping_miner(self.host):
             await asyncio.sleep(3)
         await asyncio.sleep(5)
+        if error:
+            await self.add_to_output("Encountered error, attempting to fix.")
+            await self.fix_file_exists_bug()
+            self.state = START
+            return
         await self.add_to_output("Install complete, configuring.")
         self.state = REFERRAL
 
