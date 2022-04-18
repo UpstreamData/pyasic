@@ -369,15 +369,16 @@ ws.onmessage = function(event) {
     } else if (data.hasOwnProperty("text")) {
         var miner_graphs = document.getElementById(data["IP"] + "-graphs")
         miner_graphs.hidden = true
-        var miner_stdout = document.getElementById(data["IP"] + "-stdout_text")
+        var miner_stdout = document.getElementById(data["IP"] + "-stdout")
+        var miner_stdout_text = document.getElementById(data["IP"] + "-stdout_text")
         miner_stdout.hidden = false
-        miner_stdout.innerHTML = data["text"] + miner_stdout.innerHTML
+        miner_stdout_text.innerHTML = data["text"] + miner_stdout_text.innerHTML
+    } else {
+        console.log(data)
     };
     if (data.hasOwnProperty("Light")) {
         light_box = document.getElementById(data["IP"] + "-light_container")
-        console.log(data)
         if (data["Light"] == "show") {
-            console.log(light_box)
             light_box.style = "display: flex;"
         } else if (data["Light"] == "hide") {
             light_box.style = "display: none;"
