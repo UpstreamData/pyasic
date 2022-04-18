@@ -248,6 +248,15 @@ class TestbenchMiner:
                         "status": board["Status"],
                     }
 
+            if len(tuner_data.keys()) < 3:
+                for board in [6, 7, 8]:
+                    if f"board_{board}" not in tuner_data.keys():
+                        temps_data[f"board_{board}"] = {
+                            "power_limit": 0,
+                            "real_power": 0,
+                            "status": "ERROR: No board found!",
+                        }
+
             # set the miner data
             miner_data = {
                 "IP": str(self.host),
