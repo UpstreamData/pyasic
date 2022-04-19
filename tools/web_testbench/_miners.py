@@ -73,11 +73,14 @@ class TestbenchMiner:
         miner = await MinerFactory().get_miner(self.host)
         await self.add_to_output("Found miner: " + str(miner))
         if isinstance(miner, BOSMinerS9):
-            if await self.get_bos_version() == self.latest_version:
-                await self.add_to_output(
-                    f"Already running the latest version of BraiinsOS, {self.latest_version}, configuring."
-                )
-                self.state = REFERRAL
+            try:
+                if await self.get_bos_version() == self.latest_version:
+                    await self.add_to_output(
+                        f"Already running the latest version of BraiinsOS, {self.latest_version}, configuring."
+                    )
+                    self.state = REFERRAL
+                    return
+            except AttributeError:
                 return
             await self.add_to_output("Already running BraiinsOS, updating.")
             self.state = UPDATE
@@ -295,16 +298,19 @@ class TestbenchMiner:
     async def install_loop(self):
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
         while True:
-            if self.state == START:
-                self.start_time = None
-                await self.install_start()
-            if self.state == UNLOCK:
-                await self.install_unlock()
-            if self.state == INSTALL:
-                await self.do_install()
-            if self.state == UPDATE:
-                await self.install_update()
-            if self.state == REFERRAL:
-                await self.install_referral()
-            if self.state == DONE:
-                await self.install_done()
+            try:
+                if self.state == START:
+                    self.start_time = None
+                    await self.install_start()
+                if self.state == UNLOCK:
+                    await self.install_unlock()
+                if self.state == INSTALL:
+                    await self.do_install()
+                if self.state == UPDATE:
+                    await self.install_update()
+                if self.state == REFERRAL:
+                    await self.install_referral()
+                if self.state == DONE:
+                    await self.install_done()
+            except Exception as E:
+                logging.error(f"{self.host}: {E}")
