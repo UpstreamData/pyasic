@@ -4,6 +4,7 @@ import json
 import hashlib
 import binascii
 import base64
+import logging
 
 from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -205,7 +206,7 @@ class BTMinerAPI(BaseMinerAPI):
                     break
                 data += d
         except Exception as e:
-            print(e)
+            logging.info(f"{str(self.ip)}: {e}")
 
         data = self.load_api_data(data)
 
@@ -219,7 +220,7 @@ class BTMinerAPI(BaseMinerAPI):
             try:
                 data = parse_btminer_priviledge_data(self.current_token, data)
             except Exception as e:
-                print(e)
+                logging.info(f"{str(self.ip)}: {e}")
 
         if not ignore_errors:
             # if it fails to validate, it is likely an error

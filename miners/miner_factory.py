@@ -34,6 +34,7 @@ from API import APIError
 import asyncio
 import ipaddress
 import json
+import logging
 
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES
 
@@ -107,7 +108,7 @@ class MinerFactory:
 
                     # handle the different API types
                     if not api:
-                        print(ip)
+                        logging.warning(f"{str(ip)}: No API data found,  using BraiinsOS.")
                         miner = BOSMinerS9(str(ip))
                     elif "BOSMiner" in api:
                         miner = BOSMinerS9(str(ip))
@@ -244,9 +245,9 @@ class MinerFactory:
 
         # if there are errors, we just return None
         except APIError as e:
-            print(e)
+            logging.debug(f"{str(ip)}: {e}")
         except OSError as e:
-            print(e)
+            logging.debug(f"{str(ip)}: {e}")
         return model
 
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
@@ -254,7 +255,7 @@ class MinerFactory:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
         except OSError as e:
-            print(e)
+            logging.warning(f"{str(ip)} - Command {command}: {e}")
             return {}
 
         # create the command
@@ -275,7 +276,7 @@ class MinerFactory:
                     break
                 data += d
         except Exception as e:
-            print(e)
+            logging.debug(f"{str(ip)}: {e}")
 
         try:
             # some json from the API returns with a null byte (\x00) on the end
@@ -353,5 +354,5 @@ class MinerFactory:
             if e.winerror == 121:
                 return None
             else:
-                print(ip, e)
+                logging.debug(f"{str(ip)}: {e}")
         return None

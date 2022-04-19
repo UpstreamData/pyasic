@@ -1,5 +1,6 @@
 import ipaddress
 import asyncio
+import logging
 
 from network.net_range import MinerNetworkRange
 from miners.miner_factory import MinerFactory
@@ -165,9 +166,9 @@ async def ping_miner(
             continue
         except ConnectionRefusedError:
             # handle for other connection errors
-            print(f"{str(ip)}: Connection Refused.")
+            logging.debug(f"{str(ip)}: Connection Refused.")
         # ping failed, likely with an exception
         except Exception as e:
-            print(e)
+            logging.warning(f"{str(ip)}: {e}")
         continue
     return
