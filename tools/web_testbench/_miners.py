@@ -16,7 +16,7 @@ UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 
 # static states
-(START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE) = range(6)
+(START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE, ERROR) = range(7)
 
 
 class TestbenchMiner:
@@ -56,13 +56,18 @@ class TestbenchMiner:
         if self.host in MinerFactory().miners.keys():
             MinerFactory().miners.remove(self.host)
 
-    async def wait_for_disconnect(self):
+    async def wait_for_disconnect(self, wait_time: int = 1):
         await self.add_to_output("Waiting for disconnect...")
         while await ping_miner(self.host):
-            await asyncio.sleep(1)
+            await asyncio.sleep(wait_time)
+        self.state = START
 
     async def install_start(self):
-        if not await ping_miner(self.host, 80):
+        try:
+            if not await ping_miner(self.host, 80):
+                await self.add_to_output("Waiting for miner connection...")
+                return
+        except asyncio.exceptions.TimeoutError:
             await self.add_to_output("Waiting for miner connection...")
             return
         self.start_time = datetime.datetime.now()
@@ -119,32 +124,53 @@ class TestbenchMiner:
         )
 
     async def do_install(self):
-        error = False
+        await self.add_to_output("Running install...")
+        error = None
         proc = await asyncio.create_subprocess_shell(
-            f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/',
+            f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/ -p root',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.PIPE
         )
         # get stdout of the install
+        stdout = None
+        await self.add_to_output("Getting output...")
         while True:
             try:
-                stdout = await proc.stderr.readuntil(b"\r")
+                stdout = await asyncio.wait_for(proc.stderr.readuntil(b"\r"), 10)
             except asyncio.exceptions.IncompleteReadError:
                 break
+            except asyncio.exceptions.TimeoutError:
+                if not stdout:
+                    await self.add_to_output("Miner encountered an error when installing, attempting to re-unlock.  If this fails, you may need to factory reset the miner.")
+                    self.state = UNLOCK
+                    proc.kill()
+                    return
+                continue
             stdout_data = stdout.decode("utf-8").strip()
             if "ERROR:File" in stdout_data:
-                error = True
+                error = "FILE"
+            if "ERROR:Auth" in stdout_data:
+                error = "AUTH"
+                proc.kill()
             await self.add_to_output(stdout_data)
             if stdout == b"":
                 break
+        await self.add_to_output("Waiting for process to complete...")
         await proc.wait()
-        while not await ping_miner(self.host):
-            await asyncio.sleep(3)
-        await asyncio.sleep(5)
-        if error:
+        if not error:
+            await self.add_to_output("Waiting for miner to finish rebooting...")
+            while not await ping_miner(self.host):
+                await asyncio.sleep(3)
+            await asyncio.sleep(5)
+        if error == "FILE":
             await self.add_to_output("Encountered error, attempting to fix.")
             await self.fix_file_exists_bug()
             self.state = START
+            return
+        elif error == "AUTH":
+            await self.add_to_output("Encountered unlock error, please pin reset.")
+            self.state = ERROR
             return
         await self.add_to_output("Install complete, configuring.")
         self.state = REFERRAL
@@ -312,5 +338,8 @@ class TestbenchMiner:
                     await self.install_referral()
                 if self.state == DONE:
                     await self.install_done()
+                if self.state == ERROR:
+                    await self.wait_for_disconnect(wait_time=5)
             except Exception as E:
                 logging.error(f"{self.host}: {E}")
+                await self.add_to_output(f"Error: {E}")
