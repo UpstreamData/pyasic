@@ -107,7 +107,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         # handle OSError 121
         except OSError as e:
             if e.winerror == "121":
-                print("Semaphore Timeout has Expired.")
+                logging.warning("Semaphore Timeout has Expired.")
             return {}
 
         # create the command
