@@ -140,7 +140,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                     fan_speeds.append(0)
 
                 if len(miner_temp_list) == 0:
-                    miner_temps_list = [0]
+                    miner_temp_list = [0]
 
                 data = {
                     "hashrate": hashrate,
