@@ -10,7 +10,7 @@
 
 <script>
 if (!window.WebSocket) alert("WebSocket not supported by this browser");
-var ws = new WebSocket("ws://{{request.url.hostname}}:{{request.url.port}}/dashboard/ws");
+var ws = new WebSocket("ws://{{request.url.hostname}}:{% if request.port %}{{request.url.port}}{% else %}80{% endif %}/dashboard/ws");
 let all_data = []
 let all_labels = []
 ws.onmessage = function(event) {
