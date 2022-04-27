@@ -102,7 +102,7 @@ async def save_report(file_location):
     miner_img_table = Table(
         table_data,
         colWidths=0.8 * inch,
-        repeatRows=1,
+        # repeatRows=1,
         # rowHeights=[4 * inch],
     )
 
@@ -122,6 +122,18 @@ async def save_report(file_location):
 
     elements.append(miner_img_table)
     elements.append(PageBreak())
+    elements.append(
+        Paragraph(
+            "Board Data",
+            style=ParagraphStyle(
+                "Title",
+                alignment=TA_CENTER,
+                fontSize=20,
+                spaceAfter=40,
+                fontName="Helvetica-Bold",
+            ),
+        )
+    )
     elements.append(create_data_table(list_data))
     elements.append(PageBreak())
 

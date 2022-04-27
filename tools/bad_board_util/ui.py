@@ -42,6 +42,7 @@ async def ui():
         if event == "save_report":
             if not value["save_report"] == "":
                 asyncio.create_task(save_report(value["save_report"]))
+                window["save_report"].update("")
         if event == "select_all_ips":
             if len(value["ip_table"]) == len(window["ip_table"].Values):
                 window["ip_table"].update(select_rows=())

@@ -29,11 +29,12 @@ layout = [
         sg.Button("ALL", key="select_all_ips"),
         sg.Button("REFRESH DATA", key="refresh_data"),
         sg.Button("OPEN IN WEB", key="open_in_web"),
-        sg.Input(key="save_report", visible=False, enable_events=True),
+        sg.Input(visible=False, enable_events=True, key="save_report"),
         sg.SaveAs(
             "SAVE REPORT",
             key="save_report_button",
             file_types=(("PDF Files", "*.pdf"),),
+            target="save_report",
         ),
     ],
     [
