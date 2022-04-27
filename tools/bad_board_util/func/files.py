@@ -8,17 +8,35 @@ import aiofiles
 from tools.bad_board_util.func.ui import update_ui_with_data
 from tools.bad_board_util.layout import window
 from tools.bad_board_util.func.decorators import disable_buttons
+from miners.miner_factory import MinerFactory
 
 
 @disable_buttons
 async def save_report(file_location):
-    data = []
+    data = {}
     workbook = xlsxwriter.Workbook(file_location)
     sheet = workbook.add_worksheet()
     for line in window["ip_table"].Values:
-        data.append([line[0], line[1], line[2], line[3], line[5], line[7]])
+        data[line[0]] = {
+            "Model": line[1],
+            "Total Chips": line[2],
+            "Left Chips": line[3],
+            "Center Chips": line[5],
+            "Right Chips": line[7],
+            "Nominal": 1,
+        }
 
-    data = sorted(data, reverse=True, key=lambda x: x[2])
+    async for miner in MinerFactory().get_miner_generator([key for key in data.keys()]):
+        if miner:
+            data[miner.ip]["Nominal"] = miner.nominal
+
+    list_data = []
+    for ip in data.keys():
+        new_data = data[ip]
+        new_data["IP"] = ip
+        list_data.append(new_data)
+
+    data = sorted(data, reverse=True, key=lambda x: x["Total Chips"])
 
     headers = [
         "IP",

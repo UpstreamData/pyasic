@@ -33,7 +33,7 @@ layout = [
         sg.SaveAs(
             "SAVE REPORT",
             key="save_report_button",
-            file_types=(("Excel Files", "*.xlsx"),),
+            file_types=(("PDF Files", "*.pdf"),),
         ),
     ],
     [
