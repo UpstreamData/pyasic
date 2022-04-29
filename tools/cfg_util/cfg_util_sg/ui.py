@@ -138,6 +138,7 @@ async def ui():
                             for item in value["ip_table"]
                         ],
                         value["config"],
+                        last_octet_ip=value["last_octet_user"],
                     )
                 )
         if event == "import_file_config":
