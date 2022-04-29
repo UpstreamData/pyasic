@@ -34,6 +34,8 @@ async def flip_light(ip):
         if "light+bad" in index_tags:
             index_tags.remove("light+bad")
             index_tags.append("bad")
+        if "light" in index_tags:
+            index_tags.remove("light")
         ip_list.item(index + 1, tags=index_tags)
         await miner.fault_light_off()
 
@@ -104,30 +106,14 @@ async def refresh_data(ip_list: list):
                     board_left = " ".join(
                         [chain["chip_status"] for chain in data_point["data"][0]]
                     ).replace("o", "•")
-                else:
-                    row_colors.append((ip_table_index, "white", "red"))
                 if 1 in data_point["data"].keys():
                     board_center = " ".join(
                         [chain["chip_status"] for chain in data_point["data"][1]]
                     ).replace("o", "•")
-                else:
-                    row_colors.append((ip_table_index, "white", "red"))
                 if 2 in data_point["data"].keys():
                     board_right = " ".join(
                         [chain["chip_status"] for chain in data_point["data"][2]]
                     ).replace("o", "•")
-                else:
-                    row_colors.append((ip_table_index, "white", "red"))
-                if False in [
-                    chain["nominal"]
-                    for chain in [
-                        data_point["data"][key] for key in data_point["data"].keys()
-                    ][0]
-                ]:
-                    row_colors.append((ip_table_index, "white", "red"))
-            else:
-                row_colors.append((ip_table_index, "white", "red"))
-
             data = [
                 data_point["IP"],
                 data_point["model"],
@@ -139,7 +125,7 @@ async def refresh_data(ip_list: list):
                 board_right,
             ]
             ip_table_data[ip_table_index] = data
-            window["ip_table"].update(ip_table_data, row_colors=row_colors)
+            window["ip_table"].update(ip_table_data)
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
     await update_ui_with_data("status", "")
@@ -292,9 +278,6 @@ async def scan_and_get_data(network):
 
             # configure "bad" tag to highlight red
             table = window["ip_table"].Widget
-            table.tag_configure("bad", foreground="white", background="orange")
-            table.tag_configure("light", foreground="white", background="red")
-            table.tag_configure("light+bad", foreground="white", background="red")
 
             # set tags on the row if they have been set
             for row in row_colors:
