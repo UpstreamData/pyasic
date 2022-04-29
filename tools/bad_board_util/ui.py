@@ -22,6 +22,10 @@ async def ui():
     table = window["ip_table"].Widget
     table.bind("<Control-Key-c>", lambda x: copy_from_table(table))
     table.bind("<Control-Key-a>", lambda x: table_select_all())
+    # light tag shows red row for fault lights
+    table.tag_configure("bad", foreground="white", background="orange")
+    table.tag_configure("light", foreground="white", background="red")
+    table.tag_configure("light+bad", foreground="white", background="red")
     while True:
         event, value = window.read(timeout=0)
         if event in (None, "Close", sg.WIN_CLOSED):
