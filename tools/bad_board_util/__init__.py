@@ -1,5 +1,3 @@
-# TODO: Add Logging
-
 from tools.bad_board_util.ui import ui
 
 import asyncio
@@ -8,7 +6,7 @@ import logging
 
 from logger import logger
 
-logger.info("Initializing logger for CFG Util.")
+logger.info("Initializing logger for Board Util.")
 
 
 # Fix bug with some whatsminers and asyncio because of a socket not being shut down:
