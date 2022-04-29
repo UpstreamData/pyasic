@@ -10,6 +10,7 @@ def disable_buttons(func):
         "refresh_data",
         "open_in_web",
         "save_report_button",
+        "light",
     ]
 
     # handle the inner function that the decorator is wrapping

@@ -29,6 +29,7 @@ layout = [
         sg.Button("ALL", key="select_all_ips"),
         sg.Button("REFRESH DATA", key="refresh_data"),
         sg.Button("OPEN IN WEB", key="open_in_web"),
+        sg.Button("LIGHT", key="light"),
         sg.Input(visible=False, enable_events=True, key="save_report"),
         sg.SaveAs(
             "SAVE REPORT",
