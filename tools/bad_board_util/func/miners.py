@@ -13,6 +13,32 @@ from tools.bad_board_util.func.decorators import disable_buttons
 
 
 @disable_buttons
+async def miner_light(ips: list):
+    await asyncio.gather(*[flip_light(ip) for ip in ips])
+
+
+async def flip_light(ip):
+    ip_list = window["ip_table"].Widget
+    miner = await MinerFactory().get_miner(ip)
+    index = [item[0] for item in window["ip_table"].Values].index(ip)
+    index_tags = ip_list.item(index + 1)["tags"]
+    if "light" not in index_tags and "light+bad" not in index_tags:
+        tag = "light"
+        if "bad" in index_tags:
+            index_tags.remove("bad")
+            tag = "light+bad"
+        index_tags.append(tag)
+        ip_list.item(index + 1, tags=index_tags)
+        await miner.fault_light_on()
+    else:
+        if "light+bad" in index_tags:
+            index_tags.remove("light+bad")
+            index_tags.append("bad")
+        ip_list.item(index + 1, tags=index_tags)
+        await miner.fault_light_off()
+
+
+@disable_buttons
 async def scan_network(network):
     await update_ui_with_data("status", "Scanning")
     await update_ui_with_data("ip_count", "")
@@ -266,7 +292,9 @@ async def scan_and_get_data(network):
 
             # configure "bad" tag to highlight red
             table = window["ip_table"].Widget
-            table.tag_configure("bad", foreground="white", background="red")
+            table.tag_configure("bad", foreground="white", background="orange")
+            table.tag_configure("light", foreground="white", background="red")
+            table.tag_configure("light+bad", foreground="white", background="red")
 
             # set tags on the row if they have been set
             for row in row_colors:
