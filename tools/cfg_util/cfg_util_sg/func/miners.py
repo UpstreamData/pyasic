@@ -203,7 +203,7 @@ async def restart_miners_backend(ips: list):
     await update_ui_with_data("status", "")
 
 
-async def send_config_generator(miners: list, config):
+async def send_config_generator(miners: list, config, last_octet_ip_user: bool = False):
     loop = asyncio.get_event_loop()
     config_tasks = []
     for miner in miners:
@@ -212,14 +212,16 @@ async def send_config_generator(miners: list, config):
             config_tasks = []
             for sent_config in configured:
                 yield await sent_config
-        config_tasks.append(loop.create_task(miner.send_config(config)))
+        config_tasks.append(
+            loop.create_task(miner.send_config(config, ip_user=last_octet_ip_user))
+        )
     configured = asyncio.as_completed(config_tasks)
     for sent_config in configured:
         yield await sent_config
 
 
 @disable_buttons
-async def send_config(ips: list, config):
+async def send_config(ips: list, config, last_octet_ip: bool = False):
     await update_ui_with_data("status", "Configuring")
     await set_progress_bar_len(2 * len(ips))
     progress_bar_len = 0
@@ -231,7 +233,9 @@ async def send_config(ips: list, config):
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))
 
-    config_sender_generator = send_config_generator(all_miners, config)
+    config_sender_generator = send_config_generator(
+        all_miners, config, last_octet_ip_user=last_octet_ip
+    )
     async for _config_sender in config_sender_generator:
         progress_bar_len += 1
         asyncio.create_task(update_prog_bar(progress_bar_len))

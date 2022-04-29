@@ -110,7 +110,7 @@ async def bos_config_convert(config: dict):
     return yaml.dump(out_config, sort_keys=False)
 
 
-async def general_config_convert_bos(yaml_config):
+async def general_config_convert_bos(yaml_config, user_suffix: str = None):
     config = yaml.load(yaml_config, Loader=yaml.SafeLoader)
     out_config = {}
     for opt in config:
@@ -169,9 +169,14 @@ async def general_config_convert_bos(yaml_config):
                     out_config["group"][idx]["pool"][pool_idx]["url"] = config[opt][
                         idx
                     ]["pools"][pool_idx]["url"]
-                    out_config["group"][idx]["pool"][pool_idx]["user"] = config[opt][
-                        idx
-                    ]["pools"][pool_idx]["username"]
+                    username = config[opt][idx]["pools"][pool_idx]["username"]
+                    if user_suffix:
+                        if "." in username:
+                            username = f"{username}x{user_suffix}"
+                        else:
+                            username = f"{username}.{user_suffix}"
+                    out_config["group"][idx]["pool"][pool_idx]["user"] = username
+
                     out_config["group"][idx]["pool"][pool_idx]["password"] = config[
                         opt
                     ][idx]["pools"][pool_idx]["password"]

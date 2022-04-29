@@ -95,7 +95,7 @@ layout = [
                     sg.Button("LIGHT", key="light"),
                     sg.Button("GENERATE", key="generate_config"),
                 ],
-                [sg.Text("")],
+                [sg.Checkbox("Append IP 4th Octet to Username", key="last_octet_user")],
                 [sg.Multiline(size=(50, 28), key="config", do_not_clear=True)],
             ]
         ),

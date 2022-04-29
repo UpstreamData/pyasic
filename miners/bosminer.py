@@ -154,10 +154,16 @@ class BOSMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def send_config(self, yaml_config) -> None:
+    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
         """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
-        toml_conf = toml.dumps(await general_config_convert_bos(yaml_config))
+        if ip_user:
+            suffix = str(self.ip).split(".")[-1]
+            toml_conf = toml.dumps(
+                await general_config_convert_bos(yaml_config, user_suffix=suffix)
+            )
+        else:
+            toml_conf = toml.dumps(await general_config_convert_bos(yaml_config))
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
