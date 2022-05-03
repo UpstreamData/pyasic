@@ -89,10 +89,10 @@ async def get_latest_update_file(session, update_file):
 
 async def get_latest_install_file(session, version, feeds_path, install_file):
     install_file_loc = f"http://feeds.braiins-os.com/{version}/{install_file}"
-    feeds_file_path = os.path.join(feeds_path, "toolbox_bos_am1-s9")
+    feeds_file_path = os.path.join(feeds_path, "toolbox_bos_install_am1-s9")
 
     with open(feeds_file_path, "a+") as feeds_file:
-        feeds_file.write(version + "\t" + install_file)
+        feeds_file.write(version + "\t" + install_file.strip() + "\n")
 
     install_file_folder = os.path.join(feeds_path, version)
     if os.path.exists(install_file_folder):
@@ -133,7 +133,7 @@ async def get_local_versions():
     if not os.path.exists(feeds_path):
         os.mkdir(feeds_path)
 
-    feeds_file_path = os.path.join(feeds_path, "toolbox_bos_am1-s9")
+    feeds_file_path = os.path.join(feeds_path, "toolbox_bos_install_am1-s9")
 
     if not os.path.exists(feeds_file_path):
         feeds_file = open(feeds_file_path, "w+")
