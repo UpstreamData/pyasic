@@ -127,7 +127,7 @@ class TestbenchMiner:
         await self.add_to_output("Running install...")
         error = None
         proc = await asyncio.create_subprocess_shell(
-            f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/ -p root',
+            f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             stdin=asyncio.subprocess.PIPE
@@ -137,7 +137,7 @@ class TestbenchMiner:
         await self.add_to_output("Getting output...")
         while True:
             try:
-                stdout = await asyncio.wait_for(proc.stderr.readuntil(b"\r"), 10)
+                stdout = await asyncio.wait_for(proc.stderr.readuntil(b"\r"), 20)
             except asyncio.exceptions.IncompleteReadError:
                 break
             except asyncio.exceptions.TimeoutError:
