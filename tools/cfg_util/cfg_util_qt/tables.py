@@ -1,13 +1,13 @@
 from tools.cfg_util.cfg_util_qt.layout import TABLE_KEYS, TABLE_HEADERS, window
 from tools.cfg_util.cfg_util_qt.imgs import LIGHT
-from PySimpleGUI import TreeData
+import PySimpleGUI as sg
 
 
 def clear_tables():
     for table in TABLE_KEYS["table"]:
         window[table].update([])
     for tree in TABLE_KEYS["tree"]:
-        window[tree].update(TreeData())
+        window[tree].update(sg.TreeData())
 
 
 def update_tables(data: dict):
@@ -28,8 +28,8 @@ def update_tables(data: dict):
     window["pools_table"].update(tables["POOLS"])
     window["cfg_table"].update(tables["CONFIG"])
 
-    tree_data = TreeData()
-    for item in tables["CMD"]:
-        tree_data.insert("", "", "", item, icon=LIGHT)
+    treedata = sg.TreeData()
+    for idx, item in enumerate(tables["CMD"]):
+        treedata.insert("", idx, "", item, icon=LIGHT)
 
-    window["cmd_table"].update(tree_data)
+    window["cmd_table"].update(treedata)
