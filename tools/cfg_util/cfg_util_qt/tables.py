@@ -10,7 +10,7 @@ def clear_tables():
         window[tree].update(sg.TreeData())
 
 
-def update_tables(data: dict):
+def update_tables(data: list):
     tables = {
         "SCAN": [["" for _ in TABLE_HEADERS["SCAN"]] for _ in data],
         "CMD": [["" for _ in TABLE_HEADERS["CMD"]] for _ in data],
