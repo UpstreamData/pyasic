@@ -10,12 +10,14 @@ from tools.cfg_util.cfg_util_qt.scan import scan_miners
 from network import MinerNetwork
 
 from tools.cfg_util.cfg_util_qt.layout import window
+import tkinter as tk
 
 sg.set_options(font=("Liberation Mono", 10))
 
 
 async def main():
     window.read(0)
+    window["scan_table"].Widget.column(2, anchor=tk.W)
     # tree = window["command_table"]
     # tree_widget = tree.Widget
     # index = 0
