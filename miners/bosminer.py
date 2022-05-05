@@ -313,7 +313,7 @@ class BOSMiner(BaseMiner):
                 data["Pool 2 User"] = pool_2_user
 
             if quota:
-                data["Quota"] = quota
+                data["Split"] = quota
 
         if tunerstatus:
             tuner = tunerstatus.get("TUNERSTATUS")
