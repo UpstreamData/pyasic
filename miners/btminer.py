@@ -122,7 +122,7 @@ class BTMiner(BaseMiner):
                 for board in temp_data:
                     temp = board.get("Chip Temp Avg")
                     if temp and not temp == 0.0:
-                        data["Temperature"] = temp
+                        data["Temperature"] = round(temp)
                         break
 
         if pools:

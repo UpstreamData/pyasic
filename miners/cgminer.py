@@ -138,7 +138,7 @@ class CGMiner(BaseMiner):
                     for item in ["temp2", "temp1", "temp3"]:
                         temperature = temp[1].get(item)
                         if temperature and not temperature == 0.0:
-                            data["Temperature"] = temperature
+                            data["Temperature"] = round(temperature)
 
         if pools:
             pool_1 = None

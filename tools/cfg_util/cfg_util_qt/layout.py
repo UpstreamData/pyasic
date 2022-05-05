@@ -28,6 +28,14 @@ TABLE_KEYS = {
     "table": ["scan_table", "pools_table", "cfg_table"],
     "tree": ["cmd_table"],
 }
+
+MINER_COUNT_BUTTONS = [
+    "scan_miner_count",
+    "cmd_miner_count",
+    "cfg_miner_count",
+    "pools_miner_count",
+]
+
 BUTTON_KEYS = [
     "btn_scan",
     "btn_cmd",
@@ -58,7 +66,7 @@ HASHRATE_COL_WIDTH = 12
 TEMP_COL_WIDTH = 12
 USER_COL_WIDTH = 31
 WATTAGE_COL_WIDTH = 8
-SPLIT_COL_WIDTH = 10
+SPLIT_COL_WIDTH = 6
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -92,10 +100,11 @@ def get_scan_layout():
             sg.Button("Scan", key="btn_scan"),
             sg.Push(),
             sg.Button(
-                "Scan",
+                "Miners: 0",
                 disabled=True,
                 button_color=("black", "white smoke"),
                 disabled_button_color=("black", "white smoke"),
+                key="scan_miner_count",
             ),
         ],
         [
@@ -140,10 +149,11 @@ def get_command_layout():
             sg.Button("Send Command", key="btn_cmd"),
             sg.Push(),
             sg.Button(
-                "Command",
+                "Miners: 0",
                 disabled=True,
                 button_color=("black", "white smoke"),
                 disabled_button_color=("black", "white smoke"),
+                key="cmd_miner_count",
             ),
         ],
         [
@@ -190,10 +200,11 @@ def get_pools_layout():
         [
             sg.Push(),
             sg.Button(
-                "Pools",
+                "Miners: 0",
                 disabled=True,
                 button_color=("black", "white smoke"),
                 disabled_button_color=("black", "white smoke"),
+                key="pools_miner_count",
             ),
         ],
         [
@@ -229,10 +240,11 @@ def get_config_layout():
             sg.Button("GENERATE", key="cfg_generate"),
             sg.Push(),
             sg.Button(
-                "Configure",
+                "Miners: 0",
                 disabled=True,
                 button_color=("black", "white smoke"),
                 disabled_button_color=("black", "white smoke"),
+                key="cfg_miner_count",
             ),
         ],
         [
