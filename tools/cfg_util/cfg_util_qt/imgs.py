@@ -8,9 +8,16 @@ FAULT_LIGHT = b"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAA
 LIGHT = b"iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACkSURBVChThZDhDcIgEIWBLuAe8N90kAa2MDWdw8YtIEzgBF0AdJviey0aNWn9kiv3Li8vvZOiYq3tpJQ92nadiFhKiSGESLEYnXMXPCeUov5gRl2992dZkzwGv6YXM5KdgqmD2DIRenoaaPxHu5f0BY3T2u4SFX50RMPttuAysck5340xBwyOqPddK8t5cMuxoUop3bTWD2xHqfkBE5IGmoQQ4gmmsjUl2gChkgAAAABJRU5ErkJggg=="
 
 
-class TkImages:
-    _instance = None
+class Singleton(type):
+    _instances = {}
 
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class TkImages(metaclass=Singleton):
     def __init__(self):
         self.fault_light = ImageTk.PhotoImage(
             Image.open(BytesIO(base64.b64decode(FAULT_LIGHT)))
@@ -18,8 +25,3 @@ class TkImages:
         self.light = ImageTk.PhotoImage(
             Image.open(BytesIO(base64.b64decode(FAULT_LIGHT)))
         )
-
-    def __new__(cls):
-        if not cls._instance:
-            cls._instance = super(TkImages, cls).__new__(cls)
-        return cls._instance
