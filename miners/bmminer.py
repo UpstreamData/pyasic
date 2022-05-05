@@ -44,6 +44,8 @@ class BMMiner(BaseMiner):
 
         :return: The hostname of the miner as a string or "?"
         """
+        if self.hostname:
+            return self.hostname
         try:
             # open an ssh connection
             async with (await self._get_ssh_connection()) as conn:
@@ -55,7 +57,8 @@ class BMMiner(BaseMiner):
 
                     # return hostname data
                     logging.debug(f"Found hostname for {self.ip}: {host}")
-                    return host
+                    self.hostname = host
+                    return self.hostname
                 else:
                     # return ? if we fail to get hostname with no ssh connection
                     logging.warning(f"Failed to get hostname for miner: {self}")
@@ -114,3 +117,23 @@ class BMMiner(BaseMiner):
         logging.debug(f"{self}: Sending reboot command.")
         await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
+
+    async def get_data(self):
+        data = {
+            "IP": str(self.ip),
+            "Model": "Unknown",
+            "Hostname": "Unknown",
+            "Hashrate": 0,
+            "Temperature": 0,
+            "Pool User": "Unknown",
+            "Wattage": 0,
+            "Split": 0,
+            "Pool 1": "Unknown",
+            "Pool 1 User": "Unknown",
+            "Pool 2": "",
+            "Pool 2 User": "",
+        }
+        data = await self.api.multicommand(
+            "summary", "devs", "temps", "tunerstatus", "pools", "stats"
+        )
+        print(data)

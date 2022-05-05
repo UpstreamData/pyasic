@@ -214,13 +214,11 @@ class MinerFactory:
             version = data["version"][0]
 
         except APIError as e:
-            logging.warning(f"{ip}: API Command Error: {e}")
             data = None
 
         if not data:
             try:
                 devdetails = await self._send_api_command(str(ip), "devdetails")
-
                 validation = await self._validate_command(devdetails)
                 if not validation[0]:
                     version = await self._send_api_command(str(ip), "version")
@@ -260,11 +258,14 @@ class MinerFactory:
             # if all that fails, check the Description to see if it is a whatsminer
         elif version.get("Description") and "whatsminer" in version.get("Description"):
             api = "BTMiner"
-
         if version and not model:
-            if "VERSION" in version.keys() and not version["DEVDETAILS"] == []:
+            if (
+                "VERSION" in version.keys()
+                and version.get("VERSION")
+                and not version.get("VERSION") == []
+            ):
                 model = version["VERSION"][0]["Type"]
-
+        print("done")
         return model, api
 
     async def _validate_command(self, data: dict) -> tuple:
