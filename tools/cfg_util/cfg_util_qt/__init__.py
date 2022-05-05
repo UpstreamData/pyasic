@@ -1,12 +1,9 @@
 import PySimpleGUI as sg
 import asyncio
 import sys
-import base64
-from io import BytesIO
-from PIL import ImageTk, Image
 from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
-from tools.cfg_util.cfg_util_qt.tables import clear_tables, _update_tree_by_ip
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
+from tools.cfg_util.cfg_util_qt.commands import btn_light
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.general import btn_all
 import tkinter as tk
@@ -46,6 +43,10 @@ async def main():
         if event == "cmd_all":
             _table = "cmd_table"
             btn_all(_table, value[_table])
+        if event == "cmd_light":
+            _table = "cmd_table"
+            _ips = value[_table]
+            await btn_light(_ips)
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)

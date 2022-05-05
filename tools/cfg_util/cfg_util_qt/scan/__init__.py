@@ -11,6 +11,20 @@ import logging
 
 progress_bar_len = 0
 
+DEFAULT_DATA = [
+    "Model",
+    "Hostname",
+    "Hashrate",
+    "Temperature",
+    "Pool User",
+    "Pool 1",
+    "Pool 1 User",
+    "Pool 2",
+    "Pool 2 User",
+    "Wattage",
+    "Split",
+]
+
 
 async def btn_all():
     table = "scan_table"
@@ -53,7 +67,15 @@ async def _scan_miners(network: MinerNetwork):
     async for found_miner in get_miner_genenerator:
         resolved_miners.append(found_miner)
         resolved_miners.sort(key=lambda x: x.ip)
-        update_tables([{"IP": str(miner.ip)} for miner in resolved_miners])
+        resolved_miners_data = []
+        for miner in resolved_miners:
+            _data = {}
+            for key in DEFAULT_DATA:
+                _data[key] = ""
+            _data["IP"] = str(miner.ip)
+            _data["Light"] = False
+            resolved_miners_data.append(_data)
+        update_tables(resolved_miners_data)
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
     progress_bar_len += network_size - len(resolved_miners)
@@ -68,7 +90,6 @@ async def _get_miners_data(miners: list):
     for all_data in data_generator:
         data = await all_data
         for idx, item in enumerate(miner_data):
-            # print(item["IP"], data["IP"])
             if item["IP"] == data["IP"]:
                 miner_data[idx] = data
         update_tables(miner_data)
