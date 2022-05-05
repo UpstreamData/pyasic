@@ -41,7 +41,8 @@ async def scan_miners(network: MinerNetwork):
         update_tables([{"IP": str(miner.ip)} for miner in resolved_miners])
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
-    await update_prog_bar(network_size - len(resolved_miners))
+    progress_bar_len += network_size - len(resolved_miners)
+    await update_prog_bar(progress_bar_len)
     await get_miners_data(resolved_miners)
 
 
@@ -58,7 +59,6 @@ async def get_miners_data(miners: list):
         update_tables(miner_data)
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
-    print("Done")
 
 
 async def _get_data(miner):

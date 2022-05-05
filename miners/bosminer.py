@@ -272,7 +272,7 @@ class BOSMiner(BaseMiner):
                 if len(temp) > 0:
                     temp = temp[0].get("Chip")
                     if temp:
-                        data["Temperature"] = round(temp, 2)
+                        data["Temperature"] = round(temp)
 
         if pools:
             pool_1 = None
