@@ -14,7 +14,7 @@ TABLE_HEADERS = {
     "CMD": ["IP", "Model", "Command Output"],
     "POOLS": [
         "IP",
-        "Model",
+        # "Model",
         "Split",
         "Pool 1",
         "Pool 1 User",
@@ -134,8 +134,6 @@ def get_scan_layout():
 
 def get_command_layout():
     data = sg.TreeData()
-    data.insert("", 0, "", ["192.168.168.168", "S19j Pro (BOS)", ""], icon=LIGHT)
-    data.insert("", 1, "", ["192.168.168.168", "S19j Pro (BOS)", ""], icon=LIGHT)
     col_widths = [
         IP_COL_WIDTH,
         MODEL_COL_WIDTH,
@@ -184,17 +182,14 @@ def get_command_layout():
 
 
 def get_pools_layout():
-    pool_col_width = int(
-        (TABLE_TOTAL_WIDTH - (IP_COL_WIDTH + MODEL_COL_WIDTH + SPLIT_COL_WIDTH)) / 4
-    )
+    pool_col_width = int((TABLE_TOTAL_WIDTH - (IP_COL_WIDTH + SPLIT_COL_WIDTH)) / 4)
     col_widths = [
         IP_COL_WIDTH,
-        MODEL_COL_WIDTH,
         SPLIT_COL_WIDTH,
-        pool_col_width,
-        pool_col_width,
-        pool_col_width,
-        pool_col_width,
+        pool_col_width + 5,
+        pool_col_width - 5,
+        pool_col_width + 5,
+        pool_col_width - 5,
     ]
     pools_layout = [
         [
