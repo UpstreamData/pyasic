@@ -21,6 +21,7 @@ class BaseMiner:
         self.api_type = None
         self.model = None
         self.light = None
+        self.hostname = None
         self.nominal_chips = 1
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
