@@ -4,8 +4,8 @@ import sys
 import base64
 from io import BytesIO
 from PIL import ImageTk, Image
-from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT
-from tools.cfg_util.cfg_util_qt.tables import clear_tables
+from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
+from tools.cfg_util.cfg_util_qt.tables import clear_tables, _update_tree_by_ip
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.general import btn_all
@@ -16,6 +16,9 @@ sg.set_options(font=("Liberation Mono", 10))
 
 async def main():
     window.read(0)
+    tk_imgs = TkImages()
+
+    # clear_tables()
     window["scan_table"].Widget.column(2, anchor=tk.W)
 
     while True:

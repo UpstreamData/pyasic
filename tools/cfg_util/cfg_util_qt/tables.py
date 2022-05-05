@@ -4,7 +4,7 @@ from tools.cfg_util.cfg_util_qt.layout import (
     TABLE_HEADERS,
     window,
 )
-from tools.cfg_util.cfg_util_qt.imgs import LIGHT
+from tools.cfg_util.cfg_util_qt.imgs import TkImages, LIGHT
 import PySimpleGUI as sg
 
 
@@ -52,3 +52,38 @@ def update_tables(data: list):
     window["cmd_table"].update(treedata)
 
     update_miner_count(len(data))
+
+
+async def _update_tree_by_ip(ip: str, data: dict):
+    keys = data.keys()
+    img = None
+    if "IP" not in keys or "Model" not in keys:
+        return
+    _tree = window["cmd_table"].Widget
+    for iid in _tree.get_children():
+        values = _tree.item(iid)["values"]
+        if data.get("Light"):
+            if data["Light"]:
+                img = TkImages().fault_light
+            if not data["Light"]:
+                img = TkImages().light
+        if values[0] == ip:
+            if img:
+                _tree.item(
+                    iid,
+                    image=img,
+                    values=[
+                        data["IP"],
+                        data["Model"] if "Model" in keys else "",
+                        data["Command Output"] if "Command Output" in keys else "",
+                    ],
+                )
+            else:
+                _tree.item(
+                    iid,
+                    values=[
+                        data["IP"],
+                        data["Model"] if "Model" in keys else "",
+                        data["Command Output"] if "Command Output" in keys else "",
+                    ],
+                )

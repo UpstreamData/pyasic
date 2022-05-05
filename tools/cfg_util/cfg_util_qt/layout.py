@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from .imgs import WINDOW_ICON, LIGHT
+from .imgs import WINDOW_ICON, LIGHT, FAULT_LIGHT
 
 TABLE_HEADERS = {
     "SCAN": [
@@ -134,6 +134,8 @@ def get_scan_layout():
 
 def get_command_layout():
     data = sg.TreeData()
+    data.insert("", 0, "", ["", "", ""], icon=FAULT_LIGHT)
+    data.insert("", 1, "", ["192.168.1.13", "", ""], icon=LIGHT)
     col_widths = [
         IP_COL_WIDTH,
         MODEL_COL_WIDTH,
