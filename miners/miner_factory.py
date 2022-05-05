@@ -36,7 +36,10 @@ import ipaddress
 import json
 import logging
 
-from settings import MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES
+from settings import (
+    MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES,
+    NETWORK_PING_TIMEOUT as PING_TIMEOUT,
+)
 
 
 class MinerFactory:
@@ -84,31 +87,35 @@ class MinerFactory:
 
         # try to get the API multiple times based on retries
         for i in range(GET_VERSION_RETRIES):
-            # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
-            api = await self._get_api_type(ip)
-            # if we find the API type, dont need to loop anymore
-            if api:
-                break
+            try:
+                # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
+                new_model, new_api = await asyncio.wait_for(
+                    self._get_miner_type(ip), timeout=PING_TIMEOUT
+                )
 
-        # try to get the model multiple times based on retries
-        for i in range(GET_VERSION_RETRIES):
-            # get the model, should return some miner model type, e.g. Antminer S9
-            model = await self._get_miner_model(ip)
-            # if we find the model type, dont need to loop anymore
-            if model:
-                break
+                # keep track of the API and model we found first
+                if new_api and not api:
+                    api = new_api
+                if new_model and not model:
+                    model = new_model
+
+                # if we find the API and model, dont need to loop anymore
+                if api and model:
+                    break
+            except asyncio.TimeoutError:
+                pass
+
         # make sure we have model information
         if model:
-
             # check if the miner is an Antminer
             if "Antminer" in model:
-
                 # S9 logic
                 if "Antminer S9" in model:
-
                     # handle the different API types
                     if not api:
-                        logging.warning(f"{str(ip)}: No API data found,  using BraiinsOS.")
+                        logging.warning(
+                            f"{str(ip)}: No API data found,  using BraiinsOS."
+                        )
                         miner = BOSMinerS9(str(ip))
                     elif "BOSMiner" in api:
                         miner = BOSMinerS9(str(ip))
@@ -129,7 +136,6 @@ class MinerFactory:
 
                 # X17 model logic
                 elif "17" in model:
-
                     # handle the different API types
                     if "BOSMiner" in api:
                         miner = BOSMinerX17(str(ip))
@@ -190,65 +196,102 @@ class MinerFactory:
         # empty out self.miners
         self.miners = {}
 
-    async def _get_miner_model(self, ip: ipaddress.ip_address or str) -> str or None:
-        # instantiate model as being nothing if getting it fails
+    async def _get_miner_type(self, ip: ipaddress.ip_address or str) -> tuple:
         model = None
+        api = None
 
-        # try block in case of APIError or OSError 121 (Semaphore timeout)
+        devdetails = None
+        version = None
+
         try:
+            data = await self._send_api_command(str(ip), "devdetails+version")
 
-            # send the devdetails command to the miner (will fail with no boards/devices)
-            data = await self._send_api_command(str(ip), "devdetails")
-            # sometimes data is b'', check for that
-            if data:
-                # status check, make sure the command succeeded
-                if data.get("STATUS"):
-                    if not isinstance(data["STATUS"], str):
-                        # if status is E, its an error
-                        if data["STATUS"][0].get("STATUS") not in ["I", "S"]:
+            validation = await self._validate_command(data)
+            if not validation[0]:
+                raise APIError(validation[1])
 
-                            # try an alternate method if devdetails fails
-                            data = await self._send_api_command(str(ip), "version")
+            devdetails = data["devdetails"][0]
+            version = data["version"][0]
 
-                            # make sure we have data
-                            if data:
-                                # check the keys are there to get the version
-                                if data.get("VERSION"):
-                                    if data["VERSION"][0].get("Type"):
-                                        # save the model to be returned later
-                                        model = data["VERSION"][0]["Type"]
-                        else:
-                            # make sure devdetails actually contains data, if its empty, there are no devices
-                            if (
-                                "DEVDETAILS" in data.keys()
-                                and not data["DEVDETAILS"] == []
-                            ):
-
-                                # check for model, for most miners
-                                if not data["DEVDETAILS"][0]["Model"] == "":
-                                    # model of most miners
-                                    model = data["DEVDETAILS"][0]["Model"]
-
-                                # if model fails, try driver
-                                else:
-                                    # some avalonminers have model in driver
-                                    model = data["DEVDETAILS"][0]["Driver"]
-                    else:
-                        # if all that fails, try just version
-                        data = await self._send_api_command(str(ip), "version")
-                        if "VERSION" in data.keys():
-                            model = data["VERSION"][0]["Type"]
-                        else:
-                            print(data)
-
-            return model
-
-        # if there are errors, we just return None
         except APIError as e:
-            logging.debug(f"{str(ip)}: {e}")
-        except OSError as e:
-            logging.debug(f"{str(ip)}: {e}")
-        return model
+            logging.warning(f"{ip}: API Command Error: {e}")
+            data = None
+
+        if not data:
+            try:
+                devdetails = await self._send_api_command(str(ip), "devdetails")
+
+                validation = await self._validate_command(devdetails)
+                if not validation[0]:
+                    version = await self._send_api_command(str(ip), "version")
+
+                    validation = await self._validate_command(version)
+                    if not validation[0]:
+                        raise APIError(validation[1])
+            except APIError as e:
+                logging.warning(f"{ip}: API Command Error: {e}")
+                return None, None
+
+        if devdetails:
+            if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
+                # check for model, for most miners
+                if not devdetails["DEVDETAILS"][0]["Model"] == "":
+                    # model of most miners
+                    model = devdetails["DEVDETAILS"][0]["Model"]
+
+                # if model fails, try driver
+                else:
+                    # some avalonminers have model in driver
+                    model = devdetails["DEVDETAILS"][0]["Driver"]
+
+        if version:
+            # check if there are any BMMiner strings in any of the dict keys
+            if any("BMMiner" in string for string in version["VERSION"][0].keys()):
+                api = "BMMiner"
+
+            # check if there are any CGMiner strings in any of the dict keys
+            elif any("CGMiner" in string for string in version["VERSION"][0].keys()):
+                api = "CGMiner"
+
+            # check if there are any BOSMiner strings in any of the dict keys
+            elif any("BOSminer" in string for string in version["VERSION"][0].keys()):
+                api = "BOSMiner"
+
+            # if all that fails, check the Description to see if it is a whatsminer
+        elif version.get("Description") and "whatsminer" in version.get("Description"):
+            api = "BTMiner"
+
+        if version and not model:
+            if "VERSION" in version.keys() and not version["DEVDETAILS"] == []:
+                model = version["VERSION"][0]["Type"]
+
+        return model, api
+
+    async def _validate_command(self, data: dict) -> tuple:
+        """Check if the returned command output is correctly formatted."""
+        # check if the data returned is correct or an error
+        if not data:
+            return False, "No API data."
+        # if status isn't a key, it is a multicommand
+        if "STATUS" not in data.keys():
+            for key in data.keys():
+                # make sure not to try to turn id into a dict
+                if not key == "id":
+                    # make sure they succeeded
+                    if "STATUS" in data[key][0].keys():
+                        if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
+                            # this is an error
+                            return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
+        elif "id" not in data.keys():
+            if data["STATUS"] not in ["S", "I"]:
+                return False, data["Msg"]
+        else:
+            # make sure the command succeeded
+            if data["STATUS"][0]["STATUS"] not in ("S", "I"):
+                # this is an error
+                if data["STATUS"][0]["STATUS"] not in ("S", "I"):
+                    return False, data["STATUS"][0]["Msg"]
+        return True, None
 
     async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
         try:
@@ -304,55 +347,3 @@ class MinerFactory:
         await writer.wait_closed()
 
         return data
-
-    async def _get_api_type(self, ip: ipaddress.ip_address or str) -> dict or None:
-        """Get data on the version of the miner to return the right miner."""
-        # instantiate API as None in case something fails
-        api = None
-
-        # try block to handle OSError 121 (Semaphore timeout)
-        try:
-            # try the version command,works on most miners
-            data = await self._send_api_command(str(ip), "version")
-
-            # if we got data back, try to parse it
-            if data:
-                # make sure the command succeeded
-                if data.get("STATUS") and not data.get("STATUS") == "E":
-                    if data["STATUS"][0].get("STATUS") in ["I", "S"]:
-
-                        # check if there are any BMMiner strings in any of the dict keys
-                        if any(
-                            "BMMiner" in string for string in data["VERSION"][0].keys()
-                        ):
-                            api = "BMMiner"
-
-                        # check if there are any CGMiner strings in any of the dict keys
-                        elif any(
-                            "CGMiner" in string for string in data["VERSION"][0].keys()
-                        ):
-                            api = "CGMiner"
-
-                        # check if there are any BOSMiner strings in any of the dict keys
-                        elif any(
-                            "BOSminer" in string for string in data["VERSION"][0].keys()
-                        ):
-                            api = "BOSMiner"
-
-                # if all that fails, check the Description to see if it is a whatsminer
-                elif data.get("Description") and "whatsminer" in data.get(
-                    "Description"
-                ):
-                    api = "BTMiner"
-
-            # return the API if we found it
-            if api:
-                return api
-
-        # if there are errors, return None
-        except OSError as e:
-            if e.winerror == 121:
-                return None
-            else:
-                logging.debug(f"{str(ip)}: {e}")
-        return None
