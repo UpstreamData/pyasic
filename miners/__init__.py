@@ -46,13 +46,13 @@ class BaseMiner:
                 )
                 return conn
             except Exception as e:
-                logging.warning(f"{self} raised an exception: {e}")
+                # logging.warning(f"{self} raised an exception: {e}")
                 raise e
         except OSError:
             logging.warning(f"Connection refused: {self}")
             return None
         except Exception as e:
-            logging.warning(f"{self} raised an exception: {e}")
+            # logging.warning(f"{self} raised an exception: {e}")
             raise e
 
     async def send_file(self, src, dest):
