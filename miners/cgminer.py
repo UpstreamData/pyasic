@@ -180,3 +180,5 @@ class CGMiner(BaseMiner):
 
             if quota:
                 data["Split"] = quota
+
+        return data
