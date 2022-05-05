@@ -12,7 +12,15 @@ import logging
 progress_bar_len = 0
 
 
-async def scan_miners(network: MinerNetwork):
+async def btn_scan(scan_ip: str):
+    network = MinerNetwork("192.168.1.0")
+    if scan_ip:
+        ip, mask = scan_ip.split("/")
+        network = MinerNetwork(ip, mask=mask)
+    asyncio.create_task(_scan_miners(network))
+
+
+async def _scan_miners(network: MinerNetwork):
     clear_tables()
     scan_generator = network.scan_network_generator()
     MinerFactory().clear_cached_miners()
@@ -43,10 +51,10 @@ async def scan_miners(network: MinerNetwork):
         await update_prog_bar(progress_bar_len)
     progress_bar_len += network_size - len(resolved_miners)
     await update_prog_bar(progress_bar_len)
-    await get_miners_data(resolved_miners)
+    await _get_miners_data(resolved_miners)
 
 
-async def get_miners_data(miners: list):
+async def _get_miners_data(miners: list):
     global progress_bar_len
     data_generator = asyncio.as_completed([_get_data(miner) for miner in miners])
     miner_data = [{"IP": str(miner.ip)} for miner in miners]

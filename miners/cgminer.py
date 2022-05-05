@@ -127,7 +127,7 @@ class CGMiner(BaseMiner):
             hr = summary.get("SUMMARY")
             if hr:
                 if len(hr) > 0:
-                    hr = hr[0].get("GHS av")
+                    hr = hr[0].get("GHS 5s")
                     if hr:
                         data["Hashrate"] = round(hr / 1000, 2)
 
@@ -166,6 +166,10 @@ class CGMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
+                if pool_1.startswith("stratum+tcp://"):
+                    pool_1.replace("stratum+tcp://", "")
+                if pool_1.startswith("stratum2+tcp://"):
+                    pool_1.replace("stratum2+tcp://", "")
                 data["Pool 1"] = pool_1
 
             if pool_1_user:
@@ -173,6 +177,10 @@ class CGMiner(BaseMiner):
                 data["Pool User"] = pool_1_user
 
             if pool_2:
+                if pool_2.startswith("stratum+tcp://"):
+                    pool_2.replace("stratum+tcp://", "")
+                if pool_2.startswith("stratum2+tcp://"):
+                    pool_2.replace("stratum2+tcp://", "")
                 data["Pool 2"] = pool_2
 
             if pool_2_user:

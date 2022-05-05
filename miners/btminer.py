@@ -108,7 +108,7 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
-                    hr = summary_data[0].get("MHS av")
+                    hr = summary_data[0].get("MHS 5s")
                     if hr:
                         data["Hashrate"] = round(hr / 1000000, 2)
 
@@ -151,6 +151,10 @@ class BTMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
+                if pool_1.startswith("stratum+tcp://"):
+                    pool_1.replace("stratum+tcp://", "")
+                if pool_1.startswith("stratum2+tcp://"):
+                    pool_1.replace("stratum2+tcp://", "")
                 data["Pool 1"] = pool_1
 
             if pool_1_user:
@@ -158,6 +162,10 @@ class BTMiner(BaseMiner):
                 data["Pool User"] = pool_1_user
 
             if pool_2:
+                if pool_2.startswith("stratum+tcp://"):
+                    pool_2.replace("stratum+tcp://", "")
+                if pool_2.startswith("stratum2+tcp://"):
+                    pool_2.replace("stratum2+tcp://", "")
                 data["Pool 2"] = pool_2
 
             if pool_2_user:
