@@ -265,7 +265,6 @@ class MinerFactory:
                 and not version.get("VERSION") == []
             ):
                 model = version["VERSION"][0]["Type"]
-        print("done")
         return model, api
 
     async def _validate_command(self, data: dict) -> tuple:
