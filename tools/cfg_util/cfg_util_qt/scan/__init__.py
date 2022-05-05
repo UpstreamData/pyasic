@@ -12,6 +12,13 @@ import logging
 progress_bar_len = 0
 
 
+async def btn_all():
+    table = "scan_table"
+    window[table].update(
+        select_rows=([row for row in range(len(window[table].Values))])
+    )
+
+
 async def btn_scan(scan_ip: str):
     network = MinerNetwork("192.168.1.0")
     if scan_ip:

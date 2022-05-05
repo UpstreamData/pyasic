@@ -114,7 +114,7 @@ def get_scan_layout():
         ],
         [
             sg.Table(
-                values=[[]],
+                values=[],
                 headings=[heading for heading in TABLE_HEADERS["SCAN"]],
                 auto_size_columns=False,
                 max_col_width=15,
