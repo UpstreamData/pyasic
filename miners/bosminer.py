@@ -250,19 +250,21 @@ class BOSMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
 
-        miner_data = await self.api.multicommand(
-            "summary", "temps", "tunerstatus", "pools"
-        )
-        summary = miner_data.get("summary")[0]
-        temps = miner_data.get("temps")[0]
-        tunerstatus = miner_data.get("tunerstatus")[0]
-        pools = miner_data.get("pools")[0]
-
         if model:
             data["Model"] = model
 
         if hostname:
             data["Hostname"] = hostname
+
+        miner_data = await self.api.multicommand(
+            "summary", "temps", "tunerstatus", "pools"
+        )
+        if not miner_data:
+            return data
+        summary = miner_data.get("summary")[0]
+        temps = miner_data.get("temps")[0]
+        tunerstatus = miner_data.get("tunerstatus")[0]
+        pools = miner_data.get("pools")[0]
 
         if summary:
             hr = summary.get("SUMMARY")

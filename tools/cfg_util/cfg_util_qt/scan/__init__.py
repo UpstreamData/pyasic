@@ -1,9 +1,10 @@
 import asyncio
 
-from tools.cfg_util.cfg_util_qt.tables import clear_tables, update_tables
+from tools.cfg_util.cfg_util_qt.tables import clear_tables, update_tables, TableManager
 from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
 from network import MinerNetwork
 from miners.miner_factory import MinerFactory
+from datetime import datetime
 from API import APIError
 
 import warnings
@@ -71,14 +72,11 @@ async def _scan_miners(network: MinerNetwork):
     async for found_miner in get_miner_genenerator:
         resolved_miners.append(found_miner)
         resolved_miners.sort(key=lambda x: x.ip)
-        resolved_miners_data = []
-        for miner in resolved_miners:
-            _data = {}
-            for key in DEFAULT_DATA:
-                _data[key] = ""
-            _data["IP"] = str(miner.ip)
-            _data["Light"] = False
-            update_tables([_data])
+        _data = {}
+        for key in DEFAULT_DATA:
+            _data[key] = ""
+        _data["IP"] = str(found_miner.ip)
+        TableManager().update_item(_data)
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
     progress_bar_len += network_size - len(resolved_miners)
@@ -89,13 +87,9 @@ async def _scan_miners(network: MinerNetwork):
 async def _get_miners_data(miners: list):
     global progress_bar_len
     data_generator = asyncio.as_completed([_get_data(miner) for miner in miners])
-    miner_data = [{"IP": str(miner.ip)} for miner in miners]
     for all_data in data_generator:
         data = await all_data
-        for idx, item in enumerate(miner_data):
-            if item["IP"] == data["IP"]:
-                miner_data[idx] = data
-        update_tables(miner_data)
+        TableManager().update_item(data)
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
 
