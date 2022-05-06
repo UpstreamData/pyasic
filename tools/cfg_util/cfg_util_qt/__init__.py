@@ -4,7 +4,7 @@ import sys
 from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
 from tools.cfg_util.cfg_util_qt.commands import btn_light
-from tools.cfg_util.cfg_util_qt.configure import generate_config_ui
+from tools.cfg_util.cfg_util_qt.configure import generate_config_ui, btn_import
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.cfg_util_qt.tables import TableManager
@@ -72,6 +72,9 @@ async def main():
             btn_web(_table, value[_table])
         if event == "cfg_generate":
             await generate_config_ui()
+        if event == "cfg_import":
+            _table = "cfg_table"
+            await btn_import(_table, value[_table])
 
         # commands tab
         if event == "cmd_all":
