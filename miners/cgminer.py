@@ -2,6 +2,7 @@ from miners import BaseMiner
 from API.cgminer import CGMinerAPI
 from API import APIError
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+import logging
 
 
 class CGMiner(BaseMiner):
@@ -56,16 +57,24 @@ class CGMiner(BaseMiner):
                     continue
         return result
 
-    async def restart_backend(self) -> None:
-        await self.restart_cgminer()
+    async def restart_backend(self) -> bool:
+        return await self.restart_cgminer()
 
-    async def restart_cgminer(self) -> None:
+    async def restart_cgminer(self) -> bool:
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
-        await self.send_ssh_command(commands)
+        _ret = await self.send_ssh_command(commands)
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def reboot(self) -> None:
-        await self.send_ssh_command("reboot")
+    async def reboot(self) -> bool:
+        logging.debug(f"{self}: Sending reboot command.")
+        _ret = await self.send_ssh_command("reboot")
+        logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
     async def start_cgminer(self) -> None:
         commands = [

@@ -3,7 +3,7 @@ import asyncio
 import sys
 from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
-from tools.cfg_util.cfg_util_qt.commands import btn_light
+from tools.cfg_util.cfg_util_qt.commands import btn_light, btn_reboot, btn_backend
 from tools.cfg_util.cfg_util_qt.configure import (
     generate_config_ui,
     btn_import,
@@ -27,7 +27,7 @@ async def main():
     window["scan_table"].Widget.column(2, anchor=tk.W)
 
     # cmd table sort event
-    window["cmd_table"].Widget.bind("<Button-1>", lambda x: print("clicked"))
+    # window["cmd_table"].Widget.bind("<Button-1>", lambda x: print("clicked"))
 
     while True:
         event, value = window.read(0)
@@ -94,11 +94,18 @@ async def main():
         if event == "cmd_all":
             _table = "cmd_table"
             btn_all(_table, value[_table])
-
         if event == "cmd_light":
             _table = "cmd_table"
             _ips = value[_table]
             asyncio.create_task(btn_light(_ips))
+        if event == "cmd_reboot":
+            _table = "cmd_table"
+            _ips = value[_table]
+            asyncio.create_task(btn_reboot(_ips))
+        if event == "cmd_backend":
+            _table = "cmd_table"
+            _ips = value[_table]
+            asyncio.create_task(btn_backend(_ips))
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)

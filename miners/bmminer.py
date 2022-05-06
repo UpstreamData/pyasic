@@ -114,10 +114,13 @@ class BMMiner(BaseMiner):
             pool_data.append({"url": pool["URL"], "user": pool["User"], "pwd": "123"})
         return pool_data
 
-    async def reboot(self) -> None:
+    async def reboot(self) -> bool:
         logging.debug(f"{self}: Sending reboot command.")
-        await self.send_ssh_command("reboot")
+        _ret = await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
     async def get_data(self):
         data = {
