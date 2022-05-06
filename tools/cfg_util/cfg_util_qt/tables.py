@@ -7,6 +7,7 @@ from tools.cfg_util.cfg_util_qt.layout import (
 from tools.cfg_util.cfg_util_qt.imgs import TkImages, LIGHT, FAULT_LIGHT
 import PySimpleGUI as sg
 import ipaddress
+from datetime import datetime
 
 
 def update_miner_count(count):
@@ -46,6 +47,7 @@ class TableManager(metaclass=Singleton):
         self.images = TkImages()
         self.data = {}
         self.sort_key = "IP"
+        self.sort_reverse = False
 
     def update_data(self, data: list):
         if not data:
@@ -54,9 +56,18 @@ class TableManager(metaclass=Singleton):
         for line in data:
             self.update_item(line)
 
+    def update_sort_key(self, sort_key):
+        if self.sort_key == sort_key:
+            self.sort_reverse = not self.sort_reverse
+        self.sort_key = sort_key
+        self.update_tables()
+
     def update_item(self, data: dict):
         if not data or data == {} or not data.get("IP"):
             return
+
+        if not data.get("Light"):
+            data["Light"] = False
 
         if not data["IP"] in self.data.keys():
             self.data[data["IP"]] = {}
@@ -73,11 +84,12 @@ class TableManager(metaclass=Singleton):
             "POOLS": [["" for _ in TABLE_HEADERS["POOLS"]] for _ in self.data],
             "CONFIG": [["" for _ in TABLE_HEADERS["CONFIG"]] for _ in self.data],
         }
-        sorted_keys = sorted(self.data.keys(), key=lambda x: self._get_sort(x))
-        if sorted_keys == list(self.data.keys()):
-            sorted_keys = sorted(
-                self.data.keys(), key=lambda x: ipaddress.ip_address(x)
-            )
+
+        ip_sorted_keys = sorted(self.data.keys(), key=lambda x: ipaddress.ip_address(x))
+        sorted_keys = sorted(
+            ip_sorted_keys, reverse=self.sort_reverse, key=lambda x: self._get_sort(x)
+        )
+
         for data_idx, key in enumerate(sorted_keys):
             item = self.data[key]
             keys = item.keys()
@@ -113,7 +125,9 @@ class TableManager(metaclass=Singleton):
             return ipaddress.ip_address(self.data[data_key]["IP"])
 
         if self.sort_key == "Hashrate":
-            return self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
+            return float(
+                self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
+            )
 
         return self.data[data_key][self.sort_key]
 
@@ -124,42 +138,3 @@ class TableManager(metaclass=Singleton):
         for tree in TABLE_KEYS["tree"]:
             window[tree].update(sg.TreeData())
         update_miner_count(0)
-
-    def update_tree_by_key(self, data: dict, key: str = "IP"):
-        for idx, item in enumerate(self.data):
-            if key in item.keys():
-                if data[key] == item[key]:
-                    self.data[idx] = data
-
-        keys = data.keys()
-        img = None
-        if key not in keys:
-            return
-        _tree = window["cmd_table"].Widget
-        for iid in _tree.get_children():
-            values = _tree.item(iid)["values"]
-            if data.get("Light"):
-                if data["Light"]:
-                    img = self.images.fault_light
-                if not data["Light"]:
-                    img = self.images.light
-            if values[0] == data["IP"]:
-                if img:
-                    _tree.item(
-                        iid,
-                        image=img,
-                        values=[
-                            data["IP"],
-                            data["Model"] if "Model" in keys else "",
-                            data["Command Output"] if "Command Output" in keys else "",
-                        ],
-                    )
-                else:
-                    _tree.item(
-                        iid,
-                        values=[
-                            data["IP"],
-                            data["Model"] if "Model" in keys else "",
-                            data["Command Output"] if "Command Output" in keys else "",
-                        ],
-                    )

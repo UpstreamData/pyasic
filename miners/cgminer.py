@@ -109,19 +109,22 @@ class CGMiner(BaseMiner):
             "Pool 2 User": "",
         }
 
-        miner_data = await self.api.multicommand("summary", "pools", "stats")
         model = await self.get_model()
         hostname = await self.get_hostname()
-
-        summary = miner_data.get("summary")[0]
-        pools = miner_data.get("pools")[0]
-        stats = miner_data.get("stats")[0]
 
         if model:
             data["Model"] = model
 
         if hostname:
             data["Hostname"] = hostname
+
+        miner_data = await self.api.multicommand("summary", "pools", "stats")
+        if not miner_data:
+            return data
+
+        summary = miner_data.get("summary")[0]
+        pools = miner_data.get("pools")[0]
+        stats = miner_data.get("stats")[0]
 
         if summary:
             hr = summary.get("SUMMARY")

@@ -14,10 +14,15 @@ sg.set_options(font=("Liberation Mono", 10))
 
 async def main():
     window.read(0)
+
+    # create images used in the table, they will not show if not saved here
     tk_imgs = TkImages()
 
-    # clear_tables()
+    # left justify hostnames
     window["scan_table"].Widget.column(2, anchor=tk.W)
+
+    # cmd table sort event
+    window["cmd_table"].Widget.bind("<Button-1>", lambda x: print("clicked"))
 
     while True:
         event, value = window.read(0)
@@ -30,10 +35,10 @@ async def main():
                     if event[2][0] == -1:
                         mgr = TableManager()
                         table = window[event[0]].Widget
-                        mgr.sort_key = table.heading(event[2][1])["text"]
-                        mgr.update_tables()
+                        mgr.update_sort_key(table.heading(event[2][1])["text"])
 
         # scan tab
+
         if event == "scan_all":
             _table = "scan_table"
             btn_all(_table, value[_table])

@@ -93,16 +93,19 @@ class BTMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
 
-        miner_data = await self.api.multicommand("summary", "devs", "pools")
-        summary = miner_data.get("summary")[0]
-        devs = miner_data.get("devs")[0]
-        pools = miner_data.get("pools")[0]
-
         if model:
             data["Model"] = model
 
         if hostname:
             data["Hostname"] = hostname
+
+        miner_data = await self.api.multicommand("summary", "devs", "pools")
+        if not miner_data:
+            return data
+
+        summary = miner_data.get("summary")[0]
+        devs = miner_data.get("devs")[0]
+        pools = miner_data.get("pools")[0]
 
         if summary:
             summary_data = summary.get("SUMMARY")
@@ -174,4 +177,4 @@ class BTMiner(BaseMiner):
             if quota:
                 data["Split"] = quota
 
-        print(data)
+        return data
