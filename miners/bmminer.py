@@ -1,6 +1,7 @@
 from API.bmminer import BMMinerAPI
 from miners import BaseMiner
 import logging
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class BMMiner(BaseMiner):
@@ -44,6 +45,8 @@ class BMMiner(BaseMiner):
 
         :return: The hostname of the miner as a string or "?"
         """
+        if self.hostname:
+            return self.hostname
         try:
             # open an ssh connection
             async with (await self._get_ssh_connection()) as conn:
@@ -55,7 +58,8 @@ class BMMiner(BaseMiner):
 
                     # return hostname data
                     logging.debug(f"Found hostname for {self.ip}: {host}")
-                    return host
+                    self.hostname = host
+                    return self.hostname
                 else:
                     # return ? if we fail to get hostname with no ssh connection
                     logging.warning(f"Failed to get hostname for miner: {self}")
@@ -81,6 +85,8 @@ class BMMiner(BaseMiner):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
+                    result = result.stdout
+
                 except Exception as e:
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")
@@ -110,7 +116,116 @@ class BMMiner(BaseMiner):
             pool_data.append({"url": pool["URL"], "user": pool["User"], "pwd": "123"})
         return pool_data
 
-    async def reboot(self) -> None:
+    async def reboot(self) -> bool:
         logging.debug(f"{self}: Sending reboot command.")
-        await self.send_ssh_command("reboot")
+        _ret = await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
+
+    async def get_data(self):
+        data = {
+            "IP": str(self.ip),
+            "Model": "Unknown",
+            "Hostname": "Unknown",
+            "Hashrate": 0,
+            "Temperature": 0,
+            "Pool User": "Unknown",
+            "Wattage": 0,
+            "Split": 0,
+            "Pool 1": "Unknown",
+            "Pool 1 User": "Unknown",
+            "Pool 2": "",
+            "Pool 2 User": "",
+        }
+
+        model = await self.get_model()
+        hostname = await self.get_hostname()
+
+        if model:
+            data["Model"] = model
+
+        if hostname:
+            data["Hostname"] = hostname
+
+        miner_data = None
+        for i in range(DATA_RETRIES):
+            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            if miner_data:
+                break
+
+        if not miner_data:
+            return data
+
+        summary = miner_data.get("summary")[0]
+        pools = miner_data.get("pools")[0]
+        stats = miner_data.get("stats")[0]
+
+        if summary:
+            hr = summary.get("SUMMARY")
+            if hr:
+                if len(hr) > 0:
+                    hr = hr[0].get("GHS 5s")
+                    if hr:
+                        data["Hashrate"] = round(hr / 1000, 2)
+
+        if stats:
+            temp = stats.get("STATS")
+            if temp:
+                if len(temp) > 1:
+                    for item in ["temp2", "temp1", "temp3"]:
+                        temperature = temp[1].get(item)
+                        if temperature and not temperature == 0.0:
+                            data["Temperature"] = round(temperature)
+
+        if pools:
+            pool_1 = None
+            pool_2 = None
+            pool_1_user = None
+            pool_2_user = None
+            pool_1_quota = 1
+            pool_2_quota = 1
+            quota = 0
+            for pool in pools.get("POOLS"):
+                if not pool_1_user:
+                    pool_1_user = pool.get("User")
+                    pool_1 = pool["URL"]
+                    pool_1_quota = pool["Quota"]
+                elif not pool_2_user:
+                    pool_2_user = pool.get("User")
+                    pool_2 = pool["URL"]
+                    pool_2_quota = pool["Quota"]
+                if not pool.get("User") == pool_1_user:
+                    if not pool_2_user == pool.get("User"):
+                        pool_2_user = pool.get("User")
+                        pool_2 = pool["URL"]
+                        pool_2_quota = pool["Quota"]
+            if pool_2_user and not pool_2_user == pool_1_user:
+                quota = f"{pool_1_quota}/{pool_2_quota}"
+
+            if pool_1:
+                if pool_1.startswith("stratum+tcp://"):
+                    pool_1.replace("stratum+tcp://", "")
+                if pool_1.startswith("stratum2+tcp://"):
+                    pool_1.replace("stratum2+tcp://", "")
+                data["Pool 1"] = pool_1
+
+            if pool_1_user:
+                data["Pool 1 User"] = pool_1_user
+                data["Pool User"] = pool_1_user
+
+            if pool_2:
+                if pool_2.startswith("stratum+tcp://"):
+                    pool_2.replace("stratum+tcp://", "")
+                if pool_2.startswith("stratum2+tcp://"):
+                    pool_2.replace("stratum2+tcp://", "")
+                data["Pool 2"] = pool_2
+
+            if pool_2_user:
+                data["Pool 2 User"] = pool_2_user
+
+            if quota:
+                data["Split"] = quota
+
+        return data
