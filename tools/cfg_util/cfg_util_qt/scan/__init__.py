@@ -41,7 +41,7 @@ async def btn_scan(scan_ip: str):
     asyncio.create_task(_scan_miners(network))
 
 
-@disable_buttons
+@disable_buttons("Scanning")
 async def _scan_miners(network: MinerNetwork):
     clear_tables()
     scan_generator = network.scan_network_generator()

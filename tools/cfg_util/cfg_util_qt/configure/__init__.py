@@ -12,7 +12,7 @@ from tools.cfg_util.cfg_util_qt.general import update_miners_data
 progress_bar_len = 0
 
 
-@disable_buttons
+@disable_buttons("Importing")
 async def btn_import(table, selected):
     if not len(selected) > 0:
         return
@@ -23,7 +23,7 @@ async def btn_import(table, selected):
     window["cfg_config_txt"].update(config)
 
 
-@disable_buttons
+@disable_buttons("Configuring")
 async def btn_config(table, selected, config: str, last_oct_ip: bool):
     ips = [window[table].Values[row][0] for row in selected]
     await send_config(ips, config, last_oct_ip)
