@@ -50,6 +50,7 @@ class CGMiner(BaseMiner):
             for i in range(3):
                 try:
                     result = await conn.run(cmd)
+                    result = result.stdout
                 except Exception as e:
                     print(f"{cmd} error: {e}")
                     if i == 3:
