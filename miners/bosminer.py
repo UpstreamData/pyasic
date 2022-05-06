@@ -34,6 +34,7 @@ class BOSMiner(BaseMiner):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
+                    result = result.stdout
                 except Exception as e:
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")

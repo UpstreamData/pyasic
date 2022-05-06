@@ -3,7 +3,12 @@ import asyncio
 import sys
 from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
-from tools.cfg_util.cfg_util_qt.commands import btn_light, btn_reboot, btn_backend
+from tools.cfg_util.cfg_util_qt.commands import (
+    btn_light,
+    btn_reboot,
+    btn_backend,
+    btn_command,
+)
 from tools.cfg_util.cfg_util_qt.configure import (
     generate_config_ui,
     btn_import,
@@ -106,6 +111,10 @@ async def main():
             _table = "cmd_table"
             _ips = value[_table]
             asyncio.create_task(btn_backend(_ips))
+        if event == "btn_cmd":
+            _table = "cmd_table"
+            _ips = value[_table]
+            asyncio.create_task(btn_command(_ips, value["cmd_txt"]))
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)

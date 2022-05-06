@@ -60,3 +60,19 @@ async def btn_backend(ip_idxs: list):
         else:
             table_manager.data[ip]["Command Output"] = "Restart Backend command failed."
     table_manager.update_tables()
+
+
+@disable_buttons
+async def btn_command(ip_idxs: list, command: str):
+    table_manager = TableManager()
+    _table = window["cmd_table"].Widget
+    iids = _table.get_children()
+    for idx in ip_idxs:
+        item = _table.item(iids[idx])
+        ip = item["values"][0]
+        miner = await MinerFactory().get_miner(ip)
+        success = await miner.send_ssh_command(command)
+        if not isinstance(success, str):
+            success = f"Command {command} failed."
+        table_manager.data[ip]["Command Output"] = success
+    table_manager.update_tables()
