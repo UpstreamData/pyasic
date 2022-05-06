@@ -89,7 +89,7 @@ class BOSMiner(BaseMiner):
                 async with sftp.open("/etc/bosminer.toml") as file:
                     toml_data = toml.loads(await file.read())
         logging.debug(f"{self}: Converting config file.")
-        cfg = await bos_config_convert(toml_data)
+        cfg = bos_config_convert(toml_data)
         self.config = cfg
 
     async def get_hostname(self) -> str:
@@ -170,10 +170,10 @@ class BOSMiner(BaseMiner):
         if ip_user:
             suffix = str(self.ip).split(".")[-1]
             toml_conf = toml.dumps(
-                await general_config_convert_bos(yaml_config, user_suffix=suffix)
+                general_config_convert_bos(yaml_config, user_suffix=suffix)
             )
         else:
-            toml_conf = toml.dumps(await general_config_convert_bos(yaml_config))
+            toml_conf = toml.dumps(general_config_convert_bos(yaml_config))
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:

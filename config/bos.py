@@ -3,7 +3,7 @@ import yaml
 import toml
 
 
-async def bos_config_convert(config: dict):
+def bos_config_convert(config: dict):
     out_config = {}
     for opt in config:
         if opt == "format":
@@ -110,7 +110,7 @@ async def bos_config_convert(config: dict):
     return yaml.dump(out_config, sort_keys=False)
 
 
-async def general_config_convert_bos(yaml_config, user_suffix: str = None):
+def general_config_convert_bos(yaml_config, user_suffix: str = None):
     config = yaml.load(yaml_config, Loader=yaml.SafeLoader)
     out_config = {}
     for opt in config:

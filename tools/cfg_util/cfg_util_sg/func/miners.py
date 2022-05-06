@@ -580,4 +580,4 @@ async def generate_config(username, workername, v2_allowed):
         },
         "autotuning": {"enabled": True, "psu_power_limit": 900},
     }
-    window["config"].update(await bos_config_convert(config))
+    window["config"].update(bos_config_convert(config))
