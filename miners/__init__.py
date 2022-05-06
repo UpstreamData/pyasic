@@ -86,7 +86,7 @@ class BaseMiner:
     async def restart_backend(self):
         return False
 
-    async def send_config(self, yaml_config):
+    async def send_config(self, *args, **kwargs):
         return None
 
     async def get_data(self):
