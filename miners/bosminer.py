@@ -65,20 +65,26 @@ class BOSMiner(BaseMiner):
             return True
         return False
 
-    async def restart_backend(self) -> None:
-        await self.restart_bosminer()
+    async def restart_backend(self) -> bool:
+        return await self.restart_bosminer()
 
-    async def restart_bosminer(self) -> None:
+    async def restart_bosminer(self) -> bool:
         """Restart bosminer hashing process."""
         logging.debug(f"{self}: Sending bosminer restart command.")
-        await self.send_ssh_command("/etc/init.d/bosminer restart")
+        _ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
         logging.debug(f"{self}: bosminer restart command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def reboot(self) -> None:
+    async def reboot(self) -> bool:
         """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        await self.send_ssh_command("/sbin/reboot")
+        _ret = await self.send_ssh_command("/sbin/reboot")
         logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
     async def get_config(self) -> None:
         logging.debug(f"{self}: Getting config.")

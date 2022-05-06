@@ -5,11 +5,11 @@ from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
 
 
 @disable_buttons
-async def btn_light(ips: list):
+async def btn_light(ip_idxs: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
     iids = _table.get_children()
-    for idx in ips:
+    for idx in ip_idxs:
         item = _table.item(iids[idx])
         ip = item["values"][0]
         new_light_val = not table_manager.data[ip]["Light"]
@@ -23,4 +23,40 @@ async def btn_light(ips: list):
             table_manager.data[ip]["Command Output"] = "Fault Light command succeeded."
         else:
             table_manager.data[ip]["Command Output"] = "Fault Light command failed."
+    table_manager.update_tables()
+
+
+@disable_buttons
+async def btn_reboot(ip_idxs: list):
+    table_manager = TableManager()
+    _table = window["cmd_table"].Widget
+    iids = _table.get_children()
+    for idx in ip_idxs:
+        item = _table.item(iids[idx])
+        ip = item["values"][0]
+        miner = await MinerFactory().get_miner(ip)
+        success = await miner.reboot()
+        if success:
+            table_manager.data[ip]["Command Output"] = "Reboot command succeeded."
+        else:
+            table_manager.data[ip]["Command Output"] = "Reboot command failed."
+    table_manager.update_tables()
+
+
+@disable_buttons
+async def btn_backend(ip_idxs: list):
+    table_manager = TableManager()
+    _table = window["cmd_table"].Widget
+    iids = _table.get_children()
+    for idx in ip_idxs:
+        item = _table.item(iids[idx])
+        ip = item["values"][0]
+        miner = await MinerFactory().get_miner(ip)
+        success = await miner.restart_backend()
+        if success:
+            table_manager.data[ip][
+                "Command Output"
+            ] = "Restart Backend command succeeded."
+        else:
+            table_manager.data[ip]["Command Output"] = "Restart Backend command failed."
     table_manager.update_tables()

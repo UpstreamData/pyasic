@@ -81,10 +81,10 @@ class BaseMiner:
         return None
 
     async def reboot(self):
-        return None
+        return False
 
     async def restart_backend(self):
-        return None
+        return False
 
     async def send_config(self, yaml_config):
         return None
