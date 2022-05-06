@@ -1,13 +1,12 @@
-from tools.cfg_util.cfg_util_qt.layout import (
+from tools.cfg_util.layout import (
     MINER_COUNT_BUTTONS,
     TABLE_KEYS,
     TABLE_HEADERS,
     window,
 )
-from tools.cfg_util.cfg_util_qt.imgs import TkImages, LIGHT, FAULT_LIGHT
+from tools.cfg_util.imgs import TkImages, LIGHT, FAULT_LIGHT
 import PySimpleGUI as sg
 import ipaddress
-from datetime import datetime
 
 
 def update_miner_count(count):

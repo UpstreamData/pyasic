@@ -2,10 +2,10 @@ import asyncio
 import webbrowser
 
 from miners.miner_factory import MinerFactory
-from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
-from tools.cfg_util.cfg_util_qt.layout import TABLE_KEYS
-from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
-from tools.cfg_util.cfg_util_qt.tables import TableManager
+from tools.cfg_util.decorators import disable_buttons
+from tools.cfg_util.layout import TABLE_KEYS
+from tools.cfg_util.layout import window, update_prog_bar
+from tools.cfg_util.tables import TableManager
 
 progress_bar_len = 0
 

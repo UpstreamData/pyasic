@@ -1,28 +1,26 @@
 import PySimpleGUI as sg
 import asyncio
 import sys
-from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
-from tools.cfg_util.cfg_util_qt.scan import btn_scan
-from tools.cfg_util.cfg_util_qt.commands import (
+from tools.cfg_util.imgs import TkImages
+from tools.cfg_util.scan import btn_scan
+from tools.cfg_util.commands import (
     btn_light,
     btn_reboot,
     btn_backend,
     btn_command,
 )
-from tools.cfg_util.cfg_util_qt.configure import (
+from tools.cfg_util.configure import (
     generate_config_ui,
     btn_import,
     btn_config,
 )
-from tools.cfg_util.cfg_util_qt.layout import window
-from tools.cfg_util.cfg_util_qt.general import btn_all, btn_web, btn_refresh
-from tools.cfg_util.cfg_util_qt.tables import TableManager
+from tools.cfg_util.layout import window
+from tools.cfg_util.general import btn_all, btn_web, btn_refresh
+from tools.cfg_util.tables import TableManager
 import tkinter as tk
 
-sg.set_options(font=("Liberation Mono", 10))
 
-
-async def main():
+async def ui():
     window.read(0)
 
     # create images used in the table, they will not show if not saved here
@@ -121,4 +119,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(ui())

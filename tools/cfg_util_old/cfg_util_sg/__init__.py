@@ -2,7 +2,7 @@ import asyncio
 import sys
 import logging
 
-from tools.cfg_util.cfg_util_sg.ui import ui
+from tools.cfg_util_old.cfg_util_sg.ui import ui
 
 
 # initialize logger and get settings

@@ -2,9 +2,9 @@ import asyncio
 
 from miners.miner_factory import MinerFactory
 from network import MinerNetwork
-from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
-from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
-from tools.cfg_util.cfg_util_qt.tables import clear_tables, TableManager
+from tools.cfg_util.decorators import disable_buttons
+from tools.cfg_util.layout import window, update_prog_bar
+from tools.cfg_util.tables import clear_tables, TableManager
 
 progress_bar_len = 0
 

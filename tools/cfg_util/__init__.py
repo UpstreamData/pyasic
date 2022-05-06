@@ -1,1 +1,10 @@
-from tools.cfg_util.cfg_util_sg import main
+from .ui import ui
+import asyncio
+
+
+def main():
+    asyncio.run(ui())
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,5 @@
-from tools.cfg_util.cfg_util_qt.layout import window
-from tools.cfg_util.cfg_util_qt.layout import BUTTON_KEYS
+from tools.cfg_util.layout import window
+from tools.cfg_util.layout import BUTTON_KEYS
 
 
 def disable_buttons(status: str = ""):

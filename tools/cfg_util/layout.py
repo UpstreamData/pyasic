@@ -2,6 +2,8 @@ import PySimpleGUI as sg
 
 from .imgs import WINDOW_ICON
 
+sg.set_options(font=("Liberation Mono", 10))
+
 TABLE_HEADERS = {
     "SCAN": [
         "IP",
