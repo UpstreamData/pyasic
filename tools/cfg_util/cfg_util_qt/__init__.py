@@ -5,7 +5,7 @@ from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
 from tools.cfg_util.cfg_util_qt.commands import btn_light
 from tools.cfg_util.cfg_util_qt.layout import window
-from tools.cfg_util.cfg_util_qt.general import btn_all
+from tools.cfg_util.cfg_util_qt.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.cfg_util_qt.tables import TableManager
 import tkinter as tk
 
@@ -42,6 +42,12 @@ async def main():
         if event == "scan_all":
             _table = "scan_table"
             btn_all(_table, value[_table])
+        if event == "scan_web":
+            _table = "scan_table"
+            btn_web(_table, value[_table])
+        if event == "scan_refresh":
+            _table = "scan_table"
+            asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "btn_scan":
             await btn_scan(value["scan_ip"])
 
@@ -49,16 +55,26 @@ async def main():
         if event == "pools_all":
             _table = "pools_table"
             btn_all(_table, value[_table])
+        if event == "pools_web":
+            _table = "pools_table"
+            btn_web(_table, value[_table])
+        if event == "pools_refresh":
+            _table = "pools_table"
+            asyncio.create_task(btn_refresh(_table, value[_table]))
 
         # configure tab
         if event == "cfg_all":
             _table = "cfg_table"
             btn_all(_table, value[_table])
+        if event == "cfg_web":
+            _table = "cfg_table"
+            btn_web(_table, value[_table])
 
         # commands tab
         if event == "cmd_all":
             _table = "cmd_table"
             btn_all(_table, value[_table])
+
         if event == "cmd_light":
             _table = "cmd_table"
             _ips = value[_table]

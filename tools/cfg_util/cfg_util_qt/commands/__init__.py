@@ -1,8 +1,10 @@
 from miners.miner_factory import MinerFactory
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.tables import TableManager
+from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
 
 
+@disable_buttons
 async def btn_light(ips: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
