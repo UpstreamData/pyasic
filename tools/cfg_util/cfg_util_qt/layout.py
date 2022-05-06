@@ -82,11 +82,13 @@ TABLE_TOTAL_WIDTH = sum(SCAN_COL_WIDTHS)
 async def update_prog_bar(count: int, max: int = None):
     bar = window["progress_bar"]
     bar.update_bar(count, max=max)
+    if max:
+        bar.maxlen = max
     if not hasattr(bar, "maxlen"):
         if not max:
             max = 100
-    if max:
         bar.maxlen = max
+
     percent_done = 100 * (count / bar.maxlen)
     window["progress_percent"].Update(f"{round(percent_done, 2)} %")
     if percent_done == 100:
