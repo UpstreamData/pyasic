@@ -1,4 +1,4 @@
-from tools.cfg_util.cfg_util_sg.layout import window
+from tools.cfg_util_old.cfg_util_sg.layout import window
 
 
 def disable_buttons(func):

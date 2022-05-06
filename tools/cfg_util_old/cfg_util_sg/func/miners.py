@@ -5,16 +5,16 @@ import warnings
 import logging
 
 from API import APIError
-from tools.cfg_util.cfg_util_sg.func.parse_data import safe_parse_api_data
-from tools.cfg_util.cfg_util_sg.func.ui import (
+from tools.cfg_util_old.cfg_util_sg.func.parse_data import safe_parse_api_data
+from tools.cfg_util_old.cfg_util_sg.func.ui import (
     update_ui_with_data,
     update_prog_bar,
     set_progress_bar_len,
 )
-from tools.cfg_util.cfg_util_sg.layout import window
+from tools.cfg_util_old.cfg_util_sg.layout import window
 from miners.miner_factory import MinerFactory
 from config.bos import bos_config_convert
-from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
+from tools.cfg_util_old.cfg_util_sg.func.decorators import disable_buttons
 from settings import (
     CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS,
     CFG_UTIL_REBOOT_THREADS as REBOOT_THREADS,

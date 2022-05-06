@@ -1,7 +1,7 @@
 from miners.miner_factory import MinerFactory
-from tools.cfg_util.cfg_util_qt.layout import window
-from tools.cfg_util.cfg_util_qt.tables import TableManager
-from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
+from tools.cfg_util.layout import window
+from tools.cfg_util.tables import TableManager
+from tools.cfg_util.decorators import disable_buttons
 
 
 @disable_buttons("Flashing Lights")
