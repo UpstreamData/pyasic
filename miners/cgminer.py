@@ -1,6 +1,7 @@
 from miners import BaseMiner
 from API.cgminer import CGMinerAPI
 from API import APIError
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class CGMiner(BaseMiner):
@@ -117,8 +118,12 @@ class CGMiner(BaseMiner):
 
         if hostname:
             data["Hostname"] = hostname
+        miner_data = None
+        for i in range(DATA_RETRIES):
+            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            if miner_data:
+                break
 
-        miner_data = await self.api.multicommand("summary", "pools", "stats")
         if not miner_data:
             return data
 

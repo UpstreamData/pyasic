@@ -3,6 +3,7 @@ from API.bosminer import BOSMinerAPI
 import toml
 from config.bos import bos_config_convert, general_config_convert_bos
 import logging
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class BOSMiner(BaseMiner):
@@ -256,9 +257,13 @@ class BOSMiner(BaseMiner):
         if hostname:
             data["Hostname"] = hostname
 
-        miner_data = await self.api.multicommand(
-            "summary", "temps", "tunerstatus", "pools"
-        )
+        miner_data = None
+        for i in range(DATA_RETRIES):
+            miner_data = await self.api.multicommand(
+                "summary", "temps", "tunerstatus", "pools"
+            )
+            if miner_data:
+                break
         if not miner_data:
             return data
         summary = miner_data.get("summary")[0]
