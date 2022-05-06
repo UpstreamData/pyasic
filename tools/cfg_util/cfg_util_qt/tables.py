@@ -73,9 +73,12 @@ class TableManager(metaclass=Singleton):
             "POOLS": [["" for _ in TABLE_HEADERS["POOLS"]] for _ in self.data],
             "CONFIG": [["" for _ in TABLE_HEADERS["CONFIG"]] for _ in self.data],
         }
-        for data_idx, key in enumerate(
-            sorted(self.data.keys(), key=lambda x: self._get_sort(x))
-        ):
+        sorted_keys = sorted(self.data.keys(), key=lambda x: self._get_sort(x))
+        if sorted_keys == list(self.data.keys()):
+            sorted_keys = sorted(
+                self.data.keys(), key=lambda x: ipaddress.ip_address(x)
+            )
+        for data_idx, key in enumerate(sorted_keys):
             item = self.data[key]
             keys = item.keys()
 

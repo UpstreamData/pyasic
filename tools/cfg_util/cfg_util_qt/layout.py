@@ -174,6 +174,7 @@ def get_command_layout():
                 expand_y=True,
                 col0_heading="Light",
                 col0_width=IMAGE_COL_WIDTH,
+                enable_events=True,
             )
         ],
     ]

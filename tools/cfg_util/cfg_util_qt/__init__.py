@@ -6,6 +6,7 @@ from tools.cfg_util.cfg_util_qt.scan import btn_scan
 from tools.cfg_util.cfg_util_qt.commands import btn_light
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.general import btn_all
+from tools.cfg_util.cfg_util_qt.tables import TableManager
 import tkinter as tk
 
 sg.set_options(font=("Liberation Mono", 10))
@@ -22,6 +23,16 @@ async def main():
         event, value = window.read(0)
         if event in (None, "Close", sg.WIN_CLOSED):
             sys.exit()
+
+        if isinstance(event, tuple):
+            if len(window["scan_table"].Values) > 0:
+                if event[0].endswith("_table"):
+                    if event[2][0] == -1:
+                        mgr = TableManager()
+                        table = window[event[0]].Widget
+                        mgr.sort_key = table.heading(event[2][1])["text"]
+                        mgr.update_tables()
+
         # scan tab
         if event == "scan_all":
             _table = "scan_table"
