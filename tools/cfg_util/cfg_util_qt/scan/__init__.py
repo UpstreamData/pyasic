@@ -50,6 +50,7 @@ async def _scan_miners(network: MinerNetwork):
     MinerFactory().clear_cached_miners()
 
     global progress_bar_len
+    progress_bar_len = 0
 
     network_size = len(network)
     await update_prog_bar(progress_bar_len, max=(3 * network_size))
