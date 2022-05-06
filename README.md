@@ -296,5 +296,3 @@ async def get_miner_hashrate_and_pool(ip: str):
 if __name__ == '__main__':
     asyncio.new_event_loop().run_until_complete(get_miner_hashrate_and_pool(str("192.168.1.9")))
 ```
-
-
