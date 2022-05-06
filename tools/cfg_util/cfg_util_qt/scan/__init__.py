@@ -36,8 +36,11 @@ async def btn_all():
 async def btn_scan(scan_ip: str):
     network = MinerNetwork("192.168.1.0")
     if scan_ip:
-        ip, mask = scan_ip.split("/")
-        network = MinerNetwork(ip, mask=mask)
+        if "/" in scan_ip:
+            ip, mask = scan_ip.split("/")
+            network = MinerNetwork(ip, mask=mask)
+        else:
+            network = MinerNetwork(scan_ip)
     asyncio.create_task(_scan_miners(network))
 
 
@@ -74,8 +77,7 @@ async def _scan_miners(network: MinerNetwork):
                 _data[key] = ""
             _data["IP"] = str(miner.ip)
             _data["Light"] = False
-            resolved_miners_data.append(_data)
-        update_tables(resolved_miners_data)
+            update_tables([_data])
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
     progress_bar_len += network_size - len(resolved_miners)

@@ -55,6 +55,12 @@ class BaseMiner:
             # logging.warning(f"{self} raised an exception: {e}")
             raise e
 
+    async def fault_light_on(self) -> bool:
+        return False
+
+    async def fault_light_off(self) -> bool:
+        return False
+
     async def send_file(self, src, dest):
         async with (await self._get_ssh_connection()) as conn:
             await asyncssh.scp(src, (conn, dest))
