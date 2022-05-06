@@ -3,12 +3,12 @@ import sys
 import PySimpleGUI as sg
 import tkinter as tk
 
-from tools.cfg_util.cfg_util_sg.layout import (
+from tools.cfg_util_old.cfg_util_sg.layout import (
     window,
     generate_config_layout,
     send_ssh_cmd_layout,
 )
-from tools.cfg_util.cfg_util_sg.func.miners import (
+from tools.cfg_util_old.cfg_util_sg.func.miners import (
     send_config,
     miner_light,
     refresh_data,
@@ -19,15 +19,15 @@ from tools.cfg_util.cfg_util_sg.func.miners import (
     reboot_miners,
     send_miners_ssh_commands,
 )
-from tools.cfg_util.cfg_util_sg.func.files import (
+from tools.cfg_util_old.cfg_util_sg.func.files import (
     import_iplist,
     import_config_file,
     export_iplist,
     export_config_file,
     export_csv,
 )
-from tools.cfg_util.cfg_util_sg.func.decorators import disable_buttons
-from tools.cfg_util.cfg_util_sg.func.ui import (
+from tools.cfg_util_old.cfg_util_sg.func.decorators import disable_buttons
+from tools.cfg_util_old.cfg_util_sg.func.ui import (
     sort_data,
     copy_from_table,
     table_select_all,

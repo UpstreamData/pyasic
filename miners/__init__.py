@@ -21,6 +21,7 @@ class BaseMiner:
         self.api_type = None
         self.model = None
         self.light = None
+        self.hostname = None
         self.nominal_chips = 1
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
@@ -45,14 +46,20 @@ class BaseMiner:
                 )
                 return conn
             except Exception as e:
-                logging.warning(f"{self} raised an exception: {e}")
+                # logging.warning(f"{self} raised an exception: {e}")
                 raise e
         except OSError:
             logging.warning(f"Connection refused: {self}")
             return None
         except Exception as e:
-            logging.warning(f"{self} raised an exception: {e}")
+            # logging.warning(f"{self} raised an exception: {e}")
             raise e
+
+    async def fault_light_on(self) -> bool:
+        return False
+
+    async def fault_light_off(self) -> bool:
+        return False
 
     async def send_file(self, src, dest):
         async with (await self._get_ssh_connection()) as conn:
@@ -74,10 +81,27 @@ class BaseMiner:
         return None
 
     async def reboot(self):
-        return None
+        return False
 
     async def restart_backend(self):
-        return None
+        return False
 
     async def send_config(self, yaml_config):
         return None
+
+    async def get_data(self):
+        data = {
+            "IP": str(self.ip),
+            "Model": "Unknown",
+            "Hostname": "Unknown",
+            "Hashrate": 0,
+            "Temperature": 0,
+            "Pool User": "Unknown",
+            "Wattage": 0,
+            "Split": 0,
+            "Pool 1": "Unknown",
+            "Pool 1 User": "Unknown",
+            "Pool 2": "",
+            "Pool 2 User": "",
+        }
+        return data

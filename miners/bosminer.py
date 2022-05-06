@@ -3,6 +3,7 @@ from API.bosminer import BOSMinerAPI
 import toml
 from config.bos import bos_config_convert, general_config_convert_bos
 import logging
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class BOSMiner(BaseMiner):
@@ -33,6 +34,7 @@ class BOSMiner(BaseMiner):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
+                    result = result.stdout
                 except Exception as e:
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")
@@ -42,36 +44,48 @@ class BOSMiner(BaseMiner):
                         return
                     continue
         # return the result, either command output or None
-        return result
+        return str(result)
 
-    async def fault_light_on(self) -> None:
+    async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
         self.light = True
-        await self.send_ssh_command("miner fault_light on")
+        _ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def fault_light_off(self) -> None:
+    async def fault_light_off(self) -> bool:
         """Sends command to turn off fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light off command.")
         self.light = False
-        await self.send_ssh_command("miner fault_light off")
+        _ret = await self.send_ssh_command("miner fault_light off")
         logging.debug(f"{self}: fault_light off command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def restart_backend(self) -> None:
-        await self.restart_bosminer()
+    async def restart_backend(self) -> bool:
+        return await self.restart_bosminer()
 
-    async def restart_bosminer(self) -> None:
+    async def restart_bosminer(self) -> bool:
         """Restart bosminer hashing process."""
         logging.debug(f"{self}: Sending bosminer restart command.")
-        await self.send_ssh_command("/etc/init.d/bosminer restart")
+        _ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
         logging.debug(f"{self}: bosminer restart command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def reboot(self) -> None:
+    async def reboot(self) -> bool:
         """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        await self.send_ssh_command("/sbin/reboot")
+        _ret = await self.send_ssh_command("/sbin/reboot")
         logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
     async def get_config(self) -> None:
         logging.debug(f"{self}: Getting config.")
@@ -82,7 +96,7 @@ class BOSMiner(BaseMiner):
                 async with sftp.open("/etc/bosminer.toml") as file:
                     toml_data = toml.loads(await file.read())
         logging.debug(f"{self}: Converting config file.")
-        cfg = await bos_config_convert(toml_data)
+        cfg = bos_config_convert(toml_data)
         self.config = cfg
 
     async def get_hostname(self) -> str:
@@ -90,13 +104,16 @@ class BOSMiner(BaseMiner):
 
         :return: The hostname of the miner as a string or "?"
         """
+        if self.hostname:
+            return self.hostname
         try:
             async with (await self._get_ssh_connection()) as conn:
                 if conn is not None:
                     data = await conn.run("cat /proc/sys/kernel/hostname")
                     host = data.stdout.strip()
                     logging.debug(f"Found hostname for {self.ip}: {host}")
-                    return host
+                    self.hostname = host
+                    return self.hostname
                 else:
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
@@ -160,10 +177,10 @@ class BOSMiner(BaseMiner):
         if ip_user:
             suffix = str(self.ip).split(".")[-1]
             toml_conf = toml.dumps(
-                await general_config_convert_bos(yaml_config, user_suffix=suffix)
+                general_config_convert_bos(yaml_config, user_suffix=suffix)
             )
         else:
-            toml_conf = toml.dumps(await general_config_convert_bos(yaml_config))
+            toml_conf = toml.dumps(general_config_convert_bos(yaml_config))
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
@@ -222,3 +239,112 @@ class BOSMiner(BaseMiner):
                 bad += 1
         if not bad > 0:
             return str(self.ip)
+
+    async def get_data(self):
+        data = {
+            "IP": str(self.ip),
+            "Model": "Unknown",
+            "Hostname": "Unknown",
+            "Hashrate": 0,
+            "Temperature": 0,
+            "Pool User": "Unknown",
+            "Wattage": 0,
+            "Split": 0,
+            "Pool 1": "Unknown",
+            "Pool 1 User": "Unknown",
+            "Pool 2": "",
+            "Pool 2 User": "",
+        }
+        model = await self.get_model()
+        hostname = await self.get_hostname()
+
+        if model:
+            data["Model"] = model
+
+        if hostname:
+            data["Hostname"] = hostname
+
+        miner_data = None
+        for i in range(DATA_RETRIES):
+            miner_data = await self.api.multicommand(
+                "summary", "temps", "tunerstatus", "pools"
+            )
+            if miner_data:
+                break
+        if not miner_data:
+            return data
+        summary = miner_data.get("summary")[0]
+        temps = miner_data.get("temps")[0]
+        tunerstatus = miner_data.get("tunerstatus")[0]
+        pools = miner_data.get("pools")[0]
+
+        if summary:
+            hr = summary.get("SUMMARY")
+            if hr:
+                if len(hr) > 0:
+                    hr = hr[0].get("MHS 5s")
+                    if hr:
+                        data["Hashrate"] = round(hr / 1000000, 2)
+
+        if temps:
+            temp = temps.get("TEMPS")
+            if temp:
+                if len(temp) > 0:
+                    temp = temp[0].get("Chip")
+                    if temp:
+                        data["Temperature"] = round(temp)
+
+        if pools:
+            pool_1 = None
+            pool_2 = None
+            pool_1_user = None
+            pool_2_user = None
+            pool_1_quota = 1
+            pool_2_quota = 1
+            quota = 0
+            for pool in pools.get("POOLS"):
+                if not pool_1_user:
+                    pool_1_user = pool.get("User")
+                    pool_1 = pool["URL"]
+                    pool_1_quota = pool["Quota"]
+                elif not pool_2_user:
+                    pool_2_user = pool.get("User")
+                    pool_2 = pool["URL"]
+                    pool_2_quota = pool["Quota"]
+                if not pool.get("User") == pool_1_user:
+                    if not pool_2_user == pool.get("User"):
+                        pool_2_user = pool.get("User")
+                        pool_2 = pool["URL"]
+                        pool_2_quota = pool["Quota"]
+            if pool_2_user and not pool_2_user == pool_1_user:
+                quota = f"{pool_1_quota}/{pool_2_quota}"
+
+            if pool_1:
+                pool_1 = pool_1.replace("stratum+tcp://", "")
+                pool_1 = pool_1.replace("stratum2+tcp://", "")
+                data["Pool 1"] = pool_1
+
+            if pool_1_user:
+                data["Pool 1 User"] = pool_1_user
+                data["Pool User"] = pool_1_user
+
+            if pool_2:
+                pool_2 = pool_2.replace("stratum+tcp://", "")
+                pool_2 = pool_2.replace("stratum2+tcp://", "")
+                data["Pool 2"] = pool_2
+
+            if pool_2_user:
+                data["Pool 2 User"] = pool_2_user
+
+            if quota:
+                data["Split"] = quota
+
+        if tunerstatus:
+            tuner = tunerstatus.get("TUNERSTATUS")
+            if tuner:
+                if len(tuner) > 0:
+                    wattage = tuner[0].get("PowerLimit")
+                    if wattage:
+                        data["Wattage"] = wattage
+
+        return data
