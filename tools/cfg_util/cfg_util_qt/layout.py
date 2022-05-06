@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
-from .imgs import WINDOW_ICON, LIGHT, FAULT_LIGHT
+
+from .imgs import WINDOW_ICON
 
 TABLE_HEADERS = {
     "SCAN": [
@@ -84,6 +85,7 @@ async def update_prog_bar(count: int, max: int = None):
     if not hasattr(bar, "maxlen"):
         if not max:
             max = 100
+    if max:
         bar.maxlen = max
     percent_done = 100 * (count / bar.maxlen)
     window["progress_percent"].Update(f"{round(percent_done, 2)} %")

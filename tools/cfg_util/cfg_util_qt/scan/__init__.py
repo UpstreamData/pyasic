@@ -1,14 +1,10 @@
 import asyncio
 
-from tools.cfg_util.cfg_util_qt.tables import clear_tables, update_tables, TableManager
-from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
-from network import MinerNetwork
 from miners.miner_factory import MinerFactory
-from datetime import datetime
-from API import APIError
-
-import warnings
-import logging
+from network import MinerNetwork
+from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
+from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
+from tools.cfg_util.cfg_util_qt.tables import clear_tables, TableManager
 
 progress_bar_len = 0
 
@@ -45,6 +41,7 @@ async def btn_scan(scan_ip: str):
     asyncio.create_task(_scan_miners(network))
 
 
+@disable_buttons
 async def _scan_miners(network: MinerNetwork):
     clear_tables()
     scan_generator = network.scan_network_generator()

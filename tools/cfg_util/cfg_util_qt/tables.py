@@ -129,6 +129,13 @@ class TableManager(metaclass=Singleton):
                 self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
             )
 
+        if self.sort_key in ["Wattage", "Temperature"]:
+            if isinstance(self.data[data_key][self.sort_key], str):
+                if self.sort_reverse:
+                    return -100000000  # large negative number to place it at the bottom
+                else:
+                    return 1000000000  # large number to place it at the bottom
+
         return self.data[data_key][self.sort_key]
 
     def clear_tables(self):
