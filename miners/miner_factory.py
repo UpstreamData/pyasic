@@ -77,8 +77,10 @@ class MinerFactory(metaclass=Singleton):
         for miner in scanned:
             yield await miner
 
-    async def get_miner(self, ip: ipaddress.ip_address):
+    async def get_miner(self, ip: ipaddress.ip_address or str):
         """Decide a miner type using the IP address of the miner."""
+        if isinstance(ip, str):
+            ip = ipaddress.ip_address(ip)
         # check if the miner already exists in cache
         if ip in self.miners:
             return self.miners[ip]

@@ -42,21 +42,27 @@ class BOSMiner(BaseMiner):
                         return
                     continue
         # return the result, either command output or None
-        return result
+        return str(result)
 
-    async def fault_light_on(self) -> None:
+    async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
         self.light = True
-        await self.send_ssh_command("miner fault_light on")
+        _ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
-    async def fault_light_off(self) -> None:
+    async def fault_light_off(self) -> bool:
         """Sends command to turn off fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light off command.")
         self.light = False
-        await self.send_ssh_command("miner fault_light off")
+        _ret = await self.send_ssh_command("miner fault_light off")
         logging.debug(f"{self}: fault_light off command completed.")
+        if isinstance(_ret, str):
+            return True
+        return False
 
     async def restart_backend(self) -> None:
         await self.restart_bosminer()
