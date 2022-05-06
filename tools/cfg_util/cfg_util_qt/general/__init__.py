@@ -54,10 +54,10 @@ async def btn_refresh(table, selected):
     if not len(selected) > 0:
         ips = [window[table].Values[row][0] for row in range(len(window[table].Values))]
 
-    await _get_miners_data(ips)
+    await update_miners_data(ips)
 
 
-async def _get_miners_data(miners: list):
+async def update_miners_data(miners: list):
     data = []
     for miner in miners:
         _data = {}

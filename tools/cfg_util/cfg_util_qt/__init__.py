@@ -4,7 +4,11 @@ import sys
 from tools.cfg_util.cfg_util_qt.imgs import FAULT_LIGHT, TkImages
 from tools.cfg_util.cfg_util_qt.scan import btn_scan
 from tools.cfg_util.cfg_util_qt.commands import btn_light
-from tools.cfg_util.cfg_util_qt.configure import generate_config_ui, btn_import
+from tools.cfg_util.cfg_util_qt.configure import (
+    generate_config_ui,
+    btn_import,
+    btn_config,
+)
 from tools.cfg_util.cfg_util_qt.layout import window
 from tools.cfg_util.cfg_util_qt.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.cfg_util_qt.tables import TableManager
@@ -50,7 +54,7 @@ async def main():
             _table = "scan_table"
             asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "btn_scan":
-            await btn_scan(value["scan_ip"])
+            asyncio.create_task(btn_scan(value["scan_ip"]))
 
         # pools tab
         if event == "pools_all":
@@ -74,7 +78,17 @@ async def main():
             await generate_config_ui()
         if event == "cfg_import":
             _table = "cfg_table"
-            await btn_import(_table, value[_table])
+            asyncio.create_task(btn_import(_table, value[_table]))
+        if event == "cfg_config":
+            _table = "cfg_table"
+            asyncio.create_task(
+                btn_config(
+                    _table,
+                    value[_table],
+                    value["cfg_config_txt"],
+                    value["cfg_append_ip"],
+                )
+            )
 
         # commands tab
         if event == "cmd_all":
@@ -84,7 +98,7 @@ async def main():
         if event == "cmd_light":
             _table = "cmd_table"
             _ips = value[_table]
-            await btn_light(_ips)
+            asyncio.create_task(btn_light(_ips))
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)

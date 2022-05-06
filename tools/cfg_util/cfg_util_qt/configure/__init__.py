@@ -1,9 +1,15 @@
 import PySimpleGUI as sg
 from config.bos import bos_config_convert
 import time
-from tools.cfg_util.cfg_util_qt.layout import window
+from tools.cfg_util.cfg_util_qt.layout import window, update_prog_bar
 from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
 from miners.miner_factory import MinerFactory
+import asyncio
+from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
+from tools.cfg_util.cfg_util_qt.general import update_miners_data
+
+
+progress_bar_len = 0
 
 
 @disable_buttons
@@ -15,6 +21,50 @@ async def btn_import(table, selected):
     await miner.get_config()
     config = miner.config
     window["cfg_config_txt"].update(config)
+
+
+@disable_buttons
+async def btn_config(table, selected, config: str, last_oct_ip: bool):
+    ips = [window[table].Values[row][0] for row in selected]
+    await send_config(ips, config, last_oct_ip)
+
+
+async def send_config(ips: list, config: str, last_octet_ip: bool):
+    global progress_bar_len
+    progress_bar_len = 0
+    await update_prog_bar(progress_bar_len, max=(2 * len(ips)))
+    get_miner_genenerator = MinerFactory().get_miner_generator(ips)
+    all_miners = []
+    async for miner in get_miner_genenerator:
+        all_miners.append(miner)
+        progress_bar_len += 1
+        await update_prog_bar(progress_bar_len)
+
+    config_sender_generator = send_config_generator(
+        all_miners, config, last_octet_ip_user=last_octet_ip
+    )
+    async for _config_sender in config_sender_generator:
+        progress_bar_len += 1
+        await update_prog_bar(progress_bar_len)
+    await asyncio.sleep(3)
+    await update_miners_data(ips)
+
+
+async def send_config_generator(miners: list, config, last_octet_ip_user: bool):
+    loop = asyncio.get_event_loop()
+    config_tasks = []
+    for miner in miners:
+        if len(config_tasks) >= CONFIG_THREADS:
+            configured = asyncio.as_completed(config_tasks)
+            config_tasks = []
+            for sent_config in configured:
+                yield await sent_config
+        config_tasks.append(
+            loop.create_task(miner.send_config(config, ip_user=last_octet_ip_user))
+        )
+    configured = asyncio.as_completed(config_tasks)
+    for sent_config in configured:
+        yield await sent_config
 
 
 def generate_config(username: str, workername: str, v2_allowed: bool):
