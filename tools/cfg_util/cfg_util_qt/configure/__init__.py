@@ -2,6 +2,19 @@ import PySimpleGUI as sg
 from config.bos import bos_config_convert
 import time
 from tools.cfg_util.cfg_util_qt.layout import window
+from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
+from miners.miner_factory import MinerFactory
+
+
+@disable_buttons
+async def btn_import(table, selected):
+    if not len(selected) > 0:
+        return
+    ip = [window[table].Values[row][0] for row in selected][0]
+    miner = await MinerFactory().get_miner(ip)
+    await miner.get_config()
+    config = miner.config
+    window["cfg_config_txt"].update(config)
 
 
 def generate_config(username: str, workername: str, v2_allowed: bool):
