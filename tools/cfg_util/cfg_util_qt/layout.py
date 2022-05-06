@@ -279,11 +279,11 @@ def get_config_layout():
 
 layout = [
     [
-        sg.Text("", size=(10, 1), key="status"),
+        sg.Text("", size=(20, 1), key="status"),
         sg.ProgressBar(
             max_value=100, size_px=(0, 20), expand_x=True, key="progress_bar"
         ),
-        sg.Text("", size=(10, 1), key="progress_percent"),
+        sg.Text("", size=(20, 1), key="progress_percent", justification="r"),
     ],
     [
         sg.TabGroup(

@@ -48,7 +48,7 @@ def btn_web(table, selected):
         webbrowser.open("http://" + window[table].Values[row][0])
 
 
-@disable_buttons
+@disable_buttons("Refreshing")
 async def btn_refresh(table, selected):
     ips = [window[table].Values[row][0] for row in selected]
     if not len(selected) > 0:

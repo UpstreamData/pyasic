@@ -4,7 +4,7 @@ from tools.cfg_util.cfg_util_qt.tables import TableManager
 from tools.cfg_util.cfg_util_qt.decorators import disable_buttons
 
 
-@disable_buttons
+@disable_buttons("Flashing Lights")
 async def btn_light(ip_idxs: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
@@ -26,7 +26,7 @@ async def btn_light(ip_idxs: list):
     table_manager.update_tables()
 
 
-@disable_buttons
+@disable_buttons("Rebooting")
 async def btn_reboot(ip_idxs: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
@@ -43,7 +43,7 @@ async def btn_reboot(ip_idxs: list):
     table_manager.update_tables()
 
 
-@disable_buttons
+@disable_buttons("Restarting Backend")
 async def btn_backend(ip_idxs: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
@@ -62,7 +62,7 @@ async def btn_backend(ip_idxs: list):
     table_manager.update_tables()
 
 
-@disable_buttons
+@disable_buttons("Sending Command")
 async def btn_command(ip_idxs: list, command: str):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
