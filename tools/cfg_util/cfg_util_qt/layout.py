@@ -269,7 +269,7 @@ def get_config_layout():
                 expand_x=True,
                 enable_click_events=True,
             ),
-            sg.Multiline(size=(40, TABLE_HEIGHT + 1)),
+            sg.Multiline(size=(40, TABLE_HEIGHT + 1), key="cfg_config_txt"),
         ],
     ]
     return config_layout

@@ -80,13 +80,13 @@ async def import_config_file(file_location):
     else:
         async with aiofiles.open(file_location, mode="r") as file:
             config = await file.read()
-    await update_ui_with_data("config", await bos_config_convert(toml.loads(config)))
+    await update_ui_with_data("config", bos_config_convert(toml.loads(config)))
     await update_ui_with_data("status", "")
 
 
 async def export_config_file(file_location, config):
     await update_ui_with_data("status", "Exporting")
-    config = toml.dumps(await general_config_convert_bos(config))
+    config = toml.dumps(general_config_convert_bos(config))
     config = toml.loads(config)
     config["format"]["generator"] = "upstream_config_util"
     config["format"]["timestamp"] = int(time.time())
