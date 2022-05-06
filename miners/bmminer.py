@@ -1,6 +1,7 @@
 from API.bmminer import BMMinerAPI
 from miners import BaseMiner
 import logging
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class BMMiner(BaseMiner):
@@ -143,7 +144,12 @@ class BMMiner(BaseMiner):
         if hostname:
             data["Hostname"] = hostname
 
-        miner_data = await self.api.multicommand("summary", "pools", "stats")
+        miner_data = None
+        for i in range(DATA_RETRIES):
+            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            if miner_data:
+                break
+
         if not miner_data:
             return data
 
