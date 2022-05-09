@@ -20,6 +20,21 @@ from tools.cfg_util.tables import TableManager
 import tkinter as tk
 
 
+def _tree_header_click_handler(event, table):
+    region = table.Widget.identify("region", event.x, event.y)
+    if region == "heading":
+        col = int(table.Widget.identify_column(event.x)[1:]) - 1
+
+        if col == -1:
+            # handle the "Light" column, which needs a key of #0
+            col = "#0"
+
+        heading = table.Widget.heading(col)["text"]
+
+        mgr = TableManager()
+        mgr.update_sort_key(heading)
+
+
 async def ui():
     window.read(0)
 
@@ -30,7 +45,9 @@ async def ui():
     window["scan_table"].Widget.column(2, anchor=tk.W)
 
     # cmd table sort event
-    # window["cmd_table"].Widget.bind("<Button-1>", lambda x: print("clicked"))
+    window["cmd_table"].Widget.bind(
+        "<Button-1>", lambda x: _tree_header_click_handler(x, window["cmd_table"])
+    )
 
     while True:
         event, value = window.read(0)
