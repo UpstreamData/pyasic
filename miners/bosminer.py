@@ -249,7 +249,7 @@ class BOSMiner(BaseMiner):
             "Temperature": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
-            "Split": 0,
+            "Split": "0",
             "Pool 1": "Unknown",
             "Pool 1 User": "Unknown",
             "Pool 2": "",
@@ -337,7 +337,7 @@ class BOSMiner(BaseMiner):
                 data["Pool 2 User"] = pool_2_user
 
             if quota:
-                data["Split"] = quota
+                data["Split"] = str(quota)
 
         if tunerstatus:
             tuner = tunerstatus.get("TUNERSTATUS")

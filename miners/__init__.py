@@ -98,7 +98,7 @@ class BaseMiner:
             "Temperature": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
-            "Split": 0,
+            "Split": "0",
             "Pool 1": "Unknown",
             "Pool 1 User": "Unknown",
             "Pool 2": "",
