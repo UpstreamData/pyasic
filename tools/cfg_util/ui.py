@@ -55,12 +55,11 @@ async def ui():
             sys.exit()
 
         if isinstance(event, tuple):
-            if len(window["scan_table"].Values) > 0:
-                if event[0].endswith("_table"):
-                    if event[2][0] == -1:
-                        mgr = TableManager()
-                        table = window[event[0]].Widget
-                        mgr.update_sort_key(table.heading(event[2][1])["text"])
+            if event[0].endswith("_table"):
+                if event[2][0] == -1:
+                    mgr = TableManager()
+                    table = window[event[0]].Widget
+                    mgr.update_sort_key(table.heading(event[2][1])["text"])
 
         # scan tab
 

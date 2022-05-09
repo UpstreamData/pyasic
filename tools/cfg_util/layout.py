@@ -14,7 +14,7 @@ TABLE_HEADERS = {
         "Pool User",
         "Wattage",
     ],
-    "CMD": ["IP", "Model", "Command Output"],
+    "CMD": ["IP", "Model", "Output"],
     "POOLS_ALL": [
         "IP",
         "Split",
@@ -46,6 +46,19 @@ MINER_COUNT_BUTTONS = [
     "cmd_miner_count",
     "cfg_miner_count",
     "pools_miner_count",
+]
+
+SORT_KEY_BUTTONS = [
+    "scan_sort_key",
+    "cmd_sort_key",
+    "cfg_sort_key",
+    "pools_sort_key",
+]
+
+HASHRATE_TOTAL_BUTTONS = [
+    "scan_total_hashrate",
+    "cfg_total_hashrate",
+    "pools_total_hashrate",
 ]
 
 BUTTON_KEYS = [
@@ -115,6 +128,20 @@ def get_scan_layout():
             sg.Button("Scan", key="btn_scan"),
             sg.Push(),
             sg.Button(
+                "Sort: IP",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="scan_sort_key",
+            ),
+            sg.Button(
+                "Hashrate: 0 TH/s",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="scan_total_hashrate",
+            ),
+            sg.Button(
                 "Miners: 0",
                 disabled=True,
                 button_color=("black", "white smoke"),
@@ -161,6 +188,13 @@ def get_command_layout():
             sg.InputText(key="cmd_txt", expand_x=True),
             sg.Button("Send Command", key="btn_cmd"),
             sg.Push(),
+            sg.Button(
+                "Sort: IP",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="cmd_sort_key",
+            ),
             sg.Button(
                 "Miners: 0",
                 disabled=True,
@@ -211,6 +245,20 @@ def get_pools_layout():
             sg.Button("REFRESH DATA", key="pools_refresh"),
             sg.Button("OPEN IN WEB", key="pools_web"),
             sg.Push(),
+            sg.Button(
+                "Sort: IP",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="pools_sort_key",
+            ),
+            sg.Button(
+                "Hashrate: 0 TH/s",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="pools_total_hashrate",
+            ),
             sg.Button(
                 "Miners: 0",
                 disabled=True,
@@ -314,6 +362,20 @@ def get_config_layout():
             sg.Button("CONFIG", key="cfg_config"),
             sg.Button("GENERATE", key="cfg_generate"),
             sg.Push(),
+            sg.Button(
+                "Sort: IP",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="cfg_sort_key",
+            ),
+            sg.Button(
+                "Hashrate: 0 TH/s",
+                disabled=True,
+                button_color=("black", "white smoke"),
+                disabled_button_color=("black", "white smoke"),
+                key="cfg_total_hashrate",
+            ),
             sg.Button(
                 "Miners: 0",
                 disabled=True,

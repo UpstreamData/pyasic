@@ -1,5 +1,7 @@
 from tools.cfg_util.layout import (
     MINER_COUNT_BUTTONS,
+    HASHRATE_TOTAL_BUTTONS,
+    SORT_KEY_BUTTONS,
     TABLE_KEYS,
     TABLE_HEADERS,
     window,
@@ -14,20 +16,26 @@ def update_miner_count(count):
         window[button].update(f"Miners: {count}")
 
 
+def update_total_hr(hashrate: float):
+    if hashrate > 999:
+        hashrate = f"{round(hashrate/1000, 2)} PH/s"
+    else:
+        hashrate = f"{round(hashrate)} TH/s"
+    for button in HASHRATE_TOTAL_BUTTONS:
+        window[button].update(f"Hashrate: {hashrate}")
+
+
+def update_sort_key_btns():
+    for button in SORT_KEY_BUTTONS:
+        window[button].update(f"Sort: {TableManager().sort_key}")
+
+
 def update_tables(data: list or None = None):
     TableManager().update_data(data)
 
 
 def clear_tables():
     TableManager().clear_tables()
-
-
-async def update_tree(data: list):
-    for item in data:
-        if not item.get("IP"):
-            continue
-        table_manager = TableManager()
-        table_manager.update_tree_by_key(item, "IP")
 
 
 class Singleton(type):
@@ -59,6 +67,7 @@ class TableManager(metaclass=Singleton):
         if self.sort_key == sort_key:
             self.sort_reverse = not self.sort_reverse
         self.sort_key = sort_key
+        update_sort_key_btns()
         self.update_tables()
 
     def update_item(self, data: dict):
@@ -122,8 +131,20 @@ class TableManager(metaclass=Singleton):
         window["cmd_table"].update(treedata)
 
         update_miner_count(len(self.data))
+        total_hr = 0
+        for key in self.data.keys():
+            hashrate = 0
+            if not self.data[key]["Hashrate"] == "":
+                hashrate = (
+                    self.data[key]["Hashrate"].replace(" ", "").replace("TH/s", "")
+                )
+            total_hr += float(hashrate)
+        update_total_hr(round(total_hr))
 
     def _get_sort(self, data_key: str):
+        if self.sort_key not in self.data[data_key]:
+            return ""
+
         if self.sort_key == "IP":
             return ipaddress.ip_address(self.data[data_key]["IP"])
 
