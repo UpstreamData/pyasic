@@ -80,7 +80,9 @@ class TableManager(metaclass=Singleton):
         tables = {
             "SCAN": [["" for _ in TABLE_HEADERS["SCAN"]] for _ in self.data],
             "CMD": [["" for _ in TABLE_HEADERS["CMD"]] for _ in self.data],
-            "POOLS": [["" for _ in TABLE_HEADERS["POOLS"]] for _ in self.data],
+            "POOLS_ALL": [["" for _ in TABLE_HEADERS["POOLS_ALL"]] for _ in self.data],
+            "POOLS_1": [["" for _ in TABLE_HEADERS["POOLS_1"]] for _ in self.data],
+            "POOLS_2": [["" for _ in TABLE_HEADERS["POOLS_2"]] for _ in self.data],
             "CONFIG": [["" for _ in TABLE_HEADERS["CONFIG"]] for _ in self.data],
         }
 
@@ -105,7 +107,9 @@ class TableManager(metaclass=Singleton):
                             tables[table][data_idx][idx] = item[key]
 
         window["scan_table"].update(tables["SCAN"])
-        window["pools_table"].update(tables["POOLS"])
+        window["pools_table"].update(tables["POOLS_ALL"])
+        window["pools_1_table"].update(tables["POOLS_1"])
+        window["pools_2_table"].update(tables["POOLS_2"])
         window["cfg_table"].update(tables["CONFIG"])
 
         treedata = sg.TreeData()
@@ -124,16 +128,28 @@ class TableManager(metaclass=Singleton):
             return ipaddress.ip_address(self.data[data_key]["IP"])
 
         if self.sort_key == "Hashrate":
+            if self.data[data_key]["Hashrate"] == "":
+                return -1
+            if not isinstance(self.data[data_key]["Hashrate"], str):
+                return self.data[data_key]["Hashrate"]
             return float(
                 self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
             )
 
         if self.sort_key in ["Wattage", "Temperature"]:
             if isinstance(self.data[data_key][self.sort_key], str):
-                if self.sort_reverse:
-                    return -100000000  # large negative number to place it at the bottom
-                else:
-                    return 1000000000  # large number to place it at the bottom
+                return -300
+
+        if self.sort_key == "Split":
+            if self.data[data_key][self.sort_key] == "":
+                return -1
+            if "/" not in self.data[data_key][self.sort_key]:
+                return 0
+
+            if not self.sort_reverse:
+                return int(self.data[data_key][self.sort_key].split("/")[0])
+            else:
+                return int(self.data[data_key][self.sort_key].split("/")[1])
 
         return self.data[data_key][self.sort_key]
 

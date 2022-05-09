@@ -180,6 +180,6 @@ class BTMiner(BaseMiner):
                 data["Pool 2 User"] = pool_2_user
 
             if quota:
-                data["Split"] = quota
+                data["Split"] = str(quota)
 
         return data

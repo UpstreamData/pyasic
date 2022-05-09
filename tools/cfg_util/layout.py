@@ -15,11 +15,21 @@ TABLE_HEADERS = {
         "Wattage",
     ],
     "CMD": ["IP", "Model", "Command Output"],
-    "POOLS": [
+    "POOLS_ALL": [
+        "IP",
+        "Split",
+        "Pool 1 User",
+        "Pool 2 User",
+    ],
+    "POOLS_1": [
         "IP",
         "Split",
         "Pool 1",
         "Pool 1 User",
+    ],
+    "POOLS_2": [
+        "IP",
+        "Split",
         "Pool 2",
         "Pool 2 User",
     ],
@@ -188,17 +198,18 @@ def get_command_layout():
 
 
 def get_pools_layout():
-    pool_col_width = int((TABLE_TOTAL_WIDTH - (IP_COL_WIDTH + SPLIT_COL_WIDTH)) / 4)
+    pool_col_width = int((TABLE_TOTAL_WIDTH - (IP_COL_WIDTH + SPLIT_COL_WIDTH)) / 2)
     col_widths = [
         IP_COL_WIDTH,
         SPLIT_COL_WIDTH,
-        pool_col_width + 5,
-        pool_col_width - 5,
-        pool_col_width + 5,
-        pool_col_width - 5,
+        pool_col_width,
+        pool_col_width,
     ]
     pools_layout = [
         [
+            sg.Button("ALL", key="pools_all"),
+            sg.Button("REFRESH DATA", key="pools_refresh"),
+            sg.Button("OPEN IN WEB", key="pools_web"),
             sg.Push(),
             sg.Button(
                 "Miners: 0",
@@ -209,24 +220,87 @@ def get_pools_layout():
             ),
         ],
         [
-            sg.Button("ALL", key="pools_all"),
-            sg.Button("REFRESH DATA", key="pools_refresh"),
-            sg.Button("OPEN IN WEB", key="pools_web"),
-        ],
-        [
-            sg.Table(
-                values=[],
-                headings=[heading for heading in TABLE_HEADERS["POOLS"]],
-                auto_size_columns=False,
-                max_col_width=15,
-                justification="center",
-                key="pools_table",
-                background_color="white",
-                text_color="black",
-                col_widths=col_widths,
-                size=(0, TABLE_HEIGHT),
-                expand_x=True,
-                enable_click_events=True,
+            sg.TabGroup(
+                [
+                    [
+                        sg.Tab(
+                            "All",
+                            [
+                                [
+                                    sg.Table(
+                                        values=[],
+                                        headings=[
+                                            heading
+                                            for heading in TABLE_HEADERS["POOLS_ALL"]
+                                        ],
+                                        auto_size_columns=False,
+                                        max_col_width=15,
+                                        justification="center",
+                                        key="pools_table",
+                                        background_color="white",
+                                        text_color="black",
+                                        col_widths=col_widths,
+                                        size=(0, TABLE_HEIGHT),
+                                        expand_x=True,
+                                        enable_click_events=True,
+                                    )
+                                ]
+                            ],
+                        )
+                    ],
+                    [
+                        sg.Tab(
+                            "Pool 1",
+                            [
+                                [
+                                    sg.Table(
+                                        values=[],
+                                        headings=[
+                                            heading
+                                            for heading in TABLE_HEADERS["POOLS_1"]
+                                        ],
+                                        auto_size_columns=False,
+                                        max_col_width=15,
+                                        justification="center",
+                                        key="pools_1_table",
+                                        background_color="white",
+                                        text_color="black",
+                                        col_widths=col_widths,
+                                        size=(0, TABLE_HEIGHT),
+                                        expand_x=True,
+                                        enable_click_events=True,
+                                    )
+                                ]
+                            ],
+                        )
+                    ],
+                    [
+                        sg.Tab(
+                            "Pool 2",
+                            [
+                                [
+                                    sg.Table(
+                                        values=[],
+                                        headings=[
+                                            heading
+                                            for heading in TABLE_HEADERS["POOLS_2"]
+                                        ],
+                                        auto_size_columns=False,
+                                        max_col_width=15,
+                                        justification="center",
+                                        key="pools_2_table",
+                                        background_color="white",
+                                        text_color="black",
+                                        col_widths=col_widths,
+                                        size=(0, TABLE_HEIGHT),
+                                        expand_x=True,
+                                        enable_click_events=True,
+                                    )
+                                ]
+                            ],
+                        )
+                    ],
+                ]
             )
         ],
     ]
