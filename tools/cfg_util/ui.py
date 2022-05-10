@@ -37,6 +37,7 @@ def _tree_header_click_handler(event, table):
 
 async def ui():
     window.read(0)
+    TableManager().update_tables()
 
     # create images used in the table, they will not show if not saved here
     tk_imgs = TkImages()
