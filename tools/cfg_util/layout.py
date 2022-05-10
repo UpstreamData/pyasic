@@ -114,13 +114,6 @@ MINER_COUNT_BUTTONS = [
     "pools_miner_count",
 ]
 
-SORT_KEY_BUTTONS = [
-    "scan_sort_key",
-    "cmd_sort_key",
-    "cfg_sort_key",
-    "pools_sort_key",
-]
-
 HASHRATE_TOTAL_BUTTONS = [
     "scan_total_hashrate",
     "cfg_total_hashrate",
@@ -149,15 +142,15 @@ BUTTON_KEYS = [
 
 TABLE_HEIGHT = 27
 
-IMAGE_COL_WIDTH = 6
+IMAGE_COL_WIDTH = 8
 IP_COL_WIDTH = 17
 MODEL_COL_WIDTH = 15
 HOST_COL_WIDTH = 15
 HASHRATE_COL_WIDTH = 12
-TEMP_COL_WIDTH = 12
-USER_COL_WIDTH = 31
-WATTAGE_COL_WIDTH = 8
-SPLIT_COL_WIDTH = 6
+TEMP_COL_WIDTH = 14
+USER_COL_WIDTH = 27
+WATTAGE_COL_WIDTH = 10
+SPLIT_COL_WIDTH = 8
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -199,13 +192,6 @@ def get_scan_layout():
                 mouseover_colors=BTN_DISABLED,
             ),
             sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Sort: IP",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="scan_sort_key",
-            ),
             sg.Button(
                 "Hashrate: 0 TH/s",
                 disabled=True,
@@ -284,13 +270,6 @@ def get_command_layout():
                 disabled_button_color=BTN_DISABLED,
             ),
             sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Sort: IP",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="cmd_sort_key",
-            ),
             sg.Button(
                 "Miners: 0",
                 disabled=True,
@@ -380,13 +359,6 @@ def get_pools_layout():
                 disabled_button_color=BTN_DISABLED,
             ),
             sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Sort: IP",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="pools_sort_key",
-            ),
             sg.Button(
                 "Hashrate: 0 TH/s",
                 disabled=True,
@@ -534,13 +506,6 @@ def get_config_layout():
                 disabled_button_color=BTN_DISABLED,
             ),
             sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Sort: IP",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="cfg_sort_key",
-            ),
             sg.Button(
                 "Hashrate: 0 TH/s",
                 disabled=True,

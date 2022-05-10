@@ -1,7 +1,6 @@
 from tools.cfg_util.layout import (
     MINER_COUNT_BUTTONS,
     HASHRATE_TOTAL_BUTTONS,
-    SORT_KEY_BUTTONS,
     TABLE_KEYS,
     TABLE_HEADERS,
     window,
@@ -23,11 +22,6 @@ def update_total_hr(hashrate: float):
         hashrate = f"{round(hashrate)} TH/s"
     for button in HASHRATE_TOTAL_BUTTONS:
         window[button].update(f"Hashrate: {hashrate}")
-
-
-def update_sort_key_btns():
-    for button in SORT_KEY_BUTTONS:
-        window[button].update(f"Sort: {TableManager().sort_key}")
 
 
 def update_tables(data: list or None = None):
@@ -64,10 +58,11 @@ class TableManager(metaclass=Singleton):
             self.update_item(line)
 
     def update_sort_key(self, sort_key):
+        if "▲" in sort_key or "▼" in sort_key:
+            sort_key = sort_key[:-1]
         if self.sort_key == sort_key:
             self.sort_reverse = not self.sort_reverse
         self.sort_key = sort_key
-        update_sort_key_btns()
         self.update_tables()
 
     def update_item(self, data: dict):
@@ -99,6 +94,39 @@ class TableManager(metaclass=Singleton):
         sorted_keys = sorted(
             ip_sorted_keys, reverse=self.sort_reverse, key=lambda x: self._get_sort(x)
         )
+
+        table_names = {
+            "SCAN": "scan_table",
+            "POOLS_ALL": "pools_table",
+            "POOLS_1": "pools_1_table",
+            "POOLS_2": "pools_2_table",
+            "CONFIG": "cfg_table",
+            "CMD": "cmd_table",
+        }
+
+        for table in TABLE_HEADERS.keys():
+            widget = window[table_names[table]].Widget
+            for idx, header in enumerate(TABLE_HEADERS[table]):
+                _header = header
+                if header == self.sort_key:
+                    if self.sort_reverse:
+                        _header = f"{header}▼"
+                    else:
+                        _header = f"{header}▲"
+                widget.heading(idx, text=_header)
+
+        # reset light
+        window["cmd_table"].Widget.heading("#0", text="Light")
+
+        # handle light sort key
+        if self.sort_key == "Light":
+            widget = window["cmd_table"].Widget
+            idx = "#0"
+            if self.sort_reverse:
+                _header = f"Light▼"
+            else:
+                _header = f"Light▲"
+            widget.heading(idx, text=_header)
 
         for data_idx, key in enumerate(sorted_keys):
             item = self.data[key]
