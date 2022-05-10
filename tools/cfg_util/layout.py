@@ -118,16 +118,11 @@ TABLE_KEYS = {
 }
 
 MINER_COUNT_BUTTONS = [
-    "scan_miner_count",
-    "cmd_miner_count",
-    "cfg_miner_count",
-    "pools_miner_count",
+    "miner_count",
 ]
 
 HASHRATE_TOTAL_BUTTONS = [
-    "scan_total_hashrate",
-    "cfg_total_hashrate",
-    "pools_total_hashrate",
+    "total_hashrate",
 ]
 
 BUTTON_KEYS = [
@@ -200,21 +195,6 @@ def get_scan_layout():
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
                 mouseover_colors=BTN_DISABLED,
-            ),
-            sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Hashrate: 0 TH/s",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="scan_total_hashrate",
-            ),
-            sg.Button(
-                "Miners: 0",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="scan_miner_count",
             ),
         ],
         [
@@ -290,14 +270,6 @@ def get_command_layout():
                 key="btn_cmd",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-            ),
-            sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Miners: 0",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="cmd_miner_count",
             ),
         ],
         [
@@ -388,22 +360,6 @@ def get_pools_layout():
                 key="pools_web",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-            ),
-            sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Hashrate: 0 TH/s",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="pools_total_hashrate",
-            ),
-            sg.Button(
-                "Miners: 0",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="pools_miner_count",
-                pad=((5, 5), (0, 0)),
             ),
         ],
         [
@@ -563,23 +519,6 @@ def get_config_layout():
                 disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (5, 0)),
             ),
-            sg.Push(background_color=MAIN_TABS_BG),
-            sg.Button(
-                "Hashrate: 0 TH/s",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="cfg_total_hashrate",
-                pad=((0, 10), (3, 2)),
-            ),
-            sg.Button(
-                "Miners: 0",
-                disabled=True,
-                button_color=("black", "white smoke"),
-                disabled_button_color=("black", "white smoke"),
-                key="cfg_miner_count",
-                pad=((0, 5), (3, 2)),
-            ),
         ],
         [
             sg.Button(
@@ -654,6 +593,24 @@ layout = [
             max_value=100, size_px=(0, 20), expand_x=True, key="progress_bar"
         ),
         sg.Text("", size=(20, 1), key="progress_percent", justification="r"),
+    ],
+    [
+        sg.Push(),
+        sg.Button(
+            "Hashrate: 0 TH/s",
+            disabled=True,
+            button_color=("black", "white smoke"),
+            disabled_button_color=("black", "white smoke"),
+            key="total_hashrate",
+        ),
+        sg.Button(
+            "Miners: 0",
+            disabled=True,
+            button_color=("black", "white smoke"),
+            disabled_button_color=("black", "white smoke"),
+            key="miner_count",
+        ),
+        sg.Push(),
     ],
     [
         sg.TabGroup(
