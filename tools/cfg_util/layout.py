@@ -50,8 +50,7 @@ SCROLLBAR_BACKGROUND_COLOR = "#3282B8"
 SCROLLBAR_ARROW_COLOR = "#0F4C75"
 SCROLLBAR_WIDTH = 16
 SCROLLBAR_ARROW_WIDTH = 16
-SCROLLBAR_FRAME_COLOR = None
-SCROLLBAR_RELIEF = sg.RELIEF_FLAT
+SCROLLBAR_RELIEF = sg.RELIEF_RIDGE
 
 POOLS_TABLE_BG = TABLE_BG
 POOLS_TABLE_TEXT = TABLE_TEXT
@@ -174,15 +173,15 @@ SCAN_COL_WIDTHS = [
 TABLE_TOTAL_WIDTH = sum(SCAN_COL_WIDTHS)
 
 
-async def update_prog_bar(count: int, max: int = None):
+async def update_prog_bar(count: int, _max: int = None):
     bar = window["progress_bar"]
-    bar.update_bar(count, max=max)
-    if max:
-        bar.maxlen = max
+    bar.update_bar(count, max=_max)
+    if _max:
+        bar.maxlen = _max
     if not hasattr(bar, "maxlen"):
-        if not max:
-            max = 100
-        bar.maxlen = max
+        if not _max:
+            _max = 100
+        bar.maxlen = _max
 
     percent_done = 100 * (count / bar.maxlen)
     window["progress_percent"].Update(f"{round(percent_done, 2)} %")
@@ -259,7 +258,6 @@ def get_scan_layout():
                 sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                 sbar_relief=SCROLLBAR_RELIEF,
                 size=(TABLE_TOTAL_WIDTH, TABLE_HEIGHT),
                 expand_x=True,
@@ -349,7 +347,6 @@ def get_command_layout():
                 sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                 sbar_relief=SCROLLBAR_RELIEF,
                 expand_x=True,
                 expand_y=True,
@@ -438,7 +435,6 @@ def get_pools_layout():
                                         sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                                         sbar_width=SCROLLBAR_WIDTH,
                                         sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                                        sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                                         sbar_relief=SCROLLBAR_RELIEF,
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
@@ -478,7 +474,6 @@ def get_pools_layout():
                                         sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                                         sbar_width=SCROLLBAR_WIDTH,
                                         sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                                        sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                                         sbar_relief=SCROLLBAR_RELIEF,
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
@@ -517,7 +512,6 @@ def get_pools_layout():
                                         sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                                         sbar_width=SCROLLBAR_WIDTH,
                                         sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                                        sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                                         sbar_relief=SCROLLBAR_RELIEF,
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
@@ -627,7 +621,6 @@ def get_config_layout():
                 sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                 sbar_relief=SCROLLBAR_RELIEF,
                 col_widths=[
                     IP_COL_WIDTH,
@@ -647,7 +640,6 @@ def get_config_layout():
                 sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
-                sbar_frame_color=SCROLLBAR_FRAME_COLOR,
                 sbar_relief=SCROLLBAR_RELIEF,
             ),
         ],
