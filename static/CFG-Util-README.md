@@ -12,64 +12,55 @@
 ## Interact with bitcoin mining ASICs using a simple GUI.
 
 ---
-## Input Fields
-### Network IP:
-* Defaults to 192.168.1.0/24 (192.168.1.0 - 192.168.1.255)
-* Enter any IP on your local network, and it will automatically load your entire network with a /24 subnet (255 IP addresses).
-* You can also add a subnet mask by adding a / after the IP and entering the subnet mask.
-* Press Scan to scan the selected network for miners, and get data on them.
-
-### IP List File:
-* Use the Browse button to select a file.
-* Use the Import button to import all IP addresses from a file, regardless of where they are located in the file.
-* Use the Export button to export all IP addresses (or all selected IP addresses if you select some) to a file, with each separated by a new line.
-
-### Config File:
-* Use the Browse button to select a file.
-* Use the Import button to import the config file (only toml format is implemented right now).
-* Use the Export button to export the config file in toml format.
+## Tabs:
+* Scan
+* Pools
+* Configure
+* Command
 
 
----
-## Data Fields
-### Buttons:
-* ALL: Selects all miners in the table, or deselects all if they are already all selected.
-* REFRESH DATA: Refreshes data for the currently selected miners, or all miners if none are selected.
-* OPEN IN WEB: Opens all currently selected miners web interfaces in your default browser.
-* REBOOT: Reboots all selected miners.
-* RESTART BACKEND: Restarts the mining process on the miner (bosminer daemon, bmminer daemon, cgminer daemon, etc).
-* SEND SSH COMMAND: Open a new window to send a SSH command to all selected miners (or all miners if none are selected).
+### Scan Tab - 
+#### Fields
+* Scan IP: The IP/network to scan.  Defaults to 192.168.0.1/24 subnet, and you can pass just a single IP address on a subnet, which will use /24 subnet as a default, or an IP range such as 192.168.1.20 - 192.168.1.55
 
-### Table:
-* Click any header in the table to sort that row.
-  * You can copy (CTRL + C) a list of IP's directly from the rows selected in the table.
+#### Buttons
+* Scan: Scan the network entered in Scan IP.
+* ALL: Select all items in the table (You can also select the table and press CTRL+A).
+* REFRESH DATA: Refresh the data for the miners in the table.
+* OPEN IN WEB: Open all selected miners in your web browser.
 
-* #### IP:
-  * Contains all the IP's scanned.
 
-* #### Model:
-  * The model of the miners scanned.
+### Pools Tab -
+#### Additional Tabs
+* All: Data on both pools.
+* Pool 1: Data on pool 1.
+* Pool 2: Data on pool 2.
 
-* #### Hostname:
-  * The hostname of the miners scanned.
-  * ? will be displayed if the tool is unable to get it.
+#### Buttons
+* ALL: Select all items in the table (You can also select the table and press CTRL+A).
+* REFRESH DATA: Refresh the data for the miners in the table.
+* OPEN IN WEB: Open all selected miners in your web browser.
 
-* #### Hashrate:
-  * The hashrate of the miners scanned.
 
-* #### Temperature:
-  * The average board temperature of the miners scanned.
+### Configure Tab - 
+#### Fields
+* Config Field: Located on the right side of the screen, this is where imported and generated configs are stored for editing.
 
-* #### Current User:
-  * The current first pool user of the miners scanned.
+#### Buttons
+* IMPORT: Import a config from the selected miner.
+* CONFIG: Configure all selected miners with the config in the config field.
+* GENERATE: Generate a configuration.
+* ALL: Select all items in the table (You can also select the table and press CTRL+A).
+* OPEN IN WEB: Open all selected miners in your web browser.
+* Append IP to Username: Append the last octet of the IP address to the config when configuring.
 
-* #### Wattage
-  * The current wattage of the miners scanned.
-  * 0 W will be displayed if it is unknown.
+### Command Tab - 
+#### Fields
+* Custom Command: The custom command to send to the miners.
 
-### Config:
-* This field contains the configuration file either imported from a miner or from a file.
-* The IMPORT button imports the configuration file from any 1 selected miner to the config textbox.
-* The CONFIG button configures all selected miners with the config in the config textbox.
-* The LIGHT button turns on the fault light/locator light on miners that support it (Only BraiinsOS for now).
-* The GENERATE button generates a new basic config in the config textbox.
+#### Buttons
+* Send Command: Send the custom command in the custom command field to the selected miners.
+* ALL: Select all items in the table (You can also select the table and press CTRL+A).
+* LIGHT: Turn on the fault light on selected miners.
+* REBOOT: Reboot selected miners.
+* RESTART BACKEND: Restart the mining process on selected miners.
