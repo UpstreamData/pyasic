@@ -86,7 +86,7 @@ TABLE_HEADERS = {
         "Model",
         "Hostname",
         "Hashrate",
-        "Temperature",
+        "Temp",
         "Pool User",
         "Wattage",
     ],
@@ -158,8 +158,8 @@ IP_COL_WIDTH = 17
 MODEL_COL_WIDTH = 15
 HOST_COL_WIDTH = 15
 HASHRATE_COL_WIDTH = 12
-TEMP_COL_WIDTH = 14
-USER_COL_WIDTH = 27
+TEMP_COL_WIDTH = 8
+USER_COL_WIDTH = 33
 WATTAGE_COL_WIDTH = 10
 SPLIT_COL_WIDTH = 8
 SCAN_COL_WIDTHS = [

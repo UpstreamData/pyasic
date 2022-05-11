@@ -185,7 +185,7 @@ class TableManager(metaclass=Singleton):
                 self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
             )
 
-        if self.sort_key in ["Wattage", "Temperature"]:
+        if self.sort_key in ["Wattage", "Temp"]:
             if isinstance(self.data[data_key][self.sort_key], str):
                 return -300
 
