@@ -30,7 +30,7 @@ class TestbenchMiner:
     async def get_bos_version(self):
         miner = await MinerFactory().get_miner(self.host)
         result = await miner.send_ssh_command("cat /etc/bos_version")
-        version_base = result.stdout
+        version_base = result
         version_base = version_base.strip()
         version_base = version_base.split("-")
         version = version_base[-2]
@@ -55,7 +55,7 @@ class TestbenchMiner:
 
     async def remove_from_cache(self):
         if self.host in MinerFactory().miners.keys():
-            MinerFactory().miners.remove(self.host)
+            del MinerFactory().miners[self.host]
 
     async def wait_for_disconnect(self, wait_time: int = 1):
         await self.add_to_output("Waiting for disconnect...")
@@ -86,7 +86,8 @@ class TestbenchMiner:
                     )
                     self.state = REFERRAL
                     return
-            except AttributeError:
+            except AttributeError as e:
+                logging.warning(e)
                 return
             await self.add_to_output("Already running BraiinsOS, updating.")
             self.state = UPDATE
