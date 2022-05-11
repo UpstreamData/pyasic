@@ -2,6 +2,8 @@ import PySimpleGUI as sg
 
 from .imgs import WINDOW_ICON
 
+import asyncio
+
 WINDOW_BG = "#0F4C75"
 
 PROGRESS_BG = "#FFFFFF"
@@ -187,6 +189,8 @@ async def update_prog_bar(count: int, _max: int = None):
     percent_done = 100 * (count / bar.maxlen)
     window["progress_percent"].Update(f"{round(percent_done, 2)} %")
     if percent_done == 100:
+        await asyncio.sleep(1)
+        await update_prog_bar(0)
         window["progress_percent"].Update("")
 
 
