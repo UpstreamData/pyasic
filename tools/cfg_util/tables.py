@@ -137,11 +137,11 @@ class TableManager(metaclass=Singleton):
                     item[
                         "Hashrate"
                     ] = f"{format(float(item['Hashrate']), '.2f').rjust(6, ' ')} TH/s"
-            for key in keys:
+            for _key in keys:
                 for table in TABLE_HEADERS.keys():
                     for idx, header in enumerate(TABLE_HEADERS[table]):
-                        if key == header:
-                            tables[table][data_idx][idx] = item[key]
+                        if _key == header:
+                            tables[table][data_idx][idx] = item[_key]
 
         window["scan_table"].update(tables["SCAN"])
         window["pools_table"].update(tables["POOLS_ALL"])
