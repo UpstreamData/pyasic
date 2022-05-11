@@ -14,10 +14,11 @@ from tools.cfg_util.configure import (
     btn_import,
     btn_config,
 )
-from tools.cfg_util.layout import window
+from tools.cfg_util.layout import window, TABLE_KEYS
 from tools.cfg_util.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.tables import TableManager
 import tkinter as tk
+import pyperclip
 
 
 def _tree_header_click_handler(event, table):
@@ -35,9 +36,55 @@ def _tree_header_click_handler(event, table):
         mgr.update_sort_key(heading)
 
 
+def _table_copy(table):
+    selection = window[table].Widget.selection()
+    _copy_values = []
+    for each in selection:
+        try:
+            value = window[table].Widget.item(each)["values"]
+            values = []
+            for item in value:
+                values.append(str(item).strip())
+            _copy_values.append(values)
+        except Exception as E:
+            pass
+
+    copy_values = []
+    for item in _copy_values:
+        copy_values.append(", ".join(item))
+    copy_string = "\n".join(copy_values)
+    pyperclip.copy(copy_string)
+
+
+def _table_select_all(table):
+    if table in TABLE_KEYS["table"]:
+        window[table].update(
+            select_rows=([row for row in range(len(window[table].Values))])
+        )
+
+    if table in TABLE_KEYS["tree"]:
+        _tree = window[table]
+        rows_to_select = [i for i in _tree.Widget.get_children()]
+        _tree.Widget.selection_set(rows_to_select)
+
+
+def bind_copy(key):
+    widget = window[key].Widget
+    widget.bind("<Control-Key-c>", lambda x: _table_copy(key))
+
+
+def bind_ctrl_a(key):
+    widget = window[key].Widget
+    widget.bind("<Control-Key-a>", lambda x: _table_select_all(key))
+
+
 async def ui():
     window.read(0)
     TableManager().update_tables()
+
+    for key in [*TABLE_KEYS["table"], *TABLE_KEYS["tree"]]:
+        bind_copy(key)
+        bind_ctrl_a(key)
 
     # create images used in the table, they will not show if not saved here
     tk_imgs = TkImages()
