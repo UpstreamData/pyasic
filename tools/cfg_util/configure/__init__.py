@@ -32,7 +32,7 @@ async def btn_config(table, selected, config: str, last_oct_ip: bool):
 async def send_config(ips: list, config: str, last_octet_ip: bool):
     global progress_bar_len
     progress_bar_len = 0
-    await update_prog_bar(progress_bar_len, max=(2 * len(ips)))
+    await update_prog_bar(progress_bar_len, _max=(2 * len(ips)))
     get_miner_genenerator = MinerFactory().get_miner_generator(ips)
     all_miners = []
     async for miner in get_miner_genenerator:
