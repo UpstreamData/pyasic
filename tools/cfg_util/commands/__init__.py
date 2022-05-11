@@ -20,9 +20,9 @@ async def btn_light(ip_idxs: list):
             success = await miner.fault_light_off()
         if success:
             table_manager.data[ip]["Light"] = new_light_val
-            table_manager.data[ip]["Command Output"] = "Fault Light command succeeded."
+            table_manager.data[ip]["Output"] = "Fault Light command succeeded."
         else:
-            table_manager.data[ip]["Command Output"] = "Fault Light command failed."
+            table_manager.data[ip]["Output"] = "Fault Light command failed."
     table_manager.update_tables()
 
 
@@ -37,9 +37,9 @@ async def btn_reboot(ip_idxs: list):
         miner = await MinerFactory().get_miner(ip)
         success = await miner.reboot()
         if success:
-            table_manager.data[ip]["Command Output"] = "Reboot command succeeded."
+            table_manager.data[ip]["Output"] = "Reboot command succeeded."
         else:
-            table_manager.data[ip]["Command Output"] = "Reboot command failed."
+            table_manager.data[ip]["Output"] = "Reboot command failed."
     table_manager.update_tables()
 
 
@@ -54,11 +54,9 @@ async def btn_backend(ip_idxs: list):
         miner = await MinerFactory().get_miner(ip)
         success = await miner.restart_backend()
         if success:
-            table_manager.data[ip][
-                "Command Output"
-            ] = "Restart Backend command succeeded."
+            table_manager.data[ip]["Output"] = "Restart Backend command succeeded."
         else:
-            table_manager.data[ip]["Command Output"] = "Restart Backend command failed."
+            table_manager.data[ip]["Output"] = "Restart Backend command failed."
     table_manager.update_tables()
 
 
@@ -74,5 +72,5 @@ async def btn_command(ip_idxs: list, command: str):
         success = await miner.send_ssh_command(command)
         if not isinstance(success, str):
             success = f"Command {command} failed."
-        table_manager.data[ip]["Command Output"] = success
+        table_manager.data[ip]["Output"] = success
     table_manager.update_tables()
