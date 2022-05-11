@@ -113,7 +113,13 @@ TABLE_HEADERS = {
 }
 
 TABLE_KEYS = {
-    "table": ["scan_table", "pools_table", "cfg_table"],
+    "table": [
+        "scan_table",
+        "pools_table",
+        "pools_1_table",
+        "pools_2_table",
+        "cfg_table",
+    ],
     "tree": ["cmd_table"],
 }
 
@@ -195,6 +201,7 @@ def get_scan_layout():
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
                 mouseover_colors=BTN_DISABLED,
+                bind_return_key=True,
             ),
         ],
         [

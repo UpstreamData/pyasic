@@ -51,7 +51,7 @@ async def _scan_miners(network: MinerNetwork):
     progress_bar_len = 0
 
     network_size = len(network)
-    await update_prog_bar(progress_bar_len, max=(3 * network_size))
+    await update_prog_bar(progress_bar_len, _max=(3 * network_size))
 
     scanned_miners = []
     async for miner in scan_generator:
