@@ -7,6 +7,7 @@ import datetime
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer.S9.bosminer import BOSMinerS9
+from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
 from settings import NETWORK_PING_TIMEOUT as PING_TIMEOUT
@@ -90,6 +91,21 @@ class TestbenchMiner:
             await self.add_to_output("Already running BraiinsOS, updating.")
             self.state = UPDATE
             return
+        elif isinstance(miner, UnknownMiner):
+            await self.add_to_output("Unknown Miner found, attempting to fix.")
+            try:
+                async with (await miner._get_ssh_connection()) as conn:
+                    result = await conn.run("miner factory_reset")
+            except:
+                await self.add_to_output("Fix failed, please manually reset miner.")
+                self.state = ERROR
+                return
+            if result:
+                await self.add_to_output("Fix may have worked, retrying.")
+                await asyncio.sleep(10)
+                self.state = START
+                return
+
         if await ping_miner(self.host, 22):
             await self.add_to_output("Miner is unlocked, installing.")
             self.state = INSTALL

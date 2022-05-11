@@ -206,6 +206,10 @@ class BOSMiner(BaseMiner):
                 nominal = False
             else:
                 nominal = True
+            if not board["Chips"] == self.nominal_chips:
+                nominal = False
+            else:
+                nominal = True
             boards[board["ID"] - offset].append(
                 {
                     "chain": board["ID"] - offset,

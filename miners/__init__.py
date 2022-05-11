@@ -15,8 +15,8 @@ class BaseMiner:
         api: BMMinerAPI or BOSMinerAPI or CGMinerAPI or BTMinerAPI or UnknownAPI,
     ) -> None:
         self.ip = ipaddress.ip_address(ip)
-        self.uname = None
-        self.pwd = None
+        self.uname = "root"
+        self.pwd = "admin"
         self.api = api
         self.api_type = None
         self.model = None
@@ -40,7 +40,7 @@ class BaseMiner:
                 conn = await asyncssh.connect(
                     str(self.ip),
                     known_hosts=None,
-                    username="admin",
+                    username="root",
                     password="admin",
                     server_host_key_algs=["ssh-rsa"],
                 )
