@@ -84,7 +84,13 @@ class BTMiner(BaseMiner):
             "Temperature": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
-            "Split": 0,
+            "Total": 0,
+            "Ideal": self.nominal_chips * 3,
+            "Left Board": 0,
+            "Center Board": 0,
+            "Right Board": 0,
+            "Nominal": False,
+            "Split": "0",
             "Pool 1": "Unknown",
             "Pool 1 User": "Unknown",
             "Pool 2": "",
@@ -132,6 +138,21 @@ class BTMiner(BaseMiner):
                     if temp and not temp == 0.0:
                         data["Temperature"] = round(temp)
                         break
+
+        if devs:
+            boards = devs.get("DEVS")
+            if boards:
+                if len(boards) > 0:
+                    board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
+                    offset = boards[0]["ID"]
+                    for board in boards:
+                        id = board["ID"] - offset
+                        chips = board["Effective Chips"]
+                        data["Total"] += chips
+                        data[board_map[id]] = chips
+
+        if data["Total"] == data["Ideal"]:
+            data["Nominal"] = True
 
         if pools:
             pool_1 = None
