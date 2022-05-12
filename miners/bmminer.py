@@ -133,7 +133,13 @@ class BMMiner(BaseMiner):
             "Temperature": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
-            "Split": 0,
+            "Total": 0,
+            "Ideal": self.nominal_chips * 3,
+            "Left Board": 0,
+            "Center Board": 0,
+            "Right Board": 0,
+            "Nominal": False,
+            "Split": "0",
             "Pool 1": "Unknown",
             "Pool 1 User": "Unknown",
             "Pool 2": "",
@@ -161,6 +167,7 @@ class BMMiner(BaseMiner):
         summary = miner_data.get("summary")[0]
         pools = miner_data.get("pools")[0]
         stats = miner_data.get("stats")[0]
+        print(stats)
 
         if summary:
             hr = summary.get("SUMMARY")
@@ -169,6 +176,19 @@ class BMMiner(BaseMiner):
                     hr = hr[0].get("GHS 5s")
                     if hr:
                         data["Hashrate"] = round(hr / 1000, 2)
+
+        if stats:
+            boards = stats.get("STATS")
+            if boards:
+                if len(boards) > 0:
+                    print(boards)
+                    data["Left Board"] = boards[1].get("chain_acn1")
+                    data["Center Board"] = boards[1].get("chain_acn2")
+                    data["Right Board"] = boards[1].get("chain_acn3")
+                    data["Total"] = boards[1].get("total_acn")
+
+        if data["Total"] == data["Ideal"]:
+            data["Nominal"] = True
 
         if stats:
             temp = stats.get("STATS")
