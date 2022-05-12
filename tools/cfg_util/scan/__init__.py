@@ -3,24 +3,17 @@ import asyncio
 from miners.miner_factory import MinerFactory
 from network import MinerNetwork
 from tools.cfg_util.decorators import disable_buttons
-from tools.cfg_util.layout import window, update_prog_bar
+from tools.cfg_util.layout import window, update_prog_bar, TABLE_HEADERS
 from tools.cfg_util.tables import clear_tables, TableManager
 
 progress_bar_len = 0
 
-DEFAULT_DATA = [
-    "Model",
-    "Hostname",
-    "Hashrate",
-    "Temperature",
-    "Pool User",
-    "Pool 1",
-    "Pool 1 User",
-    "Pool 2",
-    "Pool 2 User",
-    "Wattage",
-    "Split",
-]
+
+DEFAULT_DATA = set()
+
+for table in TABLE_HEADERS:
+    for header in TABLE_HEADERS[table]:
+        DEFAULT_DATA.add(header)
 
 
 async def btn_all():
