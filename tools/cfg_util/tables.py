@@ -174,6 +174,7 @@ class TableManager(metaclass=Singleton):
 
     def _get_sort(self, data_key: str):
         if self.sort_key not in self.data[data_key]:
+            print(self.data[data_key])
             return ""
 
         if self.sort_key == "IP":
@@ -188,7 +189,15 @@ class TableManager(metaclass=Singleton):
                 self.data[data_key]["Hashrate"].replace(" ", "").replace("TH/s", "")
             )
 
-        if self.sort_key in ["Wattage", "Temp"]:
+        if self.sort_key in [
+            "Wattage",
+            "Temp",
+            "Total",
+            "Ideal",
+            "Left Chips",
+            "Center Chips",
+            "Right Chips",
+        ]:
             if isinstance(self.data[data_key][self.sort_key], str):
                 return -300
 

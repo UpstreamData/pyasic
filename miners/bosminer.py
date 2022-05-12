@@ -253,6 +253,12 @@ class BOSMiner(BaseMiner):
             "Temperature": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
+            "Total": 0,
+            "Ideal": self.nominal_chips * 3,
+            "Left Board": 0,
+            "Center Board": 0,
+            "Right Board": 0,
+            "Nominal": False,
             "Split": "0",
             "Pool 1": "Unknown",
             "Pool 1 User": "Unknown",
@@ -271,7 +277,7 @@ class BOSMiner(BaseMiner):
         miner_data = None
         for i in range(DATA_RETRIES):
             miner_data = await self.api.multicommand(
-                "summary", "temps", "tunerstatus", "pools"
+                "summary", "temps", "tunerstatus", "pools", "devdetails"
             )
             if miner_data:
                 break
@@ -281,6 +287,7 @@ class BOSMiner(BaseMiner):
         temps = miner_data.get("temps")[0]
         tunerstatus = miner_data.get("tunerstatus")[0]
         pools = miner_data.get("pools")[0]
+        devdetails = miner_data.get("devdetails")[0]
 
         if summary:
             hr = summary.get("SUMMARY")
@@ -350,5 +357,20 @@ class BOSMiner(BaseMiner):
                     wattage = tuner[0].get("PowerLimit")
                     if wattage:
                         data["Wattage"] = wattage
+
+        if devdetails:
+            boards = devdetails.get("DEVDETAILS")
+            if boards:
+                if len(boards) > 0:
+                    board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
+                    offset = boards[0]["ID"]
+                    for board in boards:
+                        id = board["ID"] - offset
+                        chips = board["Chips"]
+                        data["Total"] += chips
+                        data[board_map[id]] = chips
+
+        if data["Total"] == data["Ideal"]:
+            data["Nominal"] = True
 
         return data
