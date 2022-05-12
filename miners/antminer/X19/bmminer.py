@@ -5,6 +5,7 @@ import logging
 class BMMinerX19(BMMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.nominal_chips = 126
 
     def __repr__(self) -> str:
         return f"BMMinerX19: {str(self.ip)}"
