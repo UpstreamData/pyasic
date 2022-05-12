@@ -111,7 +111,7 @@ TABLE_HEADERS = {
         "Pool 2",
         "Pool 2 User",
     ],
-    "CONFIG": ["IP", "Model", "Pool 1 User"],
+    "CONFIG": ["IP", "Model", "Pool 1 User", "Wattage"],
 }
 
 TABLE_KEYS = {
@@ -507,6 +507,12 @@ def get_pools_layout():
 
 
 def get_config_layout():
+    CFG_COL_WIDTHS = [
+        IP_COL_WIDTH,
+        MODEL_COL_WIDTH,
+        TABLE_TOTAL_WIDTH - ((30 * 2) + (6 + WATTAGE_COL_WIDTH)),
+        WATTAGE_COL_WIDTH,
+    ]
     config_layout = [
         [
             sg.Button(
@@ -572,19 +578,16 @@ def get_config_layout():
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
                 sbar_relief=SCROLLBAR_RELIEF,
-                col_widths=[
-                    IP_COL_WIDTH,
-                    MODEL_COL_WIDTH,
-                    TABLE_TOTAL_WIDTH - ((2 * 40) - 4),
-                ],
+                col_widths=CFG_COL_WIDTHS,
                 size=(0, TABLE_HEIGHT),
                 expand_x=True,
                 enable_click_events=True,
                 pad=TABLE_PAD,
             ),
             sg.Multiline(
-                size=(40, TABLE_HEIGHT + 1),
+                size=(30, TABLE_HEIGHT + 3),
                 key="cfg_config_txt",
+                font=("Noto Mono", 9),
                 sbar_trough_color=SCROLLBAR_TROUGH_COLOR,
                 sbar_background_color=SCROLLBAR_BACKGROUND_COLOR,
                 sbar_arrow_color=SCROLLBAR_ARROW_COLOR,

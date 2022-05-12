@@ -6,6 +6,7 @@ class HiveonT9(BMMiner):
         super().__init__(ip)
         self.model = "T9"
         self.api_type = "Hiveon"
+        self.nominal_chips = 54
 
     def __repr__(self) -> str:
         return f"HiveonT9: {str(self.ip)}"
