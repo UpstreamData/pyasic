@@ -110,7 +110,6 @@ async def ui():
                     mgr.update_sort_key(table.heading(event[2][1])["text"])
 
         # scan tab
-
         if event == "scan_all":
             _table = "scan_table"
             btn_all(_table, value[_table])
@@ -122,6 +121,17 @@ async def ui():
             asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "btn_scan":
             asyncio.create_task(btn_scan(value["scan_ip"]))
+
+        # boards tab
+        if event == "boards_all":
+            _table = "boards_table"
+            btn_all(_table, value[_table])
+        if event == "boards_web":
+            _table = "boards_table"
+            btn_web(_table, value[_table])
+        if event == "boards_refresh":
+            _table = "boards_table"
+            asyncio.create_task(btn_refresh(_table, value[_table]))
 
         # pools tab
         if event == "pools_all":

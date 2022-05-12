@@ -92,6 +92,15 @@ TABLE_HEADERS = {
         "Pool User",
         "Wattage",
     ],
+    "BOARDS": [
+        "IP",
+        "Model",
+        "Total Chips",
+        "Nominal Chips",
+        "Left Board",
+        "Center Board",
+        "Right Board",
+    ],
     "CMD": ["IP", "Model", "Output"],
     "POOLS_ALL": [
         "IP",
@@ -117,6 +126,7 @@ TABLE_HEADERS = {
 TABLE_KEYS = {
     "table": [
         "scan_table",
+        "boards_table",
         "pools_table",
         "pools_1_table",
         "pools_2_table",
@@ -164,6 +174,8 @@ TEMP_COL_WIDTH = 8
 USER_COL_WIDTH = 33
 WATTAGE_COL_WIDTH = 10
 SPLIT_COL_WIDTH = 8
+TOTAL_CHIP_WIDTH = 14
+NOMINAL_CHIP_WIDTH = 16
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -258,6 +270,70 @@ def get_scan_layout():
         ],
     ]
     return scan_layout
+
+
+def get_boards_layout():
+    BOARDS_COL_WIDTHS = [
+        IP_COL_WIDTH,
+        MODEL_COL_WIDTH,
+        TOTAL_CHIP_WIDTH,
+        NOMINAL_CHIP_WIDTH,
+    ]
+    add_length = TABLE_TOTAL_WIDTH - sum(BOARDS_COL_WIDTHS)
+    for i in range(3):
+        BOARDS_COL_WIDTHS.append(round(add_length / 3))
+    boards_layout = [
+        [sg.Text("", pad=((0, 0), (10, 1)))],
+        [
+            sg.Button(
+                "ALL",
+                key="boards_all",
+                border_width=BTN_BORDER,
+                disabled_button_color=BTN_DISABLED,
+                pad=((0, 5), (1, 1)),
+            ),
+            sg.Button(
+                "REFRESH DATA",
+                key="boards_refresh",
+                border_width=BTN_BORDER,
+                disabled_button_color=BTN_DISABLED,
+            ),
+            sg.Button(
+                "OPEN IN WEB",
+                key="boards_web",
+                border_width=BTN_BORDER,
+                disabled_button_color=BTN_DISABLED,
+            ),
+        ],
+        [
+            sg.Table(
+                values=[],
+                headings=[heading for heading in TABLE_HEADERS["BOARDS"]],
+                auto_size_columns=False,
+                max_col_width=15,
+                justification="center",
+                key="boards_table",
+                col_widths=BOARDS_COL_WIDTHS,
+                background_color=TABLE_BG,
+                text_color=TABLE_TEXT,
+                header_background_color=TABLE_HEADERS_COLOR,
+                header_text_color=TABLE_HEADERS_TEXT_COLOR,
+                border_width=TABLE_BORDER,
+                header_border_width=TABLE_HEADER_BORDER,
+                sbar_trough_color=SCROLLBAR_TROUGH_COLOR,
+                sbar_background_color=SCROLLBAR_BACKGROUND_COLOR,
+                sbar_arrow_color=SCROLLBAR_ARROW_COLOR,
+                sbar_width=SCROLLBAR_WIDTH,
+                sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
+                sbar_relief=SCROLLBAR_RELIEF,
+                size=(TABLE_TOTAL_WIDTH, TABLE_HEIGHT),
+                expand_x=True,
+                enable_click_events=True,
+                pad=TABLE_PAD,
+            )
+        ],
+    ]
+    return boards_layout
 
 
 def get_command_layout():
@@ -630,6 +706,14 @@ layout = [
                     sg.Tab(
                         "Scan",
                         get_scan_layout(),
+                        background_color=MAIN_TABS_BG,
+                        pad=TAB_PAD,
+                    )
+                ],
+                [
+                    sg.Tab(
+                        "Boards",
+                        get_boards_layout(),
                         background_color=MAIN_TABS_BG,
                         pad=TAB_PAD,
                     )

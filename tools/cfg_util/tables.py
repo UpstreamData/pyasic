@@ -84,6 +84,7 @@ class TableManager(metaclass=Singleton):
         tables = {
             "SCAN": [["" for _ in TABLE_HEADERS["SCAN"]] for _ in self.data],
             "CMD": [["" for _ in TABLE_HEADERS["CMD"]] for _ in self.data],
+            "BOARDS": [["" for _ in TABLE_HEADERS["BOARDS"]] for _ in self.data],
             "POOLS_ALL": [["" for _ in TABLE_HEADERS["POOLS_ALL"]] for _ in self.data],
             "POOLS_1": [["" for _ in TABLE_HEADERS["POOLS_1"]] for _ in self.data],
             "POOLS_2": [["" for _ in TABLE_HEADERS["POOLS_2"]] for _ in self.data],
@@ -97,6 +98,7 @@ class TableManager(metaclass=Singleton):
 
         table_names = {
             "SCAN": "scan_table",
+            "BOARDS": "boards_table",
             "POOLS_ALL": "pools_table",
             "POOLS_1": "pools_1_table",
             "POOLS_2": "pools_2_table",
@@ -144,6 +146,7 @@ class TableManager(metaclass=Singleton):
                             tables[table][data_idx][idx] = item[_key]
 
         window["scan_table"].update(tables["SCAN"])
+        window["boards_table"].update(tables["BOARDS"])
         window["pools_table"].update(tables["POOLS_ALL"])
         window["pools_1_table"].update(tables["POOLS_1"])
         window["pools_2_table"].update(tables["POOLS_2"])
