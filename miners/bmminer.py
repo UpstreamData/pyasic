@@ -167,7 +167,6 @@ class BMMiner(BaseMiner):
         summary = miner_data.get("summary")[0]
         pools = miner_data.get("pools")[0]
         stats = miner_data.get("stats")[0]
-        print(stats)
 
         if summary:
             hr = summary.get("SUMMARY")
@@ -181,7 +180,6 @@ class BMMiner(BaseMiner):
             boards = stats.get("STATS")
             if boards:
                 if len(boards) > 0:
-                    print(boards)
                     data["Left Board"] = boards[1].get("chain_acn1")
                     data["Center Board"] = boards[1].get("chain_acn2")
                     data["Right Board"] = boards[1].get("chain_acn3")
