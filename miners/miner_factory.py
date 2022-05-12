@@ -1,24 +1,5 @@
-from miners.antminer.S9.bosminer import BOSMinerS9
-from miners.antminer.S9.bmminer import BMMinerS9
-from miners.antminer.S9.cgminer import CGMinerS9
-
-from miners.antminer.T9.hive import HiveonT9
-from miners.antminer.T9.cgminer import CGMinerT9
-from miners.antminer.T9.bmminer import BMMinerT9
-
-from miners.antminer.X17.bosminer import BOSMinerX17
-from miners.antminer.X17.bmminer import BMMinerX17
-from miners.antminer.X17.cgminer import CGMinerX17
-
-from miners.antminer.X19.bmminer import BMMinerX19
-from miners.antminer.X19.cgminer import CGMinerX19
-from miners.antminer.X19.bosminer import BOSMinerX19
-
-from miners.whatsminer.M20 import BTMinerM20
-from miners.whatsminer.M21 import BTMinerM21
-from miners.whatsminer.M30 import BTMinerM30
-from miners.whatsminer.M31 import BTMinerM31
-from miners.whatsminer.M32 import BTMinerM32
+from miners.antminer import *
+from miners.whatsminer import *
 
 from miners.avalonminer.Avalon8 import CGMinerAvalon8
 from miners.avalonminer.Avalon10 import CGMinerAvalon10
@@ -40,6 +21,131 @@ from settings import (
     MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES,
     NETWORK_PING_TIMEOUT as PING_TIMEOUT,
 )
+
+MINER_CLASSES = {
+    "Antminer S9": {
+        "Default": BOSMinerS9,
+        "BOSMiner": BOSMinerS9,
+        "BMMiner": BMMinerS9,
+        "CGMiner": CGMinerS9,
+    },
+    "Antminer S17": {
+        "Default": BMMinerS17,
+        "BOSMiner": BOSMinerS17,
+        "BMMiner": BMMinerS17,
+        "CGMiner": CGMinerS17,
+    },
+    "Antminer S17+": {
+        "Default": BMMinerS17Plus,
+        "BOSMiner": BOSMinerS17Plus,
+        "BMMiner": BMMinerS17Plus,
+        "CGMiner": CGMinerS17Plus,
+    },
+    "Antminer S17 Pro": {
+        "Default": BMMinerS17Pro,
+        "BOSMiner": BOSMinerS17Pro,
+        "BMMiner": BMMinerS17Pro,
+        "CGMiner": CGMinerS17Pro,
+    },
+    "Antminer S17e": {
+        "Default": BMMinerS17e,
+        "BOSMiner": BOSMinerS17e,
+        "BMMiner": BMMinerS17e,
+        "CGMiner": CGMinerS17e,
+    },
+    "Antminer T17": {
+        "Default": BMMinerT17,
+        "BOSMiner": BOSMinerT17,
+        "BMMiner": BMMinerT17,
+        "CGMiner": CGMinerT17,
+    },
+    "Antminer T17+": {
+        "Default": BMMinerT17Plus,
+        "BOSMiner": BOSMinerT17Plus,
+        "BMMiner": BMMinerT17Plus,
+        "CGMiner": CGMinerT17Plus,
+    },
+    "Antminer T17e": {
+        "Default": BMMinerT17e,
+        "BOSMiner": BOSMinerT17e,
+        "BMMiner": BMMinerT17e,
+        "CGMiner": CGMinerT17e,
+    },
+    "Antminer S19": {
+        "Default": BMMinerS19,
+        "BOSMiner": BOSMinerS19,
+        "BMMiner": BMMinerS19,
+        "CGMiner": CGMinerS19,
+    },
+    "Antminer S19 Pro": {
+        "Default": BMMinerS19Pro,
+        "BOSMiner": BOSMinerS19Pro,
+        "BMMiner": BMMinerS19Pro,
+        "CGMiner": CGMinerS19Pro,
+    },
+    "Antminer S19j": {
+        "Default": BMMinerS19j,
+        "BOSMiner": BOSMinerS19j,
+        "BMMiner": BMMinerS19j,
+        "CGMiner": CGMinerS19j,
+    },
+    "Antminer S19j Pro": {
+        "Default": BMMinerS19jPro,
+        "BOSMiner": BOSMinerS19jPro,
+        "BMMiner": BMMinerS19jPro,
+        "CGMiner": CGMinerS19jPro,
+    },
+    "Antminer T19": {
+        "Default": BMMinerT19,
+        "BOSMiner": BOSMinerT19,
+        "BMMiner": BMMinerT19,
+        "CGMiner": CGMinerT19,
+    },
+    "M20S": {
+        "Default": BTMinerM20S,
+        "BTMiner": BTMinerM20S,
+    },
+    "M20S+": {
+        "Default": BTMinerM20SPlus,
+        "BTMiner": BTMinerM20SPlus,
+    },
+    "M21": {
+        "Default": BTMinerM21,
+        "BTMiner": BTMinerM21,
+    },
+    "M21S": {
+        "Default": BTMinerM21S,
+        "BTMiner": BTMinerM21S,
+    },
+    "M21S+": {
+        "Default": BTMinerM21SPlus,
+        "BTMiner": BTMinerM21SPlus,
+    },
+    "M30S": {
+        "Default": BTMinerM30S,
+        "BTMiner": BTMinerM30S,
+    },
+    "M30S+": {
+        "Default": BTMinerM30SPlus,
+        "BTMiner": BTMinerM30SPlus,
+    },
+    "M30S++": {
+        "Default": BTMinerM30SPlusPlus,
+        "BTMiner": BTMinerM30SPlusPlus,
+    },
+    "M31S": {
+        "Default": BTMinerM31S,
+        "BTMiner": BTMinerM31S,
+    },
+    "M31S+": {
+        "Default": BTMinerM31SPlus,
+        "BTMiner": BTMinerM31SPlus,
+    },
+    "M32S": {
+        "Default": BTMinerM32S,
+        "BTMiner": BTMinerM32S,
+    },
+}
 
 
 class Singleton(type):
@@ -111,71 +217,23 @@ class MinerFactory(metaclass=Singleton):
 
         # make sure we have model information
         if model:
-            # check if the miner is an Antminer
-            if "Antminer" in model:
-                # S9 logic
-                if "Antminer S9" in model:
-                    # handle the different API types
-                    if not api:
-                        logging.warning(
-                            f"{str(ip)}: No API data found,  using BraiinsOS."
-                        )
-                        miner = BOSMinerS9(str(ip))
-                    elif "BOSMiner" in api:
-                        miner = BOSMinerS9(str(ip))
-                    elif "CGMiner" in api:
-                        miner = CGMinerS9(str(ip))
-                    elif "BMMiner" in api:
-                        miner = BMMinerS9(str(ip))
-
-                elif "Antminer T9" in model:
-                    if "BMMiner" in api:
-                        if "Hiveon" in model:
-                            # hiveOS, return T9 Hive
-                            miner = HiveonT9(str(ip))
-                        else:
-                            miner = BMMinerT9(str(ip))
-                    elif "CGMiner" in api:
-                        miner = CGMinerT9(str(ip))
-
-                # X17 model logic
-                elif "17" in model:
-                    # handle the different API types
-                    if "BOSMiner" in api:
-                        miner = BOSMinerX17(str(ip))
-                    elif "CGMiner" in api:
-                        miner = CGMinerX17(str(ip))
-                    elif "BMMiner" in api:
-                        miner = BMMinerX17(str(ip))
-
-                # X19 logic
-                elif "19" in model:
-                    # handle the different API types
-                    if "BOSMiner" in api:
-                        miner = BOSMinerX19(str(ip))
-                    if "CGMiner" in api:
-                        miner = CGMinerX19(str(ip))
-                    elif "BMMiner" in api:
-                        miner = BMMinerX19(str(ip))
+            if not api:
+                api = "Default"
 
             # Avalonminers
-            elif "avalon" in model:
+            if "avalon" in model:
                 if model == "avalon10":
                     miner = CGMinerAvalon10(str(ip))
                 else:
                     miner = CGMinerAvalon8(str(ip))
+            else:
+                if model not in MINER_CLASSES.keys():
+                    miner = UnknownMiner(str(ip))
+                    return miner
+                if api not in MINER_CLASSES[model].keys():
+                    api = "Default"
 
-            # Whatsminers
-            elif "M20" in model:
-                miner = BTMinerM20(str(ip))
-            elif "M21" in model:
-                miner = BTMinerM21(str(ip))
-            elif "M30" in model:
-                miner = BTMinerM30(str(ip))
-            elif "M31" in model:
-                miner = BTMinerM31(str(ip))
-            elif "M32" in model:
-                miner = BTMinerM32(str(ip))
+                miner = MINER_CLASSES[model][api](str(ip))
 
         # if we cant find a model, check if we found the API
         else:
@@ -260,7 +318,7 @@ class MinerFactory(metaclass=Singleton):
                 api = "BOSMiner"
 
             # if all that fails, check the Description to see if it is a whatsminer
-        elif version.get("Description") and "whatsminer" in version.get("Description"):
+        if version.get("Description") and "whatsminer" in version.get("Description"):
             api = "BTMiner"
         if version and not model:
             if (
@@ -269,6 +327,11 @@ class MinerFactory(metaclass=Singleton):
                 and not version.get("VERSION") == []
             ):
                 model = version["VERSION"][0]["Type"]
+
+        if model:
+            if "V" in model:
+                model = model.split("V")[0]
+
         return model, api
 
     async def _validate_command(self, data: dict) -> tuple:
