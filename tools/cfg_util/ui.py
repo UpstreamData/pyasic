@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 import asyncio
 import sys
+from tools.cfg_util.boards import boards_report
 from tools.cfg_util.imgs import TkImages
 from tools.cfg_util.scan import btn_scan
 from tools.cfg_util.commands import (
@@ -132,6 +133,11 @@ async def ui():
         if event == "boards_refresh":
             _table = "boards_table"
             asyncio.create_task(btn_refresh(_table, value[_table]))
+        if event == "boards_report_file":
+            print(value["boards_report_file"])
+            if not value["boards_report_file"] == "":
+                asyncio.create_task(boards_report(value["boards_report_file"]))
+                window["boards_report_file"].update("")
 
         # pools tab
         if event == "pools_all":
