@@ -300,6 +300,9 @@ class MinerFactory(metaclass=Singleton):
                 else:
                     # some avalonminers have model in driver
                     model = devdetails["DEVDETAILS"][0]["Driver"]
+            else:
+                if "s9" in devdetails["STATUS"][0]["Description"]:
+                    model = "Antminer S9"
 
         if version:
             # check if there are any BMMiner strings in any of the dict keys
