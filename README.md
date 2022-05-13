@@ -107,68 +107,44 @@ if __name__ == '__main__':
         get_miner_hashrate(str("192.168.1.69")))
 ```
 
-<br>
-Or generate a miner directly without the factory:
-
-```python
-import asyncio
-from miners._backends.bosminer import BOSMiner
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
-
-
-async def get_miner_hashrate(ip: str):
-    # Create a BOSminer miner object
-    miner = BOSMiner(ip)
-    # Get the API data
-    summary = await miner.api.summary()
-    # safe_parse_api_data parses the data from a miner API
-    # It will raise an APIError (from API import APIError) if there is a problem
-    data = await safe_parse_api_data(summary, 'SUMMARY', 0, 'MHS 5s')
-    print(data)
-
-
-if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(
-        get_miner_hashrate(str("192.168.1.69")))
-```
-
-<br>
-Or finally, just get the API directly:
-
-```python
-import asyncio
-from API.bosminer import BOSMinerAPI
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
-
-
-async def get_miner_hashrate(ip: str):
-    # Create a BOSminerAPI object
-    # Port can be declared manually, if not it defaults to 4028
-    api = BOSMinerAPI(ip, port=4028)
-    # Get the API data
-    summary = await api.summary()
-    # safe_parse_api_data parses the data from a miner API
-    # It will raise an APIError (from API import APIError) if there is a problem
-    data = await safe_parse_api_data(summary, 'SUMMARY', 0, 'MHS 5s')
-    print(data)
-
-
-if __name__ == '__main__':
-    asyncio.new_event_loop().run_until_complete(
-        get_miner_hashrate(str("192.168.1.69")))
-```
-
 
 Now that you know that, lets move on to some common API functions that you might want to use.
 
 ### Common commands:
+* Get the data used by the config utility:
+
+```python
+import asyncio
+import ipaddress
+from miners.miner_factory import MinerFactory
+
+
+async def get_miner_pool_data(ip: str):
+    # Instantiate a Miner Factory to generate miners from their IP
+    miner_factory = MinerFactory()
+    # Make the string IP into an IP address
+    miner_ip = ipaddress.ip_address(ip)
+    # Wait for the factory to return the miner
+    miner = await miner_factory.get_miner(miner_ip)
+    # Get the data
+    data = await miner.get_data()
+    
+    print(data)
+
+
+if __name__ == '__main__':
+    asyncio.new_event_loop().run_until_complete(
+        get_miner_pool_data(str("192.168.1.69")))
+```
+
+
+
 * Getting pool data:
 
 ```python
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_pool_data(ip: str):
@@ -182,7 +158,7 @@ async def get_miner_pool_data(ip: str):
     pools = await miner.api.pools()
     # safe_parse_api_data parses the data from a miner API
     # It will raise an APIError (from API import APIError) if there is a problem
-    data = await safe_parse_api_data(pools, 'POOLS')
+    data = pools["POOLS"]
     # parse further from here to get all the pool info you want.
     # each pool is on a different index eg:
     # data[0] is pool 1
@@ -208,7 +184,6 @@ A pretty good example of really trying to make this robust is in ```cfg_util.fun
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_temperature_data(ip: str):
@@ -220,9 +195,8 @@ async def get_miner_temperature_data(ip: str):
     miner = await miner_factory.get_miner(miner_ip)
     # Get the API data
     summary = await miner.api.summary()
-    # safe_parse_api_data parses the data from a miner API
-    # It will raise an APIError (from API import APIError) if there is a problem
-    data = await safe_parse_api_data(summary, 'SUMMARY', 0, "Temperature")
+
+    data = summary['SUMMARY'][0]["Temperature"]
     print(data)
 
 
@@ -239,10 +213,10 @@ How about data on the power usage of the miner?  This one only works for Whatsmi
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
 async def get_miner_power_data(ip: str):
+    data = None
     # Instantiate a Miner Factory to generate miners from their IP
     miner_factory = MinerFactory()
     # Make the string IP into an IP address
@@ -254,16 +228,16 @@ async def get_miner_power_data(ip: str):
         # send the command
         tunerstatus = await miner.api.tunerstatus()
         # parse the return
-        data = await safe_parse_api_data(tunerstatus, 'TUNERSTATUS', 0,
-                                         "PowerLimit")
+        data = tunerstatus['TUNERSTATUS'][0]["PowerLimit"]
     else:
         # send the command
         # whatsminers have the power info in summary
         summary = await miner.api.summary()
         # parse the return
-        data = await safe_parse_api_data(summary, 'SUMMARY', 0, "Power")
+        data = summary['SUMMARY'][0]["Power"]
 
-    print(data)
+    if data:
+       print(data)
 
 
 if __name__ == '__main__':
@@ -293,12 +267,10 @@ async def get_miner_hashrate_and_pool(ip: str):
     # Get the API data
     api_data = await miner.api.multicommand("pools", "summary")
     if "pools" in api_data.keys():
-        user = await safe_parse_api_data(api_data, "pools", 0, "POOLS", 0,
-                                         "User")
+        user = api_data["pools"][0]["POOLS"][0]["User"]
         print(user)
     if "summary" in api_data.keys():
-        hashrate = await safe_parse_api_data(api_data, "summary", 0, "SUMMARY",
-                                             0, "MHS av")
+        hashrate = api_data["summary"][0]["SUMMARY"][0]["MHS av"]
         print(hashrate)
 
 
