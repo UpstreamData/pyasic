@@ -2,14 +2,14 @@ import asyncio
 import ipaddress
 import warnings
 
-from tools.bad_board_util.func.ui import (
+from tools.bad_board_util_old.func.ui import (
     update_ui_with_data,
     update_prog_bar,
     set_progress_bar_len,
 )
-from tools.bad_board_util.layout import window
+from tools.bad_board_util_old.layout import window
 from miners.miner_factory import MinerFactory
-from tools.bad_board_util.func.decorators import disable_buttons
+from tools.bad_board_util_old.func.decorators import disable_buttons
 
 
 @disable_buttons
