@@ -287,7 +287,7 @@ class BOSMiner(BaseMiner):
             hr = summary.get("SUMMARY")
             if hr:
                 if len(hr) > 0:
-                    hr = hr[0].get("MHS 5s")
+                    hr = hr[0].get("MHS av")
                     if hr:
                         data["Hashrate"] = round(hr / 1000000, 2)
 
