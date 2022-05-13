@@ -118,7 +118,7 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
-                    hr = summary_data[0].get("MHS 5s")
+                    hr = summary_data[0].get("MHS av")
                     if hr:
                         data["Hashrate"] = round(hr / 1000000, 2)
 
