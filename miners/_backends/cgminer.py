@@ -141,7 +141,7 @@ class CGMiner(BaseMiner):
             hr = summary.get("SUMMARY")
             if hr:
                 if len(hr) > 0:
-                    hr = hr[0].get("GHS 5s")
+                    hr = hr[0].get("GHS av")
                     if hr:
                         data["Hashrate"] = round(hr / 1000, 2)
 
