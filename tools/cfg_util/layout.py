@@ -174,8 +174,8 @@ TEMP_COL_WIDTH = 8
 USER_COL_WIDTH = 33
 WATTAGE_COL_WIDTH = 10
 SPLIT_COL_WIDTH = 8
-TOTAL_CHIP_WIDTH = 8
-IDEAL_CHIP_WIDTH = 8
+TOTAL_CHIP_WIDTH = 9
+IDEAL_CHIP_WIDTH = 9
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -283,7 +283,16 @@ def get_boards_layout():
     for i in range(3):
         BOARDS_COL_WIDTHS.append(round(add_length / 3))
     boards_layout = [
-        [sg.Text("", pad=((0, 0), (10, 1)))],
+        [
+            sg.Input(visible=False, enable_events=True, key="boards_report_file"),
+            sg.SaveAs(
+                "Create Report",
+                key="boards_report",
+                file_types=(("PDF Files", "*.pdf"),),
+                target="boards_report_file",
+                pad=((0, 5), (6, 0)),
+            ),
+        ],
         [
             sg.Button(
                 "ALL",
@@ -365,7 +374,7 @@ def get_command_layout():
                 key="cmd_all",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-                pad=((0, 1), (1, 1)),
+                pad=((0, 5), (1, 1)),
             ),
             sg.Button(
                 "LIGHT",
@@ -596,21 +605,21 @@ def get_config_layout():
                 key="cfg_import",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-                pad=((0, 5), (5, 0)),
+                pad=((0, 5), (6, 0)),
             ),
             sg.Button(
                 "CONFIG",
                 key="cfg_config",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-                pad=((0, 5), (5, 0)),
+                pad=((0, 5), (6, 0)),
             ),
             sg.Button(
                 "GENERATE",
                 key="cfg_generate",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-                pad=((0, 5), (5, 0)),
+                pad=((0, 5), (6, 0)),
             ),
         ],
         [
@@ -619,19 +628,21 @@ def get_config_layout():
                 key="cfg_all",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
-                pad=((0, 5), (1, 1)),
+                pad=((0, 5), (1, 0)),
             ),
             sg.Button(
                 "OPEN IN WEB",
                 key="cfg_web",
                 border_width=BTN_BORDER,
                 disabled_button_color=BTN_DISABLED,
+                pad=((5, 5), (3, 2)),
             ),
             sg.Push(background_color=MAIN_TABS_BG),
             sg.Checkbox(
                 "Append IP to Username",
                 key="cfg_append_ip",
                 background_color=MAIN_TABS_BG,
+                pad=((5, 5), (3, 2)),
             ),
         ],
         [
