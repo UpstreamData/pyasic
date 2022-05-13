@@ -28,9 +28,9 @@ from matplotlib.ticker import FormatStrFormatter
 
 
 from miners.miner_factory import MinerFactory
-from tools.bad_board_util.func.decorators import disable_buttons
-from tools.bad_board_util.img import IMAGE_SELECTION_MATRIX, LOGO
-from tools.bad_board_util.layout import window
+from tools.bad_board_util_old.func.decorators import disable_buttons
+from tools.bad_board_util_old.img import IMAGE_SELECTION_MATRIX, LOGO
+from tools.bad_board_util_old.layout import window
 
 IP_STYLE = ParagraphStyle(
     "IP Style",
