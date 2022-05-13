@@ -7,15 +7,11 @@ import logging
 
 class CGMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
-        api = CGMinerAPI(ip)
-        super().__init__(ip, api)
-        self.model = None
-        self.config = None
+        super().__init__(ip)
+        self.api = CGMinerAPI(ip)
+        self.api_type = "CGMiner"
         self.uname = "root"
         self.pwd = "admin"
-
-    def __repr__(self) -> str:
-        return f"CGMiner: {str(self.ip)}"
 
     async def get_model(self):
         if self.model:

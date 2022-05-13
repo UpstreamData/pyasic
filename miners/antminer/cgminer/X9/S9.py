@@ -1,11 +1,8 @@
-from miners.cgminer import CGMiner
+from miners._backends import CGMiner
+from miners._types import S9
 
 
-class CGMinerS9(CGMiner):
+class CGMinerS9(CGMiner, S9):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.model = "S9"
-        self.api_type = "CGMiner"
-
-    def __repr__(self) -> str:
-        return f"CGMinerS9: {str(self.ip)}"
+        self.ip = ip

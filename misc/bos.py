@@ -1,6 +1,6 @@
 import asyncio
 from network import MinerNetwork
-from miners.bosminer import BOSMiner
+from miners._backends.bosminer import BOSMiner
 
 
 async def get_bos_bad_tuners(ip: str = "192.168.1.0", mask: int = 24):
@@ -29,10 +29,20 @@ async def get_bos_bad_tuners(ip: str = "192.168.1.0", mask: int = 24):
         bad_boards = []
         for board in item["tuner_status"]:
             # if its not stable or still testing, its bad
-            if board["status"] not in ["Stable", "Testing performance profile", "Tuning individual chips"]:
+            if board["status"] not in [
+                "Stable",
+                "Testing performance profile",
+                "Tuning individual chips",
+            ]:
                 # remove the part about the board refusing to start
-                bad_boards.append({"board": board["board"],
-                                   "error": board["status"].replace("Hashchain refused to start: ", "")})
+                bad_boards.append(
+                    {
+                        "board": board["board"],
+                        "error": board["status"].replace(
+                            "Hashchain refused to start: ", ""
+                        ),
+                    }
+                )
 
         # if this miner has bad boards, add it to the list of bad board miners
         if len(bad_boards) > 0:
@@ -52,7 +62,9 @@ async def _get_tuner_status(miner):
     # if we have data, loop through to get the hashchain status
     if tuner_status:
         for board in tuner_status["TUNERSTATUS"][0]["TunerChainStatus"]:
-            tuner_data.append({"board": board["HashchainIndex"], "status": board["Status"]})
+            tuner_data.append(
+                {"board": board["HashchainIndex"], "status": board["Status"]}
+            )
 
     # return the data along with the IP or later tracking
     return {"ip": str(miner.ip), "tuner_status": tuner_data}

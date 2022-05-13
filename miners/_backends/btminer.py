@@ -7,13 +7,9 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 class BTMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
-        api = BTMinerAPI(ip)
-        self.model = None
-        super().__init__(ip, api)
-        self.nominal_chips = 66
-
-    def __repr__(self) -> str:
-        return f"BTMiner: {str(self.ip)}"
+        super().__init__(ip)
+        self.api = BTMinerAPI(ip)
+        self.api_type = "BTMiner"
 
     async def get_model(self):
         if self.model:

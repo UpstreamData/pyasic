@@ -1,12 +1,8 @@
-from miners.bosminer import BOSMiner
+from miners._backends import BOSMiner
+from miners._types import S19
 
 
-class BOSMinerS19(BOSMiner):
+class BOSMinerS19(BOSMiner, S19):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.api_type = "BOSMiner"
-        self.model = "S19"
-        self.nominal_chips = 114
-
-    def __repr__(self) -> str:
-        return f"BOSMinerS19: {str(self.ip)}"
+        self.ip = ip

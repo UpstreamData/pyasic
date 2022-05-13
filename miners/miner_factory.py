@@ -1,12 +1,10 @@
 from miners.antminer import *
 from miners.whatsminer import *
+from miners.avalonminer import *
 
-from miners.avalonminer.Avalon8 import CGMinerAvalon8
-from miners.avalonminer.Avalon10 import CGMinerAvalon10
-
-from miners.cgminer import CGMiner
-from miners.bmminer import BMMiner
-from miners.bosminer import BOSMiner
+from miners._backends.cgminer import CGMiner
+from miners._backends.bmminer import BMMiner
+from miners._backends.bosminer import BOSMiner
 
 from miners.unknown import UnknownMiner
 
@@ -223,16 +221,15 @@ class MinerFactory(metaclass=Singleton):
             # Avalonminers
             if "avalon" in model:
                 if model == "avalon10":
-                    miner = CGMinerAvalon10(str(ip))
+                    miner = CGMinerAvalon1066(str(ip))
                 else:
-                    miner = CGMinerAvalon8(str(ip))
+                    miner = CGMinerAvalon821(str(ip))
             else:
                 if model not in MINER_CLASSES.keys():
                     miner = UnknownMiner(str(ip))
                     return miner
                 if api not in MINER_CLASSES[model].keys():
                     api = "Default"
-
                 miner = MINER_CLASSES[model][api](str(ip))
 
         # if we cant find a model, check if we found the API

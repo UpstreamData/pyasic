@@ -112,7 +112,7 @@ Or generate a miner directly without the factory:
 
 ```python
 import asyncio
-from miners.bosminer import BOSMiner
+from miners._backends.bosminer import BOSMiner
 from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
