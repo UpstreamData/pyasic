@@ -1,4 +1,4 @@
-from tools.bad_board_util.ui import ui
+from tools.bad_board_util_old.ui import ui
 
 import asyncio
 import sys

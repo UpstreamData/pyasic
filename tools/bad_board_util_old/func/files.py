@@ -5,9 +5,9 @@ import xlsxwriter
 
 import aiofiles
 
-from tools.bad_board_util.func.ui import update_ui_with_data
-from tools.bad_board_util.layout import window
-from tools.bad_board_util.func.decorators import disable_buttons
+from tools.bad_board_util_old.func.ui import update_ui_with_data
+from tools.bad_board_util_old.layout import window
+from tools.bad_board_util_old.func.decorators import disable_buttons
 from miners.miner_factory import MinerFactory
 
 
