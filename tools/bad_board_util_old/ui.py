@@ -2,15 +2,19 @@ import asyncio
 import sys
 import PySimpleGUI as sg
 
-from tools.bad_board_util.layout import window
-from tools.bad_board_util.func.miners import (
+from tools.bad_board_util_old.layout import window
+from tools.bad_board_util_old.func.miners import (
     refresh_data,
     scan_and_get_data,
     miner_light,
 )
-from tools.bad_board_util.func.files import import_iplist, export_iplist
-from tools.bad_board_util.func.pdf import save_report
-from tools.bad_board_util.func.ui import sort_data, copy_from_table, table_select_all
+from tools.bad_board_util_old.func.files import import_iplist, export_iplist
+from tools.bad_board_util_old.func.pdf import save_report
+from tools.bad_board_util_old.func.ui import (
+    sort_data,
+    copy_from_table,
+    table_select_all,
+)
 
 from network import MinerNetwork
 
