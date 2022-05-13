@@ -1,12 +1,8 @@
-from miners.bmminer import BMMiner
+from miners._backends import BMMiner
+from miners._types import S17Plus
 
 
-class BMMinerS17Plus(BMMiner):
+class BMMinerS17Plus(BMMiner, S17Plus):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.api_type = "BMMiner"
-        self.model = "S17+"
-        self.nominal_chips = 65
-
-    def __repr__(self) -> str:
-        return f"BMMinerS17+: {str(self.ip)}"
+        self.ip = ip

@@ -1,11 +1,8 @@
-from miners.bmminer import BMMiner
+from miners._backends import BMMiner
+from miners._types import T9
 
 
-class BMMinerT9(BMMiner):
+class BMMinerT9(BMMiner, T9):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.model = "T9"
-        self.api_type = "BMMiner"
-
-    def __repr__(self) -> str:
-        return f"BMMinerT9: {str(self.ip)}"
+        self.ip = ip
