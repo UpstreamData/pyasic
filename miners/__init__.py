@@ -13,6 +13,7 @@ class BaseMiner:
         self.light = None
         self.hostname = None
         self.nominal_chips = 1
+        self.version = None
 
     def __repr__(self):
         return f"{'' if not self.api_type else self.api_type} {'' if not self.model else self.model}: {str(self.ip)}"
