@@ -1,4 +1,4 @@
-from miners.cgminer import CGMiner
+from miners._backends.cgminer import CGMiner
 
 
 class CGMinerT9(CGMiner):

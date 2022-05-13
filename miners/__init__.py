@@ -1,28 +1,21 @@
-from API.bmminer import BMMinerAPI
-from API.bosminer import BOSMinerAPI
-from API.cgminer import CGMinerAPI
-from API.btminer import BTMinerAPI
-from API.unknown import UnknownAPI
-import ipaddress
 import asyncssh
 import logging
 
 
 class BaseMiner:
-    def __init__(
-        self,
-        ip: str,
-        api: BMMinerAPI or BOSMinerAPI or CGMinerAPI or BTMinerAPI or UnknownAPI,
-    ) -> None:
-        self.ip = ipaddress.ip_address(ip)
+    def __init__(self, *args) -> None:
+        self.ip = None
         self.uname = "root"
         self.pwd = "admin"
-        self.api = api
+        self.api = None
         self.api_type = None
         self.model = None
         self.light = None
         self.hostname = None
         self.nominal_chips = 1
+
+    def __repr__(self):
+        return f"{'' if not self.api_type else self.api_type} {'' if not self.model else self.model}: {str(self.ip)}"
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""

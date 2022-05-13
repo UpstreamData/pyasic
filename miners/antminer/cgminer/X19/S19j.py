@@ -1,12 +1,8 @@
-from miners.cgminer import CGMiner
+from miners._backends import CGMiner
+from miners._types import S19j
 
 
-class CGMinerS19j(CGMiner):
+class CGMinerS19j(CGMiner, S19j):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.api_type = "CGMiner"
-        self.model = "S19j"
-        self.nominal_chips = 114
-
-    def __repr__(self) -> str:
-        return f"CGMinerS19j: {str(self.ip)}"
+        self.ip = ip

@@ -1,12 +1,8 @@
-from miners.bosminer import BOSMiner
+from miners._backends import BOSMiner
+from miners._types import T17e
 
 
-class BOSMinerT17e(BOSMiner):
+class BOSMinerT17e(BOSMiner, T17e):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.api_type = "BOSMiner"
-        self.model = "T17e"
-        self.nominal_chips = 65
-
-    def __repr__(self) -> str:
-        return f"BOSMinerT17e: {str(self.ip)}"
+        self.ip = ip

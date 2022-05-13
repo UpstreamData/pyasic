@@ -8,17 +8,11 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
-        api = BOSMinerAPI(ip)
-        super().__init__(ip, api)
-        self.model = None
-        self.config = None
-        self.version = None
+        super().__init__(ip)
+        self.api = BOSMinerAPI(ip)
+        self.api_type = "BOSMiner"
         self.uname = "root"
         self.pwd = "admin"
-        self.nominal_chips = 63
-
-    def __repr__(self) -> str:
-        return f"BOSminer: {str(self.ip)}"
 
     async def send_ssh_command(self, cmd: str) -> str or None:
         """Send a command to the miner over ssh.

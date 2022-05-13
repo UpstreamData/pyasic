@@ -1,9 +1,8 @@
-from miners.btminer import BTMiner
+from miners._backends import BTMiner
+from miners._types import M30SPlusPlus
 
 
-class BTMinerM30SPlusPlus(BTMiner):
+class BTMinerM30SPlusPlus(BTMiner, M30SPlusPlus):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-
-    def __repr__(self) -> str:
-        return f"M30S++ - BTMiner: {str(self.ip)}"
+        self.ip = ip

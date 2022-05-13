@@ -1,10 +1,8 @@
-from miners.btminer import BTMiner
+from miners._backends import BTMiner
+from miners._types import M21
 
 
-class BTMinerM21(BTMiner):
+class BTMinerM21(BTMiner, M21):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.nominal_chips = 105
-
-    def __repr__(self) -> str:
-        return f"M21 - BTMiner: {str(self.ip)}"
+        self.ip = ip

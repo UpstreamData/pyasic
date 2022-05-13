@@ -6,15 +6,11 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 class BMMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
-        api = BMMinerAPI(ip)
-        super().__init__(ip, api)
-        self.model = None
-        self.config = None
+        super().__init__(ip)
+        self.api = BMMinerAPI(ip)
+        self.api_type = "BMMiner"
         self.uname = "root"
         self.pwd = "admin"
-
-    def __repr__(self) -> str:
-        return f"BMMiner: {str(self.ip)}"
 
     async def get_model(self) -> str or None:
         """Get miner model.
