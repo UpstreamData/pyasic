@@ -5,6 +5,7 @@ from miners.avalonminer import *
 from miners._backends.cgminer import CGMiner
 from miners._backends.bmminer import BMMiner
 from miners._backends.bosminer import BOSMiner
+from miners._backends.bosminer import BOSMinerOld
 
 from miners.unknown import UnknownMiner
 
@@ -23,73 +24,74 @@ from settings import (
 MINER_CLASSES = {
     "Antminer S9": {
         "Default": BOSMinerS9,
-        "BOSMiner": BOSMinerS9,
+        "BOSMiner": BOSMinerOld,
+        "BOSMiner+": BOSMinerS9,
         "BMMiner": BMMinerS9,
         "CGMiner": CGMinerS9,
     },
     "Antminer S17": {
         "Default": BMMinerS17,
-        "BOSMiner": BOSMinerS17,
+        "BOSMiner+": BOSMinerS17,
         "BMMiner": BMMinerS17,
         "CGMiner": CGMinerS17,
     },
     "Antminer S17+": {
         "Default": BMMinerS17Plus,
-        "BOSMiner": BOSMinerS17Plus,
+        "BOSMiner+": BOSMinerS17Plus,
         "BMMiner": BMMinerS17Plus,
         "CGMiner": CGMinerS17Plus,
     },
     "Antminer S17 Pro": {
         "Default": BMMinerS17Pro,
-        "BOSMiner": BOSMinerS17Pro,
+        "BOSMiner+": BOSMinerS17Pro,
         "BMMiner": BMMinerS17Pro,
         "CGMiner": CGMinerS17Pro,
     },
     "Antminer S17e": {
         "Default": BMMinerS17e,
-        "BOSMiner": BOSMinerS17e,
+        "BOSMiner+": BOSMinerS17e,
         "BMMiner": BMMinerS17e,
         "CGMiner": CGMinerS17e,
     },
     "Antminer T17": {
         "Default": BMMinerT17,
-        "BOSMiner": BOSMinerT17,
+        "BOSMiner+": BOSMinerT17,
         "BMMiner": BMMinerT17,
         "CGMiner": CGMinerT17,
     },
     "Antminer T17+": {
         "Default": BMMinerT17Plus,
-        "BOSMiner": BOSMinerT17Plus,
+        "BOSMiner+": BOSMinerT17Plus,
         "BMMiner": BMMinerT17Plus,
         "CGMiner": CGMinerT17Plus,
     },
     "Antminer T17e": {
         "Default": BMMinerT17e,
-        "BOSMiner": BOSMinerT17e,
+        "BOSMiner+": BOSMinerT17e,
         "BMMiner": BMMinerT17e,
         "CGMiner": CGMinerT17e,
     },
     "Antminer S19": {
         "Default": BMMinerS19,
-        "BOSMiner": BOSMinerS19,
+        "BOSMiner+": BOSMinerS19,
         "BMMiner": BMMinerS19,
         "CGMiner": CGMinerS19,
     },
     "Antminer S19 Pro": {
         "Default": BMMinerS19Pro,
-        "BOSMiner": BOSMinerS19Pro,
+        "BOSMiner+": BOSMinerS19Pro,
         "BMMiner": BMMinerS19Pro,
         "CGMiner": CGMinerS19Pro,
     },
     "Antminer S19j": {
         "Default": BMMinerS19j,
-        "BOSMiner": BOSMinerS19j,
+        "BOSMiner+": BOSMinerS19j,
         "BMMiner": BMMinerS19j,
         "CGMiner": CGMinerS19j,
     },
     "Antminer S19j Pro": {
         "Default": BMMinerS19jPro,
-        "BOSMiner": BOSMinerS19jPro,
+        "BOSMiner+": BOSMinerS19jPro,
         "BMMiner": BMMinerS19jPro,
         "CGMiner": CGMinerS19jPro,
     },
@@ -99,7 +101,7 @@ MINER_CLASSES = {
     },
     "Antminer T19": {
         "Default": BMMinerT19,
-        "BOSMiner": BOSMinerT19,
+        "BOSMiner+": BOSMinerT19,
         "BMMiner": BMMinerT19,
         "CGMiner": CGMinerT19,
     },
@@ -241,8 +243,10 @@ class MinerFactory(metaclass=Singleton):
 
             # return the miner base class with some API if we found it
             if api:
-                if "BOSMiner" in api:
+                if "BOSMiner+" in api:
                     miner = BOSMiner(str(ip))
+                if "BOSMiner" in api:
+                    miner = BOSMinerOld(str(ip))
                 elif "CGMiner" in api:
                     miner = CGMiner(str(ip))
                 elif "BMMiner" in api:
@@ -320,10 +324,12 @@ class MinerFactory(metaclass=Singleton):
             # check if there are any BOSMiner strings in any of the dict keys
             elif any("BOSminer" in string for string in version["VERSION"][0].keys()):
                 api = "BOSMiner"
+                if "plus" in version["VERSION"][0]["BOSminer"]:
+                    api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-        if version.get("Description") and "whatsminer" in version.get("Description"):
-            api = "BTMiner"
+            if version.get("Description") and "whatsminer" in version.get("Description"):
+                api = "BTMiner"
         if version and not model:
             if (
                 "VERSION" in version.keys()
@@ -335,6 +341,8 @@ class MinerFactory(metaclass=Singleton):
         if model:
             if "V" in model:
                 model = model.split("V")[0]
+            if "Bitmain " in model:
+                model = model.replace("Bitmain ", "")
 
         return model, api
 

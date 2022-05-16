@@ -42,9 +42,9 @@ class BaseMiner:
             except Exception as e:
                 # logging.warning(f"{self} raised an exception: {e}")
                 raise e
-        except OSError:
+        except OSError as e:
             logging.warning(f"Connection refused: {self}")
-            return None
+            raise e
         except Exception as e:
             # logging.warning(f"{self} raised an exception: {e}")
             raise e
