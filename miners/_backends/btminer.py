@@ -8,6 +8,7 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 class BTMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.ip = ip
         self.api = BTMinerAPI(ip)
         self.api_type = "BTMiner"
 
@@ -93,8 +94,15 @@ class BTMiner(BaseMiner):
             "Pool 2 User": "",
         }
 
-        model = await self.get_model()
-        hostname = await self.get_hostname()
+        try:
+            model = await self.get_model()
+            hostname = await self.get_hostname()
+        except APIError:
+            logging.warning(f"Failed to get hostname and model: {self}")
+            model = None
+            data["Model"] = "Whatsminer"
+            hostname = None
+            data["Hostname"] = "Whatsminer"
 
         if model:
             data["Model"] = model
@@ -103,9 +111,12 @@ class BTMiner(BaseMiner):
             data["Hostname"] = hostname
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand("summary", "devs", "pools")
-            if miner_data:
-                break
+            try:
+                miner_data = await self.api.multicommand("summary", "devs", "pools")
+                if miner_data:
+                    break
+            except APIError:
+                pass
 
         if not miner_data:
             return data

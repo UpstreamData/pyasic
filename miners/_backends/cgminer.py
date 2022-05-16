@@ -8,6 +8,7 @@ import logging
 class CGMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.ip = ip
         self.api = CGMinerAPI(ip)
         self.api_type = "CGMiner"
         self.uname = "root"

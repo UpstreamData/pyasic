@@ -10,6 +10,7 @@ import asyncssh
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.ip = ip
         self.api = BOSMinerAPI(ip)
         self.api_type = "BOSMiner"
         self.uname = "root"
@@ -379,7 +380,6 @@ class BOSMinerOld(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
 
-
     async def send_ssh_command(self, cmd: str) -> str or None:
         """Send a command to the miner over ssh.
 
@@ -406,9 +406,6 @@ class BOSMinerOld(BaseMiner):
         # return the result, either command output or None
         return str(result)
 
-
     async def update_to_plus(self):
         result = await self.send_ssh_command("opkg update && opkg install bos_plus")
         return result
-
-

@@ -5,6 +5,7 @@ from miners.avalonminer import *
 from miners._backends.cgminer import CGMiner
 from miners._backends.bmminer import BMMiner
 from miners._backends.bosminer import BOSMiner
+from miners._backends.btminer import BTMiner
 from miners._backends.bosminer import BOSMinerOld
 
 from miners.unknown import UnknownMiner
@@ -245,10 +246,13 @@ class MinerFactory(metaclass=Singleton):
             if api:
                 if "BOSMiner+" in api:
                     miner = BOSMiner(str(ip))
-                if "BOSMiner" in api:
+                elif "BOSMiner" in api:
                     miner = BOSMinerOld(str(ip))
                 elif "CGMiner" in api:
                     miner = CGMiner(str(ip))
+                elif "BTMiner" in api:
+                    miner = BTMiner(str(ip))
+                    print(miner)
                 elif "BMMiner" in api:
                     miner = BMMiner(str(ip))
 
@@ -288,11 +292,15 @@ class MinerFactory(metaclass=Singleton):
                 devdetails = await self._send_api_command(str(ip), "devdetails")
                 validation = await self._validate_command(devdetails)
                 if not validation[0]:
+                    devdetails = None
                     version = await self._send_api_command(str(ip), "version")
-
                     validation = await self._validate_command(version)
                     if not validation[0]:
-                        raise APIError(validation[1])
+                        version = await self._send_api_command(str(ip), "get_version")
+
+                        validation = await self._validate_command(version)
+                        if not validation[0]:
+                            raise APIError(validation[1])
             except APIError as e:
                 logging.warning(f"{ip}: API Command Error: {e}")
                 return None, None
@@ -313,22 +321,29 @@ class MinerFactory(metaclass=Singleton):
                     model = "Antminer S9"
 
         if version:
-            # check if there are any BMMiner strings in any of the dict keys
-            if any("BMMiner" in string for string in version["VERSION"][0].keys()):
-                api = "BMMiner"
+            if "VERSION" in version.keys():
+                # check if there are any BMMiner strings in any of the dict keys
+                if any("BMMiner" in string for string in version["VERSION"][0].keys()):
+                    api = "BMMiner"
 
-            # check if there are any CGMiner strings in any of the dict keys
-            elif any("CGMiner" in string for string in version["VERSION"][0].keys()):
-                api = "CGMiner"
+                # check if there are any CGMiner strings in any of the dict keys
+                elif any(
+                    "CGMiner" in string for string in version["VERSION"][0].keys()
+                ):
+                    api = "CGMiner"
 
-            # check if there are any BOSMiner strings in any of the dict keys
-            elif any("BOSminer" in string for string in version["VERSION"][0].keys()):
-                api = "BOSMiner"
-                if "plus" in version["VERSION"][0]["BOSminer"]:
-                    api = "BOSMiner+"
+                # check if there are any BOSMiner strings in any of the dict keys
+                elif any(
+                    "BOSminer" in string for string in version["VERSION"][0].keys()
+                ):
+                    api = "BOSMiner"
+                    if "plus" in version["VERSION"][0]["BOSminer"]:
+                        api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and "whatsminer" in version.get("Description"):
+            if version.get("Description") and "whatsminer" in version.get(
+                "Description"
+            ):
                 api = "BTMiner"
         if version and not model:
             if (
