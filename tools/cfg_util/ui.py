@@ -97,6 +97,7 @@ async def ui():
     window["cmd_table"].Widget.bind(
         "<Button-1>", lambda x: _tree_header_click_handler(x, window["cmd_table"])
     )
+    window["cmd_table"].Widget.column("#0", width=80, stretch=tk.NO, anchor=tk.CENTER)
 
     while True:
         event, value = window.read(0)

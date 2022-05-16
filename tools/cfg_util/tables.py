@@ -155,9 +155,11 @@ class TableManager(metaclass=Singleton):
         treedata = sg.TreeData()
         for idx, item in enumerate(tables["CMD"]):
             ico = LIGHT
+            status = " Off"
             if self.data[item[0]]["Light"]:
                 ico = FAULT_LIGHT
-            treedata.insert("", idx, "", item, icon=ico)
+                status = " On"
+            treedata.insert("", idx, status, item, icon=ico)
 
         window["cmd_table"].update(treedata)
 
