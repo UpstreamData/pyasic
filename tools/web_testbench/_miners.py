@@ -11,6 +11,7 @@ from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
 from settings import NETWORK_PING_TIMEOUT as PING_TIMEOUT
+import sys
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -18,6 +19,14 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 
 # static states
 (START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE, ERROR) = range(7)
+
+if (
+    sys.version_info[0] == 3
+    and sys.version_info[1] >= 8
+    and sys.platform.startswith("win")
+):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 
 class TestbenchMiner:
@@ -96,7 +105,7 @@ class TestbenchMiner:
             await self.add_to_output("Unknown Miner found, attempting to fix.")
             try:
                 async with (await miner._get_ssh_connection()) as conn:
-                    result = await conn.run("miner factory_reset")
+                    result = await conn.run("opkg update && opkg upgrade firmware")
             except:
                 await self.add_to_output("Fix failed, please manually reset miner.")
                 self.state = ERROR
@@ -325,7 +334,16 @@ class TestbenchMiner:
             # return stats
             return miner_data
         except:
-            return
+            return {
+                "IP": str(self.host),
+                "Light": "show",
+                "Fans": {'fan_0': {'RPM': 0}, 'fan_1': {'RPM': 0}, 'fan_2': {'RPM': 0}, 'fan_3': {'RPM': 0}},
+                "HR": {'board_6': {'HR': 0}, 'board_7': {'HR': 0}, 'board_8': {'HR': 0}},
+                'Temps': {'board_8': {'Board': 0, 'Chip': 0}, 'board_6': {'Chip': 0, 'Board': 0}, 'board_7': {'Chip': 0, 'Board': 0}},
+                "online": self.get_online_time(),
+                "Tuner": {'board_6': {'power_limit': 275, 'real_power': 0, 'status': 'None'}, 'board_7': {'power_limit': 275, 'real_power': 0, 'status': 'None'}, 'board_8': {'power_limit': 275, 'real_power': 0, 'status': 'None'}},
+            }
+
 
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")
