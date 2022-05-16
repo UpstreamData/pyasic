@@ -72,6 +72,15 @@ class BTMiner(BaseMiner):
         logging.debug(f"Found board data for {self}: {boards}")
         return boards
 
+    async def get_mac(self):
+        mac = ""
+        data = await self.api.get_miner_info()
+        if data:
+            if "Msg" in data.keys():
+                if "mac" in data["Msg"].keys():
+                    mac = data["Msg"]["mac"]
+        return str(mac).upper()
+
     async def get_data(self):
         data = {
             "IP": str(self.ip),
