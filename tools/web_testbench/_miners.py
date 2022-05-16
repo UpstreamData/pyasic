@@ -6,7 +6,7 @@ import datetime
 
 from network import ping_miner
 from miners.miner_factory import MinerFactory
-from miners.antminer.S9.bosminer import BOSMinerS9
+from miners.antminer import BOSMinerS9
 from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
@@ -147,7 +147,7 @@ class TestbenchMiner:
             f'{os.path.join(os.path.dirname(__file__), "files", "bos-toolbox", "bos-toolbox.bat")} install {str(self.host)} --no-keep-pools --psu-power-limit 900 --no-nand-backup --feeds-url file:./feeds/',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            stdin=asyncio.subprocess.PIPE
+            stdin=asyncio.subprocess.PIPE,
         )
         # get stdout of the install
         stdout = None
@@ -159,7 +159,9 @@ class TestbenchMiner:
                 break
             except asyncio.exceptions.TimeoutError:
                 if not stdout:
-                    await self.add_to_output("Miner encountered an error when installing, attempting to re-unlock.  If this fails, you may need to factory reset the miner.")
+                    await self.add_to_output(
+                        "Miner encountered an error when installing, attempting to re-unlock.  If this fails, you may need to factory reset the miner."
+                    )
                     self.state = UNLOCK
                     proc.kill()
                     return
@@ -282,7 +284,6 @@ class TestbenchMiner:
                     if f"board_{board}" not in hr_data.keys():
                         hr_data[f"board_{board}"] = {"HR": 0}
 
-
             # parse fan data
             fans_data = {}
             for fan in range(len(fans_raw["FANS"])):
@@ -333,8 +334,21 @@ class TestbenchMiner:
                 await asyncio.wait_for(ping_miner(self.host), PING_TIMEOUT + 3)
                 and self.state == DONE
             ):
-                data = await self.get_web_data()
-                await ConnectionManager().broadcast_json(data)
+                try:
+                    data = await self.get_web_data()
+                except:
+                    data = {
+                        "IP": str(self.host),
+                        "Light": "show",
+                        "online": self.get_online_time(),
+                    }
+                    print(f"Getting data failed: {self.host}")
+
+                try:
+                    await ConnectionManager().broadcast_json(data)
+                except:
+                    print(f"Sending data failed: {self.host}")
+
                 await asyncio.sleep(1)
         except:
             self.state = START
