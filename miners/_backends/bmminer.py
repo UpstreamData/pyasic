@@ -7,6 +7,7 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 class BMMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.ip = ip
         self.api = BMMinerAPI(ip)
         self.api_type = "BMMiner"
         self.uname = "root"
