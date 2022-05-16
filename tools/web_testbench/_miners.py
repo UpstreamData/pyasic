@@ -7,6 +7,7 @@ import datetime
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer import BOSMinerS9
+from miners._backends.bosminer import BOSMinerOld
 from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
@@ -87,6 +88,16 @@ class TestbenchMiner:
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
         await self.add_to_output("Found miner: " + str(miner))
+        if isinstance(miner, BOSMinerOld):
+            await self.add_to_output(
+                f"Miner is running non-plus Braiins OS, attempting upgrade."
+            )
+            result = await miner.update_to_plus()
+            if result:
+                await self.remove_from_cache()
+                self.state = START
+                return
+
         if isinstance(miner, BOSMinerS9):
             try:
                 if await self.get_bos_version() == self.latest_version:
