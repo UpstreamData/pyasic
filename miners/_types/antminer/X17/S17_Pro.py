@@ -6,4 +6,4 @@ class S17Pro(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "S17 Pro"
-        self.nominal_chips = 65
+        self.nominal_chips = 48

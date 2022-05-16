@@ -6,3 +6,4 @@ class M30SPlus(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "M30S+"
+        self.nominal_chips = 156

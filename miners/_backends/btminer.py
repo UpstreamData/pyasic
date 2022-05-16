@@ -140,9 +140,13 @@ class BTMiner(BaseMiner):
             if boards:
                 if len(boards) > 0:
                     board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
-                    offset = boards[0]["ID"]
+                    if "ID" in boards[0].keys():
+                        id_key = "ID"
+                    else:
+                        id_key = "ASC"
+                    offset = boards[0][id_key]
                     for board in boards:
-                        id = board["ID"] - offset
+                        id = board[id_key] - offset
                         chips = board["Effective Chips"]
                         data["Total"] += chips
                         data[board_map[id]] = chips
