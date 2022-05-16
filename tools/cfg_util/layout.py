@@ -264,6 +264,7 @@ def get_scan_layout():
                 sbar_relief=SCROLLBAR_RELIEF,
                 size=(TABLE_TOTAL_WIDTH, TABLE_HEIGHT),
                 expand_x=True,
+                expand_y=True,
                 enable_click_events=True,
                 pad=TABLE_PAD,
             )
@@ -337,6 +338,7 @@ def get_boards_layout():
                 sbar_relief=SCROLLBAR_RELIEF,
                 size=(TABLE_TOTAL_WIDTH, TABLE_HEIGHT),
                 expand_x=True,
+                expand_y=True,
                 enable_click_events=True,
                 pad=TABLE_PAD,
             )
@@ -491,6 +493,7 @@ def get_pools_layout():
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
                                         expand_x=True,
+                                        expand_y=True,
                                         enable_click_events=True,
                                         pad=POOLS_TABLE_PAD,
                                     )
@@ -530,6 +533,7 @@ def get_pools_layout():
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
                                         expand_x=True,
+                                        expand_y=True,
                                         enable_click_events=True,
                                         pad=POOLS_TABLE_PAD,
                                     )
@@ -568,6 +572,7 @@ def get_pools_layout():
                                         col_widths=col_widths,
                                         size=(0, TABLE_HEIGHT),
                                         expand_x=True,
+                                        expand_y=True,
                                         enable_click_events=True,
                                         pad=POOLS_TABLE_PAD,
                                     )
@@ -585,6 +590,8 @@ def get_pools_layout():
                 border_width=0,
                 tab_border_width=2,
                 pad=TAB_PAD,
+                expand_x=True,
+                expand_y=True,
             )
         ],
     ]
@@ -668,6 +675,7 @@ def get_config_layout():
                 col_widths=CFG_COL_WIDTHS,
                 size=(0, TABLE_HEIGHT),
                 expand_x=True,
+                expand_y=True,
                 enable_click_events=True,
                 pad=TABLE_PAD,
             ),
@@ -681,6 +689,8 @@ def get_config_layout():
                 sbar_width=SCROLLBAR_WIDTH,
                 sbar_arrow_width=SCROLLBAR_ARROW_WIDTH,
                 sbar_relief=SCROLLBAR_RELIEF,
+                expand_y=True,
+                expand_x=True,
             ),
         ],
     ]
@@ -763,8 +773,10 @@ layout = [
             selected_title_color=MAIN_TABS_TEXT_SELECTED,
             border_width=0,
             tab_border_width=2,
+            expand_y=True,
+            expand_x=True,
         ),
     ],
 ]
 
-window = sg.Window("Upstream Config Util", layout, icon=WINDOW_ICON)
+window = sg.Window("Upstream Config Util", layout, icon=WINDOW_ICON, resizable=True)
