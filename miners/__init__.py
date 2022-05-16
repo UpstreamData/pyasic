@@ -83,6 +83,9 @@ class BaseMiner:
     async def send_config(self, *args, **kwargs):
         return None
 
+    async def get_mac(self):
+        return None
+
     async def get_data(self):
         data = {
             "IP": str(self.ip),

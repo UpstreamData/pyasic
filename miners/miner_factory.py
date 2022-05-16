@@ -252,7 +252,6 @@ class MinerFactory(metaclass=Singleton):
                     miner = CGMiner(str(ip))
                 elif "BTMiner" in api:
                     miner = BTMiner(str(ip))
-                    print(miner)
                 elif "BMMiner" in api:
                     miner = BMMiner(str(ip))
 
