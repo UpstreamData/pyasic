@@ -6,4 +6,4 @@ class T17Plus(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "T17+"
-        self.nominal_chips = 65
+        self.nominal_chips = 44

@@ -6,4 +6,4 @@ class T9(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "T9"
-        self.nominal_chips = 1
+        self.nominal_chips = 57

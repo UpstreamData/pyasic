@@ -6,4 +6,4 @@ class S19(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "S19"
-        self.nominal_chips = 114
+        self.nominal_chips = 76

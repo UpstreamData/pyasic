@@ -134,7 +134,6 @@ async def ui():
             _table = "boards_table"
             asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "boards_report_file":
-            print(value["boards_report_file"])
             if not value["boards_report_file"] == "":
                 asyncio.create_task(boards_report(value["boards_report_file"]))
                 window["boards_report_file"].update("")

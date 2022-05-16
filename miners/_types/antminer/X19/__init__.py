@@ -4,4 +4,6 @@ from .S19_Pro import S19Pro
 from .S19j import S19j
 from .S19j_Pro import S19jPro
 
+from .S19a import S19a
+
 from .T19 import T19
