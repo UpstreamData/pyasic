@@ -23,11 +23,15 @@ class _MinerListener:
         new_miner = {"IP": ip, "MAC": mac.upper()}
         MinerListener().new_miner = new_miner
 
+    def connection_lost(self, _):
+        pass
+
 
 class MinerListener(metaclass=Singleton):
     def __init__(self):
         self.found_miners = []
         self.new_miner = None
+        self.stop = False
 
     async def listen(self):
         loop = asyncio.get_running_loop()
@@ -41,12 +45,27 @@ class MinerListener(metaclass=Singleton):
                 yield self.new_miner
                 self.found_miners.append(self.new_miner)
                 self.new_miner = None
+            if self.stop:
+                transport.close()
+                break
             await asyncio.sleep(0)
+
+    async def cancel(self):
+        self.stop = True
 
 
 async def main():
+    await asyncio.gather(run(), cancel())
+
+
+async def run():
     async for miner in MinerListener().listen():
         print(miner)
+
+
+async def cancel():
+    await asyncio.sleep(60)
+    await MinerListener().cancel()
 
 
 if __name__ == "__main__":
