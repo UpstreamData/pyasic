@@ -336,7 +336,11 @@ class MinerFactory(metaclass=Singleton):
                     "BOSminer" in string for string in version["VERSION"][0].keys()
                 ):
                     api = "BOSMiner"
-                    if "plus" in version["VERSION"][0]["BOSminer"]:
+                    if version["VERSION"][0].get("BOSminer"):
+                        if "plus" in version["VERSION"][0]["BOSminer"]:
+                            api = "BOSMiner+"
+
+                    if "BOSminer+" in version["VERSION"][0].keys():
                         api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
