@@ -7,7 +7,7 @@ import datetime
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer import BOSMinerS9
-from miners._backends.bosminer import BOSMinerOld
+from miners._backends.bosminer_old import BOSMinerOld
 from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
@@ -27,7 +27,6 @@ if (
     and sys.platform.startswith("win")
 ):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 
 class TestbenchMiner:
@@ -348,13 +347,29 @@ class TestbenchMiner:
             return {
                 "IP": str(self.host),
                 "Light": "show",
-                "Fans": {'fan_0': {'RPM': 0}, 'fan_1': {'RPM': 0}, 'fan_2': {'RPM': 0}, 'fan_3': {'RPM': 0}},
-                "HR": {'board_6': {'HR': 0}, 'board_7': {'HR': 0}, 'board_8': {'HR': 0}},
-                'Temps': {'board_8': {'Board': 0, 'Chip': 0}, 'board_6': {'Chip': 0, 'Board': 0}, 'board_7': {'Chip': 0, 'Board': 0}},
+                "Fans": {
+                    "fan_0": {"RPM": 0},
+                    "fan_1": {"RPM": 0},
+                    "fan_2": {"RPM": 0},
+                    "fan_3": {"RPM": 0},
+                },
+                "HR": {
+                    "board_6": {"HR": 0},
+                    "board_7": {"HR": 0},
+                    "board_8": {"HR": 0},
+                },
+                "Temps": {
+                    "board_8": {"Board": 0, "Chip": 0},
+                    "board_6": {"Chip": 0, "Board": 0},
+                    "board_7": {"Chip": 0, "Board": 0},
+                },
                 "online": self.get_online_time(),
-                "Tuner": {'board_6': {'power_limit': 275, 'real_power': 0, 'status': 'None'}, 'board_7': {'power_limit': 275, 'real_power': 0, 'status': 'None'}, 'board_8': {'power_limit': 275, 'real_power': 0, 'status': 'None'}},
+                "Tuner": {
+                    "board_6": {"power_limit": 275, "real_power": 0, "status": "None"},
+                    "board_7": {"power_limit": 275, "real_power": 0, "status": "None"},
+                    "board_8": {"power_limit": 275, "real_power": 0, "status": "None"},
+                },
             }
-
 
     async def install_done(self):
         await self.add_to_output("Waiting for disconnect...")

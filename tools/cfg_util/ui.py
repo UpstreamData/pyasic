@@ -80,7 +80,7 @@ def bind_ctrl_a(key):
 
 
 async def ui():
-    window.read(0)
+    window.read(1)
     TableManager().update_tables()
 
     for key in [*TABLE_KEYS["table"], *TABLE_KEYS["tree"]]:
