@@ -111,7 +111,7 @@ if __name__ == '__main__':
 Now that you know that, lets move on to some common API functions that you might want to use.
 
 ### Common commands:
-* Get the data used by the config utility:
+* Get the data used by the config utility, this includes pool data, wattage use, temperature, hashrate, etc:
 
 ```python
 import asyncio
