@@ -6,7 +6,7 @@ from miners._backends.cgminer import CGMiner
 from miners._backends.bmminer import BMMiner
 from miners._backends.bosminer import BOSMiner
 from miners._backends.btminer import BTMiner
-from miners._backends.bosminer import BOSMinerOld
+from miners._backends.bosminer_old import BOSMinerOld
 
 from miners.unknown import UnknownMiner
 
