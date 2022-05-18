@@ -247,7 +247,7 @@ class BOSMiner(BaseMiner):
             "Model": "Unknown",
             "Hostname": "Unknown",
             "Hashrate": 0,
-            "Temperature": 0,
+            "Temp": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
             "Total": 0,
@@ -298,9 +298,9 @@ class BOSMiner(BaseMiner):
             temp = temps.get("TEMPS")
             if temp:
                 if len(temp) > 0:
-                    temp = temp[0].get("Chip")
-                    if temp:
-                        data["Temperature"] = round(temp)
+                    chip_temp = temp[0].get("Chip")
+                    if chip_temp:
+                        data["Temp"] = round(chip_temp)
 
         if pools:
             pool_1 = None

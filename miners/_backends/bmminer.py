@@ -128,7 +128,7 @@ class BMMiner(BaseMiner):
             "Model": "Unknown",
             "Hostname": "Unknown",
             "Hashrate": 0,
-            "Temperature": 0,
+            "Temp": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
             "Total": 0,
@@ -193,7 +193,7 @@ class BMMiner(BaseMiner):
                     for item in ["temp2", "temp1", "temp3"]:
                         temperature = temp[1].get(item)
                         if temperature and not temperature == 0.0:
-                            data["Temperature"] = round(temperature)
+                            data["Temp"] = round(temperature)
 
         if pools:
             pool_1 = None
