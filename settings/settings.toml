@@ -1,6 +1,6 @@
-get_version_retries = 3
-ping_retries = 3
-ping_timeout = 5 # Seconds
+get_version_retries = 2
+ping_retries = 2
+ping_timeout = 3 # Seconds
 scan_threads = 300
 config_threads = 300
 reboot_threads = 300

@@ -69,11 +69,11 @@ class TableManager(metaclass=Singleton):
         if not data or data == {} or not data.get("IP"):
             return
 
-        if not data.get("Light"):
-            data["Light"] = False
-
         if not data["IP"] in self.data.keys():
             self.data[data["IP"]] = {}
+
+        if not data.get("Light") and not self.data[data["IP"]].get("Light"):
+            data["Light"] = False
 
         for key in data.keys():
             self.data[data["IP"]][key] = data[key]

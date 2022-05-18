@@ -54,6 +54,7 @@ async def _scan_miners(network: MinerNetwork):
 
     #  asynchronously get each miner scanned by the generator
     miners = []
+    data_tasks = []
     async for miner in scan_generator:
         # if the generator yields a miner, add it to our list
         if miner:
@@ -62,17 +63,24 @@ async def _scan_miners(network: MinerNetwork):
             # sort the list of miners by IP
             miners.sort()
 
+            # generate default data for the table manager
             _data = {}
             for key in DEFAULT_DATA:
                 _data[key] = ""
             _data["IP"] = str(miner.ip)
             TableManager().update_item(_data)
 
-            asyncio.create_task(_get_miner_data(miner))
+            # create a task to get data, and save it to ensure it finishes
+            data_tasks.append(asyncio.create_task(_get_miner_data(miner)))
 
+        # update progress bar to indicate scanned miners
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
 
+    # make sure all getting data has finished
+    await asyncio.gather(*data_tasks)
+
+    # finish updating progress bar
     progress_bar_len += network_size - len(miners)
     await update_prog_bar(progress_bar_len)
 
