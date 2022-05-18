@@ -3,12 +3,13 @@ from miners import BaseMiner
 from API import APIError
 import logging
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+import ipaddress
 
 
 class BTMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
         self.api = BTMinerAPI(ip)
         self.api_type = "BTMiner"
 

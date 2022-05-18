@@ -1,3 +1,5 @@
+import ipaddress
+
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
 import toml
@@ -9,7 +11,7 @@ from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
         self.api = BOSMinerAPI(ip)
         self.api_type = "BOSMiner"
         self.uname = "root"

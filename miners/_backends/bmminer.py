@@ -2,12 +2,13 @@ from API.bmminer import BMMinerAPI
 from miners import BaseMiner
 import logging
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+import ipaddress
 
 
 class BMMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
         self.api = BMMinerAPI(ip)
         self.api_type = "BMMiner"
         self.uname = "root"

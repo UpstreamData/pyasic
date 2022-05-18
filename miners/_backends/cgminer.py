@@ -3,12 +3,13 @@ from API.cgminer import CGMinerAPI
 from API import APIError
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 import logging
+import ipaddress
 
 
 class CGMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
         self.api = CGMinerAPI(ip)
         self.api_type = "CGMiner"
         self.uname = "root"

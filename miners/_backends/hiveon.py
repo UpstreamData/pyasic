@@ -1,10 +1,11 @@
 from miners._backends import BMMiner
+import ipaddress
 
 
 class Hiveon(BMMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.ip = ip
+        self.ip = ipaddress.ip_address(ip)
         self.api_type = "Hiveon"
         self.uname = "root"
         self.pwd = "admin"
