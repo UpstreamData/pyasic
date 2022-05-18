@@ -1,5 +1,6 @@
 import asyncssh
 import logging
+import ipaddress
 
 
 class BaseMiner:
@@ -17,6 +18,15 @@ class BaseMiner:
 
     def __repr__(self):
         return f"{'' if not self.api_type else self.api_type} {'' if not self.model else self.model}: {str(self.ip)}"
+
+    def __lt__(self, other):
+        return ipaddress.ip_address(self.ip) < ipaddress.ip_address(other.ip)
+
+    def __gt__(self, other):
+        return ipaddress.ip_address(self.ip) > ipaddress.ip_address(other.ip)
+
+    def __eq__(self, other):
+        return ipaddress.ip_address(self.ip) == ipaddress.ip_address(other.ip)
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""

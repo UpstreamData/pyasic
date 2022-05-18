@@ -66,7 +66,7 @@ class MinerNetwork:
 
         # create a list of tasks and miner IPs
         scan_tasks = []
-        miner_ips = []
+        miners = []
 
         # for each IP in the network
         for host in local_network.hosts():
@@ -74,32 +74,21 @@ class MinerNetwork:
             # make sure we don't exceed the allowed async tasks
             if len(scan_tasks) < SCAN_THREADS:
                 # add the task to the list
-                scan_tasks.append(self.ping_miner(host))
+                scan_tasks.append(self.ping_and_get_miner(host))
             else:
                 # run the scan tasks
-                miner_ips_scan = await asyncio.gather(*scan_tasks)
+                miners_scan = await asyncio.gather(*scan_tasks)
                 # add scanned miners to the list of found miners
-                miner_ips.extend(miner_ips_scan)
+                miners.extend(miners_scan)
                 # empty the task list
                 scan_tasks = []
         # do a final scan to empty out the list
-        miner_ips_scan = await asyncio.gather(*scan_tasks)
-        miner_ips.extend(miner_ips_scan)
+        miners_scan = await asyncio.gather(*scan_tasks)
+        miners.extend(miners_scan)
 
         # remove all None from the miner list
-        miner_ips = list(filter(None, miner_ips))
-        print(f"Found {len(miner_ips)} connected miners...")
-
-        # create a list of tasks to get miners
-        create_miners_tasks = []
-
-        # try to get each miner found
-        for miner_ip in miner_ips:
-            # append to the list of tasks
-            create_miners_tasks.append(MinerFactory().get_miner(miner_ip))
-
-        # get all miners in the list
-        miners = await asyncio.gather(*create_miners_tasks)
+        miners = list(filter(None, miners))
+        print(f"Found {len(miners)} connected miners...")
 
         # return the miner objects
         return miners

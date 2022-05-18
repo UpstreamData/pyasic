@@ -36,52 +36,54 @@ async def btn_scan(scan_ip: str):
 
 @disable_buttons("Scanning")
 async def _scan_miners(network: MinerNetwork):
+    """Scan the given network for miners, get data, and fill in the table."""
+    # clear the tables on the config tool to prepare for new miners
     clear_tables()
-    scan_generator = network.scan_network_generator()
+
+    # clear miner factory cache to make sure we are getting correct miners
     MinerFactory().clear_cached_miners()
 
+    # create async generator to scan network for miners
+    scan_generator = network.scan_network_generator()
+
+    # set progress bar length to 2x network size and reset it to 0
     global progress_bar_len
     progress_bar_len = 0
-
     network_size = len(network)
-    await update_prog_bar(progress_bar_len, _max=(3 * network_size))
+    await update_prog_bar(progress_bar_len, _max=(2 * network_size))
 
-    scanned_miners = []
+    #  asynchronously get each miner scanned by the generator
+    miners = []
     async for miner in scan_generator:
+        # if the generator yields a miner, add it to our list
         if miner:
-            scanned_miners.append(miner)
+            miners.append(miner)
+
+            # sort the list of miners by IP
+            miners.sort()
+
+            _data = {}
+            for key in DEFAULT_DATA:
+                _data[key] = ""
+            _data["IP"] = str(miner.ip)
+            TableManager().update_item(_data)
+
+            asyncio.create_task(_get_miner_data(miner))
+
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
 
-    progress_bar_len += network_size - len(scanned_miners)
+    progress_bar_len += network_size - len(miners)
     await update_prog_bar(progress_bar_len)
 
-    get_miner_genenerator = MinerFactory().get_miner_generator(scanned_miners)
 
-    resolved_miners = []
-    async for found_miner in get_miner_genenerator:
-        resolved_miners.append(found_miner)
-        resolved_miners.sort(key=lambda x: x.ip)
-        _data = {}
-        for key in DEFAULT_DATA:
-            _data[key] = ""
-        _data["IP"] = str(found_miner.ip)
-        TableManager().update_item(_data)
-        progress_bar_len += 1
-        await update_prog_bar(progress_bar_len)
-    progress_bar_len += network_size - len(resolved_miners)
-    await update_prog_bar(progress_bar_len)
-    await _get_miners_data(resolved_miners)
-
-
-async def _get_miners_data(miners: list):
+async def _get_miner_data(miner):
     global progress_bar_len
-    data_generator = asyncio.as_completed([_get_data(miner) for miner in miners])
-    for all_data in data_generator:
-        data = await all_data
-        TableManager().update_item(data)
-        progress_bar_len += 1
-        await update_prog_bar(progress_bar_len)
+
+    TableManager().update_item(await _get_data(miner))
+
+    progress_bar_len += 1
+    await update_prog_bar(progress_bar_len)
 
 
 async def _get_data(miner):
