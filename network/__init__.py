@@ -133,7 +133,7 @@ class MinerNetwork:
                     yield await miner
 
             # add the ping to the list of tasks if we dont scan
-            scan_tasks.append(loop.create_task(self.ping_miner(host)))
+            scan_tasks.append(loop.create_task(self.ping_and_get_miner(host)))
 
         # do one last scan at the end to close out the list
         scanned = asyncio.as_completed(scan_tasks)
@@ -143,6 +143,12 @@ class MinerNetwork:
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
         return await ping_miner(ip)
+
+    @staticmethod
+    async def ping_and_get_miner(
+        ip: ipaddress.ip_address,
+    ) -> None or ipaddress.ip_address:
+        return await ping_and_get_miner(ip)
 
 
 async def ping_miner(
@@ -161,6 +167,35 @@ async def ping_miner(
             await writer.wait_closed()
             # ping was successful
             return ip
+        except asyncio.exceptions.TimeoutError:
+            # ping failed if we time out
+            continue
+        except ConnectionRefusedError:
+            # handle for other connection errors
+            logging.debug(f"{str(ip)}: Connection Refused.")
+        # ping failed, likely with an exception
+        except Exception as e:
+            logging.warning(f"{str(ip)}: {e}")
+        continue
+    return
+
+
+async def ping_and_get_miner(
+    ip: ipaddress.ip_address, port=4028
+) -> None or ipaddress.ip_address:
+    for i in range(PING_RETRIES):
+        connection_fut = asyncio.open_connection(str(ip), port)
+        try:
+            # get the read and write streams from the connection
+            reader, writer = await asyncio.wait_for(
+                connection_fut, timeout=PING_TIMEOUT
+            )
+            # immediately close connection, we know connection happened
+            writer.close()
+            # make sure the writer is closed
+            await writer.wait_closed()
+            # ping was successful
+            return await MinerFactory().get_miner(ip)
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
