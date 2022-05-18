@@ -88,7 +88,7 @@ class BTMiner(BaseMiner):
             "Model": "Unknown",
             "Hostname": "Unknown",
             "Hashrate": 0,
-            "Temperature": 0,
+            "Temp": 0,
             "Pool User": "Unknown",
             "Wattage": 0,
             "Total": 0,
@@ -153,7 +153,7 @@ class BTMiner(BaseMiner):
                 for board in temp_data:
                     temp = board.get("Chip Temp Avg")
                     if temp and not temp == 0.0:
-                        data["Temperature"] = round(temp)
+                        data["Temp"] = round(temp)
                         break
 
         if devs:
