@@ -8,7 +8,7 @@ class MinerNetworkRange:
         Takes a string formatted as
         {ip_range_1_start}-{ip_range_1_end}, {ip_range_2_start}-{ip_range_2_end}
         Also takes a list of strings formatted as
-        [{ip1}. {ip2}, {ip3}, ...]
+        [{ip1}, {ip2}, {ip3}, ...]
 
     """
 
@@ -29,7 +29,7 @@ class MinerNetworkRange:
                     if network.broadcast_address not in self.host_ips:
                         self.host_ips.append(network.broadcast_address)
         elif isinstance(ip_range, list):
-            self.host_ips = ip_range
+            self.host_ips = [ipaddress.ip_address(ip_str) for ip_str in ip_range]
 
     def hosts(self):
         for x in self.host_ips:
