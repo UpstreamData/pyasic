@@ -4,6 +4,7 @@ from base64 import b64decode
 from io import BytesIO
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, inch
@@ -177,7 +178,9 @@ def create_boards_pie_chart(data):
     cmap = plt.get_cmap("Blues")
     cs = cmap(np.linspace(0.2, 0.8, num=len(num_bad_boards)))
 
-    fig1, ax = plt.subplots()
+    # fig, ax = plt.subplots() -> causes window resizing...
+    fig = Figure()
+    ax = fig.add_subplot()
     ax.pie(
         num_bad_boards,
         labels=labels,
@@ -191,13 +194,12 @@ def create_boards_pie_chart(data):
     ax.set_title("Broken Boards", fontsize=24, pad=20)
 
     imgdata = BytesIO()
-    fig1.savefig(imgdata, format="svg")
+    fig.savefig(imgdata, format="svg")
     imgdata.seek(0)  # rewind the data
     drawing = svg2rlg(imgdata)
     imgdata.close()
     plt.close("all")
     pie_chart = KeepInFrame(375, 375, [Image(drawing)], hAlign="CENTER")
-
     table_data = [labels, num_bad_boards]
 
     t = Table(table_data)
