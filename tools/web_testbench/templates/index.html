@@ -8,6 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        .btn-success:disabled {
+            background-color: rgba(103, 221, 0, 1);
+            border-color: rgba(103, 221, 0, 1);
+            color: #000000;
+        }
+    </style>
 </head>
 <body class="bg-dark">
     <nav class="navbar fixed-top m-0 p-0">
@@ -24,7 +31,6 @@
             <div id="chart_container" class="row row-cols-1 row-cols-sm-2 row-cols-md-4" style="height:1500px;"></div>
         </div>
     </div>
-
 <script>
     var options_hr = {
     animation: {
@@ -373,9 +379,9 @@ ws.onmessage = function(event) {
 
         // update hr graph data and call the Update method
         var hr_data = []
-        hr_data.push({label: "Board 6", data: [data["HR"]["board_6"]["HR"]], backgroundColor: ["rgba(0, 19, 97, 1)"]});
-        hr_data.push({label: "Board 7", data: [data["HR"]["board_7"]["HR"]], backgroundColor: ["rgba(0, 84, 219, 1)"]});
-        hr_data.push({label: "Board 8", data: [data["HR"]["board_8"]["HR"]], backgroundColor: ["rgba(36, 180, 224, 1)"]});
+        hr_data.push({label: "Board 6", data: [data["HR"]["board_6"]["HR"]], backgroundColor: ["#BCD9EA"]});
+        hr_data.push({label: "Board 7", data: [data["HR"]["board_7"]["HR"]], backgroundColor: ["#5BA4CF"]});
+        hr_data.push({label: "Board 8", data: [data["HR"]["board_8"]["HR"]], backgroundColor: ["#0079bf"]});
         hr_graph.data.datasets = hr_data;
         hr_graph.update();
 
