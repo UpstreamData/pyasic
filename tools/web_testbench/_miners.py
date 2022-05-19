@@ -330,7 +330,6 @@ class TestbenchMiner:
                 )
 
             if len(hr_data.keys()) < 3:
-                print(devs_raw["DEVS"])
                 for board in [6, 7, 8]:
                     if f"board_{board}" not in hr_data.keys():
                         hr_data[f"board_{board}"] = {"HR": 0}
