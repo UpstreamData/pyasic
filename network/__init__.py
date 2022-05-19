@@ -34,6 +34,8 @@ class MinerNetwork:
 
         if "-" in self.ip_addr:
             self.network = MinerNetworkRange(self.ip_addr)
+        elif isinstance(self.ip_addr, list):
+            self.network = MinerNetworkRange(self.ip_addr)
         else:
             # if there is no IP address passed, default to 192.168.1.0
             if not self.ip_addr:
