@@ -29,6 +29,32 @@ if (
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Miners(metaclass=Singleton):
+    def __init__(self):
+        self.miners = []
+
+    def get_count(self):
+        return len(self.miners)
+
+    def __add__(self, other):
+        if other not in self.miners:
+            self.miners.append(other)
+
+    def __sub__(self, other):
+        if other in self.miners:
+            self.miners.remove(other)
+
+
+
 class TestbenchMiner:
     def __init__(self, host: ip_address):
         self.host = host
@@ -76,14 +102,20 @@ class TestbenchMiner:
         try:
             if not await ping_miner(self.host, 80):
                 await self.add_to_output("Waiting for miner connection...")
+                miners = Miners()
+                miners -= self.host
                 return
         except asyncio.exceptions.TimeoutError:
             await self.add_to_output("Waiting for miner connection...")
+            miners = Miners()
+            miners -= self.host
             return
         self.start_time = datetime.datetime.now()
         await ConnectionManager().broadcast_json(
             {"IP": str(self.host), "Light": "hide", "online": self.get_online_time()}
         )
+        miners = Miners()
+        miners += self.host
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
         await self.add_to_output("Found miner: " + str(miner))
@@ -339,6 +371,7 @@ class TestbenchMiner:
                 "Temps": temps_data,
                 "online": self.get_online_time(),
                 "Tuner": tuner_data,
+                "Count": Miners().get_count()
             }
 
             # return stats
@@ -369,6 +402,7 @@ class TestbenchMiner:
                     "board_7": {"power_limit": 275, "real_power": 0, "status": "None"},
                     "board_8": {"power_limit": 275, "real_power": 0, "status": "None"},
                 },
+                "Count": Miners().get_count()
             }
 
     async def install_done(self):
@@ -385,6 +419,7 @@ class TestbenchMiner:
                         "IP": str(self.host),
                         "Light": "show",
                         "online": self.get_online_time(),
+                        "Count": Miners().get_count()
                     }
                     print(f"Getting data failed: {self.host}")
 
@@ -422,6 +457,14 @@ class TestbenchMiner:
                     await self.install_done()
                 if self.state == ERROR:
                     await self.wait_for_disconnect(wait_time=5)
+            except GeneratorExit as E:
+                logging.error(f"{self.host}: {E}")
+                await self.add_to_output(f"Error: {E}")
+            except RuntimeError as E:
+                logging.error(f"{self.host}: {E}")
+                await self.add_to_output(f"Error: {E}")
+                asyncio.create_task(self.install_loop())
+                return
             except Exception as E:
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")

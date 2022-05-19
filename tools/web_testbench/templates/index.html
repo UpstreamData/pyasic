@@ -9,8 +9,15 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
-<body>
-    <div class="py-2">
+<body class="bg-dark">
+    <div class="container d-flex justify-content-center mb-0 px-0">
+        <div class="row w-100 border border-dark p-3 row bg-dark">
+            <div class="col d-flex justify-content-center">
+                <h3 class="text-white" id="miner_count">Miners Online: ??</h3>
+            </div>
+        </div>
+    </div>
+    <div class="py-2 mt-0 pt-0">
         <div class="container">
             <div id="chart_container" class="row row-cols-1 row-cols-sm-2 row-cols-md-4" style="height:1500px;"></div>
         </div>
@@ -29,8 +36,9 @@
         }
     },
     scales: {
+        x: {ticks: { color: "white" }},
         y: {
-            ticks: { stepSize: .6 },
+            ticks: { stepSize: .6, color: "white" },
             min: 0,
             suggestedMax: 3.6,
             grid: {
@@ -59,6 +67,11 @@ var options_temp = {
         }
     },
     aspectRatio: .75,
+    scales: {
+        x: {ticks: { color: "white" }},
+        y: {ticks: { color: "white" }}
+    }
+
 };
 
 var options_fans = {
@@ -89,6 +102,10 @@ function lightMiner(ip, checkbox) {
 };
 ws.onmessage = function(event) {
     var data = JSON.parse(event.data)
+    if (data.hasOwnProperty("Count")) {
+        count = document.getElementById("miner_count")
+        count.innerHTML = "Miners Online: " + data["Count"]
+    }
     if (data.hasOwnProperty("online")) {
         timer = document.getElementById(data["IP"] + "-timer")
         if (data["online"] == "0:00:00") {
@@ -275,6 +292,7 @@ ws.onmessage = function(event) {
             var label_light = document.createElement("label");
             label_light.setAttribute("for", miner["IP"] + "-light");
             label_light.innerHTML = "Light";
+            label_light.classList = "text-light"
 
             // add the button and label to the container
             container_light.append(light_switch)
@@ -313,7 +331,7 @@ ws.onmessage = function(event) {
                             backgroundColor: [
                                 "rgba(103, 0, 221, 1)",
                                 "rgba(199, 199, 199, 1)"
-                            ]
+                            ],
                         },
                     ]
                 },
@@ -374,6 +392,7 @@ ws.onmessage = function(event) {
         var fan_1_rpm = data["Fans"]["fan_0"]["RPM"]
         var fan_1_title = document.getElementById(data["IP"] + "-fan_l");
         fan_1_title.innerHTML = "Fan L: " + fan_1_rpm + " RPM";
+        fan_1_title.classList = "text-light"
         if (fan_1_rpm == 0){
             var secondary_col_1 = "rgba(97, 4, 4, 1)"
         } else {
@@ -387,6 +406,7 @@ ws.onmessage = function(event) {
         var fan_2_rpm = data["Fans"]["fan_1"]["RPM"]
         var fan_2_title = document.getElementById(data["IP"] + "-fan_r");
         fan_2_title.innerHTML = "Fan R: " + fan_2_rpm + " RPM";
+        fan_2_title.classList = "text-light"
         if (fan_2_rpm == 0){
             var secondary_col_2 = "rgba(97, 4, 4, 1)"
         } else {
