@@ -1,9 +1,14 @@
-from miners import BaseMiner
-from API.cgminer import CGMinerAPI
-from API import APIError
-from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
-import logging
 import ipaddress
+import logging
+
+
+from API.cgminer import CGMinerAPI
+from miners import BaseMiner
+from API import APIError
+
+from data import MinerData
+
+from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class CGMiner(BaseMiner):
@@ -103,29 +108,16 @@ class CGMiner(BaseMiner):
             print(str(self.config))
 
     async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temp": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Split": 0,
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         model = await self.get_model()
         hostname = await self.get_hostname()
 
         if model:
-            data["Model"] = model
+            data.model = model
 
         if hostname:
-            data["Hostname"] = hostname
+            data.hostname = hostname
         miner_data = None
         for i in range(DATA_RETRIES):
             miner_data = await self.api.multicommand("summary", "pools", "stats")
@@ -145,7 +137,7 @@ class CGMiner(BaseMiner):
                 if len(hr) > 0:
                     hr = hr[0].get("GHS av")
                     if hr:
-                        data["Hashrate"] = round(hr / 1000, 2)
+                        data.hashrate = round(hr / 1000, 2)
 
         if stats:
             temp = stats.get("STATS")
@@ -154,7 +146,7 @@ class CGMiner(BaseMiner):
                     for item in ["temp2", "temp1", "temp3"]:
                         temperature = temp[1].get(item)
                         if temperature and not temperature == 0.0:
-                            data["Temp"] = round(temperature)
+                            data.temperature = round(temperature)
 
         if pools:
             pool_1 = None
@@ -186,23 +178,22 @@ class CGMiner(BaseMiner):
                     pool_1.replace("stratum+tcp://", "")
                 if pool_1.startswith("stratum2+tcp://"):
                     pool_1.replace("stratum2+tcp://", "")
-                data["Pool 1"] = pool_1
+                data.pool_1_url = pool_1
 
             if pool_1_user:
-                data["Pool 1 User"] = pool_1_user
-                data["Pool User"] = pool_1_user
+                data.pool_1_user = pool_1_user
 
             if pool_2:
                 if pool_2.startswith("stratum+tcp://"):
                     pool_2.replace("stratum+tcp://", "")
                 if pool_2.startswith("stratum2+tcp://"):
                     pool_2.replace("stratum2+tcp://", "")
-                data["Pool 2"] = pool_2
+                data.pool_2_url = pool_2
 
             if pool_2_user:
-                data["Pool 2 User"] = pool_2_user
+                data.pool_2_user = pool_2_user
 
             if quota:
-                data["Split"] = str(quota)
+                data.pool_split = str(quota)
 
         return data

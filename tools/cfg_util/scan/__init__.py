@@ -8,6 +8,25 @@ from tools.cfg_util.tables import clear_tables, TableManager
 
 progress_bar_len = 0
 
+DATA_HEADER_MAP = {
+    "ip": "IP",
+    "model": "Model",
+    "hostname": "Hostname",
+    "hashrate": "Hashrate",
+    "temperature": "Temp",
+    "wattage": "Wattage",
+    "ideal_chips": "Ideal",
+    "left_chips": "Left Board",
+    "center_chips": "Center Board",
+    "right_chips": "Right Board",
+    "total_chips": "Total",
+    "nominal": "Nominal",
+    "pool_split": "Split",
+    "pool_1_url": "Pool 1",
+    "pool_1_user": "Pool 1 User",
+    "pool_2_url": "Pool 2",
+    "pool_2_user": "Pool 2 User",
+}
 
 DEFAULT_DATA = set()
 
@@ -95,4 +114,8 @@ async def _get_miner_data(miner):
 
 
 async def _get_data(miner):
-    return await miner.get_data()
+    _data = (await miner.get_data()).asdict()
+    data = {}
+    for item in _data.keys():
+        data[DATA_HEADER_MAP[item]] = _data[item]
+    return data

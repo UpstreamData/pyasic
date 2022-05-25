@@ -1,10 +1,17 @@
 import ipaddress
+import logging
+
+
+import toml
+
 
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
-import toml
+
+from data import MinerData
+
 from config.bos import bos_config_convert, general_config_convert_bos
-import logging
+
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
@@ -241,35 +248,16 @@ class BOSMiner(BaseMiner):
         if not bad > 0:
             return str(self.ip)
 
-    async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temp": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Total": 0,
-            "Ideal": self.nominal_chips * 3,
-            "Left Board": 0,
-            "Center Board": 0,
-            "Right Board": 0,
-            "Nominal": False,
-            "Split": "0",
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
+    async def get_data(self) -> MinerData:
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
         model = await self.get_model()
         hostname = await self.get_hostname()
 
         if model:
-            data["Model"] = model
+            data.model = model
 
         if hostname:
-            data["Hostname"] = hostname
+            data.hostname = hostname
 
         miner_data = None
         for i in range(DATA_RETRIES):
@@ -292,7 +280,7 @@ class BOSMiner(BaseMiner):
                 if len(hr) > 0:
                     hr = hr[0].get("MHS av")
                     if hr:
-                        data["Hashrate"] = round(hr / 1000000, 2)
+                        data.hashrate = round(hr / 1000000, 2)
 
         if temps:
             temp = temps.get("TEMPS")
@@ -300,7 +288,7 @@ class BOSMiner(BaseMiner):
                 if len(temp) > 0:
                     chip_temp = temp[0].get("Chip")
                     if chip_temp:
-                        data["Temp"] = round(chip_temp)
+                        data.temperature = round(chip_temp)
 
         if pools:
             pool_1 = None
@@ -330,22 +318,21 @@ class BOSMiner(BaseMiner):
             if pool_1:
                 pool_1 = pool_1.replace("stratum+tcp://", "")
                 pool_1 = pool_1.replace("stratum2+tcp://", "")
-                data["Pool 1"] = pool_1
+                data.pool_1_url = pool_1
 
             if pool_1_user:
-                data["Pool 1 User"] = pool_1_user
-                data["Pool User"] = pool_1_user
+                data.pool_1_user = pool_1_user
 
             if pool_2:
                 pool_2 = pool_2.replace("stratum+tcp://", "")
                 pool_2 = pool_2.replace("stratum2+tcp://", "")
-                data["Pool 2"] = pool_2
+                data.pool_2_url = pool_2
 
             if pool_2_user:
-                data["Pool 2 User"] = pool_2_user
+                data.pool_2_user = pool_2_user
 
             if quota:
-                data["Split"] = str(quota)
+                data.pool_split = str(quota)
 
         if tunerstatus:
             tuner = tunerstatus.get("TUNERSTATUS")
@@ -353,22 +340,18 @@ class BOSMiner(BaseMiner):
                 if len(tuner) > 0:
                     wattage = tuner[0].get("PowerLimit")
                     if wattage:
-                        data["Wattage"] = wattage
+                        data.wattage = wattage
 
         if devdetails:
             boards = devdetails.get("DEVDETAILS")
             if boards:
                 if len(boards) > 0:
-                    board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
+                    board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
                     offset = boards[0]["ID"]
                     for board in boards:
                         id = board["ID"] - offset
                         chips = board["Chips"]
-                        data["Total"] += chips
-                        data[board_map[id]] = chips
-
-        if data["Total"] == data["Ideal"]:
-            data["Nominal"] = True
+                        setattr(data, board_map[id], chips)
 
         return data
 

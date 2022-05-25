@@ -89,7 +89,7 @@ TABLE_HEADERS = {
         "Hostname",
         "Hashrate",
         "Temp",
-        "Pool User",
+        "Pool 1 User",
         "Wattage",
     ],
     "BOARDS": [
