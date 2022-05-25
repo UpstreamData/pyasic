@@ -6,3 +6,6 @@ class BMMinerS19jPro(BMMiner, S19jPro):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
+
+    async def get_hostname(self) -> str:
+        return "?"
