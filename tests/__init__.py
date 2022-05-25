@@ -1,9 +1,7 @@
-from tests.network_tests import test_network
+import unittest
 
-
-def test_all():
-    test_network()
+from tests.network_tests import NetworkTest
 
 
 if __name__ == "__main__":
-    test_all()
+    unittest.main()
