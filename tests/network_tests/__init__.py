@@ -1,70 +1,59 @@
 import ipaddress
+import unittest
 
 from network.net_range import MinerNetworkRange
 from network import MinerNetwork
 
 
-def test_network():
-    net_range_str = "192.168.1.29, 192.168.1.40-192.168.1.43, 192.168.1.60"
-    net_range_list = [
-        "192.168.1.29",
-        "192.168.1.40",
-        "192.168.1.41",
-        "192.168.1.42",
-        "192.168.1.43",
-        "192.168.1.60",
-    ]
-    miner_net_1 = "192.168.1.0"
-    miner_net_1_mask = 29
+class NetworkTest(unittest.TestCase):
+    def test_net_range(self):
+        net_range_str = "192.168.1.29, 192.168.1.40-192.168.1.43, 192.168.1.60"
+        net_range_list = [
+            "192.168.1.29",
+            "192.168.1.40",
+            "192.168.1.41",
+            "192.168.1.42",
+            "192.168.1.43",
+            "192.168.1.60",
+        ]
 
-    #######################
-    # Network Range Tests #
-    #######################
+        net_1 = list(MinerNetworkRange(net_range_str).hosts())
+        net_2 = list(MinerNetworkRange(net_range_list).hosts())
 
-    net_range_1 = list(MinerNetworkRange(net_range_str).hosts())
+        correct_net = [
+            ipaddress.IPv4Address("192.168.1.29"),
+            ipaddress.IPv4Address("192.168.1.40"),
+            ipaddress.IPv4Address("192.168.1.41"),
+            ipaddress.IPv4Address("192.168.1.42"),
+            ipaddress.IPv4Address("192.168.1.43"),
+            ipaddress.IPv4Address("192.168.1.60"),
+        ]
 
-    net_range_2 = list(MinerNetworkRange(net_range_list).hosts())
+        self.assertTrue(net_1 == correct_net)
+        self.assertTrue(net_2 == correct_net)
 
-    correct_net_range = [
-        ipaddress.IPv4Address("192.168.1.29"),
-        ipaddress.IPv4Address("192.168.1.40"),
-        ipaddress.IPv4Address("192.168.1.41"),
-        ipaddress.IPv4Address("192.168.1.42"),
-        ipaddress.IPv4Address("192.168.1.43"),
-        ipaddress.IPv4Address("192.168.1.60"),
-    ]
+    def test_net(self):
+        net_1_str = "192.168.1.0"
+        net_1_mask = 29
 
-    assert net_range_1 == correct_net_range
-    assert net_range_2 == correct_net_range
+        net_1 = list(MinerNetwork(net_1_str, mask=net_1_mask).get_network().hosts())
 
-    print("Network Range test succeeded.")
+        net_2 = list(
+            MinerNetwork("192.168.1.1-192.168.1.5, 192.168.1.6").get_network().hosts()
+        )
 
-    #######################
-    # Miner Network Tests #
-    #######################
+        correct_net = [
+            ipaddress.IPv4Address("192.168.1.1"),
+            ipaddress.IPv4Address("192.168.1.2"),
+            ipaddress.IPv4Address("192.168.1.3"),
+            ipaddress.IPv4Address("192.168.1.4"),
+            ipaddress.IPv4Address("192.168.1.5"),
+            ipaddress.IPv4Address("192.168.1.6"),
+        ]
 
-    miner_net = list(
-        MinerNetwork(miner_net_1, mask=miner_net_1_mask).get_network().hosts()
-    )
-
-    miner_net_str = list(
-        MinerNetwork("192.168.1.1-192.168.1.5, 192.168.1.6").get_network().hosts()
-    )
-
-    correct_net = [
-        ipaddress.IPv4Address("192.168.1.1"),
-        ipaddress.IPv4Address("192.168.1.2"),
-        ipaddress.IPv4Address("192.168.1.3"),
-        ipaddress.IPv4Address("192.168.1.4"),
-        ipaddress.IPv4Address("192.168.1.5"),
-        ipaddress.IPv4Address("192.168.1.6"),
-    ]
-
-    assert miner_net == correct_net
-    assert miner_net_str == correct_net
-
-    print("Miner Network test succeeded.")
+        self.assertTrue(net_1 == correct_net)
+        self.assertTrue(net_2 == correct_net)
 
 
 if __name__ == "__main__":
-    test_network()
+    unittest.main()
