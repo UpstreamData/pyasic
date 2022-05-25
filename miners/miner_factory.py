@@ -273,22 +273,27 @@ class MinerFactory(metaclass=Singleton):
     async def _get_miner_type(self, ip: ipaddress.ip_address or str) -> tuple:
         model = None
         api = None
+        data = None
 
         devdetails = None
         version = None
 
-        try:
-            data = await self._send_api_command(str(ip), "devdetails+version")
+        for i in range(GET_VERSION_RETRIES):
+            try:
+                data = await self._send_api_command(str(ip), "devdetails+version")
 
-            validation = await self._validate_command(data)
-            if not validation[0]:
-                raise APIError(validation[1])
+                validation = await self._validate_command(data)
+                if not validation[0]:
+                    raise APIError(validation[1])
 
-            devdetails = data["devdetails"][0]
-            version = data["version"][0]
+                devdetails = data["devdetails"][0]
+                version = data["version"][0]
 
-        except APIError as e:
-            data = None
+            except APIError as e:
+                data = None
+
+            if data:
+                break
 
         if not data:
             try:
@@ -307,6 +312,9 @@ class MinerFactory(metaclass=Singleton):
             except APIError as e:
                 logging.warning(f"{ip}: API Command Error: {e}")
                 return None, None
+
+        print(version)
+        print(devdetails)
 
         if devdetails:
             if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
@@ -348,17 +356,20 @@ class MinerFactory(metaclass=Singleton):
                         api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and "whatsminer" in version.get(
-                "Description"
-            ):
+            if version.get("Description") and "whatsminer" in version.get("Description"):
                 api = "BTMiner"
+
         if version and not model:
             if (
                 "VERSION" in version.keys()
                 and version.get("VERSION")
                 and not version.get("VERSION") == []
             ):
-                model = version["VERSION"][0]["Type"]
+                if version["VERSION"][0].get("Type"):
+                    model = version["VERSION"][0]["Type"]
+                elif "am2-s17" in version["STATUS"][0]["Description"]:
+                    model = "Antminer S17"
+
 
         if model:
             if "V" in model:
