@@ -139,6 +139,11 @@ class TableManager(metaclass=Singleton):
                     item[
                         "Hashrate"
                     ] = f"{format(float(item['Hashrate']), '.2f').rjust(6, ' ')} TH/s"
+
+            if "Chip %" in keys:
+                if not isinstance(item["Chip %"], str):
+                    item["Chip %"] = f"{item['Chip %']}%"
+
             for _key in keys:
                 for table in TABLE_HEADERS.keys():
                     for idx, header in enumerate(TABLE_HEADERS[table]):
@@ -181,6 +186,9 @@ class TableManager(metaclass=Singleton):
 
         if self.sort_key == "IP":
             return ipaddress.ip_address(self.data[data_key]["IP"])
+
+        if self.sort_key == "Chip %":
+            return int((self.data[data_key]["Chip %"]).replace("%", ""))
 
         if self.sort_key == "Hashrate":
             if self.data[data_key]["Hashrate"] == "":

@@ -26,6 +26,7 @@ DATA_HEADER_MAP = {
     "pool_1_user": "Pool 1 User",
     "pool_2_url": "Pool 2",
     "pool_2_user": "Pool 2 User",
+    "percent_ideal": "Chip %",
 }
 
 DEFAULT_DATA = set()
@@ -117,5 +118,6 @@ async def _get_data(miner):
     _data = (await miner.get_data()).asdict()
     data = {}
     for item in _data.keys():
-        data[DATA_HEADER_MAP[item]] = _data[item]
+        if item in DATA_HEADER_MAP.keys():
+            data[DATA_HEADER_MAP[item]] = _data[item]
     return data

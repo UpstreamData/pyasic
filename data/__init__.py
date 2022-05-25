@@ -9,11 +9,12 @@ class MinerData:
     hashrate: float = 0
     temperature: float = 0
     wattage: int = 0
-    ideal_chips: int = 0
     left_chips: int = 0
     center_chips: int = 0
     right_chips: int = 0
     total_chips: int = field(init=False)
+    ideal_chips: int = 0
+    percent_ideal: float = field(init=False)
     nominal: int = field(init=False)
     pool_split: str = 0
     pool_1_url: str = "Unknown"
@@ -37,13 +38,17 @@ class MinerData:
     def nominal(self, val):
         pass
 
+    @property
+    def percent_ideal(self):  # noqa - Skip PyCharm inspection
+        return round((self.total_chips / self.ideal_chips) * 100)
+
+    @percent_ideal.setter
+    def percent_ideal(self, val):
+        pass
+
     def __post_init__(self):
         self.total_chips = self.right_chips + self.center_chips + self.left_chips
         self.nominal = self.ideal_chips == self.total_chips
 
     def asdict(self):
         return asdict(self)
-
-
-if __name__ == "__main__":
-    print(MinerData(ip="192.168.1.1").asdict())

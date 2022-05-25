@@ -97,6 +97,7 @@ TABLE_HEADERS = {
         "Model",
         "Ideal",
         "Total",
+        "Chip %",
         "Left Board",
         "Center Board",
         "Right Board",
@@ -176,6 +177,7 @@ WATTAGE_COL_WIDTH = 10
 SPLIT_COL_WIDTH = 8
 TOTAL_CHIP_WIDTH = 9
 IDEAL_CHIP_WIDTH = 9
+CHIP_PERCENT_WIDTH = 10
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -279,6 +281,7 @@ def get_boards_layout():
         MODEL_COL_WIDTH,
         TOTAL_CHIP_WIDTH,
         IDEAL_CHIP_WIDTH,
+        CHIP_PERCENT_WIDTH,
     ]
     add_length = TABLE_TOTAL_WIDTH - sum(BOARDS_COL_WIDTHS)
     for i in range(3):
