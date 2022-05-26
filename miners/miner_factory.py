@@ -1,12 +1,17 @@
+from typing import TypeVar, Iterator, Tuple, List
+
+
+from miners import BaseMiner
+
 from miners.antminer import *
 from miners.whatsminer import *
 from miners.avalonminer import *
 
-from miners._backends.cgminer import CGMiner
-from miners._backends.bmminer import BMMiner
-from miners._backends.bosminer import BOSMiner
-from miners._backends.btminer import BTMiner
-from miners._backends.bosminer_old import BOSMinerOld
+from miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
+from miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
+from miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
+from miners._backends.btminer import BTMiner  # noqa - Ignore _module import
+from miners._backends.bosminer_old import BOSMinerOld  # noqa - Ignore _module import
 
 from miners.unknown import UnknownMiner
 
@@ -21,6 +26,8 @@ from settings import (
     MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES,
     NETWORK_PING_TIMEOUT as PING_TIMEOUT,
 )
+
+AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
 
 MINER_CLASSES = {
     "Antminer S9": {
@@ -170,7 +177,9 @@ class MinerFactory(metaclass=Singleton):
     def __init__(self):
         self.miners = {}
 
-    async def get_miner_generator(self, ips: list):
+    async def get_miner_generator(
+        self, ips: List[ipaddress.ip_address or str]
+    ) -> Iterator[AnyMiner]:
         """
         Get Miner objects from ip addresses using an async generator.
 
@@ -192,7 +201,7 @@ class MinerFactory(metaclass=Singleton):
         for miner in scanned:
             yield await miner
 
-    async def get_miner(self, ip: ipaddress.ip_address or str):
+    async def get_miner(self, ip: ipaddress.ip_address or str) -> AnyMiner:
         """Decide a miner type using the IP address of the miner."""
         if isinstance(ip, str):
             ip = ipaddress.ip_address(ip)
@@ -218,7 +227,7 @@ class MinerFactory(metaclass=Singleton):
                 if new_model and not model:
                     model = new_model
 
-                # if we find the API and model, dont need to loop anymore
+                # if we find the API and model, don't need to loop anymore
                 if api and model:
                     break
             except asyncio.TimeoutError:
@@ -265,15 +274,16 @@ class MinerFactory(metaclass=Singleton):
         # return the miner
         return miner
 
-    def clear_cached_miners(self):
+    def clear_cached_miners(self) -> None:
         """Clear the miner factory cache."""
         # empty out self.miners
         self.miners = {}
 
-    async def _get_miner_type(self, ip: ipaddress.ip_address or str) -> tuple:
+    async def _get_miner_type(
+        self, ip: ipaddress.ip_address or str
+    ) -> Tuple[str or None, str or None]:
         model = None
         api = None
-        data = None
 
         devdetails = None
         version = None
@@ -288,9 +298,8 @@ class MinerFactory(metaclass=Singleton):
             devdetails = data["devdetails"][0]
             version = data["version"][0]
 
-        except APIError as e:
+        except APIError:
             data = None
-
 
         if not data:
             try:
@@ -350,7 +359,9 @@ class MinerFactory(metaclass=Singleton):
                         api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and "whatsminer" in version.get("Description"):
+            if version.get("Description") and "whatsminer" in version.get(
+                "Description"
+            ):
                 api = "BTMiner"
 
         if version and not model:
@@ -364,7 +375,6 @@ class MinerFactory(metaclass=Singleton):
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
                     model = "Antminer S17"
 
-
         if model:
             if "V" in model:
                 model = model.split("V")[0]
@@ -373,7 +383,8 @@ class MinerFactory(metaclass=Singleton):
 
         return model, api
 
-    async def _validate_command(self, data: dict) -> tuple:
+    @staticmethod
+    async def _validate_command(data: dict) -> Tuple[bool, str or None]:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         if not data:
@@ -399,7 +410,8 @@ class MinerFactory(metaclass=Singleton):
                     return False, data["STATUS"][0]["Msg"]
         return True, None
 
-    async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
+    @staticmethod
+    async def _send_api_command(ip: ipaddress.ip_address or str, command: str) -> dict:
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
@@ -439,12 +451,12 @@ class MinerFactory(metaclass=Singleton):
             str_data = str_data.replace(",}", "}")
             # fix an error with a btminer return having a newline that breaks json.loads()
             str_data = str_data.replace("\n", "")
-            # fix an error with a bmminer return not having a specific comma that breaks json.loads()
+            # fix an error with a bmminer return missing a specific comma that breaks json.loads()
             str_data = str_data.replace("}{", "},{")
             # parse the json
             data = json.loads(str_data)
         # handle bad json
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             # raise APIError(f"Decode Error: {data}")
             data = None
 
