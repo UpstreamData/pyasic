@@ -1,5 +1,5 @@
 from typing import TypeVar, Tuple, List
-from collections import AsyncIterable
+from collections.abc import AsyncIterable
 
 
 from miners import BaseMiner
