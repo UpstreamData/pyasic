@@ -47,7 +47,7 @@ def _table_copy(table):
             for item in value:
                 values.append(str(item).strip())
             _copy_values.append(values)
-        except Exception as E:
+        except Exception:
             pass
 
     copy_values = []
@@ -88,7 +88,7 @@ async def ui():
         bind_ctrl_a(key)
 
     # create images used in the table, they will not show if not saved here
-    tk_imgs = TkImages()
+    tk_imgs = TkImages()  # noqa - need to save this in memory to hold images
 
     # left justify hostnames
     window["scan_table"].Widget.column(2, anchor=tk.W)

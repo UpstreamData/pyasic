@@ -434,7 +434,7 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
-    async def update_firmware(self):
+    async def update_firmware(self):  # noqa - static
         # to be determined if this will be added later
         # requires a file stream in bytes
         return NotImplementedError

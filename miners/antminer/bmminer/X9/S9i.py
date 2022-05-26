@@ -1,5 +1,5 @@
-from miners._backends import BMMiner
-from miners._types import S9i
+from miners._backends import BMMiner  # noqa - Ignore access to _module
+from miners._types import S9i  # noqa - Ignore access to _module
 
 
 class BMMinerS9i(BMMiner, S9i):

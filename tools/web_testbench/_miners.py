@@ -7,7 +7,7 @@ import datetime
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer import BOSMinerS9
-from miners._backends.bosminer_old import BOSMinerOld
+from miners._backends.bosminer_old import BOSMinerOld  # noqa - Ignore access to _module
 from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
@@ -52,7 +52,6 @@ class Miners(metaclass=Singleton):
     def __sub__(self, other):
         if other in self.miners:
             self.miners.remove(other)
-
 
 
 class TestbenchMiner:
@@ -146,7 +145,9 @@ class TestbenchMiner:
         elif isinstance(miner, UnknownMiner):
             await self.add_to_output("Unknown Miner found, attempting to fix.")
             try:
-                async with (await miner._get_ssh_connection()) as conn:
+                async with (
+                    await miner._get_ssh_connection()  # noqa - Ignore access to _function
+                ) as conn:
                     result = await conn.run("opkg update && opkg upgrade firmware")
             except:
                 await self.add_to_output("Fix failed, please manually reset miner.")
@@ -271,7 +272,7 @@ class TestbenchMiner:
             await miner.send_ssh_command(
                 "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
             )
-        except Exception as e:
+        except Exception:
             await self.add_to_output(
                 "Failed to add referral and configure, restarting."
             )
@@ -370,7 +371,7 @@ class TestbenchMiner:
                 "Temps": temps_data,
                 "online": self.get_online_time(),
                 "Tuner": tuner_data,
-                "Count": Miners().get_count()
+                "Count": Miners().get_count(),
             }
 
             # return stats
@@ -401,7 +402,7 @@ class TestbenchMiner:
                     "board_7": {"power_limit": 275, "real_power": 0, "status": "None"},
                     "board_8": {"power_limit": 275, "real_power": 0, "status": "None"},
                 },
-                "Count": Miners().get_count()
+                "Count": Miners().get_count(),
             }
 
     async def install_done(self):
@@ -418,7 +419,7 @@ class TestbenchMiner:
                         "IP": str(self.host),
                         "Light": "show",
                         "online": self.get_online_time(),
-                        "Count": Miners().get_count()
+                        "Count": Miners().get_count(),
                     }
                     print(f"Getting data failed: {self.host}")
 

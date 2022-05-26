@@ -1,5 +1,5 @@
-from miners._backends import CGMiner
-from miners._types import S19j
+from miners._backends import CGMiner  # noqa - Ignore access to _module
+from miners._types import S19j  # noqa - Ignore access to _module
 
 
 class CGMinerS19j(CGMiner, S19j):

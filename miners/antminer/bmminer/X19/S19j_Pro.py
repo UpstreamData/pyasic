@@ -1,5 +1,5 @@
-from miners._backends import BMMiner
-from miners._types import S19jPro
+from miners._backends import BMMiner  # noqa - Ignore access to _module
+from miners._types import S19jPro  # noqa - Ignore access to _module
 
 
 class BMMinerS19jPro(BMMiner, S19jPro):

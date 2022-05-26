@@ -67,7 +67,7 @@ class BMMiner(BaseMiner):
                     # return ? if we fail to get hostname with no ssh connection
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
-        except Exception as e:
+        except Exception:
             # return ? if we fail to get hostname with an exception
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"

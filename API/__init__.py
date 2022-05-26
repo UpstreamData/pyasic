@@ -79,7 +79,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         data = None
         try:
             data = await self.send_command(command)
-        except APIError as e:
+        except APIError:
             try:
                 data = {}
                 # S19 handler, try again

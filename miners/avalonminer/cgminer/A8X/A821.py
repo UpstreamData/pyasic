@@ -1,5 +1,5 @@
-from miners._backends import CGMiner
-from miners._types import Avalon821
+from miners._backends import CGMiner  # noqa - Ignore access to _module
+from miners._types import Avalon821  # noqa - Ignore access to _module
 
 
 class CGMinerAvalon821(CGMiner, Avalon821):
