@@ -100,6 +100,11 @@ class TestbenchMiner:
     async def install_start(self):
         try:
             if not await ping_miner(self.host, 80):
+                data = {
+                    "IP": str(self.host),
+                    "Count": Miners().get_count(),
+                }
+                await ConnectionManager().broadcast_json(data)
                 await self.add_to_output("Waiting for miner connection...")
                 miners = Miners()
                 miners -= self.host
