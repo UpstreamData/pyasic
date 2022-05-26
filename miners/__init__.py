@@ -2,6 +2,8 @@ import asyncssh
 import logging
 import ipaddress
 
+from data import MinerData
+
 
 class BaseMiner:
     def __init__(self, *args) -> None:
@@ -97,18 +99,4 @@ class BaseMiner:
         return None
 
     async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temperature": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Split": "0",
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
-        return data
+        return MinerData(ip=str(self.ip))
