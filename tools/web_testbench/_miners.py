@@ -12,7 +12,6 @@ from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
 from settings import NETWORK_PING_TIMEOUT as PING_TIMEOUT
-import sys
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -466,7 +465,6 @@ class TestbenchMiner:
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")
             except RuntimeError as E:
-                raise E
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")
                 asyncio.create_task(self.install_loop())
