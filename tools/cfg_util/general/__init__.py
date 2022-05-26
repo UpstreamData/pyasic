@@ -5,7 +5,7 @@ from miners.miner_factory import MinerFactory
 from tools.cfg_util.decorators import disable_buttons
 from tools.cfg_util.layout import TABLE_KEYS
 from tools.cfg_util.layout import window, update_prog_bar
-from tools.cfg_util.tables import TableManager
+from tools.cfg_util.tables import TableManager, DATA_HEADER_MAP
 
 progress_bar_len = 0
 
@@ -81,10 +81,15 @@ async def update_miners_data(miners: list):
     )
     for all_data in data_generator:
         data = await all_data
-        TableManager().update_item(data.asdict())
+        TableManager().update_item(data)
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
 
 
 async def _get_data(miner):
-    return await miner.get_data()
+    _data = (await miner.get_data()).asdict()
+    data = {}
+    for item in _data.keys():
+        if item in DATA_HEADER_MAP.keys():
+            data[DATA_HEADER_MAP[item]] = _data[item]
+    return data

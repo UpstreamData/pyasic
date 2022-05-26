@@ -4,30 +4,10 @@ from miners.miner_factory import MinerFactory
 from network import MinerNetwork
 from tools.cfg_util.decorators import disable_buttons
 from tools.cfg_util.layout import window, update_prog_bar, TABLE_HEADERS
-from tools.cfg_util.tables import clear_tables, TableManager
+from tools.cfg_util.tables import clear_tables, TableManager, DATA_HEADER_MAP
 
 progress_bar_len = 0
 
-DATA_HEADER_MAP = {
-    "ip": "IP",
-    "model": "Model",
-    "hostname": "Hostname",
-    "hashrate": "Hashrate",
-    "temperature_avg": "Temp",
-    "wattage": "Wattage",
-    "ideal_chips": "Ideal",
-    "left_chips": "Left Board",
-    "center_chips": "Center Board",
-    "right_chips": "Right Board",
-    "total_chips": "Total",
-    "nominal": "Nominal",
-    "pool_split": "Split",
-    "pool_1_url": "Pool 1",
-    "pool_1_user": "Pool 1 User",
-    "pool_2_url": "Pool 2",
-    "pool_2_user": "Pool 2 User",
-    "percent_ideal": "Chip %",
-}
 
 DEFAULT_DATA = set()
 
