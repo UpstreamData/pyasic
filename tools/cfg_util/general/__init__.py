@@ -81,7 +81,7 @@ async def update_miners_data(miners: list):
     )
     for all_data in data_generator:
         data = await all_data
-        TableManager().update_item(data)
+        TableManager().update_item(data.asdict())
         progress_bar_len += 1
         await update_prog_bar(progress_bar_len)
 
