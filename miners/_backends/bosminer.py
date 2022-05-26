@@ -328,16 +328,18 @@ class BOSMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
-                pool_1 = pool_1.replace("stratum+tcp://", "")
-                pool_1 = pool_1.replace("stratum2+tcp://", "")
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
                 data.pool_1_url = pool_1
 
             if pool_1_user:
                 data.pool_1_user = pool_1_user
 
             if pool_2:
-                pool_2 = pool_2.replace("stratum+tcp://", "")
-                pool_2 = pool_2.replace("stratum2+tcp://", "")
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
                 data.pool_2_url = pool_2
 
             if pool_2_user:
