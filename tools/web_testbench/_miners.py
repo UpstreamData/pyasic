@@ -21,12 +21,12 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 # static states
 (START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE, ERROR) = range(7)
 
-if (
-    sys.version_info[0] == 3
-    and sys.version_info[1] >= 8
-    and sys.platform.startswith("win")
-):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# if (
+#     sys.version_info[0] == 3
+#     and sys.version_info[1] >= 8
+#     and sys.platform.startswith("win")
+# ):
+#     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 class Singleton(type):
@@ -466,6 +466,7 @@ class TestbenchMiner:
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")
             except RuntimeError as E:
+                raise E
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")
                 asyncio.create_task(self.install_loop())
