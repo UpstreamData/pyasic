@@ -3,6 +3,7 @@ from tools.cfg_util.layout import window, update_prog_bar
 from tools.cfg_util.tables import TableManager
 from tools.cfg_util.decorators import disable_buttons
 from settings import CFG_UTIL_CONFIG_THREADS as COMMAND_THREADS
+from typing import Tuple
 
 import asyncio
 
@@ -12,21 +13,32 @@ async def btn_light(ip_idxs: list):
     table_manager = TableManager()
     _table = window["cmd_table"].Widget
     iids = _table.get_children()
+    tasks = []
+    vals = {}
     for idx in ip_idxs:
         item = _table.item(iids[idx])
         ip = item["values"][0]
         new_light_val = not table_manager.data[ip]["Light"]
-        miner = await MinerFactory().get_miner(ip)
-        if new_light_val:
-            success = await miner.fault_light_on()
-        else:
-            success = await miner.fault_light_off()
+        tasks.append(_fault_light(ip, new_light_val))
+        vals[ip] = new_light_val
+
+    for task in asyncio.as_completed(tasks):
+        ip, success = await task
         if success:
-            table_manager.data[ip]["Light"] = new_light_val
+            table_manager.data[ip]["Light"] = vals[ip]
             table_manager.data[ip]["Output"] = "Fault Light command succeeded."
         else:
             table_manager.data[ip]["Output"] = "Fault Light command failed."
-    table_manager.update_tables()
+        table_manager.update_tables()
+
+
+async def _fault_light(ip: str, on: bool) -> Tuple[str, bool]:
+    miner = await MinerFactory().get_miner(ip)
+    if on:
+        success = await miner.fault_light_on()
+    else:
+        success = await miner.fault_light_off()
+    return miner.ip, success
 
 
 @disable_buttons("Rebooting")
