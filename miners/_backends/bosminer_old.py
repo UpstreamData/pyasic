@@ -1,10 +1,9 @@
-from miners import BaseMiner
-from API.bosminer import BOSMinerAPI
-import toml
-from config.bos import bos_config_convert, general_config_convert_bos
 import logging
-from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+
 import asyncssh
+
+from API.bosminer import BOSMinerAPI
+from miners import BaseMiner
 
 
 class BOSMinerOld(BaseMiner):

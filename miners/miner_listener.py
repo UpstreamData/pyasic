@@ -13,11 +13,12 @@ class Singleton(type):
 class _MinerListener:
     def __init__(self):
         self.responses = {}
+        self.transport = None
 
     def connection_made(self, transport):
         self.transport = transport
 
-    def datagram_received(self, data, addr):
+    def datagram_received(self, data, _addr):
         m = data.decode()
         ip, mac = m.split(",")
         new_miner = {"IP": ip, "MAC": mac.upper()}

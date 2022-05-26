@@ -43,7 +43,7 @@ class BTMiner(BaseMiner):
         except APIError:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
-        except Exception as e:
+        except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
@@ -141,11 +141,11 @@ class BTMiner(BaseMiner):
 
                 board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                 for board in temp_data:
-                    id = board["ID"]
+                    _id = board["ID"]
                     chip_temp = round(board["Chip Temp Avg"])
                     board_temp = round(board["Temperature"])
-                    setattr(data, f"{board_map[id]}_chip_temp", chip_temp)
-                    setattr(data, f"{board_map[id]}_temp", board_temp)
+                    setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
+                    setattr(data, f"{board_map[_id]}_temp", board_temp)
 
         if devs:
             boards = devs.get("DEVS")
@@ -158,9 +158,9 @@ class BTMiner(BaseMiner):
                         id_key = "ASC"
                     offset = boards[0][id_key]
                     for board in boards:
-                        id = board[id_key] - offset
+                        _id = board[id_key] - offset
                         chips = board["Effective Chips"]
-                        setattr(data, board_map[id], chips)
+                        setattr(data, board_map[_id], chips)
 
         if pools:
             pool_1 = None

@@ -1,5 +1,5 @@
-from miners._backends import BTMiner
-from miners._types import M30SPlus
+from miners._backends import BTMiner  # noqa - Ignore access to _module
+from miners._types import M30SPlus  # noqa - Ignore access to _module
 
 
 class BTMinerM30SPlus(BTMiner, M30SPlus):

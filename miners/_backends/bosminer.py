@@ -23,6 +23,7 @@ class BOSMiner(BaseMiner):
         self.api_type = "BOSMiner"
         self.uname = "root"
         self.pwd = "admin"
+        self.config = None
 
     async def send_ssh_command(self, cmd: str) -> str or None:
         """Send a command to the miner over ssh.
@@ -121,7 +122,7 @@ class BOSMiner(BaseMiner):
                 else:
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
-        except Exception as e:
+        except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
@@ -167,7 +168,7 @@ class BOSMiner(BaseMiner):
 
         # if we get the version data, parse it
         if version_data:
-            self.version = version_data.stdout.split("-")[5]
+            self.version = version_data.split("-")[5]
             logging.debug(f"Found version for {self.ip}: {self.version}")
             return self.version
 
@@ -206,10 +207,6 @@ class BOSMiner(BaseMiner):
         offset = devs[0]["ID"]
         for board in devs:
             boards[board["ID"] - offset] = []
-            if not board["Chips"] == self.nominal_chips:
-                nominal = False
-            else:
-                nominal = True
             if not board["Chips"] == self.nominal_chips:
                 nominal = False
             else:
@@ -290,11 +287,11 @@ class BOSMiner(BaseMiner):
                     board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                     offset = temp[0]["ID"]
                     for board in temp:
-                        id = board["ID"] - offset
+                        _id = board["ID"] - offset
                         chip_temp = round(board["Chip"])
                         board_temp = round(board["Board"])
-                        setattr(data, f"{board_map[id]}_chip_temp", chip_temp)
-                        setattr(data, f"{board_map[id]}_temp", board_temp)
+                        setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
+                        setattr(data, f"{board_map[_id]}_temp", board_temp)
 
         if fans:
             fan_data = fans.get("FANS")
@@ -363,9 +360,9 @@ class BOSMiner(BaseMiner):
                     board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
                     offset = boards[0]["ID"]
                     for board in boards:
-                        id = board["ID"] - offset
+                        _id = board["ID"] - offset
                         chips = board["Chips"]
-                        setattr(data, board_map[id], chips)
+                        setattr(data, board_map[_id], chips)
 
         return data
 

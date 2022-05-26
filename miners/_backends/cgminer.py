@@ -19,6 +19,7 @@ class CGMiner(BaseMiner):
         self.api_type = "CGMiner"
         self.uname = "root"
         self.pwd = "admin"
+        self.config = None
 
     async def get_model(self):
         if self.model:

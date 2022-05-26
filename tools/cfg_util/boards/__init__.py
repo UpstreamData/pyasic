@@ -8,7 +8,10 @@ from matplotlib.figure import Figure
 import numpy as np
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, inch
-from reportlab.lib.styles import ParagraphStyle, TA_CENTER
+from reportlab.lib.styles import (
+    ParagraphStyle,
+    TA_CENTER,  # noqa - not declared in __all__
+)
 from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     SimpleDocTemplate,

@@ -8,7 +8,9 @@ from fastapi.staticfiles import StaticFiles
 from tools.web_monitor.dashboard import router as dashboard_router
 from tools.web_monitor.miner import router as miner_router
 from tools.web_monitor.scan import router as scan_router
-from tools.web_monitor._settings import router as settings_router
+from tools.web_monitor._settings import (  # noqa - Ignore access to _module
+    router as settings_router,
+)
 
 app = FastAPI()
 

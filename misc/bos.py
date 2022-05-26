@@ -1,6 +1,6 @@
 import asyncio
 from network import MinerNetwork
-from miners._backends.bosminer import BOSMiner
+from miners._backends.bosminer import BOSMiner  # noqa - Ignore access to _module
 
 
 async def get_bos_bad_tuners(ip: str = "192.168.1.0", mask: int = 24):

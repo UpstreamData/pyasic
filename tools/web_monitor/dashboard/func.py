@@ -1,7 +1,9 @@
 import asyncio
 
 from miners.miner_factory import MinerFactory
-from tools.web_monitor._settings.func import get_current_settings
+from tools.web_monitor._settings.func import (  # noqa - Ignore access to _module
+    get_current_settings,
+)
 
 
 async def get_miner_data_dashboard(miner_ip):

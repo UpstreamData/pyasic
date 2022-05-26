@@ -1,5 +1,5 @@
-from miners._backends import BOSMiner
-from miners._types import T17e
+from miners._backends import BOSMiner  # noqa - Ignore access to _module
+from miners._types import T17e  # noqa - Ignore access to _module
 
 
 class BOSMinerT17e(BOSMiner, T17e):

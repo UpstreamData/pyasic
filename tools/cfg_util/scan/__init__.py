@@ -37,10 +37,8 @@ for table in TABLE_HEADERS:
 
 
 async def btn_all():
-    table = "scan_table"
-    window[table].update(
-        select_rows=([row for row in range(len(window[table].Values))])
-    )
+    tbl = "scan_table"
+    window[tbl].update(select_rows=([row for row in range(len(window[tbl].Values))]))
 
 
 async def btn_scan(scan_ip: str):

@@ -5,7 +5,9 @@ import websockets.exceptions
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 
 from miners.miner_factory import MinerFactory
-from tools.web_monitor._settings.func import get_current_settings
+from tools.web_monitor._settings.func import (  # noqa - Ignore access to _module
+    get_current_settings,
+)
 
 
 router = APIRouter()
@@ -24,9 +26,7 @@ async def miner_websocket(websocket: WebSocket, miner_ip):
                 cur_miner = await asyncio.wait_for(
                     MinerFactory().get_miner(str(miner_ip)), miner_identify_timeout
                 )
-                data = await asyncio.wait_for(
-                    cur_miner.get_data(), miner_identify_timeout
-                )
+                data = await asyncio.wait_for(cur_miner.get_data(), miner_data_timeout)
 
                 fan_speeds = [
                     fan if not fan == -1 else 0
