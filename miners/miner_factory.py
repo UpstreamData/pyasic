@@ -1,4 +1,5 @@
-from typing import TypeVar, Iterator, Tuple, List
+from typing import TypeVar, Tuple, List
+from collections import AsyncIterable
 
 
 from miners import BaseMiner
@@ -174,12 +175,12 @@ class Singleton(type):
 
 
 class MinerFactory(metaclass=Singleton):
-    def __init__(self):
+    def __init__(self) -> None:
         self.miners = {}
 
     async def get_miner_generator(
         self, ips: List[ipaddress.ip_address or str]
-    ) -> Iterator[AnyMiner]:
+    ) -> AsyncIterable[AnyMiner]:
         """
         Get Miner objects from ip addresses using an async generator.
 
@@ -289,36 +290,50 @@ class MinerFactory(metaclass=Singleton):
         version = None
 
         try:
+            # get device details and version data
             data = await self._send_api_command(str(ip), "devdetails+version")
 
+            # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
                 raise APIError(validation[1])
 
+            # copy each part of the main command to devdetails and version
             devdetails = data["devdetails"][0]
             version = data["version"][0]
 
         except APIError:
+            # if getting data fails we need to check again
             data = None
 
+        # if data is None then get it a slightly different way
         if not data:
             try:
+                # try devdetails and version separately (X19s mainly require this)
+                # get devdetails and validate
                 devdetails = await self._send_api_command(str(ip), "devdetails")
                 validation = await self._validate_command(devdetails)
                 if not validation[0]:
+                    # if devdetails fails try version instead
                     devdetails = None
+
+                    # get version and validate
                     version = await self._send_api_command(str(ip), "version")
                     validation = await self._validate_command(version)
                     if not validation[0]:
+                        # finally try get_version (Whatsminers) and validate
                         version = await self._send_api_command(str(ip), "get_version")
-
                         validation = await self._validate_command(version)
+
+                        # if this fails we raise an error to be caught below
                         if not validation[0]:
                             raise APIError(validation[1])
             except APIError as e:
+                # catch APIError and let the factory know we cant get data
                 logging.warning(f"{ip}: API Command Error: {e}")
                 return None, None
 
+        # if we have devdetails, we can get model data from there
         if devdetails:
             if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
                 # check for model, for most miners
@@ -334,6 +349,7 @@ class MinerFactory(metaclass=Singleton):
                 if "s9" in devdetails["STATUS"][0]["Description"]:
                     model = "Antminer S9"
 
+        # if we have version we can get API type from here
         if version:
             if "VERSION" in version.keys():
                 # check if there are any BMMiner strings in any of the dict keys
@@ -364,20 +380,27 @@ class MinerFactory(metaclass=Singleton):
             ):
                 api = "BTMiner"
 
+        # if we have no model from devdetails but have version, try to get it from there
         if version and not model:
+            # make sure version isn't blank
             if (
                 "VERSION" in version.keys()
                 and version.get("VERSION")
                 and not version.get("VERSION") == []
             ):
+                # try to get "Type" which is model
                 if version["VERSION"][0].get("Type"):
                     model = version["VERSION"][0]["Type"]
+
+                # braiins OS bug check just in case
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
                     model = "Antminer S17"
 
         if model:
+            # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
                 model = model.split("V")[0]
+            # don't need "Bitmain", just "Antminer XX" as model
             if "Bitmain " in model:
                 model = model.replace("Bitmain ", "")
 
