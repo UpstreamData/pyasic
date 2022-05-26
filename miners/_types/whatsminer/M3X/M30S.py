@@ -6,3 +6,5 @@ class M30S(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "M30S"
+        # TODO: Add chip count for this miner (per board) - self.nominal_chips
+        self.fan_count = 2

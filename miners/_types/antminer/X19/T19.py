@@ -7,3 +7,4 @@ class T19(BaseMiner):
         self.ip = ip
         self.model = "T19"
         self.nominal_chips = 76
+        self.fan_count = 4

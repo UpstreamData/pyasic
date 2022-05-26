@@ -7,3 +7,4 @@ class Avalon1066(BaseMiner):
         self.ip = ip
         self.model = "Avalon 1066"
         self.nominal_chips = 114
+        self.fan_count = 4

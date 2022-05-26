@@ -7,6 +7,4 @@ class M30SPlusPlus(BaseMiner):
         self.ip = ip
         self.model = "M30S++"
         self.nominal_chips = 117
-
-
-# TODO: handle different chip counts, 111, 117,(128)
+        self.fan_count = 2

@@ -7,3 +7,4 @@ class S19jPro(BaseMiner):
         self.ip = ip
         self.model = "S19j Pro"
         self.nominal_chips = 126
+        self.fan_count = 4

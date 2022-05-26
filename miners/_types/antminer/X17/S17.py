@@ -7,3 +7,4 @@ class S17(BaseMiner):
         self.ip = ip
         self.model = "S17"
         self.nominal_chips = 48
+        self.fan_count = 4

@@ -262,7 +262,7 @@ class BOSMiner(BaseMiner):
         miner_data = None
         for i in range(DATA_RETRIES):
             miner_data = await self.api.multicommand(
-                "summary", "temps", "tunerstatus", "pools", "devdetails"
+                "summary", "temps", "tunerstatus", "pools", "devdetails", "fans"
             )
             if miner_data:
                 break
@@ -273,6 +273,7 @@ class BOSMiner(BaseMiner):
         tunerstatus = miner_data.get("tunerstatus")[0]
         pools = miner_data.get("pools")[0]
         devdetails = miner_data.get("devdetails")[0]
+        fans = miner_data.get("fans")[0]
 
         if summary:
             hr = summary.get("SUMMARY")
@@ -286,9 +287,20 @@ class BOSMiner(BaseMiner):
             temp = temps.get("TEMPS")
             if temp:
                 if len(temp) > 0:
-                    chip_temp = temp[0].get("Chip")
-                    if chip_temp:
-                        data.temperature = round(chip_temp)
+                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+                    offset = temp[0]["ID"]
+                    for board in temp:
+                        id = board["ID"] - offset
+                        chip_temp = round(board["Chip"])
+                        board_temp = round(board["Board"])
+                        setattr(data, f"{board_map[id]}_chip_temp", chip_temp)
+                        setattr(data, f"{board_map[id]}_temp", board_temp)
+
+        if fans:
+            fan_data = fans.get("FANS")
+            if fan_data:
+                for fan in range(self.fan_count):
+                    setattr(data, f"fan_{fan+1}", fan_data[fan]["RPM"])
 
         if pools:
             pool_1 = None
