@@ -13,7 +13,7 @@ DATA_HEADER_MAP = {
     "model": "Model",
     "hostname": "Hostname",
     "hashrate": "Hashrate",
-    "temperature": "Temp",
+    "temperature_avg": "Temp",
     "wattage": "Wattage",
     "ideal_chips": "Ideal",
     "left_chips": "Left Board",

@@ -7,8 +7,18 @@ class MinerData:
     model: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0
-    temperature: float = 0
+    temperature_avg: int = field(init=False)
+    left_board_temp: int = 0
+    left_board_chip_temp: int = 0
+    center_board_temp: int = 0
+    center_board_chip_temp: int = 0
+    right_board_temp: int = 0
+    right_board_chip_temp: int = 0
     wattage: int = 0
+    fan_1: int = -1
+    fan_2: int = -1
+    fan_3: int = -1
+    fan_4: int = -1
     left_chips: int = 0
     center_chips: int = 0
     right_chips: int = 0
@@ -46,9 +56,25 @@ class MinerData:
     def percent_ideal(self, val):
         pass
 
-    def __post_init__(self):
-        self.total_chips = self.right_chips + self.center_chips + self.left_chips
-        self.nominal = self.ideal_chips == self.total_chips
+    @property
+    def temperature_avg(self):  # noqa - Skip PyCharm inspection
+        total_temp = 0
+        temp_count = 0
+        for temp in [
+            self.left_board_chip_temp,
+            self.center_board_chip_temp,
+            self.right_board_chip_temp,
+        ]:
+            if not temp == 0:
+                total_temp += temp
+                temp_count += 1
+        if not temp_count > 0:
+            return 0
+        return round(total_temp / temp_count)
+
+    @temperature_avg.setter
+    def temperature_avg(self, val):
+        pass
 
     def asdict(self):
         return asdict(self)

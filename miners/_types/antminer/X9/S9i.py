@@ -7,3 +7,4 @@ class S9i(BaseMiner):
         self.ip = ip
         self.model = "S9i"
         self.nominal_chips = 63
+        self.fan_count = 2

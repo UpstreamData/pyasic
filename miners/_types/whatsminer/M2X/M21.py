@@ -7,3 +7,4 @@ class M21(BaseMiner):
         self.ip = ip
         self.model = "M21"
         self.nominal_chips = 105
+        self.fan_count = 2
