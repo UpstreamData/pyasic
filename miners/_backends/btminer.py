@@ -136,11 +136,16 @@ class BTMiner(BaseMiner):
         if devs:
             temp_data = devs.get("DEVS")
             if temp_data:
+                data.fan_1 = temp_data[0]["Fan Speed In"]
+                data.fan_2 = temp_data[0]["Fan Speed Out"]
+
+                board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                 for board in temp_data:
-                    temp = board.get("Chip Temp Avg")
-                    if temp and not temp == 0.0:
-                        data.temperature = round(temp)
-                        break
+                    id = board["ID"]
+                    chip_temp = round(board["Chip Temp Avg"])
+                    board_temp = round(board["Temperature"])
+                    setattr(data, f"{board_map[id]}_chip_temp", chip_temp)
+                    setattr(data, f"{board_map[id]}_temp", board_temp)
 
         if devs:
             boards = devs.get("DEVS")
