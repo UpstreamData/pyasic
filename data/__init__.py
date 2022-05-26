@@ -23,7 +23,7 @@ class MinerData:
     center_chips: int = 0
     right_chips: int = 0
     total_chips: int = field(init=False)
-    ideal_chips: int = 0
+    ideal_chips: int = 1
     percent_ideal: float = field(init=False)
     nominal: int = field(init=False)
     pool_split: str = 0
