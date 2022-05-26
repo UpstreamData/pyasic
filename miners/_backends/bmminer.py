@@ -172,10 +172,17 @@ class BMMiner(BaseMiner):
             temp = stats.get("STATS")
             if temp:
                 if len(temp) > 1:
-                    for item in ["temp2", "temp1", "temp3"]:
-                        temperature = temp[1].get(item)
-                        if temperature and not temperature == 0.0:
-                            data.temperature = round(temperature)
+                    data.fan_1 = temp[1].get("fan1")
+                    data.fan_2 = temp[1].get("fan2")
+                    data.fan_3 = temp[1].get("fan3")
+                    data.fan_4 = temp[1].get("fan4")
+
+                    board_map = {1: "left_board", 2: "center_board", 3: "right_board"}
+                    for item in range(1, 4):
+                        board_temp = temp[1].get(f"temp{item}")
+                        chip_temp = temp[1].get(f"temp2_{item}")
+                        setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
+                        setattr(data, f"{board_map[item]}_temp", board_temp)
 
         if pools:
             pool_1 = None
