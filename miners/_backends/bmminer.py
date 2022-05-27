@@ -130,9 +130,8 @@ class BMMiner(BaseMiner):
     async def get_data(self) -> MinerData:
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
-        offset = 1
-        if self.model == "S9":
-            offset = 6
+        board_offset = 1
+        fan_offset = 1
 
         model = await self.get_model()
         hostname = await self.get_hostname()
@@ -168,27 +167,33 @@ class BMMiner(BaseMiner):
             boards = stats.get("STATS")
             if boards:
                 if len(boards) > 0:
-                    data.left_chips = boards[1].get(f"chain_acn{offset}")
-                    data.center_chips = boards[1].get(f"chain_acn{offset+1}")
-                    data.right_chips = boards[1].get(f"chain_acn{offset+2}")
+                    for board_num in range(16):
+                        if (
+                            not boards[1].get(f"chain_acn{board_num+1}") == 0
+                            and board_offset == 1
+                        ):
+                            board_offset = board_num + 1
+
+                    data.left_chips = boards[1].get(f"chain_acn{board_offset}")
+                    data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
+                    data.right_chips = boards[1].get(f"chain_acn{board_offset+2}")
 
         if stats:
             temp = stats.get("STATS")
             if temp:
                 if len(temp) > 1:
-                    if self.model == "S9":
-                        data.fan_1 = temp[1].get("fan5")
-                        data.fan_2 = temp[1].get("fan6")
-                    else:
-                        data.fan_1 = temp[1].get("fan1")
-                        data.fan_2 = temp[1].get("fan2")
-                        data.fan_3 = temp[1].get("fan3")
-                        data.fan_4 = temp[1].get("fan4")
+                    for fan_num in range(8):
+                        if not temp[1].get(f"fan{fan_num+1}") == 0 and fan_offset == 1:
+                            fan_offset = fan_num + 1
+                    for fan in range(self.fan_count):
+                        setattr(
+                            data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
+                        )
 
                     board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                     for item in range(3):
-                        board_temp = temp[1].get(f"temp{item + offset}")
-                        chip_temp = temp[1].get(f"temp2_{item + offset}")
+                        board_temp = temp[1].get(f"temp{item + board_offset}")
+                        chip_temp = temp[1].get(f"temp2_{item + board_offset}")
                         setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
                         setattr(data, f"{board_map[item]}_temp", board_temp)
 
