@@ -269,8 +269,9 @@ class MinerFactory(metaclass=Singleton):
                 elif "BMMiner" in api:
                     miner = BMMiner(str(ip))
 
-        # save the miner to the cache at its IP
-        self.miners[ip] = miner
+        # save the miner to the cache at its IP if its not unknown
+        if not isinstance(miner, UnknownMiner):
+            self.miners[ip] = miner
 
         # return the miner
         return miner
