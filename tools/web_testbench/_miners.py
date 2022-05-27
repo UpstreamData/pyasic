@@ -149,6 +149,7 @@ class TestbenchMiner:
         elif isinstance(miner, UnknownMiner):
             await self.add_to_output("Unknown Miner found, attempting to fix.")
             try:
+                await self.do_install()
                 async with (
                     await miner._get_ssh_connection()  # noqa - Ignore access to _function
                 ) as conn:
@@ -441,6 +442,11 @@ class TestbenchMiner:
         self.state = START
         await self.add_to_output("Miner disconnected, waiting for new miner.")
         self.start_time = None
+
+    async def long_test_loop(self):
+        while True:
+            self.state = DONE
+            await self.install_done()
 
     async def install_loop(self):
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
