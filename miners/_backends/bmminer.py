@@ -130,8 +130,8 @@ class BMMiner(BaseMiner):
     async def get_data(self) -> MinerData:
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
-        board_offset = 1
-        fan_offset = 1
+        board_offset = -1
+        fan_offset = -1
 
         model = await self.get_model()
         hostname = await self.get_hostname()
@@ -167,12 +167,14 @@ class BMMiner(BaseMiner):
             boards = stats.get("STATS")
             if boards:
                 if len(boards) > 0:
-                    for board_num in range(16):
-                        if (
-                            not boards[1].get(f"chain_acn{board_num+1}") == 0
-                            and board_offset == 1
-                        ):
-                            board_offset = board_num + 1
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = stats[1].get(f"fan{board_num + _b_num}")
+
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
 
                     data.left_chips = boards[1].get(f"chain_acn{board_offset}")
                     data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
@@ -182,9 +184,13 @@ class BMMiner(BaseMiner):
             temp = stats.get("STATS")
             if temp:
                 if len(temp) > 1:
-                    for fan_num in range(8):
-                        if not temp[1].get(f"fan{fan_num+1}") == 0 and fan_offset == 1:
-                            fan_offset = fan_num + 1
+                    for fan_num in range(1, 8, 4):
+                        for _f_num in range(4):
+                            f = temp[1].get(f"fan{fan_num + _f_num}")
+                            if f and not f == 0 and fan_offset == -1:
+                                fan_offset = fan_num
+                    if fan_offset == -1:
+                        fan_offset = 1
                     for fan in range(self.fan_count):
                         setattr(
                             data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
