@@ -30,6 +30,9 @@ setup(
                 os.path.join(os.getcwd(), "settings/settings.toml"),
                 os.path.join(os.getcwd(), "static/CFG-Util-README.md"),
             ],
+            "excludes": [
+                os.path.join(os.getcwd(), "tools/web_testbench/files"),
+            ],
         },
     },
     executables=[
