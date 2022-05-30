@@ -169,7 +169,7 @@ class BMMiner(BaseMiner):
                 if len(boards) > 0:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
-                            b = stats[1].get(f"fan{board_num + _b_num}")
+                            b = boards[1].get(f"fan{board_num + _b_num}")
 
                             if b and not b == 0 and board_offset == -1:
                                 board_offset = board_num
