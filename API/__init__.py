@@ -59,7 +59,9 @@ class BaseMinerAPI:
             ]
         ]
 
-    async def multicommand(self, *commands: str) -> dict:
+    async def multicommand(
+        self, *commands: str, ignore_x19_error: bool = False
+    ) -> dict:
         """Creates and sends multiple commands as one command to the miner."""
         logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # split the commands into a proper list
@@ -78,7 +80,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         command = "+".join(commands)
         data = None
         try:
-            data = await self.send_command(command)
+            data = await self.send_command(command, x19_command=ignore_x19_error)
         except APIError:
             try:
                 data = {}
@@ -99,6 +101,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         command: str,
         parameters: str or int or bool = None,
         ignore_errors: bool = False,
+        x19_command: bool = False,
     ) -> dict:
         """Send an API command to the miner and return the result."""
         try:
@@ -143,7 +146,8 @@ If you are sure you want to use this command please use API.send_command("{item}
             # validate the command succeeded
             validation = self.validate_command_output(data)
             if not validation[0]:
-                logging.warning(f"{self.ip}: API Command Error: {validation[1]}")
+                if not x19_command:
+                    logging.warning(f"{self.ip}: API Command Error: {validation[1]}")
                 raise APIError(validation[1])
 
         return data

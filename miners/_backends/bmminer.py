@@ -144,7 +144,9 @@ class BMMiner(BaseMiner):
 
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            miner_data = await self.api.multicommand(
+                "summary", "pools", "stats", ignore_x19_error=True
+            )
             if miner_data:
                 break
 
