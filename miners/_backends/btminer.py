@@ -125,6 +125,9 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
+                    data.fan_1 = summary_data[0]["Fan Speed In"]
+                    data.fan_2 = summary_data[0]["Fan Speed Out"]
+
                     hr = summary_data[0].get("MHS 1m")
                     if hr:
                         data.hashrate = round(hr / 1000000, 2)
@@ -136,12 +139,9 @@ class BTMiner(BaseMiner):
         if devs:
             temp_data = devs.get("DEVS")
             if temp_data:
-                data.fan_1 = temp_data[0]["Fan Speed In"]
-                data.fan_2 = temp_data[0]["Fan Speed Out"]
-
                 board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                 for board in temp_data:
-                    _id = board["ID"]
+                    _id = board["ASC"]
                     chip_temp = round(board["Chip Temp Avg"])
                     board_temp = round(board["Temperature"])
                     setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
