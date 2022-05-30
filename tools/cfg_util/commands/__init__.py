@@ -1,9 +1,12 @@
 from miners.miner_factory import MinerFactory
-from tools.cfg_util.layout import window, update_prog_bar
+from miners.miner_listener import MinerListener
+from tools.cfg_util.layout import window, update_prog_bar, WINDOW_ICON
 from tools.cfg_util.tables import TableManager
 from tools.cfg_util.decorators import disable_buttons
 from settings import CFG_UTIL_CONFIG_THREADS as COMMAND_THREADS
 from typing import Tuple
+
+import PySimpleGUI as sg
 
 import asyncio
 
@@ -118,3 +121,33 @@ async def send_command_generator(miners: list, command: str):
 async def _send_ssh_command(miner, command: str):
     proc = await miner.send_ssh_command(command)
     return {"IP": miner.ip, "Status": proc}
+
+
+CANCEL_LISTEN_BTNS = [
+    "cmd_cancel_listen",
+    "pools_cancel_listen",
+    "boards_cancel_listen",
+    "scan_cancel_listen",
+    "cfg_cancel_listen",
+]
+
+
+@disable_buttons("Listening for Miner")
+async def btn_listen():
+    window["cmd_listen"].update(visible=False)
+    for btn in CANCEL_LISTEN_BTNS:
+        window[btn].update(visible=True)
+    async for miner in MinerListener().listen():
+        sg.popup(
+            f"IP: {miner['IP']}, MAC: {miner['MAC']}",
+            title="Found Miner",
+            keep_on_top=True,
+            icon=WINDOW_ICON,
+        )
+
+
+async def btn_cancel_listen():
+    await MinerListener().cancel()
+    window["cmd_listen"].update(visible=True)
+    for btn in CANCEL_LISTEN_BTNS:
+        window[btn].update(visible=False)

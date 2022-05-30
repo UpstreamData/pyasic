@@ -9,6 +9,8 @@ from tools.cfg_util.commands import (
     btn_reboot,
     btn_backend,
     btn_command,
+    btn_cancel_listen,
+    btn_listen,
 )
 from tools.cfg_util.configure import (
     generate_config_ui,
@@ -193,6 +195,10 @@ async def ui():
             _table = "cmd_table"
             _ips = value[_table]
             asyncio.create_task(btn_command(_ips, value["cmd_txt"]))
+        if event == "cmd_listen":
+            asyncio.create_task(btn_listen())
+        if event.endswith("cancel_listen"):
+            asyncio.create_task(btn_cancel_listen())
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)

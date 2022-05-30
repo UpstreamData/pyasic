@@ -35,10 +35,12 @@ class MinerListener(metaclass=Singleton):
         self.stop = False
 
     async def listen(self):
+        self.stop = False
+
         loop = asyncio.get_running_loop()
 
         transport, protocol = await loop.create_datagram_endpoint(
-            lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)
+            lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)  # noqa
         )
 
         while True:
