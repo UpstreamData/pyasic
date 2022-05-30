@@ -163,6 +163,7 @@ class BTMinerAPI(BaseMinerAPI):
         command: str or bytes,
         parameters: str or int or bool = None,
         ignore_errors: bool = False,
+        **kwargs,
     ) -> dict:
         """Send a command to the miner API.
 

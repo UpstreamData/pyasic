@@ -147,8 +147,10 @@ MINER_CLASSES = {
         "BTMiner": BTMinerM30SPlus,
     },
     "M30S++": {
-        "Default": BTMinerM30SPlusPlus,
-        "BTMiner": BTMinerM30SPlusPlus,
+        "Default": BTMinerM30SPlusPlusVG40,
+        "BTMiner": BTMinerM30SPlusPlusVG40,
+        "40": BTMinerM30SPlusPlusVG40,
+        "30": BTMinerM30SPlusPlusVG30,
     },
     "M31S": {
         "Default": BTMinerM31S,
@@ -213,12 +215,13 @@ class MinerFactory(metaclass=Singleton):
         miner = UnknownMiner(str(ip))
         api = None
         model = None
+        ver = None
 
         # try to get the API multiple times based on retries
         for i in range(GET_VERSION_RETRIES):
             try:
                 # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
-                new_model, new_api = await asyncio.wait_for(
+                new_model, new_api, new_ver = await asyncio.wait_for(
                     self._get_miner_type(ip), timeout=PING_TIMEOUT
                 )
 
@@ -227,6 +230,8 @@ class MinerFactory(metaclass=Singleton):
                     api = new_api
                 if new_model and not model:
                     model = new_model
+                if new_ver and not ver:
+                    ver = new_ver
 
                 # if we find the API and model, don't need to loop anymore
                 if api and model:
@@ -251,6 +256,9 @@ class MinerFactory(metaclass=Singleton):
                     return miner
                 if api not in MINER_CLASSES[model].keys():
                     api = "Default"
+                if ver in MINER_CLASSES[model].keys():
+                    miner = MINER_CLASSES[model][ver](str(ip))
+                    return miner
                 miner = MINER_CLASSES[model][api](str(ip))
 
         # if we cant find a model, check if we found the API
@@ -283,9 +291,10 @@ class MinerFactory(metaclass=Singleton):
 
     async def _get_miner_type(
         self, ip: ipaddress.ip_address or str
-    ) -> Tuple[str or None, str or None]:
+    ) -> Tuple[str or None, str or None, str or None]:
         model = None
         api = None
+        ver = None
 
         devdetails = None
         version = None
@@ -332,7 +341,7 @@ class MinerFactory(metaclass=Singleton):
             except APIError as e:
                 # catch APIError and let the factory know we cant get data
                 logging.warning(f"{ip}: API Command Error: {e}")
-                return None, None
+                return None, None, None
 
         # if we have devdetails, we can get model data from there
         if devdetails:
@@ -363,6 +372,11 @@ class MinerFactory(metaclass=Singleton):
                 ):
                     api = "CGMiner"
 
+                elif any(
+                    "BTMiner" in string for string in version["VERSION"][0].keys()
+                ):
+                    api = "BTMiner"
+
                 # check if there are any BOSMiner strings in any of the dict keys
                 elif any(
                     "BOSminer" in string for string in version["VERSION"][0].keys()
@@ -376,8 +390,8 @@ class MinerFactory(metaclass=Singleton):
                         api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and "whatsminer" in version.get(
-                "Description"
+            if version.get("Description") and (
+                "whatsminer" in version.get("Description")
             ):
                 api = "BTMiner"
 
@@ -400,12 +414,13 @@ class MinerFactory(metaclass=Singleton):
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
+                ver = model.split("VG")[1]
                 model = model.split("V")[0]
             # don't need "Bitmain", just "Antminer XX" as model
             if "Bitmain " in model:
                 model = model.replace("Bitmain ", "")
 
-        return model, api
+        return model, api, ver
 
     @staticmethod
     async def _validate_command(data: dict) -> Tuple[bool, str or None]:

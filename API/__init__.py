@@ -98,7 +98,7 @@ If you are sure you want to use this command please use API.send_command("{item}
 
     async def send_command(
         self,
-        command: str,
+        command: str or bytes,
         parameters: str or int or bool = None,
         ignore_errors: bool = False,
         x19_command: bool = False,
