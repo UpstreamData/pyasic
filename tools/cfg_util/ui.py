@@ -197,8 +197,9 @@ async def ui():
             asyncio.create_task(btn_command(_ips, value["cmd_txt"]))
         if event == "cmd_listen":
             asyncio.create_task(btn_listen())
-        if event.endswith("cancel_listen"):
-            asyncio.create_task(btn_cancel_listen())
+        if not isinstance(event, tuple):
+            if event.endswith("cancel_listen"):
+                asyncio.create_task(btn_cancel_listen())
 
         if event == "__TIMEOUT__":
             await asyncio.sleep(0)
