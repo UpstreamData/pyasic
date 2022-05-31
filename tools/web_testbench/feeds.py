@@ -1,4 +1,5 @@
 import aiohttp
+import httpx
 import shutil
 import aiofiles
 import asyncio
@@ -11,8 +12,8 @@ import logging
 async def get_latest_version(session):
     feeds_url = "http://feeds.braiins-os.com"
 
-    async with session.get(feeds_url) as resp:
-        data = await resp.read()
+    resp = await session.get(feeds_url)
+    data = resp.text
 
     soup = BeautifulSoup(data, "html.parser")
 
@@ -32,8 +33,8 @@ async def get_latest_version(session):
 async def get_feeds_file(session, version):
     feeds_url = "http://feeds.braiins-os.com"
 
-    async with session.get(feeds_url + "/" + version) as resp:
-        data = await resp.read()
+    resp = await session.get(feeds_url + "/" + version, follow_redirects=True)
+    data = resp.text
 
     soup = BeautifulSoup(data, "html.parser")
 
@@ -52,8 +53,8 @@ async def get_feeds_file(session, version):
 async def get_update_file(session, version):
     feeds_url = "http://feeds.braiins-os.com"
 
-    async with session.get(feeds_url + "/am1-s9") as resp:
-        data = await resp.read()
+    resp = await session.get(feeds_url + "/am1-s9")
+    data = resp.text
 
     soup = BeautifulSoup(data, "html.parser")
 
@@ -77,14 +78,14 @@ async def get_latest_update_file(session, update_file):
     if os.path.exists(update_file_dir):
         os.remove(update_file_dir)
 
-    async with session.get(update_file_loc) as update_file_data:
-        if update_file_data.status == 200:
-            f = await aiofiles.open(
-                os.path.join(os.path.dirname(__file__), "files", "update.tar"),
-                mode="wb",
-            )
-            await f.write(await update_file_data.read())
-            await f.close()
+    update_file_data = await session.get(update_file_loc)
+    if update_file_data.status_code == 200:
+        f = await aiofiles.open(
+            os.path.join(os.path.dirname(__file__), "files", "update.tar"),
+            mode="wb",
+        )
+        await f.write(update_file_data.text)
+        await f.close()
 
 
 async def get_latest_install_file(session, version, feeds_path, install_file):
@@ -99,13 +100,14 @@ async def get_latest_install_file(session, version, feeds_path, install_file):
         shutil.rmtree(install_file_folder)
     os.mkdir(install_file_folder)
 
-    async with session.get(install_file_loc) as install_file_data:
-        if install_file_data.status == 200:
-            f = await aiofiles.open(
-                os.path.join(install_file_folder, install_file), mode="wb"
-            )
-            await f.write(await install_file_data.read())
-            await f.close()
+    install_file_data = await session.get(install_file_loc)
+    if install_file_data.status_code == 200:
+        f = await aiofiles.open(
+            os.path.join(install_file_folder, install_file), mode="wb"
+        )
+        for chunk in install_file_data.iter_bytes():
+            await f.write(chunk)
+        await f.close()
 
 
 async def update_installer_files():
@@ -113,7 +115,7 @@ async def update_installer_files():
         os.path.dirname(__file__), "files", "bos-toolbox", "feeds"
     )
     feeds_versions = await get_local_versions()
-    async with aiohttp.ClientSession() as session:
+    async with httpx.AsyncClient() as session:
         version = await get_latest_version(session)
 
         if version not in feeds_versions:
@@ -148,4 +150,4 @@ async def get_local_versions():
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(update_installer_files())
+    asyncio.run(update_installer_files())
