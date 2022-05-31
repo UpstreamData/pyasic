@@ -247,6 +247,10 @@ class BOSMiner(BaseMiner):
 
     async def get_data(self) -> MinerData:
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        board_offset = -1
+        fan_offset = -1
+
         model = await self.get_model()
         hostname = await self.get_hostname()
 
@@ -285,7 +289,7 @@ class BOSMiner(BaseMiner):
             if temp:
                 if len(temp) > 0:
                     board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
-                    offset = temp[0]["ID"]
+                    offset = 6 if temp[0]["ID"] in [6, 7, 8] else temp[0]["ID"]
                     for board in temp:
                         _id = board["ID"] - offset
                         chip_temp = round(board["Chip"])
@@ -358,7 +362,7 @@ class BOSMiner(BaseMiner):
             if boards:
                 if len(boards) > 0:
                     board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
-                    offset = boards[0]["ID"]
+                    offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
                     for board in boards:
                         _id = board["ID"] - offset
                         chips = board["Chips"]
