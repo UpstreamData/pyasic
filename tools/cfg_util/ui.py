@@ -17,6 +17,7 @@ from tools.cfg_util.configure import (
     btn_import,
     btn_config,
 )
+from tools.cfg_util.record import record_ui
 from tools.cfg_util.layout import window, TABLE_KEYS
 from tools.cfg_util.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.tables import TableManager
@@ -125,6 +126,16 @@ async def ui():
             asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "btn_scan":
             asyncio.create_task(btn_scan(value["scan_ip"]))
+        if event == "record":
+            _table = "scan_table"
+            if value[_table]:
+                ips = [window[_table].Values[row][0] for row in value[_table]]
+            else:
+                ips = [
+                    window[_table].Values[row][0]
+                    for row in range(len(window[_table].Values))
+                ]
+            await record_ui(ips)
 
         # boards tab
         if event == "boards_all":
