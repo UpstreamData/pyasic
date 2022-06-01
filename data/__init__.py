@@ -3,6 +3,34 @@ from dataclasses import dataclass, field, asdict
 
 @dataclass
 class MinerData:
+    """A Dataclass to standardize data returned from miners (specifically AnyMiner().get_data())
+
+    :param ip: The IP of the miner as a str.
+    :param model: The model of the miner as a str.
+    :param hostname: The network hostname of the miner as a str.
+    :param hashrate: The hashrate of the miner in TH/s as a int.
+    :param left_board_temp: The temp of the left PCB as an int.
+    :param left_board_chip_temp: The temp of the left board chips as an int.
+    :param center_board_temp: The temp of the center PCB as an int.
+    :param center_board_chip_temp: The temp of the center board chips as an int.
+    :param right_board_temp: The temp of the right PCB as an int.
+    :param right_board_chip_temp: The temp of the right board chips as an int.
+    :param wattage: Wattage of the miner as an int.
+    :param fan_1: The speed of the first fan as an int.
+    :param fan_2: The speed of the second fan as an int.
+    :param fan_3: The speed of the third fan as an int.
+    :param fan_4: The speed of the fourth fan as an int.
+    :param left_chips: The number of chips online in the left board as an int.
+    :param center_chips: The number of chips online in the left board as an int.
+    :param right_chips: The number of chips online in the left board as an int.
+    :param ideal_chips: The ideal number of chips in the miner as an int.
+    :param pool_split: The pool split as a str.
+    :param pool_1_url: The first pool url on the miner as a str.
+    :param pool_1_user: The first pool user on the miner as a str.
+    :param pool_2_url: The second pool url on the miner as a str.
+    :param pool_2_user: The second pool user on the miner as a str.
+    """
+
     ip: str
     model: str = "Unknown"
     hostname: str = "Unknown"
@@ -26,7 +54,7 @@ class MinerData:
     ideal_chips: int = 1
     percent_ideal: float = field(init=False)
     nominal: int = field(init=False)
-    pool_split: str = 0
+    pool_split: str = "0"
     pool_1_url: str = "Unknown"
     pool_1_user: str = "Unknown"
     pool_2_url: str = ""
