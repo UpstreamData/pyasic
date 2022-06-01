@@ -28,6 +28,8 @@ from settings import (
     NETWORK_PING_TIMEOUT as PING_TIMEOUT,
 )
 
+import asyncssh
+
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
 
 MINER_CLASSES = {
@@ -410,6 +412,20 @@ class MinerFactory(metaclass=Singleton):
                 # braiins OS bug check just in case
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
                     model = "Antminer S17"
+
+                # final try on a braiins OS bug with devdetails not returning
+                else:
+                    async with asyncssh.connect(
+                        str(ip),
+                        known_hosts=None,
+                        username="root",
+                        password="admin",
+                        server_host_key_algs=["ssh-rsa"],
+                    ) as conn:
+                        cfg = await conn.run("bosminer config --data")
+                    if cfg:
+                        cfg = json.loads(cfg.stdout)
+                        model = cfg.get("data").get("format").get("model")
 
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
