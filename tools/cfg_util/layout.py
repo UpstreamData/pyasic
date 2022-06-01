@@ -167,6 +167,7 @@ BUTTON_KEYS = [
     "cfg_all",
     "cfg_web",
     "cmd_listen",
+    "record",
 ]
 
 TABLE_HEIGHT = 27
@@ -217,7 +218,7 @@ def get_scan_layout():
     scan_layout = [
         [
             sg.Text("Scan IP", background_color=MAIN_TABS_BG, pad=((0, 5), (1, 1))),
-            sg.InputText(key="scan_ip", size=(31, 1)),
+            sg.InputText(key="scan_ip", size=(31, 1), focus=True),
             sg.Button(
                 "Scan",
                 key="btn_scan",
@@ -243,6 +244,7 @@ def get_scan_layout():
                 key="scan_web",
                 border_width=BTN_BORDER,
             ),
+            sg.Button("RECORD DATA", key="record", border_width=BTN_BORDER),
             sg.Button(
                 "STOP LISTENING",
                 key="scan_cancel_listen",
