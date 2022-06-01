@@ -60,3 +60,12 @@ class BMMinerT17(BMMiner, T17):
             if data["isBlinking"]:
                 return True
         return False
+
+    async def reboot(self) -> bool:
+        url = f"http://{self.ip}/cgi-bin/reboot.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            return True
+        return False
