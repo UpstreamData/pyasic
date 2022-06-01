@@ -1,12 +1,13 @@
 import ipaddress
 import logging
-
+import json
 
 import toml
 
 
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
+from API import APIError
 
 from data import MinerData
 
@@ -137,7 +138,17 @@ class BOSMiner(BaseMiner):
             return self.model + " (BOS)"
 
         # get devdetails data
-        version_data = await self.api.devdetails()
+        try:
+            version_data = await self.api.devdetails()
+        except APIError as e:
+            version_data = None
+            if e.message == "Not ready":
+                cfg = json.loads(await self.send_ssh_command("bosminer config --data"))
+                model = cfg.get("data").get("format").get("model")
+                if model:
+                    model = model.replace("Antminer ", "")
+                    self.model = model
+                    return self.model + " (BOS)"
 
         # if we get data back, parse it for model
         if version_data:
@@ -262,22 +273,28 @@ class BOSMiner(BaseMiner):
 
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand(
-                "summary", "temps", "tunerstatus", "pools", "devdetails", "fans"
-            )
+            try:
+                miner_data = await self.api.multicommand(
+                    "summary", "temps", "tunerstatus", "pools", "devdetails", "fans"
+                )
+            except APIError as e:
+                if str(e.message) == "Not ready":
+                    miner_data = await self.api.multicommand(
+                        "summary", "tunerstatus", "pools", "fans"
+                    )
             if miner_data:
                 break
         if not miner_data:
             return data
-        summary = miner_data.get("summary")[0]
-        temps = miner_data.get("temps")[0]
-        tunerstatus = miner_data.get("tunerstatus")[0]
-        pools = miner_data.get("pools")[0]
-        devdetails = miner_data.get("devdetails")[0]
-        fans = miner_data.get("fans")[0]
+        summary = miner_data.get("summary")
+        temps = miner_data.get("temps")
+        tunerstatus = miner_data.get("tunerstatus")
+        pools = miner_data.get("pools")
+        devdetails = miner_data.get("devdetails")
+        fans = miner_data.get("fans")
 
         if summary:
-            hr = summary.get("SUMMARY")
+            hr = summary[0].get("SUMMARY")
             if hr:
                 if len(hr) > 0:
                     hr = hr[0].get("MHS 1m")
@@ -285,7 +302,7 @@ class BOSMiner(BaseMiner):
                         data.hashrate = round(hr / 1000000, 2)
 
         if temps:
-            temp = temps.get("TEMPS")
+            temp = temps[0].get("TEMPS")
             if temp:
                 if len(temp) > 0:
                     board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
@@ -298,7 +315,7 @@ class BOSMiner(BaseMiner):
                         setattr(data, f"{board_map[_id]}_temp", board_temp)
 
         if fans:
-            fan_data = fans.get("FANS")
+            fan_data = fans[0].get("FANS")
             if fan_data:
                 for fan in range(self.fan_count):
                     setattr(data, f"fan_{fan+1}", fan_data[fan]["RPM"])
@@ -311,7 +328,7 @@ class BOSMiner(BaseMiner):
             pool_1_quota = 1
             pool_2_quota = 1
             quota = 0
-            for pool in pools.get("POOLS"):
+            for pool in pools[0].get("POOLS"):
                 if not pool_1_user:
                     pool_1_user = pool.get("User")
                     pool_1 = pool["URL"]
@@ -350,7 +367,7 @@ class BOSMiner(BaseMiner):
                 data.pool_split = str(quota)
 
         if tunerstatus:
-            tuner = tunerstatus.get("TUNERSTATUS")
+            tuner = tunerstatus[0].get("TUNERSTATUS")
             if tuner:
                 if len(tuner) > 0:
                     wattage = tuner[0].get("PowerLimit")
@@ -358,7 +375,7 @@ class BOSMiner(BaseMiner):
                         data.wattage = wattage
 
         if devdetails:
-            boards = devdetails.get("DEVDETAILS")
+            boards = devdetails[0].get("DEVDETAILS")
             if boards:
                 if len(boards) > 0:
                     board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
