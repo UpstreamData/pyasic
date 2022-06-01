@@ -4,29 +4,17 @@ import webbrowser
 from miners.miner_factory import MinerFactory
 from tools.cfg_util.decorators import disable_buttons
 from tools.cfg_util.layout import TABLE_KEYS
-from tools.cfg_util.layout import window, update_prog_bar
+from tools.cfg_util.layout import window, update_prog_bar, TABLE_HEADERS
 from tools.cfg_util.tables import TableManager, DATA_HEADER_MAP
 
 progress_bar_len = 0
 
-DEFAULT_DATA = [
-    "Model",
-    "Hostname",
-    "Hashrate",
-    "Temperature",
-    "Total Chips",
-    "Nominal Chips",
-    "Left Board",
-    "Center Board",
-    "Right Board",
-    "Pool User",
-    "Pool 1",
-    "Pool 1 User",
-    "Pool 2",
-    "Pool 2 User",
-    "Wattage",
-    "Split",
-]
+headers = []
+for key in TABLE_HEADERS.keys():
+    for item in TABLE_HEADERS[key]:
+        headers.append(item)
+
+DEFAULT_DATA = set(headers)
 
 
 def btn_all(table, selected):
