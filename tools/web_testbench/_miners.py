@@ -229,6 +229,10 @@ class TestbenchMiner:
             if "ERROR:Auth" in stdout_data:
                 error = "AUTH"
                 proc.kill()
+            if "INFO:Remote target is already running Braiins OS" in stdout_data:
+                proc.kill()
+                self.state = UPDATE
+                return
             await self.add_to_output(stdout_data)
             if stdout == b"":
                 break
