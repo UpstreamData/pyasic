@@ -209,6 +209,10 @@ class TableManager(metaclass=Singleton):
             return ipaddress.ip_address(self.data[data_key]["IP"])
 
         if self.sort_key == "Chip %":
+            if self.data[data_key]["Chip %"] == "":
+                return 0
+            if isinstance(self.data[data_key]["Chip %"], int):
+                return self.data[data_key]["Chip %"]
             return int((self.data[data_key]["Chip %"]).replace("%", ""))
 
         if self.sort_key == "Hashrate":
