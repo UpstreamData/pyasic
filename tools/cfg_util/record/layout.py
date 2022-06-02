@@ -35,6 +35,15 @@ def record_layout():
             ),
         ],
         [
+            sg.Spin(
+                [i for i in range(5, 101, 5)],
+                initial_value=10,
+                size=(5, 1),
+                key="record_interval",
+            ),
+            sg.Text("Data Interval (seconds)"),
+        ],
+        [
             sg.Push(),
             sg.pin(
                 sg.Button(

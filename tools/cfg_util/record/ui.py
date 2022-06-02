@@ -22,7 +22,12 @@ async def record_ui(ips: list):
         if event == "start_recording":
             if values["record_file"]:
                 asyncio.create_task(
-                    start_recording(ips, values["record_file"], record_window)
+                    start_recording(
+                        ips,
+                        values["record_file"],
+                        record_window,
+                        interval=int(values["record_interval"]),
+                    )
                 )
         if event == "stop_recording":
             asyncio.create_task(stop_recording(record_window))
