@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field, asdict
+from datetime import datetime
 
 
 @dataclass
@@ -32,6 +33,7 @@ class MinerData:
     """
 
     ip: str
+    datetime: datetime = None
     model: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0
@@ -59,6 +61,9 @@ class MinerData:
     pool_1_user: str = "Unknown"
     pool_2_url: str = ""
     pool_2_user: str = ""
+
+    def __post_init__(self):
+        self.datetime = datetime.now()
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection

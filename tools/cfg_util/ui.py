@@ -103,7 +103,7 @@ async def ui():
     window["cmd_table"].Widget.column("#0", stretch=tk.NO, anchor=tk.CENTER)
 
     while True:
-        event, value = window.read(0)
+        event, value = window.read(0.001)
         if event in (None, "Close", sg.WIN_CLOSED):
             sys.exit()
 
@@ -135,7 +135,7 @@ async def ui():
                     window[_table].Values[row][0]
                     for row in range(len(window[_table].Values))
                 ]
-            await record_ui(ips)
+            asyncio.create_task(record_ui(ips))
 
         # boards tab
         if event == "boards_all":
@@ -213,7 +213,7 @@ async def ui():
                 asyncio.create_task(btn_cancel_listen())
 
         if event == "__TIMEOUT__":
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.001)
 
 
 if __name__ == "__main__":
