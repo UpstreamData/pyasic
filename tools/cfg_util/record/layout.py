@@ -104,4 +104,5 @@ def record_layout():
     return record_layout
 
 
-record_window = sg.Window("Record Miner Data", record_layout(), modal=True)
+def get_record_window():
+    return sg.Window("Record Miner Data", record_layout(), modal=True)
