@@ -26,7 +26,7 @@ class RecordingManager(metaclass=Singleton):
         self.data: Dict[str:list] = {}
         self.miners = []
         self.output_file = None
-        self.interval = 10
+        self.interval: int = 10
         self.record_window = None
 
     async def _check_pause(self):
@@ -50,7 +50,6 @@ class RecordingManager(metaclass=Singleton):
 
             for complete in asyncio.as_completed(tasks):
                 data = await complete
-                print(data)
                 self.data[data.ip].append(data)
             for i in range(self.interval * 10):
                 await self._check_pause()
