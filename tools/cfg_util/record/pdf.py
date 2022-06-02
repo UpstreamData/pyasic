@@ -90,7 +90,10 @@ async def create_hr_graph(data):
     for label in ax.get_xticklabels() + ax.get_yticklabels():
         label.set_fontsize(6)
     ax.plot(xpoints, ypoints)
-    ax.set_ylim(0, max(ypoints) * 1.4)
+    ylim = max(ypoints) * 1.4
+    if ylim == 0:
+        ylim = 10
+    ax.set_ylim(0, ylim)
     date_form = DateFormatter("%H:%M:%S")
     ax.xaxis.set_major_formatter(date_form)
     ax.yaxis.set_major_formatter("{x:1.1f} TH/s")
