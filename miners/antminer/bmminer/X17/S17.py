@@ -4,6 +4,9 @@ from miners._types import S17  # noqa - Ignore access to _module
 import httpx
 
 
+# TODO add config
+
+
 class BMMinerS17(BMMiner, S17):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
