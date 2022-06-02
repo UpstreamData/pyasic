@@ -76,3 +76,13 @@ SAMPLE CONFIG
     }
 }
 """
+
+
+def general_config_convert_pools(config: dict):
+    out_config = {}
+    pools = config.get("pool_groups")
+    if pools:
+        if len(pools) > 0:
+            pools = pools[0]
+            out_config = pools["pools"][:3]
+    return out_config

@@ -1,31 +1,25 @@
-from datetime import datetime, timedelta
+from io import BytesIO
 from typing import List, Dict
-from data import MinerData
-
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator
 from matplotlib.dates import DateFormatter
-import numpy as np
-from reportlab.lib import colors
+from matplotlib.ticker import MultipleLocator
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.lib.styles import (
     ParagraphStyle,
     TA_CENTER,  # noqa - not declared in __all__
 )
-from reportlab.lib.utils import ImageReader
 from reportlab.platypus import (
     SimpleDocTemplate,
     KeepInFrame,
-    Table,
     Image,
     Paragraph,
-    TableStyle,
     PageBreak,
     Spacer,
 )
-from io import BytesIO
 from svglib.svglib import svg2rlg
+
+from data import MinerData
 
 
 async def generate_pdf(data: Dict[str, List[MinerData]], file_loc):

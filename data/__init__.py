@@ -7,6 +7,7 @@ class MinerData:
     """A Dataclass to standardize data returned from miners (specifically AnyMiner().get_data())
 
     :param ip: The IP of the miner as a str.
+    :param datetime: The time and date this data was generated.
     :param model: The model of the miner as a str.
     :param hostname: The network hostname of the miner as a str.
     :param hashrate: The hashrate of the miner in TH/s as a int.
