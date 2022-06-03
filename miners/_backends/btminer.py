@@ -80,11 +80,22 @@ class BTMiner(BaseMiner):
 
     async def get_mac(self):
         mac = ""
-        data = await self.api.get_miner_info()
-        if data:
-            if "Msg" in data.keys():
-                if "mac" in data["Msg"].keys():
-                    mac = data["Msg"]["mac"]
+        try:
+            data = await self.api.get_miner_info()
+            if data:
+                if "Msg" in data.keys():
+                    if "mac" in data["Msg"].keys():
+                        mac = data["Msg"]["mac"]
+        except APIError:
+            pass
+        if mac == "":
+            data = await self.api.summary()
+            if data:
+                if data.get("SUMMARY"):
+                    if len(data["SUMMARY"]) > 0:
+                        _mac = data["SUMMARY"][0].get("MAC")
+                        if _mac:
+                            mac = _mac
         return str(mac).upper()
 
     async def get_data(self):
@@ -92,14 +103,22 @@ class BTMiner(BaseMiner):
 
         try:
             model = await self.get_model()
-            hostname = await self.get_hostname()
-            mac = await self.get_mac()
         except APIError:
-            logging.warning(f"Failed to get hostname, mac, and model: {self}")
+            logging.info(f"Failed to get model: {self}")
             model = None
             data.model = "Whatsminer"
+
+        try:
+            hostname = await self.get_hostname()
+        except APIError:
+            logging.info(f"Failed to get hostname: {self}")
             hostname = None
             data.hostname = "Whatsminer"
+
+        try:
+            mac = await self.get_mac()
+        except APIError:
+            logging.info(f"Failed to get mac: {self}")
             mac = None
 
         if model:
