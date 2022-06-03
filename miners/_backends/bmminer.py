@@ -135,12 +135,16 @@ class BMMiner(BaseMiner):
 
         model = await self.get_model()
         hostname = await self.get_hostname()
+        mac = await self.get_mac()
 
         if model:
             data.model = model
 
         if hostname:
             data.hostname = hostname
+
+        if mac:
+            data.mac = mac
 
         miner_data = None
         for i in range(DATA_RETRIES):

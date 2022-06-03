@@ -23,6 +23,19 @@ class BMMinerS19Pro(BMMiner, S19Pro):
                     hostname = data["hostname"]
         return hostname
 
+    async def get_mac(self):
+        mac = None
+        url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            if len(data.keys()) > 0:
+                if "macaddr" in data.keys():
+                    mac = data["macaddr"]
+        return mac
+
     async def fault_light_on(self) -> bool:
         url = f"http://{self.ip}/cgi-bin/blink.cgi"
         auth = httpx.DigestAuth("root", "root")
