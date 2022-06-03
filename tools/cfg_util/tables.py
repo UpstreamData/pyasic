@@ -229,9 +229,9 @@ class TableManager(metaclass=Singleton):
             "Temp",
             "Total",
             "Ideal",
-            "Left Chips",
-            "Center Chips",
-            "Right Chips",
+            "Left Board",
+            "Center Board",
+            "Right Board",
         ]:
             if isinstance(self.data[data_key][self.sort_key], str):
                 return -300
