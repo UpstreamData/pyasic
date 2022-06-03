@@ -80,26 +80,29 @@ class BTMiner(BaseMiner):
 
     async def get_mac(self):
         mac = ""
-        try:
-            data = await self.api.get_miner_info()
-            if data:
-                if "Msg" in data.keys():
-                    if "mac" in data["Msg"].keys():
-                        mac = data["Msg"]["mac"]
-        except APIError:
-            pass
+        data = await self.api.summary()
+        if data:
+            if data.get("SUMMARY"):
+                if len(data["SUMMARY"]) > 0:
+                    _mac = data["SUMMARY"][0].get("MAC")
+                    if _mac:
+                        mac = _mac
         if mac == "":
-            data = await self.api.summary()
-            if data:
-                if data.get("SUMMARY"):
-                    if len(data["SUMMARY"]) > 0:
-                        _mac = data["SUMMARY"][0].get("MAC")
-                        if _mac:
-                            mac = _mac
+            try:
+                data = await self.api.get_miner_info()
+                if data:
+                    if "Msg" in data.keys():
+                        if "mac" in data["Msg"].keys():
+                            mac = data["Msg"]["mac"]
+            except APIError:
+                pass
+
         return str(mac).upper()
 
     async def get_data(self):
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        mac = None
 
         try:
             model = await self.get_model()
@@ -115,20 +118,11 @@ class BTMiner(BaseMiner):
             hostname = None
             data.hostname = "Whatsminer"
 
-        try:
-            mac = await self.get_mac()
-        except APIError:
-            logging.info(f"Failed to get mac: {self}")
-            mac = None
-
         if model:
             data.model = model
 
         if hostname:
             data.hostname = hostname
-
-        if mac:
-            data.mac = mac
 
         miner_data = None
         for i in range(DATA_RETRIES):
@@ -150,6 +144,9 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
+                    if summary_data[0].get("MAC"):
+                        mac = summary_data[0]["MAC"]
+
                     data.fan_1 = summary_data[0]["Fan Speed In"]
                     data.fan_2 = summary_data[0]["Fan Speed Out"]
 
@@ -232,5 +229,15 @@ class BTMiner(BaseMiner):
 
             if quota:
                 data.pool_split = str(quota)
+
+        if not mac:
+            try:
+                mac = await self.get_mac()
+            except APIError:
+                logging.info(f"Failed to get mac: {self}")
+                mac = None
+
+            if mac:
+                data.mac = mac
 
         return data
