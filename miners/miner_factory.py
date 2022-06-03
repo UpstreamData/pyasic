@@ -161,6 +161,7 @@ MINER_CLASSES = {
     "M31S+": {
         "Default": BTMinerM31SPlus,
         "BTMiner": BTMinerM31SPlus,
+        "20": BTMinerM31SPlusVE20,
     },
     "M32S": {
         "Default": BTMinerM32S,
@@ -430,12 +431,16 @@ class MinerFactory(metaclass=Singleton):
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
-                ver = model.split("VG")[1]
-                model = model.split("V")[0]
+                _ver = model.split("V")
+                if len(_ver) > 1:
+                    if "VE" in model:
+                        ver = model.split("VE")[1]
+                    if "VG" in model:
+                        ver = model.split("VG")[1]
+                    model = model.split("V")[0]
             # don't need "Bitmain", just "Antminer XX" as model
             if "Bitmain " in model:
                 model = model.replace("Bitmain ", "")
-
         return model, api, ver
 
     @staticmethod

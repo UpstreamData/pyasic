@@ -13,6 +13,10 @@ if (
 
 
 def main():
+    from logger import init_logger
+
+    init_logger()
+
     asyncio.run(ui())
 
 
