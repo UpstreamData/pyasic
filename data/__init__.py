@@ -35,6 +35,7 @@ class MinerData:
 
     ip: str
     datetime: datetime = None
+    mac: str = "00:00:00:00:00:00"
     model: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0

@@ -93,18 +93,24 @@ class BTMiner(BaseMiner):
         try:
             model = await self.get_model()
             hostname = await self.get_hostname()
+            mac = await self.get_mac()
         except APIError:
-            logging.warning(f"Failed to get hostname and model: {self}")
+            logging.warning(f"Failed to get hostname, mac, and model: {self}")
             model = None
             data.model = "Whatsminer"
             hostname = None
             data.hostname = "Whatsminer"
+            mac = None
 
         if model:
             data.model = model
 
         if hostname:
             data.hostname = hostname
+
+        if mac:
+            data.mac = mac
+
         miner_data = None
         for i in range(DATA_RETRIES):
             try:
