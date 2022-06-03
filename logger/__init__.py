@@ -15,7 +15,7 @@ def init_logger():
         _logger.setLevel(logging.DEBUG)
         logging.getLogger("asyncssh").setLevel(logging.DEBUG)
     else:
-        _logger.setLevel(logging.INFO)
+        _logger.setLevel(logging.WARNING)
         logging.getLogger("asyncssh").setLevel(logging.WARNING)
 
     return _logger

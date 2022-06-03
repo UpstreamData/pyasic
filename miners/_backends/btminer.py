@@ -41,7 +41,7 @@ class BTMiner(BaseMiner):
                 self.hostname = host
                 return self.hostname
         except APIError:
-            logging.warning(f"Failed to get hostname for miner: {self}")
+            logging.info(f"Failed to get hostname for miner: {self}")
             return "?"
         except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
