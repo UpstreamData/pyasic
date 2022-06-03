@@ -133,8 +133,10 @@ MINER_CLASSES = {
         "BTMiner": BTMinerM21,
     },
     "M21S": {
-        "Default": BTMinerM21S,
-        "BTMiner": BTMinerM21S,
+        "Default": BTMinerM21SV60,
+        "BTMiner": BTMinerM21SV60,
+        "60": BTMinerM21SV60,
+        "20": BTMinerM21SV20,
     },
     "M21S+": {
         "Default": BTMinerM21SPlus,
@@ -143,6 +145,7 @@ MINER_CLASSES = {
     "M30S": {
         "Default": BTMinerM30S,
         "BTMiner": BTMinerM30S,
+        "50": BTMinerM30SV50,
     },
     "M30S+": {
         "Default": BTMinerM30SPlus,
@@ -433,6 +436,7 @@ class MinerFactory(metaclass=Singleton):
             if "V" in model:
                 _ver = model.split("V")
                 if len(_ver) > 1:
+                    ver = model.split("V")[1]
                     if "VE" in model:
                         ver = model.split("VE")[1]
                     if "VG" in model:

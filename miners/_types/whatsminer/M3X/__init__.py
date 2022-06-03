@@ -1,4 +1,4 @@
-from .M30S import M30S
+from .M30S import M30S, M30SV50
 from .M30S_Plus import M30SPlus
 from .M30S_Plus_Plus import M30SPlusPlusVG30, M30SPlusPlusVG40
 
