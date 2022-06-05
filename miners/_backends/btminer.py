@@ -237,7 +237,7 @@ class BTMiner(BaseMiner):
                 logging.info(f"Failed to get mac: {self}")
                 mac = None
 
-            if mac:
-                data.mac = mac
+        if mac:
+            data.mac = mac
 
         return data
