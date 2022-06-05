@@ -1,10 +1,18 @@
 import ipaddress
+import logging
+import json
+
+import toml
+
 
 from miners import BaseMiner
 from API.bosminer import BOSMinerAPI
-import toml
+from API import APIError
+
+from data import MinerData
+
 from config.bos import bos_config_convert, general_config_convert_bos
-import logging
+
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
@@ -16,6 +24,7 @@ class BOSMiner(BaseMiner):
         self.api_type = "BOSMiner"
         self.uname = "root"
         self.pwd = "admin"
+        self.config = None
 
     async def send_ssh_command(self, cmd: str) -> str or None:
         """Send a command to the miner over ssh.
@@ -114,7 +123,7 @@ class BOSMiner(BaseMiner):
                 else:
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
-        except Exception as e:
+        except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
@@ -129,7 +138,17 @@ class BOSMiner(BaseMiner):
             return self.model + " (BOS)"
 
         # get devdetails data
-        version_data = await self.api.devdetails()
+        try:
+            version_data = await self.api.devdetails()
+        except APIError as e:
+            version_data = None
+            if e.message == "Not ready":
+                cfg = json.loads(await self.send_ssh_command("bosminer config --data"))
+                model = cfg.get("data").get("format").get("model")
+                if model:
+                    model = model.replace("Antminer ", "")
+                    self.model = model
+                    return self.model + " (BOS)"
 
         # if we get data back, parse it for model
         if version_data:
@@ -160,7 +179,7 @@ class BOSMiner(BaseMiner):
 
         # if we get the version data, parse it
         if version_data:
-            self.version = version_data.stdout.split("-")[5]
+            self.version = version_data.split("-")[5]
             logging.debug(f"Found version for {self.ip}: {self.version}")
             return self.version
 
@@ -203,10 +222,6 @@ class BOSMiner(BaseMiner):
                 nominal = False
             else:
                 nominal = True
-            if not board["Chips"] == self.nominal_chips:
-                nominal = False
-            else:
-                nominal = True
             boards[board["ID"] - offset].append(
                 {
                     "chain": board["ID"] - offset,
@@ -241,66 +256,73 @@ class BOSMiner(BaseMiner):
         if not bad > 0:
             return str(self.ip)
 
-    async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temp": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Total": 0,
-            "Ideal": self.nominal_chips * 3,
-            "Left Board": 0,
-            "Center Board": 0,
-            "Right Board": 0,
-            "Nominal": False,
-            "Split": "0",
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
+    async def get_data(self) -> MinerData:
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        board_offset = -1
+        fan_offset = -1
+
         model = await self.get_model()
         hostname = await self.get_hostname()
+        mac = await self.get_mac()
 
         if model:
-            data["Model"] = model
+            data.model = model
 
         if hostname:
-            data["Hostname"] = hostname
+            data.hostname = hostname
+
+        if mac:
+            data.mac = mac
 
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand(
-                "summary", "temps", "tunerstatus", "pools", "devdetails"
-            )
+            try:
+                miner_data = await self.api.multicommand(
+                    "summary", "temps", "tunerstatus", "pools", "devdetails", "fans"
+                )
+            except APIError as e:
+                if str(e.message) == "Not ready":
+                    miner_data = await self.api.multicommand(
+                        "summary", "tunerstatus", "pools", "fans"
+                    )
             if miner_data:
                 break
         if not miner_data:
             return data
-        summary = miner_data.get("summary")[0]
-        temps = miner_data.get("temps")[0]
-        tunerstatus = miner_data.get("tunerstatus")[0]
-        pools = miner_data.get("pools")[0]
-        devdetails = miner_data.get("devdetails")[0]
+        summary = miner_data.get("summary")
+        temps = miner_data.get("temps")
+        tunerstatus = miner_data.get("tunerstatus")
+        pools = miner_data.get("pools")
+        devdetails = miner_data.get("devdetails")
+        fans = miner_data.get("fans")
 
         if summary:
-            hr = summary.get("SUMMARY")
+            hr = summary[0].get("SUMMARY")
             if hr:
                 if len(hr) > 0:
-                    hr = hr[0].get("MHS av")
+                    hr = hr[0].get("MHS 1m")
                     if hr:
-                        data["Hashrate"] = round(hr / 1000000, 2)
+                        data.hashrate = round(hr / 1000000, 2)
 
         if temps:
-            temp = temps.get("TEMPS")
+            temp = temps[0].get("TEMPS")
             if temp:
                 if len(temp) > 0:
-                    chip_temp = temp[0].get("Chip")
-                    if chip_temp:
-                        data["Temp"] = round(chip_temp)
+                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+                    offset = 6 if temp[0]["ID"] in [6, 7, 8] else temp[0]["ID"]
+                    for board in temp:
+                        _id = board["ID"] - offset
+                        chip_temp = round(board["Chip"])
+                        board_temp = round(board["Board"])
+                        setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
+                        setattr(data, f"{board_map[_id]}_temp", board_temp)
+
+        if fans:
+            fan_data = fans[0].get("FANS")
+            if fan_data:
+                for fan in range(self.fan_count):
+                    setattr(data, f"fan_{fan+1}", fan_data[fan]["RPM"])
 
         if pools:
             pool_1 = None
@@ -310,7 +332,7 @@ class BOSMiner(BaseMiner):
             pool_1_quota = 1
             pool_2_quota = 1
             quota = 0
-            for pool in pools.get("POOLS"):
+            for pool in pools[0].get("POOLS"):
                 if not pool_1_user:
                     pool_1_user = pool.get("User")
                     pool_1 = pool["URL"]
@@ -328,47 +350,44 @@ class BOSMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
-                pool_1 = pool_1.replace("stratum+tcp://", "")
-                pool_1 = pool_1.replace("stratum2+tcp://", "")
-                data["Pool 1"] = pool_1
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
 
             if pool_1_user:
-                data["Pool 1 User"] = pool_1_user
-                data["Pool User"] = pool_1_user
+                data.pool_1_user = pool_1_user
 
             if pool_2:
-                pool_2 = pool_2.replace("stratum+tcp://", "")
-                pool_2 = pool_2.replace("stratum2+tcp://", "")
-                data["Pool 2"] = pool_2
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
 
             if pool_2_user:
-                data["Pool 2 User"] = pool_2_user
+                data.pool_2_user = pool_2_user
 
             if quota:
-                data["Split"] = str(quota)
+                data.pool_split = str(quota)
 
         if tunerstatus:
-            tuner = tunerstatus.get("TUNERSTATUS")
+            tuner = tunerstatus[0].get("TUNERSTATUS")
             if tuner:
                 if len(tuner) > 0:
                     wattage = tuner[0].get("PowerLimit")
                     if wattage:
-                        data["Wattage"] = wattage
+                        data.wattage = wattage
 
         if devdetails:
-            boards = devdetails.get("DEVDETAILS")
+            boards = devdetails[0].get("DEVDETAILS")
             if boards:
                 if len(boards) > 0:
-                    board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
-                    offset = boards[0]["ID"]
+                    board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
+                    offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
                     for board in boards:
-                        id = board["ID"] - offset
+                        _id = board["ID"] - offset
                         chips = board["Chips"]
-                        data["Total"] += chips
-                        data[board_map[id]] = chips
-
-        if data["Total"] == data["Ideal"]:
-            data["Nominal"] = True
+                        setattr(data, board_map[_id], chips)
 
         return data
 

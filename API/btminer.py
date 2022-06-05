@@ -163,6 +163,7 @@ class BTMinerAPI(BaseMinerAPI):
         command: str or bytes,
         parameters: str or int or bool = None,
         ignore_errors: bool = False,
+        **kwargs,
     ) -> dict:
         """Send a command to the miner API.
 
@@ -434,7 +435,7 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
         return await self.send_command(enc_command)
 
-    async def update_firmware(self):
+    async def update_firmware(self):  # noqa - static
         # to be determined if this will be added later
         # requires a file stream in bytes
         return NotImplementedError

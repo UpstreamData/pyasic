@@ -6,3 +6,4 @@ class Avalon821(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "Avalon 821"
+        self.fan_count = 2

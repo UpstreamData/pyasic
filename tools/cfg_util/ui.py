@@ -9,12 +9,15 @@ from tools.cfg_util.commands import (
     btn_reboot,
     btn_backend,
     btn_command,
+    btn_cancel_listen,
+    btn_listen,
 )
 from tools.cfg_util.configure import (
     generate_config_ui,
     btn_import,
     btn_config,
 )
+from tools.cfg_util.record import record_ui
 from tools.cfg_util.layout import window, TABLE_KEYS
 from tools.cfg_util.general import btn_all, btn_web, btn_refresh
 from tools.cfg_util.tables import TableManager
@@ -47,7 +50,7 @@ def _table_copy(table):
             for item in value:
                 values.append(str(item).strip())
             _copy_values.append(values)
-        except Exception as E:
+        except Exception:
             pass
 
     copy_values = []
@@ -88,7 +91,7 @@ async def ui():
         bind_ctrl_a(key)
 
     # create images used in the table, they will not show if not saved here
-    tk_imgs = TkImages()
+    tk_imgs = TkImages()  # noqa - need to save this in memory to hold images
 
     # left justify hostnames
     window["scan_table"].Widget.column(2, anchor=tk.W)
@@ -100,7 +103,7 @@ async def ui():
     window["cmd_table"].Widget.column("#0", stretch=tk.NO, anchor=tk.CENTER)
 
     while True:
-        event, value = window.read(0)
+        event, value = window.read(0.001)
         if event in (None, "Close", sg.WIN_CLOSED):
             sys.exit()
 
@@ -123,6 +126,16 @@ async def ui():
             asyncio.create_task(btn_refresh(_table, value[_table]))
         if event == "btn_scan":
             asyncio.create_task(btn_scan(value["scan_ip"]))
+        if event == "record":
+            _table = "scan_table"
+            if value[_table]:
+                ips = [window[_table].Values[row][0] for row in value[_table]]
+            else:
+                ips = [
+                    window[_table].Values[row][0]
+                    for row in range(len(window[_table].Values))
+                ]
+            asyncio.create_task(record_ui(ips))
 
         # boards tab
         if event == "boards_all":
@@ -193,9 +206,14 @@ async def ui():
             _table = "cmd_table"
             _ips = value[_table]
             asyncio.create_task(btn_command(_ips, value["cmd_txt"]))
+        if event == "cmd_listen":
+            asyncio.create_task(btn_listen())
+        if not isinstance(event, tuple):
+            if event.endswith("cancel_listen"):
+                asyncio.create_task(btn_cancel_listen())
 
         if event == "__TIMEOUT__":
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.001)
 
 
 if __name__ == "__main__":

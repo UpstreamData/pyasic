@@ -1,5 +1,5 @@
-from miners._backends import Hiveon
-from miners._types import T9
+from miners._backends import Hiveon  # noqa - Ignore access to _module
+from miners._types import T9  # noqa - Ignore access to _module
 
 
 class HiveonT9(Hiveon, T9):

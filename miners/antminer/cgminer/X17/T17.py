@@ -1,5 +1,5 @@
-from miners._backends import CGMiner
-from miners._types import T17
+from miners._backends import CGMiner  # noqa - Ignore access to _module
+from miners._types import T17  # noqa - Ignore access to _module
 
 
 class CGMinerT17(CGMiner, T17):

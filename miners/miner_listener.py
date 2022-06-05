@@ -13,11 +13,12 @@ class Singleton(type):
 class _MinerListener:
     def __init__(self):
         self.responses = {}
+        self.transport = None
 
     def connection_made(self, transport):
         self.transport = transport
 
-    def datagram_received(self, data, addr):
+    def datagram_received(self, data, _addr):
         m = data.decode()
         ip, mac = m.split(",")
         new_miner = {"IP": ip, "MAC": mac.upper()}
@@ -34,10 +35,12 @@ class MinerListener(metaclass=Singleton):
         self.stop = False
 
     async def listen(self):
+        self.stop = False
+
         loop = asyncio.get_running_loop()
 
         transport, protocol = await loop.create_datagram_endpoint(
-            lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)
+            lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)  # noqa
         )
 
         while True:

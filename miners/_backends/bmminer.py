@@ -1,8 +1,13 @@
+import ipaddress
+import logging
+
+
 from API.bmminer import BMMinerAPI
 from miners import BaseMiner
-import logging
+
+from data import MinerData
+
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
-import ipaddress
 
 
 class BMMiner(BaseMiner):
@@ -62,7 +67,7 @@ class BMMiner(BaseMiner):
                     # return ? if we fail to get hostname with no ssh connection
                     logging.warning(f"Failed to get hostname for miner: {self}")
                     return "?"
-        except Exception as e:
+        except Exception:
             # return ? if we fail to get hostname with an exception
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
@@ -122,40 +127,30 @@ class BMMiner(BaseMiner):
             return True
         return False
 
-    async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temp": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Total": 0,
-            "Ideal": self.nominal_chips * 3,
-            "Left Board": 0,
-            "Center Board": 0,
-            "Right Board": 0,
-            "Nominal": False,
-            "Split": "0",
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
+    async def get_data(self) -> MinerData:
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        board_offset = -1
+        fan_offset = -1
 
         model = await self.get_model()
         hostname = await self.get_hostname()
+        mac = await self.get_mac()
 
         if model:
-            data["Model"] = model
+            data.model = model
 
         if hostname:
-            data["Hostname"] = hostname
+            data.hostname = hostname
+
+        if mac:
+            data.mac = mac
 
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            miner_data = await self.api.multicommand(
+                "summary", "pools", "stats", ignore_x19_error=True
+            )
             if miner_data:
                 break
 
@@ -172,28 +167,47 @@ class BMMiner(BaseMiner):
                 if len(hr) > 0:
                     hr = hr[0].get("GHS av")
                     if hr:
-                        data["Hashrate"] = round(hr / 1000, 2)
+                        data.hashrate = round(hr / 1000, 2)
 
         if stats:
             boards = stats.get("STATS")
             if boards:
                 if len(boards) > 0:
-                    data["Left Board"] = boards[1].get("chain_acn1")
-                    data["Center Board"] = boards[1].get("chain_acn2")
-                    data["Right Board"] = boards[1].get("chain_acn3")
-                    data["Total"] = boards[1].get("total_acn")
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
 
-        if data["Total"] == data["Ideal"]:
-            data["Nominal"] = True
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
+
+                    data.left_chips = boards[1].get(f"chain_acn{board_offset}")
+                    data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
+                    data.right_chips = boards[1].get(f"chain_acn{board_offset+2}")
 
         if stats:
             temp = stats.get("STATS")
             if temp:
                 if len(temp) > 1:
-                    for item in ["temp2", "temp1", "temp3"]:
-                        temperature = temp[1].get(item)
-                        if temperature and not temperature == 0.0:
-                            data["Temp"] = round(temperature)
+                    for fan_num in range(1, 8, 4):
+                        for _f_num in range(4):
+                            f = temp[1].get(f"fan{fan_num + _f_num}")
+                            if f and not f == 0 and fan_offset == -1:
+                                fan_offset = fan_num
+                    if fan_offset == -1:
+                        fan_offset = 1
+                    for fan in range(self.fan_count):
+                        setattr(
+                            data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
+                        )
+
+                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+                    for item in range(3):
+                        board_temp = temp[1].get(f"temp{item + board_offset}")
+                        chip_temp = temp[1].get(f"temp2_{item + board_offset}")
+                        setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
+                        setattr(data, f"{board_map[item]}_temp", board_temp)
 
         if pools:
             pool_1 = None
@@ -221,27 +235,24 @@ class BMMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
-                if pool_1.startswith("stratum+tcp://"):
-                    pool_1.replace("stratum+tcp://", "")
-                if pool_1.startswith("stratum2+tcp://"):
-                    pool_1.replace("stratum2+tcp://", "")
-                data["Pool 1"] = pool_1
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
 
             if pool_1_user:
-                data["Pool 1 User"] = pool_1_user
-                data["Pool User"] = pool_1_user
+                data.pool_1_user = pool_1_user
 
             if pool_2:
-                if pool_2.startswith("stratum+tcp://"):
-                    pool_2.replace("stratum+tcp://", "")
-                if pool_2.startswith("stratum2+tcp://"):
-                    pool_2.replace("stratum2+tcp://", "")
-                data["Pool 2"] = pool_2
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
 
             if pool_2_user:
-                data["Pool 2 User"] = pool_2_user
+                data.pool_2_user = pool_2_user
 
             if quota:
-                data["Split"] = str(quota)
+                data.pool_split = str(quota)
 
         return data

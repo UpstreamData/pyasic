@@ -1,7 +1,7 @@
-from fastapi import WebSocket
 import logging
 
-from miners.miner_factory import MinerFactory
+from fastapi import WebSocket
+
 from tools.web_testbench._network import miner_network
 
 
@@ -39,5 +39,5 @@ class ConnectionManager:
         for connection in ConnectionManager._connections:
             try:
                 await connection.send_json(data)
-            except Exception as e:
+            except Exception:
                 self.disconnect(connection)

@@ -4,7 +4,7 @@ from miners.miner_factory import MinerFactory
 from network import MinerNetwork
 from tools.cfg_util.decorators import disable_buttons
 from tools.cfg_util.layout import window, update_prog_bar, TABLE_HEADERS
-from tools.cfg_util.tables import clear_tables, TableManager
+from tools.cfg_util.tables import clear_tables, TableManager, DATA_HEADER_MAP
 
 progress_bar_len = 0
 
@@ -17,10 +17,8 @@ for table in TABLE_HEADERS:
 
 
 async def btn_all():
-    table = "scan_table"
-    window[table].update(
-        select_rows=([row for row in range(len(window[table].Values))])
-    )
+    tbl = "scan_table"
+    window[tbl].update(select_rows=([row for row in range(len(window[tbl].Values))]))
 
 
 async def btn_scan(scan_ip: str):
@@ -95,4 +93,9 @@ async def _get_miner_data(miner):
 
 
 async def _get_data(miner):
-    return await miner.get_data()
+    _data = (await miner.get_data()).asdict()
+    data = {}
+    for item in _data.keys():
+        if item in DATA_HEADER_MAP.keys():
+            data[DATA_HEADER_MAP[item]] = _data[item]
+    return data

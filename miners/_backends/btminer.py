@@ -1,9 +1,14 @@
+import ipaddress
+import logging
+
+
 from API.btminer import BTMinerAPI
 from miners import BaseMiner
 from API import APIError
-import logging
+
+from data import MinerData
+
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
-import ipaddress
 
 
 class BTMiner(BaseMiner):
@@ -36,9 +41,9 @@ class BTMiner(BaseMiner):
                 self.hostname = host
                 return self.hostname
         except APIError:
-            logging.warning(f"Failed to get hostname for miner: {self}")
+            logging.info(f"Failed to get hostname for miner: {self}")
             return "?"
-        except Exception as e:
+        except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
@@ -75,50 +80,50 @@ class BTMiner(BaseMiner):
 
     async def get_mac(self):
         mac = ""
-        data = await self.api.get_miner_info()
+        data = await self.api.summary()
         if data:
-            if "Msg" in data.keys():
-                if "mac" in data["Msg"].keys():
-                    mac = data["Msg"]["mac"]
+            if data.get("SUMMARY"):
+                if len(data["SUMMARY"]) > 0:
+                    _mac = data["SUMMARY"][0].get("MAC")
+                    if _mac:
+                        mac = _mac
+        if mac == "":
+            try:
+                data = await self.api.get_miner_info()
+                if data:
+                    if "Msg" in data.keys():
+                        if "mac" in data["Msg"].keys():
+                            mac = data["Msg"]["mac"]
+            except APIError:
+                pass
+
         return str(mac).upper()
 
     async def get_data(self):
-        data = {
-            "IP": str(self.ip),
-            "Model": "Unknown",
-            "Hostname": "Unknown",
-            "Hashrate": 0,
-            "Temp": 0,
-            "Pool User": "Unknown",
-            "Wattage": 0,
-            "Total": 0,
-            "Ideal": self.nominal_chips * 3,
-            "Left Board": 0,
-            "Center Board": 0,
-            "Right Board": 0,
-            "Nominal": False,
-            "Split": "0",
-            "Pool 1": "Unknown",
-            "Pool 1 User": "Unknown",
-            "Pool 2": "",
-            "Pool 2 User": "",
-        }
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        mac = None
 
         try:
             model = await self.get_model()
+        except APIError:
+            logging.info(f"Failed to get model: {self}")
+            model = None
+            data.model = "Whatsminer"
+
+        try:
             hostname = await self.get_hostname()
         except APIError:
-            logging.warning(f"Failed to get hostname and model: {self}")
-            model = None
-            data["Model"] = "Whatsminer"
+            logging.info(f"Failed to get hostname: {self}")
             hostname = None
-            data["Hostname"] = "Whatsminer"
+            data.hostname = "Whatsminer"
 
         if model:
-            data["Model"] = model
+            data.model = model
 
         if hostname:
-            data["Hostname"] = hostname
+            data.hostname = hostname
+
         miner_data = None
         for i in range(DATA_RETRIES):
             try:
@@ -139,41 +144,45 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
-                    hr = summary_data[0].get("MHS av")
+                    if summary_data[0].get("MAC"):
+                        mac = summary_data[0]["MAC"]
+
+                    data.fan_1 = summary_data[0]["Fan Speed In"]
+                    data.fan_2 = summary_data[0]["Fan Speed Out"]
+
+                    hr = summary_data[0].get("MHS 1m")
                     if hr:
-                        data["Hashrate"] = round(hr / 1000000, 2)
+                        data.hashrate = round(hr / 1000000, 2)
 
                     wattage = summary_data[0].get("Power")
                     if wattage:
-                        data["Wattage"] = round(wattage)
+                        data.wattage = round(wattage)
 
         if devs:
             temp_data = devs.get("DEVS")
             if temp_data:
+                board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                 for board in temp_data:
-                    temp = board.get("Chip Temp Avg")
-                    if temp and not temp == 0.0:
-                        data["Temp"] = round(temp)
-                        break
+                    _id = board["ASC"]
+                    chip_temp = round(board["Chip Temp Avg"])
+                    board_temp = round(board["Temperature"])
+                    setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
+                    setattr(data, f"{board_map[_id]}_temp", board_temp)
 
         if devs:
             boards = devs.get("DEVS")
             if boards:
                 if len(boards) > 0:
-                    board_map = {0: "Left Board", 1: "Center Board", 2: "Right Board"}
+                    board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
                     if "ID" in boards[0].keys():
                         id_key = "ID"
                     else:
                         id_key = "ASC"
                     offset = boards[0][id_key]
                     for board in boards:
-                        id = board[id_key] - offset
+                        _id = board[id_key] - offset
                         chips = board["Effective Chips"]
-                        data["Total"] += chips
-                        data[board_map[id]] = chips
-
-        if data["Total"] == data["Ideal"]:
-            data["Nominal"] = True
+                        setattr(data, board_map[_id], chips)
 
         if pools:
             pool_1 = None
@@ -201,27 +210,34 @@ class BTMiner(BaseMiner):
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 
             if pool_1:
-                if pool_1.startswith("stratum+tcp://"):
-                    pool_1.replace("stratum+tcp://", "")
-                if pool_1.startswith("stratum2+tcp://"):
-                    pool_1.replace("stratum2+tcp://", "")
-                data["Pool 1"] = pool_1
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
 
             if pool_1_user:
-                data["Pool 1 User"] = pool_1_user
-                data["Pool User"] = pool_1_user
+                data.pool_1_user = pool_1_user
 
             if pool_2:
-                if pool_2.startswith("stratum+tcp://"):
-                    pool_2.replace("stratum+tcp://", "")
-                if pool_2.startswith("stratum2+tcp://"):
-                    pool_2.replace("stratum2+tcp://", "")
-                data["Pool 2"] = pool_2
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
 
             if pool_2_user:
-                data["Pool 2 User"] = pool_2_user
+                data.pool_2_user = pool_2_user
 
             if quota:
-                data["Split"] = str(quota)
+                data.pool_split = str(quota)
+
+        if not mac:
+            try:
+                mac = await self.get_mac()
+            except APIError:
+                logging.info(f"Failed to get mac: {self}")
+                mac = None
+
+            if mac:
+                data.mac = mac
 
         return data

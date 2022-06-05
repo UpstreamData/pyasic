@@ -7,12 +7,11 @@ import datetime
 from network import ping_miner
 from miners.miner_factory import MinerFactory
 from miners.antminer import BOSMinerS9
-from miners._backends.bosminer_old import BOSMinerOld
+from miners._backends.bosminer_old import BOSMinerOld  # noqa - Ignore access to _module
 from miners.unknown import UnknownMiner
 from tools.web_testbench.connections import ConnectionManager
 from tools.web_testbench.feeds import get_local_versions
 from settings import NETWORK_PING_TIMEOUT as PING_TIMEOUT
-import sys
 
 REFERRAL_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "referral.ipk")
 UPDATE_FILE_S9 = os.path.join(os.path.dirname(__file__), "files", "update.tar")
@@ -21,12 +20,37 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "files", "config.toml")
 # static states
 (START, UNLOCK, INSTALL, UPDATE, REFERRAL, DONE, ERROR) = range(7)
 
-if (
-    sys.version_info[0] == 3
-    and sys.version_info[1] >= 8
-    and sys.platform.startswith("win")
-):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+# if (
+#     sys.version_info[0] == 3
+#     and sys.version_info[1] >= 8
+#     and sys.platform.startswith("win")
+# ):
+#     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Miners(metaclass=Singleton):
+    def __init__(self):
+        self.miners = []
+
+    def get_count(self):
+        return len(self.miners)
+
+    def __add__(self, other):
+        if other not in self.miners:
+            self.miners.append(other)
+
+    def __sub__(self, other):
+        if other in self.miners:
+            self.miners.remove(other)
 
 
 class TestbenchMiner:
@@ -75,15 +99,26 @@ class TestbenchMiner:
     async def install_start(self):
         try:
             if not await ping_miner(self.host, 80):
+                data = {
+                    "IP": str(self.host),
+                    "Count": Miners().get_count(),
+                }
+                await ConnectionManager().broadcast_json(data)
                 await self.add_to_output("Waiting for miner connection...")
+                miners = Miners()
+                miners -= self.host
                 return
         except asyncio.exceptions.TimeoutError:
             await self.add_to_output("Waiting for miner connection...")
+            miners = Miners()
+            miners -= self.host
             return
         self.start_time = datetime.datetime.now()
         await ConnectionManager().broadcast_json(
             {"IP": str(self.host), "Light": "hide", "online": self.get_online_time()}
         )
+        miners = Miners()
+        miners += self.host
         await self.remove_from_cache()
         miner = await MinerFactory().get_miner(self.host)
         await self.add_to_output("Found miner: " + str(miner))
@@ -114,7 +149,10 @@ class TestbenchMiner:
         elif isinstance(miner, UnknownMiner):
             await self.add_to_output("Unknown Miner found, attempting to fix.")
             try:
-                async with (await miner._get_ssh_connection()) as conn:
+                await self.do_install()
+                async with (
+                    await miner._get_ssh_connection()  # noqa - Ignore access to _function
+                ) as conn:
                     result = await conn.run("opkg update && opkg upgrade firmware")
             except:
                 await self.add_to_output("Fix failed, please manually reset miner.")
@@ -191,6 +229,10 @@ class TestbenchMiner:
             if "ERROR:Auth" in stdout_data:
                 error = "AUTH"
                 proc.kill()
+            if "INFO:Remote target is already running Braiins OS" in stdout_data:
+                proc.kill()
+                self.state = UPDATE
+                return
             await self.add_to_output(stdout_data)
             if stdout == b"":
                 break
@@ -239,7 +281,7 @@ class TestbenchMiner:
             await miner.send_ssh_command(
                 "opkg install /tmp/referral.ipk && /etc/init.d/bosminer restart"
             )
-        except Exception as e:
+        except Exception:
             await self.add_to_output(
                 "Failed to add referral and configure, restarting."
             )
@@ -298,7 +340,6 @@ class TestbenchMiner:
                 )
 
             if len(hr_data.keys()) < 3:
-                print(devs_raw["DEVS"])
                 for board in [6, 7, 8]:
                     if f"board_{board}" not in hr_data.keys():
                         hr_data[f"board_{board}"] = {"HR": 0}
@@ -339,6 +380,7 @@ class TestbenchMiner:
                 "Temps": temps_data,
                 "online": self.get_online_time(),
                 "Tuner": tuner_data,
+                "Count": Miners().get_count(),
             }
 
             # return stats
@@ -369,6 +411,7 @@ class TestbenchMiner:
                     "board_7": {"power_limit": 275, "real_power": 0, "status": "None"},
                     "board_8": {"power_limit": 275, "real_power": 0, "status": "None"},
                 },
+                "Count": Miners().get_count(),
             }
 
     async def install_done(self):
@@ -385,6 +428,7 @@ class TestbenchMiner:
                         "IP": str(self.host),
                         "Light": "show",
                         "online": self.get_online_time(),
+                        "Count": Miners().get_count(),
                     }
                     print(f"Getting data failed: {self.host}")
 
@@ -402,6 +446,11 @@ class TestbenchMiner:
         self.state = START
         await self.add_to_output("Miner disconnected, waiting for new miner.")
         self.start_time = None
+
+    async def long_test_loop(self):
+        while True:
+            self.state = DONE
+            await self.install_done()
 
     async def install_loop(self):
         self.latest_version = sorted(await get_local_versions(), reverse=True)[0]
@@ -422,6 +471,14 @@ class TestbenchMiner:
                     await self.install_done()
                 if self.state == ERROR:
                     await self.wait_for_disconnect(wait_time=5)
+            except GeneratorExit as E:
+                logging.error(f"{self.host}: {E}")
+                await self.add_to_output(f"Error: {E}")
+            except RuntimeError as E:
+                logging.error(f"{self.host}: {E}")
+                await self.add_to_output(f"Error: {E}")
+                asyncio.create_task(self.install_loop())
+                return
             except Exception as E:
                 logging.error(f"{self.host}: {E}")
                 await self.add_to_output(f"Error: {E}")

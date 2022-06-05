@@ -1,5 +1,5 @@
-from miners._backends import CGMiner
-from miners._types import S17Plus
+from miners._backends import CGMiner  # noqa - Ignore access to _module
+from miners._types import S17Plus  # noqa - Ignore access to _module
 
 
 class CGMinerS17Plus(CGMiner, S17Plus):

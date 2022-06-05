@@ -9,6 +9,27 @@ from tools.cfg_util.imgs import TkImages, LIGHT, FAULT_LIGHT
 import PySimpleGUI as sg
 import ipaddress
 
+DATA_HEADER_MAP = {
+    "ip": "IP",
+    "model": "Model",
+    "hostname": "Hostname",
+    "hashrate": "Hashrate",
+    "temperature_avg": "Temp",
+    "wattage": "Wattage",
+    "ideal_chips": "Ideal",
+    "left_chips": "Left Board",
+    "center_chips": "Center Board",
+    "right_chips": "Right Board",
+    "total_chips": "Total",
+    "nominal": "Nominal",
+    "pool_split": "Split",
+    "pool_1_url": "Pool 1",
+    "pool_1_user": "Pool 1 User",
+    "pool_2_url": "Pool 2",
+    "pool_2_user": "Pool 2 User",
+    "percent_ideal": "Chip %",
+}
+
 
 def update_miner_count(count):
     for button in MINER_COUNT_BUTTONS:
@@ -139,6 +160,11 @@ class TableManager(metaclass=Singleton):
                     item[
                         "Hashrate"
                     ] = f"{format(float(item['Hashrate']), '.2f').rjust(6, ' ')} TH/s"
+
+            if "Chip %" in keys:
+                if not isinstance(item["Chip %"], str):
+                    item["Chip %"] = f"{item['Chip %']}%"
+
             for _key in keys:
                 for table in TABLE_HEADERS.keys():
                     for idx, header in enumerate(TABLE_HEADERS[table]):
@@ -182,6 +208,13 @@ class TableManager(metaclass=Singleton):
         if self.sort_key == "IP":
             return ipaddress.ip_address(self.data[data_key]["IP"])
 
+        if self.sort_key == "Chip %":
+            if self.data[data_key]["Chip %"] == "":
+                return 0
+            if isinstance(self.data[data_key]["Chip %"], int):
+                return self.data[data_key]["Chip %"]
+            return int((self.data[data_key]["Chip %"]).replace("%", ""))
+
         if self.sort_key == "Hashrate":
             if self.data[data_key]["Hashrate"] == "":
                 return -1
@@ -196,9 +229,9 @@ class TableManager(metaclass=Singleton):
             "Temp",
             "Total",
             "Ideal",
-            "Left Chips",
-            "Center Chips",
-            "Right Chips",
+            "Left Board",
+            "Center Board",
+            "Right Board",
         ]:
             if isinstance(self.data[data_key][self.sort_key], str):
                 return -300

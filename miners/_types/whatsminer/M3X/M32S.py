@@ -7,3 +7,4 @@ class M32S(BaseMiner):
         self.ip = ip
         self.model = "M32S"
         self.nominal_chips = 78
+        self.fan_count = 2

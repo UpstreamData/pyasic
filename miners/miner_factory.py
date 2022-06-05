@@ -1,12 +1,18 @@
+from typing import TypeVar, Tuple, List
+from collections.abc import AsyncIterable
+
+
+from miners import BaseMiner
+
 from miners.antminer import *
 from miners.whatsminer import *
 from miners.avalonminer import *
 
-from miners._backends.cgminer import CGMiner
-from miners._backends.bmminer import BMMiner
-from miners._backends.bosminer import BOSMiner
-from miners._backends.btminer import BTMiner
-from miners._backends.bosminer_old import BOSMinerOld
+from miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
+from miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
+from miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
+from miners._backends.btminer import BTMiner  # noqa - Ignore _module import
+from miners._backends.bosminer_old import BOSMinerOld  # noqa - Ignore _module import
 
 from miners.unknown import UnknownMiner
 
@@ -22,6 +28,10 @@ from settings import (
     NETWORK_PING_TIMEOUT as PING_TIMEOUT,
 )
 
+import asyncssh
+
+AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
+
 MINER_CLASSES = {
     "Antminer S9": {
         "Default": BOSMinerS9,
@@ -29,6 +39,10 @@ MINER_CLASSES = {
         "BOSMiner+": BOSMinerS9,
         "BMMiner": BMMinerS9,
         "CGMiner": CGMinerS9,
+    },
+    "Antminer S9i": {
+        "Default": BMMinerS9i,
+        "BMMiner": BMMinerS9i,
     },
     "Antminer S17": {
         "Default": BMMinerS17,
@@ -119,8 +133,10 @@ MINER_CLASSES = {
         "BTMiner": BTMinerM21,
     },
     "M21S": {
-        "Default": BTMinerM21S,
-        "BTMiner": BTMinerM21S,
+        "Default": BTMinerM21SV60,
+        "BTMiner": BTMinerM21SV60,
+        "60": BTMinerM21SV60,
+        "20": BTMinerM21SV20,
     },
     "M21S+": {
         "Default": BTMinerM21SPlus,
@@ -129,14 +145,18 @@ MINER_CLASSES = {
     "M30S": {
         "Default": BTMinerM30S,
         "BTMiner": BTMinerM30S,
+        "50": BTMinerM30SV50,
     },
     "M30S+": {
         "Default": BTMinerM30SPlus,
         "BTMiner": BTMinerM30SPlus,
+        "40": BTMinerM30SPlusVE40,
     },
     "M30S++": {
-        "Default": BTMinerM30SPlusPlus,
-        "BTMiner": BTMinerM30SPlusPlus,
+        "Default": BTMinerM30SPlusPlusVG40,
+        "BTMiner": BTMinerM30SPlusPlusVG40,
+        "40": BTMinerM30SPlusPlusVG40,
+        "30": BTMinerM30SPlusPlusVG30,
     },
     "M31S": {
         "Default": BTMinerM31S,
@@ -145,6 +165,7 @@ MINER_CLASSES = {
     "M31S+": {
         "Default": BTMinerM31SPlus,
         "BTMiner": BTMinerM31SPlus,
+        "20": BTMinerM31SPlusVE20,
     },
     "M32S": {
         "Default": BTMinerM32S,
@@ -163,10 +184,12 @@ class Singleton(type):
 
 
 class MinerFactory(metaclass=Singleton):
-    def __init__(self):
+    def __init__(self) -> None:
         self.miners = {}
 
-    async def get_miner_generator(self, ips: list):
+    async def get_miner_generator(
+        self, ips: List[ipaddress.ip_address or str]
+    ) -> AsyncIterable[AnyMiner]:
         """
         Get Miner objects from ip addresses using an async generator.
 
@@ -188,7 +211,7 @@ class MinerFactory(metaclass=Singleton):
         for miner in scanned:
             yield await miner
 
-    async def get_miner(self, ip: ipaddress.ip_address or str):
+    async def get_miner(self, ip: ipaddress.ip_address or str) -> AnyMiner:
         """Decide a miner type using the IP address of the miner."""
         if isinstance(ip, str):
             ip = ipaddress.ip_address(ip)
@@ -199,12 +222,13 @@ class MinerFactory(metaclass=Singleton):
         miner = UnknownMiner(str(ip))
         api = None
         model = None
+        ver = None
 
         # try to get the API multiple times based on retries
         for i in range(GET_VERSION_RETRIES):
             try:
                 # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
-                new_model, new_api = await asyncio.wait_for(
+                new_model, new_api, new_ver = await asyncio.wait_for(
                     self._get_miner_type(ip), timeout=PING_TIMEOUT
                 )
 
@@ -213,8 +237,10 @@ class MinerFactory(metaclass=Singleton):
                     api = new_api
                 if new_model and not model:
                     model = new_model
+                if new_ver and not ver:
+                    ver = new_ver
 
-                # if we find the API and model, dont need to loop anymore
+                # if we find the API and model, don't need to loop anymore
                 if api and model:
                     break
             except asyncio.TimeoutError:
@@ -237,6 +263,9 @@ class MinerFactory(metaclass=Singleton):
                     return miner
                 if api not in MINER_CLASSES[model].keys():
                     api = "Default"
+                if ver in MINER_CLASSES[model].keys():
+                    miner = MINER_CLASSES[model][ver](str(ip))
+                    return miner
                 miner = MINER_CLASSES[model][api](str(ip))
 
         # if we cant find a model, check if we found the API
@@ -255,55 +284,73 @@ class MinerFactory(metaclass=Singleton):
                 elif "BMMiner" in api:
                     miner = BMMiner(str(ip))
 
-        # save the miner to the cache at its IP
-        self.miners[ip] = miner
+        # save the miner to the cache at its IP if its not unknown
+        if not isinstance(miner, UnknownMiner):
+            self.miners[ip] = miner
 
         # return the miner
         return miner
 
-    def clear_cached_miners(self):
+    def clear_cached_miners(self) -> None:
         """Clear the miner factory cache."""
         # empty out self.miners
         self.miners = {}
 
-    async def _get_miner_type(self, ip: ipaddress.ip_address or str) -> tuple:
+    async def _get_miner_type(
+        self, ip: ipaddress.ip_address or str
+    ) -> Tuple[str or None, str or None, str or None]:
         model = None
         api = None
+        ver = None
 
         devdetails = None
         version = None
 
         try:
+            # get device details and version data
             data = await self._send_api_command(str(ip), "devdetails+version")
 
+            # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
                 raise APIError(validation[1])
 
+            # copy each part of the main command to devdetails and version
             devdetails = data["devdetails"][0]
             version = data["version"][0]
 
-        except APIError as e:
+        except APIError:
+            # if getting data fails we need to check again
             data = None
 
+        # if data is None then get it a slightly different way
         if not data:
             try:
+                # try devdetails and version separately (X19s mainly require this)
+                # get devdetails and validate
                 devdetails = await self._send_api_command(str(ip), "devdetails")
                 validation = await self._validate_command(devdetails)
                 if not validation[0]:
+                    # if devdetails fails try version instead
                     devdetails = None
+
+                    # get version and validate
                     version = await self._send_api_command(str(ip), "version")
                     validation = await self._validate_command(version)
                     if not validation[0]:
+                        # finally try get_version (Whatsminers) and validate
                         version = await self._send_api_command(str(ip), "get_version")
-
                         validation = await self._validate_command(version)
+
+                        # if this fails we raise an error to be caught below
                         if not validation[0]:
                             raise APIError(validation[1])
             except APIError as e:
+                # catch APIError and let the factory know we cant get data
                 logging.warning(f"{ip}: API Command Error: {e}")
-                return None, None
+                return None, None, None
 
+        # if we have devdetails, we can get model data from there
         if devdetails:
             if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
                 # check for model, for most miners
@@ -319,6 +366,7 @@ class MinerFactory(metaclass=Singleton):
                 if "s9" in devdetails["STATUS"][0]["Description"]:
                     model = "Antminer S9"
 
+        # if we have version we can get API type from here
         if version:
             if "VERSION" in version.keys():
                 # check if there are any BMMiner strings in any of the dict keys
@@ -330,6 +378,11 @@ class MinerFactory(metaclass=Singleton):
                     "CGMiner" in string for string in version["VERSION"][0].keys()
                 ):
                     api = "CGMiner"
+
+                elif any(
+                    "BTMiner" in string for string in version["VERSION"][0].keys()
+                ):
+                    api = "BTMiner"
 
                 # check if there are any BOSMiner strings in any of the dict keys
                 elif any(
@@ -344,27 +397,59 @@ class MinerFactory(metaclass=Singleton):
                         api = "BOSMiner+"
 
             # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and "whatsminer" in version.get(
-                "Description"
+            if version.get("Description") and (
+                "whatsminer" in version.get("Description")
             ):
                 api = "BTMiner"
+
+        # if we have no model from devdetails but have version, try to get it from there
         if version and not model:
+            # make sure version isn't blank
             if (
                 "VERSION" in version.keys()
                 and version.get("VERSION")
                 and not version.get("VERSION") == []
             ):
-                model = version["VERSION"][0]["Type"]
+                # try to get "Type" which is model
+                if version["VERSION"][0].get("Type"):
+                    model = version["VERSION"][0]["Type"]
+
+                # braiins OS bug check just in case
+                elif "am2-s17" in version["STATUS"][0]["Description"]:
+                    model = "Antminer S17"
+
+                # final try on a braiins OS bug with devdetails not returning
+                else:
+                    async with asyncssh.connect(
+                        str(ip),
+                        known_hosts=None,
+                        username="root",
+                        password="admin",
+                        server_host_key_algs=["ssh-rsa"],
+                    ) as conn:
+                        cfg = await conn.run("bosminer config --data")
+                    if cfg:
+                        cfg = json.loads(cfg.stdout)
+                        model = cfg.get("data").get("format").get("model")
 
         if model:
+            # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
-                model = model.split("V")[0]
+                _ver = model.split("V")
+                if len(_ver) > 1:
+                    ver = model.split("V")[1]
+                    if "VE" in model:
+                        ver = model.split("VE")[1]
+                    if "VG" in model:
+                        ver = model.split("VG")[1]
+                    model = model.split("V")[0]
+            # don't need "Bitmain", just "Antminer XX" as model
             if "Bitmain " in model:
                 model = model.replace("Bitmain ", "")
+        return model, api, ver
 
-        return model, api
-
-    async def _validate_command(self, data: dict) -> tuple:
+    @staticmethod
+    async def _validate_command(data: dict) -> Tuple[bool, str or None]:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         if not data:
@@ -390,7 +475,8 @@ class MinerFactory(metaclass=Singleton):
                     return False, data["STATUS"][0]["Msg"]
         return True, None
 
-    async def _send_api_command(self, ip: ipaddress.ip_address or str, command: str):
+    @staticmethod
+    async def _send_api_command(ip: ipaddress.ip_address or str, command: str) -> dict:
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
@@ -430,12 +516,12 @@ class MinerFactory(metaclass=Singleton):
             str_data = str_data.replace(",}", "}")
             # fix an error with a btminer return having a newline that breaks json.loads()
             str_data = str_data.replace("\n", "")
-            # fix an error with a bmminer return not having a specific comma that breaks json.loads()
+            # fix an error with a bmminer return missing a specific comma that breaks json.loads()
             str_data = str_data.replace("}{", "},{")
             # parse the json
             data = json.loads(str_data)
         # handle bad json
-        except json.decoder.JSONDecodeError as e:
+        except json.decoder.JSONDecodeError:
             # raise APIError(f"Decode Error: {data}")
             data = None
 

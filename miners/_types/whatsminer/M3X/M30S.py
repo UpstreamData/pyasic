@@ -6,3 +6,14 @@ class M30S(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "M30S"
+        self.nominal_chips = 148
+        self.fan_count = 2
+
+
+class M30SV50(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M30S V50"
+        self.nominal_chips = 156
+        self.fan_count = 2

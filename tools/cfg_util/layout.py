@@ -89,7 +89,7 @@ TABLE_HEADERS = {
         "Hostname",
         "Hashrate",
         "Temp",
-        "Pool User",
+        "Pool 1 User",
         "Wattage",
     ],
     "BOARDS": [
@@ -97,6 +97,7 @@ TABLE_HEADERS = {
         "Model",
         "Ideal",
         "Total",
+        "Chip %",
         "Left Board",
         "Center Board",
         "Right Board",
@@ -149,6 +150,10 @@ BUTTON_KEYS = [
     "scan_all",
     "scan_refresh",
     "scan_web",
+    "boards_report",
+    "boards_all",
+    "boards_refresh",
+    "boards_web",
     "cmd_all",
     "cmd_light",
     "cmd_reboot",
@@ -161,6 +166,8 @@ BUTTON_KEYS = [
     "cfg_generate",
     "cfg_all",
     "cfg_web",
+    "cmd_listen",
+    "record",
 ]
 
 TABLE_HEIGHT = 27
@@ -176,6 +183,7 @@ WATTAGE_COL_WIDTH = 10
 SPLIT_COL_WIDTH = 8
 TOTAL_CHIP_WIDTH = 9
 IDEAL_CHIP_WIDTH = 9
+CHIP_PERCENT_WIDTH = 10
 SCAN_COL_WIDTHS = [
     IP_COL_WIDTH,
     MODEL_COL_WIDTH,
@@ -210,12 +218,11 @@ def get_scan_layout():
     scan_layout = [
         [
             sg.Text("Scan IP", background_color=MAIN_TABS_BG, pad=((0, 5), (1, 1))),
-            sg.InputText(key="scan_ip", size=(31, 1)),
+            sg.InputText(key="scan_ip", size=(31, 1), focus=True),
             sg.Button(
                 "Scan",
                 key="btn_scan",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 mouseover_colors=BTN_DISABLED,
                 bind_return_key=True,
             ),
@@ -225,20 +232,24 @@ def get_scan_layout():
                 "ALL",
                 key="scan_all",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (1, 1)),
             ),
             sg.Button(
                 "REFRESH DATA",
                 key="scan_refresh",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
             sg.Button(
                 "OPEN IN WEB",
                 key="scan_web",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
+            ),
+            sg.Button("RECORD DATA", key="record", border_width=BTN_BORDER),
+            sg.Button(
+                "STOP LISTENING",
+                key="scan_cancel_listen",
+                border_width=BTN_BORDER,
+                visible=False,
             ),
         ],
         [
@@ -279,6 +290,7 @@ def get_boards_layout():
         MODEL_COL_WIDTH,
         TOTAL_CHIP_WIDTH,
         IDEAL_CHIP_WIDTH,
+        CHIP_PERCENT_WIDTH,
     ]
     add_length = TABLE_TOTAL_WIDTH - sum(BOARDS_COL_WIDTHS)
     for i in range(3):
@@ -299,20 +311,23 @@ def get_boards_layout():
                 "ALL",
                 key="boards_all",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (1, 1)),
             ),
             sg.Button(
                 "REFRESH DATA",
                 key="boards_refresh",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
             sg.Button(
                 "OPEN IN WEB",
                 key="boards_web",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
+            ),
+            sg.Button(
+                "STOP LISTENING",
+                key="boards_cancel_listen",
+                border_width=BTN_BORDER,
+                visible=False,
             ),
         ],
         [
@@ -367,7 +382,6 @@ def get_command_layout():
                 "Send Command",
                 key="btn_cmd",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
         ],
         [
@@ -375,26 +389,33 @@ def get_command_layout():
                 "ALL",
                 key="cmd_all",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (1, 1)),
             ),
             sg.Button(
                 "LIGHT",
                 key="cmd_light",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
             sg.Button(
                 "REBOOT",
                 key="cmd_reboot",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
             sg.Button(
                 "RESTART BACKEND",
                 key="cmd_backend",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
+            ),
+            sg.Button(
+                "LISTEN",
+                key="cmd_listen",
+                border_width=BTN_BORDER,
+            ),
+            sg.Button(
+                "STOP LISTENING",
+                key="cmd_cancel_listen",
+                border_width=BTN_BORDER,
+                visible=False,
             ),
         ],
         [
@@ -444,20 +465,23 @@ def get_pools_layout():
                 "ALL",
                 key="pools_all",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (6, 7)),
             ),
             sg.Button(
                 "REFRESH DATA",
                 key="pools_refresh",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
             ),
             sg.Button(
                 "OPEN IN WEB",
                 key="pools_web",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
+            ),
+            sg.Button(
+                "STOP LISTENING",
+                key="pools_cancel_listen",
+                border_width=BTN_BORDER,
+                visible=False,
             ),
         ],
         [
@@ -611,22 +635,26 @@ def get_config_layout():
                 "IMPORT",
                 key="cfg_import",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (6, 0)),
             ),
             sg.Button(
                 "CONFIG",
                 key="cfg_config",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (6, 0)),
             ),
             sg.Button(
                 "GENERATE",
                 key="cfg_generate",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (6, 0)),
+            ),
+            sg.Button(
+                "STOP LISTENING",
+                key="cfg_cancel_listen",
+                border_width=BTN_BORDER,
+                pad=((0, 5), (6, 0)),
+                visible=False,
             ),
         ],
         [
@@ -634,14 +662,12 @@ def get_config_layout():
                 "ALL",
                 key="cfg_all",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((0, 5), (1, 0)),
             ),
             sg.Button(
                 "OPEN IN WEB",
                 key="cfg_web",
                 border_width=BTN_BORDER,
-                disabled_button_color=BTN_DISABLED,
                 pad=((5, 5), (3, 2)),
             ),
             sg.Push(background_color=MAIN_TABS_BG),

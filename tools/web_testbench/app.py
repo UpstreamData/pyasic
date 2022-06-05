@@ -80,6 +80,7 @@ async def install():
     for host in miner_network.hosts():
         miner = TestbenchMiner(host)
         asyncio.create_task(miner.install_loop())
+        # asyncio.create_task(miner.long_test_loop())
 
 
 if __name__ == "__main__":
