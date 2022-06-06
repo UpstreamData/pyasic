@@ -5,7 +5,12 @@ from .M30S import (
     BTMinerM30SVG20,
     BTMinerM30SV50,
 )
-from .M30S_Plus import BTMinerM30SPlus, BTMinerM30SPlusVF20, BTMinerM30SPlusVE40
+from .M30S_Plus import (
+    BTMinerM30SPlus,
+    BTMinerM30SPlusVF20,
+    BTMinerM30SPlusVE40,
+    BTMinerM30SPlusVG60,
+)
 from .M30S_Plus_Plus import (
     BTMinerM30SPlusPlus,
     BTMinerM30SPlusPlusVG40,
