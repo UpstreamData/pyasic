@@ -150,13 +150,13 @@ MINER_CLASSES = {
     "M30S+": {
         "Default": BTMinerM30SPlus,
         "BTMiner": BTMinerM30SPlus,
-        "40": BTMinerM30SPlusVE40,
+        "E40": BTMinerM30SPlusVE40,
     },
     "M30S++": {
         "Default": BTMinerM30SPlusPlusVG40,
         "BTMiner": BTMinerM30SPlusPlusVG40,
-        "40": BTMinerM30SPlusPlusVG40,
-        "30": BTMinerM30SPlusPlusVG30,
+        "G40": BTMinerM30SPlusPlusVG40,
+        "G30": BTMinerM30SPlusPlusVG30,
     },
     "M31S": {
         "Default": BTMinerM31S,
@@ -165,7 +165,7 @@ MINER_CLASSES = {
     "M31S+": {
         "Default": BTMinerM31SPlus,
         "BTMiner": BTMinerM31SPlus,
-        "20": BTMinerM31SPlusVE20,
+        "E20": BTMinerM31SPlusVE20,
     },
     "M32S": {
         "Default": BTMinerM32S,
@@ -438,10 +438,6 @@ class MinerFactory(metaclass=Singleton):
                 _ver = model.split("V")
                 if len(_ver) > 1:
                     ver = model.split("V")[1]
-                    if "VE" in model:
-                        ver = model.split("VE")[1]
-                    if "VG" in model:
-                        ver = model.split("VG")[1]
                     model = model.split("V")[0]
             # don't need "Bitmain", just "Antminer XX" as model
             if "Bitmain " in model:
