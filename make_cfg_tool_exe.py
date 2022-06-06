@@ -9,6 +9,7 @@ import datetime
 import sys
 import os
 from cx_Freeze import setup, Executable
+from setuptools import find_packages
 
 base = None
 if sys.platform == "win32":
@@ -16,7 +17,6 @@ if sys.platform == "win32":
 
 version = datetime.datetime.now()
 version = version.strftime("%y.%m.%d")
-print(version)
 
 
 setup(
@@ -30,9 +30,7 @@ setup(
                 os.path.join(os.getcwd(), "settings/settings.toml"),
                 os.path.join(os.getcwd(), "static/CFG-Util-README.md"),
             ],
-            "excludes": [
-                os.path.join(os.getcwd(), "tools/web_testbench/files"),
-            ],
+            "excludes": ["tests", "tools.web_testbench", "tools.web_monitor"],
         },
     },
     executables=[
