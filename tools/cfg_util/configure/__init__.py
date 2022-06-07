@@ -20,7 +20,7 @@ async def btn_import(table, selected):
     miner = await MinerFactory().get_miner(ip)
     await miner.get_config()
     config = miner.config
-    window["cfg_config_txt"].update(config)
+    window["cfg_config_txt"].update(config.as_yaml())
 
 
 @disable_buttons("Configuring")

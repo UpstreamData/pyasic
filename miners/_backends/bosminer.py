@@ -11,7 +11,7 @@ from API import APIError
 
 from data import MinerData
 
-from config.bos import bos_config_convert, general_config_convert_bos
+from config.miner_config import MinerConfig
 
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
@@ -102,8 +102,9 @@ class BOSMiner(BaseMiner):
                 async with sftp.open("/etc/bosminer.toml") as file:
                     toml_data = toml.loads(await file.read())
         logging.debug(f"{self}: Converting config file.")
-        cfg = bos_config_convert(toml_data)
+        cfg = MinerConfig().from_raw(toml_data)
         self.config = cfg
+        return self.config
 
     async def get_hostname(self) -> str:
         """Get miner hostname.
@@ -192,11 +193,17 @@ class BOSMiner(BaseMiner):
         logging.debug(f"{self}: Sending config.")
         if ip_user:
             suffix = str(self.ip).split(".")[-1]
-            toml_conf = toml.dumps(
-                general_config_convert_bos(yaml_config, user_suffix=suffix)
+            toml_conf = (
+                MinerConfig()
+                .from_yaml(yaml_config)
+                .as_bos(model=self.model.replace(" (BOS)", ""), user_suffix=suffix)
             )
         else:
-            toml_conf = toml.dumps(general_config_convert_bos(yaml_config))
+            toml_conf = (
+                MinerConfig()
+                .from_yaml(yaml_config)
+                .as_bos(model=self.model.replace(" (BOS)", ""))
+            )
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
