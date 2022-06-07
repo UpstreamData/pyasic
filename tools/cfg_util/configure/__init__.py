@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from config.bos import bos_config_convert
+from config import MinerConfig
 import time
 from tools.cfg_util.layout import window, update_prog_bar
 from tools.cfg_util.decorators import disable_buttons
@@ -110,7 +110,10 @@ def generate_config(username: str, workername: str, v2_allowed: bool):
         },
         "autotuning": {"enabled": True, "psu_power_limit": 900},
     }
-    window["cfg_config_txt"].update(bos_config_convert(config))
+
+    cfg = MinerConfig().from_raw(config)
+
+    window["cfg_config_txt"].update(cfg.as_yaml())
 
 
 async def generate_config_ui():
