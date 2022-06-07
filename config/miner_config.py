@@ -130,8 +130,8 @@ class MinerConfig:
             if key == "bitmain-fan-ctrl":
                 if data[key]:
                     self.temp_mode = "manual"
-            elif key == "bitmain-fan-pwm":
-                self.fan_speed = data[key]
+                    if data.get("bitmain-fan-pwm"):
+                        self.fan_speed = int(data["bitmain-fan-pwm"])
             elif key == "fan_control":
                 for _key in data[key].keys():
                     if _key == "min_fans":
@@ -203,7 +203,7 @@ class MinerConfig:
             cfg["bitmain-fan-ctrl"] = True
 
         if self.fan_speed:
-            cfg["bitmain-fan-ctrl"] = self.fan_speed
+            cfg["bitmain-fan-ctrl"] = str(self.fan_speed)
 
         return json.dumps(cfg)
 

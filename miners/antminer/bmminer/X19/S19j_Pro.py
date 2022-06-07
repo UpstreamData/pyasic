@@ -1,14 +1,47 @@
 from miners._backends import BMMiner  # noqa - Ignore access to _module
 from miners._types import S19jPro  # noqa - Ignore access to _module
 
+from config.miner_config import MinerConfig
+
 import httpx
 import json
+import asyncio
 
 
 class BMMinerS19jPro(BMMiner, S19jPro):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
+
+    async def get_config(self) -> MinerConfig:
+        url = f"http://{self.ip}/cgi-bin/get_miner_conf.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            self.config = MinerConfig().from_raw(data)
+        return self.config
+
+    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
+        url = f"http://{self.ip}/cgi-bin/set_miner_conf.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        if ip_user:
+            suffix = str(self.ip).split(".")[-1]
+            conf = MinerConfig().from_yaml(yaml_config).as_x19(user_suffix=suffix)
+        else:
+            conf = MinerConfig().from_yaml(yaml_config).as_x19()
+
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(url, data=conf, auth=auth)
+        except httpx.ReadTimeout:
+            pass
+        for i in range(7):
+            data = await self.get_config()
+            if data.as_x19() == conf:
+                break
+            await asyncio.sleep(1)
 
     async def get_hostname(self) -> str or None:
         hostname = None
