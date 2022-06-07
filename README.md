@@ -9,7 +9,7 @@ For those of you who aren't comfortable with code and developer tools, there are
 *CFG Util is a GUI for interfacing with the miners easily, it is mostly self-explanatory.*
 
 To use CFG Util you have 2 options -
-1. Run it directly with the file ```config_tool.py``` or import it with ```from cfg_util import main```, then run the ```main()``` function in an asyncio event loop like -
+1. Run it directly with the file ```config_tool.py``` or import it with ```from cfg_util import main```, then run the ```main()``` function like -
 
 ```python
 from tools.cfg_util import main
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 2. Make a build of the CFG Util for your system using cx_freeze and ```make_cfg_tool_exe.py```
 (Alternatively, you can get a build made by me here -> https://drive.google.com/drive/folders/147vBXbuaX85inataXeSAiKk8IKf-7xtR)
    1. Open either Command Prompt on Windows or Terminal on Mac or UNIX.
-   2. Navigate to this directory, and run ```make_cfg_tool_exe.py build``` on Windows or ```python3 make_cfg_tool_exe.py``` on Mac or UNIX.
+   2. Navigate to this directory, and run ```make_cfg_tool_exe.py build``` on Windows or ```python3 make_cfg_tool_exe.py build``` on Mac or UNIX.
 
 ### Interfacing with miners programmatically
 <br>
@@ -48,7 +48,6 @@ A basic script to find all miners on the network and get the hashrate from them 
 ```python
 import asyncio
 from network import MinerNetwork
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
 async def get_hashrate():
@@ -60,18 +59,11 @@ async def get_hashrate():
     # Miner Network scan function returns Miner classes for all miners found
     miners = await miner_network.scan_network_for_miners()
     # Each miner will return with its own set of functions, and an API class instance
-    tasks = [miner.api.summary() for miner in miners]
+    tasks = [miner.get_data() for miner in miners]
     # Gather all tasks asynchronously and run them
     data = await asyncio.gather(*tasks)
-    parse_tasks = []
-    for item in data:
-        # safe_parse_api_data parses the data from a miner API
-        # It will raise an APIError (from API import APIError) if there is a problem
-        parse_tasks.append(safe_parse_api_data(item, 'SUMMARY', 0, 'MHS 5s'))
-    # Gather all tasks asynchronously and run them
-    data = await asyncio.gather(*parse_tasks)
-    # Print a list of all the hashrates
-    print(data)
+    # now we have a list of MinerData, and can get .hashrate
+    print([item.hashrate for item in data])
 
 
 if __name__ == '__main__':
@@ -84,7 +76,7 @@ You can also create your own miner without scanning if you know the IP:
 import asyncio
 import ipaddress
 from miners.miner_factory import MinerFactory
-from tools.cfg_util_old.func.parse_data import safe_parse_api_data
+
 
 
 async def get_miner_hashrate(ip: str):
@@ -95,11 +87,9 @@ async def get_miner_hashrate(ip: str):
     # Wait for the factory to return the miner
     miner = await miner_factory.get_miner(miner_ip)
     # Get the API data
-    summary = await miner.api.summary()
-    # safe_parse_api_data parses the data from a miner API
-    # It will raise an APIError (from API import APIError) if there is a problem
-    data = await safe_parse_api_data(summary, 'SUMMARY', 0, 'MHS 5s')
-    print(data)
+    data = await miner.get_data()
+    # print out hashrate
+    print(data.hashrate)
 
 
 if __name__ == '__main__':
@@ -112,6 +102,7 @@ Now that you know that, lets move on to some common API functions that you might
 
 ### Common commands:
 * Get the data used by the config utility, this includes pool data, wattage use, temperature, hashrate, etc:
+* All the data from below commands and more are returned from this in a consistent dataclass.  Check out the `MinerData` class in  `/data/__init__.py` for more information.
 
 ```python
 import asyncio
