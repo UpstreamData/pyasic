@@ -11,11 +11,22 @@ import time
 
 @dataclass
 class _Pool:
+    """A dataclass for pool information.
+
+    :param url: URL of the pool.
+    :param username: Username on the pool.
+    :param password: Worker password on the pool.
+    """
+
     url: str = ""
     username: str = ""
     password: str = ""
 
     def from_dict(self, data: dict):
+        """Convert raw pool data as a dict to usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         for key in data.keys():
             if key == "url":
                 self.url = data[key]
@@ -26,6 +37,10 @@ class _Pool:
         return self
 
     def as_x19(self, user_suffix: str = None):
+        """Convert the data in this class to a dict usable by an X19 device.
+
+        :param user_suffix: The suffix to append to username.
+        """
         username = self.username
         if user_suffix:
             username = f"{username}{user_suffix}"
@@ -34,6 +49,10 @@ class _Pool:
         return pool
 
     def as_bos(self, user_suffix: str = None):
+        """Convert the data in this class to a dict usable by an BOSMiner device.
+
+        :param user_suffix: The suffix to append to username.
+        """
         username = self.username
         if user_suffix:
             username = f"{username}{user_suffix}"
@@ -44,6 +63,13 @@ class _Pool:
 
 @dataclass
 class _PoolGroup:
+    """A dataclass for pool group information.
+
+    :param quota: The group quota.
+    :param group_name: The name of the pool group.
+    :param pools: A list of pools in this group.
+    """
+
     quota: int = 1
     group_name: str = None
     pools: List[_Pool] = None
@@ -55,6 +81,10 @@ class _PoolGroup:
             )  # generate random pool group name in case it isn't set
 
     def from_dict(self, data: dict):
+        """Convert raw pool group data as a dict to usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         pools = []
         for key in data.keys():
             if key in ["name", "group_name"]:
@@ -68,12 +98,20 @@ class _PoolGroup:
         return self
 
     def as_x19(self, user_suffix: str = None):
+        """Convert the data in this class to a dict usable by an X19 device.
+
+        :param user_suffix: The suffix to append to username.
+        """
         pools = []
         for pool in self.pools[:3]:
             pools.append(pool.as_x19(user_suffix=user_suffix))
         return pools
 
     def as_bos(self, user_suffix: str = None):
+        """Convert the data in this class to a dict usable by an BOSMiner device.
+
+        :param user_suffix: The suffix to append to username.
+        """
         group = {
             "name": self.group_name,
             "quota": self.quota,
@@ -84,6 +122,25 @@ class _PoolGroup:
 
 @dataclass
 class MinerConfig:
+    """A dataclass for miner configuration information.
+
+    :param pool_groups: A list of pool groups in this config.
+    :param temp_mode: The temperature control mode.
+    :param temp_target: The target temp.
+    :param temp_hot: The hot temp (100% fans).
+    :param temp_dangerous: The dangerous temp (shutdown).
+    :param minimum_fans: The minimum numbers of fans to run the miner.
+    :param fan_speed: Manual fan speed to run the fan at (only if temp_mode == "manual").
+    :param asicboost: Whether or not to enable asicboost.
+    :param autotuning_enabled: Whether or not to enable autotuning.
+    :param autotuning_wattage: The wattage to use when autotuning.
+    :param dps_enabled: Whether or not to enable dynamic power scaling.
+    :param dps_power_step: The amount of power to reduce autotuning by when the miner reaches dangerous temp.
+    :param dps_min_power: The minimum power to reduce autotuning to.
+    :param dps_shutdown_enabled: Whether or not to shutdown the miner when `dps_min_power` is reached.
+    :param dps_shutdown_duration: The amount of time to shutdown for (in hours).
+    """
+
     pool_groups: List[_PoolGroup] = None
 
     temp_mode: Literal["auto", "manual", "disabled"] = "auto"
@@ -106,6 +163,8 @@ class MinerConfig:
     dps_shutdown_duration: float = None
 
     def as_dict(self):
+        """Convert the data in this class to a dict."""
+
         data_dict = asdict(self)
         for key in asdict(self).keys():
             if data_dict[key] is None:
@@ -113,12 +172,18 @@ class MinerConfig:
         return data_dict
 
     def as_toml(self):
+        """Convert the data in this class to toml."""
         return toml.dumps(self.as_dict())
 
     def as_yaml(self):
+        """Convert the data in this class to yaml."""
         return yaml.dump(self.as_dict(), sort_keys=False)
 
     def from_raw(self, data: dict):
+        """Convert raw config data as a dict to usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         pool_groups = []
         for key in data.keys():
             if key == "pools":
@@ -177,6 +242,10 @@ class MinerConfig:
         return self
 
     def from_dict(self, data: dict):
+        """Convert an output dict of this class back into usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         pool_groups = []
         for group in data["pool_groups"]:
             pool_groups.append(_PoolGroup().from_dict(group))
@@ -187,12 +256,24 @@ class MinerConfig:
         return self
 
     def from_toml(self, data: str):
+        """Convert output toml of this class back into usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         return self.from_dict(toml.loads(data))
 
     def from_yaml(self, data: str):
+        """Convert output yaml of this class back into usable data and save it to this class.
+
+        :param data: The raw config data to convert.
+        """
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
     def as_x19(self, user_suffix: str = None):
+        """Convert the data in this class to a config usable by an X19 device.
+
+        :param user_suffix: The suffix to append to username.
+        """
         cfg = {
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
@@ -208,6 +289,11 @@ class MinerConfig:
         return json.dumps(cfg)
 
     def as_bos(self, model: str = "S9", user_suffix: str = None):
+        """Convert the data in this class to a config usable by an BOSMiner device.
+
+        :param model: The model of the miner to be used in the format portion of the config.
+        :param user_suffix: The suffix to append to username.
+        """
         cfg = {
             "format": {
                 "version": "1.2+",
