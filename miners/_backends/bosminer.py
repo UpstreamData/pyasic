@@ -11,7 +11,7 @@ from API import APIError
 
 from data import MinerData
 
-from config.miner_config import MinerConfig
+from config import MinerConfig
 
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 

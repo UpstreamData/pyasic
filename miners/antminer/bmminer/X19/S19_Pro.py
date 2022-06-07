@@ -1,7 +1,7 @@
 from miners._backends import BMMiner  # noqa - Ignore access to _module
 from miners._types import S19Pro  # noqa - Ignore access to _module
 
-from config.miner_config import MinerConfig
+from config import MinerConfig
 
 import httpx
 import json
