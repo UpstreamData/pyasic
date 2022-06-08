@@ -2,6 +2,7 @@ import datetime
 import ipaddress
 from base64 import b64decode
 from io import BytesIO
+from copy import copy
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -178,15 +179,26 @@ def create_boards_pie_chart(data):
     num_bad_boards = [0, 0, 0, 0]
     for item in data.keys():
         num_bad_boards[len(data[item])] += 1
+    idxs = []
+    graph_labels = copy(labels)
+    graph_num_bad_board = copy(num_bad_boards)
+    for idx in range(len(num_bad_boards)):
+        if num_bad_boards[idx] == 0:
+            idxs.append(idx)
+        idxs.sort(reverse=True)
+    for idx in idxs:
+        graph_labels.pop(idx)
+        graph_num_bad_board.pop(idx)
+
     cmap = plt.get_cmap("Blues")
-    cs = cmap(np.linspace(0.2, 0.8, num=len(num_bad_boards)))
+    cs = cmap(np.linspace(0.2, 0.8, num=len(graph_num_bad_board)))
 
     # fig, ax = plt.subplots() -> causes window resizing...
     fig = Figure()
     ax = fig.add_subplot()
     ax.pie(
-        num_bad_boards,
-        labels=labels,
+        graph_num_bad_board,
+        labels=graph_labels,
         autopct="%1.2f%%",
         shadow=True,
         startangle=180,
