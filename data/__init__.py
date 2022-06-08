@@ -100,7 +100,7 @@ class MinerData:
             self.center_board_chip_temp,
             self.right_board_chip_temp,
         ]:
-            if not temp == 0:
+            if temp and not temp == 0:
                 total_temp += temp
                 temp_count += 1
         if not temp_count > 0:
