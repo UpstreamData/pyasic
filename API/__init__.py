@@ -152,6 +152,43 @@ If you are sure you want to use this command please use API.send_command("{item}
 
         return data
 
+    async def send_raw(
+        self,
+        command: str or bytes,
+    ) -> str:
+        """Send an API command to the miner and return the result."""
+        try:
+            # get reader and writer streams
+            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+        # handle OSError 121
+        except OSError as e:
+            if e.winerror == "121":
+                logging.warning("Semaphore Timeout has Expired.")
+            return b""
+
+        # send the command
+        writer.write(command.encode("utf-8"))
+        await writer.drain()
+
+        # instantiate data
+        data = b""
+
+        # loop to receive all the data
+        try:
+            while True:
+                d = await reader.read(4096)
+                if not d:
+                    break
+                data += d
+        except Exception as e:
+            logging.warning(f"{self.ip}: API Command Error: {e}")
+
+        # close the connection
+        writer.close()
+        await writer.wait_closed()
+
+        return data.decode("utf-8")[:-1]
+
     @staticmethod
     def validate_command_output(data: dict) -> tuple:
         """Check if the returned command output is correctly formatted."""
@@ -171,7 +208,10 @@ If you are sure you want to use this command please use API.send_command("{item}
                 return False, data["Msg"]
         else:
             # make sure the command succeeded
-            if data["STATUS"][0]["STATUS"] not in ("S", "I"):
+            if type(data["STATUS"]) == str:
+                if data["STATUS"] in ["RESTART"]:
+                    return True, None
+            elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
                 # this is an error
                 if data["STATUS"][0]["STATUS"] not in ("S", "I"):
                     return False, data["STATUS"][0]["Msg"]

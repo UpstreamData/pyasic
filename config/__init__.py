@@ -48,6 +48,14 @@ class _Pool:
         pool = {"url": self.url, "user": username, "pass": self.password}
         return pool
 
+    def as_avalon(self, user_suffix: str = None):
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = ",".join([self.url, username, self.password])
+        return pool
+
     def as_bos(self, user_suffix: str = None):
         """Convert the data in this class to a dict usable by an BOSMiner device.
 
@@ -106,6 +114,10 @@ class _PoolGroup:
         for pool in self.pools[:3]:
             pools.append(pool.as_x19(user_suffix=user_suffix))
         return pools
+
+    def as_avalon(self, user_suffix: str = None):
+        pool = self.pools[0].as_avalon(user_suffix=user_suffix)
+        return pool
 
     def as_bos(self, user_suffix: str = None):
         """Convert the data in this class to a dict usable by an BOSMiner device.
@@ -269,7 +281,7 @@ class MinerConfig:
         """
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
-    def as_x19(self, user_suffix: str = None):
+    def as_x19(self, user_suffix: str = None) -> str:
         """Convert the data in this class to a config usable by an X19 device.
 
         :param user_suffix: The suffix to append to username.
@@ -288,7 +300,11 @@ class MinerConfig:
 
         return json.dumps(cfg)
 
-    def as_bos(self, model: str = "S9", user_suffix: str = None):
+    def as_avalon(self, user_suffix: str = None) -> str:
+        cfg = self.pool_groups[0].as_avalon()
+        return cfg
+
+    def as_bos(self, model: str = "S9", user_suffix: str = None) -> str:
         """Convert the data in this class to a config usable by an BOSMiner device.
 
         :param model: The model of the miner to be used in the format portion of the config.

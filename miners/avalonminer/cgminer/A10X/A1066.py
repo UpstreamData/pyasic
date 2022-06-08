@@ -4,6 +4,8 @@ from miners._types import Avalon1066  # noqa - Ignore access to _module
 from data import MinerData
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 import re
+from config import MinerConfig
+import logging
 
 
 class CGMinerAvalon1066(CGMiner, Avalon1066):
@@ -11,7 +13,50 @@ class CGMinerAvalon1066(CGMiner, Avalon1066):
         super().__init__(ip)
         self.ip = ip
 
-    async def get_mac(self):
+    async def fault_light_on(self) -> bool:
+        raw_data = await self.api.send_raw("ascset|0,led,1-1")
+        data = self.parse_raw(raw_data)
+        if data["Msg"] == "ASC 0 set OK":
+            return True
+        return False
+
+    async def fault_light_off(self) -> bool:
+        raw_data = await self.api.send_raw("ascset|0,led,1-0")
+        data = self.parse_raw(raw_data)
+        if data["Msg"] == "ASC 0 set OK":
+            return True
+        return False
+
+    async def reboot(self) -> bool:
+        if (await self.api.restart())["STATUS"] == "RESTART":
+            return True
+        return False
+
+    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
+        """Configures miner with yaml config."""
+        raise NotImplementedError
+        logging.debug(f"{self}: Sending config.")
+        if ip_user:
+            suffix = str(self.ip).split(".")[-1]
+            conf = MinerConfig().from_yaml(yaml_config).as_avalon(user_suffix=suffix)
+        else:
+            conf = MinerConfig().from_yaml(yaml_config).as_avalon()
+        command = f"ascset|0,setpool,root,root,{conf}"
+        raw_data = await self.api.send_raw(command)  # this should work but doesn't
+        data = self.parse_raw(raw_data)
+
+    @staticmethod
+    def parse_raw(raw_data: str) -> dict:
+        data = raw_data.split("|")[0]
+        items = data.split(",")
+        ret_data = {}
+        for item in items:
+            print(item)
+            k, v = tuple(item.split("="))
+            ret_data[k] = v
+        return ret_data
+
+    async def get_mac(self) -> str:
         mac = None
         version = await self.api.version()
         if version:
