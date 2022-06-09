@@ -1,5 +1,5 @@
 from miners._backends import CGMiner  # noqa - Ignore access to _module
-from miners._types import Avalon841  # noqa - Ignore access to _module
+from miners._types import Avalon1026  # noqa - Ignore access to _module
 
 from data import MinerData
 from settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
@@ -8,7 +8,7 @@ from config import MinerConfig
 import logging
 
 
-class CGMinerAvalon841(CGMiner, Avalon841):
+class CGMinerAvalon1026(CGMiner, Avalon1026):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
