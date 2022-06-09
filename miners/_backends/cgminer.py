@@ -33,7 +33,7 @@ class CGMiner(BaseMiner):
             return self.model
         return None
 
-    async def get_hostname(self) -> str:
+    async def get_hostname(self) -> str or None:
         if self.hostname:
             return self.hostname
         try:
@@ -44,9 +44,9 @@ class CGMiner(BaseMiner):
                     self.hostname = host
                     return self.hostname
                 else:
-                    return "?"
+                    return None
         except Exception:
-            return "?"
+            return None
 
     async def send_ssh_command(self, cmd):
         result = None

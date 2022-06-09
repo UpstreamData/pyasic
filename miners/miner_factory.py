@@ -176,6 +176,46 @@ MINER_CLASSES = {
         "Default": BTMinerM32S,
         "BTMiner": BTMinerM32S,
     },
+    "AvalonMiner 721": {
+        "Default": CGMinerAvalon721,
+        "CGMiner": CGMinerAvalon721,
+    },
+    "AvalonMiner 741": {
+        "Default": CGMinerAvalon741,
+        "CGMiner": CGMinerAvalon741,
+    },
+    "AvalonMiner 761": {
+        "Default": CGMinerAvalon761,
+        "CGMiner": CGMinerAvalon761,
+    },
+    "AvalonMiner 821": {
+        "Default": CGMinerAvalon821,
+        "CGMiner": CGMinerAvalon821,
+    },
+    "AvalonMiner 841": {
+        "Default": CGMinerAvalon841,
+        "CGMiner": CGMinerAvalon841,
+    },
+    "AvalonMiner 851": {
+        "Default": CGMinerAvalon851,
+        "CGMiner": CGMinerAvalon851,
+    },
+    "AvalonMiner 921": {
+        "Default": CGMinerAvalon921,
+        "CGMiner": CGMinerAvalon921,
+    },
+    "AvalonMiner 1026": {
+        "Default": CGMinerAvalon1026,
+        "CGMiner": CGMinerAvalon1026,
+    },
+    "AvalonMiner 1047": {
+        "Default": CGMinerAvalon1047,
+        "CGMiner": CGMinerAvalon1047,
+    },
+    "AvalonMiner 1066": {
+        "Default": CGMinerAvalon1066,
+        "CGMiner": CGMinerAvalon1066,
+    },
 }
 
 
@@ -256,22 +296,21 @@ class MinerFactory(metaclass=Singleton):
             if not api:
                 api = "Default"
 
-            # Avalonminers
-            if "avalon" in model:
-                if model == "avalon10":
-                    miner = CGMinerAvalon1066(str(ip))
-                else:
-                    miner = CGMinerAvalon821(str(ip))
-            else:
-                if model not in MINER_CLASSES.keys():
-                    miner = UnknownMiner(str(ip))
-                    return miner
-                if api not in MINER_CLASSES[model].keys():
-                    api = "Default"
-                if ver in MINER_CLASSES[model].keys():
-                    miner = MINER_CLASSES[model][ver](str(ip))
-                    return miner
-                miner = MINER_CLASSES[model][api](str(ip))
+            if model not in MINER_CLASSES.keys():
+                if "avalon" in model:
+                    print(model)
+                    if model == "avalon10":
+                        miner = CGMinerAvalon1066(str(ip))
+                    else:
+                        miner = CGMinerAvalon821(str(ip))
+                miner = UnknownMiner(str(ip))
+                return miner
+            if api not in MINER_CLASSES[model].keys():
+                api = "Default"
+            if ver in MINER_CLASSES[model].keys():
+                miner = MINER_CLASSES[model][ver](str(ip))
+                return miner
+            miner = MINER_CLASSES[model][api](str(ip))
 
         # if we cant find a model, check if we found the API
         else:
@@ -406,6 +445,18 @@ class MinerFactory(metaclass=Singleton):
                 "whatsminer" in version.get("Description")
             ):
                 api = "BTMiner"
+
+            # check for avalonminers
+            if version["VERSION"][0].get("PROD"):
+                _data = version["VERSION"][0]["PROD"].split("-")
+                model = _data[0]
+                if len(data) > 1:
+                    ver = _data[1]
+            elif version["VERSION"][0].get("MODEL"):
+                _data = version["VERSION"][0]["MODEL"].split("-")
+                model = f"AvalonMiner {_data[0]}"
+                if len(data) > 1:
+                    ver = _data[1]
 
         # if we have no model from devdetails but have version, try to get it from there
         if version and not model:

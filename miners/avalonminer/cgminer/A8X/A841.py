@@ -196,7 +196,7 @@ class CGMinerAvalon841(CGMiner, Avalon841):
             mac = await self.get_mac()
             if mac:
                 data.mac = mac
-        if hostname and not hostname == "?":
+        if hostname:
             data.hostname = hostname
         elif mac:
             data.hostname = f"Avalon{mac.replace(':', '')[-6:]}"
