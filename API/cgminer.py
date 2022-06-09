@@ -122,7 +122,7 @@ class CGMinerAPI(BaseMinerAPI):
         :return: A confirmation of adding the pool.
         """
         return await self.send_command(
-            "addpool", parameters=f"{url}, " f"{username}, " f"{password}"
+            "addpool", parameters=f"{url},{username},{password}"
         )
 
     async def poolpriority(self, *n: int) -> dict:
@@ -143,7 +143,7 @@ class CGMinerAPI(BaseMinerAPI):
 
         :return: A confirmation of setting pool quota.
         """
-        return await self.send_command("poolquota", parameters=f"{n}, " f"{q}")
+        return await self.send_command("poolquota", parameters=f"{n},{q}")
 
     async def disablepool(self, n: int) -> dict:
         """Disable a pool.
@@ -322,7 +322,7 @@ class CGMinerAPI(BaseMinerAPI):
 
         :return: The results of setting config of name to n.
         """
-        return await self.send_command("setconfig", parameters=f"{name}, " f"{n}")
+        return await self.send_command("setconfig", parameters=f"{name},{n}")
 
     async def usbstats(self) -> dict:
         """Get stats of all USB devices except ztex.
@@ -350,11 +350,9 @@ class CGMinerAPI(BaseMinerAPI):
         :return: Confirmation of setting PGA n with opt[,val].
         """
         if val:
-            return await self.send_command(
-                "pgaset", parameters=f"{n}, " f"{opt}, " f"{val}"
-            )
+            return await self.send_command("pgaset", parameters=f"{n},{opt},{val}")
         else:
-            return await self.send_command("pgaset", parameters=f"{n}, " f"{opt}")
+            return await self.send_command("pgaset", parameters=f"{n},{opt}")
 
     async def zero(self, which: str, summary: bool) -> dict:
         """Zero a device.
@@ -369,7 +367,7 @@ class CGMinerAPI(BaseMinerAPI):
         :return: the STATUS section with info on the zero and optional
         summary.
         """
-        return await self.send_command("zero", parameters=f"{which}, " f"{summary}")
+        return await self.send_command("zero", parameters=f"{which},{summary}")
 
     async def hotplug(self, n: int) -> dict:
         """Enable hotplug.
@@ -470,11 +468,9 @@ class CGMinerAPI(BaseMinerAPI):
         :return: Confirmation of setting option opt to value val.
         """
         if val:
-            return await self.send_command(
-                "ascset", parameters=f"{n}, " f"{opt}, " f"{val}"
-            )
+            return await self.send_command("ascset", parameters=f"{n},{opt},{val}")
         else:
-            return await self.send_command("ascset", parameters=f"{n}, " f"{opt}")
+            return await self.send_command("ascset", parameters=f"{n},{opt}")
 
     async def lcd(self) -> dict:
         """Get a general all-in-one status summary of the miner.

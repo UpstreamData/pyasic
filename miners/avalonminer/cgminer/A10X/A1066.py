@@ -14,16 +14,14 @@ class CGMinerAvalon1066(CGMiner, Avalon1066):
         self.ip = ip
 
     async def fault_light_on(self) -> bool:
-        raw_data = await self.api.send_raw("ascset|0,led,1-1")
-        data = self.parse_raw(raw_data)
-        if data["Msg"] == "ASC 0 set OK":
+        data = await self.api.ascset(0, "led", "1-1")
+        if data["STATUS"][0]["Msg"] == "ASC 0 set OK":
             return True
         return False
 
     async def fault_light_off(self) -> bool:
-        raw_data = await self.api.send_raw("ascset|0,led,1-0")
-        data = self.parse_raw(raw_data)
-        if data["Msg"] == "ASC 0 set OK":
+        data = await self.api.ascset(0, "led", "1-0")
+        if data["STATUS"][0]["Msg"] == "ASC 0 set OK":
             return True
         return False
 
@@ -41,20 +39,10 @@ class CGMinerAvalon1066(CGMiner, Avalon1066):
             conf = MinerConfig().from_yaml(yaml_config).as_avalon(user_suffix=suffix)
         else:
             conf = MinerConfig().from_yaml(yaml_config).as_avalon()
-        command = f"ascset|0,setpool,root,root,{conf}"
-        raw_data = await self.api.send_raw(command)  # this should work but doesn't
-        data = self.parse_raw(raw_data)
-
-    @staticmethod
-    def parse_raw(raw_data: str) -> dict:
-        data = raw_data.split("|")[0]
-        items = data.split(",")
-        ret_data = {}
-        for item in items:
-            print(item)
-            k, v = tuple(item.split("="))
-            ret_data[k] = v
-        return ret_data
+        data = await self.api.ascset(
+            0, "setpool", f"root,root,{conf}"
+        )  # this should work but doesn't
+        return data
 
     async def get_mac(self) -> str:
         mac = None

@@ -72,7 +72,7 @@ class UnknownAPI(BaseMinerAPI):
     async def addpool(self, url: str, username: str, password: str) -> dict:
         # BOS has not implemented this yet, they will in the future
         raise NotImplementedError
-        # return await self.send_command("addpool", parameters=f"{url}, {username}, {password}")
+        # return await self.send_command("addpool", parameters=f"{url},{username},{password}")
 
     async def removepool(self, n: int) -> dict:
         # BOS has not implemented this yet, they will in the future
