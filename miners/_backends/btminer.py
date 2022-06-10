@@ -30,7 +30,7 @@ class BTMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_hostname(self) -> str:
+    async def get_hostname(self) -> str or None:
         if self.hostname:
             return self.hostname
         try:
@@ -42,10 +42,10 @@ class BTMiner(BaseMiner):
                 return self.hostname
         except APIError:
             logging.info(f"Failed to get hostname for miner: {self}")
-            return "?"
+            return None
         except Exception:
             logging.warning(f"Failed to get hostname for miner: {self}")
-            return "?"
+            return None
 
     async def get_board_info(self) -> dict:
         """Gets data on each board and chain in the miner."""
@@ -146,6 +146,9 @@ class BTMiner(BaseMiner):
                 if len(summary_data) > 0:
                     if summary_data[0].get("MAC"):
                         mac = summary_data[0]["MAC"]
+
+                    if summary_data[0].get("Env Temp"):
+                        data.env_temp = summary_data[0]["Env Temp"]
 
                     data.fan_1 = summary_data[0]["Fan Speed In"]
                     data.fan_2 = summary_data[0]["Fan Speed Out"]
