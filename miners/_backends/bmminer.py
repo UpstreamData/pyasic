@@ -203,11 +203,17 @@ class BMMiner(BaseMiner):
                         )
 
                     board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+                    env_temp_list = []
                     for item in range(3):
                         board_temp = temp[1].get(f"temp{item + board_offset}")
                         chip_temp = temp[1].get(f"temp2_{item + board_offset}")
                         setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
                         setattr(data, f"{board_map[item]}_temp", board_temp)
+                        if f"temp_pcb{item}" in temp[1].keys():
+                            env_temp = temp[1][f"temp_pcb{item}"].split("-")[0]
+                            if not env_temp == 0:
+                                env_temp_list.append(int(env_temp))
+                    data.env_temp = sum(env_temp_list) / len(env_temp_list)
 
         if pools:
             pool_1 = None

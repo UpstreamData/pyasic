@@ -1,12 +1,12 @@
-import aiohttp
-import httpx
-import shutil
-import aiofiles
 import asyncio
-from bs4 import BeautifulSoup
-import re
-import os
 import logging
+import os
+import re
+import shutil
+
+import aiofiles
+import httpx
+from bs4 import BeautifulSoup
 
 
 async def get_latest_version(session):

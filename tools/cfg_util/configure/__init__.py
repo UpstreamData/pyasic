@@ -1,13 +1,13 @@
-import PySimpleGUI as sg
-from config import MinerConfig
-import time
-from tools.cfg_util.layout import window, update_prog_bar
-from tools.cfg_util.decorators import disable_buttons
-from miners.miner_factory import MinerFactory
 import asyncio
-from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
-from tools.cfg_util.general import update_miners_data
 
+import PySimpleGUI as sg
+
+from config import MinerConfig
+from miners.miner_factory import MinerFactory
+from settings import CFG_UTIL_CONFIG_THREADS as CONFIG_THREADS
+from tools.cfg_util.decorators import disable_buttons
+from tools.cfg_util.general import update_miners_data
+from tools.cfg_util.layout import window, update_prog_bar
 
 progress_bar_len = 0
 
