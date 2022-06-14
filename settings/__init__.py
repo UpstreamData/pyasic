@@ -14,15 +14,16 @@ WHATSMINER_PWD = "admin"
 
 DEBUG = False
 
+settings_keys = {}
+
 try:
     with open(
         os.path.join(os.path.dirname(__file__), "settings.toml"), "r"
     ) as settings_file:
         settings = toml.loads(settings_file.read())
+    settings_keys = settings.keys()
 except:
     pass
-
-settings_keys = settings.keys()
 
 if "ping_retries" in settings_keys:
     NETWORK_PING_RETRIES: int = settings["ping_retries"]
