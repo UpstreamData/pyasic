@@ -13,6 +13,7 @@ MINER_FACTORY_GET_VERSION_RETRIES: int = 3
 WHATSMINER_PWD = "admin"
 
 DEBUG = False
+LOGFILE = False
 
 settings_keys = {}
 
@@ -47,3 +48,6 @@ if "whatsminer_pwd" in settings_keys:
 
 if "debug" in settings_keys:
     DEBUG: int = settings["debug"]
+
+if "logfile" in settings_keys:
+    LOGFILE: bool = settings["logfile"]

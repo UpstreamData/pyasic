@@ -13,6 +13,8 @@ reboot_threads = 300
 
 whatsminer_pwd = "admin"
 
+logfile = true
+
 ### DEBUG MODE ###
 # change this to debug = true
 # to enable debug mode.

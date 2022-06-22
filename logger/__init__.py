@@ -1,14 +1,21 @@
 import logging
-from settings import DEBUG
+from settings import DEBUG, LOGFILE
 
 
 def init_logger():
-    logging.basicConfig(
-        # filename="logfile.txt",
-        # filemode="a",
-        format="%(pathname)s:%(lineno)d in %(funcName)s\n[%(levelname)s][%(asctime)s](%(name)s) - %(message)s",
-        datefmt="%x %X",
-    )
+    if LOGFILE:
+        logging.basicConfig(
+            filename="logfile.txt",
+            filemode="a",
+            format="%(pathname)s:%(lineno)d in %(funcName)s\n[%(levelname)s][%(asctime)s](%(name)s) - %(message)s",
+            datefmt="%x %X",
+        )
+    else:
+        logging.basicConfig(
+            format="%(pathname)s:%(lineno)d in %(funcName)s\n[%(levelname)s][%(asctime)s](%(name)s) - %(message)s",
+            datefmt="%x %X",
+        )
+
     _logger = logging.getLogger()
 
     if DEBUG:
