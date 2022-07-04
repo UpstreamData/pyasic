@@ -1,8 +1,10 @@
 from typing import TypeVar, Tuple, List
 from collections.abc import AsyncIterable
+from miner_interface.miners import BaseMiner
 
 from miner_interface.miners.antminer import *
 from miner_interface.miners.avalonminer import *
+from miner_interface.miners.whatsminer import *
 
 from miner_interface.miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
 from miner_interface.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
