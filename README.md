@@ -1,5 +1,8 @@
 # pyasic
 *A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ## Usage
 To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements.txt``` on Windows or ```pip3 install -r requirements.txt``` on Mac or UNIX if the first command fails.
 
@@ -60,7 +63,7 @@ You can also create your own miner without scanning if you know the IP:
 ```python
 import asyncio
 import ipaddress
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import Mine~~~~rFactory
 
 
 async def get_miner_hashrate(ip: str):

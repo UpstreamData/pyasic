@@ -381,7 +381,10 @@ class BOSMiner(BaseMiner):
             tuner = tunerstatus[0].get("TUNERSTATUS")
             if tuner:
                 if len(tuner) > 0:
-                    wattage = tuner[0].get("PowerLimit")
+                    wattage = tuner[0].get("ApproximateMinerPowerConsumption")
+                    wattage_limit = tuner[0].get("PowerLimit")
+                    if wattage_limit:
+                        data.wattage_limit = wattage_limit
                     if wattage:
                         data.wattage = wattage
 

@@ -17,7 +17,8 @@ class MinerData:
     :param center_board_chip_temp: The temp of the center board chips as an int.
     :param right_board_temp: The temp of the right PCB as an int.
     :param right_board_chip_temp: The temp of the right board chips as an int.
-    :param wattage: Wattage of the miner as an int.
+    :param wattage: Current power draw of the miner as an int.
+    :param wattage_limit: Power limit of the miner as an int.
     :param fan_1: The speed of the first fan as an int.
     :param fan_2: The speed of the second fan as an int.
     :param fan_3: The speed of the third fan as an int.
@@ -48,6 +49,7 @@ class MinerData:
     right_board_temp: int = 0
     right_board_chip_temp: int = 0
     wattage: int = 0
+    wattage_limit: int = 0
     fan_1: int = -1
     fan_2: int = -1
     fan_3: int = -1

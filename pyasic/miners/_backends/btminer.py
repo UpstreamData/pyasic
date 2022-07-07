@@ -160,6 +160,7 @@ class BTMiner(BaseMiner):
                     wattage = summary_data[0].get("Power")
                     if wattage:
                         data.wattage = round(wattage)
+                        data.wattage_limit = round(wattage)
 
         if devs:
             temp_data = devs.get("DEVS")
