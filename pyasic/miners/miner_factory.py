@@ -1,5 +1,6 @@
 from typing import TypeVar, Tuple, List
 from collections.abc import AsyncIterable
+from pyasic.miners import BaseMiner
 
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
