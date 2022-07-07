@@ -1,4 +1,4 @@
-# minerInterface
+# pyasic
 *A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
 ## Usage
 To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements.txt``` on Windows or ```pip3 install -r requirements.txt``` on Mac or UNIX if the first command fails.
