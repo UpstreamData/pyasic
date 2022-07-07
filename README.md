@@ -3,24 +3,9 @@
 ## Usage
 To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements.txt``` on Windows or ```pip3 install -r requirements.txt``` on Mac or UNIX if the first command fails.
 
+You can also use poetry by initializing and running ```poetry install```
+
 For those of you who aren't comfortable with code and developer tools, there are windows builds of the GUI applications here -> (https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing)
-
-### CFG Util
-*CFG Util is a GUI for interfacing with the miners easily, it is mostly self-explanatory.*
-
-To use CFG Util you have 2 options -
-1. Run it directly with the file ```config_tool.py``` or import it with ```from cfg_util import main```, then run the ```main()``` function like -
-
-```python
-from tools.cfg_util import main
-
-if __name__ == '__main__':
-    main()
-```
-2. Make a build of the CFG Util for your system using cx_freeze and ```make_cfg_tool_exe.py```
-(Alternatively, you can get a build made by me here -> https://drive.google.com/drive/folders/147vBXbuaX85inataXeSAiKk8IKf-7xtR)
-   1. Open either Command Prompt on Windows or Terminal on Mac or UNIX.
-   2. Navigate to this directory, and run ```make_cfg_tool_exe.py build``` on Windows or ```python3 make_cfg_tool_exe.py build``` on Mac or UNIX.
 
 ### Interfacing with miners programmatically
 <br>
@@ -47,7 +32,7 @@ A basic script to find all miners on the network and get the hashrate from them 
 
 ```python
 import asyncio
-from network import MinerNetwork
+from pyasic.network import MinerNetwork
 
 
 async def get_hashrate():
@@ -75,8 +60,7 @@ You can also create your own miner without scanning if you know the IP:
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
-
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_hashrate(ip: str):
@@ -107,7 +91,7 @@ Now that you know that, lets move on to some common API functions that you might
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_pool_data(ip: str):
@@ -119,7 +103,7 @@ async def get_miner_pool_data(ip: str):
     miner = await miner_factory.get_miner(miner_ip)
     # Get the data
     data = await miner.get_data()
-    
+
     print(data)
 
 
@@ -135,7 +119,7 @@ if __name__ == '__main__':
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_pool_data(ip: str):
@@ -174,7 +158,7 @@ A pretty good example of really trying to make this robust is in ```cfg_util.fun
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_temperature_data(ip: str):
@@ -203,7 +187,7 @@ How about data on the power usage of the miner?  This one only works for Whatsmi
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_power_data(ip: str):
@@ -228,7 +212,7 @@ async def get_miner_power_data(ip: str):
         data = summary['SUMMARY'][0]["Power"]
 
     if data:
-       print(data)
+        print(data)
 
 
 if __name__ == '__main__':
@@ -244,7 +228,7 @@ How about we get the current pool user and hashrate in 1 command?
 ```python
 import asyncio
 import ipaddress
-from miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 

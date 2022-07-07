@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pyasic"
+version = "0.8.4"
+description = "A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH."
+authors = ["UpstreamData <brett@upstreamdata.ca>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+asyncssh = "^2.11.0"
+httpx = "^0.23.0"
+passlib = "^1.7.4"
+pyaml = "^21.10.1"
+toml = "^0.10.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
