@@ -32,7 +32,7 @@ A basic script to find all miners on the network and get the hashrate from them 
 
 ```python
 import asyncio
-from miner_interface.network import MinerNetwork
+from pyasic.network import MinerNetwork
 
 
 async def get_hashrate():
@@ -60,7 +60,7 @@ You can also create your own miner without scanning if you know the IP:
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_hashrate(ip: str):
@@ -91,7 +91,7 @@ Now that you know that, lets move on to some common API functions that you might
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_pool_data(ip: str):
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_pool_data(ip: str):
@@ -158,7 +158,7 @@ A pretty good example of really trying to make this robust is in ```cfg_util.fun
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_temperature_data(ip: str):
@@ -187,7 +187,7 @@ How about data on the power usage of the miner?  This one only works for Whatsmi
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 
 
 async def get_miner_power_data(ip: str):
@@ -228,7 +228,7 @@ How about we get the current pool user and hashrate in 1 command?
 ```python
 import asyncio
 import ipaddress
-from miner_interface.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory
 from tools.cfg_util_old.func.parse_data import safe_parse_api_data
 
 
