@@ -1,29 +1,22 @@
-name: Upload Python Package
+name: PyPI
 
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+  push:
+    tags:
+      - "v*.*.*"
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'docsrc/**'
 
 jobs:
-  deploy:
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    - name: Install Poetry
-      run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-    - name: Add Poetry to path
-      run: echo "${HOME}/.poetry/bin" >> $GITHUB_PATH
-    - name: Install venv
-      run: poetry install
-    - run: poetry config pypi-token.pypi "${{ secrets.PYPI_API_KEY }}"
-    - name: Publish package
-      run: poetry publish --build
+      - uses: actions/checkout@v2
+      - name: Publish GH release
+        uses: softprops/action-gh-release@v0.1.14
+      - name: Build using poetry and publish to PyPi
+        uses: JRubics/poetry-publish@v1.11
+        with:
+          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
