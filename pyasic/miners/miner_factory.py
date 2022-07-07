@@ -4,6 +4,7 @@ from pyasic.miners import BaseMiner
 
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
+from pyasic.miners.whatsminer import *
 
 from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
