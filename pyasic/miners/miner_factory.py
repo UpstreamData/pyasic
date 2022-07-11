@@ -10,7 +10,9 @@ from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module imp
 from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.btminer import BTMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.bosminer_old import BOSMinerOld  # noqa - Ignore _module import
+from pyasic.miners._backends.bosminer_old import (
+    BOSMinerOld,
+)  # noqa - Ignore _module import
 
 from pyasic.miners.unknown import UnknownMiner
 
@@ -474,17 +476,20 @@ class MinerFactory(metaclass=Singleton):
 
                 # final try on a braiins OS bug with devdetails not returning
                 else:
-                    async with asyncssh.connect(
-                        str(ip),
-                        known_hosts=None,
-                        username="root",
-                        password="admin",
-                        server_host_key_algs=["ssh-rsa"],
-                    ) as conn:
-                        cfg = await conn.run("bosminer config --data")
-                    if cfg:
-                        cfg = json.loads(cfg.stdout)
-                        model = cfg.get("data").get("format").get("model")
+                    try:
+                        async with asyncssh.connect(
+                            str(ip),
+                            known_hosts=None,
+                            username="root",
+                            password="admin",
+                            server_host_key_algs=["ssh-rsa"],
+                        ) as conn:
+                            cfg = await conn.run("bosminer config --data")
+                        if cfg:
+                            cfg = json.loads(cfg.stdout)
+                            model = cfg.get("data").get("format").get("model")
+                    except asyncssh.misc.PermissionDenied:
+                        pass
 
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it

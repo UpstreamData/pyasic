@@ -111,6 +111,9 @@ class CGMiner(BaseMiner):
     async def get_data(self):
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
+        board_offset = -1
+        fan_offset = -1
+
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()
@@ -126,7 +129,9 @@ class CGMiner(BaseMiner):
 
         miner_data = None
         for i in range(DATA_RETRIES):
-            miner_data = await self.api.multicommand("summary", "pools", "stats")
+            miner_data = await self.api.multicommand(
+                "summary", "pools", "stats", ignore_x19_error=True
+            )
             if miner_data:
                 break
 
@@ -141,25 +146,65 @@ class CGMiner(BaseMiner):
             hr = summary.get("SUMMARY")
             if hr:
                 if len(hr) > 0:
-                    hr = hr[0].get("GHS 1m")
+                    hr = hr[0].get("GHS av")
                     if hr:
                         data.hashrate = round(hr / 1000, 2)
+
+        if stats:
+            boards = stats.get("STATS")
+            if boards:
+                if len(boards) > 0:
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
+
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
+
+                    data.left_chips = boards[1].get(f"chain_acn{board_offset}")
+                    data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
+                    data.right_chips = boards[1].get(f"chain_acn{board_offset+2}")
+
+                    data.left_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset}")) / 1000, 2
+                    )
+                    data.center_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset+1}")) / 1000, 2
+                    )
+                    data.right_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset+2}")) / 1000, 2
+                    )
 
         if stats:
             temp = stats.get("STATS")
             if temp:
                 if len(temp) > 1:
-                    data.fan_1 = temp[1].get("fan1")
-                    data.fan_2 = temp[1].get("fan2")
-                    data.fan_3 = temp[1].get("fan3")
-                    data.fan_4 = temp[1].get("fan4")
+                    for fan_num in range(1, 8, 4):
+                        for _f_num in range(4):
+                            f = temp[1].get(f"fan{fan_num + _f_num}")
+                            if f and not f == 0 and fan_offset == -1:
+                                fan_offset = fan_num
+                    if fan_offset == -1:
+                        fan_offset = 1
+                    for fan in range(self.fan_count):
+                        setattr(
+                            data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
+                        )
 
-                    board_map = {1: "left_board", 2: "center_board", 3: "right_board"}
-                    for item in range(1, 4):
-                        board_temp = temp[1].get(f"temp{item}")
-                        chip_temp = temp[1].get(f"temp2_{item}")
+                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+                    env_temp_list = []
+                    for item in range(3):
+                        board_temp = temp[1].get(f"temp{item + board_offset}")
+                        chip_temp = temp[1].get(f"temp2_{item + board_offset}")
                         setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
                         setattr(data, f"{board_map[item]}_temp", board_temp)
+                        if f"temp_pcb{item}" in temp[1].keys():
+                            env_temp = temp[1][f"temp_pcb{item}"].split("-")[0]
+                            if not env_temp == 0:
+                                env_temp_list.append(int(env_temp))
+                    data.env_temp = sum(env_temp_list) / len(env_temp_list)
 
         if pools:
             pool_1 = None
@@ -173,16 +218,19 @@ class CGMiner(BaseMiner):
                 if not pool_1_user:
                     pool_1_user = pool.get("User")
                     pool_1 = pool["URL"]
-                    pool_1_quota = pool["Quota"]
+                    if pool.get("Quota"):
+                        pool_2_quota = pool.get("Quota")
                 elif not pool_2_user:
                     pool_2_user = pool.get("User")
                     pool_2 = pool["URL"]
-                    pool_2_quota = pool["Quota"]
+                    if pool.get("Quota"):
+                        pool_2_quota = pool.get("Quota")
                 if not pool.get("User") == pool_1_user:
                     if not pool_2_user == pool.get("User"):
                         pool_2_user = pool.get("User")
                         pool_2 = pool["URL"]
-                        pool_2_quota = pool["Quota"]
+                        if pool.get("Quota"):
+                            pool_2_quota = pool.get("Quota")
             if pool_2_user and not pool_2_user == pool_1_user:
                 quota = f"{pool_1_quota}/{pool_2_quota}"
 

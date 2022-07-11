@@ -186,6 +186,16 @@ class BMMiner(BaseMiner):
                     data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
                     data.right_chips = boards[1].get(f"chain_acn{board_offset+2}")
 
+                    data.left_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset}")) / 1000, 2
+                    )
+                    data.center_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset+1}")) / 1000, 2
+                    )
+                    data.right_board_hashrate = round(
+                        float(boards[1].get(f"chain_rate{board_offset+2}")) / 1000, 2
+                    )
+
         if stats:
             temp = stats.get("STATS")
             if temp:

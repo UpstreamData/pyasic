@@ -40,6 +40,9 @@ class MinerData:
     model: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0
+    left_board_hashrate: float = 0
+    center_board_hashrate: float = 0
+    right_board_hashrate: float = 0
     temperature_avg: int = field(init=False)
     env_temp: float = 0
     left_board_temp: int = 0

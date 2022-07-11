@@ -178,8 +178,10 @@ class BTMiner(BaseMiner):
                     _id = board["ASC"]
                     chip_temp = round(board["Chip Temp Avg"])
                     board_temp = round(board["Temperature"])
+                    hashrate = round(board["MHS 1m"] / 1000000, 2)
                     setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
                     setattr(data, f"{board_map[_id]}_temp", board_temp)
+                    setattr(data, f"{board_map[_id]}_hashrate", hashrate)
 
         if devs:
             boards = devs.get("DEVS")

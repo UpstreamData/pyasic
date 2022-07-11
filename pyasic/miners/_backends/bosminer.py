@@ -286,12 +286,18 @@ class BOSMiner(BaseMiner):
         for i in range(DATA_RETRIES):
             try:
                 miner_data = await self.api.multicommand(
-                    "summary", "temps", "tunerstatus", "pools", "devdetails", "fans"
+                    "summary",
+                    "temps",
+                    "tunerstatus",
+                    "pools",
+                    "devdetails",
+                    "fans",
+                    "devs",
                 )
             except APIError as e:
                 if str(e.message) == "Not ready":
                     miner_data = await self.api.multicommand(
-                        "summary", "tunerstatus", "pools", "fans"
+                        "summary", "tunerstatus", "pools", "fans", "devs"
                     )
             if miner_data:
                 break
@@ -302,6 +308,7 @@ class BOSMiner(BaseMiner):
         tunerstatus = miner_data.get("tunerstatus")
         pools = miner_data.get("pools")
         devdetails = miner_data.get("devdetails")
+        devs = miner_data.get("devs")
         fans = miner_data.get("fans")
 
         if summary:
@@ -399,6 +406,20 @@ class BOSMiner(BaseMiner):
                         chips = board["Chips"]
                         setattr(data, board_map[_id], chips)
 
+        if devs:
+            boards = devs[0].get("DEVS")
+            if boards:
+                if len(boards) > 0:
+                    board_map = {
+                        0: "left_board_hashrate",
+                        1: "center_board_hashrate",
+                        2: "right_board_hashrate",
+                    }
+                    offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
+                    for board in boards:
+                        _id = board["ID"] - offset
+                        hashrate = board["MHS 1m"]
+                        setattr(data, board_map[_id], hashrate)
         return data
 
     async def get_mac(self):
