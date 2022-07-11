@@ -144,11 +144,15 @@ class BTMiner(BaseMiner):
             summary_data = summary.get("SUMMARY")
             if summary_data:
                 if len(summary_data) > 0:
+                    wattage_limit = None
                     if summary_data[0].get("MAC"):
                         mac = summary_data[0]["MAC"]
 
                     if summary_data[0].get("Env Temp"):
                         data.env_temp = summary_data[0]["Env Temp"]
+
+                    if summary_data[0].get("Power Limit"):
+                        wattage_limit = summary_data[0]["Power Limit"]
 
                     data.fan_1 = summary_data[0]["Fan Speed In"]
                     data.fan_2 = summary_data[0]["Fan Speed Out"]
@@ -160,7 +164,11 @@ class BTMiner(BaseMiner):
                     wattage = summary_data[0].get("Power")
                     if wattage:
                         data.wattage = round(wattage)
-                        data.wattage_limit = round(wattage)
+
+                        if not wattage_limit:
+                            wattage_limit = round(wattage)
+
+                    data.wattage_limit = wattage_limit
 
         if devs:
             temp_data = devs.get("DEVS")
