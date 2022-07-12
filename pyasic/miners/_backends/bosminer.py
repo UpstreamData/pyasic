@@ -297,7 +297,7 @@ class BOSMiner(BaseMiner):
             except APIError as e:
                 if str(e.message) == "Not ready":
                     miner_data = await self.api.multicommand(
-                        "summary", "tunerstatus", "pools", "fans", "devs"
+                        "summary", "tunerstatus", "pools", "devs"
                     )
             if miner_data:
                 break
