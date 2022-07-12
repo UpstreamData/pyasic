@@ -443,7 +443,7 @@ class BOSMiner(BaseMiner):
                     offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
                     for board in boards:
                         _id = board["ID"] - offset
-                        hashrate = board["MHS 1m"]
+                        hashrate = round(board["MHS 1m"] / 1000000, 2)
                         setattr(data, board_map[_id], hashrate)
         return data
 
