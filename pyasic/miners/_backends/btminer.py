@@ -7,6 +7,7 @@ from pyasic.miners import BaseMiner
 from pyasic.API import APIError
 
 from pyasic.data import MinerData
+from pyasic.data.error_codes import WhatsminerError
 
 from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
@@ -169,6 +170,15 @@ class BTMiner(BaseMiner):
                             wattage_limit = round(wattage)
 
                     data.wattage_limit = wattage_limit
+
+                    if summary_data[0].get("Error Code Count"):
+                        for i in range(summary_data[0]["Error Code Count"]):
+                            if summary_data[0].get(f"Error Code {i}"):
+                                data.errors.append(
+                                    WhatsminerError(
+                                        error_code=summary_data[0][f"Error Code {i}"]
+                                    )
+                                )
 
         if devs:
             temp_data = devs.get("DEVS")

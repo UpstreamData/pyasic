@@ -1,0 +1,1 @@
+from .whatsminer import WhatsminerError

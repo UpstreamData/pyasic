@@ -32,6 +32,7 @@ class MinerData:
     :param pool_1_user: The first pool user on the miner as a str.
     :param pool_2_url: The second pool url on the miner as a str.
     :param pool_2_user: The second pool user on the miner as a str.
+    :param errors: A list of errors on the miner.
     """
 
     ip: str
@@ -69,6 +70,7 @@ class MinerData:
     pool_1_user: str = "Unknown"
     pool_2_url: str = ""
     pool_2_user: str = ""
+    errors: list = field(default_factory=list)
 
     def __post_init__(self):
         self.datetime = datetime.now()
