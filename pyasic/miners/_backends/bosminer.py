@@ -9,6 +9,7 @@ from pyasic.miners import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API import APIError
 
+from pyasic.data.error_codes import BraiinsOSError
 from pyasic.data import MinerData
 
 from pyasic.config import MinerConfig
@@ -394,6 +395,30 @@ class BOSMiner(BaseMiner):
                         data.wattage_limit = wattage_limit
                     if wattage:
                         data.wattage = wattage
+
+                    chain_status = tuner[0].get("TunerChainStatus")
+                    if chain_status and len(chain_status) > 0:
+                        board_map = {
+                            0: "Left board",
+                            1: "Center board",
+                            2: "Right board",
+                        }
+                        offset = (
+                            6
+                            if chain_status[0]["HashchainIndex"] in [6, 7, 8]
+                            else chain_status[0]["HashchainIndex"]
+                        )
+                        for board in chain_status:
+                            _id = board["HashchainIndex"] - offset
+                            if board["Status"] not in [
+                                "Stable",
+                                "Testing performance profile",
+                            ]:
+                                _error = board["Status"]
+                                _error = _error[0].lower() + _error[1:]
+                                data.errors.append(
+                                    BraiinsOSError(f"{board_map[_id]} {_error}")
+                                )
 
         if devdetails:
             boards = devdetails[0].get("DEVDETAILS")
