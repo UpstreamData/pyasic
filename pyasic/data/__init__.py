@@ -4,35 +4,44 @@ from datetime import datetime
 
 @dataclass
 class MinerData:
-    """A Dataclass to standardize data returned from miners (specifically AnyMiner().get_data())
+    """A Dataclass to standardize data returned from miners (specifically `AnyMiner().get_data()`)
 
-    :param ip: The IP of the miner as a str.
-    :param datetime: The time and date this data was generated.
-    :param model: The model of the miner as a str.
-    :param hostname: The network hostname of the miner as a str.
-    :param hashrate: The hashrate of the miner in TH/s as a int.
-    :param left_board_temp: The temp of the left PCB as an int.
-    :param left_board_chip_temp: The temp of the left board chips as an int.
-    :param center_board_temp: The temp of the center PCB as an int.
-    :param center_board_chip_temp: The temp of the center board chips as an int.
-    :param right_board_temp: The temp of the right PCB as an int.
-    :param right_board_chip_temp: The temp of the right board chips as an int.
-    :param wattage: Current power draw of the miner as an int.
-    :param wattage_limit: Power limit of the miner as an int.
-    :param fan_1: The speed of the first fan as an int.
-    :param fan_2: The speed of the second fan as an int.
-    :param fan_3: The speed of the third fan as an int.
-    :param fan_4: The speed of the fourth fan as an int.
-    :param left_chips: The number of chips online in the left board as an int.
-    :param center_chips: The number of chips online in the left board as an int.
-    :param right_chips: The number of chips online in the left board as an int.
-    :param ideal_chips: The ideal number of chips in the miner as an int.
-    :param pool_split: The pool split as a str.
-    :param pool_1_url: The first pool url on the miner as a str.
-    :param pool_1_user: The first pool user on the miner as a str.
-    :param pool_2_url: The second pool url on the miner as a str.
-    :param pool_2_user: The second pool user on the miner as a str.
-    :param errors: A list of errors on the miner.
+    Attributes:
+        ip: The IP of the miner as a str.
+        datetime: The time and date this data was generated.
+        model: The model of the miner as a str.
+        hostname: The network hostname of the miner as a str.
+        hashrate: The hashrate of the miner in TH/s as a float.
+        left_board_hashrate: The hashrate of the left board of the miner in TH/s as a float.
+        center_board_hashrate: The hashrate of the center board of the miner in TH/s as a float.
+        right_board_hashrate: The hashrate of the right board of the miner in TH/s as a float.
+        temperature_avg: The average temperature across the boards.  Calculated automatically.
+        env_temp: The environment temps as a float.
+        left_board_temp: The temp of the left PCB as an int.
+        left_board_chip_temp: The temp of the left board chips as an int.
+        center_board_temp: The temp of the center PCB as an int.
+        center_board_chip_temp: The temp of the center board chips as an int.
+        right_board_temp: The temp of the right PCB as an int.
+        right_board_chip_temp: The temp of the right board chips as an int.
+        wattage: Current power draw of the miner as an int.
+        wattage_limit: Power limit of the miner as an int.
+        fan_1: The speed of the first fan as an int.
+        fan_2: The speed of the second fan as an int.
+        fan_3: The speed of the third fan as an int.
+        fan_4: The speed of the fourth fan as an int.
+        left_chips: The number of chips online in the left board as an int.
+        center_chips: The number of chips online in the left board as an int.
+        right_chips: The number of chips online in the left board as an int.
+        total_chips: The total number of chips on all boards.  Calculated automatically.
+        ideal_chips: The ideal number of chips in the miner as an int.
+        perecent_ideal: The percent of total chips out of the ideal count.  Calculated automatically.
+        nominal: The nominal amount of chips in the miner.  Calculated automatically.
+        pool_split: The pool split as a str.
+        pool_1_url: The first pool url on the miner as a str.
+        pool_1_user: The first pool user on the miner as a str.
+        pool_2_url: The second pool url on the miner as a str.
+        pool_2_user: The second pool user on the miner as a str.
+        errors: A list of errors on the miner.
     """
 
     ip: str

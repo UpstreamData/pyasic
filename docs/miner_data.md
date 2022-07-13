@@ -1,7 +1,7 @@
 # pyasic
-## Miner Network
+## Miner Data
 
-::: pyasic.network.MinerNetwork
+::: pyasic.data.MinerData
     handler: python
     options:
         show_root_heading: false

@@ -5,6 +5,7 @@ nav:
   - Usage:
       - Miner Factory: "miner_factory.md"
       - Miner Network: "miner_network.md"
+      - Miner Data: "miner_data.md"
   - Advanced:
       - API: "api.md"
 

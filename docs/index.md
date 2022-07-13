@@ -13,8 +13,8 @@ Getting started with pyasic is easy.  First, find your miner (or miners) on the 
 <br>
 
 ## Scanning for miners
-To scan for miners in pyasic, we use the class `MinerNetwork`, which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
-The command `MinerNetwork().scan_network_for_miners()` returns a list that contains any miners found.
+To scan for miners in pyasic, we use the class [`MinerNetwork`][pyasic.network.MinerNetwork], which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
+The command [`MinerNetwork().scan_network_for_miners()`][pyasic.network.MinerNetwork.scan_network_for_miners] returns a list that contains any miners found.
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic.network import MinerNetwork  # miner network handles the scanning
@@ -37,8 +37,8 @@ if __name__ == "__main__":
 <br>
 
 ## Creating miners based on IP
-If you already know the IP address of your miner or miners, you can use the `MinerFactory` to communicate and identify the miners.
-The function `MinerFactory().get_miner()` will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
+If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners.
+The function [`MinerFactory().get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic.miners.miner_factory import MinerFactory  # miner factory handles miners creation
@@ -61,8 +61,8 @@ if __name__ == "__main__":
 ## Getting data from miners
 
 Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built in function in each miner called `get_data()`.
-This function will return a instance of the dataclass `MinerData` with all data it can gather from the miner.
-Each piece of data in a `MinerData` instance can be referenced by getting it as an attribute, such as `MinerData().hashrate`
+This function will return a instance of the dataclass [`MinerData`][pyasic.data.MinerData] with all data it can gather from the miner.
+Each piece of data in a [`MinerData`][pyasic.data.MinerData] instance can be referenced by getting it as an attribute, such as [`MinerData().hashrate`][pyasic.data.MinerData].
 ```python
 import asyncio
 from pyasic.miners.miner_factory import MinerFactory

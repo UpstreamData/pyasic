@@ -1,6 +1,7 @@
 import ipaddress
 import asyncio
 import logging
+from typing import Union
 
 from pyasic.network.net_range import MinerNetworkRange
 from pyasic.miners.miner_factory import MinerFactory
@@ -26,7 +27,7 @@ class MinerNetwork:
     """
 
     def __init__(
-        self, ip_addr: str or None = None, mask: str or int or None = None
+        self, ip_addr: Union[str, None] = None, mask: Union[str, int, None] = None
     ) -> None:
         self.network = None
         self.ip_addr = ip_addr
