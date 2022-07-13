@@ -2,8 +2,9 @@
 *A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Code style: black](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
-[![Code style: black](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![pypi](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![python](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
 ## Usage
 
 ### Standard Usage
