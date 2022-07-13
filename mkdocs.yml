@@ -2,12 +2,22 @@ site_name: pyasic
 repo_url: https://github.com/UpstreamData/pyasic
 nav:
   - Introduction: "index.md"
-  - Usage:
-      - Miner Factory: "miner_factory.md"
-      - Miner Network: "miner_network.md"
-      - Miner Data: "miner_data.md"
+  - Miners:
+      - Miner Factory: "miners/miner_factory.md"
+  - Network:
+      - Miner Network: "network/miner_network.md"
+  - Data:
+      - Miner Data: "data/miner_data.md"
+  - Config:
+      - Miner Config: "config/miner_config.md"
   - Advanced:
-      - API: "api.md"
+      - Miner APIs:
+          - Base: "API/api.md"
+          - BMMiner: "API/bmminer.md"
+          - BOSMiner: "API/bosminer.md"
+          - BTMiner: "API/btminer.md"
+          - CGMiner: "API/cgminer.md"
+          - Unknown: "API/unknown.md"
 
 plugins:
   - mkdocstrings
