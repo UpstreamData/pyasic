@@ -6,3 +6,4 @@ nav:
 
 plugins:
   - mkdocstrings
+  - search

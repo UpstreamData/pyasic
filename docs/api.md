@@ -12,3 +12,31 @@ All API implementations inherit from `BaseMinerAPI`, which implements the basic 
     options:
         show_root_heading: false
         heading_level: 4
+
+## BOSMinerAPI
+::: pyasic.API.bosminer.BOSMinerAPI
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## BTMinerAPI
+::: pyasic.API.btminer.BTMinerAPI
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## CGMinerAPI
+::: pyasic.API.cgminer.CGMinerAPI
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## UnknownAPI
+::: pyasic.API.unknown.UnknownAPI
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4

@@ -182,7 +182,7 @@ class BMMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Parameters:
-            n: Pools in order of priority.
+            *n: Pools in order of priority.
 
         Returns:
             A confirmation of setting pool priority.
@@ -385,7 +385,7 @@ class BMMinerAPI(BaseMinerAPI):
             command: The command to check.
 
         Returns:
-             ## Information about a command:
+            ## Information about a command:
                 * Exists (Y/N) <- the command exists in this version
                 * Access (Y/N) <- you have access to use the command
         </details>

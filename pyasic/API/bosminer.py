@@ -6,60 +6,80 @@ class BOSMinerAPI(BaseMinerAPI):
 
     Each method corresponds to an API command in BOSMiner.
 
-    BOSMiner API documentation:
-        https://docs.braiins.com/os/plus-en/Development/1_api.html
+    [BOSMiner API documentation](https://docs.braiins.com/os/plus-en/Development/1_api.html)
 
     This class abstracts use of the BOSMiner API, as well as the
-    methods for sending commands to it.  The self.send_command()
+    methods for sending commands to it.  The `self.send_command()`
     function handles sending a command to the miner asynchronously, and
     as such is the base for many of the functions in this class, which
     rely on it to send the command for them.
 
-    :param ip: The IP of the miner to reference the API on.
-    :param port: The port to reference the API on.  Default is 4028.
+    Parameters:
+        ip: The IP of the miner to reference the API on.
+        port: The port to reference the API on.  Default is 4028.
     """
 
-    def __init__(self, ip, port=4028):
+    def __init__(self, ip: str, port: int = 4028):
         super().__init__(ip, port)
 
     async def asccount(self) -> dict:
         """Get data on the number of ASC devices and their info.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on all ASC devices.
+        Returns:
+            Data on all ASC devices.
+        </details>
         """
         return await self.send_command("asccount")
 
     async def asc(self, n: int) -> dict:
         """Get data for ASC device n.
+        <details>
+            <summary>Expand</summary>
 
-        :param n: The device to get data for.
+        Parameters:
+            n: The device to get data for.
 
-        :return: The data for ASC device n.
+        Returns:
+            The data for ASC device n.
+        </details>
         """
         return await self.send_command("asc", parameters=n)
 
     async def devdetails(self) -> dict:
         """Get data on all devices with their static details.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on all devices with their static details.
+        Returns:
+            Data on all devices with their static details.
+        </details>
         """
         return await self.send_command("devdetails")
 
     async def devs(self) -> dict:
         """Get data on each PGA/ASC with their details.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on each PGA/ASC with their details.
+        Returns:
+            Data on each PGA/ASC with their details.
+        </details>
         """
         return await self.send_command("devs")
 
     async def edevs(self, old: bool = False) -> dict:
-        """Get data on each PGA/ASC with their details, ignoring
-         blacklisted and zombie devices.
+        """Get data on each PGA/ASC with their details, ignoring blacklisted and zombie devices.
+        <details>
+            <summary>Expand</summary>
 
-        :param old: Include zombie devices that became zombies less
-        than 'old' seconds ago
+        Parameters:
+            old: Include zombie devices that became zombies less than 'old' seconds ago
 
-        :return: Data on each PGA/ASC with their details.
+        Returns:
+            Data on each PGA/ASC with their details.
+        </details>
         """
         if old:
             return await self.send_command("edevs", parameters="old")
@@ -69,40 +89,62 @@ class BOSMinerAPI(BaseMinerAPI):
     async def pools(self) -> dict:
         """Get pool information.
 
-        :return: Miner pool information.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            Miner pool information.
+        </details>
         """
         return await self.send_command("pools")
 
     async def summary(self) -> dict:
         """Get the status summary of the miner.
 
-        :return: The status summary of the miner.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            The status summary of the miner.
+        </details>
         """
         return await self.send_command("summary")
 
     async def stats(self) -> dict:
         """Get stats of each device/pool with more than 1 getwork.
 
-        :return: Stats of each device/pool with more than 1 getwork.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            Stats of each device/pool with more than 1 getwork.
+        </details>
         """
         return await self.send_command("stats")
 
     async def version(self) -> dict:
         """Get miner version info.
 
-        :return: Miner version information.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            Miner version information.
+        </details>
         """
         return await self.send_command("version")
 
     async def estats(self, old: bool = False) -> dict:
-        """Get stats of each device/pool with more than 1 getwork,
-        ignoring zombie devices.
+        """Get stats of each device/pool with more than 1 getwork, ignoring zombie devices.
+        <details>
+            <summary>Expand</summary>
 
-        :param old: Include zombie devices that became zombies less
-        than 'old' seconds ago.
+        Parameters:
+            old: Include zombie devices that became zombies less than 'old' seconds ago.
 
-        :return: Stats of each device/pool with more than 1 getwork,
-        ignoring zombie devices.
+        Returns:
+            Stats of each device/pool with more than 1 getwork, ignoring zombie devices.
+        </details>
         """
         if old:
             return await self.send_command("estats", parameters=old)
@@ -111,98 +153,109 @@ class BOSMinerAPI(BaseMinerAPI):
 
     async def check(self, command: str) -> dict:
         """Check if the command command exists in BOSMiner.
+        <details>
+            <summary>Expand</summary>
 
-        :param command: The command to check.
+        Parameters:
+            command: The command to check.
 
-        :return: Information about a command:
-            Exists (Y/N) <- the command exists in this version
-            Access (Y/N) <- you have access to use the command
+        Returns:
+            ## Information about a command:
+                * Exists (Y/N) <- the command exists in this version
+                * Access (Y/N) <- you have access to use the command
+        </details>
         """
         return await self.send_command("check", parameters=command)
 
     async def coin(self) -> dict:
         """Get information on the current coin.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Information about the current coin being mined:
-            Hash Method <- the hashing algorithm
-            Current Block Time <- blocktime as a float, 0 means none
-            Current Block Hash <- the hash of the current block, blank
-            means none
-            LP <- whether LP is in use on at least 1 pool
-            Network Difficulty: the current network difficulty
+        Returns:
+            ## Information about the current coin being mined:
+                * Hash Method <- the hashing algorithm
+                * Current Block Time <- blocktime as a float, 0 means none
+                * Current Block Hash <- the hash of the current block, blank means none
+                * LP <- whether LP is in use on at least 1 pool
+                * Network Difficulty: the current network difficulty
+        </details>
         """
         return await self.send_command("coin")
 
     async def lcd(self) -> dict:
         """Get a general all-in-one status summary of the miner.
+        <details>
+            <summary>Expand</summary>
 
-        :return: An all-in-one status summary of the miner.
+        Returns:
+            An all-in-one status summary of the miner.
+        </details>
         """
         return await self.send_command("lcd")
 
-    async def switchpool(self, n: int) -> dict:
-        # BOS has not implemented this yet, they will in the future
-        raise NotImplementedError
-        # return await self.send_command("switchpool", parameters=n)
-
-    async def enablepool(self, n: int) -> dict:
-        # BOS has not implemented this yet, they will in the future
-        raise NotImplementedError
-        # return await self.send_command("enablepool", parameters=n)
-
-    async def disablepool(self, n: int) -> dict:
-        # BOS has not implemented this yet, they will in the future
-        raise NotImplementedError
-        # return await self.send_command("disablepool", parameters=n)
-
-    async def addpool(self, url: str, username: str, password: str) -> dict:
-        # BOS has not implemented this yet, they will in the future
-        raise NotImplementedError
-        # return await self.send_command("addpool", parameters=f"{url},{username},{password}")
-
-    async def removepool(self, n: int) -> dict:
-        # BOS has not implemented this yet, they will in the future
-        raise NotImplementedError
-        # return await self.send_command("removepool", parameters=n)
-
     async def fans(self) -> dict:
         """Get fan data.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on the fans of the miner.
+        Returns:
+            Data on the fans of the miner.
+        </details>
         """
         return await self.send_command("fans")
 
     async def tempctrl(self) -> dict:
         """Get temperature control data.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data about the temp control settings of the miner.
+        Returns:
+            Data about the temp control settings of the miner.
+        </details>
         """
         return await self.send_command("tempctrl")
 
     async def temps(self) -> dict:
         """Get temperature data.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on the temps of the miner.
+        Returns:
+            Data on the temps of the miner.
+        </details>
         """
         return await self.send_command("temps")
 
     async def tunerstatus(self) -> dict:
         """Get tuner status data
+        <details>
+            <summary>Expand</summary>
 
-        :return: Data on the status of autotuning.
+        Returns:
+            Data on the status of autotuning.
+        </details>
         """
         return await self.send_command("tunerstatus")
 
     async def pause(self) -> dict:
         """Pause mining.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Confirmation of pausing mining.
+        Returns:
+            Confirmation of pausing mining.
+        </details>
         """
         return await self.send_command("pause")
 
     async def resume(self) -> dict:
         """Resume mining.
+        <details>
+            <summary>Expand</summary>
 
-        :return: Confirmation of resuming mining.
+        Returns:
+            Confirmation of resuming mining.
+        </details>
         """
         return await self.send_command("resume")
