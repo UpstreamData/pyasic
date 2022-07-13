@@ -1,1 +1,8 @@
 site_name: pyasic
+repo_url: https://github.com/UpstreamData/pyasic
+nav:
+  - Introduction: "index.md"
+  - API: "api.md"
+
+plugins:
+  - mkdocstrings
