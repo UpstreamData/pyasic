@@ -5,6 +5,9 @@
 [![pypi](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![python](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
+## Documentation
+Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
+
 ## Usage
 
 ### Standard Usage
