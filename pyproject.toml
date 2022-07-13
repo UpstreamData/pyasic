@@ -1,8 +1,23 @@
 [tool.poetry]
 name = "pyasic"
-version = "0.10.2"
+version = "0.11.0"
 description = "A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH."
 authors = ["UpstreamData <brett@upstreamdata.ca>"]
+repository = "https://github.com/UpstreamData/pyasic"
+documentation = "https://pyasic.readthedocs.io/en/latest/"
+long_description = "
+# pyasic
+*A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pypi](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![python](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
+
+You can install pyasic directly from pip with the command `pip install pyasic`
+
+[Documentation](https://pyasic.readthedocs.io/en/latest/)
+"
 
 [tool.poetry.dependencies]
 python = "^3.9"
