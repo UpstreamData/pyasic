@@ -12,12 +12,27 @@ from pyasic.settings import (
 
 
 class MinerNetwork:
+    """A class to handle a network containing miners. Handles scanning and gets miners via [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory].
+
+    Parameters:
+        ip_addr: ### An IP address, range of IP addresses, or a list of IPs
+            * Takes a single IP address as an `ipadddress.ipaddress()` or a string
+            * Takes a string formatted as:
+            ```f"{ip_range_1_start}-{ip_range_1_end}, {ip_address_1}, {ip_range_2_start}-{ip_range_2_end}, {ip_address_2}..."```
+            * Also takes a list of strings or `ipaddress.ipaddress` formatted as:
+            ```[{ip_address_1}, {ip_address_2}, {ip_address_3}, ...]```
+        mask: A subnet mask to use when constructing the network.  Only used if `ip_addr` is a single IP.
+            Defaults to /24 (255.255.255.0 or 0.0.0.255)
+    """
+
     def __init__(
         self, ip_addr: str or None = None, mask: str or int or None = None
     ) -> None:
         self.network = None
         self.ip_addr = ip_addr
         self.connected_miners = {}
+        if mask.startswith("/"):
+            mask = mask.replace("/", "")
         self.mask = mask
 
     def __len__(self):

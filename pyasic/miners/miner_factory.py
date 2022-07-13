@@ -1,4 +1,4 @@
-from typing import TypeVar, Tuple, List
+from typing import TypeVar, Tuple, List, Union
 from collections.abc import AsyncIterable
 from pyasic.miners import BaseMiner
 
@@ -10,9 +10,9 @@ from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module imp
 from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.btminer import BTMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.bosminer_old import (
+from pyasic.miners._backends.bosminer_old import (  # noqa - Ignore _module import
     BOSMinerOld,
-)  # noqa - Ignore _module import
+)
 
 from pyasic.miners.unknown import UnknownMiner
 
@@ -229,11 +229,13 @@ class Singleton(type):
 
 
 class MinerFactory(metaclass=Singleton):
+    """A factory to handle identification and selection of the proper class of miner"""
+
     def __init__(self) -> None:
         self.miners = {}
 
     async def get_miner_generator(
-        self, ips: List[ipaddress.ip_address or str]
+        self, ips: List[Union[ipaddress.ip_address, str]]
     ) -> AsyncIterable[AnyMiner]:
         """
         Get Miner objects from ip addresses using an async generator.
@@ -242,6 +244,9 @@ class MinerFactory(metaclass=Singleton):
 
         Parameters:
             ips: a list of ip addresses to get miners for.
+
+        Returns:
+            An async iterable containing miners.
         """
         # get the event loop
         loop = asyncio.get_event_loop()
@@ -256,8 +261,15 @@ class MinerFactory(metaclass=Singleton):
         for miner in scanned:
             yield await miner
 
-    async def get_miner(self, ip: ipaddress.ip_address or str) -> AnyMiner:
-        """Decide a miner type using the IP address of the miner."""
+    async def get_miner(self, ip: Union[ipaddress.ip_address, str]) -> AnyMiner:
+        """Decide a miner type using the IP address of the miner.
+
+        Parameters:
+            ip: An `ipaddress.ip_address` or string of the IP to find the miner.
+
+        Returns:
+            A miner class.
+        """
         if isinstance(ip, str):
             ip = ipaddress.ip_address(ip)
         # check if the miner already exists in cache

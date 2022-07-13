@@ -5,12 +5,12 @@ import ipaddress
 class MinerNetworkRange:
     """A MinerNetwork that takes a range of IP addresses.
 
-    :param ip_range: A range of IP addresses to put in the network, or a list of IPs
-        Takes a string formatted as:
-            {ip_range_1_start}-{ip_range_1_end}, {ip_address_1},
-            {ip_range_2_start}-{ip_range_2_end}, {ip_address_2}...
-        Also takes a list of strings formatted as:
-            [{ip_address_1}, {ip_address_2}, {ip_address_3}, ...]
+    Parameters:
+        ip_range: ## A range of IP addresses to put in the network, or a list of IPs
+            * Takes a string formatted as:
+                * {ip_range_1_start}-{ip_range_1_end}, {ip_address_1}, {ip_range_2_start}-{ip_range_2_end}, {ip_address_2}...
+            * Also takes a list of strings formatted as:
+                * [{ip_address_1}, {ip_address_2}, {ip_address_3}, ...]
     """
 
     def __init__(self, ip_range: Union[str, list]):
