@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+from typing import Union
 
 
 from pyasic.API.bmminer import BMMinerAPI
@@ -11,6 +12,8 @@ from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
 
 
 class BMMiner(BaseMiner):
+    """Base handler for BMMiner based miners."""
+
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
@@ -19,10 +22,11 @@ class BMMiner(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
 
-    async def get_model(self) -> str or None:
+    async def get_model(self) -> Union[str, None]:
         """Get miner model.
 
-        :return: Miner model or None.
+        Returns:
+            Miner model or None.
         """
         # check if model is cached
         if self.model:
@@ -46,7 +50,8 @@ class BMMiner(BaseMiner):
     async def get_hostname(self) -> str:
         """Get miner hostname.
 
-        :return: The hostname of the miner as a string or "?"
+        Returns:
+            The hostname of the miner as a string or "?"
         """
         if self.hostname:
             return self.hostname
@@ -72,12 +77,14 @@ class BMMiner(BaseMiner):
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
-    async def send_ssh_command(self, cmd: str) -> str or None:
+    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
         """Send a command to the miner over ssh.
 
-        :param cmd: The command to run.
+        Parameters:
+            cmd: The command to run.
 
-        :return: Result of the command or None.
+        Returns:
+            Result of the command or None.
         """
         result = None
 
@@ -101,10 +108,11 @@ class BMMiner(BaseMiner):
         # return the result, either command output or None
         return result
 
-    async def get_config(self) -> list or None:
+    async def get_config(self) -> Union[list, None]:
         """Get the pool configuration of the miner.
 
-        :return: Pool config data or None.
+        Returns:
+             Pool config data or None.
         """
         # get pool data
         pools = await self.api.pools()
@@ -120,6 +128,11 @@ class BMMiner(BaseMiner):
         return pool_data
 
     async def reboot(self) -> bool:
+        """Reboot the miner.
+
+        Returns:
+            The result of rebooting the miner.
+        """
         logging.debug(f"{self}: Sending reboot command.")
         _ret = await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
@@ -128,6 +141,11 @@ class BMMiner(BaseMiner):
         return False
 
     async def get_data(self) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         board_offset = -1

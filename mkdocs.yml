@@ -3,9 +3,29 @@ repo_url: https://github.com/UpstreamData/pyasic
 nav:
   - Introduction: "index.md"
   - Miners:
+      - Supported Miners: "miners/supported_types.md"
       - Miner Factory: "miners/miner_factory.md"
+      - Backends:
+          - BMMiner: "miners/backends/bmminer.md"
+          - BOSMiner: "miners/backends/bosminer.md"
+          - BTMiner: "miners/backends/btminer.md"
+          - CGMiner: "miners/backends/cgminer.md"
+          - Hiveon: "miners/backends/hiveon.md"
+
+      - Classes:
+          - Antminer X9: "miners/antminer/X9.md"
+          - Antminer X17: "miners/antminer/X17.md"
+          - Antminer X19: "miners/antminer/X19.md"
+          - Avalon 7X: "miners/avalonminer/A7X.md"
+          - Avalon 8X: "miners/avalonminer/A8X.md"
+          - Avalon 9X: "miners/avalonminer/A9X.md"
+          - Avalon 10X: "miners/avalonminer/A10X.md"
+          - Whatsminer M2X: "miners/whatsminer/M2X.md"
+          - Whatsminer M3X: "miners/whatsminer/M3X.md"
+
   - Network:
       - Miner Network: "network/miner_network.md"
+      - Miner Network Range: "network/miner_network_range.md"
   - Data:
       - Miner Data: "data/miner_data.md"
   - Config:

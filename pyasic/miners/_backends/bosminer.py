@@ -1,6 +1,7 @@
 import ipaddress
 import logging
 import json
+from typing import Union
 
 import toml
 
@@ -27,10 +28,11 @@ class BOSMiner(BaseMiner):
         self.pwd = "admin"
         self.config = None
 
-    async def send_ssh_command(self, cmd: str) -> str or None:
+    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
         """Send a command to the miner over ssh.
 
-        :return: Result of the command or None.
+        Returns:
+            Result of the command or None.
         """
         result = None
 
@@ -74,6 +76,7 @@ class BOSMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
+        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners._backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
@@ -94,7 +97,12 @@ class BOSMiner(BaseMiner):
             return True
         return False
 
-    async def get_config(self) -> None:
+    async def get_config(self) -> str:
+        """Gets the config for the miner and sets it as `self.config`.
+
+        Returns:
+            The config from `self.config`.
+        """
         logging.debug(f"{self}: Getting config.")
         async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
@@ -110,7 +118,8 @@ class BOSMiner(BaseMiner):
     async def get_hostname(self) -> str:
         """Get miner hostname.
 
-        :return: The hostname of the miner as a string or "?"
+        Returns:
+            The hostname of the miner as a string or "?"
         """
         if self.hostname:
             return self.hostname
@@ -129,10 +138,11 @@ class BOSMiner(BaseMiner):
             logging.warning(f"Failed to get hostname for miner: {self}")
             return "?"
 
-    async def get_model(self) -> str or None:
+    async def get_model(self) -> Union[str, None]:
         """Get miner model.
 
-        :return: Miner model or None.
+        Returns:
+            Miner model or None.
         """
         # check if model is cached
         if self.model:
@@ -166,10 +176,11 @@ class BOSMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_version(self):
+    async def get_version(self) -> Union[str, None]:
         """Get miner firmware version.
 
-        :return: Miner firmware version or None.
+        Returns:
+            Miner firmware version or None.
         """
         # check if version is cached
         if self.version:
@@ -214,57 +225,12 @@ class BOSMiner(BaseMiner):
             logging.debug(f"{self}: Restarting BOSMiner")
             await conn.run("/etc/init.d/bosminer restart")
 
-    async def get_board_info(self) -> dict:
-        """Gets data on each board and chain in the miner."""
-        logging.debug(f"{self}: Getting board info.")
-        devdetails = await self.api.devdetails()
-        if not devdetails.get("DEVDETAILS"):
-            print("devdetails error", devdetails)
-            return {0: [], 1: [], 2: []}
-        devs = devdetails["DEVDETAILS"]
-        boards = {}
-        offset = devs[0]["ID"]
-        for board in devs:
-            boards[board["ID"] - offset] = []
-            if not board["Chips"] == self.nominal_chips:
-                nominal = False
-            else:
-                nominal = True
-            boards[board["ID"] - offset].append(
-                {
-                    "chain": board["ID"] - offset,
-                    "chip_count": board["Chips"],
-                    "chip_status": "o" * board["Chips"],
-                    "nominal": nominal,
-                }
-            )
-        logging.debug(f"Found board data for {self}: {boards}")
-        return boards
-
-    async def get_bad_boards(self) -> dict:
-        """Checks for and provides list of non working boards."""
-        boards = await self.get_board_info()
-        bad_boards = {}
-        for board in boards.keys():
-            for chain in boards[board]:
-                if not chain["chip_count"] == 63:
-                    if board not in bad_boards.keys():
-                        bad_boards[board] = []
-                    bad_boards[board].append(chain)
-        return bad_boards
-
-    async def check_good_boards(self) -> str:
-        """Checks for and provides list for working boards."""
-        devs = await self.api.devdetails()
-        bad = 0
-        chains = devs["DEVDETAILS"]
-        for chain in chains:
-            if chain["Chips"] == 0:
-                bad += 1
-        if not bad > 0:
-            return str(self.ip)
-
     async def get_data(self) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         board_offset = -1

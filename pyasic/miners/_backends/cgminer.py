@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+from typing import Union
 
 
 from pyasic.API.cgminer import CGMinerAPI
@@ -21,7 +22,12 @@ class CGMiner(BaseMiner):
         self.pwd = "admin"
         self.config = None
 
-    async def get_model(self):
+    async def get_model(self) -> Union[str, None]:
+        """Get miner model.
+
+        Returns:
+            Miner model or None.
+        """
         if self.model:
             return self.model
         try:
@@ -33,7 +39,12 @@ class CGMiner(BaseMiner):
             return self.model
         return None
 
-    async def get_hostname(self) -> str or None:
+    async def get_hostname(self) -> Union[str, None]:
+        """Get miner hostname.
+
+        Returns:
+            The hostname of the miner as a string or "?"
+        """
         if self.hostname:
             return self.hostname
         try:
@@ -48,7 +59,15 @@ class CGMiner(BaseMiner):
         except Exception:
             return None
 
-    async def send_ssh_command(self, cmd):
+    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+        """Send a command to the miner over ssh.
+
+        Parameters:
+            cmd: The command to run.
+
+        Returns:
+            Result of the command or None.
+        """
         result = None
         async with (await self._get_ssh_connection()) as conn:
             for i in range(3):
@@ -63,9 +82,11 @@ class CGMiner(BaseMiner):
         return result
 
     async def restart_backend(self) -> bool:
+        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners._backends.cgminer.CGMiner.restart_cgminer] to standardize."""
         return await self.restart_cgminer()
 
     async def restart_cgminer(self) -> bool:
+        """Restart cgminer hashing process."""
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
         _ret = await self.send_ssh_command(commands)
@@ -74,6 +95,7 @@ class CGMiner(BaseMiner):
         return False
 
     async def reboot(self) -> bool:
+        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
         _ret = await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
@@ -82,6 +104,7 @@ class CGMiner(BaseMiner):
         return False
 
     async def start_cgminer(self) -> None:
+        """Start cgminer hashing process."""
         commands = [
             "mkdir -p /etc/tmp/",
             'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
@@ -92,6 +115,7 @@ class CGMiner(BaseMiner):
         await self.send_ssh_command(commands)
 
     async def stop_cgminer(self) -> None:
+        """Restart cgminer hashing process."""
         commands = [
             "mkdir -p /etc/tmp/",
             'echo "" > /etc/tmp/root',
@@ -101,14 +125,24 @@ class CGMiner(BaseMiner):
         commands = ";".join(commands)
         await self.send_ssh_command(commands)
 
-    async def get_config(self) -> None:
+    async def get_config(self) -> str:
+        """Gets the config for the miner and sets it as `self.config`.
+
+        Returns:
+            The config from `self.config`.
+        """
         async with (await self._get_ssh_connection()) as conn:
             command = "cat /etc/config/cgminer"
             result = await conn.run(command, check=True)
             self.config = result.stdout
-            print(str(self.config))
+        return self.config
 
-    async def get_data(self):
+    async def get_data(self) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         board_offset = -1

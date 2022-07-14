@@ -13,13 +13,13 @@ class BTMinerM30SPlus(BTMiner, M30SPlus):
         self.ip = ip
 
 
-class BTMinerM30SPlusVE40(BTMiner, M30SPlusVE40):
+class BTMinerM30SPlusVF20(BTMiner, M30SPlusVF20):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
 
 
-class BTMinerM30SPlusVF20(BTMiner, M30SPlusVF20):
+class BTMinerM30SPlusVE40(BTMiner, M30SPlusVE40):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip

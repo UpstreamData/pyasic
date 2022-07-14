@@ -9,6 +9,8 @@
 ## Intro
 Welcome to pyasic!  Pyasic uses an asynchronous method of communicating with asic miners on your network, which makes it super fast.
 
+[Supported Miner Types](miners/supported_types.md)
+
 Getting started with pyasic is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
 
 <br>

@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+from typing import Union
 
 
 from pyasic.API.btminer import BTMinerAPI
@@ -19,7 +20,12 @@ class BTMiner(BaseMiner):
         self.api = BTMinerAPI(ip)
         self.api_type = "BTMiner"
 
-    async def get_model(self):
+    async def get_model(self) -> Union[str, None]:
+        """Get miner model.
+
+        Returns:
+            Miner model or None.
+        """
         if self.model:
             logging.debug(f"Found model for {self.ip}: {self.model}")
             return self.model
@@ -31,7 +37,12 @@ class BTMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_hostname(self) -> str or None:
+    async def get_hostname(self) -> Union[str, None]:
+        """Get miner hostname.
+
+        Returns:
+            The hostname of the miner as a string or None.
+        """
         if self.hostname:
             return self.hostname
         try:
@@ -48,38 +59,12 @@ class BTMiner(BaseMiner):
             logging.warning(f"Failed to get hostname for miner: {self}")
             return None
 
-    async def get_board_info(self) -> dict:
-        """Gets data on each board and chain in the miner."""
-        logging.debug(f"{self}: Getting board info.")
-        devs = await self.api.devs()
-        if not devs.get("DEVS"):
-            print("devs error", devs)
-            return {0: [], 1: [], 2: []}
-        devs = devs["DEVS"]
-        boards = {}
-        offset = devs[0]["ID"]
-        for board in devs:
-            boards[board["ID"] - offset] = []
-            if "Effective Chips" in board.keys():
-                if not board["Effective Chips"] in self.nominal_chips:
-                    nominal = False
-                else:
-                    nominal = True
-                boards[board["ID"] - offset].append(
-                    {
-                        "chain": board["ID"] - offset,
-                        "chip_count": board["Effective Chips"],
-                        "chip_status": "o" * board["Effective Chips"],
-                        "nominal": nominal,
-                    }
-                )
-            else:
-                logging.warning(f"Incorrect board data from {self}: {board}")
-                print(board)
-        logging.debug(f"Found board data for {self}: {boards}")
-        return boards
+    async def get_mac(self) -> str:
+        """Get the mac address of the miner.
 
-    async def get_mac(self):
+        Returns:
+            The mac address of the miner as a string.
+        """
         mac = ""
         data = await self.api.summary()
         if data:
@@ -100,7 +85,12 @@ class BTMiner(BaseMiner):
 
         return str(mac).upper()
 
-    async def get_data(self):
+    async def get_data(self) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         mac = None
