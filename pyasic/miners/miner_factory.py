@@ -123,6 +123,8 @@ MINER_CLASSES = {
     "M20S": {
         "Default": BTMinerM20S,
         "BTMiner": BTMinerM20S,
+        "10": BTMinerM20SV10,
+        "20": BTMinerM20SV20,
     },
     "M20S+": {
         "Default": BTMinerM20SPlus,
@@ -452,23 +454,23 @@ class MinerFactory(metaclass=Singleton):
                     if "BOSminer+" in version["VERSION"][0].keys():
                         api = "BOSMiner+"
 
+                # check for avalonminers
+                if version["VERSION"][0].get("PROD"):
+                    _data = version["VERSION"][0]["PROD"].split("-")
+                    model = _data[0]
+                    if len(data) > 1:
+                        ver = _data[1]
+                elif version["VERSION"][0].get("MODEL"):
+                    _data = version["VERSION"][0]["MODEL"].split("-")
+                    model = f"AvalonMiner {_data[0]}"
+                    if len(data) > 1:
+                        ver = _data[1]
+
             # if all that fails, check the Description to see if it is a whatsminer
             if version.get("Description") and (
                 "whatsminer" in version.get("Description")
             ):
                 api = "BTMiner"
-
-            # check for avalonminers
-            if version["VERSION"][0].get("PROD"):
-                _data = version["VERSION"][0]["PROD"].split("-")
-                model = _data[0]
-                if len(data) > 1:
-                    ver = _data[1]
-            elif version["VERSION"][0].get("MODEL"):
-                _data = version["VERSION"][0]["MODEL"].split("-")
-                model = f"AvalonMiner {_data[0]}"
-                if len(data) > 1:
-                    ver = _data[1]
 
         # if we have no model from devdetails but have version, try to get it from there
         if version and not model:

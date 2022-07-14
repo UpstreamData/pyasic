@@ -1,4 +1,4 @@
-from .M20S import M20S
+from .M20S import M20S, M20SV10, M20SV20
 from .M20S_Plus import M20SPlus
 
 from .M21 import M21

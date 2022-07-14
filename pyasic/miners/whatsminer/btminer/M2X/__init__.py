@@ -1,4 +1,4 @@
-from .M20S import BTMinerM20S
+from .M20S import BTMinerM20S, BTMinerM20SV10, BTMinerM20SV20
 from .M20S_Plus import BTMinerM20SPlus
 
 from .M21 import BTMinerM21

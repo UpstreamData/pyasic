@@ -8,9 +8,9 @@ class MinerNetworkRange:
     Parameters:
         ip_range: ## A range of IP addresses to put in the network, or a list of IPs
             * Takes a string formatted as:
-                * {ip_range_1_start}-{ip_range_1_end}, {ip_address_1}, {ip_range_2_start}-{ip_range_2_end}, {ip_address_2}...
-            * Also takes a list of strings formatted as:
-                * [{ip_address_1}, {ip_address_2}, {ip_address_3}, ...]
+            ```f"{ip_range_1_start}-{ip_range_1_end}, {ip_address_1}, {ip_range_2_start}-{ip_range_2_end}, {ip_address_2}..."```
+            * Also takes a list of strings or `ipaddress.ipaddress` formatted as:
+            ```[{ip_address_1}, {ip_address_2}, {ip_address_3}, ...]```
     """
 
     def __init__(self, ip_range: Union[str, list]):
