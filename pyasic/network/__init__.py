@@ -32,8 +32,9 @@ class MinerNetwork:
         self.network = None
         self.ip_addr = ip_addr
         self.connected_miners = {}
-        if mask.startswith("/"):
-            mask = mask.replace("/", "")
+        if isinstance(mask, str):
+            if mask.startswith("/"):
+                mask = mask.replace("/", "")
         self.mask = mask
 
     def __len__(self):
