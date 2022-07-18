@@ -4,7 +4,7 @@ import logging
 from typing import Union
 
 from pyasic.network.net_range import MinerNetworkRange
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory, AnyMiner
 from pyasic.settings import (
     NETWORK_PING_RETRIES as PING_RETRIES,
     NETWORK_PING_TIMEOUT as PING_TIMEOUT,
@@ -150,13 +150,31 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
-        return await ping_miner(ip)
+        miner = await ping_miner(ip)
+        if miner:
+            return miner
+        miner = await ping_miner(ip, port=4029)
+        if miner:
+            return miner
+        miner = await ping_miner(ip, port=8889)
+        if miner:
+            return miner
+        return None
 
     @staticmethod
     async def ping_and_get_miner(
         ip: ipaddress.ip_address,
-    ) -> None or ipaddress.ip_address:
-        return await ping_and_get_miner(ip)
+    ) -> None or AnyMiner:
+        miner = await ping_and_get_miner(ip)
+        if miner:
+            return miner
+        miner = await ping_and_get_miner(ip, port=4029)
+        if miner:
+            return miner
+        miner = await ping_and_get_miner(ip, port=8889)
+        if miner:
+            return miner
+        return None
 
 
 async def ping_miner(
@@ -188,9 +206,7 @@ async def ping_miner(
     return
 
 
-async def ping_and_get_miner(
-    ip: ipaddress.ip_address, port=4028
-) -> None or ipaddress.ip_address:
+async def ping_and_get_miner(ip: ipaddress.ip_address, port=4028) -> None or AnyMiner:
     for i in range(PING_RETRIES):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
