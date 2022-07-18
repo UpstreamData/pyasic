@@ -1,7 +1,7 @@
 import ipaddress
 import asyncio
 import logging
-from typing import Union
+from typing import Union, List, AsyncIterator
 
 from pyasic.network.net_range import MinerNetworkRange
 from pyasic.miners.miner_factory import MinerFactory, AnyMiner
@@ -40,7 +40,11 @@ class MinerNetwork:
         return str(self.network)
 
     def get_network(self) -> ipaddress.ip_network:
-        """Get the network using the information passed to the MinerNetwork or from cache."""
+        """Get the network using the information passed to the MinerNetwork or from cache.
+
+        Returns:
+            The proper network to be able to scan.
+        """
         # if we have a network cached already, use that
         if self.network:
             return self.network
@@ -68,13 +72,19 @@ class MinerNetwork:
             self.network = ipaddress.ip_network(
                 f"{default_gateway}/{subnet_mask}", strict=False
             )
+
+        logging.debug(f"Setting MinerNetwork: {self.network}")
         return self.network
 
-    async def scan_network_for_miners(self) -> None or list:
-        """Scan the network for miners, and return found miners as a list."""
+    async def scan_network_for_miners(self) -> List[AnyMiner]:
+        """Scan the network for miners, and return found miners as a list.
+
+        Returns:
+            A list of found miners.
+        """
         # get the network
         local_network = self.get_network()
-        print(f"Scanning {local_network} for miners...")
+        logging.debug(f"Scanning {local_network} for miners")
 
         # clear cached miners
         MinerFactory().clear_cached_miners()
@@ -103,16 +113,17 @@ class MinerNetwork:
 
         # remove all None from the miner list
         miners = list(filter(None, miners))
-        print(f"Found {len(miners)} connected miners...")
+        logging.debug(f"Found {len(miners)} connected miners")
 
         # return the miner objects
         return miners
 
-    async def scan_network_generator(self):
+    async def scan_network_generator(self) -> AsyncIterator[AnyMiner]:
         """
         Scan the network for miners using an async generator.
 
-        Returns an asynchronous generator containing found miners.
+        Returns:
+             An asynchronous generator containing found miners.
         """
         # get the current event loop
         loop = asyncio.get_event_loop()
@@ -145,7 +156,7 @@ class MinerNetwork:
             yield await miner
 
     @staticmethod
-    async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
+    async def ping_miner(ip: ipaddress.ip_address) -> Union[None, ipaddress.ip_address]:
         tasks = [ping_miner(ip, port=port) for port in [4028, 4029, 8889]]
         for miner in asyncio.as_completed(tasks):
             miner = await miner
@@ -155,7 +166,7 @@ class MinerNetwork:
     @staticmethod
     async def ping_and_get_miner(
         ip: ipaddress.ip_address,
-    ) -> None or AnyMiner:
+    ) -> Union[None, AnyMiner]:
         tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
         for miner in asyncio.as_completed(tasks):
             miner = await miner
@@ -165,7 +176,7 @@ class MinerNetwork:
 
 async def ping_miner(
     ip: ipaddress.ip_address, port=4028
-) -> None or ipaddress.ip_address:
+) -> Union[None, ipaddress.ip_address]:
     for i in range(PyasicSettings().network_ping_retries):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
@@ -192,7 +203,9 @@ async def ping_miner(
     return
 
 
-async def ping_and_get_miner(ip: ipaddress.ip_address, port=4028) -> None or AnyMiner:
+async def ping_and_get_miner(
+    ip: ipaddress.ip_address, port=4028
+) -> Union[None, AnyMiner]:
     for i in range(PyasicSettings().network_ping_retries):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
