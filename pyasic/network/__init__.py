@@ -87,7 +87,7 @@ class MinerNetwork:
         for host in local_network.hosts():
 
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) < PyasicSettings().network_scan_threads:
+            if len(scan_tasks) < round(PyasicSettings().network_scan_threads / 3):
                 # add the task to the list
                 scan_tasks.append(self.ping_and_get_miner(host))
             else:
@@ -126,7 +126,7 @@ class MinerNetwork:
         # for each ip on the network, loop through and scan it
         for host in local_network.hosts():
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) >= PyasicSettings().network_scan_threads:
+            if len(scan_tasks) >= round(PyasicSettings().network_scan_threads / 3):
                 # scanned is a loopable list of awaitables
                 scanned = asyncio.as_completed(scan_tasks)
                 # when we scan, empty the scan tasks
@@ -146,31 +146,21 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> None or ipaddress.ip_address:
-        miner = await ping_miner(ip)
-        if miner:
-            return miner
-        miner = await ping_miner(ip, port=4029)
-        if miner:
-            return miner
-        miner = await ping_miner(ip, port=8889)
-        if miner:
-            return miner
-        return None
+        tasks = [ping_miner(ip, port=port) for port in [4028, 4029, 8889]]
+        for miner in asyncio.as_completed(tasks):
+            miner = await miner
+            if miner:
+                return miner
 
     @staticmethod
     async def ping_and_get_miner(
         ip: ipaddress.ip_address,
     ) -> None or AnyMiner:
-        miner = await ping_and_get_miner(ip)
-        if miner:
-            return miner
-        miner = await ping_and_get_miner(ip, port=4029)
-        if miner:
-            return miner
-        miner = await ping_and_get_miner(ip, port=8889)
-        if miner:
-            return miner
-        return None
+        tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
+        for miner in asyncio.as_completed(tasks):
+            miner = await miner
+            if miner:
+                return miner
 
 
 async def ping_miner(
