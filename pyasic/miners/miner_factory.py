@@ -288,9 +288,8 @@ class MinerFactory(metaclass=Singleton):
             try:
                 # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
                 new_model, new_api, new_ver = await asyncio.wait_for(
-                    self._get_miner_type(ip), timeout=PING_TIMEOUT
+                    self._get_miner_type(ip), timeout=10
                 )
-
                 # keep track of the API and model we found first
                 if new_api and not api:
                     api = new_api
@@ -298,13 +297,11 @@ class MinerFactory(metaclass=Singleton):
                     model = new_model
                 if new_ver and not ver:
                     ver = new_ver
-
                 # if we find the API and model, don't need to loop anymore
                 if api and model:
                     break
             except asyncio.TimeoutError:
-                pass
-
+                logging.warning(f"{ip}: Get Miner Timed Out")
         # make sure we have model information
         if model:
             if not api:
@@ -312,12 +309,10 @@ class MinerFactory(metaclass=Singleton):
 
             if model not in MINER_CLASSES.keys():
                 if "avalon" in model:
-                    print(model)
                     if model == "avalon10":
                         miner = CGMinerAvalon1066(str(ip))
                     else:
                         miner = CGMinerAvalon821(str(ip))
-                miner = UnknownMiner(str(ip))
                 return miner
             if api not in MINER_CLASSES[model].keys():
                 api = "Default"
@@ -357,32 +352,26 @@ class MinerFactory(metaclass=Singleton):
     async def _get_miner_type(
         self, ip: ipaddress.ip_address or str
     ) -> Tuple[str or None, str or None, str or None]:
+        data = None
+
         model = None
         api = None
         ver = None
 
         devdetails = None
         version = None
-
         try:
             # get device details and version data
             data = await self._send_api_command(str(ip), "devdetails+version")
-
             # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
                 raise APIError(validation[1])
-
             # copy each part of the main command to devdetails and version
             devdetails = data["devdetails"][0]
             version = data["version"][0]
 
         except APIError:
-            # if getting data fails we need to check again
-            data = None
-
-        # if data is None then get it a slightly different way
-        if not data:
             try:
                 # try devdetails and version separately (X19s mainly require this)
                 # get devdetails and validate
@@ -406,6 +395,32 @@ class MinerFactory(metaclass=Singleton):
             except APIError as e:
                 # catch APIError and let the factory know we cant get data
                 logging.warning(f"{ip}: API Command Error: {e}")
+                return None, None, None
+        except OSError as e:
+            # miner refused connection on API port, we wont be able to get data this way
+            # try ssh
+            try:
+                async with asyncssh.connect(
+                    str(ip),
+                    known_hosts=None,
+                    username="root",
+                    password="admin",
+                    server_host_key_algs=["ssh-rsa"],
+                ) as conn:
+                    board_name = None
+                    cmd = await conn.run("cat /tmp/sysinfo/board_name")
+                    if cmd:
+                        board_name = cmd.stdout.strip()
+
+                if board_name:
+                    if board_name == "am1-s9":
+                        model = "Antminer S9"
+                    if board_name == "am2-s17":
+                        model = "Antminer S17"
+                    api = "BOSMiner+"
+                    return model, api, None
+
+            except asyncssh.misc.PermissionDenied:
                 return None, None, None
 
         # if we have devdetails, we can get model data from there
@@ -488,23 +503,6 @@ class MinerFactory(metaclass=Singleton):
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
                     model = "Antminer S17"
 
-                # final try on a braiins OS bug with devdetails not returning
-                else:
-                    try:
-                        async with asyncssh.connect(
-                            str(ip),
-                            known_hosts=None,
-                            username="root",
-                            password="admin",
-                            server_host_key_algs=["ssh-rsa"],
-                        ) as conn:
-                            cfg = await conn.run("bosminer config --data")
-                        if cfg:
-                            cfg = json.loads(cfg.stdout)
-                            model = cfg.get("data").get("format").get("model")
-                    except asyncssh.misc.PermissionDenied:
-                        pass
-
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
@@ -521,7 +519,7 @@ class MinerFactory(metaclass=Singleton):
     async def _validate_command(data: dict) -> Tuple[bool, str or None]:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
-        if not data:
+        if not data or data == {}:
             return False, "No API data."
         # if status isn't a key, it is a multicommand
         if "STATUS" not in data.keys():
@@ -550,9 +548,10 @@ class MinerFactory(metaclass=Singleton):
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
         except OSError as e:
+            if e.errno in [10061, 22] or e.winerror == 1225:
+                raise e
             logging.warning(f"{str(ip)} - Command {command}: {e}")
             return {}
-
         # create the command
         cmd = {"command": command}
 
