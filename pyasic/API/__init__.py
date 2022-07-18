@@ -42,7 +42,11 @@ class BaseMinerAPI:
         self.ip = ipaddress.ip_address(ip)
 
     def get_commands(self) -> list:
-        """Get a list of command accessible to a specific type of API on the miner."""
+        """Get a list of command accessible to a specific type of API on the miner.
+
+        Returns:
+            A list of all API commands that the miner supports.
+        """
         return [
             func
             for func in
@@ -60,42 +64,56 @@ class BaseMinerAPI:
             ]
         ]
 
+    def _check_commands(self, *commands):
+        allowed_commands = self.get_commands()
+        return_commands = []
+        for command in [*commands]:
+            if command in allowed_commands:
+                return_commands.append(command)
+            else:
+                warnings.warn(
+                    f"""Removing incorrect command: {command}
+If you are sure you want to use this command please use API.send_command("{command}", ignore_errors=True) instead.""",
+                    APIWarning,
+                )
+        return return_commands
+
     async def multicommand(
         self, *commands: str, ignore_x19_error: bool = False
     ) -> dict:
-        """Creates and sends multiple commands as one command to the miner."""
+        """Creates and sends multiple commands as one command to the miner.
+
+        Parameters:
+            *commands: The commands to send as a multicommand to the miner.
+            ignore_x19_error: Whether or not to ignore errors raised by x19 miners when using the "+" delimited style.
+        """
         logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
-        # split the commands into a proper list
-        user_commands = [*commands]
-        allowed_commands = self.get_commands()
-        # make sure we can actually run the command, otherwise it will fail
-        commands = [command for command in user_commands if command in allowed_commands]
-        for item in list(set(user_commands) - set(commands)):
-            warnings.warn(
-                f"""Removing incorrect command: {item}
-If you are sure you want to use this command please use API.send_command("{item}", ignore_errors=True) instead.""",
-                APIWarning,
-            )
+        # make sure we can actually run each command, otherwise they will fail
+        commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
-        # doesnt work for S19 which is dealt with in the send command function
+        # doesnt work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
-        data = None
         try:
             data = await self.send_command(command, x19_command=ignore_x19_error)
         except APIError:
-            try:
-                data = {}
-                # S19 handler, try again
-                for cmd in command.split("+"):
-                    data[cmd] = []
-                    data[cmd].append(await self.send_command(cmd))
-            except APIError as e:
-                raise APIError(e)
-            except Exception as e:
-                logging.warning(f"{self.ip}: API Multicommand Error: {e}")
-        if data:
-            logging.debug(f"{self.ip}: Received multicommand data.")
-            return data
+            logging.debug(f"{self.ip}: Handling X19 multicommand.")
+            data = await self._x19_multicommand(command.split("+"))
+        logging.debug(f"{self.ip}: Received multicommand data.")
+        return data
+
+    async def _x19_multicommand(self, *commands):
+        data = None
+        try:
+            data = {}
+            # send all commands individually
+            for cmd in commands:
+                data[cmd] = []
+                data[cmd].append(await self.send_command(cmd, x19_command=True))
+        except APIError as e:
+            raise APIError(e)
+        except Exception as e:
+            logging.warning(f"{self.ip}: API Multicommand Error: {e.__name__} - {e}")
+        return data
 
     async def send_command(
         self,
@@ -104,7 +122,17 @@ If you are sure you want to use this command please use API.send_command("{item}
         ignore_errors: bool = False,
         x19_command: bool = False,
     ) -> dict:
-        """Send an API command to the miner and return the result."""
+        """Send an API command to the miner and return the result.
+
+        Parameters:
+            command: The command to sent to the miner.
+            parameters: Any additional parameters to be sent with the command.
+            ignore_errors: Whether or not to raise APIError when the command returns an error.
+            x19_command: Whether this is a command for an x19 that may be an issue (such as a "+" delimited multicommand)
+
+        Returns:
+            The return data from the API command parsed from JSON into a dict.
+        """
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(self.ip), self.port)
@@ -116,7 +144,7 @@ If you are sure you want to use this command please use API.send_command("{item}
 
         # create the command
         cmd = {"command": command}
-        if parameters is not None:
+        if parameters:
             cmd["parameter"] = parameters
 
         # send the command
@@ -134,9 +162,9 @@ If you are sure you want to use this command please use API.send_command("{item}
                     break
                 data += d
         except Exception as e:
-            logging.warning(f"{self.ip}: API Command Error: {e}")
+            logging.warning(f"{self.ip}: API Command Error: {e.__name__} - {e}")
 
-        data = self.load_api_data(data)
+        data = self._load_api_data(data)
 
         # close the connection
         writer.close()
@@ -145,7 +173,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         # check for if the user wants to allow errors to return
         if not ignore_errors:
             # validate the command succeeded
-            validation = self.validate_command_output(data)
+            validation = self._validate_command_output(data)
             if not validation[0]:
                 if not x19_command:
                     logging.warning(f"{self.ip}: API Command Error: {validation[1]}")
@@ -154,8 +182,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         return data
 
     @staticmethod
-    def validate_command_output(data: dict) -> tuple:
-        """Check if the returned command output is correctly formatted."""
+    def _validate_command_output(data: dict) -> tuple:
         # check if the data returned is correct or an error
         # if status isn't a key, it is a multicommand
         if "STATUS" not in data.keys():
@@ -182,8 +209,7 @@ If you are sure you want to use this command please use API.send_command("{item}
         return True, None
 
     @staticmethod
-    def load_api_data(data: bytes) -> dict:
-        """Convert API data from JSON to dict"""
+    def _load_api_data(data: bytes) -> dict:
         str_data = None
         try:
             # some json from the API returns with a null byte (\x00) on the end

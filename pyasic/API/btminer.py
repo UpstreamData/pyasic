@@ -209,7 +209,7 @@ class BTMinerAPI(BaseMinerAPI):
         except Exception as e:
             logging.info(f"{str(self.ip)}: {e}")
 
-        data = self.load_api_data(data)
+        data = self._load_api_data(data)
 
         # close the connection
         writer.close()
@@ -225,7 +225,7 @@ class BTMinerAPI(BaseMinerAPI):
 
         if not ignore_errors:
             # if it fails to validate, it is likely an error
-            validation = self.validate_command_output(data)
+            validation = self._validate_command_output(data)
             if not validation[0]:
                 raise APIError(validation[1])
 

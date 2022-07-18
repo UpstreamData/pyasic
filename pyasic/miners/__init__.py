@@ -54,13 +54,11 @@ class BaseMiner:
                 )
                 return conn
             except Exception as e:
-                # logging.warning(f"{self} raised an exception: {e}")
                 raise e
         except OSError as e:
             logging.warning(f"Connection refused: {self}")
             raise e
         except Exception as e:
-            # logging.warning(f"{self} raised an exception: {e}")
             raise e
 
     async def fault_light_on(self) -> bool:
