@@ -2,7 +2,7 @@ from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import Avalon1026  # noqa - Ignore access to _module
 
 from pyasic.data import MinerData
-from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+from pyasic.settings import PyasicSettings
 import re
 from pyasic.config import MinerConfig
 import logging
@@ -67,7 +67,7 @@ class CGMinerAvalon1026(CGMiner, Avalon1026):
             data.model = model
 
         miner_data = None
-        for i in range(DATA_RETRIES):
+        for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
                 "version", "summary", "pools", "stats"
             )

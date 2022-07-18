@@ -8,7 +8,7 @@ from pyasic.miners import BaseMiner
 
 from pyasic.data import MinerData
 
-from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+from pyasic.settings import PyasicSettings
 
 
 class BMMiner(BaseMiner):
@@ -165,7 +165,7 @@ class BMMiner(BaseMiner):
             data.mac = mac
 
         miner_data = None
-        for i in range(DATA_RETRIES):
+        for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
                 "summary", "pools", "stats", ignore_x19_error=True
             )

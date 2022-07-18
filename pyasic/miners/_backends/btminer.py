@@ -10,7 +10,7 @@ from pyasic.API import APIError
 from pyasic.data import MinerData
 from pyasic.data.error_codes import WhatsminerError
 
-from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+from pyasic.settings import PyasicSettings
 
 
 class BTMiner(BaseMiner):
@@ -116,7 +116,7 @@ class BTMiner(BaseMiner):
             data.hostname = hostname
 
         miner_data = None
-        for i in range(DATA_RETRIES):
+        for i in range(PyasicSettings().miner_get_data_retries):
             try:
                 miner_data = await self.api.multicommand("summary", "devs", "pools")
                 if miner_data:

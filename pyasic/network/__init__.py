@@ -5,11 +5,7 @@ from typing import Union
 
 from pyasic.network.net_range import MinerNetworkRange
 from pyasic.miners.miner_factory import MinerFactory, AnyMiner
-from pyasic.settings import (
-    NETWORK_PING_RETRIES as PING_RETRIES,
-    NETWORK_PING_TIMEOUT as PING_TIMEOUT,
-    NETWORK_SCAN_THREADS as SCAN_THREADS,
-)
+from pyasic.settings import PyasicSettings
 
 
 class MinerNetwork:
@@ -91,7 +87,7 @@ class MinerNetwork:
         for host in local_network.hosts():
 
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) < SCAN_THREADS:
+            if len(scan_tasks) < PyasicSettings().network_scan_threads:
                 # add the task to the list
                 scan_tasks.append(self.ping_and_get_miner(host))
             else:
@@ -130,7 +126,7 @@ class MinerNetwork:
         # for each ip on the network, loop through and scan it
         for host in local_network.hosts():
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) >= SCAN_THREADS:
+            if len(scan_tasks) >= PyasicSettings().network_scan_threads:
                 # scanned is a loopable list of awaitables
                 scanned = asyncio.as_completed(scan_tasks)
                 # when we scan, empty the scan tasks
@@ -180,12 +176,12 @@ class MinerNetwork:
 async def ping_miner(
     ip: ipaddress.ip_address, port=4028
 ) -> None or ipaddress.ip_address:
-    for i in range(PING_RETRIES):
+    for i in range(PyasicSettings().network_ping_retries):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
             # get the read and write streams from the connection
             reader, writer = await asyncio.wait_for(
-                connection_fut, timeout=PING_TIMEOUT
+                connection_fut, timeout=PyasicSettings().network_ping_timeout
             )
             # immediately close connection, we know connection happened
             writer.close()
@@ -207,12 +203,12 @@ async def ping_miner(
 
 
 async def ping_and_get_miner(ip: ipaddress.ip_address, port=4028) -> None or AnyMiner:
-    for i in range(PING_RETRIES):
+    for i in range(PyasicSettings().network_ping_retries):
         connection_fut = asyncio.open_connection(str(ip), port)
         try:
             # get the read and write streams from the connection
             reader, writer = await asyncio.wait_for(
-                connection_fut, timeout=PING_TIMEOUT
+                connection_fut, timeout=PyasicSettings().network_ping_timeout
             )
             # immediately close connection, we know connection happened
             writer.close()

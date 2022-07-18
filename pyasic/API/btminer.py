@@ -10,7 +10,7 @@ from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from pyasic.API import BaseMinerAPI, APIError
-from pyasic.settings import WHATSMINER_PWD
+from pyasic.settings import PyasicSettings
 
 
 ### IMPORTANT ###
@@ -161,7 +161,12 @@ class BTMinerAPI(BaseMinerAPI):
         pwd: The admin password of the miner.  Default is admin.
     """
 
-    def __init__(self, ip: str, port: int = 4028, pwd: str = WHATSMINER_PWD):
+    def __init__(
+        self,
+        ip: str,
+        port: int = 4028,
+        pwd: str = PyasicSettings().global_whatsminer_password,
+    ):
         super().__init__(ip, port)
         self.admin_pwd = pwd
         self.current_token = None

@@ -15,7 +15,7 @@ from pyasic.data import MinerData
 
 from pyasic.config import MinerConfig
 
-from pyasic.settings import MINER_FACTORY_GET_VERSION_RETRIES as DATA_RETRIES
+from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
@@ -97,7 +97,7 @@ class BOSMiner(BaseMiner):
             return True
         return False
 
-    async def get_config(self) -> str:
+    async def get_config(self) -> MinerConfig:
         """Gets the config for the miner and sets it as `self.config`.
 
         Returns:
@@ -217,13 +217,14 @@ class BOSMiner(BaseMiner):
                 .as_bos(model=self.model.replace(" (BOS)", ""))
             )
         async with (await self._get_ssh_connection()) as conn:
+            await conn.run("/etc/init.d/bosminer stop")
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
                 logging.debug(f"{self}: Opening config file.")
                 async with sftp.open("/etc/bosminer.toml", "w+") as file:
                     await file.write(toml_conf)
             logging.debug(f"{self}: Restarting BOSMiner")
-            await conn.run("/etc/init.d/bosminer restart")
+            await conn.run("/etc/init.d/bosminer start")
 
     async def get_data(self) -> MinerData:
         """Get data from the miner.
@@ -250,7 +251,7 @@ class BOSMiner(BaseMiner):
             data.mac = mac
 
         miner_data = None
-        for i in range(DATA_RETRIES):
+        for i in range(PyasicSettings().miner_get_data_retries):
             try:
                 miner_data = await self.api.multicommand(
                     "summary",

@@ -1,9 +1,9 @@
 import logging
-from pyasic.settings import DEBUG, LOGFILE
+from pyasic.settings import PyasicSettings
 
 
 def init_logger():
-    if LOGFILE:
+    if PyasicSettings().logfile:
         logging.basicConfig(
             filename="logfile.txt",
             filemode="a",
@@ -18,7 +18,7 @@ def init_logger():
 
     _logger = logging.getLogger()
 
-    if DEBUG:
+    if PyasicSettings().debug:
         _logger.setLevel(logging.DEBUG)
         logging.getLogger("asyncssh").setLevel(logging.DEBUG)
     else:

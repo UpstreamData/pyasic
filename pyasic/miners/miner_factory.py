@@ -23,10 +23,7 @@ import ipaddress
 import json
 import logging
 
-from pyasic.settings import (
-    MINER_FACTORY_GET_VERSION_RETRIES as GET_VERSION_RETRIES,
-    NETWORK_PING_TIMEOUT as PING_TIMEOUT,
-)
+from pyasic.settings import PyasicSettings
 
 import asyncssh
 
@@ -284,7 +281,7 @@ class MinerFactory(metaclass=Singleton):
         ver = None
 
         # try to get the API multiple times based on retries
-        for i in range(GET_VERSION_RETRIES):
+        for i in range(PyasicSettings().miner_factory_get_version_retries):
             try:
                 # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
                 new_model, new_api, new_ver = await asyncio.wait_for(
