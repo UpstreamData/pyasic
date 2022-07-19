@@ -171,7 +171,6 @@ class MinerNetwork:
                 except ConnectionRefusedError:
                     pass
 
-
     @staticmethod
     async def ping_and_get_miner(
         ip: ipaddress.ip_address,
