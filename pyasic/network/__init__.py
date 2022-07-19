@@ -157,21 +157,37 @@ class MinerNetwork:
 
     @staticmethod
     async def ping_miner(ip: ipaddress.ip_address) -> Union[None, ipaddress.ip_address]:
-        tasks = [ping_miner(ip, port=port) for port in [4028, 4029, 8889]]
-        for miner in asyncio.as_completed(tasks):
-            miner = await miner
+        try:
+            miner = await ping_miner(ip)
             if miner:
                 return miner
+        except ConnectionRefusedError:
+            tasks = [ping_miner(ip, port=port) for port in [4029, 8889]]
+            for miner in asyncio.as_completed(tasks):
+                try:
+                    miner = await miner
+                    if miner:
+                        return miner
+                except ConnectionRefusedError:
+                    pass
 
     @staticmethod
     async def ping_and_get_miner(
         ip: ipaddress.ip_address,
     ) -> Union[None, AnyMiner]:
-        tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
-        for miner in asyncio.as_completed(tasks):
-            miner = await miner
+        try:
+            miner = await ping_and_get_miner(ip)
             if miner:
                 return miner
+        except ConnectionRefusedError:
+            tasks = [ping_and_get_miner(ip, port=port) for port in [4029, 8889]]
+            for miner in asyncio.as_completed(tasks):
+                try:
+                    miner = await miner
+                    if miner:
+                        return miner
+                except ConnectionRefusedError:
+                    pass
 
 
 async def ping_miner(
@@ -196,6 +212,7 @@ async def ping_miner(
         except ConnectionRefusedError:
             # handle for other connection errors
             logging.debug(f"{str(ip)}: Connection Refused.")
+            raise ConnectionRefusedError
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: {e}")
@@ -225,6 +242,7 @@ async def ping_and_get_miner(
         except ConnectionRefusedError:
             # handle for other connection errors
             logging.debug(f"{str(ip)}: Connection Refused.")
+            raise ConnectionRefusedError
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: {e}")
