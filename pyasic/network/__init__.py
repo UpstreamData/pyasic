@@ -97,7 +97,7 @@ class MinerNetwork:
         for host in local_network.hosts():
 
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) < round(PyasicSettings().network_scan_threads / 3):
+            if len(scan_tasks) < round(PyasicSettings().network_scan_threads):
                 # add the task to the list
                 scan_tasks.append(self.ping_and_get_miner(host))
             else:
@@ -137,7 +137,7 @@ class MinerNetwork:
         # for each ip on the network, loop through and scan it
         for host in local_network.hosts():
             # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) >= round(PyasicSettings().network_scan_threads / 3):
+            if len(scan_tasks) >= round(PyasicSettings().network_scan_threads):
                 # scanned is a loopable list of awaitables
                 scanned = asyncio.as_completed(scan_tasks)
                 # when we scan, empty the scan tasks
@@ -170,6 +170,7 @@ class MinerNetwork:
                         return miner
                 except ConnectionRefusedError:
                     pass
+
 
     @staticmethod
     async def ping_and_get_miner(
