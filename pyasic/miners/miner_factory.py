@@ -1,6 +1,7 @@
 from typing import TypeVar, Tuple, List, Union
 from collections.abc import AsyncIterable
 from pyasic.miners import BaseMiner
+import httpx
 
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
@@ -252,7 +253,6 @@ class MinerFactory(metaclass=Singleton):
         # create a list of tasks
         scan_tasks = []
         # for each miner IP that was passed in, add a task to get its class
-        logging.debug(f"Getting miners with generator: [{ips}]")
         for miner in ips:
             scan_tasks.append(loop.create_task(self.get_miner(miner)))
         # asynchronously run the tasks and return them as they complete
@@ -274,7 +274,6 @@ class MinerFactory(metaclass=Singleton):
             ip = ipaddress.ip_address(ip)
         # check if the miner already exists in cache
         if ip in self.miners:
-            logging.debug(f"Miner exists in cache: {self.miners[ip]}")
             return self.miners[ip]
         # if everything fails, the miner is already set to unknown
         miner = UnknownMiner(str(ip))
@@ -298,9 +297,6 @@ class MinerFactory(metaclass=Singleton):
                     ver = new_ver
                 # if we find the API and model, don't need to loop anymore
                 if api and model:
-                    logging.debug(
-                        f"Miner api and model found: API - {api}, Model - {model}"
-                    )
                     break
             except asyncio.TimeoutError:
                 logging.warning(f"{ip}: Get Miner Timed Out")
@@ -344,13 +340,11 @@ class MinerFactory(metaclass=Singleton):
             self.miners[ip] = miner
 
         # return the miner
-        logging.debug(f"Found miner: {miner}")
         return miner
 
     def clear_cached_miners(self) -> None:
         """Clear the miner factory cache."""
         # empty out self.miners
-        logging.debug("Clearing MinerFactory cache.")
         self.miners = {}
 
     async def _get_miner_type(
@@ -376,16 +370,12 @@ class MinerFactory(metaclass=Singleton):
             version = data["version"][0]
 
         except APIError:
-            logging.debug(f"API Error when getting miner type: {str(ip)}")
             try:
                 # try devdetails and version separately (X19s mainly require this)
                 # get devdetails and validate
                 devdetails = await self._send_api_command(str(ip), "devdetails")
                 validation = await self._validate_command(devdetails)
                 if not validation[0]:
-                    logging.debug(
-                        f"Splitting commands failed when getting miner type: {str(ip)}"
-                    )
                     # if devdetails fails try version instead
                     devdetails = None
 
@@ -399,15 +389,12 @@ class MinerFactory(metaclass=Singleton):
 
                         # if this fails we raise an error to be caught below
                         if not validation[0]:
-                            logging.debug(
-                                f"get_version failed when getting miner type: {str(ip)}"
-                            )
                             raise APIError(validation[1])
             except APIError as e:
                 # catch APIError and let the factory know we cant get data
-                logging.warning(f"{ip}: API Command Error: {e.__name__} - {e}")
+                logging.warning(f"{ip}: API Command Error: {e}")
                 return None, None, None
-        except OSError:
+        except OSError as e:
             # miner refused connection on API port, we wont be able to get data this way
             # try ssh
             try:
@@ -432,7 +419,19 @@ class MinerFactory(metaclass=Singleton):
                     return model, api, None
 
             except asyncssh.misc.PermissionDenied:
-                return None, None, None
+                try:
+                    url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
+                    auth = httpx.DigestAuth("root", "root")
+                    async with httpx.AsyncClient() as client:
+                        data = await client.get(url, auth=auth)
+                    if data.status_code == 200:
+                        data = data.json()
+                    if "minertype" in data.keys():
+                        model = data["minertype"]
+                    if "bmminer" in "\t".join(data.keys()):
+                        api = "BMMiner"
+                except:
+                    return None, None, None
 
         # if we have devdetails, we can get model data from there
         if devdetails:
