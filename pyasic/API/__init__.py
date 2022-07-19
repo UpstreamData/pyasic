@@ -126,7 +126,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         except APIError as e:
             raise APIError(e)
         except Exception as e:
-            logging.warning(f"{self.ip}: API Multicommand Error: {e.__name__} - {e}")
+            logging.warning(f"{self.ip}: API Multicommand Error: {e}")
         return data
 
     async def send_command(
@@ -176,7 +176,7 @@ If you are sure you want to use this command please use API.send_command("{comma
                     break
                 data += d
         except Exception as e:
-            logging.warning(f"{self.ip}: API Command Error: {e.__name__} - {e}")
+            logging.warning(f"{self.ip}: API Command Error: - {e}")
 
         data = self._load_api_data(data)
 

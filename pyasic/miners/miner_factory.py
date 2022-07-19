@@ -408,7 +408,7 @@ class MinerFactory(metaclass=Singleton):
                 # catch APIError and let the factory know we cant get data
                 logging.warning(f"{ip}: API Command Error: {e}")
                 return None, None, None
-        except OSError as e:
+        except OSError or ConnectionRefusedError:
             # miner refused connection on API port, we wont be able to get data this way
             # try ssh
             try:
@@ -572,7 +572,7 @@ class MinerFactory(metaclass=Singleton):
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
         except OSError as e:
-            if e.errno in [10061, 22] or e.winerror == 1225:
+            if e.errno in [10061, 22]:
                 raise e
             logging.warning(f"{str(ip)} - Command {command}: {e}")
             return {}
