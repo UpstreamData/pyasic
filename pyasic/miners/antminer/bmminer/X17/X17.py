@@ -15,6 +15,7 @@
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 
 import httpx
+from typing import Union
 
 
 class BMMinerX17(BMMiner):
@@ -22,7 +23,7 @@ class BMMinerX17(BMMiner):
         super().__init__(ip)
         self.ip = ip
 
-    async def get_hostname(self) -> str or None:
+    async def get_hostname(self) -> Union[str, None]:
         hostname = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")

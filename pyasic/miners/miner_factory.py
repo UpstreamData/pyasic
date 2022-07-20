@@ -362,8 +362,8 @@ class MinerFactory(metaclass=Singleton):
         self.miners = {}
 
     async def _get_miner_type(
-        self, ip: ipaddress.ip_address or str
-    ) -> Tuple[str or None, str or None, str or None]:
+        self, ip: Union[ipaddress.ip_address, str]
+    ) -> Tuple[Union[str, None], Union[str, None], Union[str, None]]:
         data = None
 
         model = None
@@ -444,7 +444,8 @@ class MinerFactory(metaclass=Singleton):
                         model = data["minertype"]
                     if "bmminer" in "\t".join(data.keys()):
                         api = "BMMiner"
-                except:
+                except Exception as e:
+                    logging.debug(f"Unable to get miner - {e}")
                     return None, None, None
 
         # if we have devdetails, we can get model data from there
@@ -540,7 +541,7 @@ class MinerFactory(metaclass=Singleton):
         return model, api, ver
 
     @staticmethod
-    async def _validate_command(data: dict) -> Tuple[bool, str or None]:
+    async def _validate_command(data: dict) -> Tuple[bool, Union[str, None]]:
         """Check if the returned command output is correctly formatted."""
         # check if the data returned is correct or an error
         if not data or data == {}:
@@ -567,7 +568,9 @@ class MinerFactory(metaclass=Singleton):
         return True, None
 
     @staticmethod
-    async def _send_api_command(ip: ipaddress.ip_address or str, command: str) -> dict:
+    async def _send_api_command(
+        ip: Union[ipaddress.ip_address, str], command: str
+    ) -> dict:
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(ip), 4028)
