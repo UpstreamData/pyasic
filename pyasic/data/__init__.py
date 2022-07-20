@@ -57,6 +57,7 @@ class MinerData:
         pool_2_url: The second pool url on the miner as a str.
         pool_2_user: The second pool user on the miner as a str.
         errors: A list of errors on the miner.
+        fault_light: Whether or not the fault light is on as a boolean.
     """
 
     ip: str
