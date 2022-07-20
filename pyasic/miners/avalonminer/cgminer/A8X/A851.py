@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from A8X import CGMinerA8X  # noqa - Ignore access to _module
+from .A8X import CGMinerA8X  # noqa - Ignore access to _module
 from pyasic.miners._types import Avalon851  # noqa - Ignore access to _module
 
 
