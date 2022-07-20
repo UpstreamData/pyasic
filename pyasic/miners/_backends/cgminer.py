@@ -175,6 +175,8 @@ class CGMiner(BaseMiner):
         if mac:
             data.mac = mac
 
+        data.fault_light = await self.check_light()
+
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(

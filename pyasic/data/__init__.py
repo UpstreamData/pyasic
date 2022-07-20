@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import Union
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
@@ -48,7 +49,7 @@ class MinerData:
         right_chips: The number of chips online in the left board as an int.
         total_chips: The total number of chips on all boards.  Calculated automatically.
         ideal_chips: The ideal number of chips in the miner as an int.
-        perecent_ideal: The percent of total chips out of the ideal count.  Calculated automatically.
+        percent_ideal: The percent of total chips out of the ideal count.  Calculated automatically.
         nominal: The nominal amount of chips in the miner.  Calculated automatically.
         pool_split: The pool split as a str.
         pool_1_url: The first pool url on the miner as a str.
@@ -94,6 +95,7 @@ class MinerData:
     pool_2_url: str = ""
     pool_2_user: str = ""
     errors: list = field(default_factory=list)
+    fault_light: Union[bool, None] = None
 
     def __post_init__(self):
         self.datetime = datetime.now()

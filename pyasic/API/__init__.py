@@ -111,7 +111,7 @@ If you are sure you want to use this command please use API.send_command("{comma
             data = await self.send_command(command, x19_command=ignore_x19_error)
         except APIError:
             logging.debug(f"{self.ip}: Handling X19 multicommand.")
-            data = await self._x19_multicommand(command.split("+"))
+            data = await self._x19_multicommand(*command.split("+"))
         logging.debug(f"{self.ip}: Received multicommand data.")
         return data
 

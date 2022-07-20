@@ -26,6 +26,19 @@ class BMMinerX19(BMMiner):
         super().__init__(ip)
         self.ip = ip
 
+    async def check_light(self) -> bool:
+        if self.light:
+            return self.light
+        url = f"http://{self.ip}/cgi-bin/get_blink_status.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            light = data["blink"]
+            return light
+        return False
+
     async def get_config(self) -> MinerConfig:
         url = f"http://{self.ip}/cgi-bin/get_miner_conf.cgi"
         auth = httpx.DigestAuth("root", "root")
@@ -91,6 +104,7 @@ class BMMinerX19(BMMiner):
         if data.status_code == 200:
             data = data.json()
             if data.get("code") == "B000":
+                self.light = True
                 return True
         return False
 
@@ -103,6 +117,7 @@ class BMMinerX19(BMMiner):
         if data.status_code == 200:
             data = data.json()
             if data.get("code") == "B100":
+                self.light = False
                 return True
         return False
 

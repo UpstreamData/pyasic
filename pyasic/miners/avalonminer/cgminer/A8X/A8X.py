@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import Avalon921  # noqa - Ignore access to _module
 
 from pyasic.data import MinerData
 from pyasic.settings import PyasicSettings
@@ -22,7 +21,7 @@ from pyasic.config import MinerConfig
 import logging
 
 
-class CGMinerAvalon921(CGMiner, Avalon921):
+class CGMinerA8X(CGMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
@@ -88,8 +87,6 @@ class CGMinerAvalon921(CGMiner, Avalon921):
         if model:
             data.model = model
 
-        data.fault_light = await self.check_light()
-
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
@@ -108,6 +105,8 @@ class CGMinerAvalon921(CGMiner, Avalon921):
             if mac:
                 data.mac = mac
             return data
+
+        data.fault_light = await self.check_light()
 
         summary = miner_data.get("summary")
         version = miner_data.get("version")
