@@ -5,6 +5,8 @@
 [![pypi](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![python](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
+![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)
 ## Documentation
 Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
 
