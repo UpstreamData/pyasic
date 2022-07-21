@@ -36,7 +36,7 @@ class BMMinerX17(BMMiner):
                     hostname = data["hostname"]
         return hostname
 
-    async def get_mac(self):
+    async def get_mac(self) -> Union[str, None]:
         mac = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")
@@ -62,6 +62,7 @@ class BMMinerX17(BMMiner):
         if data.status_code == 200:
             data = data.json()
             if data["isBlinking"]:
+                self.light = True
                 return True
         return False
 
@@ -74,10 +75,13 @@ class BMMinerX17(BMMiner):
         if data.status_code == 200:
             data = data.json()
             if not data["isBlinking"]:
+                self.light = False
                 return True
         return False
 
-    async def check_light(self):
+    async def check_light(self) -> Union[bool, None]:
+        if self.light:
+            return self.light
         url = f"http://{self.ip}/cgi-bin/blink.cgi"
         auth = httpx.DigestAuth("root", "root")
         async with httpx.AsyncClient() as client:
@@ -85,8 +89,12 @@ class BMMinerX17(BMMiner):
         if data.status_code == 200:
             data = data.json()
             if data["isBlinking"]:
+                self.light = True
                 return True
-        return False
+            else:
+                self.light = False
+                return False
+        return None
 
     async def reboot(self) -> bool:
         url = f"http://{self.ip}/cgi-bin/reboot.cgi"

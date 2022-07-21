@@ -19,6 +19,7 @@ from pyasic.config import MinerConfig
 import httpx
 import json
 import asyncio
+from typing import Union
 
 
 class BMMinerX19(BMMiner):
@@ -26,7 +27,7 @@ class BMMinerX19(BMMiner):
         super().__init__(ip)
         self.ip = ip
 
-    async def check_light(self) -> bool:
+    async def check_light(self) -> Union[bool, None]:
         if self.light:
             return self.light
         url = f"http://{self.ip}/cgi-bin/get_blink_status.cgi"
@@ -36,8 +37,9 @@ class BMMinerX19(BMMiner):
         if data.status_code == 200:
             data = data.json()
             light = data["blink"]
+            self.light = light
             return light
-        return False
+        return None
 
     async def get_config(self) -> MinerConfig:
         url = f"http://{self.ip}/cgi-bin/get_miner_conf.cgi"
@@ -69,7 +71,7 @@ class BMMinerX19(BMMiner):
                 break
             await asyncio.sleep(1)
 
-    async def get_hostname(self) -> str or None:
+    async def get_hostname(self) -> Union[str, None]:
         hostname = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")
@@ -82,7 +84,7 @@ class BMMinerX19(BMMiner):
                     hostname = data["hostname"]
         return hostname
 
-    async def get_mac(self):
+    async def get_mac(self) -> Union[str, None]:
         mac = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")
