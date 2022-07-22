@@ -132,6 +132,11 @@ MINER_CLASSES = {
         "BMMiner": BMMinerT19,
         "CGMiner": CGMinerT19,
     },
+    "M20": {
+        "Default": BTMinerM20,
+        "BTMiner": BTMinerM20,
+        "10": BTMinerM20V10,
+    },
     "M20S": {
         "Default": BTMinerM20S,
         "BTMiner": BTMinerM20S,

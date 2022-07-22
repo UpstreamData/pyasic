@@ -1,6 +1,22 @@
 # pyasic
 ## M2X Models
 
+## M20
+
+::: pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M20V10
+
+::: pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20V10
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M20S
 
 ::: pyasic.miners.whatsminer.btminer.M2X.M20S.BTMinerM20S

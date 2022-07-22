@@ -12,31 +12,20 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners import BaseMiner
+from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners._types import (  # noqa - Ignore access to _module
+    M20,
+    M20V10,
+)
 
 
-class M20S(BaseMiner):
-    def __init__(self, ip: str):
-        super().__init__()
+class BTMinerM20(BTMiner, M20):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.ip = ip
-        self.model = "M20S"
-        self.nominal_chips = 66
-        self.fan_count = 2
 
 
-class M20SV10(BaseMiner):
-    def __init__(self, ip: str):
-        super().__init__()
+class BTMinerM20V10(BTMiner, M20V10):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.ip = ip
-        self.model = "M20S V10"
-        self.nominal_chips = 105
-        self.fan_count = 2
-
-
-class M20SV20(BaseMiner):
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M20S V20"
-        self.nominal_chips = 111
-        self.fan_count = 2

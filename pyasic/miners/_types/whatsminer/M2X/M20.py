@@ -15,28 +15,19 @@
 from pyasic.miners import BaseMiner
 
 
-class M20S(BaseMiner):
+class M20(BaseMiner):
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
-        self.model = "M20S"
-        self.nominal_chips = 66
+        self.model = "M20"
+        self.nominal_chips = 70
         self.fan_count = 2
 
 
-class M20SV10(BaseMiner):
+class M20V10(BaseMiner):
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
-        self.model = "M20S V10"
-        self.nominal_chips = 105
-        self.fan_count = 2
-
-
-class M20SV20(BaseMiner):
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M20S V20"
-        self.nominal_chips = 111
+        self.model = "M20 V10"
+        self.nominal_chips = 70
         self.fan_count = 2

@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from .M20 import M20, M20V10
 from .M20S import M20S, M20SV10, M20SV20
 from .M20S_Plus import M20SPlus
 
