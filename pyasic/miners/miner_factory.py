@@ -45,88 +45,88 @@ import asyncssh
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
 
 MINER_CLASSES = {
-    "Antminer S9": {
+    "ANTMINER S9": {
         "Default": BOSMinerS9,
         "BOSMiner": BOSMinerOld,
         "BOSMiner+": BOSMinerS9,
         "BMMiner": BMMinerS9,
         "CGMiner": CGMinerS9,
     },
-    "Antminer S9i": {
+    "ANTMINER S9I": {
         "Default": BMMinerS9i,
         "BMMiner": BMMinerS9i,
     },
-    "Antminer S17": {
+    "ANTMINER S17": {
         "Default": BMMinerS17,
         "BOSMiner+": BOSMinerS17,
         "BMMiner": BMMinerS17,
         "CGMiner": CGMinerS17,
     },
-    "Antminer S17+": {
+    "ANTMINER S17+": {
         "Default": BMMinerS17Plus,
         "BOSMiner+": BOSMinerS17Plus,
         "BMMiner": BMMinerS17Plus,
         "CGMiner": CGMinerS17Plus,
     },
-    "Antminer S17 Pro": {
+    "ANTMINER S17 Pro": {
         "Default": BMMinerS17Pro,
         "BOSMiner+": BOSMinerS17Pro,
         "BMMiner": BMMinerS17Pro,
         "CGMiner": CGMinerS17Pro,
     },
-    "Antminer S17e": {
+    "ANTMINER S17E": {
         "Default": BMMinerS17e,
         "BOSMiner+": BOSMinerS17e,
         "BMMiner": BMMinerS17e,
         "CGMiner": CGMinerS17e,
     },
-    "Antminer T17": {
+    "ANTMINER T17": {
         "Default": BMMinerT17,
         "BOSMiner+": BOSMinerT17,
         "BMMiner": BMMinerT17,
         "CGMiner": CGMinerT17,
     },
-    "Antminer T17+": {
+    "ANTMINER T17+": {
         "Default": BMMinerT17Plus,
         "BOSMiner+": BOSMinerT17Plus,
         "BMMiner": BMMinerT17Plus,
         "CGMiner": CGMinerT17Plus,
     },
-    "Antminer T17e": {
+    "ANTMINER T17E": {
         "Default": BMMinerT17e,
         "BOSMiner+": BOSMinerT17e,
         "BMMiner": BMMinerT17e,
         "CGMiner": CGMinerT17e,
     },
-    "Antminer S19": {
+    "ANTMINER S19": {
         "Default": BMMinerS19,
         "BOSMiner+": BOSMinerS19,
         "BMMiner": BMMinerS19,
         "CGMiner": CGMinerS19,
     },
-    "Antminer S19 Pro": {
+    "ANTMINER S19 Pro": {
         "Default": BMMinerS19Pro,
         "BOSMiner+": BOSMinerS19Pro,
         "BMMiner": BMMinerS19Pro,
         "CGMiner": CGMinerS19Pro,
     },
-    "Antminer S19j": {
+    "ANTMINER S19J": {
         "Default": BMMinerS19j,
         "BOSMiner+": BOSMinerS19j,
         "BMMiner": BMMinerS19j,
         "CGMiner": CGMinerS19j,
     },
-    "Antminer S19j Pro": {
+    "ANTMINER S19J Pro": {
         "Default": BMMinerS19jPro,
         "BOSMiner+": BOSMinerS19jPro,
         "BMMiner": BMMinerS19jPro,
         "CGMiner": CGMinerS19jPro,
     },
-    "Antminer S19a": {
+    "ANTMINER S19A": {
         "Default": BMMinerS19a,
         "BMMiner": BMMinerS19a,
     },
-    "Antminer T19": {
+    "ANTMINER T19": {
         "Default": BMMinerT19,
         "BOSMiner+": BOSMinerT19,
         "BMMiner": BMMinerT19,
@@ -431,9 +431,9 @@ class MinerFactory(metaclass=Singleton):
 
                 if board_name:
                     if board_name == "am1-s9":
-                        model = "Antminer S9"
+                        model = "ANTMINER S9"
                     if board_name == "am2-s17":
-                        model = "Antminer S17"
+                        model = "ANTMINER S17"
                     api = "BOSMiner+"
                     return model, api, None
 
@@ -446,7 +446,7 @@ class MinerFactory(metaclass=Singleton):
                     if data.status_code == 200:
                         data = data.json()
                     if "minertype" in data.keys():
-                        model = data["minertype"]
+                        model = data["minertype"].upper()
                     if "bmminer" in "\t".join(data.keys()):
                         api = "BMMiner"
                 except Exception as e:
@@ -459,15 +459,15 @@ class MinerFactory(metaclass=Singleton):
                 # check for model, for most miners
                 if not devdetails["DEVDETAILS"][0]["Model"] == "":
                     # model of most miners
-                    model = devdetails["DEVDETAILS"][0]["Model"]
+                    model = devdetails["DEVDETAILS"][0]["Model"].upper()
 
                 # if model fails, try driver
                 else:
                     # some avalonminers have model in driver
-                    model = devdetails["DEVDETAILS"][0]["Driver"]
+                    model = devdetails["DEVDETAILS"][0]["Driver"].upper()
             else:
                 if "s9" in devdetails["STATUS"][0]["Description"]:
-                    model = "Antminer S9"
+                    model = "ANTMINER S9"
 
         # if we have version we can get API type from here
         if version:
@@ -502,7 +502,7 @@ class MinerFactory(metaclass=Singleton):
                 # check for avalonminers
                 if version["VERSION"][0].get("PROD"):
                     _data = version["VERSION"][0]["PROD"].split("-")
-                    model = _data[0]
+                    model = _data[0].upper()
                     if len(data) > 1:
                         ver = _data[1]
                 elif version["VERSION"][0].get("MODEL"):
@@ -527,11 +527,11 @@ class MinerFactory(metaclass=Singleton):
             ):
                 # try to get "Type" which is model
                 if version["VERSION"][0].get("Type"):
-                    model = version["VERSION"][0]["Type"]
+                    model = version["VERSION"][0]["Type"].upper()
 
                 # braiins OS bug check just in case
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
-                    model = "Antminer S17"
+                    model = "ANTMINER S17"
 
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
@@ -540,7 +540,7 @@ class MinerFactory(metaclass=Singleton):
                 if len(_ver) > 1:
                     ver = model.split("V")[1]
                     model = model.split("V")[0]
-            # don't need "Bitmain", just "Antminer XX" as model
+            # don't need "Bitmain", just "ANTMINER XX" as model
             if "Bitmain " in model:
                 model = model.replace("Bitmain ", "")
         return model, api, ver
