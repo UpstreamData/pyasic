@@ -68,7 +68,7 @@ MINER_CLASSES = {
         "BMMiner": BMMinerS17Plus,
         "CGMiner": CGMinerS17Plus,
     },
-    "ANTMINER S17 Pro": {
+    "ANTMINER S17 PRO": {
         "Default": BMMinerS17Pro,
         "BOSMiner+": BOSMinerS17Pro,
         "BMMiner": BMMinerS17Pro,
@@ -104,7 +104,7 @@ MINER_CLASSES = {
         "BMMiner": BMMinerS19,
         "CGMiner": CGMinerS19,
     },
-    "ANTMINER S19 Pro": {
+    "ANTMINER S19 PRO": {
         "Default": BMMinerS19Pro,
         "BOSMiner+": BOSMinerS19Pro,
         "BMMiner": BMMinerS19Pro,
@@ -116,7 +116,7 @@ MINER_CLASSES = {
         "BMMiner": BMMinerS19j,
         "CGMiner": CGMinerS19j,
     },
-    "ANTMINER S19J Pro": {
+    "ANTMINER S19J PRO": {
         "Default": BMMinerS19jPro,
         "BOSMiner+": BOSMinerS19jPro,
         "BMMiner": BMMinerS19jPro,
