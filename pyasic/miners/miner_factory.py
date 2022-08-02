@@ -541,8 +541,8 @@ class MinerFactory(metaclass=Singleton):
                     ver = model.split("V")[1]
                     model = model.split("V")[0]
             # don't need "Bitmain", just "ANTMINER XX" as model
-            if "Bitmain " in model:
-                model = model.replace("Bitmain ", "")
+            if "BITMAIN " in model:
+                model = model.replace("BITMAIN ", "")
         return model, api, ver
 
     @staticmethod
