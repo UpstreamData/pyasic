@@ -12,6 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .whatsminer import WhatsminerError
-from .bos import BraiinsOSError
-from .X19 import X19Error
+from dataclasses import dataclass, asdict
+
+
+@dataclass
+class X19Error:
+    """A Dataclass to handle error codes of X19 miners."""
+
+    error_message: str
+
+    def asdict(self):
+        return asdict(self)

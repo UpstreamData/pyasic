@@ -15,11 +15,12 @@
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 
 from pyasic.config import MinerConfig
+from pyasic.data.error_codes import X19Error
 
 import httpx
 import json
 import asyncio
-from typing import Union
+from typing import Union, List
 
 
 class BMMinerX19(BMMiner):
@@ -131,3 +132,18 @@ class BMMinerX19(BMMiner):
         if data.status_code == 200:
             return True
         return False
+
+    async def get_errors(self) -> List[X19Error]:
+        errors = []
+        url = f"http://{self.ip}/cgi-bin/summary.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data:
+            data = data.json()
+            if "SUMMARY" in data.keys():
+                if "status" in data["SUMMARY"][0].keys():
+                    for item in data["SUMMARY"][0]["status"]:
+                        if not item["status"] == "s":
+                            errors.append(X19Error(item["msg"]))
+        return errors

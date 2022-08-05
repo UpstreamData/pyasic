@@ -168,6 +168,7 @@ class BMMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()
+        errors = await self.get_errors()
 
         if model:
             data.model = model
@@ -177,6 +178,10 @@ class BMMiner(BaseMiner):
 
         if mac:
             data.mac = mac
+
+        if errors:
+            for error in errors:
+                data.errors.append(error)
 
         data.fault_light = await self.check_light()
 

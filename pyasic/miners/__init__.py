@@ -112,5 +112,8 @@ class BaseMiner:
     async def get_mac(self):
         return None
 
+    async def get_errors(self):
+        return None
+
     async def get_data(self) -> MinerData:
         return MinerData(ip=str(self.ip))
