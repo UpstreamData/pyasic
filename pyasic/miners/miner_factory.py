@@ -538,10 +538,10 @@ class MinerFactory(metaclass=Singleton):
             if stats:
                 if stats["STATS"][0].get("Type"):
                     _model = stats["STATS"][0]["Type"].upper()
-                    if "BB" in _model:
-                        _model = _model.split("BB")[0]
-                    if "XILINX" in _model:
-                        _model = _model.split("XILINX")[0]
+                    if " BB" in _model:
+                        _model = _model.split(" BB")[0]
+                    if " XILINX" in _model:
+                        _model = _model.split(" XILINX")[0]
                     if "PRO" in _model and not " PRO" in _model:
                         model = _model.replace("PRO", " PRO")
 
