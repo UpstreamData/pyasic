@@ -533,6 +533,18 @@ class MinerFactory(metaclass=Singleton):
                 elif "am2-s17" in version["STATUS"][0]["Description"]:
                     model = "ANTMINER S17"
 
+        if not model:
+            stats = await self._send_api_command(str(ip), "stats")
+            if stats:
+                if stats["STATS"][0].get("Type"):
+                    _model = stats["STATS"][0]["Type"].upper()
+                    if "BB" in _model:
+                        _model = _model.split("BB")[0]
+                    if "XILINX" in _model:
+                        _model = _model.split("XILINX")[0]
+                    if "PRO" in _model and not " PRO" in _model:
+                        model = _model.replace("PRO", " PRO")
+
         if model:
             # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
