@@ -17,7 +17,11 @@ from dataclasses import dataclass, asdict
 
 @dataclass
 class X19Error:
-    """A Dataclass to handle error codes of X19 miners."""
+    """A Dataclass to handle error codes of X19 miners.
+
+    Attributes:
+        error_message: The error message as a string.
+    """
 
     error_message: str
 

@@ -287,6 +287,15 @@ class MinerConfig:
         self.pool_groups = pool_groups
         return self
 
+    def from_api(self, pools: list):
+        _pools = []
+        for pool in pools:
+            url = pool.get("URL")
+            user = pool.get("User")
+            _pools.append({"url": url, "user": user, "pass": "123"})
+        self.pool_groups = [_PoolGroup().from_dict({"pools": _pools})]
+        return self
+
     def from_dict(self, data: dict):
         """Convert an output dict of this class back into usable data and save it to this class.
 

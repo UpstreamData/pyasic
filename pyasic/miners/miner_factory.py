@@ -235,6 +235,7 @@ MINER_CLASSES = {
         "Default": CGMinerAvalon1066,
         "CGMiner": CGMinerAvalon1066,
     },
+    "Unknown": {"Default": UnknownMiner},
 }
 
 

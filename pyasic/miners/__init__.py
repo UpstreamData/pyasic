@@ -15,11 +15,13 @@
 import asyncssh
 import logging
 import ipaddress
+from abc import ABC, abstractmethod
 
 from pyasic.data import MinerData
+from pyasic.config import MinerConfig
 
 
-class BaseMiner:
+class BaseMiner(ABC):
     def __init__(self, *args) -> None:
         self.ip = None
         self.uname = "root"
@@ -33,6 +35,11 @@ class BaseMiner:
         self.version = None
         self.fan_count = 2
         self.config = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls is BaseMiner:
+            raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
+        return object.__new__(cls)
 
     def __repr__(self):
         return f"{'' if not self.api_type else self.api_type} {'' if not self.model else self.model}: {str(self.ip)}"
@@ -75,45 +82,56 @@ class BaseMiner:
         except Exception as e:
             raise e
 
+    @abstractmethod
     async def fault_light_on(self) -> bool:
-        return False
+        pass
 
+    @abstractmethod
     async def fault_light_off(self) -> bool:
-        return False
+        pass
 
-    async def send_file(self, src, dest):
-        async with (await self._get_ssh_connection()) as conn:
-            await asyncssh.scp(src, (conn, dest))
+    # async def send_file(self, src, dest):
+    #     async with (await self._get_ssh_connection()) as conn:
+    #         await asyncssh.scp(src, (conn, dest))
 
-    async def check_light(self):
-        return self.light
+    @abstractmethod
+    async def check_light(self) -> bool:
+        pass
 
+    # @abstractmethod
     async def get_board_info(self):
         return None
 
-    async def get_config(self):
-        return None
+    @abstractmethod
+    async def get_config(self) -> MinerConfig:
+        pass
 
-    async def get_hostname(self):
-        return None
+    @abstractmethod
+    async def get_hostname(self) -> str:
+        pass
 
-    async def get_model(self):
-        return None
+    @abstractmethod
+    async def get_model(self) -> str:
+        pass
 
-    async def reboot(self):
-        return False
+    @abstractmethod
+    async def reboot(self) -> bool:
+        pass
 
-    async def restart_backend(self):
-        return False
+    @abstractmethod
+    async def restart_backend(self) -> bool:
+        pass
 
     async def send_config(self, *args, **kwargs):
         return None
 
-    async def get_mac(self):
-        return None
+    @abstractmethod
+    async def get_mac(self) -> str:
+        pass
 
-    async def get_errors(self):
-        return None
+    @abstractmethod
+    async def get_errors(self) -> list:
+        pass
 
     async def get_data(self) -> MinerData:
         return MinerData(ip=str(self.ip))

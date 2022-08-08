@@ -17,7 +17,12 @@ from dataclasses import dataclass, field, asdict
 
 @dataclass
 class WhatsminerError:
-    """A Dataclass to handle error codes of Whatsminers."""
+    """A Dataclass to handle error codes of Whatsminers.
+
+    Attributes:
+        error_code: The error code as an int.
+        error_message: The error message as a string.  Automatically found from the error code.
+    """
 
     error_code: int
     error_message: str = field(init=False)

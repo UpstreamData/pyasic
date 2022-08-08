@@ -151,6 +151,23 @@ class CGMiner(BaseMiner):
             self.config = result.stdout
         return self.config
 
+    async def check_light(self) -> bool:
+        if not self.light:
+            self.light = False
+        return self.light
+
+    async def fault_light_off(self) -> bool:
+        return False
+
+    async def fault_light_on(self) -> bool:
+        return False
+
+    async def get_errors(self) -> list:
+        return []
+
+    async def get_mac(self) -> str:
+        return "00:00:00:00:00:00"
+
     async def get_data(self) -> MinerData:
         """Get data from the miner.
 

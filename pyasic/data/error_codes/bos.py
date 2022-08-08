@@ -17,7 +17,11 @@ from dataclasses import dataclass, asdict
 
 @dataclass
 class BraiinsOSError:
-    """A Dataclass to handle error codes of BraiinsOS+ miners."""
+    """A Dataclass to handle error codes of BraiinsOS+ miners.
+
+    Attributes:
+        error_message: The error message as a string.
+    """
 
     error_message: str
 

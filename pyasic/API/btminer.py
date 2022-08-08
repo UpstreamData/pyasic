@@ -19,6 +19,7 @@ import hashlib
 import binascii
 import base64
 import logging
+from typing import Union
 
 from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -187,8 +188,8 @@ class BTMinerAPI(BaseMinerAPI):
 
     async def send_command(
         self,
-        command: str or bytes,
-        parameters: str or int or bool = None,
+        command: Union[str, bytes],
+        parameters: Union[str, int, bool] = None,
         ignore_errors: bool = False,
         **kwargs,
     ) -> dict:

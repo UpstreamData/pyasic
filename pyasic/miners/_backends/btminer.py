@@ -23,6 +23,7 @@ from pyasic.API import APIError
 
 from pyasic.data import MinerData
 from pyasic.data.error_codes import WhatsminerError
+from pyasic.config import MinerConfig
 
 from pyasic.settings import PyasicSettings
 
@@ -98,6 +99,40 @@ class BTMiner(BaseMiner):
                 pass
 
         return str(mac).upper()
+
+    async def check_light(self) -> bool:
+        if not self.light:
+            self.light = False
+        return self.light
+
+    async def fault_light_off(self) -> bool:
+        return False
+
+    async def fault_light_on(self) -> bool:
+        return False
+
+    async def get_errors(self) -> list:
+        return []
+
+    async def reboot(self) -> bool:
+        return False
+
+    async def restart_backend(self) -> bool:
+        return False
+
+    async def get_config(self) -> MinerConfig:
+        pools = None
+        cfg = MinerConfig()
+
+        try:
+            pools = await self.api.pools()
+        except APIError as e:
+            logging.warning(e)
+
+        if pools:
+            if "POOLS" in pools.keys():
+                cfg = cfg.from_api(pools["POOLS"])
+        return cfg
 
     async def get_data(self) -> MinerData:
         """Get data from the miner.

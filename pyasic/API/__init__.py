@@ -55,6 +55,11 @@ class BaseMinerAPI:
         # ip address of the miner
         self.ip = ipaddress.ip_address(ip)
 
+    def __new__(cls, *args, **kwargs):
+        if cls is BaseMinerAPI:
+            raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
+        return object.__new__(cls)
+
     def get_commands(self) -> list:
         """Get a list of command accessible to a specific type of API on the miner.
 

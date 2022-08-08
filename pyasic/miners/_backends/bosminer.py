@@ -240,6 +240,49 @@ class BOSMiner(BaseMiner):
             logging.debug(f"{self}: Restarting BOSMiner")
             await conn.run("/etc/init.d/bosminer start")
 
+    async def check_light(self) -> bool:
+        if not self.light:
+            self.light = False
+        return self.light
+
+    async def get_errors(self) -> list:
+        tunerstatus = None
+        errors = []
+
+        try:
+            tunerstatus = await self.api.tunerstatus()
+        except Exception as e:
+            logging.warning(e)
+
+        if tunerstatus:
+            tuner = tunerstatus[0].get("TUNERSTATUS")
+            if tuner:
+                if len(tuner) > 0:
+                    chain_status = tuner[0].get("TunerChainStatus")
+                    if chain_status and len(chain_status) > 0:
+                        board_map = {
+                            0: "Left board",
+                            1: "Center board",
+                            2: "Right board",
+                        }
+                        offset = (
+                            6
+                            if chain_status[0]["HashchainIndex"] in [6, 7, 8]
+                            else chain_status[0]["HashchainIndex"]
+                        )
+                        for board in chain_status:
+                            _id = board["HashchainIndex"] - offset
+                            if board["Status"] not in [
+                                "Stable",
+                                "Testing performance profile",
+                            ]:
+                                _error = board["Status"]
+                                _error = _error[0].lower() + _error[1:]
+                                errors.append(
+                                    BraiinsOSError(f"{board_map[_id]} {_error}")
+                                )
+        return errors
+
     async def get_data(self) -> MinerData:
         """Get data from the miner.
 

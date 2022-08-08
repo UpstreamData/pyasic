@@ -28,16 +28,20 @@ nav:
       - Miner Network Range: "network/miner_network_range.md"
   - Data:
       - Miner Data: "data/miner_data.md"
+      - Error Codes: "data/error_codes.md"
   - Config:
       - Miner Config: "config/miner_config.md"
   - Advanced:
       - Miner APIs:
-          - Base: "API/api.md"
+          - Intro: "API/api.md"
           - BMMiner: "API/bmminer.md"
           - BOSMiner: "API/bosminer.md"
           - BTMiner: "API/btminer.md"
           - CGMiner: "API/cgminer.md"
           - Unknown: "API/unknown.md"
+
+      - Base Miner: "miners/base_miner.md"
+
 
 plugins:
   - mkdocstrings

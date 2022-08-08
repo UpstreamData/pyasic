@@ -15,6 +15,7 @@
 import logging
 
 import ipaddress
+from typing import Union
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.miners import BaseMiner
@@ -29,7 +30,7 @@ class BOSMinerOld(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
 
-    async def send_ssh_command(self, cmd: str) -> str or None:
+    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
         """Send a command to the miner over ssh.
 
         :return: Result of the command or None.
@@ -61,3 +62,33 @@ class BOSMinerOld(BaseMiner):
     async def update_to_plus(self):
         result = await self.send_ssh_command("opkg update && opkg install bos_plus")
         return result
+
+    async def check_light(self) -> bool:
+        return False
+
+    async def fault_light_on(self) -> bool:
+        return False
+
+    async def fault_light_off(self) -> bool:
+        return False
+
+    async def get_config(self) -> None:
+        return None
+
+    async def get_errors(self) -> list:
+        return []
+
+    async def get_hostname(self) -> str:
+        return "?"
+
+    async def get_mac(self) -> str:
+        return "00:00:00:00:00:00"
+
+    async def get_model(self) -> str:
+        return "S9"
+
+    async def reboot(self) -> bool:
+        return False
+
+    async def restart_backend(self) -> bool:
+        return False

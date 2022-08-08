@@ -3,8 +3,6 @@
 
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
 
-## Miner List
-
 ##### pyasic currently supports the following miners and subtypes:
 * Braiins OS+ Devices:
     * All devices supported by BraiinsOS+ are supported here.

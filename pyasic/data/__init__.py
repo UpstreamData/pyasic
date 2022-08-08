@@ -12,9 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Union
+from typing import Union, List
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
+
+from .error_codes import X19Error, WhatsminerError, BraiinsOSError
 
 
 @dataclass
@@ -95,7 +97,9 @@ class MinerData:
     pool_1_user: str = "Unknown"
     pool_2_url: str = ""
     pool_2_user: str = ""
-    errors: list = field(default_factory=list)
+    errors: List[Union[WhatsminerError, BraiinsOSError, X19Error]] = field(
+        default_factory=list
+    )
     fault_light: Union[bool, None] = None
 
     def __post_init__(self):

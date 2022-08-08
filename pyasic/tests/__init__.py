@@ -13,6 +13,8 @@
 #  limitations under the License.
 
 import unittest
+from pyasic.tests.miners_tests import MinersTest
+from pyasic.tests.network_tests import NetworkTest
 
 if __name__ == "__main__":
     unittest.main()
