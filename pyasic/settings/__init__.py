@@ -35,6 +35,8 @@ class PyasicSettings(metaclass=Singleton):
     miner_get_data_retries: int = 1
 
     global_whatsminer_password = "admin"
+    global_x19_password = "root"
+    global_x17_password = "root"
 
     debug: bool = False
     logfile: bool = False

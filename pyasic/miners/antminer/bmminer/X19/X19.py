@@ -16,6 +16,7 @@ from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 
 from pyasic.config import MinerConfig
 from pyasic.data.error_codes import X19Error
+from pyasic.settings import PyasicSettings
 
 import httpx
 import json
@@ -27,12 +28,14 @@ class BMMinerX19(BMMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
+        self.uname = "root"
+        self.pwd = PyasicSettings().global_x19_password
 
     async def check_light(self) -> Union[bool, None]:
         if self.light:
             return self.light
         url = f"http://{self.ip}/cgi-bin/get_blink_status.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data.status_code == 200:
@@ -44,7 +47,7 @@ class BMMinerX19(BMMiner):
 
     async def get_config(self) -> MinerConfig:
         url = f"http://{self.ip}/cgi-bin/get_miner_conf.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data.status_code == 200:
@@ -54,7 +57,7 @@ class BMMinerX19(BMMiner):
 
     async def send_config(self, yaml_config, ip_user: bool = False) -> None:
         url = f"http://{self.ip}/cgi-bin/set_miner_conf.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         if ip_user:
             suffix = str(self.ip).split(".")[-1]
             conf = MinerConfig().from_yaml(yaml_config).as_x19(user_suffix=suffix)
@@ -75,7 +78,7 @@ class BMMinerX19(BMMiner):
     async def get_hostname(self) -> Union[str, None]:
         hostname = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data.status_code == 200:
@@ -88,7 +91,7 @@ class BMMinerX19(BMMiner):
     async def get_mac(self) -> Union[str, None]:
         mac = None
         url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data.status_code == 200:
@@ -100,7 +103,7 @@ class BMMinerX19(BMMiner):
 
     async def fault_light_on(self) -> bool:
         url = f"http://{self.ip}/cgi-bin/blink.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         data = json.dumps({"blink": "true"})
         async with httpx.AsyncClient() as client:
             data = await client.post(url, data=data, auth=auth)
@@ -113,7 +116,7 @@ class BMMinerX19(BMMiner):
 
     async def fault_light_off(self) -> bool:
         url = f"http://{self.ip}/cgi-bin/blink.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         data = json.dumps({"blink": "false"})
         async with httpx.AsyncClient() as client:
             data = await client.post(url, data=data, auth=auth)
@@ -126,7 +129,7 @@ class BMMinerX19(BMMiner):
 
     async def reboot(self) -> bool:
         url = f"http://{self.ip}/cgi-bin/reboot.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data.status_code == 200:
@@ -136,7 +139,7 @@ class BMMinerX19(BMMiner):
     async def get_errors(self) -> List[X19Error]:
         errors = []
         url = f"http://{self.ip}/cgi-bin/summary.cgi"
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data:
