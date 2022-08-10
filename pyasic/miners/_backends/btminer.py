@@ -100,15 +100,57 @@ class BTMiner(BaseMiner):
 
         return str(mac).upper()
 
+    async def _reset_api_pwd_to_admin(self, pwd: str):
+        try:
+            data = await self.api.update_pwd(pwd, "admin")
+        except APIError:
+            return False
+        if data:
+            if "Code" in data.keys():
+                if data["Code"] == 131:
+                    return True
+        print(data)
+        return False
+
     async def check_light(self) -> bool:
-        if not self.light:
-            self.light = False
+        data = None
+
+        try:
+            data = await self.api.get_miner_info()
+        except APIError:
+            if not self.light:
+                self.light = False
+        if data:
+            if "Msg" in data.keys():
+                if "ledstat" in data["Msg"].keys():
+                    if not data["Msg"]["ledstat"] == "auto":
+                        self.light = True
+                    if data["Msg"]["ledstat"] == "auto":
+                        self.light = False
         return self.light
 
     async def fault_light_off(self) -> bool:
+        try:
+            data = await self.api.set_led(auto=True)
+        except APIError:
+            return False
+        if data:
+            if "Code" in data.keys():
+                if data["Code"] == 131:
+                    self.light = False
+                    return True
         return False
 
     async def fault_light_on(self) -> bool:
+        try:
+            data = await self.api.set_led(auto=False)
+        except APIError:
+            return False
+        if data:
+            if "Code" in data.keys():
+                if data["Code"] == 131:
+                    self.light = True
+                    return True
         return False
 
     async def get_errors(self) -> list:

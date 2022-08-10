@@ -183,7 +183,7 @@ class BTMinerAPI(BaseMinerAPI):
         pwd: str = PyasicSettings().global_whatsminer_password,
     ):
         super().__init__(ip, port)
-        self.admin_pwd = pwd
+        self.pwd = pwd
         self.current_token = None
 
     async def send_command(
@@ -260,7 +260,7 @@ class BTMinerAPI(BaseMinerAPI):
         data = await self.send_command("get_token")
 
         # encrypt the admin password with the salt
-        pwd = _crypt(self.admin_pwd, "$1$" + data["Msg"]["salt"] + "$")
+        pwd = _crypt(self.pwd, "$1$" + data["Msg"]["salt"] + "$")
         pwd = pwd.split("$")
 
         # take the 4th item from the pwd split
@@ -437,6 +437,7 @@ class BTMinerAPI(BaseMinerAPI):
 
     async def set_led(
         self,
+        auto: bool = True,
         color: str = "red",
         period: int = 2000,
         duration: int = 1000,
@@ -450,6 +451,7 @@ class BTMinerAPI(BaseMinerAPI):
         changing the password of the miner using the Whatsminer tool.
 
         Parameters:
+            auto: Whether or not to reset the LED to auto mode.
             color: The LED color to set, either 'red' or 'green'.
             period: The flash cycle in ms.
             duration: LED on time in the cycle in ms.
@@ -459,16 +461,19 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of setting the LED.
         </details>
         """
-        command = {
-            "cmd": "set_led",
-            "color": color,
-            "period": period,
-            "duration": duration,
-            "start": start,
-        }
+        if not auto:
+            command = {
+                "cmd": "set_led",
+                "color": color,
+                "period": period,
+                "duration": duration,
+                "start": start,
+            }
+        else:
+            command = {"cmd": "set_led", "param": "auto"}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_command(enc_command, ignore_errors=True)
 
     async def set_low_power(self) -> dict:
         """Set low power mode on the miner using the API.
@@ -542,6 +547,7 @@ class BTMinerAPI(BaseMinerAPI):
 
             A reply informing of the status of setting the password.
         """
+        self.pwd = old_pwd
         # check if password length is greater than 8 bytes
         if len(new_pwd.encode("utf-8")) > 8:
             raise APIError(
@@ -551,7 +557,12 @@ class BTMinerAPI(BaseMinerAPI):
         command = {"cmd": "update_pwd", "old": old_pwd, "new": new_pwd}
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        try:
+            data = await self.send_command(enc_command)
+        except APIError as e:
+            raise e
+        self.pwd = new_pwd
+        return data
 
     async def set_target_freq(self, percent: int) -> dict:
         """Update the target frequency.

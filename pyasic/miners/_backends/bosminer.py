@@ -72,11 +72,11 @@ class BOSMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
-        self.light = True
         _ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
         if isinstance(_ret, str):
-            return True
+            self.light = True
+            return self.light
         return False
 
     async def fault_light_off(self) -> bool:
@@ -86,6 +86,7 @@ class BOSMiner(BaseMiner):
         _ret = await self.send_ssh_command("miner fault_light off")
         logging.debug(f"{self}: fault_light off command completed.")
         if isinstance(_ret, str):
+            self.light = False
             return True
         return False
 
