@@ -1,0 +1,22 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+-   repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+    -   id: black
+-   repo: local
+    hooks:
+    -   id: unittest
+        name: unittest
+        entry: python -m unittest discover
+        language: system
+        'types': [python]
+        args: ["-p '*test.py'"] # Probably this option is absolutely not needed.
+        pass_filenames: false
+        stages: [commit]

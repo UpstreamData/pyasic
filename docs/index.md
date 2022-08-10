@@ -29,13 +29,13 @@ async def scan_miners():  # define async scan function to allow awaiting
     # create a miner network
     # you can pass in any IP and it will use that in a subnet with a /24 mask (255 IPs).
     network = MinerNetwork("192.168.1.50")  # this uses the 192.168.1.0-255 network
-    
+
     # scan for miners asynchronously
     # this will return the correct type of miners if they are supported with all functionality.
     miners = await network.scan_network_for_miners()
     print(miners)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     asyncio.run(scan_miners())  # run the scan asynchronously with asyncio.run()
 ```
 
@@ -56,8 +56,8 @@ async def get_miners():  # define async scan function to allow awaiting
     miner_1 = await MinerFactory().get_miner("192.168.1.75")
     miner_2 = await MinerFactory().get_miner("192.168.1.76")
     print(miner_1, miner_2)
-    
-if __name__ == "__main__": 
+
+if __name__ == "__main__":
     asyncio.run(get_miners())  # get the miners asynchronously with asyncio.run()
 ```
 
@@ -78,7 +78,7 @@ async def gather_miner_data():
     print(miner_data)  # all data from the dataclass
     print(miner_data.hashrate)  # hashrate of the miner in TH/s
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
 
@@ -91,13 +91,13 @@ from pyasic.network import MinerNetwork  # miner network handles the scanning
 async def gather_miner_data():  # define async scan function to allow awaiting
     network = MinerNetwork("192.168.1.50")
     miners = await network.scan_network_for_miners()
-    
+
     # we need to asyncio.gather() all the miners get_data() functions to make them run together
     all_miner_data = await asyncio.gather(*[miner.get_data() for miner in miners])
 
     for miner_data in all_miner_data:
         print(miner_data)    # print out all the data one by one
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
