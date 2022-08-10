@@ -162,6 +162,27 @@ class BTMiner(BaseMiner):
     async def restart_backend(self) -> bool:
         return False
 
+    async def send_config(self, yaml_config, ip_user: bool = False):
+        if ip_user:
+            suffix = str(self.ip).split(".")[-1]
+            conf = MinerConfig().from_yaml(yaml_config).as_wm(user_suffix=suffix)
+        else:
+            conf = MinerConfig().from_yaml(yaml_config).as_wm()
+
+        data = await self.api.update_pools(
+            conf[0]["url"],
+            conf[0]["user"],
+            conf[0]["pass"],
+            conf[1]["url"],
+            conf[1]["user"],
+            conf[1]["pass"],
+            conf[2]["url"],
+            conf[2]["user"],
+            conf[2]["pass"],
+        )
+
+        print(data)
+
     async def get_config(self) -> MinerConfig:
         pools = None
         cfg = MinerConfig()

@@ -52,6 +52,19 @@ class _Pool:
                 self.password = data[key]
         return self
 
+    def as_wm(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a dict usable by an Whatsminer device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = {"url": self.url, "user": username, "pass": self.password}
+        return pool
+
     def as_x19(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a dict usable by an X19 device.
 
@@ -139,6 +152,19 @@ class _PoolGroup:
         pools = []
         for pool in self.pools[:3]:
             pools.append(pool.as_x19(user_suffix=user_suffix))
+        return pools
+
+    def as_wm(self, user_suffix: str = None) -> List[dict]:
+        """Convert the data in this class to a list usable by an Whatsminer device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        pools = []
+        for pool in self.pools[:3]:
+            pools.append(pool.as_wm(user_suffix=user_suffix))
+        while len(pools) < 3:
+            pools.append({"url": None, "user": None, "pass": None})
         return pools
 
     def as_avalon(self, user_suffix: str = None) -> str:
@@ -326,6 +352,14 @@ class MinerConfig:
             data: The yaml config data to convert.
         """
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
+
+    def as_wm(self, user_suffix: str = None) -> List[dict]:
+        """Convert the data in this class to a config usable by an Whatsminer device.
+
+        Parameters:
+            user_suffix: The suffix to append to username.
+        """
+        return self.pool_groups[0].as_x19(user_suffix=user_suffix)
 
     def as_x19(self, user_suffix: str = None) -> str:
         """Convert the data in this class to a config usable by an X19 device.
