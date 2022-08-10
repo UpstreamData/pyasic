@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners import BaseMiner
+from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners._types import (
+    M32,
+)  # noqa - Ignore access to _module
 
 
-class M32S(BaseMiner):
-    def __init__(self, ip: str):
-        super().__init__()
+class BTMinerM32(BTMiner, M32):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.ip = ip
-        self.model = "M32S"
-        self.nominal_chips = 78
-        self.fan_count = 2
