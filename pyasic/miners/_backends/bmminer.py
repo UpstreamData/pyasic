@@ -282,7 +282,8 @@ class BMMiner(BaseMiner):
                             env_temp = temp[1][f"temp_pcb{item}"].split("-")[0]
                             if not env_temp == 0:
                                 env_temp_list.append(int(env_temp))
-                    data.env_temp = sum(env_temp_list) / len(env_temp_list)
+                    if not env_temp_list == []:
+                        data.env_temp = sum(env_temp_list) / len(env_temp_list)
 
         if pools:
             pool_1 = None

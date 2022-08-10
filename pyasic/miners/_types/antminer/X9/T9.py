@@ -20,5 +20,5 @@ class T9(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "T9"
-        self.nominal_chips = 57
+        self.nominal_chips = 54
         self.fan_count = 2

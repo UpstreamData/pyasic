@@ -15,8 +15,180 @@
 from pyasic.miners._backends import Hiveon  # noqa - Ignore access to _module
 from pyasic.miners._types import T9  # noqa - Ignore access to _module
 
+from pyasic.data import MinerData
+from pyasic.settings import PyasicSettings
+
 
 class HiveonT9(Hiveon, T9):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip
+        self.pwd = "admin"
+
+    async def get_mac(self):
+        mac = (
+            (await self.send_ssh_command("cat /sys/class/net/eth0/address"))
+            .strip()
+            .upper()
+        )
+        return mac
+
+    async def get_data(self) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+
+        board_offset = -1
+        fan_offset = -1
+
+        model = await self.get_model()
+        hostname = await self.get_hostname()
+        mac = await self.get_mac()
+        errors = await self.get_errors()
+
+        if model:
+            data.model = model
+
+        if hostname:
+            data.hostname = hostname
+
+        if mac:
+            data.mac = mac
+
+        if errors:
+            for error in errors:
+                data.errors.append(error)
+
+        data.fault_light = await self.check_light()
+
+        miner_data = None
+        for i in range(PyasicSettings().miner_get_data_retries):
+            miner_data = await self.api.multicommand(
+                "summary", "pools", "stats", ignore_x19_error=True
+            )
+            if miner_data:
+                break
+
+        if not miner_data:
+            return data
+
+        summary = miner_data.get("summary")[0]
+        pools = miner_data.get("pools")[0]
+        stats = miner_data.get("stats")[0]
+
+        if summary:
+            hr = summary.get("SUMMARY")
+            if hr:
+                if len(hr) > 0:
+                    hr = hr[0].get("GHS 1m")
+                    if hr:
+                        data.hashrate = round(hr / 1000, 2)
+
+        if stats:
+            boards = stats.get("STATS")
+            if boards:
+                if len(boards) > 0:
+                    if "chain_power" in boards[1].keys():
+                        data.wattage = round(
+                            float(boards[1]["chain_power"].split(" ")[0])
+                        )
+
+                    board_map = {
+                        "left": [2, 9, 10],
+                        "center": [3, 11, 12],
+                        "right": [4, 13, 14],
+                    }
+
+                    env_temp_list = []
+
+                    for board in board_map.keys():
+                        chips = 0
+                        hashrate = 0
+                        chip_temp = 0
+                        board_temp = 0
+                        for chipset in board_map[board]:
+                            if chip_temp == 0:
+                                if f"temp{chipset}" in boards[1].keys():
+                                    board_temp = boards[1][f"temp{chipset}"]
+                                    chip_temp = boards[1][f"temp2_{chipset}"]
+                                    if f"temp3_{chipset}" in boards[1].keys():
+                                        env_temp = boards[1][f"temp3_{chipset}"]
+                                        if not env_temp == 0:
+                                            env_temp_list.append(int(env_temp))
+
+                            hashrate += boards[1][f"chain_rate{chipset}"]
+                            chips += boards[1][f"chain_acn{chipset}"]
+                        setattr(data, f"{board}_chips", chips)
+                        setattr(data, f"{board}_board_hashrate", hashrate)
+                        setattr(data, f"{board}_board_temp", board_temp)
+                        setattr(data, f"{board}_board_chip_temp", chip_temp)
+                    if not env_temp_list == []:
+                        data.env_temp = sum(env_temp_list) / len(env_temp_list)
+
+        if stats:
+            temp = stats.get("STATS")
+            if temp:
+                if len(temp) > 1:
+                    for fan_num in range(1, 8, 4):
+                        for _f_num in range(4):
+                            f = temp[1].get(f"fan{fan_num + _f_num}")
+                            if f and not f == 0 and fan_offset == -1:
+                                fan_offset = fan_num
+                    if fan_offset == -1:
+                        fan_offset = 1
+                    for fan in range(self.fan_count):
+                        setattr(
+                            data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
+                        )
+
+        if pools:
+            pool_1 = None
+            pool_2 = None
+            pool_1_user = None
+            pool_2_user = None
+            pool_1_quota = 1
+            pool_2_quota = 1
+            quota = 0
+            for pool in pools.get("POOLS"):
+                if not pool.get("User") == "*":
+                    if not pool_1_user:
+                        pool_1_user = pool.get("User")
+                        pool_1 = pool["URL"]
+                        pool_1_quota = pool["Quota"]
+                    elif not pool_2_user:
+                        pool_2_user = pool.get("User")
+                        pool_2 = pool["URL"]
+                        pool_2_quota = pool["Quota"]
+                    if not pool.get("User") == pool_1_user:
+                        if not pool_2_user == pool.get("User"):
+                            pool_2_user = pool.get("User")
+                            pool_2 = pool["URL"]
+                            pool_2_quota = pool["Quota"]
+            if pool_2_user and not pool_2_user == pool_1_user:
+                quota = f"{pool_1_quota}/{pool_2_quota}"
+
+            if pool_1:
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
+
+            if pool_1_user:
+                data.pool_1_user = pool_1_user
+
+            if pool_2:
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
+
+            if pool_2_user:
+                data.pool_2_user = pool_2_user
+
+            if quota:
+                data.pool_split = str(quota)
+
+        return data

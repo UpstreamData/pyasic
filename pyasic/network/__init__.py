@@ -208,8 +208,8 @@ async def ping_miner(
     ip: ipaddress.ip_address, port=4028
 ) -> Union[None, ipaddress.ip_address]:
     for i in range(PyasicSettings().network_ping_retries):
-        connection_fut = asyncio.open_connection(str(ip), port)
         try:
+            connection_fut = asyncio.open_connection(str(ip), port)
             # get the read and write streams from the connection
             reader, writer = await asyncio.wait_for(
                 connection_fut, timeout=PyasicSettings().network_ping_timeout
@@ -253,10 +253,10 @@ async def ping_and_get_miner(
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
-        except ConnectionRefusedError:
+        except ConnectionRefusedError as e:
             # handle for other connection errors
             logging.debug(f"{str(ip)}: Connection Refused.")
-            raise ConnectionRefusedError
+            raise e
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: {e}")

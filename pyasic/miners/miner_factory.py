@@ -56,6 +56,11 @@ MINER_CLASSES = {
         "Default": BMMinerS9i,
         "BMMiner": BMMinerS9i,
     },
+    "ANTMINER T9": {
+        "Default": BMMinerT9,
+        "BMMiner": BMMinerT9,
+        "Hiveon": HiveonT9,
+    },
     "ANTMINER S17": {
         "Default": BMMinerS17,
         "BOSMiner+": BOSMinerS17,
@@ -548,6 +553,9 @@ class MinerFactory(metaclass=Singleton):
                             model = _model.replace("PRO", " PRO")
 
         if model:
+            if " HIVEON" in model:
+                model = model.split(" HIVEON")[0]
+                api = "Hiveon"
             # whatsminer have a V in their version string (M20SV41), remove everything after it
             if "V" in model:
                 _ver = model.split("V")
