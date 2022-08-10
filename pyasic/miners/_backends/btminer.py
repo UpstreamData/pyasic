@@ -169,7 +169,7 @@ class BTMiner(BaseMiner):
         else:
             conf = MinerConfig().from_yaml(yaml_config).as_wm()
 
-        data = await self.api.update_pools(
+        await self.api.update_pools(
             conf[0]["url"],
             conf[0]["user"],
             conf[0]["pass"],
@@ -180,8 +180,6 @@ class BTMiner(BaseMiner):
             conf[2]["user"],
             conf[2]["pass"],
         )
-
-        print(data)
 
     async def get_config(self) -> MinerConfig:
         pools = None
