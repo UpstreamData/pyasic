@@ -203,6 +203,7 @@ MINER_CLASSES = {
     "M32": {
         "Default": BTMinerM32,
         "BTMiner": BTMinerM32,
+        "20": BTMinerM32V20,
     },
     "AvalonMiner 721": {
         "Default": CGMinerAvalon721,

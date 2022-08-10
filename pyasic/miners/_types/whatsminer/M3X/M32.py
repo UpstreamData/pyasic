@@ -22,3 +22,12 @@ class M32(BaseMiner):
         self.model = "M32"
         self.nominal_chips = 74
         self.fan_count = 2
+
+
+class M32V20(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M32 V20"
+        self.nominal_chips = 74
+        self.fan_count = 2
