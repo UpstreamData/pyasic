@@ -439,8 +439,8 @@ class BTMinerAPI(BaseMinerAPI):
         self,
         auto: bool = True,
         color: str = "red",
-        period: int = 2000,
-        duration: int = 1000,
+        period: int = 60,
+        duration: int = 20,
         start: int = 0,
     ) -> dict:
         """Set the LED on the miner using the API.

@@ -144,6 +144,9 @@ class BTMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         try:
             data = await self.api.set_led(auto=False)
+            await self.api.set_led(
+                auto=False, color="green", start=0, period=1, duration=0
+            )
         except APIError:
             return False
         if data:
