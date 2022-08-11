@@ -306,10 +306,7 @@ class MinerFactory(metaclass=Singleton):
         if ip in self.miners:
             return self.miners[ip]
         # if everything fails, the miner is already set to unknown
-        miner = UnknownMiner(str(ip))
-        api = None
-        model = None
-        ver = None
+        model, api, ver = None, None, None
 
         # try to get the API multiple times based on retries
         for i in range(PyasicSettings().miner_factory_get_version_retries):
@@ -330,6 +327,24 @@ class MinerFactory(metaclass=Singleton):
                     break
             except asyncio.TimeoutError:
                 logging.warning(f"{ip}: Get Miner Timed Out")
+
+        miner = self._select_miner_from_classes(ip, model, api, ver)
+
+        # save the miner to the cache at its IP if its not unknown
+        if not isinstance(miner, UnknownMiner):
+            self.miners[ip] = miner
+
+        # return the miner
+        return miner
+
+    @staticmethod
+    def _select_miner_from_classes(
+        ip: ipaddress.ip_address,
+        model: Union[str, None],
+        api: Union[str, None],
+        ver: Union[str, None],
+    ) -> AnyMiner:
+        miner = UnknownMiner(str(ip))
         # make sure we have model information
         if model:
             if not api:
@@ -365,11 +380,6 @@ class MinerFactory(metaclass=Singleton):
                 elif "BMMiner" in api:
                     miner = BMMiner(str(ip))
 
-        # save the miner to the cache at its IP if its not unknown
-        if not isinstance(miner, UnknownMiner):
-            self.miners[ip] = miner
-
-        # return the miner
         return miner
 
     def clear_cached_miners(self) -> None:
@@ -380,82 +390,28 @@ class MinerFactory(metaclass=Singleton):
     async def _get_miner_type(
         self, ip: Union[ipaddress.ip_address, str]
     ) -> Tuple[Union[str, None], Union[str, None], Union[str, None]]:
-        data = None
+        model, api, ver = None, None, None
 
-        model = None
-        api = None
-        ver = None
-
-        devdetails = None
-        version = None
         try:
-            # get device details and version data
-            data = await self._send_api_command(str(ip), "devdetails+version")
-            # validate success
-            validation = await self._validate_command(data)
-            if not validation[0]:
-                raise APIError(validation[1])
-            # copy each part of the main command to devdetails and version
-            devdetails = data["devdetails"][0]
-            version = data["version"][0]
-
-        except APIError:
-            try:
-                # try devdetails and version separately (X19s mainly require this)
-                # get devdetails and validate
-                devdetails = await self._send_api_command(str(ip), "devdetails")
-                validation = await self._validate_command(devdetails)
-                if not validation[0]:
-                    # if devdetails fails try version instead
-                    devdetails = None
-
-                    # get version and validate
-                    version = await self._send_api_command(str(ip), "version")
-                    validation = await self._validate_command(version)
-                    if not validation[0]:
-                        # finally try get_version (Whatsminers) and validate
-                        version = await self._send_api_command(str(ip), "get_version")
-                        validation = await self._validate_command(version)
-
-                        # if this fails we raise an error to be caught below
-                        if not validation[0]:
-                            raise APIError(validation[1])
-            except APIError as e:
-                # catch APIError and let the factory know we cant get data
-                logging.warning(f"{ip}: API Command Error: {e}")
-                return None, None, None
+            devdetails, version = await self._get_devdetails_and_version(ip)
+        except APIError as e:
+            # catch APIError and let the factory know we cant get data
+            logging.warning(f"{ip}: API Command Error: {e}")
+            return None, None, None
         except OSError or ConnectionRefusedError:
+            devdetails = None
+            version = None
             # miner refused connection on API port, we wont be able to get data this way
             # try ssh
             try:
-                async with asyncssh.connect(
-                    str(ip),
-                    known_hosts=None,
-                    username="root",
-                    password="admin",
-                    server_host_key_algs=["ssh-rsa"],
-                ) as conn:
-                    board_name = None
-                    cmd = await conn.run("cat /tmp/sysinfo/board_name")
-                    if cmd:
-                        board_name = cmd.stdout.strip()
-
-                if board_name:
-                    if board_name == "am1-s9":
-                        model = "ANTMINER S9"
-                    if board_name == "am2-s17":
-                        model = "ANTMINER S17"
+                _model = await self._get_model_from_ssh(ip)
+                if _model:
+                    model = _model
                     api = "BOSMiner+"
                     return model, api, None
-
             except asyncssh.misc.PermissionDenied:
                 try:
-                    url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
-                    auth = httpx.DigestAuth("root", "root")
-                    async with httpx.AsyncClient() as client:
-                        data = await client.get(url, auth=auth)
-                    if data.status_code == 200:
-                        data = data.json()
+                    data = await self._get_system_info_from_web(ip)
                     if "minertype" in data.keys():
                         model = data["minertype"].upper()
                     if "bmminer" in "\t".join(data.keys()):
@@ -466,67 +422,19 @@ class MinerFactory(metaclass=Singleton):
 
         # if we have devdetails, we can get model data from there
         if devdetails:
-            if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
-                # check for model, for most miners
-                if not devdetails["DEVDETAILS"][0]["Model"] == "":
-                    # model of most miners
-                    model = devdetails["DEVDETAILS"][0]["Model"].upper()
-
-                # if model fails, try driver
-                else:
-                    # some avalonminers have model in driver
-                    model = devdetails["DEVDETAILS"][0]["Driver"].upper()
-            else:
-                if "s9" in devdetails["STATUS"][0]["Description"]:
-                    model = "ANTMINER S9"
+            _model = self._parse_model_from_devdetails(devdetails)
+            if _model:
+                model = _model
 
         # if we have version we can get API type from here
         if version:
-            if "VERSION" in version.keys():
-                # check if there are any BMMiner strings in any of the dict keys
-                if any("BMMiner" in string for string in version["VERSION"][0].keys()):
-                    api = "BMMiner"
-
-                # check if there are any CGMiner strings in any of the dict keys
-                elif any(
-                    "CGMiner" in string for string in version["VERSION"][0].keys()
-                ):
-                    api = "CGMiner"
-
-                elif any(
-                    "BTMiner" in string for string in version["VERSION"][0].keys()
-                ):
-                    api = "BTMiner"
-
-                # check if there are any BOSMiner strings in any of the dict keys
-                elif any(
-                    "BOSminer" in string for string in version["VERSION"][0].keys()
-                ):
-                    api = "BOSMiner"
-                    if version["VERSION"][0].get("BOSminer"):
-                        if "plus" in version["VERSION"][0]["BOSminer"]:
-                            api = "BOSMiner+"
-
-                    if "BOSminer+" in version["VERSION"][0].keys():
-                        api = "BOSMiner+"
-
-                # check for avalonminers
-                if version["VERSION"][0].get("PROD"):
-                    _data = version["VERSION"][0]["PROD"].split("-")
-                    model = _data[0].upper()
-                    if len(data) > 1:
-                        ver = _data[1]
-                elif version["VERSION"][0].get("MODEL"):
-                    _data = version["VERSION"][0]["MODEL"].split("-")
-                    model = f"AvalonMiner {_data[0]}"
-                    if len(data) > 1:
-                        ver = _data[1]
-
-            # if all that fails, check the Description to see if it is a whatsminer
-            if version.get("Description") and (
-                "whatsminer" in version.get("Description")
-            ):
-                api = "BTMiner"
+            _api, _model, _ver = self._parse_type_from_version(version)
+            if _api:
+                api = _api
+            if _model:
+                model = _model
+            if _ver:
+                ver = _ver
 
         # if we have no model from devdetails but have version, try to get it from there
         if version and not model:
@@ -545,32 +453,181 @@ class MinerFactory(metaclass=Singleton):
                     model = "ANTMINER S17"
 
         if not model:
-            stats = await self._send_api_command(str(ip), "stats")
-            if stats:
-                if "STATS" in stats.keys():
-                    if stats["STATS"][0].get("Type"):
-                        _model = stats["STATS"][0]["Type"].upper()
-                        if " BB" in _model:
-                            _model = _model.split(" BB")[0]
-                        if " XILINX" in _model:
-                            _model = _model.split(" XILINX")[0]
-                        if "PRO" in _model and not " PRO" in _model:
-                            model = _model.replace("PRO", " PRO")
+            _model = await self._get_model_from_stats(ip)
+            if _model:
+                model = _model
 
         if model:
-            if " HIVEON" in model:
-                model = model.split(" HIVEON")[0]
-                api = "Hiveon"
-            # whatsminer have a V in their version string (M20SV41), remove everything after it
-            if "V" in model:
-                _ver = model.split("V")
-                if len(_ver) > 1:
-                    ver = model.split("V")[1]
-                    model = model.split("V")[0]
-            # don't need "Bitmain", just "ANTMINER XX" as model
-            if "BITMAIN " in model:
-                model = model.replace("BITMAIN ", "")
+            _ver, model = self._get_ver_from_model(model)
+            if _ver:
+                ver = _ver
+
         return model, api, ver
+
+    @staticmethod
+    def _get_ver_from_model(model) -> Tuple[Union[str, None], Union[str, None]]:
+        ver, mode, = (
+            None,
+            None,
+        )
+        if " HIVEON" in model:
+            model = model.split(" HIVEON")[0]
+            api = "Hiveon"
+        # whatsminer have a V in their version string (M20SV41), remove everything after it
+        if "V" in model:
+            _ver = model.split("V")
+            if len(_ver) > 1:
+                ver = model.split("V")[1]
+                model = model.split("V")[0]
+        # don't need "Bitmain", just "ANTMINER XX" as model
+        if "BITMAIN " in model:
+            model = model.replace("BITMAIN ", "")
+        return ver, model
+
+    async def _get_devdetails_and_version(
+        self, ip
+    ) -> Tuple[Union[dict, None], Union[dict, None]]:
+        version = None
+        try:
+            # get device details and version data
+            data = await self._send_api_command(str(ip), "devdetails+version")
+            # validate success
+            validation = await self._validate_command(data)
+            if not validation[0]:
+                raise APIError(validation[1])
+            # copy each part of the main command to devdetails and version
+            devdetails = data["devdetails"][0]
+            version = data["version"][0]
+            return devdetails, version
+        except APIError:
+            # try devdetails and version separately (X19s mainly require this)
+            # get devdetails and validate
+            devdetails = await self._send_api_command(str(ip), "devdetails")
+            validation = await self._validate_command(devdetails)
+            if not validation[0]:
+                # if devdetails fails try version instead
+                devdetails = None
+
+                # get version and validate
+                version = await self._send_api_command(str(ip), "version")
+                validation = await self._validate_command(version)
+                if not validation[0]:
+                    # finally try get_version (Whatsminers) and validate
+                    version = await self._send_api_command(str(ip), "get_version")
+                    validation = await self._validate_command(version)
+
+                    # if this fails we raise an error to be caught below
+                    if not validation[0]:
+                        raise APIError(validation[1])
+        return devdetails, version
+
+    @staticmethod
+    def _parse_model_from_devdetails(devdetails) -> Union[str, None]:
+        model = None
+        if "DEVDETAILS" in devdetails.keys() and not devdetails["DEVDETAILS"] == []:
+            # check for model, for most miners
+            if not devdetails["DEVDETAILS"][0]["Model"] == "":
+                # model of most miners
+                model = devdetails["DEVDETAILS"][0]["Model"].upper()
+
+            # if model fails, try driver
+            else:
+                # some avalonminers have model in driver
+                model = devdetails["DEVDETAILS"][0]["Driver"].upper()
+        else:
+            if "s9" in devdetails["STATUS"][0]["Description"]:
+                model = "ANTMINER S9"
+        return model
+
+    @staticmethod
+    def _parse_type_from_version(
+        version,
+    ) -> Tuple[Union[str, None], Union[str, None], Union[str, None],]:
+        api, model, ver = None, None, None
+        if "VERSION" in version.keys():
+            # check if there are any BMMiner strings in any of the dict keys
+            if any("BMMiner" in string for string in version["VERSION"][0].keys()):
+                api = "BMMiner"
+
+            # check if there are any CGMiner strings in any of the dict keys
+            elif any("CGMiner" in string for string in version["VERSION"][0].keys()):
+                api = "CGMiner"
+
+            elif any("BTMiner" in string for string in version["VERSION"][0].keys()):
+                api = "BTMiner"
+
+            # check if there are any BOSMiner strings in any of the dict keys
+            elif any("BOSminer" in string for string in version["VERSION"][0].keys()):
+                api = "BOSMiner"
+                if version["VERSION"][0].get("BOSminer"):
+                    if "plus" in version["VERSION"][0]["BOSminer"]:
+                        api = "BOSMiner+"
+
+                if "BOSminer+" in version["VERSION"][0].keys():
+                    api = "BOSMiner+"
+
+        # if all that fails, check the Description to see if it is a whatsminer
+        if version.get("Description") and ("whatsminer" in version.get("Description")):
+            api = "BTMiner"
+
+        # check for avalonminers
+        if version["VERSION"][0].get("PROD"):
+            _data = version["VERSION"][0]["PROD"].split("-")
+            model = _data[0].upper()
+            if len(_data) > 1:
+                ver = _data[1]
+        elif version["VERSION"][0].get("MODEL"):
+            _data = version["VERSION"][0]["MODEL"].split("-")
+            model = f"AvalonMiner {_data[0]}"
+            if len(_data) > 1:
+                ver = _data[1]
+
+        return api, model, ver
+
+    async def _get_model_from_stats(self, ip) -> Union[str, None]:
+        model = None
+        stats = await self._send_api_command(str(ip), "stats")
+        if stats:
+            if "STATS" in stats.keys():
+                if stats["STATS"][0].get("Type"):
+                    _model = stats["STATS"][0]["Type"].upper()
+                    if " BB" in _model:
+                        _model = _model.split(" BB")[0]
+                    if " XILINX" in _model:
+                        _model = _model.split(" XILINX")[0]
+                    if "PRO" in _model and not " PRO" in _model:
+                        model = _model.replace("PRO", " PRO")
+        return model
+
+    @staticmethod
+    async def _get_model_from_ssh(ip: ipaddress.ip_address) -> Union[str, None]:
+        model = None
+        async with asyncssh.connect(
+            str(ip),
+            known_hosts=None,
+            username="root",
+            password="admin",
+            server_host_key_algs=["ssh-rsa"],
+        ) as conn:
+            board_name = None
+            cmd = await conn.run("cat /tmp/sysinfo/board_name")
+            if cmd:
+                board_name = cmd.stdout.strip()
+        if board_name == "am1-s9":
+            model = "ANTMINER S9"
+        if board_name == "am2-s17":
+            model = "ANTMINER S17"
+        return model
+
+    @staticmethod
+    async def _get_system_info_from_web(ip) -> dict:
+        url = f"http://{ip}/cgi-bin/get_system_info.cgi"
+        auth = httpx.DigestAuth("root", "root")
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+        return data
 
     @staticmethod
     async def _validate_command(data: dict) -> Tuple[bool, Union[str, None]]:
