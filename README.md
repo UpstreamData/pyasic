@@ -7,6 +7,9 @@
 [![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
 [![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
+## Supported Miners
+Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/)
+
 ## Documentation
 Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
 
