@@ -122,6 +122,22 @@
         show_root_heading: false
         heading_level: 4
 
+## M32
+
+::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M32
+
+::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V20
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M32S
 
 ::: pyasic.miners.whatsminer.btminer.M3X.M32S.BTMinerM32S
