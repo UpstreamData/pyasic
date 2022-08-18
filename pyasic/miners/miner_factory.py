@@ -569,7 +569,12 @@ class MinerFactory(metaclass=Singleton):
         # if all that fails, check the Description to see if it is a whatsminer
         if version.get("Description") and ("whatsminer" in version.get("Description")):
             api = "BTMiner"
-
+        
+        # If version does not exist in the keys, return None (resulting in Unknown).
+        # Prevents halting on suspended miners that aren't returning valid information.
+        if "VERSION" not in version.keys():
+            return None, None, None
+        
         # check for avalonminers
         if version["VERSION"][0].get("PROD"):
             _data = version["VERSION"][0]["PROD"].split("-")
