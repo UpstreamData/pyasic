@@ -20,7 +20,7 @@ from typing import Union
 import toml
 
 
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API import APIError
 
@@ -215,22 +215,12 @@ class BOSMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
-        if ip_user:
-            suffix = str(self.ip).split(".")[-1]
-            toml_conf = (
-                MinerConfig()
-                .from_yaml(yaml_config)
-                .as_bos(model=self.model.replace(" (BOS)", ""), user_suffix=suffix)
-            )
-        else:
-            toml_conf = (
-                MinerConfig()
-                .from_yaml(yaml_config)
-                .as_bos(model=self.model.replace(" (BOS)", ""))
-            )
+        toml_conf = config.as_bos(
+            model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
+        )
         async with (await self._get_ssh_connection()) as conn:
             await conn.run("/etc/init.d/bosminer stop")
             logging.debug(f"{self}: Opening SFTP connection.")

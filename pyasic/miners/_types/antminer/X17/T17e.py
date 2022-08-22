@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 
 
 class T17e(BaseMiner):

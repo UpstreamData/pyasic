@@ -18,7 +18,8 @@ import ipaddress
 from typing import Union
 
 from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
+from pyasic.config import MinerConfig
 
 
 class BOSMinerOld(BaseMiner):
@@ -92,3 +93,6 @@ class BOSMinerOld(BaseMiner):
 
     async def restart_backend(self) -> bool:
         return False
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        return None

@@ -51,15 +51,11 @@ class CGMinerA8X(CGMiner):
             return True
         return False
 
-    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Configures miner with yaml config."""
         raise NotImplementedError
         logging.debug(f"{self}: Sending config.")
-        if ip_user:
-            suffix = str(self.ip).split(".")[-1]
-            conf = MinerConfig().from_yaml(yaml_config).as_avalon(user_suffix=suffix)
-        else:
-            conf = MinerConfig().from_yaml(yaml_config).as_avalon()
+        conf = config.as_avalon(user_suffix=user_suffix)
         data = await self.api.ascset(
             0, "setpool", f"root,root,{conf}"
         )  # this should work but doesn't

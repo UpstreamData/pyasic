@@ -18,8 +18,9 @@ from typing import Union
 
 
 from pyasic.API.cgminer import CGMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.API import APIError
+from pyasic.config import MinerConfig
 
 from pyasic.data import MinerData
 
@@ -164,6 +165,9 @@ class CGMiner(BaseMiner):
 
     async def get_errors(self) -> list:
         return []
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        return None
 
     async def get_mac(self) -> str:
         return "00:00:00:00:00:00"

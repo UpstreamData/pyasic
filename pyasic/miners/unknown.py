@@ -13,7 +13,8 @@
 #  limitations under the License.
 
 from pyasic.API.unknown import UnknownAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
+from pyasic.config import MinerConfig
 
 
 class UnknownMiner(BaseMiner):
@@ -57,3 +58,6 @@ class UnknownMiner(BaseMiner):
 
     async def restart_backend(self) -> bool:
         return False
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        return None

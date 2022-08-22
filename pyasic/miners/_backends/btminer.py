@@ -18,7 +18,7 @@ from typing import Union
 
 
 from pyasic.API.btminer import BTMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.API import APIError
 
 from pyasic.data import MinerData
@@ -165,12 +165,8 @@ class BTMiner(BaseMiner):
     async def restart_backend(self) -> bool:
         return False
 
-    async def send_config(self, yaml_config, ip_user: bool = False):
-        if ip_user:
-            suffix = str(self.ip).split(".")[-1]
-            conf = MinerConfig().from_yaml(yaml_config).as_wm(user_suffix=suffix)
-        else:
-            conf = MinerConfig().from_yaml(yaml_config).as_wm()
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        conf = config.as_wm(user_suffix=user_suffix)
 
         await self.api.update_pools(
             conf[0]["url"],

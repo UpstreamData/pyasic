@@ -18,9 +18,10 @@ from typing import Union
 
 
 from pyasic.API.bmminer import BMMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 
 from pyasic.data import MinerData
+from pyasic.config import MinerConfig
 
 from pyasic.settings import PyasicSettings
 
@@ -153,6 +154,9 @@ class BMMiner(BaseMiner):
         if isinstance(_ret, str):
             return True
         return False
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        return None
 
     async def check_light(self) -> bool:
         if not self.light:
