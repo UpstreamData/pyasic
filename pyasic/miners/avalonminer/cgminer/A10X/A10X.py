@@ -55,7 +55,7 @@ class CGMinerA10X(CGMiner):
         """Configures miner with yaml config."""
         raise NotImplementedError
         logging.debug(f"{self}: Sending config.")
-        conf = config.as_avalon(user_suffix=suffix)
+        conf = config.as_avalon(user_suffix=user_suffix)
         data = await self.api.ascset(
             0, "setpool", f"root,root,{conf}"
         )  # this should work but doesn't
