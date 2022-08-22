@@ -55,14 +55,10 @@ class BMMinerX19(BMMiner):
             self.config = MinerConfig().from_raw(data)
         return self.config
 
-    async def send_config(self, yaml_config, ip_user: bool = False) -> None:
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         url = f"http://{self.ip}/cgi-bin/set_miner_conf.cgi"
         auth = httpx.DigestAuth(self.uname, self.pwd)
-        if ip_user:
-            suffix = str(self.ip).split(".")[-1]
-            conf = MinerConfig().from_yaml(yaml_config).as_x19(user_suffix=suffix)
-        else:
-            conf = MinerConfig().from_yaml(yaml_config).as_x19()
+        conf = config.as_x19(user_suffix=user_suffix)
 
         try:
             async with httpx.AsyncClient() as client:

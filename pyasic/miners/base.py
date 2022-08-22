@@ -123,7 +123,8 @@ class BaseMiner(ABC):
     async def restart_backend(self) -> bool:
         pass
 
-    async def send_config(self, *args, **kwargs):
+    @abstractmethod
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
 
     @abstractmethod
