@@ -91,7 +91,7 @@ if __name__ == "__main__":
 import asyncio
 import sys
 
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners import get_miner
 
 # Fix whatsminer bug
 # if the computer is windows, set the event loop policy to a WindowsSelector policy
@@ -103,7 +103,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.starts
 async def get_miner_data(miner_ip: str):
     # Use MinerFactory to get miner
     # MinerFactory is a singleton, so we can just get the instance in place
-    miner = await MinerFactory().get_miner(miner_ip)
+    miner = await get_miner(miner_ip)
 
     # Get data from the miner
     data = await miner.get_data()
@@ -122,7 +122,7 @@ If needed, this library exposes a wrapper for the miner API that can be used for
 import asyncio
 import sys
 
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners import get_miner
 
 # Fix whatsminer bug
 # if the computer is windows, set the event loop policy to a WindowsSelector policy
@@ -132,7 +132,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.starts
 
 async def get_api_commands(miner_ip: str):
     # Get the miner
-    miner = await MinerFactory().get_miner(miner_ip)
+    miner = await get_miner(miner_ip)
 
     # List all available commands
     print(miner.api.get_commands())
@@ -150,7 +150,7 @@ The miner API commands will raise an `APIError` if they fail with a bad status c
 import asyncio
 import sys
 
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners import get_miner
 
 # Fix whatsminer bug
 # if the computer is windows, set the event loop policy to a WindowsSelector policy
@@ -160,7 +160,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.starts
 
 async def get_api_commands(miner_ip: str):
     # Get the miner
-    miner = await MinerFactory().get_miner(miner_ip)
+    miner = await get_miner(miner_ip)
 
     # Run the devdetails command
     # This is equivalent to await miner.api.send_command("devdetails")

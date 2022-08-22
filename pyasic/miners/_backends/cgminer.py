@@ -18,7 +18,7 @@ from typing import Union
 
 
 from pyasic.API.cgminer import CGMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.API import APIError
 
 from pyasic.data import MinerData

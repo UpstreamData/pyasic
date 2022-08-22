@@ -18,7 +18,7 @@ from typing import Union
 
 
 from pyasic.API.bmminer import BMMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 
 from pyasic.data import MinerData
 

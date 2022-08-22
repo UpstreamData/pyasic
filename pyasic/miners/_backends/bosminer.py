@@ -20,7 +20,7 @@ from typing import Union
 import toml
 
 
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API import APIError
 
