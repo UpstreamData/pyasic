@@ -18,7 +18,7 @@ import ipaddress
 from typing import Union
 
 from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 
 
 class BOSMinerOld(BaseMiner):

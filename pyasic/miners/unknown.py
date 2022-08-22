@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from pyasic.API.unknown import UnknownAPI
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import BaseMiner
 
 
 class UnknownMiner(BaseMiner):

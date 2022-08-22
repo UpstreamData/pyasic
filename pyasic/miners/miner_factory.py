@@ -12,9 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import TypeVar, Tuple, List, Union
+from typing import Tuple, List, Union
 from collections.abc import AsyncIterable
-from pyasic.miners import BaseMiner
+from pyasic.miners.base import AnyMiner
 import httpx
 
 from pyasic.miners.antminer import *
@@ -41,8 +41,6 @@ import logging
 from pyasic.settings import PyasicSettings
 
 import asyncssh
-
-AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
 
 MINER_CLASSES = {
     "ANTMINER S9": {
