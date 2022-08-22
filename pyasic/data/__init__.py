@@ -60,6 +60,7 @@ class MinerData:
         pool_2_user: The second pool user on the miner as a str.
         errors: A list of errors on the miner.
         fault_light: Whether or not the fault light is on as a boolean.
+        efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
     """
 
     ip: str
@@ -101,6 +102,7 @@ class MinerData:
         default_factory=list
     )
     fault_light: Union[bool, None] = None
+    efficiency: int = field(init=False)
 
     def __post_init__(self):
         self.datetime = datetime.now()
@@ -147,6 +149,16 @@ class MinerData:
 
     @temperature_avg.setter
     def temperature_avg(self, val):
+        pass
+
+    @property
+    def efficiency(self):  # noqa - Skip PyCharm inspection
+        if self.hashrate == 0:
+            return 0
+        return round(self.wattage / self.hashrate)
+
+    @efficiency.setter
+    def efficiency(self, val):
         pass
 
     def asdict(self):
