@@ -16,6 +16,7 @@ from typing import Union, List
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 import time
+import json
 
 from .error_codes import X19Error, WhatsminerError, BraiinsOSError
 
@@ -176,6 +177,11 @@ class MinerData:
 
     def asdict(self):
         return asdict(self)
+
+    def as_json(self):
+        data = self.asdict()
+        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
+        return json.dumps(data)
 
     def as_influxdb(self, measurement_name: str = "miner_data"):
         tag_data = [measurement_name]
