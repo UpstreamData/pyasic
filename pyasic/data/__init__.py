@@ -107,6 +107,15 @@ class MinerData:
     def __post_init__(self):
         self.datetime = datetime.now()
 
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"{item}")
+
+    def __setitem__(self, key, value):
+        return setattr(self, key, value)
+
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
         return self.right_chips + self.center_chips + self.left_chips
