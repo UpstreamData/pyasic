@@ -193,6 +193,9 @@ class MinerData:
                 field_data.append(f"{attribute}={str(self[attribute]).lower()}")
                 continue
             if isinstance(self[attribute], int):
+                field_data.append(f"{attribute}={self[attribute]}i")
+                continue
+            if isinstance(self[attribute], float):
                 field_data.append(f"{attribute}={self[attribute]}")
                 continue
             if attribute == "fault_light" and not self[attribute]:
