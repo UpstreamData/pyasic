@@ -17,7 +17,7 @@ trio = ["trio (>=0.16)"]
 
 [[package]]
 name = "asyncssh"
-version = "2.11.0"
+version = "2.12.0"
 description = "AsyncSSH: Asynchronous SSHv2 client and server library"
 category = "main"
 optional = false
@@ -218,8 +218,8 @@ anyio = [
     {file = "anyio-3.6.1.tar.gz", hash = "sha256:413adf95f93886e442aea925f3ee43baa5a765a64a0f52c6081894f9992fdd0b"},
 ]
 asyncssh = [
-    {file = "asyncssh-2.11.0-py3-none-any.whl", hash = "sha256:7302348cbd54c58d3259da17f13e77912de1b005e366b15c8b183d948c8a91a8"},
-    {file = "asyncssh-2.11.0.tar.gz", hash = "sha256:59c36ce77ba9dda8dd57ad875776e7105ddb1fa851bc039bb3aeadeac4f67b56"},
+    {file = "asyncssh-2.12.0-py3-none-any.whl", hash = "sha256:6841c4242c606fd51188c974ec2f4887efeec67ecdfa5b84140711dacd985ab3"},
+    {file = "asyncssh-2.12.0.tar.gz", hash = "sha256:274101322c4b941823aeed8e1ab6e7be5191686c6db2d2bd35afeba30505e780"},
 ]
 certifi = [
     {file = "certifi-2022.6.15-py3-none-any.whl", hash = "sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412"},
