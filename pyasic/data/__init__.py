@@ -119,7 +119,7 @@ class MinerData:
         return setattr(self, key, value)
 
     def __iter__(self):
-        return iter([item for item in self.__dict__])
+        return iter([item for item in self.asdict()])
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
