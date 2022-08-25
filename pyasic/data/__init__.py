@@ -190,7 +190,7 @@ class MinerData:
         tags = ["ip", "mac", "model", "hostname"]
         for attribute in self:
             if attribute in tags:
-                tag_data.append(f"{attribute}={self[attribute]}")
+                tag_data.append(f'{attribute}="{self[attribute]}"')
                 continue
             if isinstance(self[attribute], str):
                 field_data.append(f'{attribute}="{self[attribute]}"')
