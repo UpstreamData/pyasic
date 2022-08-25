@@ -196,7 +196,7 @@ class MinerData:
                 field_data.append(f'{attribute}="{self[attribute]}"')
                 continue
             if isinstance(self[attribute], bool):
-                field_data.append(f"{attribute}={str(self[attribute]).lower()}")
+                field_data.append(f"{attribute}={str(self[attribute])}")
                 continue
             if isinstance(self[attribute], int):
                 field_data.append(f"{attribute}={self[attribute]}i")
