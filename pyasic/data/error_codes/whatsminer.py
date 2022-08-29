@@ -152,6 +152,7 @@ ERROR_CODES = {
     2020: "Pool 0 connection failed.",
     2021: "Pool 1 connection failed.",
     2022: "Pool 2 connection failed.",
+    2023: "Pool 3 connection failed.",
     2030: "High rejection rate on pool.",
     2040: "The pool does not support asicboost mode.",
     2310: "Hashrate is too low.",

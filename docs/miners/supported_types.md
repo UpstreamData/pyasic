@@ -37,6 +37,7 @@ Supported miner types are here on this list.  If your miner (or miner version) i
         * [M30S++][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlus]:
             * [VG30][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG30]
             * [VG40][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG40]
+            * [VH60][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH60]
         * [M31S][pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31S]
         * [M31S+][pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlus]:
             * [VE20][pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE20]

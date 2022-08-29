@@ -89,9 +89,17 @@
         show_root_heading: false
         heading_level: 4
 
-## M30S+VG40
+## M30S++VG40
 
 ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG40
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M30S++VH60
+
+::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH60
     handler: python
     options:
         show_root_heading: false
@@ -130,7 +138,7 @@
         show_root_heading: false
         heading_level: 4
 
-## M32
+## M32V20
 
 ::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V20
     handler: python
