@@ -208,6 +208,9 @@ class MinerData:
             if attribute == "fault_light" and not self[attribute]:
                 field_data.append(f"{attribute}=false")
                 continue
+            if attribute == "errors":
+                for idx, item in enumerate(self[attribute]):
+                    field_data.append(f'error_{idx+1}="{item.error_message}"')
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
