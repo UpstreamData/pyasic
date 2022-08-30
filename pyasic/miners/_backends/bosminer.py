@@ -232,8 +232,12 @@ class BOSMiner(BaseMiner):
             await conn.run("/etc/init.d/bosminer start")
 
     async def check_light(self) -> bool:
-        if not self.light:
-            self.light = False
+        if self.light:
+            return self.light
+        data = await self.send_ssh_command("ls /sys/class/leds/'Red LED'/")
+        self.light = False
+        if "delay_on" in data:
+            self.light = True
         return self.light
 
     async def get_errors(self) -> list:
