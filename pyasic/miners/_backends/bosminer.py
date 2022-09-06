@@ -234,7 +234,9 @@ class BOSMiner(BaseMiner):
     async def check_light(self) -> bool:
         if self.light:
             return self.light
-        data = await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+        data = (
+            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+        ).strip()
         self.light = False
         if data == "50":
             self.light = True
