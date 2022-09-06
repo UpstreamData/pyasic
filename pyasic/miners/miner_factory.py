@@ -20,6 +20,7 @@ import httpx
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.whatsminer import *
+from pyasic.miners.innosilicon import *
 
 from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
 from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
@@ -243,6 +244,10 @@ MINER_CLASSES = {
         "Default": CGMinerAvalon1066,
         "CGMiner": CGMinerAvalon1066,
     },
+    "T3H+": {
+        "Default": CGMinerInnosiliconT3HPlus,
+        "CGMiner": CGMinerInnosiliconT3HPlus,
+    },
     "Unknown": {"Default": UnknownMiner},
 }
 
@@ -407,9 +412,13 @@ class MinerFactory(metaclass=Singleton):
             except asyncssh.misc.PermissionDenied:
                 try:
                     data = await self.__get_system_info_from_web(ip)
-                    if "minertype" in data.keys():
+                    if not data.get("success"):
+                        _model = await self.__get_dragonmint_version_from_web(ip)
+                        if _model:
+                            model = _model
+                    if "minertype" in data:
                         model = data["minertype"].upper()
-                    if "bmminer" in "\t".join(data.keys()):
+                    if "bmminer" in "\t".join(data):
                         api = "BMMiner"
                 except Exception as e:
                     logging.debug(f"Unable to get miner - {e}")
@@ -488,8 +497,16 @@ class MinerFactory(metaclass=Singleton):
                     if "PRO" in _model and " PRO" not in _model:
                         _model = _model.replace("PRO", " PRO")
                     model = _model
+            else:
+                _model = await self.__get_dragonmint_version_from_web(ip)
+                if _model:
+                    model = _model
 
         if model:
+            if "DRAGONMINT" in model:
+                _model = await self.__get_dragonmint_version_from_web(ip)
+                if _model:
+                    model = _model
             if " HIVEON" in model:
                 # do hiveon check before whatsminer as HIVEON contains a V
                 model = model.split(" HIVEON")[0]
@@ -572,6 +589,31 @@ class MinerFactory(metaclass=Singleton):
         if data.status_code == 200:
             data = data.json()
         return data
+
+    @staticmethod
+    async def __get_dragonmint_version_from_web(
+        ip: ipaddress.ip_address,
+    ) -> Union[str, None]:
+        response = None
+        async with httpx.AsyncClient() as client:
+            try:
+                auth = (
+                    await client.post(
+                        f"http://{ip}/api/auth",
+                        data={"username": "admin", "password": "admin"},
+                    )
+                ).json()["jwt"]
+                response = (
+                    await client.post(
+                        f"http://{ip}/api/type",
+                        headers={"Authorization": "Bearer " + auth},
+                        data={},
+                    )
+                ).json()
+            except Exception as e:
+                logging.info(e)
+        if response:
+            return response["type"]
 
     @staticmethod
     async def _validate_command(data: dict) -> Tuple[bool, Union[str, None]]:

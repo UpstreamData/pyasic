@@ -22,6 +22,7 @@ nav:
           - Avalon 10X: "miners/avalonminer/A10X.md"
           - Whatsminer M2X: "miners/whatsminer/M2X.md"
           - Whatsminer M3X: "miners/whatsminer/M3X.md"
+          - Innosilicon T3X: "miners/innosilicon/T3X.md"
 
   - Network:
       - Miner Network: "network/miner_network.md"

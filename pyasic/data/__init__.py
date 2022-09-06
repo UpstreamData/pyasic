@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 import time
 import json
 
-from .error_codes import X19Error, WhatsminerError, BraiinsOSError
+from .error_codes import X19Error, WhatsminerError, BraiinsOSError, InnosiliconError
 
 
 @dataclass
@@ -54,7 +54,7 @@ class MinerData:
         total_chips: The total number of chips on all boards.  Calculated automatically.
         ideal_chips: The ideal number of chips in the miner as an int.
         percent_ideal: The percent of total chips out of the ideal count.  Calculated automatically.
-        nominal: The nominal amount of chips in the miner.  Calculated automatically.
+        nominal: Whether the number of chips in the miner is nominal.  Calculated automatically.
         pool_split: The pool split as a str.
         pool_1_url: The first pool url on the miner as a str.
         pool_1_user: The first pool user on the miner as a str.
@@ -100,9 +100,9 @@ class MinerData:
     pool_1_user: str = "Unknown"
     pool_2_url: str = ""
     pool_2_user: str = ""
-    errors: List[Union[WhatsminerError, BraiinsOSError, X19Error]] = field(
-        default_factory=list
-    )
+    errors: List[
+        Union[WhatsminerError, BraiinsOSError, X19Error, InnosiliconError]
+    ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
 

@@ -12,7 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .whatsminer import WhatsminerError
-from .bos import BraiinsOSError
-from .X19 import X19Error
-from .innosilicon import InnosiliconError
+from pyasic.miners.base import BaseMiner
+
+
+class InnosiliconT3HPlus(BaseMiner):
+    def __init__(self, ip: str) -> None:
+        super().__init__()
+        self.ip = ip
+        self.model = "T3H+"
+        self.nominal_chips = 114
+        self.fan_count = 4

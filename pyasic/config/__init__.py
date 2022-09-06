@@ -78,6 +78,23 @@ class _Pool:
         pool = {"url": self.url, "user": username, "pass": self.password}
         return pool
 
+    def as_inno(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a dict usable by an Innosilicon device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = {
+            f"Pool": self.url,
+            f"UserName": username,
+            f"Password": self.password,
+        }
+        return pool
+
     def as_avalon(self, user_suffix: str = None) -> str:
         """Convert the data in this class to a string usable by an Avalonminer device.
 
@@ -152,6 +169,19 @@ class _PoolGroup:
         pools = []
         for pool in self.pools[:3]:
             pools.append(pool.as_x19(user_suffix=user_suffix))
+        return pools
+
+    def as_inno(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a list usable by an Innosilicon device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        pools = {}
+        for idx, pool in enumerate(self.pools[:3]):
+            pool_data = pool.as_inno(user_suffix=user_suffix)
+            for key in pool_data:
+                pools[f"{key}{idx+1}"] = pool_data[key]
         return pools
 
     def as_wm(self, user_suffix: str = None) -> List[dict]:
@@ -359,7 +389,15 @@ class MinerConfig:
         Parameters:
             user_suffix: The suffix to append to username.
         """
-        return self.pool_groups[0].as_x19(user_suffix=user_suffix)
+        return self.pool_groups[0].as_wm(user_suffix=user_suffix)
+
+    def as_inno(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a config usable by an Innosilicon device.
+
+        Parameters:
+            user_suffix: The suffix to append to username.
+        """
+        return self.pool_groups[0].as_inno(user_suffix=user_suffix)
 
     def as_x19(self, user_suffix: str = None) -> str:
         """Convert the data in this class to a config usable by an X19 device.

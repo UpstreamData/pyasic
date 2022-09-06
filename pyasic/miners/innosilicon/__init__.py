@@ -12,7 +12,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .whatsminer import WhatsminerError
-from .bos import BraiinsOSError
-from .X19 import X19Error
-from .innosilicon import InnosiliconError
+from .cgminer import *

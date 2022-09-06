@@ -91,3 +91,6 @@ Supported miner types are here on this list.  If your miner (or miner version) i
         * [A1026][pyasic.miners.avalonminer.cgminer.A10X.A1026.CGMinerAvalon1026]
         * [A1047][pyasic.miners.avalonminer.cgminer.A10X.A1047.CGMinerAvalon1047]
         * [A1066][pyasic.miners.avalonminer.cgminer.A10X.A1066.CGMinerAvalon1066]
+* Stock Firmware Innosilicon Miners:
+    * T3X Series:
+        * [T3H+][pyasic.miners.innosilicon.cgminer.T3X.T3H_Plus.CGMinerInnosiliconT3HPlus]
