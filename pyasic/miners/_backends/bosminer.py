@@ -22,7 +22,7 @@ import toml
 
 from pyasic.miners.base import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.API import APIError
+from pyasic.errors import APIError
 
 from pyasic.data.error_codes import BraiinsOSError
 from pyasic.data import MinerData

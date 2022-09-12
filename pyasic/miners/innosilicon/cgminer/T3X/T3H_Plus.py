@@ -18,7 +18,7 @@ from pyasic.data import MinerData
 from pyasic.data.error_codes import InnosiliconError
 from pyasic.settings import PyasicSettings
 from pyasic.config import MinerConfig
-from pyasic.API import APIError
+from pyasic.errors import APIError
 
 import httpx
 import warnings

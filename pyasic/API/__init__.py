@@ -19,33 +19,7 @@ import warnings
 import logging
 from typing import Union
 
-
-class APIError(Exception):
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-
-    def __str__(self):
-        if self.message:
-            return f"{self.message}"
-        else:
-            return "Incorrect API parameters."
-
-
-class APIWarning(Warning):
-    def __init__(self, *args):
-        if args:
-            self.message = args[0]
-        else:
-            self.message = None
-
-    def __str__(self):
-        if self.message:
-            return f"{self.message}"
-        else:
-            return "Incorrect API parameters."
+from pyasic.errors import APIError, APIWarning
 
 
 class BaseMinerAPI:

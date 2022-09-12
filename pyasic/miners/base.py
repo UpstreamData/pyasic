@@ -91,17 +91,9 @@ class BaseMiner(ABC):
     async def fault_light_off(self) -> bool:
         pass
 
-    # async def send_file(self, src, dest):
-    #     async with (await self._get_ssh_connection()) as conn:
-    #         await asyncssh.scp(src, (conn, dest))
-
     @abstractmethod
     async def check_light(self) -> bool:
         pass
-
-    # @abstractmethod
-    async def get_board_info(self):
-        return None
 
     @abstractmethod
     async def get_config(self) -> MinerConfig:

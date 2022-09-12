@@ -24,7 +24,8 @@ from typing import Union
 from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from pyasic.API import BaseMinerAPI, APIError
+from pyasic.errors import APIError
+from pyasic.API import BaseMinerAPI
 from pyasic.settings import PyasicSettings
 
 

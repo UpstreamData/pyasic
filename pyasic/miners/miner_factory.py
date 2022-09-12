@@ -32,7 +32,9 @@ from pyasic.miners._backends.bosminer_old import (  # noqa - Ignore _module impo
 
 from pyasic.miners.unknown import UnknownMiner
 
-from pyasic.API import APIError
+from pyasic.errors import APIError
+
+from pyasic.misc import Singleton
 
 import asyncio
 import ipaddress
@@ -59,6 +61,7 @@ MINER_CLASSES = {
         "Default": BMMinerT9,
         "BMMiner": BMMinerT9,
         "Hiveon": HiveonT9,
+        "CGMiner": CGMinerT9,
     },
     "ANTMINER S17": {
         "Default": BMMinerS17,
@@ -250,15 +253,6 @@ MINER_CLASSES = {
     },
     "Unknown": {"Default": UnknownMiner},
 }
-
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 class MinerFactory(metaclass=Singleton):
@@ -637,9 +631,7 @@ class MinerFactory(metaclass=Singleton):
         else:
             # make sure the command succeeded
             if data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                # this is an error
-                if data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                    return False, data["STATUS"][0]["Msg"]
+                return False, data["STATUS"][0]["Msg"]
         return True, None
 
     @staticmethod

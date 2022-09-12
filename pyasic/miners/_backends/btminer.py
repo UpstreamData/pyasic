@@ -19,7 +19,7 @@ from typing import Union
 
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.miners.base import BaseMiner
-from pyasic.API import APIError
+from pyasic.errors import APIError
 
 from pyasic.data import MinerData
 from pyasic.data.error_codes import WhatsminerError

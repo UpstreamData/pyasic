@@ -37,7 +37,9 @@ class MinerNetwork:
     """
 
     def __init__(
-        self, ip_addr: Union[str, None] = None, mask: Union[str, int, None] = None
+        self,
+        ip_addr: Union[str, List[str], None] = None,
+        mask: Union[str, int, None] = None,
     ) -> None:
         self.network = None
         self.ip_addr = ip_addr
@@ -63,18 +65,14 @@ class MinerNetwork:
         if self.network:
             return self.network
 
+            # if there is no IP address passed, default to 192.168.1.0
+        if not self.ip_addr:
+            self.ip_addr = "192.168.1.0"
         if "-" in self.ip_addr:
             self.network = MinerNetworkRange(self.ip_addr)
         elif isinstance(self.ip_addr, list):
             self.network = MinerNetworkRange(self.ip_addr)
         else:
-            # if there is no IP address passed, default to 192.168.1.0
-            if not self.ip_addr:
-                default_gateway = "192.168.1.0"
-            # if we do have an IP address passed, use that
-            else:
-                default_gateway = self.ip_addr
-
             # if there is no subnet mask passed, default to /24
             if not self.mask:
                 subnet_mask = "24"
@@ -84,7 +82,7 @@ class MinerNetwork:
 
             # save the network and return it
             self.network = ipaddress.ip_network(
-                f"{default_gateway}/{subnet_mask}", strict=False
+                f"{self.ip_addr}/{subnet_mask}", strict=False
             )
 
         logging.debug(f"Setting MinerNetwork: {self.network}")

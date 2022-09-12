@@ -247,7 +247,7 @@ class MinerConfig:
     temp_mode: Literal["auto", "manual", "disabled"] = "auto"
     temp_target: float = 70.0
     temp_hot: float = 80.0
-    temp_dangerous: float = 10.0
+    temp_dangerous: float = 100.0
 
     minimum_fans: int = None
     fan_speed: Literal[tuple(range(101))] = None  # noqa - Ignore weird Literal usage
