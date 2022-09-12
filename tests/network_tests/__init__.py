@@ -31,8 +31,8 @@ class NetworkTest(unittest.TestCase):
             "192.168.1.60",
         ]
 
-        net_1 = list(MinerNetworkRange(net_range_str).hosts())
-        net_2 = list(MinerNetworkRange(net_range_list).hosts())
+        net_1 = list(MinerNetwork(net_range_str).get_network().hosts())
+        net_2 = list(MinerNetwork(net_range_list).get_network().hosts())
 
         correct_net = [
             ipaddress.IPv4Address("192.168.1.29"),
@@ -48,7 +48,7 @@ class NetworkTest(unittest.TestCase):
 
     def test_net(self):
         net_1_str = "192.168.1.0"
-        net_1_mask = 29
+        net_1_mask = "/29"
 
         net_1 = list(MinerNetwork(net_1_str, mask=net_1_mask).get_network().hosts())
 
@@ -67,6 +67,20 @@ class NetworkTest(unittest.TestCase):
 
         self.assertTrue(net_1 == correct_net)
         self.assertTrue(net_2 == correct_net)
+
+    def test_net_len(self):
+        net = MinerNetwork("192.168.1.0", mask=32)
+        self.assertEqual(len(net), 1)
+
+        net2 = MinerNetwork("192.168.1.0", mask=31)
+        self.assertEqual(len(net2), 2)
+
+    def test_net_defaults(self):
+        net = MinerNetwork()
+        net_obj = net.get_network()
+        self.assertEqual(net_obj, MinerNetwork("192.168.1.0", mask=24).get_network())
+
+        self.assertEqual(net_obj, net.get_network())
 
 
 if __name__ == "__main__":

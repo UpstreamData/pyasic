@@ -13,8 +13,10 @@
 #  limitations under the License.
 
 import unittest
-from pyasic.tests.miners_tests import MinersTest
-from pyasic.tests.network_tests import NetworkTest
+from tests.miners_tests import MinersTest, MinerFactoryTest
+from tests.network_tests import NetworkTest
+from tests.config_tests import ConfigTest
 
 if __name__ == "__main__":
+    # `coverage run --source pyasic -m unittest discover` will give code coverage data
     unittest.main()
