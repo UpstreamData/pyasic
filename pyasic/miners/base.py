@@ -127,6 +127,7 @@ class BaseMiner(ABC):
     async def get_errors(self) -> list:
         pass
 
+    @abstractmethod
     async def get_data(self) -> MinerData:
         return MinerData(ip=str(self.ip))
 

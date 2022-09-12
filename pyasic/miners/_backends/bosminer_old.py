@@ -20,6 +20,7 @@ from typing import Union
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
+from pyasic.data import MinerData
 
 
 class BOSMinerOld(BaseMiner):
@@ -96,3 +97,6 @@ class BOSMinerOld(BaseMiner):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
+
+    async def get_data(self) -> MinerData:
+        return MinerData(ip=str(self.ip))

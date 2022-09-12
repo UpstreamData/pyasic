@@ -15,6 +15,7 @@
 from pyasic.API.unknown import UnknownAPI
 from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
+from pyasic.data import MinerData
 
 
 class UnknownMiner(BaseMiner):
@@ -61,3 +62,6 @@ class UnknownMiner(BaseMiner):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
+
+    async def get_data(self) -> MinerData:
+        return MinerData(ip=str(self.ip))
