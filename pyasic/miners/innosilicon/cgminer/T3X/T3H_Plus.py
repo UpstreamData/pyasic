@@ -31,7 +31,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         super().__init__(ip)
         self.ip = ip
         self.uname = "admin"
-        self.pwd = "admin"
+        self.pwd = PyasicSettings().global_innosilicon_password
         self.jwt = None
 
     async def auth(self):
