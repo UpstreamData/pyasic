@@ -175,15 +175,33 @@ class MinerData:
     def efficiency(self, val):
         pass
 
-    def asdict(self):
+    def asdict(self) -> dict:
+        """Get this dataclass as a dictionary.
+
+        Returns:
+            A dictionary version of this class.
+        """
         return asdict(self)
 
-    def as_json(self):
+    def as_json(self) -> str:
+        """Get this dataclass as JSON.
+
+        Returns:
+            A JSON version of this class.
+        """
         data = self.asdict()
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         return json.dumps(data)
 
-    def as_influxdb(self, measurement_name: str = "miner_data"):
+    def as_influxdb(self, measurement_name: str = "miner_data") -> str:
+        """Get this dataclass as [influxdb line protocol](https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/).
+
+        Parameters:
+            measurement_name: The name of the measurement to insert into in influxdb.
+
+        Returns:
+            A influxdb line protocol version of this class.
+        """
         tag_data = [measurement_name]
         field_data = []
 

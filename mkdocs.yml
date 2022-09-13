@@ -11,7 +11,6 @@ nav:
           - BTMiner: "miners/backends/btminer.md"
           - CGMiner: "miners/backends/cgminer.md"
           - Hiveon: "miners/backends/hiveon.md"
-
       - Classes:
           - Antminer X9: "miners/antminer/X9.md"
           - Antminer X17: "miners/antminer/X17.md"
@@ -23,14 +22,12 @@ nav:
           - Whatsminer M2X: "miners/whatsminer/M2X.md"
           - Whatsminer M3X: "miners/whatsminer/M3X.md"
           - Innosilicon T3X: "miners/innosilicon/T3X.md"
-
   - Network:
       - Miner Network: "network/miner_network.md"
       - Miner Network Range: "network/miner_network_range.md"
-  - Data:
+  - Dataclasses:
       - Miner Data: "data/miner_data.md"
       - Error Codes: "data/error_codes.md"
-  - Config:
       - Miner Config: "config/miner_config.md"
   - Advanced:
       - Miner APIs:

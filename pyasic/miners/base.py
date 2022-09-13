@@ -16,10 +16,16 @@ import asyncssh
 import logging
 import ipaddress
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from typing import TypeVar, List, Union
 
 from pyasic.data import MinerData
 from pyasic.config import MinerConfig
+from pyasic.data.error_codes import (
+    WhatsminerError,
+    BraiinsOSError,
+    InnosiliconError,
+    X19Error,
+)
 
 
 class BaseMiner(ABC):
@@ -85,50 +91,113 @@ class BaseMiner(ABC):
 
     @abstractmethod
     async def fault_light_on(self) -> bool:
+        """Turn the fault light of the miner on and return success as a boolean.
+
+        Returns:
+            A boolean value of the success of turning the light on.
+        """
         pass
 
     @abstractmethod
     async def fault_light_off(self) -> bool:
+        """Turn the fault light of the miner off and return success as a boolean.
+
+        Returns:
+            A boolean value of the success of turning the light off.
+        """
         pass
 
     @abstractmethod
     async def check_light(self) -> bool:
+        """Check the status and return on or off as a boolean.
+
+        Returns:
+            A boolean value where `True` represents on and `False` represents off.
+        """
         pass
 
     @abstractmethod
     async def get_config(self) -> MinerConfig:
+        """Get the mining configuration of the miner and return it as a [`MinerConfig`][pyasic.config.MinerConfig].
+
+        Returns:
+            A [`MinerConfig`][pyasic.config.MinerConfig] containing the pool information and mining configuration.
+        """
         pass
 
     @abstractmethod
     async def get_hostname(self) -> str:
+        """Get the hostname of the miner and return it as a string.
+
+        Returns:
+            A string representing the hostname of the miner.
+        """
         pass
 
     @abstractmethod
     async def get_model(self) -> str:
+        """Get the model of the miner and return it as a string.
+
+        Returns:
+            A string representing the model of the miner.
+        """
         pass
 
     @abstractmethod
     async def reboot(self) -> bool:
+        """Reboot the miner and return success as a boolean.
+
+        Returns:
+            A boolean value of the success of rebooting the miner.
+        """
         pass
 
     @abstractmethod
     async def restart_backend(self) -> bool:
+        """Restart the mining process of the miner (bosminer, bmminer, cgminer, etc) and return success as a boolean.
+
+        Returns:
+            A boolean value of the success of restarting the mining process.
+        """
         pass
 
     @abstractmethod
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        """Set the mining configuration of the miner.
+
+        Parameters:
+            config: A [`MinerConfig`][pyasic.config.MinerConfig] containing the mining config you want to switch the miner to.
+            user_suffix: A suffix to append to the username when sending to the miner.
+        """
         return None
 
     @abstractmethod
     async def get_mac(self) -> str:
+        """Get the MAC address of the miner and return it as a string.
+
+        Returns:
+            A string representing the MAC address of the miner.
+        """
         pass
 
     @abstractmethod
-    async def get_errors(self) -> list:
+    async def get_errors(
+        self,
+    ) -> List[Union[WhatsminerError, BraiinsOSError, InnosiliconError, X19Error]]:
+        """Get a list of the errors the miner is experiencing.
+
+        Returns:
+            A list of error classes representing different errors.
+        """
         pass
 
     @abstractmethod
     async def get_data(self) -> MinerData:
+        """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
+        """
         return MinerData(ip=str(self.ip))
 
 

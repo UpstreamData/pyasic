@@ -101,3 +101,133 @@ async def gather_miner_data():  # define async scan function to allow awaiting
 if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
+
+<br>
+
+## Controlling miners via pyasic
+Every miner class in pyasic must implement all the control functions defined in [`BaseMiner`][pyasic.miners.BaseMiner].
+
+These functions are
+[`check_light`](#check-light),
+[`fault_light_off`](#fault-light-off),
+[`fault_light_on`](#fault-light-on),
+[`get_config`](#get-config),
+[`get_data`](#get-data),
+[`get_errors`](#get-errors),
+[`get_hostname`](#get-hostname),
+[`get_model`](#get-model),
+[`reboot`](#reboot),
+[`restart_backend`](#restart-backend), and
+[`send_config`](#send-config).
+
+<br>
+
+### Check Light
+::: pyasic.miners.BaseMiner.check_light
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Fault Light Off
+::: pyasic.miners.BaseMiner.fault_light_off
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Fault Light On
+::: pyasic.miners.BaseMiner.fault_light_on
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Get Config
+::: pyasic.miners.BaseMiner.get_config
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Get Data
+::: pyasic.miners.BaseMiner.get_data
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Get Errors
+::: pyasic.miners.BaseMiner.get_errors
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Get Hostname
+::: pyasic.miners.BaseMiner.get_hostname
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Get Model
+::: pyasic.miners.BaseMiner.get_model
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Reboot
+::: pyasic.miners.BaseMiner.reboot
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Restart Backend
+::: pyasic.miners.BaseMiner.restart_backend
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Send Config
+::: pyasic.miners.BaseMiner.send_config
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+## [`MinerConfig`][pyasic.config.MinerConfig] and [`MinerData`][pyasic.data.MinerData]
+
+Pyasic implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.
+
+<br>
+
+### [`MinerData`][pyasic.data.MinerData]
+
+[`MinerData`][pyasic.data.MinerData] is a return from the [`get_data()`](#get-data) function, and is used to have a consistent dataset across all returns.
+
+You can call [`MinerData.asdict()`][pyasic.data.MinerData.asdict] to get the dataclass as a dictionary, and there are many other helper functions contained in the class to convert to different data formats.
+
+<br>
+
+### [`MinerConfig`][pyasic.config.MinerConfig]
+
+[`MinerConfig`][pyasic.config.MinerConfig] is pyasic's way to represent a configuration file from a miner.
+It is the return from [`get_config()`](#get-config).
+
+Each miner has a unique way to convert the [`MinerConfig`][pyasic.config.MinerConfig] to their specific type, there are helper functions in the class.
+In most cases these helper functions should not be used, as [`send_config()`](#send-config) takes a [`MinerConfig`][pyasic.config.MinerConfig] and will do the conversion to the right type for you.
