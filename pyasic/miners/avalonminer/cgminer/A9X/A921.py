@@ -52,6 +52,12 @@ class CGMinerAvalon921(CGMiner, Avalon921):
             return True
         return False
 
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
+        return False
+
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Configures miner with yaml config."""
         raise NotImplementedError

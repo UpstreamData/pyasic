@@ -25,6 +25,7 @@ from pyasic.data.error_codes import (
     BraiinsOSError,
     InnosiliconError,
     X19Error,
+    MinerErrorData,
 )
 
 
@@ -181,9 +182,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_errors(
-        self,
-    ) -> List[Union[WhatsminerError, BraiinsOSError, InnosiliconError, X19Error]]:
+    async def get_errors(self) -> List[MinerErrorData]:
         """Get a list of the errors the miner is experiencing.
 
         Returns:
@@ -199,6 +198,24 @@ class BaseMiner(ABC):
             A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
         """
         return MinerData(ip=str(self.ip))
+
+    @abstractmethod
+    async def stop_mining(self) -> bool:
+        """Stop the mining process of the miner.
+
+        Returns:
+            A boolean value of the success of stopping the mining process.
+        """
+        pass
+
+    @abstractmethod
+    async def resume_mining(self) -> bool:
+        """Stop the mining process of the miner.
+
+        Returns:
+            A boolean value of the success of resuming the mining process.
+        """
+        pass
 
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)

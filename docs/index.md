@@ -118,6 +118,8 @@ These functions are
 [`get_model`](#get-model),
 [`reboot`](#reboot),
 [`restart_backend`](#restart-backend), and
+[`stop_mining`](#stop-mining), and
+[`resume_mining`](#resume-mining), and
 [`send_config`](#send-config).
 
 <br>
@@ -196,6 +198,22 @@ These functions are
 
 ### Restart Backend
 ::: pyasic.miners.BaseMiner.restart_backend
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Stop Mining
+::: pyasic.miners.BaseMiner.stop_mining
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Resume Mining
+::: pyasic.miners.BaseMiner.resume_mining
     handler: python
     options:
         heading_level: 4

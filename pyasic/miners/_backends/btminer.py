@@ -14,7 +14,7 @@
 
 import ipaddress
 import logging
-from typing import Union
+from typing import Union, List
 
 
 from pyasic.API.btminer import BTMinerAPI
@@ -22,7 +22,7 @@ from pyasic.miners.base import BaseMiner
 from pyasic.errors import APIError
 
 from pyasic.data import MinerData
-from pyasic.data.error_codes import WhatsminerError
+from pyasic.data.error_codes import WhatsminerError, MinerErrorData
 from pyasic.config import MinerConfig
 
 from pyasic.settings import PyasicSettings
@@ -156,13 +156,44 @@ class BTMiner(BaseMiner):
                     return True
         return False
 
-    async def get_errors(self) -> list:
-        return []
+    async def get_errors(self) -> List[MinerErrorData]:
+        data = []
+
+        summary_data = await self.api.summary()
+        if summary_data[0].get("Error Code Count"):
+            for i in range(summary_data[0]["Error Code Count"]):
+                if summary_data[0].get(f"Error Code {i}"):
+                    data.append(
+                        WhatsminerError(error_code=summary_data[0][f"Error Code {i}"])
+                    )
+        return data
 
     async def reboot(self) -> bool:
+        data = await self.api.reboot()
+        if data.get("Msg"):
+            if data["Msg"] == "API command OK":
+                return True
         return False
 
     async def restart_backend(self) -> bool:
+        data = await self.api.restart()
+        if data.get("Msg"):
+            if data["Msg"] == "API command OK":
+                return True
+        return False
+
+    async def stop_mining(self) -> bool:
+        data = await self.api.power_off(respbefore=True)
+        if data.get("Msg"):
+            if data["Msg"] == "API command OK":
+                return True
+        return False
+
+    async def resume_mining(self) -> bool:
+        data = await self.api.power_on()
+        if data.get("Msg"):
+            if data["Msg"] == "API command OK":
+                return True
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:

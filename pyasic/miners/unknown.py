@@ -12,10 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from typing import List
+
 from pyasic.API.unknown import UnknownAPI
 from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
+from pyasic.data.error_codes import MinerErrorData
 
 
 class UnknownMiner(BaseMiner):
@@ -48,7 +51,7 @@ class UnknownMiner(BaseMiner):
     async def get_config(self) -> None:
         return None
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         return []
 
     async def get_mac(self) -> str:
@@ -58,6 +61,12 @@ class UnknownMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
+        return False
+
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:

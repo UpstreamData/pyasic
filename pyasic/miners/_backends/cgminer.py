@@ -14,7 +14,7 @@
 
 import ipaddress
 import logging
-from typing import Union
+from typing import Union, List
 
 
 from pyasic.API.cgminer import CGMinerAPI
@@ -23,6 +23,7 @@ from pyasic.errors import APIError
 from pyasic.config import MinerConfig
 
 from pyasic.data import MinerData
+from pyasic.data.error_codes import MinerErrorData
 
 from pyasic.settings import PyasicSettings
 
@@ -118,8 +119,7 @@ class CGMiner(BaseMiner):
             return True
         return False
 
-    async def start_cgminer(self) -> None:
-        """Start cgminer hashing process."""
+    async def resume_mining(self) -> bool:
         commands = [
             "mkdir -p /etc/tmp/",
             'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
@@ -128,9 +128,9 @@ class CGMiner(BaseMiner):
         ]
         commands = ";".join(commands)
         await self.send_ssh_command(commands)
+        return True
 
-    async def stop_cgminer(self) -> None:
-        """Restart cgminer hashing process."""
+    async def stop_mining(self) -> bool:
         commands = [
             "mkdir -p /etc/tmp/",
             'echo "" > /etc/tmp/root',
@@ -139,6 +139,7 @@ class CGMiner(BaseMiner):
         ]
         commands = ";".join(commands)
         await self.send_ssh_command(commands)
+        return True
 
     async def get_config(self) -> str:
         """Gets the config for the miner and sets it as `self.config`.
@@ -163,7 +164,7 @@ class CGMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         return False
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         return []
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:

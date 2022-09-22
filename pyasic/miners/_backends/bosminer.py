@@ -15,7 +15,7 @@
 import ipaddress
 import logging
 import json
-from typing import Union
+from typing import Union, List
 
 import toml
 
@@ -24,7 +24,7 @@ from pyasic.miners.base import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.errors import APIError
 
-from pyasic.data.error_codes import BraiinsOSError
+from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.data import MinerData
 
 from pyasic.config import MinerConfig
@@ -101,6 +101,20 @@ class BOSMiner(BaseMiner):
         logging.debug(f"{self}: bosminer restart command completed.")
         if isinstance(_ret, str):
             return True
+        return False
+
+    async def stop_mining(self) -> bool:
+        data = await self.api.pause()
+        if data.get("PAUSE"):
+            if data["PAUSE"][0]:
+                return True
+        return False
+
+    async def resume_mining(self) -> bool:
+        data = await self.api.resume()
+        if data.get("RESUME"):
+            if data["RESUME"][0]:
+                return True
         return False
 
     async def reboot(self) -> bool:
@@ -242,7 +256,7 @@ class BOSMiner(BaseMiner):
             self.light = True
         return self.light
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         tunerstatus = None
         errors = []
 

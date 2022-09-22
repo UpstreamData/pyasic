@@ -15,7 +15,7 @@
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 
 from pyasic.config import MinerConfig
-from pyasic.data.error_codes import X19Error
+from pyasic.data.error_codes import X19Error, MinerErrorData
 from pyasic.settings import PyasicSettings
 
 import httpx
@@ -132,7 +132,7 @@ class BMMinerX19(BMMiner):
             return True
         return False
 
-    async def get_errors(self) -> List[X19Error]:
+    async def get_errors(self) -> List[MinerErrorData]:
         errors = []
         url = f"http://{self.ip}/cgi-bin/summary.cgi"
         auth = httpx.DigestAuth(self.uname, self.pwd)
@@ -147,12 +147,14 @@ class BMMinerX19(BMMiner):
                             errors.append(X19Error(item["msg"]))
         return errors
 
-    async def stop_mining(self) -> None:
+    async def stop_mining(self) -> bool:
         cfg = await self.get_config()
         cfg.autotuning_wattage = 0
         await self.send_config(cfg)
+        return True
 
-    async def resume_mining(self):
+    async def resume_mining(self) -> bool:
         cfg = await self.get_config()
         cfg.autotuning_wattage = 1
         await self.send_config(cfg)
+        return True

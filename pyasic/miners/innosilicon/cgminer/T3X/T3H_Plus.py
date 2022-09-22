@@ -15,14 +15,14 @@
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
 from pyasic.data import MinerData
-from pyasic.data.error_codes import InnosiliconError
+from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.settings import PyasicSettings
 from pyasic.config import MinerConfig
 from pyasic.errors import APIError
 
 import httpx
 import warnings
-from typing import Union
+from typing import Union, List
 import logging
 
 
@@ -142,7 +142,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             "updatePools", data=config.as_inno(user_suffix=user_suffix)
         )
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         errors = []
         try:
             data = await self.send_web_command("getErrorDetail")

@@ -16,3 +16,9 @@ from .whatsminer import WhatsminerError
 from .bos import BraiinsOSError
 from .X19 import X19Error
 from .innosilicon import InnosiliconError
+
+from typing import TypeVar
+
+MinerErrorData = TypeVar(
+    "MinerErrorData", WhatsminerError, BraiinsOSError, X19Error, InnosiliconError
+)

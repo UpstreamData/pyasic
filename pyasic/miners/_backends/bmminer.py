@@ -14,7 +14,7 @@
 
 import ipaddress
 import logging
-from typing import Union
+from typing import Union, List
 
 
 from pyasic.API.bmminer import BMMinerAPI
@@ -22,6 +22,7 @@ from pyasic.miners.base import BaseMiner
 
 from pyasic.data import MinerData
 from pyasic.config import MinerConfig
+from pyasic.data.error_codes import MinerErrorData
 
 from pyasic.settings import PyasicSettings
 
@@ -169,13 +170,19 @@ class BMMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         return False
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         return []
 
     async def get_mac(self) -> str:
         return "00:00:00:00:00:00"
 
     async def restart_backend(self) -> bool:
+        return False
+
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
         return False
 
     async def get_data(self) -> MinerData:

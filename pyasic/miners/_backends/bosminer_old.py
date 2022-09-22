@@ -15,12 +15,13 @@
 import logging
 
 import ipaddress
-from typing import Union
+from typing import Union, List
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
+from pyasic.data.error_codes import MinerErrorData
 
 
 class BOSMinerOld(BaseMiner):
@@ -77,7 +78,7 @@ class BOSMinerOld(BaseMiner):
     async def get_config(self) -> None:
         return None
 
-    async def get_errors(self) -> list:
+    async def get_errors(self) -> List[MinerErrorData]:
         return []
 
     async def get_hostname(self) -> str:
@@ -93,6 +94,12 @@ class BOSMinerOld(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
+        return False
+
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
