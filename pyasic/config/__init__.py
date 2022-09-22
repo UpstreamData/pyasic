@@ -299,6 +299,10 @@ class MinerConfig:
                     self.temp_mode = "manual"
                     if data.get("bitmain-fan-pwm"):
                         self.fan_speed = int(data["bitmain-fan-pwm"])
+            elif key == "bitmain-work-mode":
+                if data[key]:
+                    if data[key] == 1:
+                        self.autotuning_wattage = 0
             elif key == "fan_control":
                 for _key in data[key].keys():
                     if _key == "min_fans":
@@ -409,7 +413,10 @@ class MinerConfig:
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
             "bitmain-fan-pwn": 100,
+            "miner-mode": 0,  # Normal Mode
         }
+        if self.autotuning_wattage == 0:
+            cfg["miner-mode"] = 1  # Sleep Mode
 
         if not self.temp_mode == "auto":
             cfg["bitmain-fan-ctrl"] = True

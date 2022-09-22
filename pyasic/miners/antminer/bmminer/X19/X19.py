@@ -146,3 +146,13 @@ class BMMinerX19(BMMiner):
                         if not item["status"] == "s":
                             errors.append(X19Error(item["msg"]))
         return errors
+
+    async def stop_mining(self) -> None:
+        cfg = await self.get_config()
+        cfg.autotuning_wattage = 0
+        await self.send_config(cfg)
+
+    async def resume_mining(self):
+        cfg = await self.get_config()
+        cfg.autotuning_wattage = 1
+        await self.send_config(cfg)
