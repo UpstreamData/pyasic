@@ -17,7 +17,9 @@ from pyasic.miners._types import (
     M31SPlus,
     M31SPlusVE20,
     M31SPlusV40,
+    M31SPlusV60,
     M31SPlusV80,
+    M31SPlusV90,
 )  # noqa - Ignore access to _module
 
 
@@ -39,7 +41,19 @@ class BTMinerM31SPlusV40(BTMiner, M31SPlusV40):
         self.ip = ip
 
 
+class BTMinerM31SPlusV60(BTMiner, M31SPlusV60):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.ip = ip
+
+
 class BTMinerM31SPlusV80(BTMiner, M31SPlusV80):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.ip = ip
+
+
+class BTMinerM31SPlusV90(BTMiner, M31SPlusV90):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ip

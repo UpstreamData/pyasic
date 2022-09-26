@@ -78,7 +78,9 @@ Supported miner types are here on this list.  If your miner (or miner version) i
                         <ul>
                             <li><a href="/miners/whatsminer/M3X/#m31sve20">VE20</a></li>
                             <li><a href="/miners/whatsminer/M3X/#m31sv40">V40</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m31sv60">V60</a></li>
                             <li><a href="/miners/whatsminer/M3X/#m31sv80">V80</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m31sv90">V90</a></li>
                         </ul>
                 </details>
                 <details>
