@@ -48,12 +48,17 @@ class MinerNetwork:
             if mask.startswith("/"):
                 mask = mask.replace("/", "")
         self.mask = mask
+        self.network = self.get_network()
 
     def __len__(self):
         return len([item for item in self.get_network().hosts()])
 
     def __repr__(self):
         return str(self.network)
+
+    def hosts(self):
+        for x in self.network.hosts():
+            yield x
 
     def get_network(self) -> ipaddress.ip_network:
         """Get the network using the information passed to the MinerNetwork or from cache.
