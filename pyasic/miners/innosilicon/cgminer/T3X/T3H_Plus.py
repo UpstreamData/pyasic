@@ -158,11 +158,6 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return errors
 
     async def get_data(self) -> MinerData:
-        """Get data from the miner.
-
-        Returns:
-            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
-        """
         data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
 
         board_offset = -1

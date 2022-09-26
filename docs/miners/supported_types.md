@@ -4,93 +4,209 @@
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
 
 ##### pyasic currently supports the following miners and subtypes:
-* Braiins OS+ Devices:
-    * X19 Series:
-        * [S19][pyasic.miners.antminer.bosminer.X19.S19.BOSMinerS19]
-        * [S19 Pro][pyasic.miners.antminer.bosminer.X19.S19_Pro.BOSMinerS19Pro]
-        * [S19j][pyasic.miners.antminer.bosminer.X19.S19j.BOSMinerS19j]
-        * [S19j Pro][pyasic.miners.antminer.bosminer.X19.S19j_Pro.BOSMinerS19jPro]
-        * [T19][pyasic.miners.antminer.bosminer.X19.T19.BOSMinerT19]
-    * X17 Series:
-        * [S17][pyasic.miners.antminer.bosminer.X17.S17.BOSMinerS17]
-        * [S17+][pyasic.miners.antminer.bosminer.X17.S17_Plus.BOSMinerS17Plus]
-        * [S17 Pro][pyasic.miners.antminer.bosminer.X17.S17_Pro.BOSMinerS17Pro]
-        * [S17e][pyasic.miners.antminer.bosminer.X17.S17e.BOSMinerS17e]
-        * [T17][pyasic.miners.antminer.bosminer.X17.T17.BOSMinerT17]
-        * [T17+][pyasic.miners.antminer.bosminer.X17.T17_Plus.BOSMinerT17Plus]
-        * [T17e][pyasic.miners.antminer.bosminer.X17.T17e.BOSMinerT17e]
-    * X9 Series:
-        * [S9][pyasic.miners.antminer.bosminer.X9.S9.BOSMinerS9]
-        * [S9i][pyasic.miners.antminer.bosminer.X9.S9.BOSMinerS9]
-        * [S9j][pyasic.miners.antminer.bosminer.X9.S9.BOSMinerS9]
-* Stock Firmware Whatsminers:
-    * M3X Series:
-        * [M30S][pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30S]:
-            * [VE10][pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE10]
-            * [VG20][pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG20]
-            * [VE20][pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE20]
-            * [V50][pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV50]
-        * [M30S+][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlus]:
-            * [VF20][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVF20]
-            * [VE40][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE40]
-            * [VG60][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG60]
-        * [M30S++][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlus]:
-            * [VG30][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG30]
-            * [VG40][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG40]
-            * [VH60][pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH60]
-        * [M31S][pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31S]
-        * [M31S+][pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlus]:
-            * [VE20][pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE20]
-        * [M32][pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32]
-            * [V20][pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V20]
-        * [M32S][pyasic.miners.whatsminer.btminer.M3X.M32S.BTMinerM32S]
-    * M2X Series:
-        * [M20][pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20]:
-            * [V10][pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20V10]
-        * [M20S][pyasic.miners.whatsminer.btminer.M2X.M20S.BTMinerM20S]:
-            * [V10][pyasic.miners.whatsminer.btminer.M2X.M20S.BTMinerM20SV10]
-            * [V20][pyasic.miners.whatsminer.btminer.M2X.M20S.BTMinerM20SV20]
-        * [M20S+][pyasic.miners.whatsminer.btminer.M2X.M20S_Plus.BTMinerM20SPlus]
-        * [M21][pyasic.miners.whatsminer.btminer.M2X.M21.BTMinerM21]
-        * [M21S][pyasic.miners.whatsminer.btminer.M2X.M21S.BTMinerM21S]:
-            * [V20][pyasic.miners.whatsminer.btminer.M2X.M21S.BTMinerM21SV20]
-            * [V60][pyasic.miners.whatsminer.btminer.M2X.M21S.BTMinerM21SV60]
-        * [M21S+][pyasic.miners.whatsminer.btminer.M2X.M21S_Plus.BTMinerM21SPlus]
-* Stock Firmware Antminers:
-    * X19 Series:
-        * [S19][pyasic.miners.antminer.bmminer.X19.S19.BMMinerS19]
-        * [S19 Pro][pyasic.miners.antminer.bmminer.X19.S19_Pro.BMMinerS19Pro]
-        * [S19a][pyasic.miners.antminer.bmminer.X19.S19a.BMMinerS19a]
-        * [S19j][pyasic.miners.antminer.bmminer.X19.S19j.BMMinerS19j]
-        * [S19j Pro][pyasic.miners.antminer.bmminer.X19.S19j_Pro.BMMinerS19jPro]
-        * [T19][pyasic.miners.antminer.bmminer.X19.T19.BMMinerT19]
-    * X17 Series:
-        * [S17][pyasic.miners.antminer.bmminer.X17.S17.BMMinerS17]
-        * [S17+][pyasic.miners.antminer.bmminer.X17.S17_Plus.BMMinerS17Plus]
-        * [S17 Pro][pyasic.miners.antminer.bmminer.X17.S17_Pro.BMMinerS17Pro]
-        * [S17e][pyasic.miners.antminer.bmminer.X17.S17e.BMMinerS17e]
-        * [T17][pyasic.miners.antminer.bmminer.X17.T17.BMMinerT17]
-        * [T17+][pyasic.miners.antminer.bmminer.X17.T17_Plus.BMMinerT17Plus]
-        * [T17e][pyasic.miners.antminer.bmminer.X17.T17e.BMMinerT17e]
-    * X9 Series:
-        * [S9][pyasic.miners.antminer.bmminer.X9.S9.BMMinerS9]
-        * [S9i][pyasic.miners.antminer.bmminer.X9.S9i.BMMinerS9i]
-        * [T9][pyasic.miners.antminer.bmminer.X9.T9.BMMinerT9]
-* Stock Firmware Avalonminers:
-    * A7X Series:
-        * [A721][pyasic.miners.avalonminer.cgminer.A7X.A721.CGMinerAvalon721]
-        * [A741][pyasic.miners.avalonminer.cgminer.A7X.A741.CGMinerAvalon741]
-        * [A761][pyasic.miners.avalonminer.cgminer.A7X.A761.CGMinerAvalon761]
-    * A8X Series:
-        * [A821][pyasic.miners.avalonminer.cgminer.A8X.A821.CGMinerAvalon821]
-        * [A841][pyasic.miners.avalonminer.cgminer.A8X.A841.CGMinerAvalon841]
-        * [A851][pyasic.miners.avalonminer.cgminer.A8X.A851.CGMinerAvalon851]
-    * A9X Series:
-        * [A921][pyasic.miners.avalonminer.cgminer.A9X.A921.CGMinerAvalon921]
-    * A10X Series:
-        * [A1026][pyasic.miners.avalonminer.cgminer.A10X.A1026.CGMinerAvalon1026]
-        * [A1047][pyasic.miners.avalonminer.cgminer.A10X.A1047.CGMinerAvalon1047]
-        * [A1066][pyasic.miners.avalonminer.cgminer.A10X.A1066.CGMinerAvalon1066]
-* Stock Firmware Innosilicon Miners:
-    * T3X Series:
-        * [T3H+][pyasic.miners.innosilicon.cgminer.T3X.T3H_Plus.CGMinerInnosiliconT3HPlus]
+<details>
+<summary>Braiins OS+ Devices:</summary>
+    <ul>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="/miners/antminer/X19#s19-bos">S19</a></li>
+                    <li><a href="/miners/antminer/X19#s19-pro-bos">S19 Pro</a></li>
+                    <li><a href="/miners/antminer/X19#s19j-bos">S19j</a></li>
+                    <li><a href="/miners/antminer/X19#s19j-pro-bos">S19j Pro</a></li>
+                    <li><a href="/miners/antminer/X19#t19-bos">T19</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X17 Series:</summary>
+                <ul>
+                    <li><a href="/miners/antminer/X17#s17-bos">S17</a></li>
+                    <li><a href="/miners/antminer/X17#s17-plus-bos">S17+</a></li>
+                    <li><a href="/miners/antminer/X17#s17-pro-bos">S17 Pro</a></li>
+                    <li><a href="/miners/antminer/X17#s17e-bos">S17e</a></li>
+                    <li><a href="/miners/antminer/X17#t17-bos">T17</a></li>
+                    <li><a href="/miners/antminer/X17#t17-plus-bos">T17+</a></li>
+                    <li><a href="/miners/antminer/X17#t17e-bos">T17e</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X9 Series:</summary>
+                <ul>
+                    <li><a href="/miners/antminer/X9#s9-bos">S9</a></li>
+                    <li><a href="/miners/antminer/X9#s9-bos">S9i</a></li>
+                    <li><a href="/miners/antminer/X9#s9-bos">S9j</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Whatsminers:</summary>
+    <ul>
+        <details>
+        <summary>M3X Series:</summary>
+            <ul>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m30s">M30S</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M3X/#m30sve10">VE10</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30svg20">VG20</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30sve20">VE20</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30sv50">V50</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m30s_1">M30S+</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M3X/#m30svf20">VF20</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30sve40">VE40</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30svg60">VG60</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m30s_2">M30S++</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M3X/#m30svg30">VG30</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30svg40">VG40</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m30svh60">VH60</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m31s">M31S</a></summary>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m31s_1">M31S+</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M3X/#m31sve20">VE20</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m31sv40">V40</a></li>
+                            <li><a href="/miners/whatsminer/M3X/#m31sv80">V80</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m32">M32</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M3X/#m32v20">V20</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M3X/#m32s">M32S</a></summary>
+                </details>
+            </ul>
+        </details>
+        <details>
+        <summary>M2X Series:</summary>
+            <ul>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m20">M20</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M2X/#m20v10">V10</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m20s">M20S</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M2X/#m20sv10">V10</a></li>
+                            <li><a href="/miners/whatsminer/M2X/#m20sv20">V20</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m20s_1">M20S+</a></summary>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m21">M21</a></summary>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m21s">M21S</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M2X/#m21sv20">V20</a></li>
+                            <li><a href="/miners/whatsminer/M2X/#m21sv60">V60</a></li>
+                        </ul>
+                </details>
+                <details>
+                    <summary><a href="/miners/whatsminer/M2X/#m21s_1">M21S+</a></summary>
+                </details>
+            </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Antminers:</summary>
+    <ul>
+        <details>
+        <summary>X19 Series:</summary>
+            <ul>
+                <li><a href="/miners/antminer/X19/#s19">S19</a></li>
+                <li><a href="/miners/antminer/X19/#s19-pro">S19 Pro</a></li>
+                <li><a href="/miners/antminer/X19/#s19a">S19a</a></li>
+                <li><a href="/miners/antminer/X19/#s19j">S19j</a></li>
+                <li><a href="/miners/antminer/X19/#s19j-pro">S19j Pro</a></li>
+                <li><a href="/miners/antminer/X19/#t19">T19</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>X17 Series:</summary>
+            <ul>
+                <li><a href="/miners/antminer/X17/#s17">S17</a></li>
+                <li><a href="/miners/antminer/X17/#s17_1">S17+</a></li>
+                <li><a href="/miners/antminer/X17/#s17-pro">S17 Pro</a></li>
+                <li><a href="/miners/antminer/X17/#s17e">S17e</a></li>
+                <li><a href="/miners/antminer/X17/#t17">T17</a></li>
+                <li><a href="/miners/antminer/X17/#t17_1">T17+</a></li>
+                <li><a href="/miners/antminer/X17/#t17e">T17e</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>X9 Series:</summary>
+            <ul>
+                <li><a href="/miners/antminer/X9/#s9">S9</a></li>
+                <li><a href="/miners/antminer/X9/#s9i">S9i</a></li>
+                <li><a href="/miners/antminer/X9/#t9">T9</a></li>
+            </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Avalonminers:</summary>
+    <ul>
+        <details>
+        <summary>A7X Series:</summary>
+            <ul>
+                <li><a href="/miners/avalonminer/A7X/#a721">A721</a></li>
+                <li><a href="/miners/avalonminer/A7X/#a741">A741</a></li>
+                <li><a href="/miners/avalonminer/A7X/#a761">A761</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>A8X Series:</summary>
+            <ul>
+                <li><a href="/miners/avalonminer/A8X/#a821">A821</a></li>
+                <li><a href="/miners/avalonminer/A8X/#a841">A841</a></li>
+                <li><a href="/miners/avalonminer/A8X/#a851">A851</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>A9X Series:</summary>
+            <ul>
+                <li><a href="/miners/avalonminer/A9X/#a921">A921</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>A10X Series:</summary>
+            <ul>
+                <li><a href="/miners/avalonminer/A10X/#a1026">A1026</a></li>
+                <li><a href="/miners/avalonminer/A10X/#a1047">A1047</a></li>
+                <li><a href="/miners/avalonminer/A10X/#a1066">A1066</a></li>
+            </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Innosilicon Miners:</summary>
+    <ul>
+        <details>
+        <summary>T3X Series:</summary>
+            <ul>
+                <li><a href="/miners/innosilicon/T3X/#t3h">T3H+</a></li>
+            </ul>
+        </details>
+    </ul>
+</details>

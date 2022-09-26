@@ -22,7 +22,7 @@ from .M30S_Plus_Plus import (
 )
 
 from .M31S import M31S
-from .M31S_Plus import M31SPlus, M31SPlusVE20
+from .M31S_Plus import M31SPlus, M31SPlusVE20, M31SPlusV40, M31SPlusV80
 
 from .M32 import M32, M32V20
 from .M32S import M32S

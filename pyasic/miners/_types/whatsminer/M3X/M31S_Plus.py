@@ -31,3 +31,21 @@ class M31SPlusVE20(BaseMiner):
         self.model = "M31S+ VE20"
         self.nominal_chips = 78
         self.fan_count = 2
+
+
+class M31SPlusV40(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S+ V40"
+        self.nominal_chips = 123
+        self.fan_count = 2
+
+
+class M31SPlusV80(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S+ V40"
+        self.nominal_chips = 129
+        self.fan_count = 2

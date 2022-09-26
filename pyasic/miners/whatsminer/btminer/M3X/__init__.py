@@ -33,7 +33,12 @@ from .M30S_Plus_Plus import (
 )
 
 from .M31S import BTMinerM31S
-from .M31S_Plus import BTMinerM31SPlus, BTMinerM31SPlusVE20
+from .M31S_Plus import (
+    BTMinerM31SPlus,
+    BTMinerM31SPlusVE20,
+    BTMinerM31SPlusV40,
+    BTMinerM31SPlusV80,
+)
 
 from .M32 import BTMinerM32, BTMinerM32V20
 from .M32S import BTMinerM32S
