@@ -287,7 +287,7 @@ class BOSMiner(BaseMiner):
                                 "Stable",
                                 "Testing performance profile",
                             ]:
-                                _error = board["Status"]
+                                _error = board["Status"].split(" {")[0]
                                 _error = _error[0].lower() + _error[1:]
                                 errors.append(
                                     BraiinsOSError(f"{board_map[_id]} {_error}")
@@ -451,7 +451,7 @@ class BOSMiner(BaseMiner):
                                 "Stable",
                                 "Testing performance profile",
                             ]:
-                                _error = board["Status"]
+                                _error = board["Status"].split(" {")[0]
                                 _error = _error[0].lower() + _error[1:]
                                 data.errors.append(
                                     BraiinsOSError(f"{board_map[_id]} {_error}")
