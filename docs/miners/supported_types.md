@@ -4,7 +4,14 @@
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
 
 ##### pyasic currently supports the following miners and subtypes:
-<details>
+<style>
+details {
+    margin:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+</style>
+<details style="margin:0px; padding-top:0px; padding-bottom:0px;">
 <summary>Braiins OS+ Devices:</summary>
     <ul>
         <details>
