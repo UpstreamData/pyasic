@@ -8,25 +8,28 @@
 [![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
 ## Documentation and Supported Miners
-Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
+Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/).
 
-Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/)
+Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/).
 
-### Installation
-You can install pyasic directly from pip with the command `pip install pyasic`
+## Installation
+You can install pyasic directly from pip with the command `pip install pyasic`.
 
-For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library here -> (https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing)
+For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library [here](https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing).
 
-### Developer Setup
+## Developer Setup
 This repo uses poetry for dependencies, which can be installed by following the guide on their website [here](https://python-poetry.org/docs/#installation).
 
 After you have poetry installed, run `poetry install --with dev`, or `poetry install --with dev,docs` if you want to include packages required for documentation.
 
 Finally, initialize pre-commit hooks with `poetry run pre-commit install`.
 
-### Interfacing with miners programmatically
+### Documentation Testing
+Testing the documentation can be done by running `poetry run mkdocs serve`, whcih will serve the documentation locally on port 8000.
 
-There are 2 main ways to get a miner (and the functions attached to it), via scanning or via the MinerFactory.
+## Interfacing with miners programmatically
+
+There are 2 main ways to get a miner (and the functions attached to it), via scanning or via the `MinerFactory()`.
 
 #### Scanning for miners
 ```python
@@ -34,11 +37,6 @@ import asyncio
 import sys
 
 from pyasic.network import MinerNetwork
-
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 # define asynchronous function to scan for miners
@@ -66,7 +64,6 @@ if __name__ == "__main__":
     asyncio.run(scan_and_get_data())
 ```
 
-<br>
 
 #### Getting a miner if you know the IP
 ```python
@@ -74,11 +71,6 @@ import asyncio
 import sys
 
 from pyasic.miners import get_miner
-
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 # define asynchronous function to get miner and data
@@ -106,11 +98,6 @@ import sys
 
 from pyasic.miners import get_miner
 
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 async def get_api_commands(miner_ip: str):
     # Get the miner
@@ -133,11 +120,6 @@ import asyncio
 import sys
 
 from pyasic.miners import get_miner
-
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def get_api_commands(miner_ip: str):
