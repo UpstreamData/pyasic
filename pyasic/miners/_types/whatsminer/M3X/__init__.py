@@ -25,6 +25,7 @@ from .M31S import M31S
 from .M31S_Plus import (
     M31SPlus,
     M31SPlusVE20,
+    M31SPlusV30,
     M31SPlusV40,
     M31SPlusV80,
     M31SPlusV60,
