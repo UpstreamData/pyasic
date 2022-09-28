@@ -7,47 +7,26 @@
 [![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
 [![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
-## Supported Miners
-Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/)
-
-## Documentation
+## Documentation and Supported Miners
 Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
 
-## Usage
+Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/)
 
-### Standard Usage
+### Installation
 You can install pyasic directly from pip with the command `pip install pyasic`
 
 For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library here -> (https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing)
 
-### Developers
-To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements-dev.txt``` on Windows or ```pip3 install -r requirements-dev.txt``` on Mac or UNIX if the first command fails.
+### Developer Setup
+This repo uses poetry for dependencies, which can be installed by following the guide on their website [here](https://python-poetry.org/docs/#installation).
 
-You can also use poetry by initializing and running ```poetry install```, and you will have to install `pre-commit` (`pip install pre-commit`).
+After you have poetry installed, run `poetry install --with dev`, or `poetry install --with dev,docs` if you want to include packages required for documentation.
 
-Finally, initialize pre-commit hooks with `pre-commit install`
+Finally, initialize pre-commit hooks with `poetry run pre-commit install`.
 
 ### Interfacing with miners programmatically
 
-##### Note: If you are trying to interface with Whatsminers, there is a bug in the way they are interacted with on Windows, so to fix that you need to change the event loop policy using this code:
-```python
-# need to import these 2 libraries, you need asyncio anyway so make sure you have sys imported
-import sys
-import asyncio
-
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-```
-
-##### It is likely a good idea to use this code in your program anyway to be preventative.
-<br>
-
-To write your own custom programs with this repo, you have many options.
-
-It is recommended that you explore the files in this repo to familiarize yourself with them, try starting with the miners module and going from there.
-
-There are 2 main ways to get a miner and it's functions via scanning or via the MinerFactory.
+There are 2 main ways to get a miner (and the functions attached to it), via scanning or via the MinerFactory.
 
 #### Scanning for miners
 ```python
@@ -87,7 +66,7 @@ if __name__ == "__main__":
     asyncio.run(scan_and_get_data())
 ```
 
-</br>
+<br>
 
 #### Getting a miner if you know the IP
 ```python

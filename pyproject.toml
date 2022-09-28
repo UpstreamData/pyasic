@@ -15,7 +15,19 @@ passlib = "^1.7.4"
 pyaml = "^21.10.1"
 toml = "^0.10.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.20.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.4.0"
+mkdocstrings = "^0.19.0"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
