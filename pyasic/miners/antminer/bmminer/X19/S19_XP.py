@@ -12,14 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .S19 import S19
-from .S19_Pro import S19Pro
+from .X19 import BMMinerX19
+from pyasic.miners._types import S19XP  # noqa - Ignore access to _module
 
-from .S19j import S19j
-from .S19j_Pro import S19jPro
 
-from .S19_XP import S19XP
-
-from .S19a import S19a
-
-from .T19 import T19
+class BMMinerS19XP(BMMinerX19, S19XP):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.ip = ip

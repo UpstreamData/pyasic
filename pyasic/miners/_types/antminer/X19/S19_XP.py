@@ -12,14 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .S19 import S19
-from .S19_Pro import S19Pro
+from pyasic.miners.base import BaseMiner
 
-from .S19j import S19j
-from .S19j_Pro import S19jPro
 
-from .S19_XP import S19XP
-
-from .S19a import S19a
-
-from .T19 import T19
+class S19XP(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "S19 XP"
+        self.nominal_chips = 110
+        self.fan_count = 4
