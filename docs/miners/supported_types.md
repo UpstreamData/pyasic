@@ -149,6 +149,7 @@ details {
                 <li><a href="/miners/antminer/X19/#s19a">S19a</a></li>
                 <li><a href="/miners/antminer/X19/#s19j">S19j</a></li>
                 <li><a href="/miners/antminer/X19/#s19j-pro">S19j Pro</a></li>
+                <li><a href="/miners/antminer/X19/#s19-xp">S19 XP</a></li>
                 <li><a href="/miners/antminer/X19/#t19">T19</a></li>
             </ul>
         </details>
