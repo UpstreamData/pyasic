@@ -129,6 +129,10 @@ MINER_CLASSES = {
         "BMMiner": BMMinerS19jPro,
         "CGMiner": CGMinerS19jPro,
     },
+    "ANTMINER S19 XP": {
+        "Default": BMMinerS19XP,
+        "BMMiner": BMMinerS19XP,
+    },
     "ANTMINER S19A": {
         "Default": BMMinerS19a,
         "BMMiner": BMMinerS19a,
