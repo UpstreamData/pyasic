@@ -17,6 +17,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 import time
 import json
+import copy
 
 from .error_codes import X19Error, WhatsminerError, BraiinsOSError, InnosiliconError
 
@@ -120,6 +121,43 @@ class MinerData:
 
     def __iter__(self):
         return iter([item for item in self.asdict()])
+
+    def __truediv__(self, other):
+        return self // other
+
+    def __floordiv__(self, other):
+        cp = copy.deepcopy(self)
+        for key in self:
+            item = getattr(self, key)
+            if isinstance(item, int):
+                setattr(cp, key, item // other)
+            if isinstance(item, float):
+                setattr(cp, key, round(item / other, 2))
+        return cp
+
+    def __add__(self, other):
+        if not isinstance(other, MinerData):
+            raise TypeError("Cannot add MinerData to non MinerData type.")
+        cp = copy.deepcopy(self)
+        for key in self:
+            item = getattr(self, key)
+            other_item = getattr(other, key)
+            if item is None:
+                item = 0
+            if other_item is None:
+                other_item = 0
+
+            if isinstance(item, int):
+                setattr(cp, key, item + other_item)
+            if isinstance(item, float):
+                setattr(cp, key, item + other_item)
+            if isinstance(item, str):
+                setattr(cp, key, "")
+            if isinstance(item, list):
+                setattr(cp, key, item + other_item)
+            if isinstance(item, bool):
+                setattr(cp, key, item & other_item)
+        return cp
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection

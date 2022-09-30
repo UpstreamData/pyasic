@@ -240,6 +240,20 @@ Pyasic implements a few dataclasses as helpers to make data return types consist
 
 You can call [`MinerData.asdict()`][pyasic.data.MinerData.asdict] to get the dataclass as a dictionary, and there are many other helper functions contained in the class to convert to different data formats.
 
+[`MinerData`][pyasic.data.MinerData] instances can also be added to each other to combine their data and can be divided by a number to divide all their data, allowing you to get average data from many miners by doing -
+```python
+from pyasic import MinerData
+
+# examples of miner data
+d1 = MinerData("192.168.1.1")
+d2 = MinerData("192.168.1.2")
+
+list_of_miner_data = [d1, d2]
+
+average_data = sum(list_of_miner_data, start=MinerData("0.0.0.0"))/len(list_of_miner_data)
+```
+
+
 <br>
 
 ### [`MinerConfig`][pyasic.config.MinerConfig]
