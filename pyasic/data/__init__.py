@@ -231,6 +231,12 @@ class MinerData:
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         return json.dumps(data)
 
+    def as_csv(self) -> str:
+        data = self.asdict()
+        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
+        data_list = [str(data[item]) for item in data]
+        return ", ".join(data_list)
+
     def as_influxdb(self, measurement_name: str = "miner_data") -> str:
         """Get this dataclass as [influxdb line protocol](https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/).
 
