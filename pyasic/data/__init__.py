@@ -234,6 +234,10 @@ class MinerData:
     def as_csv(self) -> str:
         data = self.asdict()
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
+        errs = []
+        for error in data["errors"]:
+            errs.append(error["error_message"])
+        data["errors"] = "; ".join(errs)
         data_list = [str(data[item]) for item in data]
         return ", ".join(data_list)
 
