@@ -239,7 +239,7 @@ class MinerData:
             errs.append(error["error_message"])
         data["errors"] = "; ".join(errs)
         data_list = [str(data[item]) for item in data]
-        return ", ".join(data_list)
+        return ",".join(data_list)
 
     def as_influxdb(self, measurement_name: str = "miner_data") -> str:
         """Get this dataclass as [influxdb line protocol](https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/).

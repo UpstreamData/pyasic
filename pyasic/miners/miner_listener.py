@@ -27,7 +27,13 @@ class _MinerListener:
 
     def datagram_received(self, data, _addr):
         m = data.decode()
-        ip, mac = m.split(",")
+        if "," in m:
+            ip, mac = m.split(",")
+        else:
+            d = m[:-1].split("MAC")
+            ip = d[0][3:]
+            mac = d[1][1:]
+
         new_miner = {"IP": ip, "MAC": mac.upper()}
         MinerListener().new_miner = new_miner
 
@@ -46,8 +52,11 @@ class MinerListener(metaclass=Singleton):
 
         loop = asyncio.get_running_loop()
 
-        transport, protocol = await loop.create_datagram_endpoint(
+        transport_14235, protocol_14235 = await loop.create_datagram_endpoint(
             lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)  # noqa
+        )
+        transport_8888, protocol_8888 = await loop.create_datagram_endpoint(
+            lambda: _MinerListener(), local_addr=("0.0.0.0", 8888)  # noqa
         )
 
         while True:
@@ -56,7 +65,8 @@ class MinerListener(metaclass=Singleton):
                 self.found_miners.append(self.new_miner)
                 self.new_miner = None
             if self.stop:
-                transport.close()
+                transport_14235.close()
+                transport_8888.close()
                 break
             await asyncio.sleep(0)
 
