@@ -232,6 +232,11 @@ class MinerData:
         return json.dumps(data)
 
     def as_csv(self) -> str:
+        """Get this dataclass as CSV.
+
+        Returns:
+            A CSV version of this class with no headers.
+        """
         data = self.asdict()
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         errs = []
