@@ -260,7 +260,9 @@ class BTMiner(BaseMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
-                miner_data = await self.api.multicommand("summary", "devs", "pools")
+                miner_data = await self.api.multicommand(
+                    "summary", "devs", "pools", "get_psu"
+                )
                 if miner_data:
                     break
             except APIError:
@@ -272,6 +274,7 @@ class BTMiner(BaseMiner):
         summary = miner_data.get("summary")[0]
         devs = miner_data.get("devs")[0]
         pools = miner_data.get("pools")[0]
+        psu_data = miner_data.get("get_psu")[0]
 
         if summary:
             summary_data = summary.get("SUMMARY")
@@ -286,6 +289,9 @@ class BTMiner(BaseMiner):
 
                     if summary_data[0].get("Power Limit"):
                         wattage_limit = summary_data[0]["Power Limit"]
+
+                    if summary_data[0].get("Power Fanspeed"):
+                        data.fan_psu = summary_data[0]["Power Fanspeed"]
 
                     data.fan_1 = summary_data[0]["Fan Speed In"]
                     data.fan_2 = summary_data[0]["Fan Speed Out"]
@@ -311,6 +317,12 @@ class BTMiner(BaseMiner):
                                         error_code=summary_data[0][f"Error Code {i}"]
                                     )
                                 )
+
+        if psu_data:
+            psu = psu_data.get("Msg")
+            if psu:
+                if psu.get("fan_speed"):
+                    data.fan_psu = psu["fan_speed"]
 
         if devs:
             temp_data = devs.get("DEVS")

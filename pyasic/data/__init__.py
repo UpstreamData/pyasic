@@ -49,6 +49,7 @@ class MinerData:
         fan_2: The speed of the second fan as an int.
         fan_3: The speed of the third fan as an int.
         fan_4: The speed of the fourth fan as an int.
+        fan_psu: The speed of the PSU on the fan if the miner collects it.
         left_chips: The number of chips online in the left board as an int.
         center_chips: The number of chips online in the left board as an int.
         right_chips: The number of chips online in the left board as an int.
@@ -76,19 +77,20 @@ class MinerData:
     center_board_hashrate: float = 0.0
     right_board_hashrate: float = 0.0
     temperature_avg: int = field(init=False)
-    env_temp: float = 0.0
-    left_board_temp: int = 0
-    left_board_chip_temp: int = 0
-    center_board_temp: int = 0
-    center_board_chip_temp: int = 0
-    right_board_temp: int = 0
-    right_board_chip_temp: int = 0
-    wattage: int = 0
-    wattage_limit: int = 0
+    env_temp: float = -1.0
+    left_board_temp: int = -1
+    left_board_chip_temp: int = -1
+    center_board_temp: int = -1
+    center_board_chip_temp: int = -1
+    right_board_temp: int = -1
+    right_board_chip_temp: int = -1
+    wattage: int = -1
+    wattage_limit: int = -1
     fan_1: int = -1
     fan_2: int = -1
     fan_3: int = -1
     fan_4: int = -1
+    fan_psu: int = -1
     left_chips: int = 0
     center_chips: int = 0
     right_chips: int = 0
@@ -192,7 +194,7 @@ class MinerData:
             self.center_board_chip_temp,
             self.right_board_chip_temp,
         ]:
-            if temp and not temp == 0:
+            if temp and not temp == -1:
                 total_temp += temp
                 temp_count += 1
         if not temp_count > 0:
