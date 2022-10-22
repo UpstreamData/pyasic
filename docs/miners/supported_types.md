@@ -50,6 +50,15 @@ details {
 <summary>Stock Firmware Whatsminers:</summary>
     <ul>
         <details>
+        <summary>M5X Series:</summary>
+            <ul>
+                <details>
+                    <summary><a href="/miners/whatsminer/M5X/#m50">M50</a></summary>
+                        <ul>
+                            <li><a href="/miners/whatsminer/M5X/#m50vh50">VH50</a></li>
+                        </ul>
+                </details>
+            </ul>
         <summary>M3X Series:</summary>
             <ul>
                 <details>

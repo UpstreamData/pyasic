@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M2X import *
-from .M3X import *
-from .M5X import *
+from .M50 import (
+    BTMinerM50,
+    BTMinerM50VH50,
+)

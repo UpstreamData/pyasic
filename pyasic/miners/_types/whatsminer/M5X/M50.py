@@ -12,6 +12,22 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M2X import *
-from .M3X import *
-from .M5X import *
+from pyasic.miners.base import BaseMiner
+
+
+class M50(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M50"
+        self.nominal_chips = 105
+        self.fan_count = 2
+
+
+class M50VH50(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M50 VH50"
+        self.nominal_chips = 105
+        self.fan_count = 2

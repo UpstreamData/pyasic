@@ -12,6 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M2X import *
-from .M3X import *
-from .M5X import *
+from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners._types import M50, M50VH50  # noqa - Ignore access to _module
+
+
+class BTMinerM50(BTMiner, M50):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.ip = ip
+
+
+class BTMinerM50VH50(BTMiner, M50VH50):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.ip = ip
