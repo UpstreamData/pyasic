@@ -163,9 +163,12 @@ class BTMiner(BaseMiner):
         if summary_data[0].get("Error Code Count"):
             for i in range(summary_data[0]["Error Code Count"]):
                 if summary_data[0].get(f"Error Code {i}"):
-                    data.append(
-                        WhatsminerError(error_code=summary_data[0][f"Error Code {i}"])
-                    )
+                    if not summary_data[0][f"Error Code {i}"] == "":
+                        data.append(
+                            WhatsminerError(
+                                error_code=summary_data[0][f"Error Code {i}"]
+                            )
+                        )
         return data
 
     async def reboot(self) -> bool:
@@ -312,11 +315,14 @@ class BTMiner(BaseMiner):
                     if summary_data[0].get("Error Code Count"):
                         for i in range(summary_data[0]["Error Code Count"]):
                             if summary_data[0].get(f"Error Code {i}"):
-                                data.errors.append(
-                                    WhatsminerError(
-                                        error_code=summary_data[0][f"Error Code {i}"]
+                                if not summary_data[0][f"Error Code {i}"] == "":
+                                    data.errors.append(
+                                        WhatsminerError(
+                                            error_code=summary_data[0][
+                                                f"Error Code {i}"
+                                            ]
+                                        )
                                     )
-                                )
 
         if psu_data:
             psu = psu_data.get("Msg")
