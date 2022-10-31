@@ -187,57 +187,24 @@ class BTMinerAPI(BaseMinerAPI):
         self.pwd = pwd
         self.current_token = None
 
-    async def send_command(
-        self,
-        command: Union[str, bytes],
-        parameters: Union[str, int, bool] = None,
-        ignore_errors: bool = False,
-        **kwargs,
+    async def send_privileged_command(
+        self, command: Union[str, bytes], ignore_errors: bool = False, **kwargs
     ) -> dict:
-        # check if command is a string
-        # if its bytes its encoded and needs to be sent raw
-        if isinstance(command, str):
-            # if it is a string, put it into the standard command format
-            command = json.dumps({"command": command}).encode("utf-8")
-        try:
-            # get reader and writer streams
-            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
-        # handle OSError 121
-        except OSError as e:
-            if e.winerror == "121":
-                print("Semaphore Timeout has Expired.")
-            return {}
+        command = {"cmd": command}
+        for kwarg in kwargs:
+            if kwargs[kwarg]:
+                command[kwarg] = kwargs[kwarg]
 
-        # send the command
-        writer.write(command)
-        await writer.drain()
+        token_data = await self.get_token()
+        enc_command = create_privileged_cmd(token_data, command)
 
-        # instantiate data
-        data = b""
-
-        # loop to receive all the data
-        try:
-            while True:
-                d = await reader.read(4096)
-                if not d:
-                    break
-                data += d
-        except Exception as e:
-            logging.info(f"{str(self.ip)}: {e}")
-
+        data = await self._send_bytes(enc_command)
         data = self._load_api_data(data)
 
-        # close the connection
-        writer.close()
-        await writer.wait_closed()
-
-        # check if the returned data is encoded
-        if "enc" in data.keys():
-            # try to parse the encoded data
-            try:
-                data = parse_btminer_priviledge_data(self.current_token, data)
-            except Exception as e:
-                logging.info(f"{str(self.ip)}: {e}")
+        try:
+            data = parse_btminer_priviledge_data(self.current_token, data)
+        except Exception as e:
+            logging.info(f"{str(self.ip)}: {e}")
 
         if not ignore_errors:
             # if it fails to validate, it is likely an error
@@ -320,46 +287,18 @@ class BTMinerAPI(BaseMinerAPI):
             A dict from the API to confirm the pools were updated.
         </details>
         """
-        # get the token and password from the miner
-        token_data = await self.get_token()
-
-        # parse pool data
-        if not pool_1:
-            raise APIError("No pools set.")
-        elif pool_2 and pool_3:
-            command = {
-                "cmd": "update_pools",
-                "pool1": pool_1,
-                "worker1": worker_1,
-                "passwd1": passwd_1,
-                "pool2": pool_2,
-                "worker2": worker_2,
-                "passwd2": passwd_2,
-                "pool3": pool_3,
-                "worker3": worker_3,
-                "passwd3": passwd_3,
-            }
-        elif pool_2:
-            command = {
-                "cmd": "update_pools",
-                "pool1": pool_1,
-                "worker1": worker_1,
-                "passwd1": passwd_1,
-                "pool2": pool_2,
-                "worker2": worker_2,
-                "passwd2": passwd_2,
-            }
-        else:
-            command = {
-                "cmd": "update_pools",
-                "pool1": pool_1,
-                "worker1": worker_1,
-                "passwd1": passwd_1,
-            }
-        # encode the command with the token data
-        enc_command = create_privileged_cmd(token_data, command)
-        # send the command
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command(
+            "update_pools",
+            pool1=pool_1,
+            worker1=worker_1,
+            passwd1=passwd_1,
+            pool2=pool_2,
+            worker2=worker_2,
+            passwd2=passwd_2,
+            pool3=pool_3,
+            worker3=worker_3,
+            passwd3=passwd_3,
+        )
 
     async def restart(self) -> dict:
         """Restart BTMiner using the API.
@@ -373,10 +312,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the restart.
         </details>
         """
-        command = {"cmd": "restart_btminer"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("restart_btminer")
 
     async def power_off(self, respbefore: bool = True) -> dict:
         """Power off the miner using the API.
@@ -393,12 +329,8 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         if respbefore:
-            command = {"cmd": "power_off", "respbefore": "true"}
-        else:
-            command = {"cmd": "power_off", "respbefore": "false"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+            return await self.send_privileged_command("power_off", respbefore="true")
+        return await self.send_privileged_command("power_off", respbefore="false")
 
     async def power_on(self) -> dict:
         """Power on the miner using the API.
@@ -413,10 +345,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of powering on.
         </details>
         """
-        command = {"cmd": "power_on"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("power_on")
 
     async def reset_led(self) -> dict:
         """Reset the LED on the miner using the API.
@@ -431,10 +360,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of resetting the LED.
         </details>
         """
-        command = {"cmd": "set_led", "param": "auto"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.set_led(auto=True)
 
     async def set_led(
         self,
@@ -462,19 +388,11 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of setting the LED.
         </details>
         """
-        if not auto:
-            command = {
-                "cmd": "set_led",
-                "color": color,
-                "period": period,
-                "duration": duration,
-                "start": start,
-            }
-        else:
-            command = {"cmd": "set_led", "param": "auto"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command, ignore_errors=True)
+        if auto:
+            return await self.send_privileged_command("set_led", param=auto)
+        return await self.send_privileged_command(
+            "set_led", color=color, period=period, duration=duration, start=start
+        )
 
     async def set_low_power(self) -> dict:
         """Set low power mode on the miner using the API.
@@ -489,10 +407,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of setting low power mode.
         </details>
         """
-        command = {"cmd": "set_low_power"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("set_low_power")
 
     async def update_firmware(self):  # noqa - static
         """Not implemented."""
@@ -510,10 +425,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of the reboot.
         </details>
         """
-        command = {"cmd": "reboot"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("reboot")
 
     async def factory_reset(self) -> dict:
         """Reset the miner to factory defaults.
@@ -525,10 +437,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of the reset.
         </details>
         """
-        command = {"cmd": "factory_reset"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("factory_reset")
 
     async def update_pwd(self, old_pwd: str, new_pwd: str) -> dict:
         """Update the admin user's password.
@@ -555,11 +464,10 @@ class BTMinerAPI(BaseMinerAPI):
                 f"New password too long, the max length is 8.  "
                 f"Password size: {len(new_pwd.encode('utf-8'))}"
             )
-        command = {"cmd": "update_pwd", "old": old_pwd, "new": new_pwd}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
         try:
-            data = await self.send_command(enc_command)
+            data = await self.send_privileged_command(
+                "update_pwd", old=old_pwd, new=new_pwd
+            )
         except APIError as e:
             raise e
         self.pwd = new_pwd
@@ -588,10 +496,9 @@ class BTMinerAPI(BaseMinerAPI):
                 f"range.  Please set a % between -10 and "
                 f"100"
             )
-        command = {"cmd": "set_target_freq", "percent": str(percent)}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command(
+            "set_target_freq", percent=str(percent)
+        )
 
     async def enable_fast_boot(self) -> dict:
         """Turn on fast boot.
@@ -607,10 +514,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of enabling fast boot.
         </details>
         """
-        command = {"cmd": "enable_btminer_fast_boot"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("enable_btminer_fast_boot")
 
     async def disable_fast_boot(self) -> dict:
         """Turn off fast boot.
@@ -626,10 +530,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of disabling fast boot.
         </details>
         """
-        command = {"cmd": "disable_btminer_fast_boot"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("disable_btminer_fast_boot")
 
     async def enable_web_pools(self) -> dict:
         """Turn on web pool updates.
@@ -645,10 +546,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of enabling web pools.
         </details>
         """
-        command = {"cmd": "enable_web_pools"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("enable_web_pools")
 
     async def disable_web_pools(self) -> dict:
         """Turn off web pool updates.
@@ -664,10 +562,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of disabling web pools.
         </details>
         """
-        command = {"cmd": "disable_web_pools"}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("disable_web_pools")
 
     async def set_hostname(self, hostname: str) -> dict:
         """Set the hostname of the miner.
@@ -685,10 +580,7 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of setting the hostname.
         </details>
         """
-        command = {"cmd": "set_hostname", "hostname": hostname}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("set_hostname", hostname=hostname)
 
     async def set_power_pct(self, percent: int) -> dict:
         """Set the power percentage of the miner.
@@ -713,10 +605,7 @@ class BTMinerAPI(BaseMinerAPI):
                 f"range.  Please set a % between 0 and "
                 f"100"
             )
-        command = {"cmd": "set_power_pct", "percent": str(percent)}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+        return await self.send_privileged_command("set_power_pct", percent=str(percent))
 
     async def pre_power_on(self, complete: bool, msg: str) -> dict:
         """Configure or check status of pre power on.
@@ -747,13 +636,12 @@ class BTMinerAPI(BaseMinerAPI):
                 '"adjust continue"]'
             )
         if complete:
-            complete = "true"
-        else:
-            complete = "false"
-        command = {"cmd": "pre_power_on", "complete": complete, "msg": msg}
-        token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
-        return await self.send_command(enc_command)
+            return await self.send_privileged_command(
+                "pre_power_on", complete="true", msg=msg
+            )
+        return await self.send_privileged_command(
+            "pre_power_on", complete="false", msg=msg
+        )
 
     #### END privileged COMMANDS ####
 

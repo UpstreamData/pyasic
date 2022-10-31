@@ -46,8 +46,8 @@ class BaseMinerAPI:
             # each function in self
             dir(self)
             if callable(getattr(self, func)) and
-            # no __ methods
-            not func.startswith("__") and
+            # no __ or _ methods
+            not func.startswith("__") and not func.startswith("_") and
             # remove all functions that are in this base class
             func
             not in [
@@ -71,14 +71,11 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def multicommand(
-        self, *commands: str, ignore_x19_error: bool = False
-    ) -> dict:
+    async def multicommand(self, *commands: str) -> dict:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
             *commands: The commands to send as a multicommand to the miner.
-            ignore_x19_error: Whether or not to ignore errors raised by x19 miners when using the "+" delimited style.
         """
         logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # make sure we can actually run each command, otherwise they will fail
@@ -87,26 +84,44 @@ If you are sure you want to use this command please use API.send_command("{comma
         # doesnt work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
         try:
-            data = await self.send_command(command, x19_command=ignore_x19_error)
+            data = await self.send_command(command)
         except APIError:
-            logging.debug(f"{self.ip}: Handling X19 multicommand.")
-            data = await self._x19_multicommand(*command.split("+"))
+            return {}
         logging.debug(f"{self.ip}: Received multicommand data.")
         return data
 
-    async def _x19_multicommand(self, *commands):
-        data = None
+    async def _send_bytes(self, data: bytes) -> bytes:
         try:
-            data = {}
-            # send all commands individually
-            for cmd in commands:
-                data[cmd] = []
-                data[cmd].append(await self.send_command(cmd, x19_command=True))
-        except APIError as e:
-            raise APIError(e)
+            # get reader and writer streams
+            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+        # handle OSError 121
+        except OSError as e:
+            if e.winerror == "121":
+                logging.warning("Semaphore Timeout has Expired.")
+            return b"{}"
+
+        # send the command
+        writer.write(data)
+        await writer.drain()
+
+        # instantiate data
+        ret_data = b""
+
+        # loop to receive all the data
+        try:
+            while True:
+                d = await reader.read(4096)
+                if not d:
+                    break
+                ret_data += d
         except Exception as e:
-            logging.warning(f"{self.ip}: API Multicommand Error: {e}")
-        return data
+            logging.warning(f"{self.ip}: API Command Error: - {e}")
+
+        # close the connection
+        writer.close()
+        await writer.wait_closed()
+
+        return ret_data
 
     async def send_command(
         self,
@@ -126,42 +141,15 @@ If you are sure you want to use this command please use API.send_command("{comma
         Returns:
             The return data from the API command parsed from JSON into a dict.
         """
-        try:
-            # get reader and writer streams
-            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
-        # handle OSError 121
-        except OSError as e:
-            if e.winerror == "121":
-                logging.warning("Semaphore Timeout has Expired.")
-            return {}
-
         # create the command
         cmd = {"command": command}
         if parameters:
             cmd["parameter"] = parameters
 
         # send the command
-        writer.write(json.dumps(cmd).encode("utf-8"))
-        await writer.drain()
-
-        # instantiate data
-        data = b""
-
-        # loop to receive all the data
-        try:
-            while True:
-                d = await reader.read(4096)
-                if not d:
-                    break
-                data += d
-        except Exception as e:
-            logging.warning(f"{self.ip}: API Command Error: - {e}")
+        data = await self._send_bytes(json.dumps(cmd).encode("utf-8"))
 
         data = self._load_api_data(data)
-
-        # close the connection
-        writer.close()
-        await writer.wait_closed()
 
         # check for if the user wants to allow errors to return
         if not ignore_errors:
@@ -173,6 +161,9 @@ If you are sure you want to use this command please use API.send_command("{comma
                 raise APIError(validation[1])
 
         return data
+
+    async def send_privileged_command(self, *args, **kwargs) -> dict:
+        return await self.send_command(*args, **kwargs)
 
     @staticmethod
     def _validate_command_output(data: dict) -> tuple:
