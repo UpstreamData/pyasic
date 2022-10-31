@@ -204,31 +204,35 @@ If you are sure you want to use this command please use API.send_command("{comma
     @staticmethod
     def _load_api_data(data: bytes) -> dict:
         str_data = None
+        # some json from the API returns with a null byte (\x00) on the end
+        if data.endswith(b"\x00"):
+            # handle the null byte
+            str_data = data.decode("utf-8")[:-1]
+        else:
+            # no null byte
+            str_data = data.decode("utf-8")
+        # fix an error with a btminer return having an extra comma that breaks json.loads()
+        str_data = str_data.replace(",}", "}")
+        # fix an error with a btminer return having a newline that breaks json.loads()
+        str_data = str_data.replace("\n", "")
+        # fix an error with a bmminer return not having a specific comma that breaks json.loads()
+        str_data = str_data.replace("}{", "},{")
+        # fix an error with a bmminer return having a specific comma that breaks json.loads()
+        str_data = str_data.replace("[,{", "[{")
+        # fix an error with Avalonminers returning inf and nan
+        str_data = str_data.replace("inf", "0")
+        str_data = str_data.replace("nan", "0")
+        # fix whatever this garbage from avalonminers is `,"id":1}`
+        if str_data.startswith(","):
+            str_data = f"{{{str_data[1:]}"
+        # try to fix an error with overflowing the receive buffer
+        # this can happen in cases such as bugged btminers returning arbitrary length error info with 100s of errors.
+        if not str_data.endswith("}"):
+            str_data = ",".join(str_data.split(",")[:-1]) + "}"
+
+        # parse the json
         try:
-            # some json from the API returns with a null byte (\x00) on the end
-            if data.endswith(b"\x00"):
-                # handle the null byte
-                str_data = data.decode("utf-8")[:-1]
-            else:
-                # no null byte
-                str_data = data.decode("utf-8")
-            # fix an error with a btminer return having an extra comma that breaks json.loads()
-            str_data = str_data.replace(",}", "}")
-            # fix an error with a btminer return having a newline that breaks json.loads()
-            str_data = str_data.replace("\n", "")
-            # fix an error with a bmminer return not having a specific comma that breaks json.loads()
-            str_data = str_data.replace("}{", "},{")
-            # fix an error with a bmminer return  having a specific comma that breaks json.loads()
-            str_data = str_data.replace("[,{", "[{")
-            # fix an error with Avalonminers returning inf and nan
-            str_data = str_data.replace("inf", "0")
-            str_data = str_data.replace("nan", "0")
-            # fix whatever this garbage from avalonminers is `,"id":1}`
-            if str_data.startswith(","):
-                str_data = f"{{{str_data[1:]}"
-            # parse the json
             parsed_data = json.loads(str_data)
-        # handle bad json
         except json.decoder.JSONDecodeError as e:
             raise APIError(f"Decode Error {e}: {str_data}")
         return parsed_data
