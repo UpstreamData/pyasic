@@ -263,21 +263,21 @@ class BTMiner(BaseMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
-                miner_data = await self.api.multicommand(
-                    "summary", "devs", "pools", "get_psu"
-                )
+                miner_data = await self.api.multicommand("summary", "devs", "pools")
                 if miner_data:
                     break
             except APIError:
                 pass
-
         if not miner_data:
             return data
 
         summary = miner_data.get("summary")[0]
         devs = miner_data.get("devs")[0]
         pools = miner_data.get("pools")[0]
-        psu_data = miner_data.get("get_psu")[0]
+        try:
+            psu_data = await self.api.get_psu()
+        except APIError:
+            psu_data = None
 
         if summary:
             summary_data = summary.get("SUMMARY")

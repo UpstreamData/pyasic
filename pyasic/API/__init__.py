@@ -157,7 +157,9 @@ If you are sure you want to use this command please use API.send_command("{comma
             validation = self._validate_command_output(data)
             if not validation[0]:
                 if not x19_command:
-                    logging.warning(f"{self.ip}: API Command Error: {validation[1]}")
+                    logging.warning(
+                        f"{self.ip}: API Command Error: {command}: {validation[1]}"
+                    )
                 raise APIError(validation[1])
 
         return data
