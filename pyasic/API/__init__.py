@@ -18,6 +18,7 @@ import ipaddress
 import warnings
 import logging
 from typing import Union
+import re
 
 from pyasic.errors import APIError, APIWarning
 
@@ -222,6 +223,10 @@ If you are sure you want to use this command please use API.send_command("{comma
         # this can happen in cases such as bugged btminers returning arbitrary length error info with 100s of errors.
         if not str_data.endswith("}"):
             str_data = ",".join(str_data.split(",")[:-1]) + "}"
+
+        # fix a really nasty bug with whatsminer API v2.0.4 where they return a list structured like a dict
+        if re.search(r"\"error_code\":\[\".+\"\]", str_data):
+            str_data = str_data.replace("[", "{").replace("]", "}")
 
         # parse the json
         try:

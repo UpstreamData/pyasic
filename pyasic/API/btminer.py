@@ -768,3 +768,17 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         return await self.send_command("get_miner_info")
+
+    async def get_error_code(self) -> dict:
+        """Get a list of error codes from the miner.
+
+        <details>
+            <summary>Expand</summary>
+        Get a list of error codes from the miner.  Replaced `summary` as the location of error codes with API version 2.0.4.
+
+        Returns:
+
+            A list of error codes on the miner.
+        </details>
+        """
+        return await self.send_command("get_error_code")

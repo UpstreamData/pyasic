@@ -158,17 +158,29 @@ class BTMiner(BaseMiner):
 
     async def get_errors(self) -> List[MinerErrorData]:
         data = []
-
-        summary_data = await self.api.summary()
-        if summary_data[0].get("Error Code Count"):
-            for i in range(summary_data[0]["Error Code Count"]):
-                if summary_data[0].get(f"Error Code {i}"):
-                    if not summary_data[0][f"Error Code {i}"] == "":
-                        data.append(
-                            WhatsminerError(
-                                error_code=summary_data[0][f"Error Code {i}"]
+        try:
+            err_data = await self.api.get_error_code()
+            if err_data:
+                if err_data.get("Msg"):
+                    if err_data["Msg"].get("error_code"):
+                        for err in err_data["Msg"]["error_code"]:
+                            data.append(
+                                WhatsminerError(
+                                    error_code=int(err)
+                                )
                             )
-                        )
+        except APIError:
+            summary_data = await self.api.summary()
+            if summary_data[0].get("Error Code Count"):
+                for i in range(summary_data[0]["Error Code Count"]):
+                    if summary_data[0].get(f"Error Code {i}"):
+                        if not summary_data[0][f"Error Code {i}"] == "":
+                            data.append(
+                                WhatsminerError(
+                                    error_code=summary_data[0][f"Error Code {i}"]
+                                )
+                            )
+
         return data
 
     async def reboot(self) -> bool:
@@ -278,6 +290,10 @@ class BTMiner(BaseMiner):
             psu_data = await self.api.get_psu()
         except APIError:
             psu_data = None
+        try:
+            err_data = await self.api.get_error_code()
+        except APIError:
+            err_data = None
 
         if summary:
             summary_data = summary.get("SUMMARY")
@@ -329,6 +345,16 @@ class BTMiner(BaseMiner):
             if psu:
                 if psu.get("fan_speed"):
                     data.fan_psu = psu["fan_speed"]
+
+        if err_data:
+            if err_data.get("Msg"):
+                if err_data["Msg"].get("error_code"):
+                    for err in err_data["Msg"]["error_code"]:
+                        data.errors.append(
+                            WhatsminerError(
+                                error_code=int(err)
+                            )
+                        )
 
         if devs:
             temp_data = devs.get("DEVS")
