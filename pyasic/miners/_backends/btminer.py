@@ -164,11 +164,19 @@ class BTMiner(BaseMiner):
                 if err_data.get("Msg"):
                     if err_data["Msg"].get("error_code"):
                         for err in err_data["Msg"]["error_code"]:
-                            data.append(
-                                WhatsminerError(
-                                    error_code=int(err)
+                            if isinstance(err, dict):
+                                for code in err:
+                                    data.append(
+                                        WhatsminerError(
+                                            error_code=int(code)
+                                        )
+                                    )
+                            else:
+                                data.append(
+                                    WhatsminerError(
+                                        error_code=int(err)
+                                    )
                                 )
-                            )
         except APIError:
             summary_data = await self.api.summary()
             if summary_data[0].get("Error Code Count"):
@@ -350,11 +358,19 @@ class BTMiner(BaseMiner):
             if err_data.get("Msg"):
                 if err_data["Msg"].get("error_code"):
                     for err in err_data["Msg"]["error_code"]:
-                        data.errors.append(
-                            WhatsminerError(
-                                error_code=int(err)
+                        if isinstance(err, dict):
+                            for code in err:
+                                data.errors.append(
+                                    WhatsminerError(
+                                        error_code=int(code)
+                                    )
+                                )
+                        else:
+                            data.errors.append(
+                                WhatsminerError(
+                                    error_code=int(err)
+                                )
                             )
-                        )
 
         if devs:
             temp_data = devs.get("DEVS")
