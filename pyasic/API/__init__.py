@@ -82,7 +82,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         # make sure we can actually run each command, otherwise they will fail
         commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
-        # doesnt work for S19 which uses the backup _x19_multicommand
+        # doesn't work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
         try:
             data = await self.send_command(command)
@@ -129,15 +129,15 @@ If you are sure you want to use this command please use API.send_command("{comma
         command: Union[str, bytes],
         parameters: Union[str, int, bool] = None,
         ignore_errors: bool = False,
-        x19_command: bool = False,
+        allow_warning: bool = True,
     ) -> dict:
         """Send an API command to the miner and return the result.
 
         Parameters:
             command: The command to sent to the miner.
             parameters: Any additional parameters to be sent with the command.
-            ignore_errors: Whether or not to raise APIError when the command returns an error.
-            x19_command: Whether this is a command for an x19 that may be an issue (such as a "+" delimited multicommand)
+            ignore_errors: Whether to raise APIError when the command returns an error.
+            allow_warning: Whether to warn if the command fails.
 
         Returns:
             The return data from the API command parsed from JSON into a dict.
@@ -157,7 +157,7 @@ If you are sure you want to use this command please use API.send_command("{comma
             # validate the command succeeded
             validation = self._validate_command_output(data)
             if not validation[0]:
-                if not x19_command:
+                if allow_warning:
                     logging.warning(
                         f"{self.ip}: API Command Error: {command}: {validation[1]}"
                     )

@@ -48,7 +48,7 @@ class BMMinerAPI(BaseMinerAPI):
         # doesnt work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
         try:
-            data = await self.send_command(command, x19_command=ignore_x19_error)
+            data = await self.send_command(command, allow_warning=ignore_x19_error)
         except APIError:
             logging.debug(f"{self.ip}: Handling X19 multicommand.")
             data = await self._x19_multicommand(*command.split("+"))
@@ -62,7 +62,7 @@ class BMMinerAPI(BaseMinerAPI):
             # send all commands individually
             for cmd in commands:
                 data[cmd] = []
-                data[cmd].append(await self.send_command(cmd, x19_command=True))
+                data[cmd].append(await self.send_command(cmd, allow_warning=True))
         except APIError as e:
             raise APIError(e)
         except Exception as e:

@@ -767,7 +767,7 @@ class BTMinerAPI(BaseMinerAPI):
             General miner info.
         </details>
         """
-        return await self.send_command("get_miner_info")
+        return await self.send_command("get_miner_info", allow_warning=False)
 
     async def get_error_code(self) -> dict:
         """Get a list of error codes from the miner.
@@ -781,4 +781,4 @@ class BTMinerAPI(BaseMinerAPI):
             A list of error codes on the miner.
         </details>
         """
-        return await self.send_command("get_error_code")
+        return await self.send_command("get_error_code", allow_warning=False)
