@@ -21,7 +21,7 @@ from pyasic.API.btminer import BTMinerAPI
 from pyasic.miners.base import BaseMiner
 from pyasic.errors import APIError
 
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.data.error_codes import WhatsminerError, MinerErrorData
 from pyasic.config import MinerConfig
 
@@ -254,7 +254,7 @@ class BTMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * self.ideal_hashboards)
 
         mac = None
 
@@ -372,6 +372,23 @@ class BTMiner(BaseMiner):
                                 )
                             )
 
+        
+        if devs:
+            dev_data = devs.get("DEVS")
+            if dev_data:
+                for board in dev_data:
+                    temp_board = HashBoard(
+                        slot = board["ASC"],
+                        chip_temp = round(board["Chip Temp Avg"]),
+                        temp = round(board["Temperature"]),
+                        hashrate = round(board["MHS 1m"] / 1000000, 2),
+                        chips = board["Effective Chips"],
+                        missing = False if board["Effective Chips"] > 0 else True,
+                        expected_chips = self.nominal_chips,
+                        )                    
+                    data.hashboards.append(temp_board)
+
+        """
         if devs:
             temp_data = devs.get("DEVS")
             if temp_data:
@@ -398,7 +415,7 @@ class BTMiner(BaseMiner):
                     for board in boards:
                         _id = board[id_key] - offset
                         chips = board["Effective Chips"]
-                        setattr(data, board_map[_id], chips)
+                        setattr(data, board_map[_id], chips)"""
 
         if pools:
             pool_1 = None

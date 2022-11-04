@@ -15,11 +15,22 @@
 from typing import Union, List
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
+from functools import reduce
 import time
 import json
 import copy
 
 from .error_codes import X19Error, WhatsminerError, BraiinsOSError, InnosiliconError
+
+@dataclass
+class HashBoard:
+    slot: int = 0
+    hashrate: float = 0.0
+    temp: int = -1
+    chip_temp: int = -1
+    chips: int = 0
+    expected_chips: int = 0
+    missing: bool = True
 
 
 @dataclass
@@ -108,6 +119,10 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
+    hashboards: List[HashBoard] = field(default_factory=list)
+    ideal_hashboards: int = 1
+
+
 
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()
@@ -162,8 +177,12 @@ class MinerData:
         return cp
 
     @property
-    def total_chips(self):  # noqa - Skip PyCharm inspection
+    def old_total_chips(self):  # noqa - Skip PyCharm inspection
         return self.right_chips + self.center_chips + self.left_chips
+
+    @property
+    def total_chips(self):  # noqa - Skip PyCharm inspection
+        return reduce(lambda x, y: x + y, [board.chips for board in self.hashboards])
 
     @total_chips.setter
     def total_chips(self, val):
@@ -186,7 +205,7 @@ class MinerData:
         pass
 
     @property
-    def temperature_avg(self):  # noqa - Skip PyCharm inspection
+    def old_temperature_avg(self):  # noqa - Skip PyCharm inspection
         total_temp = 0
         temp_count = 0
         for temp in [
@@ -196,6 +215,18 @@ class MinerData:
         ]:
             if temp and not temp == -1:
                 total_temp += temp
+                temp_count += 1
+        if not temp_count > 0:
+            return 0
+        return round(total_temp / temp_count)
+
+    @property
+    def temperature_avg(self):  # noqa - Skip PyCharm inspection
+        total_temp = 0
+        temp_count = 0
+        for temp in self.hashboards:
+            if temp.temp and not temp.temp == -1:
+                total_temp += temp.temp
                 temp_count += 1
         if not temp_count > 0:
             return 0
