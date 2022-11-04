@@ -216,6 +216,11 @@ MINER_CLASSES = {
         "BTMiner": BTMinerM32,
         "20": BTMinerM32V20,
     },
+    "M34S+": {
+        "Default": BTMinerM34SPlus,
+        "BTMiner": BTMinerM34SPlus,
+        "E10": BTMinerM34SPlusVE10,
+    },
     "M50": {
         "Default": BTMinerM50,
         "BTMiner": BTMinerM50,

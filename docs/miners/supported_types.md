@@ -59,6 +59,8 @@ details {
                         </ul>
                 </details>
             </ul>
+        </details>
+        <details>
         <summary>M3X Series:</summary>
             <ul>
                 <details>
@@ -108,6 +110,12 @@ details {
                 </details>
                 <details>
                     <summary><a href="../whatsminer/M3X/#m32s">M32S</a></summary>
+                </details>
+                <details>
+                    <summary><a href="../whatsminer/M3X/#m34s">M34S+</a></summary>
+                        <ul>
+                            <li><a href="../whatsminer/M3X/#m34sve10">VE10</a></li>
+                        </ul>
                 </details>
             </ul>
         </details>

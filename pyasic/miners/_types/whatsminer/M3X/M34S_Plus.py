@@ -12,26 +12,23 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M30S import M30S, M30SVE10, M30SVE20, M30SVG20, M30SV50
-from .M30S_Plus import M30SPlus, M30SPlusVG60, M30SPlusVE40, M30SPlusVF20
-from .M30S_Plus_Plus import (
-    M30SPlusPlus,
-    M30SPlusPlusVG30,
-    M30SPlusPlusVG40,
-    M30SPlusPlusVH60,
-)
+from pyasic.miners.base import BaseMiner
 
-from .M31S import M31S
-from .M31S_Plus import (
-    M31SPlus,
-    M31SPlusVE20,
-    M31SPlusV30,
-    M31SPlusV40,
-    M31SPlusV80,
-    M31SPlusV60,
-    M31SPlusV90,
-)
 
-from .M32 import M32, M32V20
-from .M32S import M32S
-from .M34S_Plus import M34SPlus, M34SPlusVE10
+class M34SPlus(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M34S+"
+        # TODO: has 4 boards instead of 3
+        self.nominal_chips = 464
+        self.fan_count = 2
+
+
+class M34SPlusVE10(BaseMiner):
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M34S+ VE10"
+        self.nominal_chips = 464
+        self.fan_count = 2

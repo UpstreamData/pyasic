@@ -193,3 +193,19 @@
     options:
         show_root_heading: false
         heading_level: 4
+
+## M34S+
+
+::: pyasic.miners.whatsminer.btminer.M3X.M34S_Plus.BTMinerM34SPlus
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M34S+VE10
+
+::: pyasic.miners.whatsminer.btminer.M3X.M34S_Plus.BTMinerM34SPlusVE10
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
