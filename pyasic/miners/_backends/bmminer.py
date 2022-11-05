@@ -281,12 +281,13 @@ class BMMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         data.hashboards.append(hashboard)
-                        if f"temp_pcb{i}" in temp[1].keys():
-                            env_temp = temp[1][f"temp_pcb{i}"].split("-")[0]
+
+                        if f"temp_pcb{i}" in boards[1].keys():
+                            env_temp = boards[1][f"temp_pcb{i}"].split("-")[0]
                             if not env_temp == 0:
                                 env_temp_list.append(int(env_temp))
                     if not env_temp_list == []:
-                        data.env_temp = sum(env_temp_list) / len(env_temp_list)
+                        data.env_temp = round(sum(env_temp_list) / len(env_temp_list))
 
         if stats:
             temp = stats.get("STATS")
