@@ -25,7 +25,7 @@ from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.errors import APIError
 
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 
 from pyasic.config import MinerConfig
 
@@ -300,7 +300,14 @@ class BOSMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * 3,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
 
         board_offset = -1
         fan_offset = -1
@@ -361,14 +368,13 @@ class BOSMiner(BaseMiner):
             temp = temps[0].get("TEMPS")
             if temp:
                 if len(temp) > 0:
-                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
                     offset = 6 if temp[0]["ID"] in [6, 7, 8] else temp[0]["ID"]
                     for board in temp:
                         _id = board["ID"] - offset
                         chip_temp = round(board["Chip"])
                         board_temp = round(board["Board"])
-                        setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
-                        setattr(data, f"{board_map[_id]}_temp", board_temp)
+                        data.hashboards[_id].chip_temp = chip_temp
+                        data.hashboards[_id].temp = board_temp
 
         if fans:
             fan_data = fans[0].get("FANS")
@@ -461,27 +467,26 @@ class BOSMiner(BaseMiner):
             boards = devdetails[0].get("DEVDETAILS")
             if boards:
                 if len(boards) > 0:
-                    board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
                     offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
                     for board in boards:
                         _id = board["ID"] - offset
                         chips = board["Chips"]
-                        setattr(data, board_map[_id], chips)
+                        data.hashboards[_id].chips = chips
+                        if chips > 0:
+                            data.hashboards[_id].missing = False
+                        else:
+                            data.hashboards[_id].missing = True
+
 
         if devs:
             boards = devs[0].get("DEVS")
             if boards:
                 if len(boards) > 0:
-                    board_map = {
-                        0: "left_board_hashrate",
-                        1: "center_board_hashrate",
-                        2: "right_board_hashrate",
-                    }
                     offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
                     for board in boards:
                         _id = board["ID"] - offset
                         hashrate = round(board["MHS 1m"] / 1000000, 2)
-                        setattr(data, board_map[_id], hashrate)
+                        data.hashboards[_id].hashrate = hashrate
         return data
 
     async def get_mac(self):
