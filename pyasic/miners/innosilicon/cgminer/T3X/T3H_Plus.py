@@ -162,6 +162,10 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             ip=str(self.ip),
             ideal_chips=self.nominal_chips * self.ideal_hashboards,
             ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
         )
 
         board_offset = -1
@@ -220,20 +224,29 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             stats = stats[0]
             if stats.get("STATS"):
                 for idx, board in enumerate(stats["STATS"]):
-                    temp_board = HashBoard(
-                        slot=idx,
-                        chip_temp=round(board.get("Temp")),
-                        chips=board.get("Num active chips"),
-                        missing=False if board.get("Num active chips") > 0 else True,
-                        expected_chips=self.nominal_chips,
-                    )
-                    data.hashboards.append(temp_board)
+                    data.hashboards[idx].missing = True
+                    chips = board.get("Num active chips")
+                    if chips:
+                        data.hashboards[idx].chips = chips
+                        if chips > 0:
+                            data.hashboards[idx].missing = False
 
         if all_data:
             if all_data.get("chain"):
                 for idx, board in enumerate(all_data["chain"]):
-                    data.hashboards[idx].temp = round(board.get("Temp min"))
-                    data.hashboards[idx].hashrate = round(board.get("Hash Rate H") / 1000000000000, 2)
+                    temp = board.get("Temp min")
+                    if temp:
+                        data.hashboards[idx].temp = round(temp)
+
+                    hashrate = board.get("Hash Rate H")
+                    if hashrate:
+                        data.hashboards[idx].hashrate = round(
+                            hashrate / 1000000000000, 2
+                        )
+
+                    chip_temp = board.get("Temp max")
+                    if chip_temp:
+                        data.hashboards[idx].chip_temp = round(chip_temp)
 
             if all_data.get("fansSpeed"):
                 speed = round((all_data["fansSpeed"] * 6000) / 100)
