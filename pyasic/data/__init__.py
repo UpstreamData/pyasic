@@ -102,9 +102,9 @@ class MinerData:
     fan_3: int = -1
     fan_4: int = -1
     fan_psu: int = -1
-    left_chips: int = 0
-    center_chips: int = 0
-    right_chips: int = 0
+    left_chips: int = field(init=False)
+    center_chips: int = field(init=False)
+    right_chips: int = field(init=False)
     total_chips: int = field(init=False)
     ideal_chips: int = 1
     percent_ideal: float = field(init=False)
@@ -177,15 +177,45 @@ class MinerData:
         return cp
 
     @property
-    def old_total_chips(self):  # noqa - Skip PyCharm inspection
-        return self.right_chips + self.center_chips + self.left_chips
-
-    @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
-        return reduce(lambda x, y: x + y, [board.chips for board in self.hashboards])
+        return reduce(lambda x, y: x + y, [hb.chips for hb in self.hashboards])
 
     @total_chips.setter
     def total_chips(self, val):
+        pass
+
+    @property
+    def left_chips(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) in [2, 3]:
+            return self.hashboards[0].chips
+        return 0
+
+    @left_chips.setter
+    def left_chips(self, val):
+        pass
+
+    @property
+    def center_chips(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 1:
+            return self.hashboards[0].chips
+        if len(self.hashboards) == 3:
+            return self.hashboards[1].chips
+        return 0
+
+    @center_chips.setter
+    def center_chips(self, val):
+        pass
+
+    @property
+    def right_chips(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 2:
+            return self.hashboards[1].chips
+        if len(self.hashboards) == 3:
+            return self.hashboards[2].chips
+        return 0
+
+    @right_chips.setter
+    def right_chips(self, val):
         pass
 
     @property
@@ -205,28 +235,12 @@ class MinerData:
         pass
 
     @property
-    def old_temperature_avg(self):  # noqa - Skip PyCharm inspection
-        total_temp = 0
-        temp_count = 0
-        for temp in [
-            self.left_board_chip_temp,
-            self.center_board_chip_temp,
-            self.right_board_chip_temp,
-        ]:
-            if temp and not temp == -1:
-                total_temp += temp
-                temp_count += 1
-        if not temp_count > 0:
-            return 0
-        return round(total_temp / temp_count)
-
-    @property
     def temperature_avg(self):  # noqa - Skip PyCharm inspection
         total_temp = 0
         temp_count = 0
-        for temp in self.hashboards:
-            if temp.temp and not temp.temp == -1:
-                total_temp += temp.temp
+        for hb in self.hashboards:
+            if hb.temp and not hb.temp == -1:
+                total_temp += hb.temp
                 temp_count += 1
         if not temp_count > 0:
             return 0
