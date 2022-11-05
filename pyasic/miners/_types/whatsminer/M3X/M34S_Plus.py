@@ -21,8 +21,8 @@ class M34SPlus(BaseMiner):
         self.ip = ip
         self.model = "M34S+"
         self.ideal_hashboards = 4
-        self.nominal_chips = 464
-        self.fan_count = 2
+        self.nominal_chips = 116
+        self.fan_count = 0
 
 
 class M34SPlusVE10(BaseMiner):
@@ -31,5 +31,5 @@ class M34SPlusVE10(BaseMiner):
         self.ip = ip
         self.model = "M34S+ VE10"
         self.ideal_hashboards = 4
-        self.nominal_chips = 464
-        self.fan_count = 2
+        self.nominal_chips = 116
+        self.fan_count = 0
