@@ -22,6 +22,7 @@ import copy
 
 from .error_codes import X19Error, WhatsminerError, BraiinsOSError, InnosiliconError
 
+
 @dataclass
 class HashBoard:
     slot: int = 0
@@ -121,7 +122,6 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
-
 
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()
@@ -284,6 +284,7 @@ class MinerData:
     @right_board_temp.setter
     def right_board_temp(self, val):
         pass
+
     @property
     def left_board_chip_temp(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) in [2, 3]:

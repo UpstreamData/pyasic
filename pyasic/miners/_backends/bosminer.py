@@ -478,7 +478,6 @@ class BOSMiner(BaseMiner):
                         else:
                             data.hashboards[_id].missing = True
 
-
         if devs:
             boards = devs[0].get("DEVS")
             if boards:
