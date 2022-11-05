@@ -132,10 +132,9 @@ class HiveonT9(Hiveon, T9):
                         hashboard.chips = chips
                         hashboard.temp = board_temp
                         hashboard.chip_temp = chip_temp
-                        if not chips == 0:
+                        hashboard.missing = True
+                        if chips and chips > 0:
                             hashboard.missing = False
-                        else:
-                            hashboard.missing = True
                         data.hashboards.append(hashboard)
 
                     if not env_temp_list == []:
