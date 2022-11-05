@@ -191,7 +191,11 @@ class BMMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+        )
 
         board_offset = -1
         fan_offset = -1

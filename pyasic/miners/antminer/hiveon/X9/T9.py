@@ -39,7 +39,11 @@ class HiveonT9(Hiveon, T9):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+        )
 
         board_offset = -1
         fan_offset = -1
@@ -105,7 +109,9 @@ class HiveonT9(Hiveon, T9):
                     env_temp_list = []
 
                     for board in board_map.keys():
-                        hashboard = HashBoard(slot=board, expected_chips=self.nominal_chips)
+                        hashboard = HashBoard(
+                            slot=board, expected_chips=self.nominal_chips
+                        )
                         chips = 0
                         hashrate = 0
                         chip_temp = 0

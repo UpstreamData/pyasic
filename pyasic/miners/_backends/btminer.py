@@ -247,7 +247,7 @@ class BTMiner(BaseMiner):
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
         data = MinerData(
-            ip=str(self.ip), ideal_chips=self.nominal_chips * self.ideal_hashboards
+            ip=str(self.ip), ideal_chips=self.nominal_chips * self.ideal_hashboards, ideal_hashboards=self.ideal_hashboards,
         )
 
         mac = None

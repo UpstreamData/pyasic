@@ -302,7 +302,8 @@ class BOSMiner(BaseMiner):
         """
         data = MinerData(
             ip=str(self.ip),
-            ideal_chips=self.nominal_chips * 3,
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.nominal_chips)
                 for i in range(self.ideal_hashboards)
