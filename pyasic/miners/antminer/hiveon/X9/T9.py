@@ -15,7 +15,7 @@
 from pyasic.miners._backends import Hiveon  # noqa - Ignore access to _module
 from pyasic.miners._types import T9  # noqa - Ignore access to _module
 
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.settings import PyasicSettings
 
 
@@ -97,14 +97,15 @@ class HiveonT9(Hiveon, T9):
                         )
 
                     board_map = {
-                        "left": [2, 9, 10],
-                        "center": [3, 11, 12],
-                        "right": [4, 13, 14],
+                        0: [2, 9, 10],
+                        1: [3, 11, 12],
+                        2: [4, 13, 14],
                     }
 
                     env_temp_list = []
 
                     for board in board_map.keys():
+                        hashboard = HashBoard(slot=board, expected_chips=self.nominal_chips)
                         chips = 0
                         hashrate = 0
                         chip_temp = 0
@@ -121,10 +122,16 @@ class HiveonT9(Hiveon, T9):
 
                             hashrate += boards[1][f"chain_rate{chipset}"]
                             chips += boards[1][f"chain_acn{chipset}"]
-                        setattr(data, f"{board}_chips", chips)
-                        setattr(data, f"{board}_board_hashrate", hashrate)
-                        setattr(data, f"{board}_board_temp", board_temp)
-                        setattr(data, f"{board}_board_chip_temp", chip_temp)
+                        hashboard.hashrate = hashrate
+                        hashboard.chips = chips
+                        hashboard.temp = board_temp
+                        hashboard.chip_temp = chip_temp
+                        if not chips == 0:
+                            hashboard.missing = False
+                        else:
+                            hashboard.missing = True
+                        data.hashboards.append(hashboard)
+
                     if not env_temp_list == []:
                         data.env_temp = sum(env_temp_list) / len(env_temp_list)
 
