@@ -20,7 +20,7 @@ class M34SPlus(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "M34S+"
-        # TODO: has 4 boards instead of 3
+        self.ideal_hashboards = 4
         self.nominal_chips = 464
         self.fan_count = 2
 
@@ -30,5 +30,6 @@ class M34SPlusVE10(BaseMiner):
         super().__init__()
         self.ip = ip
         self.model = "M34S+ VE10"
+        self.ideal_hashboards = 4
         self.nominal_chips = 464
         self.fan_count = 2
