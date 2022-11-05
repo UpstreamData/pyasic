@@ -14,10 +14,10 @@
 
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.settings import PyasicSettings
-from pyasic.config import MinerConfig, HashBoard
+from pyasic.config import MinerConfig
 from pyasic.errors import APIError
 
 import httpx
