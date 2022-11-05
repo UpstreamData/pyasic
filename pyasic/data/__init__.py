@@ -84,17 +84,19 @@ class MinerData:
     model: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0
-    left_board_hashrate: float = 0.0
-    center_board_hashrate: float = 0.0
-    right_board_hashrate: float = 0.0
+    hashboards: List[HashBoard] = field(default_factory=list)
+    ideal_hashboards: int = 1
+    left_board_hashrate: float = field(init=False)
+    center_board_hashrate: float = field(init=False)
+    right_board_hashrate: float = field(init=False)
     temperature_avg: int = field(init=False)
     env_temp: float = -1.0
-    left_board_temp: int = -1
-    left_board_chip_temp: int = -1
-    center_board_temp: int = -1
-    center_board_chip_temp: int = -1
-    right_board_temp: int = -1
-    right_board_chip_temp: int = -1
+    left_board_temp: int = field(init=False)
+    left_board_chip_temp: int = field(init=False)
+    center_board_temp: int = field(init=False)
+    center_board_chip_temp: int = field(init=False)
+    right_board_temp: int = field(init=False)
+    right_board_chip_temp: int = field(init=False)
     wattage: int = -1
     wattage_limit: int = -1
     fan_1: int = -1
@@ -119,9 +121,6 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
-    hashboards: List[HashBoard] = field(default_factory=list)
-    ideal_hashboards: int = 1
-
 
 
     def __post_init__(self):
@@ -216,6 +215,107 @@ class MinerData:
 
     @right_chips.setter
     def right_chips(self, val):
+        pass
+
+    @property
+    def left_board_hashrate(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) in [2, 3]:
+            return self.hashboards[0].hashrate
+        return 0
+
+    @left_board_hashrate.setter
+    def left_board_hashrate(self, val):
+        pass
+
+    @property
+    def center_board_hashrate(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 1:
+            return self.hashboards[0].hashrate
+        if len(self.hashboards) == 3:
+            return self.hashboards[1].hashrate
+        return 0
+
+    @center_board_hashrate.setter
+    def center_board_hashrate(self, val):
+        pass
+
+    @property
+    def right_board_hashrate(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 2:
+            return self.hashboards[1].hashrate
+        if len(self.hashboards) == 3:
+            return self.hashboards[2].hashrate
+        return 0
+
+    @right_board_hashrate.setter
+    def right_board_hashrate(self, val):
+        pass
+
+    @property
+    def left_board_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) in [2, 3]:
+            return self.hashboards[0].temp
+        return 0
+
+    @left_board_temp.setter
+    def left_board_temp(self, val):
+        pass
+
+    @property
+    def center_board_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 1:
+            return self.hashboards[0].temp
+        if len(self.hashboards) == 3:
+            return self.hashboards[1].temp
+        return 0
+
+    @center_board_temp.setter
+    def center_board_temp(self, val):
+        pass
+
+    @property
+    def right_board_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 2:
+            return self.hashboards[1].temp
+        if len(self.hashboards) == 3:
+            return self.hashboards[2].temp
+        return 0
+
+    @right_board_temp.setter
+    def right_board_temp(self, val):
+        pass
+    @property
+    def left_board_chip_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) in [2, 3]:
+            return self.hashboards[0].chip_temp
+        return 0
+
+    @left_board_chip_temp.setter
+    def left_board_chip_temp(self, val):
+        pass
+
+    @property
+    def center_board_chip_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 1:
+            return self.hashboards[0].chip_temp
+        if len(self.hashboards) == 3:
+            return self.hashboards[1].chip_temp
+        return 0
+
+    @center_board_chip_temp.setter
+    def center_board_chip_temp(self, val):
+        pass
+
+    @property
+    def right_board_chip_temp(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) == 2:
+            return self.hashboards[1].chip_temp
+        if len(self.hashboards) == 3:
+            return self.hashboards[2].chip_temp
+        return 0
+
+    @right_board_chip_temp.setter
+    def right_board_chip_temp(self, val):
         pass
 
     @property
