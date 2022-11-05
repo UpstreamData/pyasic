@@ -166,17 +166,9 @@ class BTMiner(BaseMiner):
                         for err in err_data["Msg"]["error_code"]:
                             if isinstance(err, dict):
                                 for code in err:
-                                    data.append(
-                                        WhatsminerError(
-                                            error_code=int(code)
-                                        )
-                                    )
+                                    data.append(WhatsminerError(error_code=int(code)))
                             else:
-                                data.append(
-                                    WhatsminerError(
-                                        error_code=int(err)
-                                    )
-                                )
+                                data.append(WhatsminerError(error_code=int(err)))
         except APIError:
             summary_data = await self.api.summary()
             if summary_data[0].get("Error Code Count"):
@@ -254,7 +246,9 @@ class BTMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * self.ideal_hashboards)
+        data = MinerData(
+            ip=str(self.ip), ideal_chips=self.nominal_chips * self.ideal_hashboards
+        )
 
         mac = None
 
@@ -361,61 +355,53 @@ class BTMiner(BaseMiner):
                         if isinstance(err, dict):
                             for code in err:
                                 data.errors.append(
-                                    WhatsminerError(
-                                        error_code=int(code)
-                                    )
+                                    WhatsminerError(error_code=int(code))
                                 )
                         else:
-                            data.errors.append(
-                                WhatsminerError(
-                                    error_code=int(err)
-                                )
-                            )
+                            data.errors.append(WhatsminerError(error_code=int(err)))
 
-        
         if devs:
             dev_data = devs.get("DEVS")
             if dev_data:
                 for board in dev_data:
                     temp_board = HashBoard(
-                        slot = board["ASC"],
-                        chip_temp = round(board["Chip Temp Avg"]),
-                        temp = round(board["Temperature"]),
-                        hashrate = round(board["MHS 1m"] / 1000000, 2),
-                        chips = board["Effective Chips"],
-                        missing = False if board["Effective Chips"] > 0 else True,
-                        expected_chips = self.nominal_chips,
-                        )                    
+                        slot=board["ASC"],
+                        chip_temp=round(board["Chip Temp Avg"]),
+                        temp=round(board["Temperature"]),
+                        hashrate=round(board["MHS 1m"] / 1000000, 2),
+                        chips=board["Effective Chips"],
+                        missing=False if board["Effective Chips"] > 0 else True,
+                        expected_chips=self.nominal_chips,
+                    )
                     data.hashboards.append(temp_board)
 
-        """
-        if devs:
-            temp_data = devs.get("DEVS")
-            if temp_data:
-                board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
-                for board in temp_data:
-                    _id = board["ASC"]
-                    chip_temp = round(board["Chip Temp Avg"])
-                    board_temp = round(board["Temperature"])
-                    hashrate = round(board["MHS 1m"] / 1000000, 2)
-                    setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
-                    setattr(data, f"{board_map[_id]}_temp", board_temp)
-                    setattr(data, f"{board_map[_id]}_hashrate", hashrate)
-
-        if devs:
-            boards = devs.get("DEVS")
-            if boards:
-                if len(boards) > 0:
-                    board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
-                    if "ID" in boards[0].keys():
-                        id_key = "ID"
-                    else:
-                        id_key = "ASC"
-                    offset = boards[0][id_key]
-                    for board in boards:
-                        _id = board[id_key] - offset
-                        chips = board["Effective Chips"]
-                        setattr(data, board_map[_id], chips)"""
+        # if devs:
+        #     temp_data = devs.get("DEVS")
+        #     if temp_data:
+        #         board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
+        #         for board in temp_data:
+        #             _id = board["ASC"]
+        #             chip_temp = round(board["Chip Temp Avg"])
+        #             board_temp = round(board["Temperature"])
+        #             hashrate = round(board["MHS 1m"] / 1000000, 2)
+        #             setattr(data, f"{board_map[_id]}_chip_temp", chip_temp)
+        #             setattr(data, f"{board_map[_id]}_temp", board_temp)
+        #             setattr(data, f"{board_map[_id]}_hashrate", hashrate)
+        #
+        # if devs:
+        #     boards = devs.get("DEVS")
+        #     if boards:
+        #         if len(boards) > 0:
+        #             board_map = {0: "left_chips", 1: "center_chips", 2: "right_chips"}
+        #             if "ID" in boards[0].keys():
+        #                 id_key = "ID"
+        #             else:
+        #                 id_key = "ASC"
+        #             offset = boards[0][id_key]
+        #             for board in boards:
+        #                 _id = board[id_key] - offset
+        #                 chips = board["Effective Chips"]
+        #                 setattr(data, board_map[_id], chips)
 
         if pools:
             pool_1 = None
