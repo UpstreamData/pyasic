@@ -246,7 +246,7 @@ class BMMiner(BaseMiner):
         if stats:
             boards = stats.get("STATS")
             if boards:
-                if len(boards) > 0:
+                if len(boards) > 1:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
                             b = boards[1].get(f"chain_acn{board_num + _b_num}")
