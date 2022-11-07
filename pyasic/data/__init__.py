@@ -177,7 +177,7 @@ class MinerData:
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
-        return reduce(lambda x, y: x + y, [hb.chips for hb in self.hashboards])
+        return sum([hb.chips for hb in self.hashboards])
 
     @total_chips.setter
     def total_chips(self, val):
