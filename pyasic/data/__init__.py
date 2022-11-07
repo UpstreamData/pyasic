@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from typing import Union, List
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from datetime import datetime, timezone
 from functools import reduce
 import time
@@ -122,6 +122,11 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
+
+    @classmethod
+    def fields(cls):
+        return [f.name for f in fields(cls)]
+
 
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()
