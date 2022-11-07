@@ -230,7 +230,7 @@ These functions are
 
 ## [`MinerConfig`][pyasic.config.MinerConfig] and [`MinerData`][pyasic.data.MinerData]
 
-Pyasic implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.
+Pyasic implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.  The different fields of these dataclasses can all be viewed with the classmethod `cls.fields()`.
 
 <br>
 
