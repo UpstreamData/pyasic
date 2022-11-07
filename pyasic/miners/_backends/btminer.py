@@ -109,7 +109,6 @@ class BTMiner(BaseMiner):
             if "Code" in data.keys():
                 if data["Code"] == 131:
                     return True
-        print(data)
         return False
 
     async def check_light(self) -> bool:
@@ -174,9 +173,7 @@ class BTMiner(BaseMiner):
             if summary_data.get("SUMMARY"):
                 summary_data = summary_data["SUMMARY"]
                 if summary_data[0].get("Error Code Count"):
-                    print(summary_data[0].get("Error Code Count"))
                     for i in range(summary_data[0]["Error Code Count"]):
-                        print(i)
                         if summary_data[0].get(f"Error Code {i}"):
                             if not summary_data[0][f"Error Code {i}"] == "":
                                 data.append(
