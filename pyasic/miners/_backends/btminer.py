@@ -171,15 +171,19 @@ class BTMiner(BaseMiner):
                                 data.append(WhatsminerError(error_code=int(err)))
         except APIError:
             summary_data = await self.api.summary()
-            if summary_data[0].get("Error Code Count"):
-                for i in range(summary_data[0]["Error Code Count"]):
-                    if summary_data[0].get(f"Error Code {i}"):
-                        if not summary_data[0][f"Error Code {i}"] == "":
-                            data.append(
-                                WhatsminerError(
-                                    error_code=summary_data[0][f"Error Code {i}"]
+            if summary_data.get("SUMMARY"):
+                summary_data = summary_data["SUMMARY"]
+                if summary_data[0].get("Error Code Count"):
+                    print(summary_data[0].get("Error Code Count"))
+                    for i in range(summary_data[0]["Error Code Count"]):
+                        print(i)
+                        if summary_data[0].get(f"Error Code {i}"):
+                            if not summary_data[0][f"Error Code {i}"] == "":
+                                data.append(
+                                    WhatsminerError(
+                                        error_code=summary_data[0][f"Error Code {i}"]
+                                    )
                                 )
-                            )
 
         return data
 
