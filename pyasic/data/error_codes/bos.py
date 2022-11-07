@@ -24,6 +24,7 @@ class BraiinsOSError:
     """
 
     error_message: str
+    error_code: int = 0
 
     def asdict(self):
         return asdict(self)
