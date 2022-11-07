@@ -266,7 +266,11 @@ class BOSMiner(BaseMiner):
             logging.warning(e)
 
         if tunerstatus:
-            tuner = tunerstatus[0].get("TUNERSTATUS")
+            print(tunerstatus)
+            try:
+                tuner = tunerstatus[0].get("TUNERSTATUS")
+            except KeyError:
+                tuner = tunerstatus.get("TUNERSTATUS")
             if tuner:
                 if len(tuner) > 0:
                     chain_status = tuner[0].get("TunerChainStatus")
