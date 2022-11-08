@@ -14,7 +14,7 @@
 
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.settings import PyasicSettings
 import re
 from pyasic.config import MinerConfig
@@ -81,7 +81,15 @@ class CGMinerA7X(CGMiner):
         return mac
 
     async def get_data(self):
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
 
         model = await self.get_model()
         mac = None
@@ -145,27 +153,20 @@ class CGMinerA7X(CGMiner):
                                     f"fan_{fan+1}",
                                     int(raw_data[f"Fan{fan+1}"]),
                                 )
-                            if "MTmax" in raw_data.keys():
-                                data.left_board_chip_temp = int(raw_data["MTmax"][0])
-                                data.center_board_chip_temp = int(raw_data["MTmax"][1])
-                                data.right_board_chip_temp = int(raw_data["MTmax"][2])
-                            if "MTavg" in raw_data.keys():
-                                data.left_board_temp = int(raw_data["MTavg"][0])
-                                data.center_board_temp = int(raw_data["MTavg"][1])
-                                data.right_board_temp = int(raw_data["MTavg"][2])
+                        for board in range(self.ideal_hashboards):
+                            chip_temp = raw_data.get("MTmax")
+                            if chip_temp:
+                                data.hashboards[board].chip_temp = chip_temp[board]
 
-                        if "PVT_T0" in raw_data:
-                            data.left_chips = len(
-                                [item for item in raw_data["PVT_T0"] if not item == "0"]
-                            )
-                        if "PVT_T1" in raw_data:
-                            data.center_chips = len(
-                                [item for item in raw_data["PVT_T1"] if not item == "0"]
-                            )
-                        if "PVT_T2" in raw_data:
-                            data.right_chips = len(
-                                [item for item in raw_data["PVT_T2"] if not item == "0"]
-                            )
+                            temp = raw_data.get("MTavg")
+                            if temp:
+                                data.hashboards[board].temp = temp[board]
+
+                            chips = raw_data.get(f"PVT_T{board}")
+                            if chips:
+                                data.hashboards[board].chips = len(
+                                    [item for item in chips if not item == "0"]
+                                )
 
         if pools:
             pool_1 = None

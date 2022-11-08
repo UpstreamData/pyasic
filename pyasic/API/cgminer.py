@@ -12,7 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.API import BaseMinerAPI
+from pyasic.API import BaseMinerAPI, APIError
+
+import logging
 
 
 class CGMinerAPI(BaseMinerAPI):
@@ -35,6 +37,37 @@ class CGMinerAPI(BaseMinerAPI):
 
     def __init__(self, ip: str, port: int = 4028):
         super().__init__(ip, port)
+
+    async def multicommand(
+        self, *commands: str, ignore_x19_error: bool = False
+    ) -> dict:
+        logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
+        # make sure we can actually run each command, otherwise they will fail
+        commands = self._check_commands(*commands)
+        # standard multicommand format is "command1+command2"
+        # doesnt work for S19 which uses the backup _x19_multicommand
+        command = "+".join(commands)
+        try:
+            data = await self.send_command(command, allow_warning=ignore_x19_error)
+        except APIError:
+            logging.debug(f"{self.ip}: Handling X19 multicommand.")
+            data = await self._x19_multicommand(*command.split("+"))
+        logging.debug(f"{self.ip}: Received multicommand data.")
+        return data
+
+    async def _x19_multicommand(self, *commands):
+        data = None
+        try:
+            data = {}
+            # send all commands individually
+            for cmd in commands:
+                data[cmd] = []
+                data[cmd].append(await self.send_command(cmd, allow_warning=True))
+        except APIError as e:
+            raise APIError(e)
+        except Exception as e:
+            logging.warning(f"{self.ip}: API Multicommand Error: {e}")
+        return data
 
     async def version(self) -> dict:
         """Get miner version info.

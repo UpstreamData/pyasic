@@ -20,7 +20,7 @@ from typing import Union, List
 from pyasic.API.bmminer import BMMinerAPI
 from pyasic.miners.base import BaseMiner
 
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.config import MinerConfig
 from pyasic.data.error_codes import MinerErrorData
 
@@ -191,7 +191,11 @@ class BMMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+        )
 
         board_offset = -1
         fan_offset = -1
@@ -242,7 +246,7 @@ class BMMiner(BaseMiner):
         if stats:
             boards = stats.get("STATS")
             if boards:
-                if len(boards) > 0:
+                if len(boards) > 1:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
                             b = boards[1].get(f"chain_acn{board_num + _b_num}")
@@ -252,30 +256,38 @@ class BMMiner(BaseMiner):
                     if board_offset == -1:
                         board_offset = 1
 
-                    data.left_chips = boards[1].get(f"chain_acn{board_offset}")
-                    data.center_chips = boards[1].get(f"chain_acn{board_offset+1}")
-                    data.right_chips = boards[1].get(f"chain_acn{board_offset+2}")
+                    env_temp_list = []
+                    for i in range(board_offset, board_offset + self.ideal_hashboards):
+                        hashboard = HashBoard(
+                            slot=i - board_offset, expected_chips=self.nominal_chips
+                        )
 
-                    try:
-                        data.left_board_hashrate = round(
-                            float(boards[1].get(f"chain_rate{board_offset}")) / 1000, 2
-                        )
-                    except ValueError as e:
-                        data.left_board_hashrate = round(0.00, 2)
-                    try:
-                        data.center_board_hashrate = round(
-                            float(boards[1].get(f"chain_rate{board_offset+1}")) / 1000,
-                            2,
-                        )
-                    except ValueError as e:
-                        data.center_board_hashrate = round(0.00, 2)
-                    try:
-                        data.right_board_hashrate = round(
-                            float(boards[1].get(f"chain_rate{board_offset+2}")) / 1000,
-                            2,
-                        )
-                    except ValueError as e:
-                        data.right_board_hashrate = round(0.00, 2)
+                        chip_temp = boards[1].get(f"temp{i}")
+                        if chip_temp:
+                            hashboard.chip_temp = round(chip_temp)
+
+                        temp = boards[1].get(f"temp2_{i}")
+                        if temp:
+                            hashboard.temp = round(temp)
+
+                        hashrate = boards[1].get(f"chain_rate{i}")
+                        if hashrate:
+                            hashboard.hashrate = round(float(hashrate) / 1000, 2)
+
+                        chips = boards[1].get(f"chain_acn{i}")
+                        if chips:
+                            hashboard.chips = chips
+                            hashboard.missing = False
+                        if (not chips) or (not chips > 0):
+                            hashboard.missing = True
+                        data.hashboards.append(hashboard)
+
+                        if f"temp_pcb{i}" in boards[1].keys():
+                            env_temp = boards[1][f"temp_pcb{i}"].split("-")[0]
+                            if not env_temp == 0:
+                                env_temp_list.append(int(env_temp))
+                    if not env_temp_list == []:
+                        data.env_temp = round(sum(env_temp_list) / len(env_temp_list))
 
         if stats:
             temp = stats.get("STATS")
@@ -292,20 +304,6 @@ class BMMiner(BaseMiner):
                         setattr(
                             data, f"fan_{fan + 1}", temp[1].get(f"fan{fan_offset+fan}")
                         )
-
-                    board_map = {0: "left_board", 1: "center_board", 2: "right_board"}
-                    env_temp_list = []
-                    for item in range(3):
-                        board_temp = temp[1].get(f"temp{item + board_offset}")
-                        chip_temp = temp[1].get(f"temp2_{item + board_offset}")
-                        setattr(data, f"{board_map[item]}_chip_temp", chip_temp)
-                        setattr(data, f"{board_map[item]}_temp", board_temp)
-                        if f"temp_pcb{item}" in temp[1].keys():
-                            env_temp = temp[1][f"temp_pcb{item}"].split("-")[0]
-                            if not env_temp == 0:
-                                env_temp_list.append(int(env_temp))
-                    if not env_temp_list == []:
-                        data.env_temp = sum(env_temp_list) / len(env_temp_list)
 
         if pools:
             pool_1 = None

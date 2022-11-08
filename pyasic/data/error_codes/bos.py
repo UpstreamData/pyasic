@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 
 
 @dataclass
@@ -21,9 +21,16 @@ class BraiinsOSError:
 
     Attributes:
         error_message: The error message as a string.
+        error_code: The error code as an int.  0 if the message is not assigned a code.
     """
 
     error_message: str
+    error_code: int = 0
+
+    @classmethod
+    def fields(cls):
+        return fields(cls)
+
 
     def asdict(self):
         return asdict(self)

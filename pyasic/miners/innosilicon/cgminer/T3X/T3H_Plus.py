@@ -14,7 +14,7 @@
 
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.settings import PyasicSettings
 from pyasic.config import MinerConfig
@@ -158,7 +158,15 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return errors
 
     async def get_data(self) -> MinerData:
-        data = MinerData(ip=str(self.ip), ideal_chips=self.nominal_chips * 3)
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
 
         board_offset = -1
         fan_offset = -1
@@ -215,32 +223,31 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         if stats:
             stats = stats[0]
             if stats.get("STATS"):
-                board_map = {0: "left", 1: "center", 2: "right"}
                 for idx, board in enumerate(stats["STATS"]):
+                    data.hashboards[idx].missing = True
                     chips = board.get("Num active chips")
                     if chips:
-                        setattr(data, f"{board_map[idx]}_chips", chips)
-                    temp = board.get("Temp")
-                    if temp:
-                        setattr(data, f"{board_map[idx]}_board_chip_temp", temp)
+                        data.hashboards[idx].chips = chips
+                        if chips > 0:
+                            data.hashboards[idx].missing = False
 
         if all_data:
             if all_data.get("chain"):
-                board_map = {0: "left", 1: "center", 2: "right"}
                 for idx, board in enumerate(all_data["chain"]):
-                    temp = board.get("Temp max")
+                    temp = board.get("Temp min")
                     if temp:
-                        setattr(data, f"{board_map[idx]}_board_chip_temp", temp)
-                    temp_board = board.get("Temp min")
-                    if temp_board:
-                        setattr(data, f"{board_map[idx]}_board_temp", temp_board)
-                    hr = board.get("Hash Rate H")
-                    if hr:
-                        setattr(
-                            data,
-                            f"{board_map[idx]}_board_hashrate",
-                            round(hr / 1000000000000, 2),
+                        data.hashboards[idx].temp = round(temp)
+
+                    hashrate = board.get("Hash Rate H")
+                    if hashrate:
+                        data.hashboards[idx].hashrate = round(
+                            hashrate / 1000000000000, 2
                         )
+
+                    chip_temp = board.get("Temp max")
+                    if chip_temp:
+                        data.hashboards[idx].chip_temp = round(chip_temp)
+
             if all_data.get("fansSpeed"):
                 speed = round((all_data["fansSpeed"] * 6000) / 100)
                 for fan in range(self.fan_count):

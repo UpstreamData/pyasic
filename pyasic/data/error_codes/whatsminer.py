@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 
 
 @dataclass
@@ -26,6 +26,11 @@ class WhatsminerError:
 
     error_code: int
     error_message: str = field(init=False)
+
+
+    @classmethod
+    def fields(cls):
+        return fields(cls)
 
     @property
     def error_message(self):  # noqa - Skip PyCharm inspection

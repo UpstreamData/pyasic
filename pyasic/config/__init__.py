@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from typing import Literal, List
 import random
 import string
@@ -36,6 +36,10 @@ class _Pool:
     url: str = ""
     username: str = ""
     password: str = ""
+
+    @classmethod
+    def fields(cls):
+        return fields(cls)
 
     def from_dict(self, data: dict):
         """Convert raw pool data as a dict to usable data and save it to this class.
@@ -135,6 +139,10 @@ class _PoolGroup:
     quota: int = 1
     group_name: str = None
     pools: List[_Pool] = None
+
+    @classmethod
+    def fields(cls):
+        return fields(cls)
 
     def __post_init__(self):
         if not self.group_name:
@@ -262,6 +270,10 @@ class MinerConfig:
     dps_min_power: int = None
     dps_shutdown_enabled: bool = None
     dps_shutdown_duration: float = None
+
+    @classmethod
+    def fields(cls):
+        return fields(cls)
 
     def as_dict(self) -> dict:
         """Convert the data in this class to a dict."""

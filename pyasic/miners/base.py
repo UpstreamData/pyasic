@@ -43,6 +43,7 @@ class BaseMiner(ABC):
         self.version = None
         self.fan_count = 2
         self.config = None
+        self.ideal_hashboards = 3
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseMiner:
