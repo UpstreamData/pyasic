@@ -157,7 +157,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                     errors.append(InnosiliconError(error_code=err))
         return errors
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = False) -> MinerData:
         data = MinerData(
             ip=str(self.ip),
             ideal_chips=self.nominal_chips * self.ideal_hashboards,
@@ -187,7 +187,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         all_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
-                "summary", "pools", "stats", ignore_x19_error=True
+                "summary", "pools", "stats", allow_warning=allow_warning
             )
 
             if miner_data:

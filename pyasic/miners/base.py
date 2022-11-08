@@ -192,7 +192,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = True) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
         Returns:

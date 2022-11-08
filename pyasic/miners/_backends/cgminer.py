@@ -173,7 +173,7 @@ class CGMiner(BaseMiner):
     async def get_mac(self) -> str:
         return "00:00:00:00:00:00"
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner.
 
         Returns:
@@ -206,7 +206,7 @@ class CGMiner(BaseMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
-                "summary", "pools", "stats",
+                "summary", "pools", "stats", allow_warning=allow_warning
             )
             if miner_data:
                 break

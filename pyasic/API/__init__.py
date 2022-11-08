@@ -72,11 +72,12 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def multicommand(self, *commands: str) -> dict:
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
             *commands: The commands to send as a multicommand to the miner.
+            allow_warning: A boolean to supress APIWarnings.
         """
         logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # make sure we can actually run each command, otherwise they will fail
@@ -85,7 +86,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         # doesn't work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
         try:
-            data = await self.send_command(command)
+            data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
             return {}
         logging.debug(f"{self.ip}: Received multicommand data.")

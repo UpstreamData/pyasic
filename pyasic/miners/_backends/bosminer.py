@@ -297,7 +297,7 @@ class BOSMiner(BaseMiner):
                                 )
         return errors
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = True) -> MinerData:
         """Get data from the miner.
 
         Returns:
@@ -342,6 +342,7 @@ class BOSMiner(BaseMiner):
                     "devdetails",
                     "fans",
                     "devs",
+                    allow_warning=allow_warning
                 )
             except APIError as e:
                 if str(e.message) == "Not ready":

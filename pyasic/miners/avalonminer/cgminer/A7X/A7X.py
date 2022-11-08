@@ -80,7 +80,7 @@ class CGMinerA7X(CGMiner):
                     )
         return mac
 
-    async def get_data(self):
+    async def get_data(self, allow_warning: bool = True):
         data = MinerData(
             ip=str(self.ip),
             ideal_chips=self.nominal_chips * self.ideal_hashboards,
@@ -100,7 +100,7 @@ class CGMinerA7X(CGMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
-                "version", "summary", "pools", "stats"
+                "version", "summary", "pools", "stats", allow_warning=allow_warning
             )
             if miner_data:
                 break

@@ -185,7 +185,7 @@ class BMMiner(BaseMiner):
     async def resume_mining(self) -> bool:
         return False
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner.
 
         Returns:
@@ -223,7 +223,7 @@ class BMMiner(BaseMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             miner_data = await self.api.multicommand(
-                "summary", "pools", "stats", ignore_x19_error=True
+                "summary", "pools", "stats", allow_warning=allow_warning
             )
             if miner_data:
                 break

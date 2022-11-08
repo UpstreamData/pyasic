@@ -241,7 +241,7 @@ class BTMiner(BaseMiner):
                 cfg = cfg.from_api(pools["POOLS"])
         return cfg
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, allow_warning: bool = True) -> MinerData:
         """Get data from the miner.
 
         Returns:
@@ -280,7 +280,7 @@ class BTMiner(BaseMiner):
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
-                miner_data = await self.api.multicommand("summary", "devs", "pools")
+                miner_data = await self.api.multicommand("summary", "devs", "pools", allow_warning=allow_warning)
                 if miner_data:
                     break
             except APIError:

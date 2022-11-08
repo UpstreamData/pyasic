@@ -39,7 +39,7 @@ class CGMinerAPI(BaseMinerAPI):
         super().__init__(ip, port)
 
     async def multicommand(
-        self, *commands: str, ignore_x19_error: bool = False
+        self, *commands: str, allow_warning: bool = True
     ) -> dict:
         logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # make sure we can actually run each command, otherwise they will fail
@@ -48,7 +48,7 @@ class CGMinerAPI(BaseMinerAPI):
         # doesnt work for S19 which uses the backup _x19_multicommand
         command = "+".join(commands)
         try:
-            data = await self.send_command(command, allow_warning=ignore_x19_error)
+            data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
             logging.debug(f"{self.ip}: Handling X19 multicommand.")
             data = await self._x19_multicommand(*command.split("+"))
