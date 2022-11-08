@@ -27,16 +27,25 @@ class WhatsminerError:
     error_code: int
     error_message: str = field(init=False)
 
-
     @classmethod
     def fields(cls):
         return fields(cls)
 
     @property
     def error_message(self):  # noqa - Skip PyCharm inspection
-        if self.error_code in ERROR_CODES:
-            return ERROR_CODES[self.error_code]
-        return "Unknown error type."
+        err_type = int(str(self.error_code)[:-2])
+        err_subtype = int(str(self.error_code)[-2:-1])
+        err_value = int(str(self.error_code)[-1:])
+        try:
+            select_err_subtype = ERROR_CODES[err_type][err_subtype]
+            if err_value in select_err_subtype:
+                return select_err_subtype[err_value]
+            elif "n" in select_err_subtype:
+                return select_err_subtype["n"].replace("{n}", str(err_value))  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+            else:
+                return "Unknown error type."
+        except KeyError:
+            return "Unknown error type."
 
     @error_message.setter
     def error_message(self, val):
@@ -47,131 +56,158 @@ class WhatsminerError:
 
 
 ERROR_CODES = {
-    110: "Intake fan speed error.",
-    111: "Exhaust fan speed error.",
-    120: "Intake fan speed error.  Fan speed deviates by more than 2000.",
-    121: "Exhaust fan speed error.  Fan speed deviates by more than 2000.",
-    130: "Intake fan speed error.  Fan speed deviates by more than 3000.",
-    131: "Exhaust fan speed error.  Fan speed deviates by more than 3000.",
-    140: "Fan speed too high.",
-    200: "Power probing error.  No power found.",
-    201: "Power supply and configuration file don't match.",
-    202: "Power output voltage error.",
-    203: "Power protecting due to high environment temperature.",
-    204: "Power current protecting due to high environment temperature.",
-    205: "Power current error.",
-    206: "Power input low voltage error.",
-    207: "Power input current protecting due to bad power input.",
-    210: "Power error.",
-    213: "Power input voltage and current do not match power output.",
-    216: "Power remained unchanged for a long time.",
-    217: "Power set enable error.",
-    218: "Power input voltage is lower than 230V for high power mode.",
-    233: "Power output high temperature protection error.",
-    234: "Power output high temperature protection error.",
-    235: "Power output high temperature protection error.",
-    236: "Power output high current protection error.",
-    237: "Power output high current protection error.",
-    238: "Power output high current protection error.",
-    239: "Power output high voltage protection error.",
-    240: "Power output low voltage protection error.",
-    241: "Power output current imbalance error.",
-    243: "Power input high temperature protection error.",
-    244: "Power input high temperature protection error.",
-    245: "Power input high temperature protection error.",
-    246: "Power input high voltage protection error.",
-    247: "Power input high voltage protection error.",
-    248: "Power input high current protection error.",
-    249: "Power input high current protection error.",
-    250: "Power input low voltage protection error.",
-    251: "Power input low voltage protection error.",
-    253: "Power supply fan error.",
-    254: "Power supply fan error.",
-    255: "Power output high power protection error.",
-    256: "Power output high power protection error.",
-    257: "Input over current protection of power supply on primary side.",
-    263: "Power communication warning.",
-    264: "Power communication error.",
-    267: "Power watchdog protection.",
-    268: "Power output high current protection.",
-    269: "Power input high current protection.",
-    270: "Power input high voltage protection.",
-    271: "Power input low voltage protection.",
-    272: "Excessive power supply output warning.",
-    273: "Power input too high warning.",
-    274: "Power fan warning.",
-    275: "Power high temperature warning.",
-    300: "Right board temperature sensor detection error.",
-    301: "Center board temperature sensor detection error.",
-    302: "Left board temperature sensor detection error.",
-    320: "Right board temperature reading error.",
-    321: "Center board temperature reading error.",
-    322: "Left board temperature reading error.",
-    329: "Control board temperature sensor communication error.",
-    350: "Right board temperature protecting.",
-    351: "Center board temperature protecting.",
-    352: "Left board temperature protecting.",
-    360: "Hashboard high temperature error.",
-    410: "Right board eeprom detection error.",
-    411: "Center board eeprom detection error.",
-    412: "Left board eeprom detection error.",
-    420: "Right board eeprom parsing error.",
-    421: "Center board eeprom parsing error.",
-    422: "Left board eeprom parsing error.",
-    430: "Right board chip bin type error.",
-    431: "Center board chip bin type error.",
-    432: "Left board chip bin type error.",
-    440: "Right board eeprom chip number X error.",
-    441: "Center board eeprom chip number X error.",
-    442: "Left board eeprom chip number X error.",
-    450: "Right board eeprom xfer error.",
-    451: "Center board eeprom xfer error.",
-    452: "Left board eeprom xfer error.",
-    510: "Right board miner type error.",
-    511: "Center board miner type error.",
-    512: "Left board miner type error.",
-    520: "Right board bin type error.",
-    521: "Center board bin type error.",
-    522: "Left board bin type error.",
-    530: "Right board not found.",
-    531: "Center board not found.",
-    532: "Left board not found.",
-    540: "Right board error reading chip id.",
-    541: "Center board error reading chip id.",
-    542: "Left board error reading chip id.",
-    550: "Right board has bad chips.",
-    551: "Center board has bad chips.",
-    552: "Left board has bad chips.",
-    560: "Right board loss of balance error.",
-    561: "Center board loss of balance error.",
-    562: "Left board loss of balance error.",
-    600: "Environment temperature is too high.",
-    610: "Environment temperature is too high for high performance mode.",
-    701: "Control board no support chip.",
-    710: "Control board rebooted as an exception.",
-    712: "Control board rebooted as an exception.",
-    800: "CGMiner checksum error.",
-    801: "System monitor checksum error.",
-    802: "Remote daemon checksum error.",
-    2010: "All pools are disabled.",
-    2020: "Pool 0 connection failed.",
-    2021: "Pool 1 connection failed.",
-    2022: "Pool 2 connection failed.",
-    2023: "Pool 3 connection failed.",
-    2030: "High rejection rate on pool.",
-    2040: "The pool does not support asicboost mode.",
-    2310: "Hashrate is too low.",
-    2320: "Hashrate is too low.",
-    2340: "Hashrate loss is too high.",
-    2350: "Hashrate loss is too high.",
-    5070: "Right hashboard water velocity is abnormal.",
-    5071: "Center hashboard water velocity is abnormal.",
-    5072: "Left hashboard water velocity is abnormal.",
-    5110: "Right hashboard frequency up timeout.",
-    5111: "Center hashboard frequency up timeout.",
-    5112: "Left hashboard frequency up timeout.",
-    8410: "Software version error.",
-    100001: "/antiv/signature illegal.",
-    100002: "/antiv/dig/init.d illegal.",
-    100003: "/antiv/dig/pf_partial.dig illegal.",
+    1: {  # Fan error
+        1: {  # Fan speed error of 1000+
+            0: "Intake fan speed error.",
+            1: "Exhaust fan speed error.",
+        },
+        2: {  # Fan speed error of 2000+
+            0: "Intake fan speed error.  Fan speed deviates by more than 2000.",
+            1: "Exhaust fan speed error.  Fan speed deviates by more than 2000.",
+        },
+        3: {  # Fan speed error of 3000+
+            0: "Intake fan speed error.  Fan speed deviates by more than 3000.",
+            1: "Exhaust fan speed error.  Fan speed deviates by more than 3000.",
+        },
+        4: {0: "Fan speed too high."},  # High speed
+    },
+    2: {  # Power error
+        0: {
+            0: "Power probing error.  No power found.",
+            1: "Power supply and configuration file don't match.",
+            2: "Power output voltage error.",
+            3: "Power protecting due to high environment temperature.",
+            4: "Power current protecting due to high environment temperature.",
+            5: "Power current error.",
+            6: "Power input low voltage error.",
+            7: "Power input current protecting due to bad power input.",
+        },
+        1: {
+            0: "Power error.",
+            3: "Power input voltage and current do not match power output.",
+            6: "Power remained unchanged for a long time.",
+            7: "Power set enable error.",
+            8: "Power input voltage is lower than 230V for high power mode.",
+        },
+        3: {
+            3: "Power output high temperature protection error.",
+            4: "Power output high temperature protection error.",
+            5: "Power output high temperature protection error.",
+            6: "Power output high current protection error.",
+            7: "Power output high current protection error.",
+            8: "Power output high current protection error.",
+            9: "Power output high voltage protection error.",
+        },
+        4: {
+            0: "Power output low voltage protection error.",
+            1: "Power output current imbalance error.",
+            3: "Power input high temperature protection error.",
+            4: "Power input high temperature protection error.",
+            5: "Power input high temperature protection error.",
+            6: "Power input high voltage protection error.",
+            7: "Power input high voltage protection error.",
+            8: "Power input high current protection error.",
+            9: "Power input high current protection error.",
+        },
+        5: {
+            0: "Power input low voltage protection error.",
+            1: "Power input low voltage protection error.",
+            3: "Power supply fan error.",
+            4: "Power supply fan error.",
+            5: "Power output high power protection error.",
+            6: "Power output high power protection error.",
+            7: "Input over current protection of power supply on primary side.",
+        },
+        6: {
+            3: "Power communication warning.",
+            4: "Power communication error.",
+            7: "Power watchdog protection.",
+            8: "Power output high current protection.",
+            9: "Power input high current protection.",
+        },
+        7: {
+            0: "Power input high voltage protection.",
+            1: "Power input low voltage protection.",
+            2: "Excessive power supply output warning.",
+            3: "Power input too high warning.",
+            4: "Power fan warning.",
+            5: "Power high temperature warning.",
+        },
+    },
+    3: {  # temperature error
+        0: {  # sensor detection error
+            "n": "Slot {n} temperature sensor detection error."
+        },
+        2: {  # temperature reading error
+            "n": "Slot {n} temperature reading error.",
+            9: "Control board temperature sensor communication error.",
+        },
+        5: {"n": "Slot {n} temperature protecting."},  # temperature protection
+        6: {0: "Hashboard high temperature error."},  # high temp
+    },
+    4: {  # EEPROM error
+        1: {"n": "Slot {n} eeprom detection error."},  # EEPROM detection error
+        2: {"n": "Slot {n} eeprom parsing error."},  # EEPROM parsing error
+        3: {"n": "Slot {n} chip bin type error."},  # chip bin error
+        4: {"n": "Slot {n} eeprom chip number X error."},  # EEPROM chip number error
+        5: {"n": "Slot {n} eeprom xfer error."},  # EEPROM xfer error
+    },
+    5: {  # hashboard error
+        1: {"n": "Slot {n} miner type error."},  # board miner type error
+        2: {"n": "Slot {n} bin type error."},  # chip bin type error
+        3: {"n": "Slot {n} not found."},  # board not found error
+        4: {"n": "Slot {n} error reading chip id."},  # reading chip id error
+        5: {"n": "Slot {n} has bad chips."},  # board has bad chips error
+        6: {"n": "Slot {n} loss of balance error."},  # loss of balance error
+    },
+    6: {  # env temp error
+        0: {0: "Environment temperature is too high."},  # normal env temp error
+        1: {  # high power env temp error
+            0: "Environment temperature is too high for high performance mode."
+        },
+    },
+    7: {  # control board error
+        0: {1: "Control board no support chip."},
+        1: {
+            0: "Control board rebooted as an exception.",
+            2: "Control board rebooted as an exception.",
+        },
+    },
+    8: {  # checksum error
+        0: {
+            0: "CGMiner checksum error.",
+            1: "System monitor checksum error.",
+            2: "Remote daemon checksum error.",
+        }
+    },
+    20: {  # pool error
+        1: {0: "All pools are disabled."},  # all disabled error
+        2: {"n": "Pool {n} connection failed."},  # pool connection failed error
+        3: {0: "High rejection rate on pool."},  # rejection rate error
+        4: {  # asicboost not supported error
+            0: "The pool does not support asicboost mode."
+        },
+    },
+    23: {  # hashrate error
+        1: {0: "Hashrate is too low."},
+        2: {0: "Hashrate is too low."},
+        3: {0: "Hashrate loss is too high."},
+        4: {0: "Hashrate loss is too high."},
+    },
+    50: {  # water velocity error
+        7: {"n": "Slot {n} water velocity is abnormal."},  # abnormal water velocity
+    },
+    51: {  # frequency error
+        7: {"n": "Slot {n} frequency up timeout."},  # frequency up timeout
+    },
+    84: {
+        1: {0: "Software version error."},
+    },
+    1000: {
+        0: {
+            1: "/antiv/signature illegal.",
+            2: "/antiv/dig/init.d illegal.",
+            3: "/antiv/dig/pf_partial.dig illegal.",
+        },
+    },
 }
