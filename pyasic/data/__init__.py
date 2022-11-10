@@ -12,15 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Union, List
-from dataclasses import dataclass, field, asdict, fields
+import copy
+import json
+import time
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from functools import reduce
-import time
-import json
-import copy
+from typing import List, Union
 
-from .error_codes import X19Error, WhatsminerError, BraiinsOSError, InnosiliconError
+from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
 
 @dataclass

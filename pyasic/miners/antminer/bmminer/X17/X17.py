@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
-
-from pyasic.settings import PyasicSettings
+from typing import Union
 
 import httpx
-from typing import Union
+
+from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
+from pyasic.settings import PyasicSettings
 
 
 class BMMinerX17(BMMiner):

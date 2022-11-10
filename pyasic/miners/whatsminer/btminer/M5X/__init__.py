@@ -12,7 +12,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M50 import (
-    BTMinerM50,
-    BTMinerM50VH50,
-)
+from .M50 import BTMinerM50, BTMinerM50VH50

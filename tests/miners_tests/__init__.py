@@ -11,18 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import unittest
-
-from pyasic.miners.miner_factory import MINER_CLASSES
-from pyasic.miners.base import BaseMiner
-from pyasic.miners._backends import CGMiner
-from pyasic.miners.miner_factory import MinerFactory
-from pyasic.miners.miner_listener import MinerListener
-
 import asyncio
-
 import inspect
 import sys
+import unittest
+
+from pyasic.miners._backends import CGMiner
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
+from pyasic.miners.miner_listener import MinerListener
 
 
 class MinersTest(unittest.TestCase):

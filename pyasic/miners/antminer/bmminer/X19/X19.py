@@ -12,16 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
-
-from pyasic.config import MinerConfig
-from pyasic.data.error_codes import X19Error, MinerErrorData
-from pyasic.settings import PyasicSettings
+import asyncio
+import json
+from typing import List, Union
 
 import httpx
-import json
-import asyncio
-from typing import Union, List
+
+from pyasic.config import MinerConfig
+from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
+from pyasic.settings import PyasicSettings
 
 
 class BMMinerX19(BMMiner):

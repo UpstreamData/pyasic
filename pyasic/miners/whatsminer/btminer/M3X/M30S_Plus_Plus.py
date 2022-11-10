@@ -15,8 +15,8 @@
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import (  # noqa - Ignore access to _module
     M30SPlusPlus,
-    M30SPlusPlusVG40,
     M30SPlusPlusVG30,
+    M30SPlusPlusVG40,
     M30SPlusPlusVH60,
 )
 

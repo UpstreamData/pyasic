@@ -13,21 +13,20 @@
 #  limitations under the License.
 
 import asyncio
-import re
-import json
-import hashlib
-import binascii
 import base64
+import binascii
+import hashlib
+import json
 import logging
+import re
 from typing import Union
 
-from passlib.handlers.md5_crypt import md5_crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from passlib.handlers.md5_crypt import md5_crypt
 
-from pyasic.errors import APIError
 from pyasic.API import BaseMinerAPI
+from pyasic.errors import APIError
 from pyasic.settings import PyasicSettings
-
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer

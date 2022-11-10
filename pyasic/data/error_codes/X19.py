@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict, fields
+from dataclasses import asdict, dataclass, fields
 
 
 @dataclass

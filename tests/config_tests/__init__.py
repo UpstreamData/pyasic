@@ -13,13 +13,14 @@
 #  limitations under the License.
 import unittest
 
-from pyasic.config import MinerConfig, _PoolGroup, _Pool  # noqa
 from tests.test_data import (
     bosminer_api_pools,
+    bosminer_config_pools,
     x19_api_pools,
     x19_web_pools,
-    bosminer_config_pools,
 )
+
+from pyasic.config import MinerConfig, _Pool, _PoolGroup  # noqa
 
 
 class ConfigTest(unittest.TestCase):

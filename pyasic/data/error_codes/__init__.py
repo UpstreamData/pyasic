@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .whatsminer import WhatsminerError
-from .bos import BraiinsOSError
-from .X19 import X19Error
-from .innosilicon import InnosiliconError
-
 from typing import TypeVar
+
+from .bos import BraiinsOSError
+from .innosilicon import InnosiliconError
+from .whatsminer import WhatsminerError
+from .X19 import X19Error
 
 MinerErrorData = TypeVar(
     "MinerErrorData", WhatsminerError, BraiinsOSError, X19Error, InnosiliconError

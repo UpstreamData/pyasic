@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .A10X import CGMinerA10X
 from pyasic.miners._types import Avalon1066  # noqa - Ignore access to _module
+
+from .A10X import CGMinerA10X
 
 
 class CGMinerAvalon1066(CGMinerA10X, Avalon1066):

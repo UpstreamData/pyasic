@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
-
-from pyasic.data import MinerData, HashBoard
-from pyasic.settings import PyasicSettings
-import re
-from pyasic.config import MinerConfig
 import logging
+import re
+
+from pyasic.config import MinerConfig
+from pyasic.data import HashBoard, MinerData
+from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
+from pyasic.settings import PyasicSettings
 
 
 class CGMinerA10X(CGMiner):

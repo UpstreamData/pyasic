@@ -12,10 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from pyasic.data import HashBoard, MinerData
 from pyasic.miners._backends import Hiveon  # noqa - Ignore access to _module
 from pyasic.miners._types import T9  # noqa - Ignore access to _module
-
-from pyasic.data import MinerData, HashBoard
 from pyasic.settings import PyasicSettings
 
 

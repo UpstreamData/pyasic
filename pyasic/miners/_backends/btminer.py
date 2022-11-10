@@ -14,17 +14,14 @@
 
 import ipaddress
 import logging
-from typing import Union, List
-
+from typing import List, Union
 
 from pyasic.API.btminer import BTMinerAPI
-from pyasic.miners.base import BaseMiner
-from pyasic.errors import APIError
-
-from pyasic.data import MinerData, HashBoard
-from pyasic.data.error_codes import WhatsminerError, MinerErrorData
 from pyasic.config import MinerConfig
-
+from pyasic.data import HashBoard, MinerData
+from pyasic.data.error_codes import MinerErrorData, WhatsminerError
+from pyasic.errors import APIError
+from pyasic.miners.base import BaseMiner
 from pyasic.settings import PyasicSettings
 
 

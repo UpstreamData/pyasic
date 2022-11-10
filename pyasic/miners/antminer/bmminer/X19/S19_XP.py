@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .X19 import BMMinerX19
 from pyasic.miners._types import S19XP  # noqa - Ignore access to _module
+
+from .X19 import BMMinerX19
 
 
 class BMMinerS19XP(BMMinerX19, S19XP):

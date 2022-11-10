@@ -15,10 +15,10 @@
 from typing import List
 
 from pyasic.API.unknown import UnknownAPI
-from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.miners.base import BaseMiner
 
 
 class UnknownMiner(BaseMiner):

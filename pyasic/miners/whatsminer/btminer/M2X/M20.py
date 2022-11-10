@@ -13,10 +13,7 @@
 #  limitations under the License.
 
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import (  # noqa - Ignore access to _module
-    M20,
-    M20V10,
-)
+from pyasic.miners._types import M20, M20V10  # noqa - Ignore access to _module
 
 
 class BTMinerM20(BTMiner, M20):

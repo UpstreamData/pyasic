@@ -13,8 +13,7 @@
 #  limitations under the License.
 import logging
 
-from pyasic.API import BaseMinerAPI
-from pyasic.API import APIError
+from pyasic.API import APIError, BaseMinerAPI
 
 
 class BMMinerAPI(BaseMinerAPI):

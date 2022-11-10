@@ -15,7 +15,6 @@
 from .M20 import BTMinerM20, BTMinerM20V10
 from .M20S import BTMinerM20S, BTMinerM20SV10, BTMinerM20SV20
 from .M20S_Plus import BTMinerM20SPlus
-
 from .M21 import BTMinerM21
 from .M21S import BTMinerM21S, BTMinerM21SV20, BTMinerM21SV60
 from .M21S_Plus import BTMinerM21SPlus

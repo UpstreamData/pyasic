@@ -15,8 +15,8 @@
 import ipaddress
 import unittest
 
-from pyasic.network.net_range import MinerNetworkRange
 from pyasic.network import MinerNetwork
+from pyasic.network.net_range import MinerNetworkRange
 
 
 class NetworkTest(unittest.TestCase):

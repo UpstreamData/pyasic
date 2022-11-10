@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .X17 import BMMinerX17
 from pyasic.miners._types import T17e  # noqa - Ignore access to _module
+
+from .X17 import BMMinerX17
 
 
 class BMMinerT17e(BMMinerX17, T17e):

@@ -12,18 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
-from pyasic.data import MinerData, HashBoard
-from pyasic.data.error_codes import InnosiliconError, MinerErrorData
-from pyasic.settings import PyasicSettings
-from pyasic.config import MinerConfig
-from pyasic.errors import APIError
+import logging
+import warnings
+from typing import List, Union
 
 import httpx
-import warnings
-from typing import Union, List
-import logging
+
+from pyasic.config import MinerConfig
+from pyasic.data import HashBoard, MinerData
+from pyasic.data.error_codes import InnosiliconError, MinerErrorData
+from pyasic.errors import APIError
+from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
+from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
+from pyasic.settings import PyasicSettings
 
 
 class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):

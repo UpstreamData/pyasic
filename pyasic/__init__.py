@@ -16,26 +16,20 @@ from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.API.unknown import UnknownAPI
-
 from pyasic.config import MinerConfig
-
 from pyasic.data import (
-    MinerData,
     BraiinsOSError,
     InnosiliconError,
+    MinerData,
     WhatsminerError,
     X19Error,
 )
-
 from pyasic.errors import APIError, APIWarning
-
 from pyasic.miners import get_miner
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.miner_factory import MinerFactory
 from pyasic.miners.miner_listener import MinerListener
-
 from pyasic.network import MinerNetwork
-
 from pyasic.settings import PyasicSettings
 
 __all__ = [

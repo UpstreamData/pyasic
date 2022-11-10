@@ -12,16 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import logging
-
 import ipaddress
-from typing import Union, List
+import logging
+from typing import List, Union
 
 from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.miners.base import BaseMiner
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.miners.base import BaseMiner
 
 
 class BOSMinerOld(BaseMiner):

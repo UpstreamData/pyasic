@@ -12,8 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import BMMiner
 import ipaddress
+
+from pyasic.miners._backends import BMMiner
 
 
 class Hiveon(BMMiner):

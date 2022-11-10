@@ -13,12 +13,12 @@
 #  limitations under the License.
 
 import asyncio
-import json
 import ipaddress
-import warnings
+import json
 import logging
-from typing import Union
 import re
+import warnings
+from typing import Union
 
 from pyasic.errors import APIError, APIWarning
 

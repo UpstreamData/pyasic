@@ -13,22 +13,18 @@
 #  limitations under the License.
 
 import ipaddress
-import logging
 import json
-from typing import Union, List
+import logging
+from typing import List, Union
 
 import toml
 
-
-from pyasic.miners.base import BaseMiner
 from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.errors import APIError
-
-from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
-from pyasic.data import MinerData, HashBoard
-
 from pyasic.config import MinerConfig
-
+from pyasic.data import HashBoard, MinerData
+from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
+from pyasic.errors import APIError
+from pyasic.miners.base import BaseMiner
 from pyasic.settings import PyasicSettings
 
 

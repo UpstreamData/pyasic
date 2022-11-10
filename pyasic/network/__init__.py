@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import ipaddress
 import asyncio
+import ipaddress
 import logging
-from typing import Union, List, AsyncIterator
+from typing import AsyncIterator, List, Union
 
+from pyasic.miners.miner_factory import AnyMiner, MinerFactory
 from pyasic.network.net_range import MinerNetworkRange
-from pyasic.miners.miner_factory import MinerFactory, AnyMiner
 from pyasic.settings import PyasicSettings
 
 

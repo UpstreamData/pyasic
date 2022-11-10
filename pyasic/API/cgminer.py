@@ -12,9 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.API import BaseMinerAPI, APIError
-
 import logging
+
+from pyasic.API import APIError, BaseMinerAPI
 
 
 class CGMinerAPI(BaseMinerAPI):

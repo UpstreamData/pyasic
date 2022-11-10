@@ -12,38 +12,32 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Tuple, List, Union
-from collections.abc import AsyncIterable
-from pyasic.miners.base import AnyMiner
-import httpx
-
-from pyasic.miners.antminer import *
-from pyasic.miners.avalonminer import *
-from pyasic.miners.whatsminer import *
-from pyasic.miners.innosilicon import *
-
-from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.btminer import BTMiner  # noqa - Ignore _module import
-from pyasic.miners._backends.bosminer_old import (  # noqa - Ignore _module import
-    BOSMinerOld,
-)
-
-from pyasic.miners.unknown import UnknownMiner
-
-from pyasic.errors import APIError
-
-from pyasic.misc import Singleton
-
 import asyncio
 import ipaddress
 import json
 import logging
-
-from pyasic.settings import PyasicSettings
+from collections.abc import AsyncIterable
+from typing import List, Tuple, Union
 
 import asyncssh
+import httpx
+
+from pyasic.errors import APIError
+from pyasic.miners._backends.bmminer import BMMiner  # noqa - Ignore _module import
+from pyasic.miners._backends.bosminer import BOSMiner  # noqa - Ignore _module import
+from pyasic.miners._backends.bosminer_old import (  # noqa - Ignore _module import
+    BOSMinerOld,
+)
+from pyasic.miners._backends.btminer import BTMiner  # noqa - Ignore _module import
+from pyasic.miners._backends.cgminer import CGMiner  # noqa - Ignore _module import
+from pyasic.miners.antminer import *
+from pyasic.miners.avalonminer import *
+from pyasic.miners.base import AnyMiner
+from pyasic.miners.innosilicon import *
+from pyasic.miners.unknown import UnknownMiner
+from pyasic.miners.whatsminer import *
+from pyasic.misc import Singleton
+from pyasic.settings import PyasicSettings
 
 MINER_CLASSES = {
     "ANTMINER S9": {

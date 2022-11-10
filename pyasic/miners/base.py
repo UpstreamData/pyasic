@@ -12,20 +12,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import asyncssh
-import logging
 import ipaddress
+import logging
 from abc import ABC, abstractmethod
-from typing import TypeVar, List, Union
+from typing import List, TypeVar, Union
 
-from pyasic.data import MinerData
+import asyncssh
+
 from pyasic.config import MinerConfig
+from pyasic.data import MinerData
 from pyasic.data.error_codes import (
-    WhatsminerError,
     BraiinsOSError,
     InnosiliconError,
-    X19Error,
     MinerErrorData,
+    WhatsminerError,
+    X19Error,
 )
 
 
