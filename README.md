@@ -18,6 +18,10 @@ You can install pyasic directly from pip with the command `pip install pyasic`.
 For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library [here](https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing).
 
 ## Developer Setup
+It is highly reccommended that you contribute to this project through [`pyasic-super`](https://github.com/UpstreamData/pyasic-super) using its submodules.  This allows testing in conjunction with other `pyasic` related programs.
+
+<br>
+
 This repo uses poetry for dependencies, which can be installed by following the guide on their website [here](https://python-poetry.org/docs/#installation).
 
 After you have poetry installed, run `poetry install --with dev`, or `poetry install --with dev,docs` if you want to include packages required for documentation.
