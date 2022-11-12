@@ -98,7 +98,7 @@ If you are sure you want to use this command please use API.send_command("{comma
             reader, writer = await asyncio.open_connection(str(self.ip), self.port)
         # handle OSError 121
         except OSError as e:
-            if e.winerror == "121":
+            if getattr(e, "winerror") == "121":
                 logging.warning("Semaphore Timeout has Expired.")
             return b"{}"
 
