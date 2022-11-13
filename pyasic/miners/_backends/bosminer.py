@@ -243,10 +243,24 @@ class BOSMiner(BaseMiner):
             await conn.run("/etc/init.d/bosminer start")
 
     async def check_light(self) -> bool:
+        if self.light:
+            return self.light
+        # get light through GraphQL
         url = f"http://{self.ip}/graphql"
         async with httpx.AsyncClient() as client:
-            d = (await client.post(url, json={"query": "{bos {faultLight}}"})).json()
-        return d["data"]["bos"]["faultLight"]
+            d = await client.post(url, json={"query": "{bos {faultLight}}"})
+        if d.status_code == 200:
+            self.light = d.json()["data"]["bos"]["faultLight"]
+            return self.light
+
+        # get light via ssh if that fails (10x slower)
+        data = (
+            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+        ).strip()
+        self.light = False
+        if data == "50":
+            self.light = True
+        return self.light
 
     async def get_errors(self) -> List[MinerErrorData]:
         tunerstatus = None
