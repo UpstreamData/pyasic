@@ -573,14 +573,18 @@ class BOSMiner(BaseMiner):
                     board.chips = chips
             board.missing = False
 
-            if hb["tuner"]["statusMessages"][0] not in [
-                "Stable",
-                "Testing performance profile",
-                "Tuning individual chips"
-            ]:
-                data.errors.append(
-                    BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
-                )
+            tuner = hb.get("tuner")
+            if tuner:
+                if msg := tuner.get("statusMessages"):
+                    if len(msg) > 0:
+                        if hb["tuner"]["statusMessages"][0] not in [
+                            "Stable",
+                            "Testing performance profile",
+                            "Tuning individual chips"
+                        ]:
+                            data.errors.append(
+                                BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
+                            )
 
         data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
         data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
