@@ -546,7 +546,6 @@ class MinerFactory(metaclass=Singleton):
             # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
-                print(data)
                 try:
                     if data["version"][0]["STATUS"][0]["Msg"] == "Disconnected":
                         return {"Msg": "Disconnected"}, None
