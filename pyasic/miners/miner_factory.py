@@ -435,8 +435,9 @@ class MinerFactory(metaclass=Singleton):
         if devdetails:
             if devdetails == {"Msg": "Disconnected"}:
                 model = await self.__get_model_from_graphql(ip)
-                api = "BOSMiner+"
-                return model, api, ver
+                if model:
+                    api = "BOSMiner+"
+                    return model, api, ver
 
             for _devdetails_key in ["Model", "Driver"]:
                 try:
