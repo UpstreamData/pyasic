@@ -66,6 +66,24 @@ class BOSMiner(BaseMiner):
         # return the result, either command output or None
         return str(result)
 
+    async def send_graphql_query(self, query) -> Union[dict, None]:
+        url = f"http://{self.ip}/graphql"
+        async with httpx.AsyncClient() as client:
+            _auth = await client.post(
+                url,
+                json={
+                    "query": 'mutation{auth{login(username:"'
+                    + self.uname
+                    + '", password:"'
+                    + self.pwd
+                    + '"){__typename}}}'
+                },
+            )
+            d = await client.post(url, json={"query": query})
+        if d.status_code == 200:
+            return d.json()
+        return None
+
     async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
@@ -149,6 +167,11 @@ class BOSMiner(BaseMiner):
         """
         if self.hostname:
             return self.hostname
+        # get hostname through GraphQL
+        if data := await self.send_graphql_query("{bos {hostname}}"):
+            self.hostname = data["data"]["bos"]["hostname"]
+            return self.hostname
+
         try:
             async with (await self._get_ssh_connection()) as conn:
                 if conn is not None:
@@ -212,9 +235,15 @@ class BOSMiner(BaseMiner):
         if self.version:
             logging.debug(f"Found version for {self.ip}: {self.version}")
             return self.version
+        version_data = None
+        # try to get data from graphql
+        data = await self.send_graphql_query("{bos{info{version{full}}}}")
+        if data:
+            version_data = data["bos"]["info"]["version"]["full"]
 
-        # get output of bos version file
-        version_data = await self.send_ssh_command("cat /etc/bos_version")
+        if not version_data:
+            # try version data file
+            version_data = await self.send_ssh_command("cat /etc/bos_version")
 
         # if we get the version data, parse it
         if version_data:
@@ -246,11 +275,8 @@ class BOSMiner(BaseMiner):
         if self.light:
             return self.light
         # get light through GraphQL
-        url = f"http://{self.ip}/graphql"
-        async with httpx.AsyncClient() as client:
-            d = await client.post(url, json={"query": "{bos {faultLight}}"})
-        if d.status_code == 200:
-            self.light = d.json()["data"]["bos"]["faultLight"]
+        if data := await self.send_graphql_query("{bos {faultLight}}"):
+            self.light = data["data"]["bos"]["faultLight"]
             return self.light
 
         # get light via ssh if that fails (10x slower)
@@ -295,6 +321,7 @@ class BOSMiner(BaseMiner):
                             if board["Status"] not in [
                                 "Stable",
                                 "Testing performance profile",
+                                "Tuning individual chips"
                             ]:
                                 _error = board["Status"].split(" {")[0]
                                 _error = _error[0].lower() + _error[1:]
@@ -309,6 +336,10 @@ class BOSMiner(BaseMiner):
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
         """
+        d = await self._graphql_get_data()
+        if d:
+            return d
+
         data = MinerData(
             ip=str(self.ip),
             ideal_chips=self.nominal_chips * self.ideal_hashboards,
@@ -348,7 +379,7 @@ class BOSMiner(BaseMiner):
                     "devdetails",
                     "fans",
                     "devs",
-                    allow_warning=allow_warning
+                    allow_warning=allow_warning,
                 )
             except APIError as e:
                 if str(e.message) == "Not ready":
@@ -497,6 +528,77 @@ class BOSMiner(BaseMiner):
                         _id = board["ID"] - offset
                         hashrate = round(board["MHS 1m"] / 1000000, 2)
                         data.hashboards[_id].hashrate = hashrate
+        return data
+
+    async def _graphql_get_data(self) -> Union[MinerData, None]:
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips, missing=True)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
+        query = "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+        query_data = await self.send_graphql_query(query)
+        if not query_data:
+            return None
+        query_data = query_data["data"]
+
+        data.mac = await self.get_mac()
+        data.model = await self.get_model()
+        data.hostname = query_data["bos"]["hostname"]
+        data.hashrate = round(
+            query_data["bosminer"]["info"]["workSolver"]["realHashrate"]["mhs1M"]
+            / 1000000,
+            2,
+        )
+
+        boards = query_data["bosminer"]["info"]["workSolver"]["childSolvers"]
+        offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
+        for hb in boards:
+            _id = int(hb["name"]) - offset
+
+            board = data.hashboards[_id]
+            board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
+            board.temp = round(hb["temperatures"][0]["degreesC"])
+            board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+            board.chips = hb["hwDetails"]["chips"]
+            board.missing = False
+
+            if hb["tuner"]["statusMessages"][0] not in [
+                "Stable",
+                "Testing performance profile",
+                "Tuning individual chips"
+            ]:
+                data.errors.append(
+                    BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
+                )
+
+        data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
+        data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
+
+        for n in range(self.fan_count):
+            setattr(data, f"fan_{n - 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
+
+        groups = query_data["bosminer"]["config"]["groups"]
+        if len(groups) == 1:
+            data.pool_1_user = groups[0]["pools"][0]["user"]
+            data.pool_1_url = groups[0]["pools"][0]["url"]
+            data.pool_2_user = groups[0]["pools"][1]["user"]
+            data.pool_2_url = groups[0]["pools"][1]["url"]
+            data.quota = 0
+        else:
+            data.pool_1_user = groups[0]["pools"][0]["user"]
+            data.pool_1_url = groups[0]["pools"][0]["url"]
+            data.pool_2_user = groups[1]["pools"][0]["user"]
+            data.pool_2_url = groups[1]["pools"][0]["url"]
+            if groups[0]["strategy"].get("quota"):
+                data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
+
+        data.fault_light = await self.check_light()
+
         return data
 
     async def get_mac(self):

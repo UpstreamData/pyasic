@@ -433,6 +433,11 @@ class MinerFactory(metaclass=Singleton):
 
         # if we have devdetails, we can get model data from there
         if devdetails:
+            if devdetails == {"Msg": "Disconnected"}:
+                model = await self.__get_model_from_graphql(ip)
+                api = "BOSMiner+"
+                return model, api, ver
+
             for _devdetails_key in ["Model", "Driver"]:
                 try:
                     model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
@@ -533,6 +538,8 @@ class MinerFactory(metaclass=Singleton):
     async def __get_devdetails_and_version(
         self, ip
     ) -> Tuple[Union[dict, None], Union[dict, None]]:
+        return {"Msg": "Disconnected"}, None
+
         version = None
         try:
             # get device details and version data
@@ -540,6 +547,11 @@ class MinerFactory(metaclass=Singleton):
             # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
+                try:
+                    if data["version"][0]["STATUS"][0]["Msg"] == "Disconnected":
+                        return {"Msg": "Disconnected"}, None
+                except KeyError:
+                    pass
                 raise APIError(validation[1])
             # copy each part of the main command to devdetails and version
             devdetails = data["devdetails"][0]
@@ -585,6 +597,16 @@ class MinerFactory(metaclass=Singleton):
             model = "ANTMINER S9"
         if board_name == "am2-s17":
             model = "ANTMINER S17"
+        return model
+
+    @staticmethod
+    async def __get_model_from_graphql(ip: ipaddress.ip_address) -> Union[str, None]:
+        model = None
+        url = f"http://{ip}/graphql"
+        async with httpx.AsyncClient() as client:
+            d = await client.post(url, json={"query": "{bosminer {info{modelName}}}"})
+        if d.status_code == 200:
+            model = d.json()["data"]["bosminer"]["info"]["modelName"].upper()
         return model
 
     @staticmethod
