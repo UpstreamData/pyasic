@@ -548,12 +548,19 @@ class BOSMiner(BaseMiner):
 
         data.mac = await self.get_mac()
         data.model = await self.get_model()
-        data.hostname = query_data["bos"]["hostname"]
-        data.hashrate = round(
-            query_data["bosminer"]["info"]["workSolver"]["realHashrate"]["mhs1M"]
-            / 1000000,
-            2,
-        )
+        if query_data.get("bos"):
+            if query_data["bos"].get("hostname"):
+                data.hostname = query_data["bos"]["hostname"]
+
+        try:
+            if query_data["bosminer"]["info"]["workSolver"]["realHashrate"].get("mhs1M"):
+                data.hashrate = round(
+                    query_data["bosminer"]["info"]["workSolver"]["realHashrate"]["mhs1M"]
+                    / 1000000,
+                    2,
+                )
+        except TypeError or KeyError or ValueError:
+            pass
 
         boards = query_data["bosminer"]["info"]["workSolver"]["childSolvers"]
         offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
@@ -590,7 +597,7 @@ class BOSMiner(BaseMiner):
         data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
 
         for n in range(self.fan_count):
-            setattr(data, f"fan_{n - 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
+            setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
 
         groups = query_data["bosminer"]["config"]["groups"]
         if len(groups) == 1:
