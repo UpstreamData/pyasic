@@ -18,6 +18,7 @@ import logging
 from typing import List, Union
 
 import toml
+import httpx
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
@@ -242,15 +243,10 @@ class BOSMiner(BaseMiner):
             await conn.run("/etc/init.d/bosminer start")
 
     async def check_light(self) -> bool:
-        if self.light:
-            return self.light
-        data = (
-            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
-        ).strip()
-        self.light = False
-        if data == "50":
-            self.light = True
-        return self.light
+        url = f"http://{self.ip}/graphql"
+        async with httpx.AsyncClient() as client:
+            d = (await client.post(url, json={"query": "{bos {faultLight}}"})).json()
+        return d["data"]["bos"]["faultLight"]
 
     async def get_errors(self) -> List[MinerErrorData]:
         tunerstatus = None
