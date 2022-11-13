@@ -539,8 +539,6 @@ class MinerFactory(metaclass=Singleton):
     async def __get_devdetails_and_version(
         self, ip
     ) -> Tuple[Union[dict, None], Union[dict, None]]:
-        return {"Msg": "Disconnected"}, None
-
         version = None
         try:
             # get device details and version data
@@ -548,6 +546,7 @@ class MinerFactory(metaclass=Singleton):
             # validate success
             validation = await self._validate_command(data)
             if not validation[0]:
+                print(data)
                 try:
                     if data["version"][0]["STATUS"][0]["Msg"] == "Disconnected":
                         return {"Msg": "Disconnected"}, None
