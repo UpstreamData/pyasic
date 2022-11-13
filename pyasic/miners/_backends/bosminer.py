@@ -567,7 +567,10 @@ class BOSMiner(BaseMiner):
                 board.temp = round(hb["temperatures"][0]["degreesC"])
             if len(temps) > 1:
                 board.chip_temp = round(hb["temperatures"][1]["degreesC"])
-            board.chips = hb["hwDetails"]["chips"]
+            details = hb.get("hwDetails")
+            if details:
+                if chips := details["chips"]:
+                    board.chips = chips
             board.missing = False
 
             if hb["tuner"]["statusMessages"][0] not in [
