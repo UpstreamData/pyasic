@@ -562,57 +562,75 @@ class BOSMiner(BaseMiner):
         except TypeError or KeyError or ValueError:
             pass
 
-        boards = query_data["bosminer"]["info"]["workSolver"]["childSolvers"]
-        offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
-        for hb in boards:
-            _id = int(hb["name"]) - offset
+        boards = None
+        if query_data.get("bosminer"):
+            if query_data["bosminer"].get("info"):
+                if query_data["bosminer"]["info"].get("workSolver"):
+                    boards = query_data["bosminer"]["info"]["workSolver"].get("childSolvers")
+        if boards:
+            offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
+            for hb in boards:
+                _id = int(hb["name"]) - offset
 
-            board = data.hashboards[_id]
-            board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
-            temps = hb["temperatures"]
-            if len(temps) > 0:
-                board.temp = round(hb["temperatures"][0]["degreesC"])
-            if len(temps) > 1:
-                board.chip_temp = round(hb["temperatures"][1]["degreesC"])
-            details = hb.get("hwDetails")
-            if details:
-                if chips := details["chips"]:
-                    board.chips = chips
-            board.missing = False
+                board = data.hashboards[_id]
+                board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
+                temps = hb["temperatures"]
+                if len(temps) > 0:
+                    board.temp = round(hb["temperatures"][0]["degreesC"])
+                if len(temps) > 1:
+                    board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+                details = hb.get("hwDetails")
+                if details:
+                    if chips := details["chips"]:
+                        board.chips = chips
+                board.missing = False
 
-            tuner = hb.get("tuner")
-            if tuner:
-                if msg := tuner.get("statusMessages"):
-                    if len(msg) > 0:
-                        if hb["tuner"]["statusMessages"][0] not in [
-                            "Stable",
-                            "Testing performance profile",
-                            "Tuning individual chips"
-                        ]:
-                            data.errors.append(
-                                BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
-                            )
+                tuner = hb.get("tuner")
+                if tuner:
+                    if msg := tuner.get("statusMessages"):
+                        if len(msg) > 0:
+                            if hb["tuner"]["statusMessages"][0] not in [
+                                "Stable",
+                                "Testing performance profile",
+                                "Tuning individual chips"
+                            ]:
+                                data.errors.append(
+                                    BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
+                                )
+        try:
+            data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
+        except TypeError or KeyError or ValueError:
+            pass
+        try:
+            data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
+        except TypeError or KeyError or ValueError:
+            pass
 
-        data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
-        data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
 
         for n in range(self.fan_count):
-            setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
+            try:
+                setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
+            except TypeError or KeyError or ValueError:
+                pass
 
-        groups = query_data["bosminer"]["config"]["groups"]
-        if len(groups) == 1:
-            data.pool_1_user = groups[0]["pools"][0]["user"]
-            data.pool_1_url = groups[0]["pools"][0]["url"]
-            data.pool_2_user = groups[0]["pools"][1]["user"]
-            data.pool_2_url = groups[0]["pools"][1]["url"]
-            data.quota = 0
-        else:
-            data.pool_1_user = groups[0]["pools"][0]["user"]
-            data.pool_1_url = groups[0]["pools"][0]["url"]
-            data.pool_2_user = groups[1]["pools"][0]["user"]
-            data.pool_2_url = groups[1]["pools"][0]["url"]
-            if groups[0]["strategy"].get("quota"):
-                data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
+        groups = None
+        if query_data.get("bosminer"):
+            if query_data["bosminer"].get("config"):
+                groups = query_data["bosminer"]["config"].get("groups")
+        if groups:
+            if len(groups) == 1:
+                data.pool_1_user = groups[0]["pools"][0]["user"]
+                data.pool_1_url = groups[0]["pools"][0]["url"]
+                data.pool_2_user = groups[0]["pools"][1]["user"]
+                data.pool_2_url = groups[0]["pools"][1]["url"]
+                data.quota = 0
+            else:
+                data.pool_1_user = groups[0]["pools"][0]["user"]
+                data.pool_1_url = groups[0]["pools"][0]["url"]
+                data.pool_2_user = groups[1]["pools"][0]["user"]
+                data.pool_2_url = groups[1]["pools"][0]["url"]
+                if groups[0]["strategy"].get("quota"):
+                    data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
 
         data.fault_light = await self.check_light()
 
