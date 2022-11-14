@@ -411,7 +411,9 @@ class MinerFactory(metaclass=Singleton):
             # miner refused connection on API port, we wont be able to get data this way
             # try ssh
             try:
-                _model = await self.__get_model_from_ssh(ip)
+                _model = await self.__get_model_from_graphql(ip)
+                if not _model:
+                    _model = await self.__get_model_from_ssh(ip)
                 if _model:
                     model = _model
                     api = "BOSMiner+"
@@ -432,15 +434,6 @@ class MinerFactory(metaclass=Singleton):
 
         # if we have devdetails, we can get model data from there
         if devdetails:
-            try:
-                if devdetails[0]["STATUS"][0]["Msg"]:
-                    model = await self.__get_model_from_graphql(ip)
-                    if model:
-                        api = "BOSMiner+"
-                        return model, api, ver
-            except (KeyError, TypeError, ValueError, IndexError):
-                pass
-
             for _devdetails_key in ["Model", "Driver"]:
                 try:
                     model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
@@ -448,12 +441,31 @@ class MinerFactory(metaclass=Singleton):
                         break
                 except KeyError:
                     continue
+            try:
+                if devdetails[0]["STATUS"][0]["Msg"]:
+                    model = await self.__get_model_from_graphql(ip)
+                    if model:
+                        api = "BOSMiner+"
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
+
             if not model:
                 # braiins OS bug check just in case
                 if "s9" in devdetails["STATUS"][0]["Description"]:
                     model = "ANTMINER S9"
                 if "s17" in version["STATUS"][0]["Description"]:
                     model = "ANTMINER S17"
+            if not api:
+                if "boser" in version["STATUS"][0]["Description"]:
+                    api = "BOSMiner+"
+        else:
+            try:
+                _model = await self.__get_model_from_graphql(ip)
+                if _model:
+                    model = _model
+                    api = "BOSMiner+"
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
 
         # if we have version we can get API type from here
         if version:
@@ -545,7 +557,6 @@ class MinerFactory(metaclass=Singleton):
             # don't need "Bitmain", just "ANTMINER XX" as model
             if "BITMAIN " in model:
                 model = model.replace("BITMAIN ", "")
-
         return model, api, ver
 
     async def __get_devdetails_and_version(
