@@ -279,7 +279,7 @@ class BOSMiner(BaseMiner):
             try:
                 self.light = data["data"]["bos"]["faultLight"]
                 return self.light
-            except KeyError or ValueError or TypeError:
+            except (TypeError, KeyError, ValueError):
                 pass
 
         # get light via ssh if that fails (10x slower)
@@ -562,7 +562,7 @@ class BOSMiner(BaseMiner):
                     / 1000000,
                     2,
                 )
-        except TypeError or KeyError or ValueError:
+        except (TypeError, KeyError, ValueError):
             pass
 
         boards = None
@@ -602,18 +602,18 @@ class BOSMiner(BaseMiner):
                                 )
         try:
             data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
-        except TypeError or KeyError or ValueError:
+        except (TypeError, KeyError, ValueError):
             pass
         try:
             data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
-        except TypeError or KeyError or ValueError:
+        except (TypeError, KeyError, ValueError):
             pass
 
 
         for n in range(self.fan_count):
             try:
                 setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
-            except TypeError or KeyError or ValueError:
+            except (TypeError, KeyError, ValueError):
                 pass
 
         groups = None
