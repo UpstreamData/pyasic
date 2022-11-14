@@ -622,16 +622,40 @@ class BOSMiner(BaseMiner):
                 groups = query_data["bosminer"]["config"].get("groups")
         if groups:
             if len(groups) == 1:
-                data.pool_1_user = groups[0]["pools"][0]["user"]
-                data.pool_1_url = groups[0]["pools"][0]["url"]
-                data.pool_2_user = groups[0]["pools"][1]["user"]
-                data.pool_2_url = groups[0]["pools"][1]["url"]
+                try:
+                    data.pool_1_user = groups[0]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_1_url = groups[0]["pools"][0]["url"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_2_user = groups[0]["pools"][1]["user"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_2_url = groups[0]["pools"][1]["url"]
+                except (TypeError, KeyError, ValueError):
+                    pass
                 data.quota = 0
             else:
-                data.pool_1_user = groups[0]["pools"][0]["user"]
-                data.pool_1_url = groups[0]["pools"][0]["url"]
-                data.pool_2_user = groups[1]["pools"][0]["user"]
-                data.pool_2_url = groups[1]["pools"][0]["url"]
+                try:
+                    data.pool_1_user = groups[0]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_1_url = groups[0]["pools"][0]["url"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_2_user = groups[1]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError):
+                    pass
+                try:
+                    data.pool_2_url = groups[1]["pools"][0]["url"]
+                except (TypeError, KeyError, ValueError):
+                    pass
                 if groups[0]["strategy"].get("quota"):
                     data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
 
