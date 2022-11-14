@@ -484,7 +484,7 @@ class BOSMiner(BaseMiner):
                     wattage_limit = tuner[0].get("PowerLimit")
                     if wattage_limit:
                         data.wattage_limit = wattage_limit
-                    if wattage:
+                    if wattage is not None:
                         data.wattage = wattage
 
                     chain_status = tuner[0].get("TunerChainStatus")
@@ -609,7 +609,7 @@ class BOSMiner(BaseMiner):
         try:
             data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
         except (TypeError, KeyError, ValueError, IndexError):
-            pass
+            data.wattage = 0
         try:
             data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
         except (TypeError, KeyError, ValueError, IndexError):
