@@ -337,7 +337,7 @@ class MinerFactory(metaclass=Singleton):
                     break
             except asyncio.TimeoutError:
                 logging.warning(f"{ip}: Get Miner Timed Out")
-
+        print(ip, model, api, ver)
         miner = self._select_miner_from_classes(ip, model, api, ver)
 
         # save the miner to the cache at its IP if its not unknown
@@ -345,6 +345,7 @@ class MinerFactory(metaclass=Singleton):
             self.miners[ip] = miner
 
         # return the miner
+        print(miner)
         return miner
 
     @staticmethod
@@ -437,6 +438,7 @@ class MinerFactory(metaclass=Singleton):
                 model = await self.__get_model_from_graphql(ip)
                 if model:
                     api = "BOSMiner+"
+                    print(model, api, ver)
                     return model, api, ver
 
             for _devdetails_key in ["Model", "Driver"]:
@@ -604,8 +606,10 @@ class MinerFactory(metaclass=Singleton):
         url = f"http://{ip}/graphql"
         async with httpx.AsyncClient() as client:
             d = await client.post(url, json={"query": "{bosminer {info{modelName}}}"})
+            print(d)
         if d.status_code == 200:
-            model = d.json()["data"]["bosminer"]["info"]["modelName"].upper()
+            model = (d.json()["data"]["bosminer"]["info"]["modelName"]).upper()
+        print(model)
         return model
 
     @staticmethod
