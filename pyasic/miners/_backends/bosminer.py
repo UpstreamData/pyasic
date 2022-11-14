@@ -279,7 +279,7 @@ class BOSMiner(BaseMiner):
             try:
                 self.light = data["data"]["bos"]["faultLight"]
                 return self.light
-            except (TypeError, KeyError, ValueError):
+            except (TypeError, KeyError, ValueError, IndexError):
                 pass
 
         # get light via ssh if that fails (10x slower)
@@ -562,7 +562,7 @@ class BOSMiner(BaseMiner):
                     / 1000000,
                     2,
                 )
-        except (TypeError, KeyError, ValueError):
+        except (TypeError, KeyError, ValueError, IndexError):
             pass
 
         boards = None
@@ -602,18 +602,18 @@ class BOSMiner(BaseMiner):
                                 )
         try:
             data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
-        except (TypeError, KeyError, ValueError):
+        except (TypeError, KeyError, ValueError, IndexError):
             pass
         try:
             data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
-        except (TypeError, KeyError, ValueError):
+        except (TypeError, KeyError, ValueError, IndexError):
             pass
 
 
         for n in range(self.fan_count):
             try:
                 setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
-            except (TypeError, KeyError, ValueError):
+            except (TypeError, KeyError, ValueError, IndexError):
                 pass
 
         groups = None
@@ -624,37 +624,37 @@ class BOSMiner(BaseMiner):
             if len(groups) == 1:
                 try:
                     data.pool_1_user = groups[0]["pools"][0]["user"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_1_url = groups[0]["pools"][0]["url"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_2_user = groups[0]["pools"][1]["user"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_2_url = groups[0]["pools"][1]["url"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 data.quota = 0
             else:
                 try:
                     data.pool_1_user = groups[0]["pools"][0]["user"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_1_url = groups[0]["pools"][0]["url"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_2_user = groups[1]["pools"][0]["user"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
                     data.pool_2_url = groups[1]["pools"][0]["url"]
-                except (TypeError, KeyError, ValueError):
+                except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 if groups[0]["strategy"].get("quota"):
                     data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
