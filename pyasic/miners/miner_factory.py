@@ -432,11 +432,14 @@ class MinerFactory(metaclass=Singleton):
 
         # if we have devdetails, we can get model data from there
         if devdetails:
-            if devdetails == {"Msg": "Disconnected"}:
-                model = await self.__get_model_from_graphql(ip)
-                if model:
-                    api = "BOSMiner+"
-                    return model, api, ver
+            try:
+                if devdetails[0]["STATUS"][0]["Msg"]:
+                    model = await self.__get_model_from_graphql(ip)
+                    if model:
+                        api = "BOSMiner+"
+                        return model, api, ver
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
 
             for _devdetails_key in ["Model", "Driver"]:
                 try:
@@ -454,6 +457,14 @@ class MinerFactory(metaclass=Singleton):
 
         # if we have version we can get API type from here
         if version:
+            try:
+                if version[0]["STATUS"][0]["Msg"]:
+                    model = await self.__get_model_from_graphql(ip)
+                    if model:
+                        api = "BOSMiner+"
+                        return model, api, ver
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
             if "VERSION" in version:
                 api_types = ["BMMiner", "CGMiner", "BTMiner"]
                 # check basic API types, BOSMiner needs a special check
@@ -469,6 +480,8 @@ class MinerFactory(metaclass=Singleton):
                             api = "BOSMiner+"
                     if "BOSminer+" in version["VERSION"][0]:
                         api = "BOSMiner+"
+                if any("BOSer" in string for string in version["VERSION"][0]):
+                    api = "BOSMiner+"
 
                 # check for avalonminers
                 for _version_key in ["PROD", "MODEL"]:
@@ -547,7 +560,7 @@ class MinerFactory(metaclass=Singleton):
             if not validation[0]:
                 try:
                     if data["version"][0]["STATUS"][0]["Msg"] == "Disconnected":
-                        return {"Msg": "Disconnected"}, None
+                        return data["devdetails"], data["version"]
                 except KeyError:
                     pass
                 raise APIError(validation[1])
