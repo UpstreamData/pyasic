@@ -578,10 +578,13 @@ class BOSMiner(BaseMiner):
                 board = data.hashboards[_id]
                 board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
                 temps = hb["temperatures"]
-                if len(temps) > 0:
-                    board.temp = round(hb["temperatures"][0]["degreesC"])
-                if len(temps) > 1:
-                    board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+                try:
+                    if len(temps) > 0:
+                        board.temp = round(hb["temperatures"][0]["degreesC"])
+                    if len(temps) > 1:
+                        board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
                 details = hb.get("hwDetails")
                 if details:
                     if chips := details["chips"]:
