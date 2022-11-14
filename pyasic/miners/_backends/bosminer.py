@@ -276,8 +276,11 @@ class BOSMiner(BaseMiner):
             return self.light
         # get light through GraphQL
         if data := await self.send_graphql_query("{bos {faultLight}}"):
-            self.light = data["data"]["bos"]["faultLight"]
-            return self.light
+            try:
+                self.light = data["data"]["bos"]["faultLight"]
+                return self.light
+            except KeyError or ValueError or TypeError:
+                pass
 
         # get light via ssh if that fails (10x slower)
         data = (
