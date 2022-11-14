@@ -68,20 +68,23 @@ class BOSMiner(BaseMiner):
 
     async def send_graphql_query(self, query) -> Union[dict, None]:
         url = f"http://{self.ip}/graphql"
-        async with httpx.AsyncClient() as client:
-            _auth = await client.post(
-                url,
-                json={
-                    "query": 'mutation{auth{login(username:"'
-                    + self.uname
-                    + '", password:"'
-                    + self.pwd
-                    + '"){__typename}}}'
-                },
-            )
-            d = await client.post(url, json={"query": query})
-        if d.status_code == 200:
-            return d.json()
+        try:
+            async with httpx.AsyncClient() as client:
+                _auth = await client.post(
+                    url,
+                    json={
+                        "query": 'mutation{auth{login(username:"'
+                        + self.uname
+                        + '", password:"'
+                        + self.pwd
+                        + '"){__typename}}}'
+                    },
+                )
+                d = await client.post(url, json={"query": query})
+            if d.status_code == 200:
+                return d.json()
+        except httpx.ReadError:
+            return None
         return None
 
     async def fault_light_on(self) -> bool:
