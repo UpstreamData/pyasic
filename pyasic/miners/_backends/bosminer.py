@@ -83,7 +83,7 @@ class BOSMiner(BaseMiner):
                 d = await client.post(url, json={"query": query})
             if d.status_code == 200:
                 return d.json()
-        except httpx.ReadError:
+        except (httpx.ReadError, httpx.ReadTimeout):
             return None
         return None
 
