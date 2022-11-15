@@ -15,7 +15,7 @@
 from pyasic.miners.base import BaseMiner
 
 
-class Avalon1066(BaseMiner):
+class Avalon1066(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip

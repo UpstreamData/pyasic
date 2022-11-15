@@ -169,9 +169,6 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             ],
         )
 
-        board_offset = -1
-        fan_offset = -1
-
         model = await self.get_model()
         hostname = await self.get_hostname()
 

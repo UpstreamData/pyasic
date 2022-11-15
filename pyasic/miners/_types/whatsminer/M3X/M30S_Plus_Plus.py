@@ -15,7 +15,7 @@
 from pyasic.miners.base import BaseMiner
 
 
-class M30SPlusPlus(BaseMiner):
+class M30SPlusPlus(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -24,7 +24,7 @@ class M30SPlusPlus(BaseMiner):
         self.fan_count = 2
 
 
-class M30SPlusPlusVG30(BaseMiner):
+class M30SPlusPlusVG30(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -33,7 +33,7 @@ class M30SPlusPlusVG30(BaseMiner):
         self.fan_count = 2
 
 
-class M30SPlusPlusVG40(BaseMiner):
+class M30SPlusPlusVG40(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -42,7 +42,7 @@ class M30SPlusPlusVG40(BaseMiner):
         self.fan_count = 2
 
 
-class M30SPlusPlusVH60(BaseMiner):
+class M30SPlusPlusVH60(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip

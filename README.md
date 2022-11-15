@@ -38,7 +38,6 @@ There are 2 main ways to get a miner (and the functions attached to it), via sca
 #### Scanning for miners
 ```python
 import asyncio
-import sys
 
 from pyasic.network import MinerNetwork
 
@@ -72,9 +71,8 @@ if __name__ == "__main__":
 #### Getting a miner if you know the IP
 ```python
 import asyncio
-import sys
 
-from pyasic.miners import get_miner
+from pyasic import get_miner
 
 
 # define asynchronous function to get miner and data
@@ -98,9 +96,8 @@ If needed, this library exposes a wrapper for the miner API that can be used for
 #### List available API commands
 ```python
 import asyncio
-import sys
 
-from pyasic.miners import get_miner
+from pyasic import get_miner
 
 
 async def get_api_commands(miner_ip: str):
@@ -121,9 +118,8 @@ The miner API commands will raise an `APIError` if they fail with a bad status c
 
 ```python
 import asyncio
-import sys
 
-from pyasic.miners import get_miner
+from pyasic import get_miner
 
 
 async def get_api_commands(miner_ip: str):

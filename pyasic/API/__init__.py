@@ -198,7 +198,6 @@ If you are sure you want to use this command please use API.send_command("{comma
 
     @staticmethod
     def _load_api_data(data: bytes) -> dict:
-        str_data = None
         # some json from the API returns with a null byte (\x00) on the end
         if data.endswith(b"\x00"):
             # handle the null byte

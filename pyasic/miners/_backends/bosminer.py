@@ -356,9 +356,6 @@ class BOSMiner(BaseMiner):
             ],
         )
 
-        board_offset = -1
-        fan_offset = -1
-
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()

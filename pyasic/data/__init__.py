@@ -17,7 +17,6 @@ import json
 import time
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
-from functools import reduce
 from typing import List, Union
 
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error

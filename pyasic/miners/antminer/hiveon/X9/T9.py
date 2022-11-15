@@ -44,7 +44,6 @@ class HiveonT9(Hiveon, T9):
             ideal_hashboards=self.ideal_hashboards,
         )
 
-        board_offset = -1
         fan_offset = -1
 
         model = await self.get_model()

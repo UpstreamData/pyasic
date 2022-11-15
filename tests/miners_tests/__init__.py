@@ -16,10 +16,9 @@ import inspect
 import sys
 import unittest
 
-from pyasic.miners._backends import CGMiner
+from pyasic.miners._backends import CGMiner  # noqa
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
-from pyasic.miners.miner_listener import MinerListener
 
 
 class MinersTest(unittest.TestCase):

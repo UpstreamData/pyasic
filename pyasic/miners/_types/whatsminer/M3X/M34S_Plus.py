@@ -15,7 +15,7 @@
 from pyasic.miners.base import BaseMiner
 
 
-class M34SPlus(BaseMiner):
+class M34SPlus(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -25,7 +25,7 @@ class M34SPlus(BaseMiner):
         self.fan_count = 0
 
 
-class M34SPlusVE10(BaseMiner):
+class M34SPlusVE10(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip

@@ -62,7 +62,7 @@ class BMMinerX19(BMMiner):
 
         try:
             async with httpx.AsyncClient() as client:
-                await client.post(url, data=conf, auth=auth)
+                await client.post(url, data=conf, auth=auth)  # noqa - ignore conf being a str
         except httpx.ReadTimeout:
             pass
         for i in range(7):
@@ -102,7 +102,7 @@ class BMMinerX19(BMMiner):
         auth = httpx.DigestAuth(self.uname, self.pwd)
         data = json.dumps({"blink": "true"})
         async with httpx.AsyncClient() as client:
-            data = await client.post(url, data=data, auth=auth)
+            data = await client.post(url, data=data, auth=auth)  # noqa - ignore conf being a str
         if data.status_code == 200:
             data = data.json()
             if data.get("code") == "B000":
@@ -115,7 +115,7 @@ class BMMinerX19(BMMiner):
         auth = httpx.DigestAuth(self.uname, self.pwd)
         data = json.dumps({"blink": "false"})
         async with httpx.AsyncClient() as client:
-            data = await client.post(url, data=data, auth=auth)
+            data = await client.post(url, data=data, auth=auth)  # noqa - ignore conf being a str
         if data.status_code == 200:
             data = data.json()
             if data.get("code") == "B100":

@@ -15,10 +15,11 @@
 from pyasic.miners.base import BaseMiner
 
 
-class Avalon921(BaseMiner):
+class Avalon921(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
         self.model = "Avalon 921"
-        self.chip_count = 26  # This miner has 4 boards totaling 104
-        self.fan_count = 1  # also only 1 fan
+        self.ideal_hashboards = 4
+        self.chip_count = 26
+        self.fan_count = 1

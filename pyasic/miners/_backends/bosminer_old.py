@@ -104,5 +104,5 @@ class BOSMinerOld(BaseMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
 
-    async def get_data(self) -> MinerData:
+    async def get_data(self, **kwargs) -> MinerData:
         return MinerData(ip=str(self.ip))

@@ -15,18 +15,14 @@
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
-from typing import List, TypeVar, Union
+from typing import List, TypeVar
 
 import asyncssh
 
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
 from pyasic.data.error_codes import (
-    BraiinsOSError,
-    InnosiliconError,
     MinerErrorData,
-    WhatsminerError,
-    X19Error,
 )
 
 

@@ -15,7 +15,7 @@
 from pyasic.miners.base import BaseMiner
 
 
-class T17Plus(BaseMiner):
+class T17Plus(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
