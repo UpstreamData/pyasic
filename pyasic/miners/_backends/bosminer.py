@@ -660,7 +660,7 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 if groups[0]["strategy"].get("quota"):
-                    data.quota = groups[0]["strategy"]["quota"] + "/" + groups[1]["strategy"]["quota"]
+                    data.quota = str(groups[0]["strategy"]["quota"]) + "/" + str(groups[1]["strategy"]["quota"])
 
         data.fault_light = await self.check_light()
 
