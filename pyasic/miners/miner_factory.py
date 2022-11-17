@@ -572,7 +572,7 @@ class MinerFactory(metaclass=Singleton):
                 try:
                     if data["version"][0]["STATUS"][0]["Msg"] == "Disconnected":
                         return data["devdetails"], data["version"]
-                except KeyError:
+                except (KeyError, TypeError):
                     pass
                 raise APIError(validation[1])
             # copy each part of the main command to devdetails and version
