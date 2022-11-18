@@ -448,16 +448,21 @@ class MinerFactory(metaclass=Singleton):
                         api = "BOSMiner+"
             except (KeyError, TypeError, ValueError, IndexError):
                 pass
-
-            if not model:
-                # braiins OS bug check just in case
-                if "s9" in devdetails["STATUS"][0]["Description"]:
-                    model = "ANTMINER S9"
-                if "s17" in version["STATUS"][0]["Description"]:
-                    model = "ANTMINER S17"
-            if not api:
-                if "boser" in version["STATUS"][0]["Description"]:
-                    api = "BOSMiner+"
+            try:
+                if not model:
+                    # braiins OS bug check just in case
+                    if "s9" in devdetails["STATUS"][0]["Description"]:
+                        model = "ANTMINER S9"
+                    if "s17" in version["STATUS"][0]["Description"]:
+                        model = "ANTMINER S17"
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
+            try:
+                if not api:
+                    if "boser" in version["STATUS"][0]["Description"]:
+                        api = "BOSMiner+"
+            except (KeyError, TypeError, ValueError, IndexError):
+                pass
         else:
             try:
                 _model = await self.__get_model_from_graphql(ip)
