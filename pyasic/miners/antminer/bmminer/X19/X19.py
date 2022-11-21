@@ -139,7 +139,10 @@ class BMMinerX19(BMMiner):
         async with httpx.AsyncClient() as client:
             data = await client.get(url, auth=auth)
         if data:
-            data = data.json()
+            try:
+                data = data.json()
+            except json.decoder.JSONDecodeError:
+                return []
             if "SUMMARY" in data.keys():
                 if "status" in data["SUMMARY"][0].keys():
                     for item in data["SUMMARY"][0]["status"]:
