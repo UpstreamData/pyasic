@@ -20,5 +20,14 @@ class M31S(BaseMiner):  # noqa - ignore ABC method implementation
         super().__init__()
         self.ip = ip
         self.model = "M31S"
-        # TODO: Add chip count for this miner (per board) - self.nominal_chips
+        self.nominal_chips = 111
+        self.fan_count = 2
+
+
+class M31SV70(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V70"
+        self.nominal_chips = 111
         self.fan_count = 2

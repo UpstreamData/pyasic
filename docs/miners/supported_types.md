@@ -90,6 +90,7 @@ details {
                 </details>
                 <details>
                     <summary><a href="../whatsminer/M3X/#m31s">M31S</a></summary>
+                    <summary><a href="../whatsminer/M3X/#m31sv70">M31SV70</a></summary>
                 </details>
                 <details>
                     <summary><a href="../whatsminer/M3X/#m31s_1">M31S+</a></summary>
