@@ -17,7 +17,7 @@ import random
 import string
 import time
 from dataclasses import asdict, dataclass, fields
-from typing import List, Literal
+from typing import List, Literal, Dict
 
 import toml
 import yaml
@@ -193,7 +193,7 @@ class _PoolGroup:
         return pools
 
     def as_wm(self, user_suffix: str = None) -> List[dict]:
-        """Convert the data in this class to a list usable by an Whatsminer device.
+        """Convert the data in this class to a list usable by a Whatsminer device.
 
         Parameters:
              user_suffix: The suffix to append to username.
@@ -399,13 +399,13 @@ class MinerConfig:
         """
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
-    def as_wm(self, user_suffix: str = None) -> List[dict]:
-        """Convert the data in this class to a config usable by an Whatsminer device.
+    def as_wm(self, user_suffix: str = None) -> Dict[str: List[dict], str: int]:
+        """Convert the data in this class to a config usable by a Whatsminer device.
 
         Parameters:
             user_suffix: The suffix to append to username.
         """
-        return self.pool_groups[0].as_wm(user_suffix=user_suffix)
+        return {"pools": self.pool_groups[0].as_wm(user_suffix=user_suffix), "wattage": self.autotuning_wattage}
 
     def as_inno(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a config usable by an Innosilicon device.

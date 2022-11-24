@@ -211,18 +211,24 @@ class BTMiner(BaseMiner):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         conf = config.as_wm(user_suffix=user_suffix)
+        pools_conf = conf["pools"]
 
         await self.api.update_pools(
-            conf[0]["url"],
-            conf[0]["user"],
-            conf[0]["pass"],
-            conf[1]["url"],
-            conf[1]["user"],
-            conf[1]["pass"],
-            conf[2]["url"],
-            conf[2]["user"],
-            conf[2]["pass"],
+            pools_conf[0]["url"],
+            pools_conf[0]["user"],
+            pools_conf[0]["pass"],
+            pools_conf[1]["url"],
+            pools_conf[1]["user"],
+            pools_conf[1]["pass"],
+            pools_conf[2]["url"],
+            pools_conf[2]["user"],
+            pools_conf[2]["pass"],
         )
+        try:
+            await self.api.adjust_power_limit(conf["wattage"])
+        except APIError:
+            # cannot set wattage
+            pass
 
     async def get_config(self) -> MinerConfig:
         pools = None
