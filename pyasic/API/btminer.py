@@ -581,7 +581,7 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_privileged_command("set_hostname", hostname=hostname)
 
     async def set_power_pct(self, percent: int) -> dict:
-        """Set the power percentage of the miner.
+        """Set the power percentage of the miner based on current power.  Used for temporary adjustment.
 
         <details>
             <summary>Expand</summary>
@@ -640,6 +640,119 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_privileged_command(
             "pre_power_on", complete="false", msg=msg
         )
+
+    ### ADDED IN V2.0.5 Whatsminer API ###
+    async def set_temp_offset(self, temp_offset: int):
+        """Set the offset of miner hash board target temperature.
+
+        <details>
+            <summary>Expand</summary>
+
+        Set the offset of miner hash board target temperature, only works after
+        changing the password of the miner using the Whatsminer tool.
+
+        Parameters:
+            temp_offset: Target temperature offset.
+        Returns:
+
+            A reply informing of the status of setting temp offset.
+        </details>
+
+        """
+        if not -30 < temp_offset < 0:
+            raise APIError(
+                f"Temp offset is outside of the allowed "
+                f"range.  Please set a number between -30 and "
+                f"0."
+            )
+
+        return await self.send_privileged_command("set_temp_offset", temp_offset=temp_offset)
+
+    async def adjust_power_limit(self, power_limit: int):
+        """Set the upper limit of the miner's power. Cannot be higher than the ordinary power of the machine.
+
+        <details>
+            <summary>Expand</summary>
+
+        Set the upper limit of the miner's power, only works after
+        changing the password of the miner using the Whatsminer tool.
+        The miner will reboot after this is set.
+
+        Parameters:
+            power_limit: New power limit.
+        Returns:
+
+            A reply informing of the status of setting power limit.
+        </details>
+
+        """
+        return await self.send_privileged_command("adjust_power_limit", power_limit=power_limit)
+
+
+    async def adjust_upfreq_speed(self, upfreq_speed: int):
+        """Set the upfreq speed, 0 is the normal speed, 9 is the fastest speed.
+
+        <details>
+            <summary>Expand</summary>
+
+        Set the upfreq speed, 0 is the normal speed, 9 is the fastest speed, only works after
+        changing the password of the miner using the Whatsminer tool.
+        The faster the speed, the greater the final hash rate and power deviation, and the stability
+        may be impacted. Fast boot mode cannot be used at the same time.
+
+        Parameters:
+            upfreq_speed: New upfreq speed.
+        Returns:
+
+            A reply informing of the status of setting upfreq speed.
+        </details>
+        """
+        if not 0 < upfreq_speed < 9:
+            raise APIError(
+                f"Upfreq speed is outside of the allowed "
+                f"range.  Please set a number between 0 (Normal) and "
+                f"9 (Fastest)."
+            )
+        return await self.send_privileged_command("adjust_upfreq_speed", upfreq_speed=upfreq_speed)
+
+    async def set_poweroff_cool(self, poweroff_cool: bool):
+        """Set whether to cool the machine when mining is stopped.
+
+        <details>
+            <summary>Expand</summary>
+
+        Set whether to cool the machine when mining is stopped, only works after
+        changing the password of the miner using the Whatsminer tool.
+
+        Parameters:
+            poweroff_cool: Whether to cool the miner during power off mode.
+        Returns:
+
+            A reply informing of the status of setting power off cooling mode.
+        </details>
+        """
+
+        return await self.send_privileged_command("set_poweroff_cool", poweroff_cool=int(poweroff_cool))
+
+    async def set_fan_zero_speed(self, fan_zero_speed: bool):
+        """Sets whether the fan speed supports the lowest 0 speed.
+
+        <details>
+            <summary>Expand</summary>
+
+        Sets whether the fan speed supports the lowest 0 speed, only works after
+        changing the password of the miner using the Whatsminer tool.
+
+        Parameters:
+            fan_zero_speed: Whether the fan is allowed to support 0 speed.
+        Returns:
+
+            A reply informing of the status of setting fan minimum speed.
+        </details>
+
+        """
+        return await self.send_privileged_command("set_fan_zero_speed", fan_zero_speed=int(fan_zero_speed))
+
 
     #### END privileged COMMANDS ####
 
