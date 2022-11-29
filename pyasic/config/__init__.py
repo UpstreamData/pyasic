@@ -399,7 +399,7 @@ class MinerConfig:
         """
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
-    def as_wm(self, user_suffix: str = None) -> Dict[str: List[dict], str: int]:
+    def as_wm(self, user_suffix: str = None) -> Dict[str, int]:
         """Convert the data in this class to a config usable by a Whatsminer device.
 
         Parameters:
