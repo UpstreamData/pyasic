@@ -548,6 +548,8 @@ class BOSMiner(BaseMiner):
         if not query_data:
             return None
         query_data = query_data["data"]
+        if not query_data:
+            return None
 
         data.mac = await self.get_mac()
         data.model = await self.get_model()
