@@ -117,10 +117,11 @@ These functions are
 [`get_hostname`](#get-hostname),
 [`get_model`](#get-model),
 [`reboot`](#reboot),
-[`restart_backend`](#restart-backend), and
-[`stop_mining`](#stop-mining), and
-[`resume_mining`](#resume-mining), and
-[`send_config`](#send-config).
+[`restart_backend`](#restart-backend),
+[`stop_mining`](#stop-mining),
+[`resume_mining`](#resume-mining),
+[`send_config`](#send-config), and
+[`set_power_limit`](#set-power-limit).
 
 <br>
 
@@ -222,6 +223,14 @@ These functions are
 
 ### Send Config
 ::: pyasic.miners.BaseMiner.send_config
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Set Power Limit
+::: pyasic.miners.BaseMiner.set_power_limit
     handler: python
     options:
         heading_level: 4

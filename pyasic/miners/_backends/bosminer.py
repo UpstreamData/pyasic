@@ -671,3 +671,14 @@ class BOSMiner(BaseMiner):
     async def get_mac(self):
         result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
         return result.upper().strip()
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        try:
+            cfg = await self.get_config()
+            cfg.autotuning_wattage = wattage
+            await self.send_config(cfg)
+        except Exception as e:
+            logging.warning(f"{self} set_power_limit: {e}")
+            return False
+        else:
+            return True

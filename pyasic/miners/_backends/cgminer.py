@@ -335,3 +335,6 @@ class CGMiner(BaseMiner):
                 data.pool_split = str(quota)
 
         return data
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        return False

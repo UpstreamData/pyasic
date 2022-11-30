@@ -106,3 +106,6 @@ class BOSMinerOld(BaseMiner):
 
     async def get_data(self, **kwargs) -> MinerData:
         return MinerData(ip=str(self.ip))
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        return False

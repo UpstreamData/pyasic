@@ -61,3 +61,6 @@ class Hiveon(BMMiner):
                         bad_boards[board] = []
                     bad_boards[board].append(chain)
         return bad_boards
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        return False

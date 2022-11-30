@@ -438,3 +438,13 @@ class BTMiner(BaseMiner):
             data.mac = mac
 
         return data
+
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        try:
+            await self.api.adjust_power_limit(wattage)
+        except Exception as e:
+            logging.warning(f"{self} set_power_limit: {e}")
+            return False
+        else:
+            return True

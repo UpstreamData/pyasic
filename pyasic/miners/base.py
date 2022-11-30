@@ -216,4 +216,12 @@ class BaseMiner(ABC):
         pass
 
 
+    @abstractmethod
+    async def set_power_limit(self, wattage: int) -> bool:
+        """Set the power limit to be used by the miner.
+
+        Returns:
+            A boolean value of the success of setting the power limit.
+        """
+
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
