@@ -110,23 +110,9 @@ class MinerNetwork:
         scan_tasks = []
         miners = []
 
-        # for each IP in the network
-        for host in local_network.hosts():
 
-            # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) < round(PyasicSettings().network_scan_threads):
-                # add the task to the list
-                scan_tasks.append(self.ping_and_get_miner(host))
-            else:
-                # run the scan tasks
-                miners_scan = await asyncio.gather(*scan_tasks)
-                # add scanned miners to the list of found miners
-                miners.extend(miners_scan)
-                # empty the task list
-                scan_tasks = []
-        # do a final scan to empty out the list
-        miners_scan = await asyncio.gather(*scan_tasks)
-        miners.extend(miners_scan)
+        limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
+        miners = await asyncio.gather(*[self.ping_and_get_miner(host, limit) for host in local_network.hosts()])
 
         # remove all None from the miner list
         miners = list(filter(None, miners))
@@ -151,60 +137,47 @@ class MinerNetwork:
         # create a list of scan tasks
         scan_tasks = []
 
-        # for each ip on the network, loop through and scan it
-        for host in local_network.hosts():
-            # make sure we don't exceed the allowed async tasks
-            if len(scan_tasks) >= round(PyasicSettings().network_scan_threads):
-                # scanned is a loopable list of awaitables
-                scanned = asyncio.as_completed(scan_tasks)
-                # when we scan, empty the scan tasks
-                scan_tasks = []
-
-                # yield miners as they are scanned
-                for miner in scanned:
-                    yield await miner
-
-            # add the ping to the list of tasks if we dont scan
-            scan_tasks.append(loop.create_task(self.ping_and_get_miner(host)))
-
-        # do one last scan at the end to close out the list
-        scanned = asyncio.as_completed(scan_tasks)
-        for miner in scanned:
+        limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
+        miners = asyncio.as_completed([loop.create_task(self.ping_and_get_miner(host, limit)) for host in local_network.hosts()])
+        for miner in miners:
             yield await miner
 
+
     @staticmethod
-    async def ping_miner(ip: ipaddress.ip_address) -> Union[None, ipaddress.ip_address]:
-        try:
-            miner = await ping_miner(ip)
-            if miner:
-                return miner
-        except ConnectionRefusedError:
-            tasks = [ping_miner(ip, port=port) for port in [4029, 8889]]
-            for miner in asyncio.as_completed(tasks):
-                try:
-                    miner = await miner
-                    if miner:
-                        return miner
-                except ConnectionRefusedError:
-                    pass
+    async def ping_miner(ip: ipaddress.ip_address, semaphore: asyncio.Semaphore) -> Union[None, ipaddress.ip_address]:
+        async with semaphore:
+            try:
+                miner = await ping_miner(ip)
+                if miner:
+                    return miner
+            except ConnectionRefusedError:
+                tasks = [ping_miner(ip, port=port) for port in [4029, 8889]]
+                for miner in asyncio.as_completed(tasks):
+                    try:
+                        miner = await miner
+                        if miner:
+                            return miner
+                    except ConnectionRefusedError:
+                        pass
 
     @staticmethod
     async def ping_and_get_miner(
-        ip: ipaddress.ip_address,
+        ip: ipaddress.ip_address, semaphore: asyncio.Semaphore
     ) -> Union[None, AnyMiner]:
-        try:
-            miner = await ping_and_get_miner(ip)
-            if miner:
-                return miner
-        except ConnectionRefusedError:
-            tasks = [ping_and_get_miner(ip, port=port) for port in [4029, 8889]]
-            for miner in asyncio.as_completed(tasks):
-                try:
-                    miner = await miner
-                    if miner:
-                        return miner
-                except ConnectionRefusedError:
-                    pass
+        async with semaphore:
+            try:
+                miner = await ping_and_get_miner(ip)
+                if miner:
+                    return miner
+            except ConnectionRefusedError:
+                tasks = [ping_and_get_miner(ip, port=port) for port in [4029, 8889]]
+                for miner in asyncio.as_completed(tasks):
+                    try:
+                        miner = await miner
+                        if miner:
+                            return miner
+                    except ConnectionRefusedError:
+                        pass
 
 
 async def ping_miner(
