@@ -130,7 +130,7 @@ class MinerNetwork:
 
         # remove all None from the miner list
         miners = list(filter(None, miners))
-        logging.debug(f"{self} - (Scan Network For Miners) - Found {len(miner)} miners")
+        logging.debug(f"{self} - (Scan Network For Miners) - Found {len(miners)} miners")
 
         # return the miner objects
         return miners
