@@ -17,8 +17,8 @@ import json
 import logging
 from typing import List, Union
 
-import toml
 import httpx
+import toml
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig

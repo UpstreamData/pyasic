@@ -35,6 +35,81 @@ class BaseMinerAPI:
             raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
         return object.__new__(cls)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}: {str(self.ip)}"
+
+    async def send_command(
+        self,
+        command: Union[str, bytes],
+        parameters: Union[str, int, bool] = None,
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+    ) -> dict:
+        """Send an API command to the miner and return the result.
+
+        Parameters:
+            command: The command to sent to the miner.
+            parameters: Any additional parameters to be sent with the command.
+            ignore_errors: Whether to raise APIError when the command returns an error.
+            allow_warning: Whether to warn if the command fails.
+
+        Returns:
+            The return data from the API command parsed from JSON into a dict.
+        """
+        logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {parameters}' if parameters else '')
+        # create the command
+        cmd = {"command": command}
+        if parameters:
+            cmd["parameter"] = parameters
+
+        # send the command
+        data = await self._send_bytes(json.dumps(cmd).encode("utf-8"))
+
+        data = self._load_api_data(data)
+
+        # check for if the user wants to allow errors to return
+        if not ignore_errors:
+            # validate the command succeeded
+            validation = self._validate_command_output(data)
+            if not validation[0]:
+                if allow_warning:
+                    logging.warning(
+                        f"{self.ip}: API Command Error: {command}: {validation[1]}"
+                    )
+                raise APIError(validation[1])
+
+        logging.debug(f"{self} - (Send Command) - Received data.")
+        return data
+
+
+    # Privileged command handler, only used by whatsminers, defined here for consistency.
+    async def send_privileged_command(self, *args, **kwargs) -> dict:
+        return await self.send_command(*args, **kwargs)
+
+
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+        """Creates and sends multiple commands as one command to the miner.
+
+        Parameters:
+            *commands: The commands to send as a multicommand to the miner.
+            allow_warning: A boolean to supress APIWarnings.
+        """
+        # make sure we can actually run each command, otherwise they will fail
+        commands = self._check_commands(*commands)
+        # standard multicommand format is "command1+command2"
+        # standard format doesn't work for X19
+        command = "+".join(commands)
+        try:
+            data = await self.send_command(command, allow_warning=allow_warning)
+        except APIError:
+            return {}
+        logging.debug(f"{self} - (Multicommand) - Received data")
+        return data
+
+    @property
+    def commands(self) -> list:
+        return self.get_commands()
+
     def get_commands(self) -> list:
         """Get a list of command accessible to a specific type of API on the miner.
 
@@ -72,26 +147,6 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
-        """Creates and sends multiple commands as one command to the miner.
-
-        Parameters:
-            *commands: The commands to send as a multicommand to the miner.
-            allow_warning: A boolean to supress APIWarnings.
-        """
-        logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
-        # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
-        # standard multicommand format is "command1+command2"
-        # doesn't work for S19 which uses the backup _x19_multicommand
-        command = "+".join(commands)
-        try:
-            data = await self.send_command(command, allow_warning=allow_warning)
-        except APIError:
-            return {}
-        logging.debug(f"{self.ip}: Received multicommand data.")
-        return data
-
     async def _send_bytes(self, data: bytes) -> bytes:
         try:
             # get reader and writer streams
@@ -99,7 +154,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         # handle OSError 121
         except OSError as e:
             if getattr(e, "winerror") == "121":
-                logging.warning("Semaphore Timeout has Expired.")
+                logging.warning(f"{self} - ([Hidden] Send Bytes) - Semaphore timeout expired.")
             return b"{}"
 
         # send the command
@@ -117,57 +172,13 @@ If you are sure you want to use this command please use API.send_command("{comma
                     break
                 ret_data += d
         except Exception as e:
-            logging.warning(f"{self.ip}: API Command Error: - {e}")
+            logging.warning(f"{self} - ([Hidden] Send Bytes) - API Command Error {e}")
 
         # close the connection
         writer.close()
         await writer.wait_closed()
 
         return ret_data
-
-    async def send_command(
-        self,
-        command: Union[str, bytes],
-        parameters: Union[str, int, bool] = None,
-        ignore_errors: bool = False,
-        allow_warning: bool = True,
-    ) -> dict:
-        """Send an API command to the miner and return the result.
-
-        Parameters:
-            command: The command to sent to the miner.
-            parameters: Any additional parameters to be sent with the command.
-            ignore_errors: Whether to raise APIError when the command returns an error.
-            allow_warning: Whether to warn if the command fails.
-
-        Returns:
-            The return data from the API command parsed from JSON into a dict.
-        """
-        # create the command
-        cmd = {"command": command}
-        if parameters:
-            cmd["parameter"] = parameters
-
-        # send the command
-        data = await self._send_bytes(json.dumps(cmd).encode("utf-8"))
-
-        data = self._load_api_data(data)
-
-        # check for if the user wants to allow errors to return
-        if not ignore_errors:
-            # validate the command succeeded
-            validation = self._validate_command_output(data)
-            if not validation[0]:
-                if allow_warning:
-                    logging.warning(
-                        f"{self.ip}: API Command Error: {command}: {validation[1]}"
-                    )
-                raise APIError(validation[1])
-
-        return data
-
-    async def send_privileged_command(self, *args, **kwargs) -> dict:
-        return await self.send_command(*args, **kwargs)
 
     @staticmethod
     def _validate_command_output(data: dict) -> tuple:

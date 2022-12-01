@@ -90,7 +90,7 @@ class MinerNetwork:
                 f"{self.ip_addr}/{subnet_mask}", strict=False
             )
 
-        logging.debug(f"Setting MinerNetwork: {self.network}")
+        logging.debug(f"{self} - (Get Network) - Found network")
         return self.network
 
     async def scan_network_for_miners(self) -> List[AnyMiner]:
@@ -101,7 +101,7 @@ class MinerNetwork:
         """
         # get the network
         local_network = self.get_network()
-        logging.debug(f"Scanning {local_network} for miners")
+        logging.debug(f"{self} - (Scan Network For Miners) - Scanning")
 
         # clear cached miners
         MinerFactory().clear_cached_miners()
@@ -130,7 +130,7 @@ class MinerNetwork:
 
         # remove all None from the miner list
         miners = list(filter(None, miners))
-        logging.debug(f"Found {len(miners)} connected miners")
+        logging.debug(f"{self} - (Scan Network For Miners) - Found {len(miner)} miners")
 
         # return the miner objects
         return miners
@@ -262,6 +262,6 @@ async def ping_and_get_miner(
             raise e
         # ping failed, likely with an exception
         except Exception as e:
-            logging.warning(f"{str(ip)}: {e}")
+            logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
         continue
     return

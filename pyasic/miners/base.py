@@ -21,9 +21,7 @@ import asyncssh
 
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
-from pyasic.data.error_codes import (
-    MinerErrorData,
-)
+from pyasic.data.error_codes import MinerErrorData
 
 
 class BaseMiner(ABC):

@@ -13,11 +13,12 @@
 #  limitations under the License.
 
 import json
+import logging
 import random
 import string
 import time
 from dataclasses import asdict, dataclass, fields
-from typing import List, Literal, Dict
+from typing import Dict, List, Literal
 
 import toml
 import yaml
@@ -277,6 +278,7 @@ class MinerConfig:
 
     def as_dict(self) -> dict:
         """Convert the data in this class to a dict."""
+        logging.debug(f"MinerConfig - (To Dict) - Dumping Dict config")
         data_dict = asdict(self)
         for key in asdict(self).keys():
             if data_dict[key] is None:
@@ -285,10 +287,12 @@ class MinerConfig:
 
     def as_toml(self) -> str:
         """Convert the data in this class to toml."""
+        logging.debug(f"MinerConfig - (To TOML) - Dumping TOML config")
         return toml.dumps(self.as_dict())
 
     def as_yaml(self) -> str:
         """Convert the data in this class to yaml."""
+        logging.debug(f"MinerConfig - (To YAML) - Dumping YAML config")
         return yaml.dump(self.as_dict(), sort_keys=False)
 
     def from_raw(self, data: dict):
@@ -298,6 +302,7 @@ class MinerConfig:
         Parameters:
              data: The raw config data to convert.
         """
+        logging.debug(f"MinerConfig - (From Raw) - Loading raw config")
         pool_groups = []
         for key in data.keys():
             if key == "pools":
@@ -360,6 +365,12 @@ class MinerConfig:
         return self
 
     def from_api(self, pools: list):
+        """Convert list output from the `AnyMiner.api.pools()` command into a usable data and save it to this class.
+
+        Parameters:
+            pools: The list of pool data to convert.
+        """
+        logging.debug(f"MinerConfig - (From API) - Loading API config")
         _pools = []
         for pool in pools:
             url = pool.get("URL")
@@ -374,6 +385,7 @@ class MinerConfig:
         Parameters:
             data: The dict config data to convert.
         """
+        logging.debug(f"MinerConfig - (From Dict) - Loading Dict config")
         pool_groups = []
         for group in data["pool_groups"]:
             pool_groups.append(_PoolGroup().from_dict(group))
@@ -389,6 +401,7 @@ class MinerConfig:
         Parameters:
             data: The toml config data to convert.
         """
+        logging.debug(f"MinerConfig - (From TOML) - Loading TOML config")
         return self.from_dict(toml.loads(data))
 
     def from_yaml(self, data: str):
@@ -397,6 +410,7 @@ class MinerConfig:
         Parameters:
             data: The yaml config data to convert.
         """
+        logging.debug(f"MinerConfig - (From YAML) - Loading YAML config")
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
     def as_wm(self, user_suffix: str = None) -> Dict[str, int]:
@@ -405,6 +419,7 @@ class MinerConfig:
         Parameters:
             user_suffix: The suffix to append to username.
         """
+        logging.debug(f"MinerConfig - (As Whatsminer) - Generating Whatsminer config")
         return {"pools": self.pool_groups[0].as_wm(user_suffix=user_suffix), "wattage": self.autotuning_wattage}
 
     def as_inno(self, user_suffix: str = None) -> dict:
@@ -413,6 +428,7 @@ class MinerConfig:
         Parameters:
             user_suffix: The suffix to append to username.
         """
+        logging.debug(f"MinerConfig - (As Inno) - Generating Innosilicon config")
         return self.pool_groups[0].as_inno(user_suffix=user_suffix)
 
     def as_x19(self, user_suffix: str = None) -> str:
@@ -421,6 +437,7 @@ class MinerConfig:
         Parameters:
             user_suffix: The suffix to append to username.
         """
+        logging.debug(f"MinerConfig - (As X19) - Generating X19 config")
         cfg = {
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
@@ -444,6 +461,7 @@ class MinerConfig:
         Parameters:
             user_suffix: The suffix to append to username.
         """
+        logging.debug(f"MinerConfig - (As Avalon) - Generating AvalonMiner config")
         cfg = self.pool_groups[0].as_avalon(user_suffix=user_suffix)
         return cfg
 
@@ -454,6 +472,7 @@ class MinerConfig:
             model: The model of the miner to be used in the format portion of the config.
             user_suffix: The suffix to append to username.
         """
+        logging.debug(f"MinerConfig - (As BOS) - Generating BOSMiner config")
         cfg = {
             "format": {
                 "version": "1.2+",

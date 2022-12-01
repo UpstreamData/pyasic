@@ -40,7 +40,6 @@ class BMMinerAPI(BaseMinerAPI):
     async def multicommand(
         self, *commands: str, allow_warning: bool = True
     ) -> dict:
-        logging.debug(f"{self.ip}: Sending multicommand: {[*commands]}")
         # make sure we can actually run each command, otherwise they will fail
         commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
@@ -49,9 +48,8 @@ class BMMinerAPI(BaseMinerAPI):
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
-            logging.debug(f"{self.ip}: Handling X19 multicommand.")
+            logging.debug(f"{self} - (Multicommand) - Handling X19 multicommand.")
             data = await self._x19_multicommand(*command.split("+"))
-        logging.debug(f"{self.ip}: Received multicommand data.")
         return data
 
     async def _x19_multicommand(self, *commands):
@@ -65,7 +63,7 @@ class BMMinerAPI(BaseMinerAPI):
         except APIError as e:
             raise APIError(e)
         except Exception as e:
-            logging.warning(f"{self.ip}: API Multicommand Error: {e}")
+            logging.warning(f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}")
         return data
 
     async def version(self) -> dict:

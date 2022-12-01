@@ -32,7 +32,7 @@ from pyasic.settings import PyasicSettings
 # tool, then you can set them back to admin with this tool, but they
 # must be changed to something else and set back to admin with this
 # or the privileged API will not work using admin as the password.  If
-# you change the password, you can pass that to the this class as pwd,
+# you change the password, you can pass that to this class as pwd,
 # or add it as the Whatsminer_pwd in the settings.toml file.
 
 
@@ -81,7 +81,7 @@ def _add_to_16(string: str) -> bytes:
 def parse_btminer_priviledge_data(token_data: dict, data: dict):
     """Parses data returned from the BTMiner privileged API.
 
-    Parses data from the BTMiner privileged API using the the token
+    Parses data from the BTMiner privileged API using the token
     from the API in an AES format.
 
     Parameters:
@@ -188,6 +188,7 @@ class BTMinerAPI(BaseMinerAPI):
     async def send_privileged_command(
         self, command: Union[str, bytes], ignore_errors: bool = False, **kwargs
     ) -> dict:
+        logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {kwargs}' if len(kwargs) > 0 else '')
         command = {"cmd": command}
         for kwarg in kwargs:
             if kwargs[kwarg]:
@@ -222,6 +223,7 @@ class BTMinerAPI(BaseMinerAPI):
             An encoded token and md5 password, which are used for the privileged API.
         </details>
         """
+        logging.debug(f"{self} - (Get Token) - Getting token")
         # get the token
         data = await self.send_command("get_token")
 
@@ -244,6 +246,7 @@ class BTMinerAPI(BaseMinerAPI):
             "host_sign": host_sign,
             "host_passwd_md5": host_passwd_md5,
         }
+        logging.debug(f"{self} - (Get Token) - Gathered token data: {self.current_token}")
         return self.current_token
 
     #### PRIVILEGED COMMANDS ####

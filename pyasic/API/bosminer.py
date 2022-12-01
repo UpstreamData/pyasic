@@ -166,7 +166,7 @@ class BOSMinerAPI(BaseMinerAPI):
             return await self.send_command("estats")
 
     async def check(self, command: str) -> dict:
-        """Check if the command command exists in BOSMiner.
+        """Check if the command `command` exists in BOSMiner.
         <details>
             <summary>Expand</summary>
 
