@@ -196,14 +196,20 @@ class BTMiner(BaseMiner):
         return False
 
     async def stop_mining(self) -> bool:
-        data = await self.api.power_off(respbefore=True)
+        try:
+            data = await self.api.power_off(respbefore=True)
+        except APIError:
+            return False
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
         return False
 
     async def resume_mining(self) -> bool:
-        data = await self.api.power_on()
+        try:
+            data = await self.api.power_on()
+        except APIError:
+            return False
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
