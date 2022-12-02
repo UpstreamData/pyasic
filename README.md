@@ -46,7 +46,7 @@ from pyasic.network import MinerNetwork
 async def scan_and_get_data():
     # Define network range to be used for scanning
     # This can take a list of IPs, a constructor string, or an IP and subnet mask
-    # The standard mask is /24, and you can pass any IP address in the subnet
+    # The standard mask is /24 (x.x.x.0-255), and you can pass any IP address in the subnet
     net = MinerNetwork("192.168.1.69", mask=24)
     # Scan the network for miners
     # This function returns a list of miners of the correct type as a class
@@ -93,6 +93,10 @@ if __name__ == "__main__":
 
 If needed, this library exposes a wrapper for the miner API that can be used for advanced data gathering.
 
+You can see more information on basic usage of the APIs past this example in the docs [here](https://pyasic.readthedocs.io/en/latest/API/api/).
+
+Please see the appropriate API documentation page (pyasic docs -> Advanced -> Miner APIs -> your API type) for a link to that specific miner's API documentation page and more information.
+
 #### List available API commands
 ```python
 import asyncio
@@ -105,7 +109,8 @@ async def get_api_commands(miner_ip: str):
     miner = await get_miner(miner_ip)
 
     # List all available commands
-    print(miner.api.get_commands())
+    # Can also be called explicitly with the function miner.api.get_commands()
+    print(miner.api.commands)
 
 
 if __name__ == "__main__":
