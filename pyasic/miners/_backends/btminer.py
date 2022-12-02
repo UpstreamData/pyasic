@@ -238,16 +238,24 @@ class BTMiner(BaseMiner):
 
     async def get_config(self) -> MinerConfig:
         pools = None
+        summary = None
         cfg = MinerConfig()
 
         try:
-            pools = await self.api.pools()
+            data = await self.api.multicommand("pools", "summary")
+            pools = data["pools"][0]
+            summary = data["summary"][0]
         except APIError as e:
             logging.warning(e)
 
         if pools:
-            if "POOLS" in pools.keys():
+            if "POOLS" in pools:
                 cfg = cfg.from_api(pools["POOLS"])
+        if summary:
+            if "SUMMARY" in summary:
+                if wattage := summary["SUMMARY"][0].get("Power Limit"):
+                    cfg.autotuning_wattage = wattage
+
         return cfg
 
     async def get_data(self, allow_warning: bool = True) -> MinerData:
