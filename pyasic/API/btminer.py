@@ -198,6 +198,8 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
 
         data = await self._send_bytes(enc_command)
+        if not data:
+            raise APIError("No data was returned from the API.")
         data = self._load_api_data(data)
 
         try:
