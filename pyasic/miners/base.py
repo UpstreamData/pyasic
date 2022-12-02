@@ -218,6 +218,9 @@ class BaseMiner(ABC):
     async def set_power_limit(self, wattage: int) -> bool:
         """Set the power limit to be used by the miner.
 
+        Parameters:
+            wattage: The power limit to set on the miner.
+
         Returns:
             A boolean value of the success of setting the power limit.
         """
