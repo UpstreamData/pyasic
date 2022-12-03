@@ -122,6 +122,14 @@
         show_root_heading: false
         heading_level: 4
 
+## M31SV20
+
+::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV20
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M31SV60
 
 ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV60

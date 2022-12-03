@@ -20,7 +20,7 @@ from .M30S_Plus_Plus import (
     M30SPlusPlusVG40,
     M30SPlusPlusVH60,
 )
-from .M31S import M31S, M31SV10, M31SV60, M31SV70
+from .M31S import M31S, M31SV10, M31SV20, M31SV60, M31SV70
 from .M31S_Plus import (
     M31SPlus,
     M31SPlusV30,

@@ -28,7 +28,7 @@ from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.settings import PyasicSettings
 
-
+#TODO: Fix quota splitting in get data
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
