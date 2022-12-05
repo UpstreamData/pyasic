@@ -28,7 +28,7 @@ from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.settings import PyasicSettings
 
-#TODO: Fix quota splitting in get data
+
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
@@ -327,7 +327,7 @@ class BOSMiner(BaseMiner):
                             if board["Status"] not in [
                                 "Stable",
                                 "Testing performance profile",
-                                "Tuning individual chips"
+                                "Tuning individual chips",
                             ]:
                                 _error = board["Status"].split(" {")[0]
                                 _error = _error[0].lower() + _error[1:]
@@ -475,7 +475,11 @@ class BOSMiner(BaseMiner):
                     cfg = await self.get_config()
                     if cfg:
                         if len(cfg.pool_groups) > 1:
-                            quota = str(cfg.pool_groups[0].quota) + "/" + str(cfg.pool_groups[1].quota)
+                            quota = (
+                                str(cfg.pool_groups[0].quota)
+                                + "/"
+                                + str(cfg.pool_groups[1].quota)
+                            )
 
                 data.pool_split = str(quota)
 
@@ -564,9 +568,13 @@ class BOSMiner(BaseMiner):
                 data.hostname = query_data["bos"]["hostname"]
 
         try:
-            if query_data["bosminer"]["info"]["workSolver"]["realHashrate"].get("mhs1M"):
+            if query_data["bosminer"]["info"]["workSolver"]["realHashrate"].get(
+                "mhs1M"
+            ):
                 data.hashrate = round(
-                    query_data["bosminer"]["info"]["workSolver"]["realHashrate"]["mhs1M"]
+                    query_data["bosminer"]["info"]["workSolver"]["realHashrate"][
+                        "mhs1M"
+                    ]
                     / 1000000,
                     2,
                 )
@@ -577,9 +585,13 @@ class BOSMiner(BaseMiner):
         if query_data.get("bosminer"):
             if query_data["bosminer"].get("info"):
                 if query_data["bosminer"]["info"].get("workSolver"):
-                    boards = query_data["bosminer"]["info"]["workSolver"].get("childSolvers")
+                    boards = query_data["bosminer"]["info"]["workSolver"].get(
+                        "childSolvers"
+                    )
         if boards:
-            offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
+            offset = (
+                6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
+            )
             for hb in boards:
                 _id = int(hb["name"]) - offset
 
@@ -606,24 +618,33 @@ class BOSMiner(BaseMiner):
                             if hb["tuner"]["statusMessages"][0] not in [
                                 "Stable",
                                 "Testing performance profile",
-                                "Tuning individual chips"
+                                "Tuning individual chips",
                             ]:
                                 data.errors.append(
-                                    BraiinsOSError(f"Slot {_id} {hb['tuner']['statusMessages'][0]}")
+                                    BraiinsOSError(
+                                        f"Slot {_id} {hb['tuner']['statusMessages'][0]}"
+                                    )
                                 )
         try:
-            data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"]["approxConsumptionW"]
+            data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"][
+                "approxConsumptionW"
+            ]
         except (TypeError, KeyError, ValueError, IndexError):
             data.wattage = 0
         try:
-            data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"]["limitW"]
+            data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"][
+                "limitW"
+            ]
         except (TypeError, KeyError, ValueError, IndexError):
             pass
 
-
         for n in range(self.fan_count):
             try:
-                setattr(data, f"fan_{n + 1}", query_data["bosminer"]["info"]["fans"][n]["rpm"])
+                setattr(
+                    data,
+                    f"fan_{n + 1}",
+                    query_data["bosminer"]["info"]["fans"][n]["rpm"],
+                )
             except (TypeError, KeyError, ValueError, IndexError):
                 pass
 
@@ -638,7 +659,11 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
-                    data.pool_1_url = groups[0]["pools"][0]["url"]
+                    data.pool_1_url = (
+                        groups[0]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
@@ -646,7 +671,11 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
-                    data.pool_2_url = groups[0]["pools"][1]["url"]
+                    data.pool_2_url = (
+                        groups[0]["pools"][1]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 data.quota = 0
@@ -656,7 +685,11 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
-                    data.pool_1_url = groups[0]["pools"][0]["url"]
+                    data.pool_1_url = (
+                        groups[0]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
@@ -664,11 +697,19 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 try:
-                    data.pool_2_url = groups[1]["pools"][0]["url"]
+                    data.pool_2_url = (
+                        groups[1]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 if groups[0]["strategy"].get("quota"):
-                    data.pool_split = str(groups[0]["strategy"]["quota"]) + "/" + str(groups[1]["strategy"]["quota"])
+                    data.pool_split = (
+                        str(groups[0]["strategy"]["quota"])
+                        + "/"
+                        + str(groups[1]["strategy"]["quota"])
+                    )
 
         data.fault_light = await self.check_light()
 
