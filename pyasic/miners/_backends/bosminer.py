@@ -471,6 +471,12 @@ class BOSMiner(BaseMiner):
                 data.pool_2_user = pool_2_user
 
             if quota:
+                if not quota == "0":
+                    cfg = await self.get_config()
+                    if cfg:
+                        if len(cfg.pool_groups) > 1:
+                            quota = str(cfg.pool_groups[0].quota) + "/" + str(cfg.pool_groups[1].quota)
+
                 data.pool_split = str(quota)
 
         if tunerstatus:
@@ -662,7 +668,7 @@ class BOSMiner(BaseMiner):
                 except (TypeError, KeyError, ValueError, IndexError):
                     pass
                 if groups[0]["strategy"].get("quota"):
-                    data.quota = str(groups[0]["strategy"]["quota"]) + "/" + str(groups[1]["strategy"]["quota"])
+                    data.pool_split = str(groups[0]["strategy"]["quota"]) + "/" + str(groups[1]["strategy"]["quota"])
 
         data.fault_light = await self.check_light()
 
