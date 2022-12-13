@@ -181,7 +181,7 @@ class BTMinerAPI(BaseMinerAPI):
     def __init__(
         self,
         ip: str,
-        api_ver: str = "1.0.0",
+        api_ver: str = "0.0.0",
         port: int = 4028,
         pwd: str = PyasicSettings().global_whatsminer_password,
     ):
