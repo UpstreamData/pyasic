@@ -77,6 +77,7 @@ details {
                         <ul>
                             <li><a href="../whatsminer/M3X/#m30svf20">VF20</a></li>
                             <li><a href="../whatsminer/M3X/#m30sve40">VE40</a></li>
+                            <li><a href="../whatsminer/M3X/#m30svg40">VG40</a></li>
                             <li><a href="../whatsminer/M3X/#m30svg60">VG60</a></li>
                         </ul>
                 </details>

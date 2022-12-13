@@ -32,6 +32,14 @@ class M30SPlusVG60(BaseMiner):  # noqa - ignore ABC method implementation
         self.nominal_chips = 86
         self.fan_count = 2
 
+class M30SPlusVG40(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M30S+ VG40"
+        self.nominal_chips = 105
+        self.fan_count = 2
+
 
 class M30SPlusVE40(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
