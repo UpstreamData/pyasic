@@ -148,8 +148,7 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def _send_bytes(self, data: bytes, timeout: int=100) -> bytes:
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
+    async def _send_bytes(self, data: bytes) -> bytes:
         try:
             # get reader and writer streams
             reader, writer = await asyncio.open_connection(str(self.ip), self.port)
@@ -160,32 +159,25 @@ If you are sure you want to use this command please use API.send_command("{comma
             return b"{}"
 
         # send the command
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Writing")
         writer.write(data)
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
         await writer.drain()
 
         # instantiate data
         ret_data = b""
 
         # loop to receive all the data
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
         try:
             while True:
-                try:
-                    d = await asyncio.wait_for(reader.read(4096), timeout=timeout)
-                    if not d:
-                        break
-                    ret_data += d
-                except (asyncio.CancelledError, asyncio.TimeoutError) as e:
-                    raise e
+                d = await reader.read(4096)
+                if not d:
+                    break
+                ret_data += d
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
             raise e
         except Exception as e:
             logging.warning(f"{self} - ([Hidden] Send Bytes) - API Command Error {e}")
 
         # close the connection
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Closing")
         writer.close()
         await writer.wait_closed()
 
