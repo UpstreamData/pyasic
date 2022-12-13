@@ -202,7 +202,7 @@ class BTMinerAPI(BaseMinerAPI):
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
             if command['cmd'] in ['reboot', 'restart']:
                 logging.info(f"{self} - (reboot/restart) - Whatsminers currently break this. "
-                             f"Ignoring exception. Command propably worked.")
+                             f"Ignoring exception. Command probably worked.")
                 # FAKING IT HERE
                 data = b'{"STATUS": "S", "When": 1670966423, "Code": 131, "Msg": "API command OK", "Description": "Reboot"}'
             else:
