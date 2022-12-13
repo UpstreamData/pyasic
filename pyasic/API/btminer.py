@@ -27,7 +27,6 @@ from passlib.handlers.md5_crypt import md5_crypt
 from pyasic.API import BaseMinerAPI
 from pyasic.errors import APIError
 from pyasic.settings import PyasicSettings
-from pyasic.misc import api_min_version
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer
@@ -181,18 +180,15 @@ class BTMinerAPI(BaseMinerAPI):
     def __init__(
         self,
         ip: str,
-        api_ver: str = "1.0.0",
         port: int = 4028,
         pwd: str = PyasicSettings().global_whatsminer_password,
     ):
         super().__init__(ip, port)
         self.pwd = pwd
         self.current_token = None
-        self.api_ver = api_ver
-
 
     async def send_privileged_command(
-        self, command: Union[str, bytes], ignore_errors: bool = False, timeout: int = 10, **kwargs
+        self, command: Union[str, bytes], ignore_errors: bool = False, **kwargs
     ) -> dict:
         logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {kwargs}' if len(kwargs) > 0 else '')
         command = {"cmd": command, **kwargs}
@@ -201,17 +197,7 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
 
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
-        try:
-            data = await self._send_bytes(enc_command, timeout)
-        except (asyncio.CancelledError, asyncio.TimeoutError) as e:
-            if command['cmd'] in ['reboot', 'restart']:
-                logging.info(f"{self} - (reboot/restart) - Whatsminers currently break this. "
-                             f"Ignoring exception. Command probably worked.")
-                # FAKING IT HERE
-                data = b'{"STATUS": "S", "When": 1670966423, "Code": 131, "Msg": "API command OK", "Description": "Reboot"}'
-            else:
-                raise APIError("No data was returned from the API.")
-
+        data = await self._send_bytes(enc_command)
         if not data:
             raise APIError("No data was returned from the API.")
         data = self._load_api_data(data)
@@ -383,8 +369,8 @@ class BTMinerAPI(BaseMinerAPI):
         self,
         auto: bool = True,
         color: str = "red",
-        period: int = 400,
-        duration: int = 200,
+        period: int = 60,
+        duration: int = 20,
         start: int = 0,
     ) -> dict:
         """Set the LED on the miner using the API.
@@ -406,7 +392,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         if auto:
-            return await self.send_privileged_command("set_led", param="auto")
+            return await self.send_privileged_command("set_led", param=auto)
         return await self.send_privileged_command(
             "set_led", color=color, period=period, duration=duration, start=start
         )
@@ -666,7 +652,6 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     ### ADDED IN V2.0.5 Whatsminer API ###
-    @api_min_version("2.0.5")
     async def set_temp_offset(self, temp_offset: int):
         """Set the offset of miner hash board target temperature.
 
@@ -693,7 +678,6 @@ class BTMinerAPI(BaseMinerAPI):
 
         return await self.send_privileged_command("set_temp_offset", temp_offset=temp_offset)
 
-    @api_min_version("2.0.5")
     async def adjust_power_limit(self, power_limit: int):
         """Set the upper limit of the miner's power. Cannot be higher than the ordinary power of the machine.
 
@@ -715,7 +699,6 @@ class BTMinerAPI(BaseMinerAPI):
         return await self.send_privileged_command("adjust_power_limit", power_limit=power_limit)
 
 
-    @api_min_version("2.0.5")
     async def adjust_upfreq_speed(self, upfreq_speed: int):
         """Set the upfreq speed, 0 is the normal speed, 9 is the fastest speed.
 
@@ -742,7 +725,6 @@ class BTMinerAPI(BaseMinerAPI):
             )
         return await self.send_privileged_command("adjust_upfreq_speed", upfreq_speed=upfreq_speed)
 
-    @api_min_version("2.0.5")
     async def set_poweroff_cool(self, poweroff_cool: bool):
         """Set whether to cool the machine when mining is stopped.
 
@@ -762,7 +744,6 @@ class BTMinerAPI(BaseMinerAPI):
 
         return await self.send_privileged_command("set_poweroff_cool", poweroff_cool=int(poweroff_cool))
 
-    @api_min_version("2.0.5")
     async def set_fan_zero_speed(self, fan_zero_speed: bool):
         """Sets whether the fan speed supports the lowest 0 speed.
 
@@ -909,7 +890,6 @@ class BTMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("get_miner_info", allow_warning=False)
 
-    @api_min_version("2.0.1")
     async def get_error_code(self) -> dict:
         """Get a list of error codes from the miner.
 
