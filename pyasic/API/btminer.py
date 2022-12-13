@@ -124,6 +124,7 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     Returns:
         The encrypted privileged command to be sent to the miner.
     """
+    logging.debug(f"(Create Prilileged Command) - Creating Privileged Command")
     # add token to command
     command["token"] = token_data["host_sign"]
     # encode host_passwd data and get hexdigest
@@ -195,6 +196,7 @@ class BTMinerAPI(BaseMinerAPI):
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
 
+        logging.debug(f"{self} - (Send Privileged Command) - Sending")
         data = await self._send_bytes(enc_command)
         if not data:
             raise APIError("No data was returned from the API.")
