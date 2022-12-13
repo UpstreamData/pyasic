@@ -148,7 +148,7 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def _send_bytes(self, data: bytes) -> bytes:
+    async def _send_bytes(self, data: bytes, timeout: int=100) -> bytes:
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
         try:
             # get reader and writer streams
@@ -172,10 +172,13 @@ If you are sure you want to use this command please use API.send_command("{comma
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
         try:
             while True:
-                d = await reader.read(4096)
-                if not d:
-                    break
-                ret_data += d
+                try:
+                    d = await asyncio.wait_for(reader.read(4096), timeout=timeout)
+                    if not d:
+                        break
+                    ret_data += d
+                except (asyncio.CancelledError, asyncio.TimeoutError) as e:
+                    raise e
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
             raise e
         except Exception as e:

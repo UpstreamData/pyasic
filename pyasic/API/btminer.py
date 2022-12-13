@@ -188,7 +188,7 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = None
 
     async def send_privileged_command(
-        self, command: Union[str, bytes], ignore_errors: bool = False, **kwargs
+        self, command: Union[str, bytes], ignore_errors: bool = False, timeout: int = 10, **kwargs
     ) -> dict:
         logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {kwargs}' if len(kwargs) > 0 else '')
         command = {"cmd": command, **kwargs}
@@ -197,7 +197,17 @@ class BTMinerAPI(BaseMinerAPI):
         enc_command = create_privileged_cmd(token_data, command)
 
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
-        data = await self._send_bytes(enc_command)
+        try:
+            data = await self._send_bytes(enc_command, timeout)
+        except (asyncio.CancelledError, asyncio.TimeoutError) as e:
+            if command['cmd'] in ['reboot', 'restart']:
+                logging.info(f"{self} - (reboot/restart) - Whatsminers currently break this. "
+                             f"Ignoring exception. Command propably worked.")
+                # FAKING IT HERE
+                data = b'{"STATUS": "S", "When": 1670966423, "Code": 131, "Msg": "API command OK", "Description": "Reboot"}'
+            else:
+                raise APIError("No data was returned from the API.")
+
         if not data:
             raise APIError("No data was returned from the API.")
         data = self._load_api_data(data)
