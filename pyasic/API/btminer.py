@@ -181,7 +181,7 @@ class BTMinerAPI(BaseMinerAPI):
     def __init__(
         self,
         ip: str,
-        api_ver: str = "1.0.0",
+        api_ver: str = "0.0.0",
         port: int = 4028,
         pwd: str = PyasicSettings().global_whatsminer_password,
     ):
@@ -383,8 +383,8 @@ class BTMinerAPI(BaseMinerAPI):
         self,
         auto: bool = True,
         color: str = "red",
-        period: int = 400,
-        duration: int = 200,
+        period: int = 60,
+        duration: int = 20,
         start: int = 0,
     ) -> dict:
         """Set the LED on the miner using the API.
