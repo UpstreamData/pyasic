@@ -406,7 +406,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         if auto:
-            return await self.send_privileged_command("set_led", param="auto")
+            return await self.send_privileged_command("set_led", param=auto)
         return await self.send_privileged_command(
             "set_led", color=color, period=period, duration=duration, start=start
         )
