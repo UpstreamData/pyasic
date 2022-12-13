@@ -189,10 +189,7 @@ class BTMinerAPI(BaseMinerAPI):
         self, command: Union[str, bytes], ignore_errors: bool = False, **kwargs
     ) -> dict:
         logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {kwargs}' if len(kwargs) > 0 else '')
-        command = {"cmd": command}
-        for kwarg in kwargs:
-            if kwargs[kwarg]:
-                command[kwarg] = kwargs[kwarg]
+        command = {"cmd": command, **kwargs}
 
         token_data = await self.get_token()
         enc_command = create_privileged_cmd(token_data, command)
