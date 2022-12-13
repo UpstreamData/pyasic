@@ -172,13 +172,10 @@ If you are sure you want to use this command please use API.send_command("{comma
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
         try:
             while True:
-                try:
-                    d = await asyncio.wait_for(reader.read(4096), timeout=timeout)
-                    if not d:
-                        break
-                    ret_data += d
-                except (asyncio.CancelledError, asyncio.TimeoutError) as e:
-                    raise e
+                d = await reader.read(4096)
+                if not d:
+                    break
+                ret_data += d
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
             raise e
         except Exception as e:
