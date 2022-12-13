@@ -172,6 +172,8 @@ If you are sure you want to use this command please use API.send_command("{comma
                 if not d:
                     break
                 ret_data += d
+        except (asyncio.CancelledError, asyncio.TimeoutError) as e:
+            raise e
         except Exception as e:
             logging.warning(f"{self} - ([Hidden] Send Bytes) - API Command Error {e}")
 

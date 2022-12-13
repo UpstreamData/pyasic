@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import asyncio
 import base64
 import binascii
 import hashlib
@@ -415,7 +416,7 @@ class BTMinerAPI(BaseMinerAPI):
         # requires a file stream in bytes
         return NotImplementedError
 
-    async def reboot(self) -> dict:
+    async def reboot(self, timeout: int = 10) -> dict:
         """Reboot the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -425,7 +426,12 @@ class BTMinerAPI(BaseMinerAPI):
             A reply informing of the status of the reboot.
         </details>
         """
-        return await self.send_privileged_command("reboot")
+        try:
+            d = await asyncio.wait_for(self.send_privileged_command("reboot"), timeout=timeout)
+        except (asyncio.CancelledError, asyncio.TimeoutError):
+            return {}
+        else:
+            return d
 
     async def factory_reset(self) -> dict:
         """Reset the miner to factory defaults.
