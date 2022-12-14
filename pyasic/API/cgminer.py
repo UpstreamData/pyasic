@@ -35,8 +35,10 @@ class CGMinerAPI(BaseMinerAPI):
         port: The port to reference the API on.  Default is 4028.
     """
 
-    def __init__(self, ip: str, port: int = 4028):
+    def __init__(self, ip: str, api_ver: str = "1.0.0", port: int = 4028):
         super().__init__(ip, port)
+        self.api_ver = api_ver
+
 
     async def multicommand(
         self, *commands: str, allow_warning: bool = True

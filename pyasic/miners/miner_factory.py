@@ -326,13 +326,13 @@ class MinerFactory(metaclass=Singleton):
         if ip in self.miners:
             return self.miners[ip]
         # if everything fails, the miner is already set to unknown
-        model, api, ver = None, None, None
+        model, api, ver, api_ver = None, None, None, None
 
         # try to get the API multiple times based on retries
         for i in range(PyasicSettings().miner_factory_get_version_retries):
             try:
                 # get the API type, should be BOSMiner, CGMiner, BMMiner, BTMiner, or None
-                new_model, new_api, new_ver = await asyncio.wait_for(
+                new_model, new_api, new_ver, new_api_ver = await asyncio.wait_for(
                     self._get_miner_type(ip), timeout=10
                 )
                 # keep track of the API and model we found first
@@ -342,12 +342,14 @@ class MinerFactory(metaclass=Singleton):
                     model = new_model
                 if new_ver and not ver:
                     ver = new_ver
+                if new_api_ver and not api_ver:
+                    api_ver = new_api_ver
                 # if we find the API and model, don't need to loop anymore
                 if api and model:
                     break
             except asyncio.TimeoutError:
                 logging.warning(f"{ip}: Get Miner Timed Out")
-        miner = self._select_miner_from_classes(ip, model, api, ver)
+        miner = self._select_miner_from_classes(ip, model, api, ver, api_ver)
 
         # once we have the miner, get the api and firmware version
         #await miner.get_version()
@@ -365,6 +367,7 @@ class MinerFactory(metaclass=Singleton):
         model: Union[str, None],
         api: Union[str, None],
         ver: Union[str, None],
+        api_ver: Union[str, None],
     ) -> AnyMiner:
         miner = UnknownMiner(str(ip))
         # make sure we have model information
@@ -375,16 +378,16 @@ class MinerFactory(metaclass=Singleton):
             if model not in MINER_CLASSES.keys():
                 if "avalon" in model:
                     if model == "avalon10":
-                        miner = CGMinerAvalon1066(str(ip))
+                        miner = CGMinerAvalon1066(str(ip), api_ver)
                     else:
-                        miner = CGMinerAvalon821(str(ip))
+                        miner = CGMinerAvalon821(str(ip), api_ver)
                 return miner
             if api not in MINER_CLASSES[model].keys():
                 api = "Default"
             if ver in MINER_CLASSES[model].keys():
-                miner = MINER_CLASSES[model][ver](str(ip))
+                miner = MINER_CLASSES[model][ver](str(ip), api_ver)
                 return miner
-            miner = MINER_CLASSES[model][api](str(ip))
+            miner = MINER_CLASSES[model][api](str(ip), api_ver)
 
         # if we cant find a model, check if we found the API
         else:
@@ -392,15 +395,15 @@ class MinerFactory(metaclass=Singleton):
             # return the miner base class with some API if we found it
             if api:
                 if "BOSMiner+" in api:
-                    miner = BOSMiner(str(ip))
+                    miner = BOSMiner(str(ip), api_ver)
                 elif "BOSMiner" in api:
-                    miner = BOSMinerOld(str(ip))
+                    miner = BOSMinerOld(str(ip), api_ver)
                 elif "CGMiner" in api:
-                    miner = CGMiner(str(ip))
+                    miner = CGMiner(str(ip), api_ver)
                 elif "BTMiner" in api:
-                    miner = BTMiner(str(ip))
+                    miner = BTMiner(str(ip), api_ver)
                 elif "BMMiner" in api:
-                    miner = BMMiner(str(ip))
+                    miner = BMMiner(str(ip), api_ver)
 
         return miner
 
@@ -411,15 +414,15 @@ class MinerFactory(metaclass=Singleton):
 
     async def _get_miner_type(
         self, ip: Union[ipaddress.ip_address, str]
-    ) -> Tuple[Union[str, None], Union[str, None], Union[str, None]]:
-        model, api, ver = None, None, None
+    ) -> Tuple[Union[str, None], Union[str, None], Union[str, None], Union[str, None]]:
+        model, api, ver, api_ver = None, None, None, None
 
         try:
             devdetails, version = await self.__get_devdetails_and_version(ip)
         except APIError as e:
             # catch APIError and let the factory know we cant get data
             logging.warning(f"{ip}: API Command Error: {e}")
-            return None, None, None
+            return None, None, None, None
         except OSError or ConnectionRefusedError:
             # miner refused connection on API port, we wont be able to get data this way
             # try ssh
@@ -443,7 +446,7 @@ class MinerFactory(metaclass=Singleton):
                         api = "BMMiner"
                 except Exception as e:
                     logging.debug(f"Unable to get miner - {e}")
-            return model, api, ver
+            return model, api, ver, api_ver
 
         # if we have devdetails, we can get model data from there
         if devdetails:
@@ -488,14 +491,23 @@ class MinerFactory(metaclass=Singleton):
         # if we have version we can get API type from here
         if version:
             try:
+                if isinstance(version.get("Msg"), dict):
+                    if "api_ver" in version["Msg"]:
+                        api_ver = version["Msg"]["api_ver"].replace("whatsminer ", "").replace("v", "")
+
                 if version[0]["STATUS"][0]["Msg"]:
                     model = await self.__get_model_from_graphql(ip)
                     if model:
                         api = "BOSMiner+"
-                        return model, api, ver
+                        try:
+                            api_ver = version[0]["VERSION"][0]["API"]
+                        except (KeyError, TypeError, ValueError, IndexError):
+                            pass
+                        return model, api, ver, api_ver
             except (KeyError, TypeError, ValueError, IndexError):
                 pass
             if "VERSION" in version:
+                api_ver = version["VERSION"][0].get("API")
                 api_types = ["BMMiner", "CGMiner", "BTMiner"]
                 # check basic API types, BOSMiner needs a special check
                 for api_type in api_types:
@@ -575,7 +587,7 @@ class MinerFactory(metaclass=Singleton):
             # don't need "Bitmain", just "ANTMINER XX" as model
             if "BITMAIN " in model:
                 model = model.replace("BITMAIN ", "")
-        return model, api, ver
+        return model, api, ver, api_ver
 
     async def __get_devdetails_and_version(
         self, ip
@@ -596,6 +608,17 @@ class MinerFactory(metaclass=Singleton):
             # copy each part of the main command to devdetails and version
             devdetails = data["devdetails"][0]
             version = data["version"][0]
+            if "STATUS" in version:
+                if len(version["STATUS"]) > 0:
+                    if "Description" in version["STATUS"][0]:
+                        if version["STATUS"][0]["Description"] == "btminer":
+                            try:
+                                new_version = await self._send_api_command(str(ip), "get_version")
+                                validation = await self._validate_command(new_version)
+                                if validation[0]:
+                                    version = new_version
+                            except Exception as e:
+                                logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
             return devdetails, version
         except APIError:
             # try devdetails and version separately (X19s mainly require this)

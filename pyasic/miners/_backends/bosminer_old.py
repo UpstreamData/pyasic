@@ -24,10 +24,10 @@ from pyasic.miners.base import BaseMiner
 
 
 class BOSMinerOld(BaseMiner):
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
-        self.api = BOSMinerAPI(ip)
+        self.api = BOSMinerAPI(ip, api_ver)
         self.api_type = "BOSMiner"
         self.uname = "root"
         self.pwd = "admin"

@@ -17,6 +17,6 @@ from pyasic.miners._types import S9i  # noqa - Ignore access to _module
 
 
 class BMMinerS9i(BMMiner, S9i):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip

@@ -19,8 +19,8 @@ from pyasic.settings import PyasicSettings
 
 
 class HiveonT9(Hiveon, T9):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
         self.pwd = "admin"
 

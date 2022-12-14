@@ -23,30 +23,30 @@ from pyasic.miners._types import (  # noqa - Ignore access to _module
 
 
 class BTMinerM30SPlus(BTMiner, M30SPlus):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM30SPlusVF20(BTMiner, M30SPlusVF20):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM30SPlusVE40(BTMiner, M30SPlusVE40):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM30SPlusVG40(BTMiner, M30SPlusVG40):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM30SPlusVG60(BTMiner, M30SPlusVG60):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
