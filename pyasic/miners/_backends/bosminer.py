@@ -256,7 +256,7 @@ class BOSMiner(BaseMiner):
         if version_data:
             self.fw_ver = version_data.split("-")[5]
             logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            
+
             # Now get the API version
             version = await self.api.version()
             self.api_ver = version['VERSION'][0]['API']
@@ -367,7 +367,7 @@ class BOSMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()
-        version = await self.get_version()
+        await self.get_version()
 
         if model:
             data.model = model
@@ -577,6 +577,12 @@ class BOSMiner(BaseMiner):
 
         data.mac = await self.get_mac()
         data.model = await self.get_model()
+        await self.get_version()
+
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+        data.make = self.make
+
         if query_data.get("bos"):
             if query_data["bos"].get("hostname"):
                 data.hostname = query_data["bos"]["hostname"]
