@@ -354,9 +354,6 @@ class MinerFactory(metaclass=Singleton):
         # once we have the miner, get the api and firmware version
         #await miner.get_version()
 
-        # once we have the miner, get the api and firmware version
-        #await miner.get_version()
-
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
             self.miners[ip] = miner
@@ -497,7 +494,6 @@ class MinerFactory(metaclass=Singleton):
                 if isinstance(version.get("Msg"), dict):
                     if "api_ver" in version["Msg"]:
                         api_ver = version["Msg"]["api_ver"].replace("whatsminer ", "").replace("v", "")
-                        api = "BTMiner"
 
                 if version[0]["STATUS"][0]["Msg"]:
                     model = await self.__get_model_from_graphql(ip)
@@ -623,16 +619,6 @@ class MinerFactory(metaclass=Singleton):
                                     version = new_version
                             except Exception as e:
                                 logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
-            if "DEVDETAILS" in devdetails:
-                if len(devdetails["DEVDETAILS"]) > 0:
-                    if devdetails["DEVDETAILS"][0].get("Driver") == "bitmicro":
-                        try:
-                            new_version = await self._send_api_command(str(ip), "get_version")
-                            validation = await self._validate_command(new_version)
-                            if validation[0]:
-                                version = new_version
-                        except Exception as e:
-                            logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
             return devdetails, version
         except APIError:
             # try devdetails and version separately (X19s mainly require this)

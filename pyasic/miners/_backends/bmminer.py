@@ -27,10 +27,10 @@ from pyasic.settings import PyasicSettings
 class BMMiner(BaseMiner):
     """Base handler for BMMiner based miners."""
 
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
-        self.api = BMMinerAPI(ip)
+        self.api = BMMinerAPI(ip, api_ver)
         self.api_type = "BMMiner"
         self.uname = "root"
         self.pwd = "admin"
@@ -181,6 +181,7 @@ class BMMiner(BaseMiner):
         version = await self.api.version()
         self.api_ver = version['VERSION'][0]['API']
         self.fw_ver = version['VERSION'][0]['CompileTime']
+        self.api.api_ver = self.api_ver
         return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
 
 
