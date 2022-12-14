@@ -30,12 +30,11 @@ from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
-        self.api = BOSMinerAPI(ip, api_ver)
+        self.api = BOSMinerAPI(ip)
         self.api_type = "BOSMiner"
-        self.api_ver = api_ver
         self.uname = "root"
         self.pwd = "admin"
         self.config = None
@@ -257,11 +256,10 @@ class BOSMiner(BaseMiner):
         if version_data:
             self.fw_ver = version_data.split("-")[5]
             logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-
+            
             # Now get the API version
             version = await self.api.version()
             self.api_ver = version['VERSION'][0]['API']
-            self.api.api_ver = self.api_ver
             return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
 
         # if we fail to get version, log a failed attempt
@@ -369,7 +367,7 @@ class BOSMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()
-        await self.get_version()
+        version = await self.get_version()
 
         if model:
             data.model = model
@@ -382,6 +380,7 @@ class BOSMiner(BaseMiner):
 
         data.api_ver = self.api_ver
         data.fw_ver = self.fw_ver
+        print(data.api_ver)
 
         data.make = self.make
 
@@ -579,12 +578,6 @@ class BOSMiner(BaseMiner):
 
         data.mac = await self.get_mac()
         data.model = await self.get_model()
-        await self.get_version()
-
-        data.api_ver = self.api_ver
-        data.fw_ver = self.fw_ver
-        data.make = self.make
-
         if query_data.get("bos"):
             if query_data["bos"].get("hostname"):
                 data.hostname = query_data["bos"]["hostname"]

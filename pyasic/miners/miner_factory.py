@@ -354,6 +354,9 @@ class MinerFactory(metaclass=Singleton):
         # once we have the miner, get the api and firmware version
         #await miner.get_version()
 
+        # once we have the miner, get the api and firmware version
+        #await miner.get_version()
+
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
             self.miners[ip] = miner
