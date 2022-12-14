@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 
-from pyasic.miners._backends import CGMiner_Avalon  # noqa - Ignore access to _module
+from pyasic.miners._backends import CGMinerAvalon  # noqa - Ignore access to _module
 
 
-class CGMinerA8X(CGMiner_Avalon):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+class CGMinerA8X(CGMinerAvalon):
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip

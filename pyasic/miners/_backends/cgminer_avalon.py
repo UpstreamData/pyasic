@@ -25,9 +25,10 @@ from pyasic.miners.base import BaseMiner
 from pyasic.settings import PyasicSettings
 from pyasic.miners._backends import CGMiner
 
-class CGMiner_Avalon(CGMiner):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+
+class CGMinerAvalon(CGMiner):
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver)
         self.ip = ip
 
     async def check_light(self) -> bool:
@@ -57,7 +58,7 @@ class CGMiner_Avalon(CGMiner):
 
     async def stop_mining(self) -> bool:
         return False
-        
+
     async def resume_mining(self) -> bool:
         return False
 
@@ -273,4 +274,3 @@ class CGMiner_Avalon(CGMiner):
             stats_items.append(raw_data)
 
         return stats_dict
-
