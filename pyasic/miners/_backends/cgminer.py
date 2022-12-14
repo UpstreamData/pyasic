@@ -170,6 +170,22 @@ class CGMiner(BaseMiner):
     async def get_mac(self) -> str:
         return "00:00:00:00:00:00"
 
+    async def get_version(self) -> dict:
+        """Get miner firmware version.
+
+        Returns:
+            Miner api & firmware version or None.
+        """
+        # check if version is cached
+        if self.fw_ver and self.api_ver:
+            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
+        # Now get the API version
+        version = await self.api.version()
+        self.api_ver = version['VERSION'][0]['API']
+        self.fw_ver = version['VERSION'][0]['CGMiner']
+        return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
+
     async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner.
 

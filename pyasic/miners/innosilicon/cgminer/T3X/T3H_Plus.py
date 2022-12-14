@@ -181,6 +181,11 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         data.errors = await self.get_errors()
         data.fault_light = await self.check_light()
 
+        await self.get_version()
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
+
         miner_data = None
         all_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
