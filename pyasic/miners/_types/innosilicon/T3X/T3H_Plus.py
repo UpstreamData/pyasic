@@ -12,10 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners.base import BaseMiner
+from pyasic.miners._types.models import InnosiliconMiner
 
-
-class InnosiliconT3HPlus(BaseMiner):  # noqa - ignore ABC method implementation
+class InnosiliconT3HPlus(InnosiliconMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str) -> None:
         super().__init__()
         self.ip = ip

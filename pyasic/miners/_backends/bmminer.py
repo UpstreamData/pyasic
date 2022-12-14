@@ -167,6 +167,23 @@ class BMMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         return False
 
+    async def get_version(self) -> dict:
+        """Get miner firmware version.
+
+        Returns:
+            Miner api & firmware version or None.
+        """
+        # check if version is cached
+        if self.fw_ver and self.api_ver:
+            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
+        # Now get the API version
+        version = await self.api.version()
+        self.api_ver = version['VERSION'][0]['API']
+        self.fw_ver = version['VERSION'][0]['CompileTime']
+        return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
+
+
     async def get_errors(self) -> List[MinerErrorData]:
         return []
 
@@ -210,6 +227,13 @@ class BMMiner(BaseMiner):
 
         if mac:
             data.mac = mac
+
+        if self.make:
+            data.make = self.make
+
+        await self.get_version()
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
 
         if errors:
             for error in errors:

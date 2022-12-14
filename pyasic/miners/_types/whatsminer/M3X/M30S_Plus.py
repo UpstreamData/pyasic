@@ -12,10 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners.base import BaseMiner
+from pyasic.miners._types.models import WhatsMiner
 
-
-class M30SPlus(BaseMiner):  # noqa - ignore ABC method implementation
+class M30SPlus(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -24,7 +23,7 @@ class M30SPlus(BaseMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 2
 
 
-class M30SPlusVG60(BaseMiner):  # noqa - ignore ABC method implementation
+class M30SPlusVG60(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -32,7 +31,7 @@ class M30SPlusVG60(BaseMiner):  # noqa - ignore ABC method implementation
         self.nominal_chips = 86
         self.fan_count = 2
 
-class M30SPlusVG40(BaseMiner):  # noqa - ignore ABC method implementation
+class M30SPlusVG40(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -41,7 +40,7 @@ class M30SPlusVG40(BaseMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 2
 
 
-class M30SPlusVE40(BaseMiner):  # noqa - ignore ABC method implementation
+class M30SPlusVE40(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -50,7 +49,7 @@ class M30SPlusVE40(BaseMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 2
 
 
-class M30SPlusVF20(BaseMiner):  # noqa - ignore ABC method implementation
+class M30SPlusVF20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip

@@ -31,11 +31,13 @@ class BaseMiner(ABC):
         self.pwd = "admin"
         self.api = None
         self.api_type = None
+        self.api_ver = None
+        self.fw_ver = None
         self.model = None
+        self.make = None
         self.light = None
         self.hostname = None
         self.nominal_chips = 1
-        self.version = None
         self.fan_count = 2
         self.config = None
         self.ideal_hashboards = 3

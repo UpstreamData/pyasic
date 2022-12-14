@@ -289,6 +289,13 @@ class BTMiner(BaseMiner):
         if model:
             data.model = model
 
+        if self.make:
+            data.make = self.make
+
+        await self.get_version()
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
         if hostname:
             data.hostname = hostname
 
@@ -453,6 +460,22 @@ class BTMiner(BaseMiner):
 
         return data
 
+    async def get_version(self) -> Union[dict, bool]:
+        """Get miner firmware version.
+
+        Returns:
+            Miner api & firmware version or None.
+        """
+        # Check to see if the version info is already cached
+        if self.api_ver and self.fw_ver:
+            return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}
+        data = await self.api.get_version()
+        if "Code" in data.keys():
+            if data["Code"] == 131:
+                self.api_ver = data["Msg"]["api_ver"]
+                self.fw_ver = data["Msg"]["fw_ver"]
+            return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}
+        return False
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:

@@ -12,10 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners.base import BaseMiner
+from pyasic.miners._types.models import WhatsMiner
 
-
-class M34SPlus(BaseMiner):  # noqa - ignore ABC method implementation
+class M34SPlus(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
@@ -25,7 +24,7 @@ class M34SPlus(BaseMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 0
 
 
-class M34SPlusVE10(BaseMiner):  # noqa - ignore ABC method implementation
+class M34SPlusVE10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip

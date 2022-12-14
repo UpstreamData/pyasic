@@ -349,6 +349,9 @@ class MinerFactory(metaclass=Singleton):
                 logging.warning(f"{ip}: Get Miner Timed Out")
         miner = self._select_miner_from_classes(ip, model, api, ver)
 
+        # once we have the miner, get the api and firmware version
+        #await miner.get_version()
+
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
             self.miners[ip] = miner

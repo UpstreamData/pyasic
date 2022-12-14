@@ -42,6 +42,9 @@ class MinerData:
         ip: The IP of the miner as a str.
         datetime: The time and date this data was generated.
         model: The model of the miner as a str.
+        make: The make of the miner as a str.
+        api_ver: The current api version on the miner as a str.
+        fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
         hashrate: The hashrate of the miner in TH/s as a float.
         left_board_hashrate: The hashrate of the left board of the miner in TH/s as a float.
@@ -83,6 +86,9 @@ class MinerData:
     datetime: datetime = None
     mac: str = "00:00:00:00:00:00"
     model: str = "Unknown"
+    make: str = "Unknown"
+    api_ver: str = "Unknown"
+    fw_ver: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = 0
     hashboards: List[HashBoard] = field(default_factory=list)
@@ -122,6 +128,7 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
+
 
     @classmethod
     def fields(cls):
