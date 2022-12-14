@@ -26,12 +26,11 @@ from pyasic.settings import PyasicSettings
 
 
 class BTMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
-        self.api = BTMinerAPI(ip, api_ver)
+        self.api = BTMinerAPI(ip)
         self.api_type = "BTMiner"
-        self.api_ver = api_ver
 
     async def get_model(self) -> Union[str, None]:
         """Get miner model.
@@ -303,31 +302,27 @@ class BTMiner(BaseMiner):
         data.fault_light = await self.check_light()
 
         miner_data = None
-        err_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
                 miner_data = await self.api.multicommand("summary", "devs", "pools", allow_warning=allow_warning)
                 if miner_data:
                     break
-                else:
-                    err_data = await self.api.get_error_code()
             except APIError:
                 pass
-        if not (miner_data or err_data):
+        if not miner_data:
             return data
 
-        summary = miner_data["summary"][0] if miner_data.get("summary") else None
-        devs = miner_data["devs"][0] if miner_data.get("devs") else None
-        pools = miner_data["pools"][0] if miner_data.get("pools") else None
+        summary = miner_data.get("summary")[0]
+        devs = miner_data.get("devs")[0]
+        pools = miner_data.get("pools")[0]
         try:
             psu_data = await self.api.get_psu()
         except APIError:
             psu_data = None
-        if not err_data:
-            try:
-                err_data = await self.api.get_error_code()
-            except APIError:
-                err_data = None
+        try:
+            err_data = await self.api.get_error_code()
+        except APIError:
+            err_data = None
 
         if summary:
             summary_data = summary.get("SUMMARY")
@@ -346,9 +341,8 @@ class BTMiner(BaseMiner):
                     if summary_data[0].get("Power Fanspeed"):
                         data.fan_psu = summary_data[0]["Power Fanspeed"]
 
-                    if self.fan_count > 0:
-                        data.fan_1 = summary_data[0]["Fan Speed In"]
-                        data.fan_2 = summary_data[0]["Fan Speed Out"]
+                    data.fan_1 = summary_data[0]["Fan Speed In"]
+                    data.fan_2 = summary_data[0]["Fan Speed Out"]
 
                     hr = summary_data[0].get("MHS 1m")
                     if hr:
@@ -478,9 +472,8 @@ class BTMiner(BaseMiner):
         data = await self.api.get_version()
         if "Code" in data.keys():
             if data["Code"] == 131:
-                self.api_ver = data["Msg"]["api_ver"].replace("whatsminer v", "")
+                self.api_ver = data["Msg"]["api_ver"]
                 self.fw_ver = data["Msg"]["fw_ver"]
-            self.api.api_ver = self.api_ver
             return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}
         return False
 

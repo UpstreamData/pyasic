@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._types.makes import AntMiner
+from pyasic.miners._types.models import AntMiner
 
 class T17e(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):

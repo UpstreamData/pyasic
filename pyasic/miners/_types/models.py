@@ -12,22 +12,24 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._types.models import WhatsMiner
+from pyasic.miners.base import BaseMiner
 
-
-class M50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
+class WhatsMiner(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self):
         super().__init__()
-        self.ip = ip
-        self.model = "M50"
-        self.nominal_chips = 105
-        self.fan_count = 2
+        self.make = "WhatsMiner"
 
-
-class M50VH50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
+class AntMiner(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self):
         super().__init__()
-        self.ip = ip
-        self.model = "M50 VH50"
-        self.nominal_chips = 105
-        self.fan_count = 2
+        self.make = "AntMiner"
+
+class AvalonMiner(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self):
+        super().__init__()
+        self.make = "AvalonMiner"
+
+class InnosiliconMiner(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self):
+        super().__init__()
+        self.make = "Innosilicon"
