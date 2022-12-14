@@ -12,11 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._backends import CGMinerAvalon  # noqa - Ignore access to _module
+from pyasic.miners._backends import CGMiner_Avalon  # noqa - Ignore access to _module
 from pyasic.miners._types import Avalon921  # noqa - Ignore access to _module
 
 
-class CGMinerAvalon921(CGMinerAvalon, Avalon921):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
+class CGMinerAvalon921(CGMiner_Avalon, Avalon921):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.ip = ip
