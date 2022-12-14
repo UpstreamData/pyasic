@@ -380,7 +380,6 @@ class BOSMiner(BaseMiner):
 
         data.api_ver = self.api_ver
         data.fw_ver = self.fw_ver
-        print(data.api_ver)
 
         data.make = self.make
 
