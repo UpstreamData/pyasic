@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from pyasic.miners._types.models import WhatsMiner
+from pyasic.miners._types.makes import WhatsMiner
 
 
 class M50(WhatsMiner):  # noqa - ignore ABC method implementation
