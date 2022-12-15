@@ -494,6 +494,7 @@ class MinerFactory(metaclass=Singleton):
                 if isinstance(version.get("Msg"), dict):
                     if "api_ver" in version["Msg"]:
                         api_ver = version["Msg"]["api_ver"].replace("whatsminer ", "").replace("v", "")
+                        api = "BTMiner"
 
                 if version[0]["STATUS"][0]["Msg"]:
                     model = await self.__get_model_from_graphql(ip)

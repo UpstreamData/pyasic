@@ -302,27 +302,31 @@ class BTMiner(BaseMiner):
         data.fault_light = await self.check_light()
 
         miner_data = None
+        err_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
                 miner_data = await self.api.multicommand("summary", "devs", "pools", allow_warning=allow_warning)
                 if miner_data:
                     break
+                else:
+                    err_data = await self.api.get_error_code()
             except APIError:
                 pass
-        if not miner_data:
+        if not (miner_data or err_data):
             return data
 
-        summary = miner_data.get("summary")[0]
-        devs = miner_data.get("devs")[0]
-        pools = miner_data.get("pools")[0]
+        summary = miner_data["summary"][0] if miner_data.get("summary") else None
+        devs = miner_data["devs"][0] if miner_data.get("devs") else None
+        pools = miner_data["pools"][0] if miner_data.get("pools") else None
         try:
             psu_data = await self.api.get_psu()
         except APIError:
             psu_data = None
-        try:
-            err_data = await self.api.get_error_code()
-        except APIError:
-            err_data = None
+        if not err_data:
+            try:
+                err_data = await self.api.get_error_code()
+            except APIError:
+                err_data = None
 
         if summary:
             summary_data = summary.get("SUMMARY")
@@ -341,8 +345,9 @@ class BTMiner(BaseMiner):
                     if summary_data[0].get("Power Fanspeed"):
                         data.fan_psu = summary_data[0]["Power Fanspeed"]
 
-                    data.fan_1 = summary_data[0]["Fan Speed In"]
-                    data.fan_2 = summary_data[0]["Fan Speed Out"]
+                    if self.fan_count > 0:
+                        data.fan_1 = summary_data[0]["Fan Speed In"]
+                        data.fan_2 = summary_data[0]["Fan Speed Out"]
 
                     hr = summary_data[0].get("MHS 1m")
                     if hr:
