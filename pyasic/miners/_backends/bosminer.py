@@ -35,6 +35,7 @@ class BOSMiner(BaseMiner):
         self.ip = ipaddress.ip_address(ip)
         self.api = BOSMinerAPI(ip, api_ver)
         self.api_type = "BOSMiner"
+        self.api_ver = api_ver
         self.uname = "root"
         self.pwd = "admin"
         self.config = None
