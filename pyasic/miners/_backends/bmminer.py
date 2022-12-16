@@ -32,6 +32,7 @@ class BMMiner(BaseMiner):
         self.ip = ipaddress.ip_address(ip)
         self.api = BMMinerAPI(ip, api_ver)
         self.api_type = "BMMiner"
+        self.api_ver = api_ver
         self.uname = "root"
         self.pwd = "admin"
 
