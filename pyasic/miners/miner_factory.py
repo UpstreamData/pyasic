@@ -620,6 +620,16 @@ class MinerFactory(metaclass=Singleton):
                                     version = new_version
                             except Exception as e:
                                 logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
+            if "DEVDETAILS" in devdetails:
+                if len(devdetails["DEVDETAILS"]) > 0:
+                    if devdetails["DEVDETAILS"][0].get("Driver") == "bitmicro":
+                        try:
+                            new_version = await self._send_api_command(str(ip), "get_version")
+                            validation = await self._validate_command(new_version)
+                            if validation[0]:
+                                version = new_version
+                        except Exception as e:
+                            logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
             return devdetails, version
         except APIError:
             # try devdetails and version separately (X19s mainly require this)

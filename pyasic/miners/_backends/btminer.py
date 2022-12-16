@@ -31,6 +31,7 @@ class BTMiner(BaseMiner):
         self.ip = ipaddress.ip_address(ip)
         self.api = BTMinerAPI(ip, api_ver)
         self.api_type = "BTMiner"
+        self.api_ver = api_ver
 
     async def get_model(self) -> Union[str, None]:
         """Get miner model.
@@ -477,7 +478,7 @@ class BTMiner(BaseMiner):
         data = await self.api.get_version()
         if "Code" in data.keys():
             if data["Code"] == 131:
-                self.api_ver = data["Msg"]["api_ver"]
+                self.api_ver = data["Msg"]["api_ver"].replace("whatsminer v", "")
                 self.fw_ver = data["Msg"]["fw_ver"]
             self.api.api_ver = self.api_ver
             return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}

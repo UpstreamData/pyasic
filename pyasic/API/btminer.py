@@ -909,6 +909,7 @@ class BTMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("get_miner_info", allow_warning=False)
 
+    @api_min_version("2.0.1")
     async def get_error_code(self) -> dict:
         """Get a list of error codes from the miner.
 

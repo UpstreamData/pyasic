@@ -30,6 +30,7 @@ class CGMiner(BaseMiner):
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
         self.api = CGMinerAPI(ip, api_ver)
+        self.api_ver = api_ver
         self.api_type = "CGMiner"
         self.uname = "root"
         self.pwd = "admin"
