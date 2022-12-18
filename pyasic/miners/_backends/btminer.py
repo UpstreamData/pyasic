@@ -57,12 +57,14 @@ class BTMiner(BaseMiner):
                     return True
         return False
 
-    async def fault_light_on(self) -> bool:
+    async def fault_light_on(self, flash: list = []) -> bool:
+        if flash == []:
+            # If no flash pattern is provided, use a red-green semi-slow alternating flash
+            flash = [{"color": "green", "start":0, "period":400, "duration":200},
+                     {"color": "red", "start":200, "period":400, "duration":200}]
         try:
-            data = await self.api.set_led(auto=False)
-            await self.api.set_led(
-                auto=False, color="green", start=0, period=1, duration=0
-            )
+            for x in flash:
+                data = await self.api.set_led(auto=False, **x)
         except APIError:
             return False
         if data:
