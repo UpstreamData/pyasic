@@ -366,8 +366,8 @@ class BTMinerAPI(BaseMinerAPI):
         self,
         auto: bool = True,
         color: str = "red",
-        period: int = 60,
-        duration: int = 20,
+        period: int = 400,
+        duration: int = 200,
         start: int = 0,
     ) -> dict:
         """Set the LED on the miner using the API.
@@ -389,7 +389,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         if auto:
-            return await self.send_privileged_command("set_led", param=auto)
+            return await self.send_privileged_command("set_led", param="auto")
         return await self.send_privileged_command(
             "set_led", color=color, period=period, duration=duration, start=start
         )
