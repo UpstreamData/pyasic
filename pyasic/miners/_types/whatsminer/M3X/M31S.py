@@ -14,7 +14,6 @@
 
 from pyasic.miners._types.makes import WhatsMiner
 
-
 class M31S(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
@@ -32,7 +31,6 @@ class M31SV10(WhatsMiner):  # noqa - ignore ABC method implementation
         self.nominal_chips = 105
         self.fan_count = 2
 
-
 class M31SV20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
@@ -40,7 +38,6 @@ class M31SV20(WhatsMiner):  # noqa - ignore ABC method implementation
         self.model = "M31S V20"
         self.nominal_chips = 111
         self.fan_count = 2
-
 
 class M31SV60(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):

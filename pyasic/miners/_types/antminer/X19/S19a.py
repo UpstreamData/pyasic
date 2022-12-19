@@ -14,7 +14,6 @@
 
 from pyasic.miners._types.makes import AntMiner
 
-
 class S19a(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()

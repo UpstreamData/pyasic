@@ -14,7 +14,7 @@
 
 import asyncio
 import json
-from typing import List, Union, Optional
+from typing import List, Union
 
 import httpx
 
@@ -25,73 +25,130 @@ from pyasic.settings import PyasicSettings
 
 
 class BMMinerX19(BMMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
         self.uname = "root"
         self.pwd = PyasicSettings().global_x19_password
 
-    async def send_web_command(
-        self, command: str, params: dict = None
-    ) -> Optional[dict]:
-        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+    async def check_light(self) -> Union[bool, None]:
+        if self.light:
+            return self.light
+        url = f"http://{self.ip}/cgi-bin/get_blink_status.cgi"
         auth = httpx.DigestAuth(self.uname, self.pwd)
-        try:
-            async with httpx.AsyncClient() as client:
-                if params:
-                    data = await client.post(url, data=params, auth=auth)
-                else:
-                    data = await client.get(url, auth=auth)
-        except httpx.HTTPError:
-            pass
-        else:
-            if data.status_code == 200:
-                try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            light = data["blink"]
+            self.light = light
+            return light
+        return None
 
     async def get_config(self) -> MinerConfig:
-        data = await self.send_web_command("get_miner_conf")
-        if data:
+        url = f"http://{self.ip}/cgi-bin/get_miner_conf.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
             self.config = MinerConfig().from_raw(data)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        url = f"http://{self.ip}/cgi-bin/set_miner_conf.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
         conf = config.as_x19(user_suffix=user_suffix)
-        await self.send_web_command(
-            "set_miner_conf", params=conf  # noqa: ignore conf being a str
-        )
 
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(url, data=conf, auth=auth)  # noqa - ignore conf being a str
+        except httpx.ReadTimeout:
+            pass
         for i in range(7):
             data = await self.get_config()
             if data.as_x19() == conf:
                 break
             await asyncio.sleep(1)
 
+    async def get_hostname(self) -> Union[str, None]:
+        hostname = None
+        url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            if len(data.keys()) > 0:
+                if "hostname" in data.keys():
+                    hostname = data["hostname"]
+        return hostname
+
+    async def get_mac(self) -> Union[str, None]:
+        mac = None
+        url = f"http://{self.ip}/cgi-bin/get_system_info.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+            if len(data.keys()) > 0:
+                if "macaddr" in data.keys():
+                    mac = data["macaddr"]
+        return mac
+
     async def fault_light_on(self) -> bool:
-        data = await self.send_web_command(
-            "blink", params=json.dumps({"blink": "true"})  # noqa - ignore params being a str
-        )
-        if data:
+        url = f"http://{self.ip}/cgi-bin/blink.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        data = json.dumps({"blink": "true"})
+        async with httpx.AsyncClient() as client:
+            data = await client.post(url, data=data, auth=auth)  # noqa - ignore conf being a str
+        if data.status_code == 200:
+            data = data.json()
             if data.get("code") == "B000":
                 self.light = True
-        return self.light
+                return True
+        return False
 
     async def fault_light_off(self) -> bool:
-        data = await self.send_web_command(
-            "blink", params=json.dumps({"blink": "false"})  # noqa - ignore params being a str
-        )
-        if data:
+        url = f"http://{self.ip}/cgi-bin/blink.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        data = json.dumps({"blink": "false"})
+        async with httpx.AsyncClient() as client:
+            data = await client.post(url, data=data, auth=auth)  # noqa - ignore conf being a str
+        if data.status_code == 200:
+            data = data.json()
             if data.get("code") == "B100":
-                self.light = True
-        return self.light
+                self.light = False
+                return True
+        return False
 
     async def reboot(self) -> bool:
-        data = await self.send_web_command("reboot")
-        if data:
+        url = f"http://{self.ip}/cgi-bin/reboot.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
             return True
         return False
+
+    async def get_errors(self) -> List[MinerErrorData]:
+        errors = []
+        url = f"http://{self.ip}/cgi-bin/summary.cgi"
+        auth = httpx.DigestAuth(self.uname, self.pwd)
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data:
+            try:
+                data = data.json()
+            except json.decoder.JSONDecodeError:
+                return []
+            if "SUMMARY" in data.keys():
+                if "status" in data["SUMMARY"][0].keys():
+                    for item in data["SUMMARY"][0]["status"]:
+                        if not item["status"] == "s":
+                            errors.append(X19Error(item["msg"]))
+        return errors
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
@@ -104,45 +161,3 @@ class BMMinerX19(BMMiner):
         cfg.autotuning_wattage = 1
         await self.send_config(cfg)
         return True
-
-    async def get_hostname(self) -> Union[str, None]:
-        try:
-            data = await self.send_web_command("get_system_info")
-            if data:
-                return data["hostname"]
-        except KeyError:
-            pass
-
-    async def get_mac(self) -> Union[str, None]:
-        try:
-            data = await self.send_web_command("get_system_info")
-            if data:
-                return data["macaddr"]
-        except KeyError:
-            pass
-
-    async def get_errors(self) -> List[MinerErrorData]:
-        errors = []
-        data = await self.send_web_command("summary")
-        if data:
-            try:
-                for item in data["SUMMARY"][0]["status"]:
-                    try:
-                        if not item["status"] == "s":
-                            errors.append(X19Error(item["msg"]))
-                    except KeyError:
-                        continue
-            except (KeyError, IndexError):
-                pass
-        return errors
-
-    async def get_fault_light(self) -> bool:
-        if self.light:
-            return self.light
-        try:
-            data = await self.send_web_command("get_blink_status")
-            if data:
-                self.light = data["blink"]
-        except KeyError:
-            pass
-        return self.light

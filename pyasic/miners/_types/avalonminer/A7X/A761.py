@@ -14,7 +14,6 @@
 
 from pyasic.miners._types.makes import AvalonMiner
 
-
 class Avalon761(AvalonMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()

@@ -129,6 +129,7 @@ class MinerData:
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
 
+
     @classmethod
     def fields(cls):
         return [f.name for f in fields(cls)]

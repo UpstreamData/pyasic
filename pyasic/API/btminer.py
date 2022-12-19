@@ -181,7 +181,7 @@ class BTMinerAPI(BaseMinerAPI):
     def __init__(
         self,
         ip: str,
-        api_ver: str = "0.0.0",
+        api_ver: str = "1.0.0",
         port: int = 4028,
         pwd: str = PyasicSettings().global_whatsminer_password,
     ):
@@ -190,51 +190,11 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = None
         self.api_ver = api_ver
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
-        """Creates and sends multiple commands as one command to the miner.
-
-        Parameters:
-            *commands: The commands to send as a multicommand to the miner.
-            allow_warning: A boolean to supress APIWarnings.
-        """
-        # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
-        # standard multicommand format is "command1+command2"
-        # commands starting with "get_" aren't supported, but we can fake that
-        get_commands_data = {}
-        for command in list(commands):
-            if command.startswith("get_"):
-                commands.remove(command)
-                # send seperately and append later
-                try:
-                    get_commands_data[command] = [
-                        await self.send_command(command, allow_warning=allow_warning)
-                    ]
-                except APIError:
-                    get_commands_data[command] = [{}]
-
-        command = "+".join(commands)
-        try:
-            main_data = await self.send_command(command, allow_warning=allow_warning)
-        except APIError:
-            main_data = {command: [{}] for command in commands}
-        logging.debug(f"{self} - (Multicommand) - Received data")
-
-        data = dict(**main_data, **get_commands_data)
-        return data
 
     async def send_privileged_command(
-        self,
-        command: Union[str, bytes],
-        ignore_errors: bool = False,
-        timeout: int = 10,
-        **kwargs,
+        self, command: Union[str, bytes], ignore_errors: bool = False, timeout: int = 10, **kwargs
     ) -> dict:
-        logging.debug(
-            f"{self} - (Send Privileged Command) - {command} " + f"with args {kwargs}"
-            if len(kwargs) > 0
-            else ""
-        )
+        logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {kwargs}' if len(kwargs) > 0 else '')
         command = {"cmd": command, **kwargs}
 
         token_data = await self.get_token()
@@ -244,11 +204,9 @@ class BTMinerAPI(BaseMinerAPI):
         try:
             data = await self._send_bytes(enc_command, timeout)
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
-            if command["cmd"] in ["reboot", "restart"]:
-                logging.info(
-                    f"{self} - (reboot/restart) - Whatsminers currently break this. "
-                    f"Ignoring exception. Command probably worked."
-                )
+            if command['cmd'] in ['reboot', 'restart']:
+                logging.info(f"{self} - (reboot/restart) - Whatsminers currently break this. "
+                             f"Ignoring exception. Command probably worked.")
                 # FAKING IT HERE
                 data = b'{"STATUS": "S", "When": 1670966423, "Code": 131, "Msg": "API command OK", "Description": "Reboot"}'
             else:
@@ -304,9 +262,7 @@ class BTMinerAPI(BaseMinerAPI):
             "host_sign": host_sign,
             "host_passwd_md5": host_passwd_md5,
         }
-        logging.debug(
-            f"{self} - (Get Token) - Gathered token data: {self.current_token}"
-        )
+        logging.debug(f"{self} - (Get Token) - Gathered token data: {self.current_token}")
         return self.current_token
 
     #### PRIVILEGED COMMANDS ####
@@ -487,9 +443,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         try:
-            d = await asyncio.wait_for(
-                self.send_privileged_command("reboot"), timeout=timeout
-            )
+            d = await asyncio.wait_for(self.send_privileged_command("reboot"), timeout=timeout)
         except (asyncio.CancelledError, asyncio.TimeoutError):
             return {}
         else:
@@ -737,9 +691,7 @@ class BTMinerAPI(BaseMinerAPI):
                 f"0."
             )
 
-        return await self.send_privileged_command(
-            "set_temp_offset", temp_offset=temp_offset
-        )
+        return await self.send_privileged_command("set_temp_offset", temp_offset=temp_offset)
 
     @api_min_version("2.0.5")
     async def adjust_power_limit(self, power_limit: int):
@@ -760,9 +712,8 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
 
         """
-        return await self.send_privileged_command(
-            "adjust_power_limit", power_limit=power_limit
-        )
+        return await self.send_privileged_command("adjust_power_limit", power_limit=power_limit)
+
 
     @api_min_version("2.0.5")
     async def adjust_upfreq_speed(self, upfreq_speed: int):
@@ -789,9 +740,7 @@ class BTMinerAPI(BaseMinerAPI):
                 f"range.  Please set a number between 0 (Normal) and "
                 f"9 (Fastest)."
             )
-        return await self.send_privileged_command(
-            "adjust_upfreq_speed", upfreq_speed=upfreq_speed
-        )
+        return await self.send_privileged_command("adjust_upfreq_speed", upfreq_speed=upfreq_speed)
 
     @api_min_version("2.0.5")
     async def set_poweroff_cool(self, poweroff_cool: bool):
@@ -811,9 +760,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
 
-        return await self.send_privileged_command(
-            "set_poweroff_cool", poweroff_cool=int(poweroff_cool)
-        )
+        return await self.send_privileged_command("set_poweroff_cool", poweroff_cool=int(poweroff_cool))
 
     @api_min_version("2.0.5")
     async def set_fan_zero_speed(self, fan_zero_speed: bool):
@@ -833,9 +780,8 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
 
         """
-        return await self.send_privileged_command(
-            "set_fan_zero_speed", fan_zero_speed=int(fan_zero_speed)
-        )
+        return await self.send_privileged_command("set_fan_zero_speed", fan_zero_speed=int(fan_zero_speed))
+
 
     #### END privileged COMMANDS ####
 

@@ -14,7 +14,6 @@
 
 from pyasic.miners._types.makes import WhatsMiner
 
-
 class M20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()

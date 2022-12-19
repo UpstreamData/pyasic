@@ -352,7 +352,7 @@ class MinerFactory(metaclass=Singleton):
         miner = self._select_miner_from_classes(ip, model, api, ver, api_ver)
 
         # once we have the miner, get the api and firmware version
-        # await miner.get_version()
+        #await miner.get_version()
 
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
@@ -493,11 +493,7 @@ class MinerFactory(metaclass=Singleton):
             try:
                 if isinstance(version.get("Msg"), dict):
                     if "api_ver" in version["Msg"]:
-                        api_ver = (
-                            version["Msg"]["api_ver"]
-                            .replace("whatsminer ", "")
-                            .replace("v", "")
-                        )
+                        api_ver = version["Msg"]["api_ver"].replace("whatsminer ", "").replace("v", "")
                         api = "BTMiner"
 
                 if version[0]["STATUS"][0]["Msg"]:
@@ -618,30 +614,22 @@ class MinerFactory(metaclass=Singleton):
                     if "Description" in version["STATUS"][0]:
                         if version["STATUS"][0]["Description"] == "btminer":
                             try:
-                                new_version = await self._send_api_command(
-                                    str(ip), "get_version"
-                                )
+                                new_version = await self._send_api_command(str(ip), "get_version")
                                 validation = await self._validate_command(new_version)
                                 if validation[0]:
                                     version = new_version
                             except Exception as e:
-                                logging.warning(
-                                    f"([Hidden] Get Devdetails and Version) - Error {e}"
-                                )
+                                logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
             if "DEVDETAILS" in devdetails:
                 if len(devdetails["DEVDETAILS"]) > 0:
                     if devdetails["DEVDETAILS"][0].get("Driver") == "bitmicro":
                         try:
-                            new_version = await self._send_api_command(
-                                str(ip), "get_version"
-                            )
+                            new_version = await self._send_api_command(str(ip), "get_version")
                             validation = await self._validate_command(new_version)
                             if validation[0]:
                                 version = new_version
                         except Exception as e:
-                            logging.warning(
-                                f"([Hidden] Get Devdetails and Version) - Error {e}"
-                            )
+                            logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
             return devdetails, version
         except APIError:
             # try devdetails and version separately (X19s mainly require this)
@@ -689,37 +677,29 @@ class MinerFactory(metaclass=Singleton):
     async def __get_model_from_graphql(ip: ipaddress.ip_address) -> Union[str, None]:
         model = None
         url = f"http://{ip}/graphql"
-        try:
-            async with httpx.AsyncClient() as client:
-                d = await client.post(
-                    url, json={"query": "{bosminer {info{modelName}}}"}
-                )
-            if d.status_code == 200:
-                model = (d.json()["data"]["bosminer"]["info"]["modelName"]).upper()
-            return model
-        except httpx.HTTPError:
-            pass
+        async with httpx.AsyncClient() as client:
+            d = await client.post(url, json={"query": "{bosminer {info{modelName}}}"})
+        if d.status_code == 200:
+            model = (d.json()["data"]["bosminer"]["info"]["modelName"]).upper()
+        return model
 
     @staticmethod
     async def __get_system_info_from_web(ip) -> dict:
         url = f"http://{ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")
-        try:
-            async with httpx.AsyncClient() as client:
-                data = await client.get(url, auth=auth)
-            if data.status_code == 200:
-                data = data.json()
-            return data
-        except httpx.HTTPError:
-            pass
+        async with httpx.AsyncClient() as client:
+            data = await client.get(url, auth=auth)
+        if data.status_code == 200:
+            data = data.json()
+        return data
 
     @staticmethod
     async def __get_dragonmint_version_from_web(
         ip: ipaddress.ip_address,
     ) -> Union[str, None]:
         response = None
-        try:
-            async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
+            try:
                 auth = (
                     await client.post(
                         f"http://{ip}/api/auth",
@@ -733,13 +713,10 @@ class MinerFactory(metaclass=Singleton):
                         data={},
                     )
                 ).json()
-        except httpx.HTTPError as e:
-            logging.info(e)
+            except Exception as e:
+                logging.info(e)
         if response:
-            try:
-                return response["type"]
-            except KeyError:
-                pass
+            return response["type"]
 
     @staticmethod
     async def _validate_command(data: dict) -> Tuple[bool, Union[str, None]]:

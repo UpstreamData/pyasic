@@ -15,10 +15,8 @@
 import ipaddress
 import json
 import logging
-from typing import List, Union, Tuple, Optional
-from collections import namedtuple
+from typing import List, Union
 
-import asyncssh
 import httpx
 import toml
 
@@ -32,7 +30,7 @@ from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
         self.api = BOSMinerAPI(ip, api_ver)
@@ -42,23 +40,22 @@ class BOSMiner(BaseMiner):
         self.pwd = "admin"
         self.config = None
 
-    async def send_ssh_command(self, cmd: str) -> Optional[str]:
+    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+        """Send a command to the miner over ssh.
+
+        Returns:
+            Result of the command or None.
+        """
         result = None
 
-        try:
-            conn = await self._get_ssh_connection()
-        except asyncssh.Error:
-            return None
-
         # open an ssh connection
-        async with conn:
+        async with (await self._get_ssh_connection()) as conn:
             # 3 retries
             for i in range(3):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
                     result = result.stdout
-
                 except Exception as e:
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")
@@ -68,21 +65,9 @@ class BOSMiner(BaseMiner):
                         return
                     continue
         # return the result, either command output or None
-        return result
+        return str(result)
 
     async def send_graphql_query(self, query) -> Union[dict, None]:
-        # FW version must be equal to or greater than 21.09 to use this
-        if self.fw_ver:
-            if not (
-                (
-                    int(self.fw_ver.split(".")[0]) == 21
-                    and int(self.fw_ver.split(".")[1]) >= 9
-                )
-                or int(self.fw_ver.split(".")[0]) > 21
-            ):
-                logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
-                return None
-
         url = f"http://{self.ip}/graphql"
         try:
             async with httpx.AsyncClient() as client:
@@ -98,15 +83,8 @@ class BOSMiner(BaseMiner):
                 )
                 d = await client.post(url, json={"query": query})
             if d.status_code == 200:
-                try:
-                    data = d.json()
-                except json.decoder.JSONDecodeError:
-                    raise APIError(f"GraphQL returned malformed data: {d.text}")
-                if data.get("errors"):
-                    if len(data["errors"]) > 0:
-                        raise APIError(f"GraphQL error: {data['errors'][0]['message']}")
-
-        except httpx.HTTPError:
+                return d.json()
+        except (httpx.ReadError, httpx.ReadTimeout):
             return None
         return None
 
@@ -145,20 +123,14 @@ class BOSMiner(BaseMiner):
         return False
 
     async def stop_mining(self) -> bool:
-        try:
-            data = await self.api.pause()
-        except APIError:
-            return False
+        data = await self.api.pause()
         if data.get("PAUSE"):
             if data["PAUSE"][0]:
                 return True
         return False
 
     async def resume_mining(self) -> bool:
-        try:
-            data = await self.api.resume()
-        except APIError:
-            return False
+        data = await self.api.resume()
         if data.get("RESUME"):
             if data["RESUME"][0]:
                 return True
@@ -180,72 +152,51 @@ class BOSMiner(BaseMiner):
             The config from `self.config`.
         """
         logging.debug(f"{self}: Getting config.")
-        conn = None
-        try:
-            conn = await self._get_ssh_connection()
-        except asyncssh.Error:
-            try:
-                pools = await self.api.pools()
-            except APIError:
-                return self.config
-            if pools:
-                self.config = MinerConfig().from_api(pools["POOLS"])
-                return self.config
-        if conn:
-            async with conn:
-                logging.debug(f"{self}: Opening SFTP connection.")
-                async with conn.start_sftp_client() as sftp:
-                    logging.debug(f"{self}: Reading config file.")
-                    async with sftp.open("/etc/bosminer.toml") as file:
-                        toml_data = toml.loads(await file.read())
-            logging.debug(f"{self}: Converting config file.")
-            cfg = MinerConfig().from_raw(toml_data)
-            self.config = cfg
-        return self.config
-
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
-        logging.debug(f"{self}: Sending config.")
-        toml_conf = config.as_bos(
-            model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
-        )
-        try:
-            conn = await self._get_ssh_connection()
-        except asyncssh.Error:
-            return None
-        async with conn:
-            await conn.run("/etc/init.d/bosminer stop")
+        async with (await self._get_ssh_connection()) as conn:
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
-                logging.debug(f"{self}: Opening config file.")
-                async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                    await file.write(toml_conf)
-            logging.debug(f"{self}: Restarting BOSMiner")
-            await conn.run("/etc/init.d/bosminer start")
+                logging.debug(f"{self}: Reading config file.")
+                async with sftp.open("/etc/bosminer.toml") as file:
+                    toml_data = toml.loads(await file.read())
+        logging.debug(f"{self}: Converting config file.")
+        cfg = MinerConfig().from_raw(toml_data)
+        self.config = cfg
+        return self.config
 
-    async def set_power_limit(self, wattage: int) -> bool:
+    async def get_hostname(self) -> str:
+        """Get miner hostname.
+
+        Returns:
+            The hostname of the miner as a string or "?"
+        """
+        if self.hostname:
+            return self.hostname
+        # get hostname through GraphQL
+        if data := await self.send_graphql_query("{bos {hostname}}"):
+            self.hostname = data["data"]["bos"]["hostname"]
+            return self.hostname
+
         try:
-            cfg = await self.get_config()
-            cfg.autotuning_wattage = wattage
-            await self.send_config(cfg)
-        except Exception as e:
-            logging.warning(f"{self} set_power_limit: {e}")
-            return False
-        else:
-            return True
+            async with (await self._get_ssh_connection()) as conn:
+                if conn is not None:
+                    data = await conn.run("cat /proc/sys/kernel/hostname")
+                    host = data.stdout.strip()
+                    logging.debug(f"Found hostname for {self.ip}: {host}")
+                    self.hostname = host
+                    return self.hostname
+                else:
+                    logging.warning(f"Failed to get hostname for miner: {self}")
+                    return "?"
+        except Exception:
+            logging.warning(f"Failed to get hostname for miner: {self}")
+            return "?"
 
-    ##################################################
-    ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
-    ##################################################
+    async def get_model(self) -> Union[str, None]:
+        """Get miner model.
 
-    async def get_mac(self) -> Optional[str]:
-        try:
-            result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
-            return result.upper().strip()
-        except asyncssh.Error:
-            pass
-
-    async def get_model(self) -> Optional[str]:
+        Returns:
+            Miner model or None.
+        """
         # check if model is cached
         if self.model:
             logging.debug(f"Found model for {self.ip}: {self.model} (BOS)")
@@ -278,552 +229,164 @@ class BOSMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_version(
-        self, api_version: dict = None, graphql_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
+    async def get_version(self) -> Union[dict, None]:
+        """Get miner firmware version.
+
+        Returns:
+            Miner api & firmware version or None.
+        """
         # check if version is cached
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
         if self.fw_ver and self.api_ver:
             logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            return miner_version(self.api_ver, self.fw_ver)
-
-        if not graphql_version:
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
+        version_data = None
+        # try to get data from graphql
+        data = await self.send_graphql_query("{bos{info{version{full}}}}")
+        if data:
             try:
-                graphql_version = await self.send_graphql_query(
-                    "{bos{info{version{full}}}}"
-                )
-            except APIError:
-                pass
-
-
-        if not api_version:
-            try:
-                api_version = await self.api.version()
-            except APIError:
-                pass
-        fw_ver = None
-
-        if graphql_version:
-            try:
-                fw_ver = graphql_version["bos"]["info"]["version"]["full"]
+                version_data = data["bos"]["info"]["version"]["full"]
             except KeyError:
-                pass
+                version_data = data["data"]["bos"]["info"]["version"]["full"]
 
-        if not fw_ver:
+
+        if not version_data:
             # try version data file
-            fw_ver = await self.send_ssh_command("cat /etc/bos_version")
+            version_data = await self.send_ssh_command("cat /etc/bos_version")
 
         # if we get the version data, parse it
-        if fw_ver:
+        if version_data:
+            self.fw_ver = version_data.split("-")[5]
             logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            self.fw_ver = fw_ver.split("-")[5]
 
-        # Now get the API version
-        if api_version:
-            try:
-                api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
-                api_ver = None
-            self.api_ver = api_ver
+            # Now get the API version
+            version = await self.api.version()
+            self.api_ver = version['VERSION'][0]['API']
             self.api.api_ver = self.api_ver
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
 
-        return miner_version(self.api_ver, self.fw_ver)
-
-    async def get_hostname(self, graphql_hostname: dict = None) -> Union[str, None]:
-        if self.hostname:
-            return self.hostname
-
-        if not graphql_hostname:
-            try:
-                graphql_hostname = await self.send_graphql_query("{bos {hostname}}")
-            except APIError:
-                pass
-
-        if graphql_hostname:
-            print(graphql_hostname)
-            self.hostname = graphql_hostname["bos"]["hostname"]
-            return self.hostname
-
-        try:
-            async with (await self._get_ssh_connection()) as conn:
-                if conn is not None:
-                    data = await conn.run("cat /proc/sys/kernel/hostname")
-                    host = data.stdout.strip()
-                    logging.debug(f"Found hostname for {self.ip}: {host}")
-                    self.hostname = host
-                else:
-                    logging.warning(f"Failed to get hostname for miner: {self}")
-        except Exception as e:
-            logging.warning(f"Failed to get hostname for miner: {self}, {e}")
-        return self.hostname
-
-    async def get_hashrate(
-        self, api_summary: dict = None, graphql_hashrate: dict = None
-    ) -> Optional[float]:
-
-        # get hr from graphql
-        if not graphql_hashrate:
-            try:
-                graphql_hashrate = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{realHashrate{mhs1M}}}}}"
-                )
-            except APIError:
-                pass
-
-
-        if graphql_hashrate:
-            try:
-                return round(
-                    float(
-                        graphql_hashrate["bosminer"]["info"]["workSolver"][
-                            "realHashrate"
-                        ]["mhs1M"]
-                        / 1000000
-                    ),
-                    2,
-                )
-            except (KeyError, IndexError, ValueError):
-                pass
-
-        # get hr from API
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError, ValueError, TypeError):
-                pass
-
-    async def get_hashboards(
-        self,
-        api_temps: dict = None,
-        api_devdetails: dict = None,
-        api_devs: dict = None,
-        graphql_boards: dict = None,
-    ):
-        hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
-        ]
-
-        if not graphql_boards and not (api_devs or api_temps or api_devdetails):
-            try:
-                graphql_boards = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}"
-                )
-            except APIError:
-                pass
-
-
-        if graphql_boards:
-            try:
-                boards = graphql_boards["bosminer"]["info"]["workSolver"][
-                    "childSolvers"
-                ]
-            except (KeyError, IndexError):
-                boards = None
-
-            if boards:
-                offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else 0
-                for hb in boards:
-                    _id = int(hb["name"]) - offset
-                    board = hashboards[_id]
-
-                    board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
-                    temps = hb["temperatures"]
-                    try:
-                        if len(temps) > 0:
-                            board.temp = round(hb["temperatures"][0]["degreesC"])
-                        if len(temps) > 1:
-                            board.chip_temp = round(hb["temperatures"][1]["degreesC"])
-                    except (TypeError, KeyError, ValueError, IndexError):
-                        pass
-                    details = hb.get("hwDetails")
-                    if details:
-                        if chips := details["chips"]:
-                            board.chips = chips
-                    board.missing = False
-
-                return hashboards
-
-        cmds = []
-        if not api_temps:
-            cmds.append("temps")
-        if not api_devdetails:
-            cmds.append("devdetails")
-        if not api_devs:
-            cmds.append("devs")
-        if len(cmds) > 0:
-            try:
-                d = await self.api.multicommand(*cmds)
-            except APIError:
-                d = {}
-            try:
-                api_temps = d["temps"][0]
-            except (KeyError, IndexError):
-                api_temps = None
-            try:
-                api_devdetails = d["devdetails"][0]
-            except (KeyError, IndexError):
-                api_devdetails = None
-            try:
-                api_devs = d["devs"][0]
-            except (KeyError, IndexError):
-                api_devs = None
-
-        if api_temps:
-            try:
-                offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 0
-
-                for board in api_temps["TEMPS"]:
-                    _id = board["ID"] - offset
-                    chip_temp = round(board["Chip"])
-                    board_temp = round(board["Board"])
-                    hashboards[_id].chip_temp = chip_temp
-                    hashboards[_id].temp = board_temp
-            except (IndexError, KeyError, ValueError, TypeError):
-                pass
-
-        if api_devdetails:
-            try:
-                offset = 6 if api_devdetails["DEVDETAILS"][0]["ID"] in [6, 7, 8] else 0
-
-                for board in api_devdetails["DEVDETAILS"]:
-                    _id = board["ID"] - offset
-                    chips = board["Chips"]
-                    hashboards[_id].chips = chips
-                    hashboards[_id].missing = False
-            except (IndexError, KeyError):
-                pass
-
-        if api_devs:
-            try:
-                offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 0
-
-                for board in api_devs["DEVS"]:
-                    _id = board["ID"] - offset
-                    hashrate = round(float(board["MHS 1m"] / 1000000), 2)
-                    hashboards[_id].hashrate = hashrate
-            except (IndexError, KeyError):
-                pass
-
-        return hashboards
-
-    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+        # if we fail to get version, log a failed attempt
+        logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_wattage(
-        self, api_tunerstatus: dict = None, graphql_wattage: dict = None
-    ) -> Optional[int]:
-        if not graphql_wattage and not api_tunerstatus:
-            try:
-                graphql_wattage = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{power{approxConsumptionW}}}}}"
-                )
-            except APIError:
-                pass
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        """Configures miner with yaml config."""
+        logging.debug(f"{self}: Sending config.")
+        toml_conf = config.as_bos(
+            model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
+        )
+        async with (await self._get_ssh_connection()) as conn:
+            await conn.run("/etc/init.d/bosminer stop")
+            logging.debug(f"{self}: Opening SFTP connection.")
+            async with conn.start_sftp_client() as sftp:
+                logging.debug(f"{self}: Opening config file.")
+                async with sftp.open("/etc/bosminer.toml", "w+") as file:
+                    await file.write(toml_conf)
+            logging.debug(f"{self}: Restarting BOSMiner")
+            await conn.run("/etc/init.d/bosminer start")
 
-        if graphql_wattage:
-            try:
-                return graphql_wattage["bosminer"]["info"]["workSolver"]["power"][
-                    "approxConsumptionW"
-                ]
-            except KeyError:
-                pass
-
-        if not api_tunerstatus:
-            try:
-                api_tunerstatus = await self.api.tunerstatus()
-            except APIError:
-                pass
-
-        if api_tunerstatus:
-            try:
-                return api_tunerstatus["TUNERSTATUS"][0][
-                    "ApproximateMinerPowerConsumption"
-                ]
-            except (KeyError, IndexError):
-                pass
-
-    async def get_wattage_limit(
-        self, api_tunerstatus: dict = None, graphql_wattage_limit: dict = None
-    ) -> Optional[int]:
-        if not graphql_wattage_limit and not api_tunerstatus:
-            try:
-                graphql_wattage_limit = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{power{limitW}}}}}"
-                )
-            except APIError:
-                pass
-
-
-        if graphql_wattage_limit:
-            try:
-                return graphql_wattage_limit["bosminer"]["info"]["workSolver"]["power"][
-                    "limitW"
-                ]
-            except KeyError:
-                pass
-
-        if not api_tunerstatus:
-            try:
-                api_tunerstatus = await self.api.tunerstatus()
-            except APIError:
-                pass
-
-        if api_tunerstatus:
-            try:
-                return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
-            except (KeyError, IndexError):
-                pass
-
-    async def get_fans(
-        self, api_fans: dict = None, graphql_fans: dict = None
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
-        Tuple[Optional[int]],
-    ]:
-        psu_fan = None
-
-        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
-        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
-        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
-
-        if not graphql_fans and not api_fans:
-            try:
-                graphql_fans = await self.send_graphql_query(
-                    "{bosminer{info{fans{name, rpm}}}"
-                )
-            except APIError:
-                pass
-
-
-        if graphql_fans:
-            fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
-            for n in range(self.fan_count):
-                try:
-                    fans[f"fan_{n + 1}"] = graphql_fans["bosminer"]["info"]["fans"][n][
-                        "rpm"
-                    ]
-                except KeyError:
-                    pass
-            return miner_fan_speeds(
-                fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
-                psu_fan_speeds(psu_fan),
-            )
-
-        if not api_fans:
-            try:
-                api_fans = await self.api.fans()
-            except APIError:
-                pass
-
-        if api_fans:
-            fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
-            for n in range(self.fan_count):
-                try:
-                    fans[f"fan_{n + 1}"] = api_fans["FANS"][n]["RPM"]
-                except KeyError:
-                    pass
-            return miner_fan_speeds(
-                fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
-                psu_fan_speeds(psu_fan),
-            )
-
-    async def get_pools(
-        self, api_pools: dict = None, graphql_pools: dict = None
-    ) -> List[dict]:
-        if not graphql_pools and not api_pools:
-            try:
-                graphql_pools = await self.send_graphql_query(
-                    "bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}"
-                )
-            except APIError:
-                pass
-
-
-        if graphql_pools:
-            groups = []
-            try:
-                g = graphql_pools["bosminer"]["config"]["groups"]
-                for group in g:
-                    pools = {"quota": group["strategy"]["quota"]}
-                    for i, pool in enumerate(group["pools"]):
-                        pools[f"pool_{i + 1}_url"] = (
-                            pool["url"]
-                            .replace("stratum+tcp://", "")
-                            .replace("stratum2+tcp://", "")
-                        )
-                        pools[f"pool_{i + 1}_user"] = pool["user"]
-                    groups.append(pools)
-                return groups
-            except KeyError:
-                pass
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            seen = []
-            groups = [{"quota": "0"}]
-            for i, pool in enumerate(api_pools["POOLS"]):
-                if len(seen) == 0:
-                    seen.append(pool["User"])
-                if not pool["User"] in seen:
-                    # need to use get_config, as this will never read perfectly as there are some bad edge cases
-                    groups = []
-                    cfg = await self.get_config()
-                    for group in cfg.pool_groups:
-                        pools = {"quota": group.quota}
-                        for _i, _pool in enumerate(group.pools):
-                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
-                                "stratum+tcp://", ""
-                            ).replace("stratum2+tcp://", "")
-                            pools[f"pool_{_i + 1}_user"] = _pool.username
-                        groups.append(pools)
-                    return groups
-                else:
-                    groups[0][f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    groups[0][f"pool_{i + 1}_user"] = pool["User"]
-            return groups
-
-    async def get_errors(
-        self, api_tunerstatus: dict = None, graphql_errors: dict = None
-    ) -> List[MinerErrorData]:
-        if not graphql_errors and not api_tunerstatus:
-            try:
-                graphql_errors = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}"
-                )
-            except APIError:
-                pass
-
-        if graphql_errors:
-            errors = []
-            try:
-                boards = graphql_errors["bosminer"]["info"]["workSolver"][
-                    "childSolvers"
-                ]
-            except (KeyError, IndexError):
-                boards = None
-
-            if boards:
-                offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else 0
-                for hb in boards:
-                    _id = int(hb["name"]) - offset
-                    tuner = hb["tuner"]
-                    if tuner:
-                        if msg := tuner.get("statusMessages"):
-                            if len(msg) > 0:
-                                if hb["tuner"]["statusMessages"][0] not in [
-                                    "Stable",
-                                    "Testing performance profile",
-                                    "Tuning individual chips",
-                                ]:
-                                    errors.append(
-                                        BraiinsOSError(
-                                            f"Slot {_id} {hb['tuner']['statusMessages'][0]}"
-                                        )
-                                    )
-
-        if not api_tunerstatus:
-            try:
-                api_tunerstatus = await self.api.tunerstatus()
-            except APIError:
-                pass
-
-        if api_tunerstatus:
-            errors = []
-            try:
-                chain_status = api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
-                if chain_status and len(chain_status) > 0:
-                    offset = (
-                        6 if int(chain_status[0]["HashchainIndex"]) in [6, 7, 8] else 0
-                    )
-
-                    for board in chain_status:
-                        _id = board["HashchainIndex"] - offset
-                        if board["Status"] not in [
-                            "Stable",
-                            "Testing performance profile",
-                            "Tuning individual chips",
-                        ]:
-                            _error = board["Status"].split(" {")[0]
-                            _error = _error[0].lower() + _error[1:]
-                            errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
-                return errors
-            except (KeyError, IndexError):
-                pass
-
-    async def get_fault_light(self, graphql_fault_light: dict = None) -> bool:
+    async def check_light(self) -> bool:
         if self.light:
             return self.light
-
-        if not graphql_fault_light:
-            if self.fw_ver:
-                # fw version has to be greater than 21.09 and not 21.09
-                if (
-                    int(self.fw_ver.split(".")[0]) == 21
-                    and int(self.fw_ver.split(".")[1]) > 9
-                ) or int(self.fw_ver.split(".")[0]) > 21:
-                    try:
-                        graphql_fault_light = await self.send_graphql_query(
-                            "{bos {faultLight}}"
-                        )
-                    except APIError:
-                        pass
-                else:
-                    logging.info(
-                        f"FW version {self.fw_ver} is too low for fault light info in graphql."
-                    )
-            else:
-                # worth trying
-                try:
-                    graphql_fault_light = await self.send_graphql_query(
-                        "{bos {faultLight}}"
-                    )
-                except APIError:
-                    logging.debug(
-                        "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
-                    )
-                if not graphql_fault_light:
-                    # also a failure
-                    logging.debug(
-                        "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
-                    )
-
         # get light through GraphQL
-        if graphql_fault_light:
+        if data := await self.send_graphql_query("{bos {faultLight}}"):
             try:
-                self.light = graphql_fault_light["bos"]["faultLight"]
+                self.light = data["data"]["bos"]["faultLight"]
                 return self.light
             except (TypeError, KeyError, ValueError, IndexError):
                 pass
 
         # get light via ssh if that fails (10x slower)
-        try:
-            data = (
-                await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
-            ).strip()
-            self.light = False
-            if data == "50":
-                self.light = True
-        except Exception as e:
-            logging.debug(f"SSH command failed - Fault Light - {e}")
+        data = (
+            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+        ).strip()
+        self.light = False
+        if data == "50":
+            self.light = True
         return self.light
 
-    async def _get_data(self, allow_warning: bool) -> dict:
+    async def get_errors(self) -> List[MinerErrorData]:
+        tunerstatus = None
+        errors = []
+
+        try:
+            tunerstatus = await self.api.tunerstatus()
+        except Exception as e:
+            logging.warning(e)
+
+        if tunerstatus:
+            try:
+                tuner = tunerstatus[0].get("TUNERSTATUS")
+            except KeyError:
+                tuner = tunerstatus.get("TUNERSTATUS")
+            if tuner:
+                if len(tuner) > 0:
+                    chain_status = tuner[0].get("TunerChainStatus")
+                    if chain_status and len(chain_status) > 0:
+                        board_map = {
+                            0: "Left board",
+                            1: "Center board",
+                            2: "Right board",
+                        }
+                        offset = (
+                            6
+                            if chain_status[0]["HashchainIndex"] in [6, 7, 8]
+                            else chain_status[0]["HashchainIndex"]
+                        )
+                        for board in chain_status:
+                            _id = board["HashchainIndex"] - offset
+                            if board["Status"] not in [
+                                "Stable",
+                                "Testing performance profile",
+                                "Tuning individual chips",
+                            ]:
+                                _error = board["Status"].split(" {")[0]
+                                _error = _error[0].lower() + _error[1:]
+                                errors.append(
+                                    BraiinsOSError(f"{board_map[_id]} {_error}")
+                                )
+        return errors
+
+    async def get_data(self, allow_warning: bool = True) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
+        d = await self._graphql_get_data()
+        if d:
+            return d
+
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
+
+        model = await self.get_model()
+        hostname = await self.get_hostname()
+        mac = await self.get_mac()
+        await self.get_version()
+
+        if model:
+            data.model = model
+
+        if hostname:
+            data.hostname = hostname
+
+        if mac:
+            data.mac = mac
+
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
+        data.make = self.make
+
+        data.fault_light = await self.check_light()
+
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
             try:
@@ -835,127 +398,356 @@ class BOSMiner(BaseMiner):
                     "devdetails",
                     "fans",
                     "devs",
-                    "version",
                     allow_warning=allow_warning,
                 )
             except APIError as e:
                 if str(e.message) == "Not ready":
-                    try:
-                        miner_data = await self.api.multicommand(
-                            "summary", "tunerstatus", "pools", "devs", "version"
-                        )
-                    except APIError:
-                        pass
+                    miner_data = await self.api.multicommand(
+                        "summary", "tunerstatus", "pools", "devs"
+                    )
             if miner_data:
                 break
-        if miner_data:
-            summary = miner_data.get("summary")
-            if summary:
-                summary = summary[0]
-            version = miner_data.get("version")
-            if version:
-                version = version[0]
-            temps = miner_data.get("temps")
-            if temps:
-                temps = temps[0]
-            tunerstatus = miner_data.get("tunerstatus")
-            if tunerstatus:
-                tunerstatus = tunerstatus[0]
-            pools = miner_data.get("pools")
-            if pools:
-                pools = pools[0]
-            devdetails = miner_data.get("devdetails")
-            if devdetails:
-                devdetails = devdetails[0]
-            devs = miner_data.get("devs")
-            if devs:
-                devs = devs[0]
-            fans = miner_data.get("fans")
-            if fans:
-                fans = fans[0]
-        else:
-            summary, version, temps, tunerstatus, pools, devdetails, devs, fans = (
-                None for _ in range(8)
-            )
-        try:
-            gql_data = await self.send_graphql_query(
-                "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
-            )
-        except APIError:
-            gql_data = None
+        if not miner_data:
+            return data
+        summary = miner_data.get("summary")
+        temps = miner_data.get("temps")
+        tunerstatus = miner_data.get("tunerstatus")
+        pools = miner_data.get("pools")
+        devdetails = miner_data.get("devdetails")
+        devs = miner_data.get("devs")
+        fans = miner_data.get("fans")
 
-        if gql_data:
-            if "data" in gql_data:
-                gql_data = gql_data["data"]
+        if summary:
+            hr = summary[0].get("SUMMARY")
+            if hr:
+                if len(hr) > 0:
+                    hr = hr[0].get("MHS 1m")
+                    if hr:
+                        data.hashrate = round(hr / 1000000, 2)
 
-        data = {  # noqa - Ignore dictioonary could be re-written
-            # ip - Done at start
-            # datetime - Done auto
-            "mac": await self.get_mac(),
-            "model": await self.get_model(),
-            # make - Done at start
-            # api_ver - Done at end
-            # fw_ver - Done at end
-            "hostname": await self.get_hostname(graphql_hostname=gql_data),
-            "hashrate": await self.get_hashrate(
-                api_summary=summary, graphql_hashrate=gql_data
-            ),
-            "hashboards": await self.get_hashboards(
-                api_temps=temps,
-                api_devdetails=devdetails,
-                api_devs=devs,
-                graphql_boards=gql_data,
-            ),
-            # ideal_hashboards - Done at start
-            "env_temp": await self.get_env_temp(),
-            "wattage": await self.get_wattage(
-                api_tunerstatus=tunerstatus, graphql_wattage=gql_data
-            ),
-            "wattage_limit": await self.get_wattage_limit(
-                api_tunerstatus=tunerstatus, graphql_wattage_limit=gql_data
-            ),
-            # fan_1 - Done at end
-            # fan_2 - Done at end
-            # fan_3 - Done at end
-            # fan_4 - Done at end
-            # fan_psu - Done at end
-            # ideal_chips - Done at start
-            # pool_split - Done at end
-            # pool_1_url - Done at end
-            # pool_1_user - Done at end
-            # pool_2_url - Done at end
-            # pool_2_user - Done at end
-            "errors": await self.get_errors(
-                api_tunerstatus=tunerstatus, graphql_errors=gql_data
-            ),
-            "fault_light": await self.get_fault_light(),
-        }
+        if temps:
+            temp = temps[0].get("TEMPS")
+            if temp:
+                if len(temp) > 0:
+                    offset = 6 if temp[0]["ID"] in [6, 7, 8] else temp[0]["ID"]
+                    for board in temp:
+                        _id = board["ID"] - offset
+                        chip_temp = round(board["Chip"])
+                        board_temp = round(board["Board"])
+                        data.hashboards[_id].chip_temp = chip_temp
+                        data.hashboards[_id].temp = board_temp
 
-        data["api_ver"], data["fw_ver"] = await self.get_version(
-            api_version=version, graphql_version=gql_data
+        if fans:
+            fan_data = fans[0].get("FANS")
+            if fan_data:
+                for fan in range(self.fan_count):
+                    setattr(data, f"fan_{fan+1}", fan_data[fan]["RPM"])
+
+        if pools:
+            pool_1 = None
+            pool_2 = None
+            pool_1_user = None
+            pool_2_user = None
+            pool_1_quota = 1
+            pool_2_quota = 1
+            quota = 0
+            for pool in pools[0].get("POOLS"):
+                if not pool_1_user:
+                    pool_1_user = pool.get("User")
+                    pool_1 = pool["URL"]
+                    pool_1_quota = pool["Quota"]
+                elif not pool_2_user:
+                    pool_2_user = pool.get("User")
+                    pool_2 = pool["URL"]
+                    pool_2_quota = pool["Quota"]
+                if not pool.get("User") == pool_1_user:
+                    if not pool_2_user == pool.get("User"):
+                        pool_2_user = pool.get("User")
+                        pool_2 = pool["URL"]
+                        pool_2_quota = pool["Quota"]
+            if pool_2_user and not pool_2_user == pool_1_user:
+                quota = f"{pool_1_quota}/{pool_2_quota}"
+
+            if pool_1:
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
+
+            if pool_1_user:
+                data.pool_1_user = pool_1_user
+
+            if pool_2:
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
+
+            if pool_2_user:
+                data.pool_2_user = pool_2_user
+
+            if quota:
+                if not quota == "0":
+                    cfg = await self.get_config()
+                    if cfg:
+                        if len(cfg.pool_groups) > 1:
+                            quota = (
+                                str(cfg.pool_groups[0].quota)
+                                + "/"
+                                + str(cfg.pool_groups[1].quota)
+                            )
+
+                data.pool_split = str(quota)
+
+        if tunerstatus:
+            tuner = tunerstatus[0].get("TUNERSTATUS")
+            if tuner:
+                if len(tuner) > 0:
+                    wattage = tuner[0].get("ApproximateMinerPowerConsumption")
+                    wattage_limit = tuner[0].get("PowerLimit")
+                    if wattage_limit:
+                        data.wattage_limit = wattage_limit
+                    if wattage is not None:
+                        data.wattage = wattage
+
+                    chain_status = tuner[0].get("TunerChainStatus")
+                    if chain_status and len(chain_status) > 0:
+                        board_map = {
+                            0: "Left board",
+                            1: "Center board",
+                            2: "Right board",
+                        }
+                        offset = (
+                            6
+                            if chain_status[0]["HashchainIndex"] in [6, 7, 8]
+                            else chain_status[0]["HashchainIndex"]
+                        )
+                        for board in chain_status:
+                            _id = board["HashchainIndex"] - offset
+                            if board["Status"] not in [
+                                "Stable",
+                                "Testing performance profile",
+                            ]:
+                                _error = board["Status"].split(" {")[0]
+                                _error = _error[0].lower() + _error[1:]
+                                data.errors.append(
+                                    BraiinsOSError(f"{board_map[_id]} {_error}")
+                                )
+
+        if devdetails:
+            boards = devdetails[0].get("DEVDETAILS")
+            if boards:
+                if len(boards) > 0:
+                    offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
+                    for board in boards:
+                        _id = board["ID"] - offset
+                        chips = board["Chips"]
+                        data.hashboards[_id].chips = chips
+                        if chips > 0:
+                            data.hashboards[_id].missing = False
+                        else:
+                            data.hashboards[_id].missing = True
+
+        if devs:
+            boards = devs[0].get("DEVS")
+            if boards:
+                if len(boards) > 0:
+                    offset = 6 if boards[0]["ID"] in [6, 7, 8] else boards[0]["ID"]
+                    for board in boards:
+                        _id = board["ID"] - offset
+                        hashrate = round(board["MHS 1m"] / 1000000, 2)
+                        data.hashboards[_id].hashrate = hashrate
+        return data
+
+    async def _graphql_get_data(self) -> Union[MinerData, None]:
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips, missing=True)
+                for i in range(self.ideal_hashboards)
+            ],
         )
-        fan_data = await self.get_fans(api_fans=fans, graphql_fans=gql_data)
+        query = "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+        query_data = await self.send_graphql_query(query)
+        if not query_data:
+            return None
+        query_data = query_data["data"]
+        if not query_data:
+            return None
 
-        data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
-        data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
-        data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
-        data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
+        data.mac = await self.get_mac()
+        data.model = await self.get_model()
+        await self.get_version()
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+        data.make = self.make
 
-        pools_data = await self.get_pools(api_pools=pools, graphql_pools=gql_data)
-        data["pool_1_url"] = pools_data[0]["pool_1_url"]
-        data["pool_1_user"] = pools_data[0]["pool_1_user"]
-        if len(pools_data) > 1:
-            data["pool_2_url"] = pools_data[1]["pool_1_url"]
-            data["pool_2_user"] = pools_data[1]["pool_1_user"]
-            data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-        else:
+        if query_data.get("bos"):
+            if query_data["bos"].get("hostname"):
+                data.hostname = query_data["bos"]["hostname"]
+
+        try:
+            if query_data["bosminer"]["info"]["workSolver"]["realHashrate"].get(
+                "mhs1M"
+            ):
+                data.hashrate = round(
+                    query_data["bosminer"]["info"]["workSolver"]["realHashrate"][
+                        "mhs1M"
+                    ]
+                    / 1000000,
+                    2,
+                )
+        except (TypeError, KeyError, ValueError, IndexError):
+            pass
+
+        boards = None
+        if query_data.get("bosminer"):
+            if query_data["bosminer"].get("info"):
+                if query_data["bosminer"]["info"].get("workSolver"):
+                    boards = query_data["bosminer"]["info"]["workSolver"].get(
+                        "childSolvers"
+                    )
+        if boards:
+            offset = (
+                6 if int(boards[0]["name"]) in [6, 7, 8] else int(boards[0]["name"])
+            )
+            for hb in boards:
+                _id = int(hb["name"]) - offset
+
+                board = data.hashboards[_id]
+                board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
+                temps = hb["temperatures"]
+                try:
+                    if len(temps) > 0:
+                        board.temp = round(hb["temperatures"][0]["degreesC"])
+                    if len(temps) > 1:
+                        board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                details = hb.get("hwDetails")
+                if details:
+                    if chips := details["chips"]:
+                        board.chips = chips
+                board.missing = False
+
+                tuner = hb.get("tuner")
+                if tuner:
+                    if msg := tuner.get("statusMessages"):
+                        if len(msg) > 0:
+                            if hb["tuner"]["statusMessages"][0] not in [
+                                "Stable",
+                                "Testing performance profile",
+                                "Tuning individual chips",
+                            ]:
+                                data.errors.append(
+                                    BraiinsOSError(
+                                        f"Slot {_id} {hb['tuner']['statusMessages'][0]}"
+                                    )
+                                )
+        try:
+            data.wattage = query_data["bosminer"]["info"]["workSolver"]["power"][
+                "approxConsumptionW"
+            ]
+        except (TypeError, KeyError, ValueError, IndexError):
+            data.wattage = 0
+        try:
+            data.wattage_limit = query_data["bosminer"]["info"]["workSolver"]["power"][
+                "limitW"
+            ]
+        except (TypeError, KeyError, ValueError, IndexError):
+            pass
+
+        for n in range(self.fan_count):
             try:
-                data["pool_2_url"] = pools_data[0]["pool_1_url"]
-                data["pool_2_user"] = pools_data[0]["pool_1_user"]
-                data["quota"] = "0"
-            except KeyError:
+                setattr(
+                    data,
+                    f"fan_{n + 1}",
+                    query_data["bosminer"]["info"]["fans"][n]["rpm"],
+                )
+            except (TypeError, KeyError, ValueError, IndexError):
                 pass
 
+        groups = None
+        if query_data.get("bosminer"):
+            if query_data["bosminer"].get("config"):
+                groups = query_data["bosminer"]["config"].get("groups")
+        if groups:
+            if len(groups) == 1:
+                try:
+                    data.pool_1_user = groups[0]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_1_url = (
+                        groups[0]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_2_user = groups[0]["pools"][1]["user"]
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_2_url = (
+                        groups[0]["pools"][1]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                data.quota = 0
+            else:
+                try:
+                    data.pool_1_user = groups[0]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_1_url = (
+                        groups[0]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_2_user = groups[1]["pools"][0]["user"]
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                try:
+                    data.pool_2_url = (
+                        groups[1]["pools"][0]["url"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                except (TypeError, KeyError, ValueError, IndexError):
+                    pass
+                if groups[0]["strategy"].get("quota"):
+                    data.pool_split = (
+                        str(groups[0]["strategy"]["quota"])
+                        + "/"
+                        + str(groups[1]["strategy"]["quota"])
+                    )
+
+        data.fault_light = await self.check_light()
+
         return data
+
+    async def get_mac(self):
+        result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
+        return result.upper().strip()
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        try:
+            cfg = await self.get_config()
+            cfg.autotuning_wattage = wattage
+            await self.send_config(cfg)
+        except Exception as e:
+            logging.warning(f"{self} set_power_limit: {e}")
+            return False
+        else:
+            return True
