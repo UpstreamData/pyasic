@@ -18,8 +18,8 @@ from pyasic.miners._backends import BMMiner
 
 
 class Hiveon(BMMiner):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver)
         self.ip = ipaddress.ip_address(ip)
         self.api_type = "Hiveon"
         self.uname = "root"

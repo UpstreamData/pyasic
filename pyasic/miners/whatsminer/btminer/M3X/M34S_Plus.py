@@ -20,12 +20,12 @@ from pyasic.miners._types import (  # noqa - Ignore access to _module
 
 
 class BTMinerM34SPlus(BTMiner, M34SPlus):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM34SPlusVE10(BTMiner, M34SPlusVE10):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip

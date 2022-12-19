@@ -30,11 +30,12 @@ from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
-        self.api = BOSMinerAPI(ip)
+        self.api = BOSMinerAPI(ip, api_ver)
         self.api_type = "BOSMiner"
+        self.api_ver = api_ver
         self.uname = "root"
         self.pwd = "admin"
         self.config = None
@@ -228,21 +229,25 @@ class BOSMiner(BaseMiner):
         logging.warning(f"Failed to get model for miner: {self}")
         return None
 
-    async def get_version(self) -> Union[str, None]:
+    async def get_version(self) -> Union[dict, None]:
         """Get miner firmware version.
 
         Returns:
-            Miner firmware version or None.
+            Miner api & firmware version or None.
         """
         # check if version is cached
-        if self.version:
-            logging.debug(f"Found version for {self.ip}: {self.version}")
-            return self.version
+        if self.fw_ver and self.api_ver:
+            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
         version_data = None
         # try to get data from graphql
         data = await self.send_graphql_query("{bos{info{version{full}}}}")
         if data:
-            version_data = data["bos"]["info"]["version"]["full"]
+            try:
+                version_data = data["bos"]["info"]["version"]["full"]
+            except KeyError:
+                version_data = data["data"]["bos"]["info"]["version"]["full"]
+
 
         if not version_data:
             # try version data file
@@ -250,9 +255,14 @@ class BOSMiner(BaseMiner):
 
         # if we get the version data, parse it
         if version_data:
-            self.version = version_data.split("-")[5]
-            logging.debug(f"Found version for {self.ip}: {self.version}")
-            return self.version
+            self.fw_ver = version_data.split("-")[5]
+            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+
+            # Now get the API version
+            version = await self.api.version()
+            self.api_ver = version['VERSION'][0]['API']
+            self.api.api_ver = self.api_ver
+            return {'api_ver': self.api_ver,'fw_ver': self.fw_ver}
 
         # if we fail to get version, log a failed attempt
         logging.warning(f"Failed to get model for miner: {self}")
@@ -359,6 +369,7 @@ class BOSMiner(BaseMiner):
         model = await self.get_model()
         hostname = await self.get_hostname()
         mac = await self.get_mac()
+        await self.get_version()
 
         if model:
             data.model = model
@@ -368,6 +379,11 @@ class BOSMiner(BaseMiner):
 
         if mac:
             data.mac = mac
+
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
+        data.make = self.make
 
         data.fault_light = await self.check_light()
 
@@ -563,6 +579,12 @@ class BOSMiner(BaseMiner):
 
         data.mac = await self.get_mac()
         data.model = await self.get_model()
+        await self.get_version()
+
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+        data.make = self.make
+
         if query_data.get("bos"):
             if query_data["bos"].get("hostname"):
                 data.hostname = query_data["bos"]["hostname"]

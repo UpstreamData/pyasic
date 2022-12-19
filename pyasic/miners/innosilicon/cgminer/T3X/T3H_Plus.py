@@ -28,8 +28,8 @@ from pyasic.settings import PyasicSettings
 
 
 class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
-    def __init__(self, ip: str) -> None:
-        super().__init__(ip)
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+        super().__init__(ip, api_ver=api_ver)
         self.ip = ip
         self.uname = "admin"
         self.pwd = PyasicSettings().global_innosilicon_password
@@ -180,6 +180,11 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         data.errors = await self.get_errors()
         data.fault_light = await self.check_light()
+
+        await self.get_version()
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
 
         miner_data = None
         all_data = None

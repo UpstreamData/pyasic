@@ -33,8 +33,10 @@ class BOSMinerAPI(BaseMinerAPI):
         port: The port to reference the API on.  Default is 4028.
     """
 
-    def __init__(self, ip: str, port: int = 4028):
-        super().__init__(ip, port)
+    def __init__(self, ip: str, api_ver: str = "1.0.0", port: int = 4028) -> None:
+        super().__init__(ip, port=port)
+        self.api_ver = api_ver
+
 
     async def asccount(self) -> dict:
         """Get data on the number of ASC devices and their info.
