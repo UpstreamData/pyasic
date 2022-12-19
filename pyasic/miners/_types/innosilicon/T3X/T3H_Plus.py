@@ -14,7 +14,6 @@
 
 from pyasic.miners._types.makes import InnosiliconMiner
 
-
 class InnosiliconT3HPlus(InnosiliconMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str) -> None:
         super().__init__()

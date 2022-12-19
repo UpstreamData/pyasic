@@ -17,12 +17,12 @@ from pyasic.miners._types import M50, M50VH50  # noqa - Ignore access to _module
 
 
 class BTMinerM50(BTMiner, M50):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
 
 
 class BTMinerM50VH50(BTMiner, M50VH50):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip

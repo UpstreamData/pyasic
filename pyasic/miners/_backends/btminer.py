@@ -14,8 +14,7 @@
 
 import ipaddress
 import logging
-from typing import List, Union, Tuple, Optional
-from collections import namedtuple
+from typing import List, Union
 
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.config import MinerConfig
@@ -27,12 +26,77 @@ from pyasic.settings import PyasicSettings
 
 
 class BTMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
         self.api = BTMinerAPI(ip, api_ver)
         self.api_type = "BTMiner"
         self.api_ver = api_ver
+
+    async def get_model(self) -> Union[str, None]:
+        """Get miner model.
+
+        Returns:
+            Miner model or None.
+        """
+        if self.model:
+            logging.debug(f"Found model for {self.ip}: {self.model}")
+            return self.model
+        version_data = await self.api.devdetails()
+        if version_data:
+            self.model = version_data["DEVDETAILS"][0]["Model"].split("V")[0]
+            logging.debug(f"Found model for {self.ip}: {self.model}")
+            return self.model
+        logging.warning(f"Failed to get model for miner: {self}")
+        return None
+
+    async def get_hostname(self) -> Union[str, None]:
+        """Get miner hostname.
+
+        Returns:
+            The hostname of the miner as a string or None.
+        """
+        if self.hostname:
+            return self.hostname
+        try:
+            host_data = await self.api.get_miner_info()
+            if host_data:
+                host = host_data["Msg"]["hostname"]
+                logging.debug(f"Found hostname for {self.ip}: {host}")
+                self.hostname = host
+                return self.hostname
+        except APIError:
+            logging.info(f"Failed to get hostname for miner: {self}")
+            return None
+        except Exception:
+            logging.warning(f"Failed to get hostname for miner: {self}")
+            return None
+
+    async def get_mac(self) -> str:
+        """Get the mac address of the miner.
+
+        Returns:
+            The mac address of the miner as a string.
+        """
+        mac = ""
+        data = await self.api.summary()
+        if data:
+            if data.get("SUMMARY"):
+                if len(data["SUMMARY"]) > 0:
+                    _mac = data["SUMMARY"][0].get("MAC")
+                    if _mac:
+                        mac = _mac
+        if mac == "":
+            try:
+                data = await self.api.get_miner_info()
+                if data:
+                    if "Msg" in data.keys():
+                        if "mac" in data["Msg"].keys():
+                            mac = data["Msg"]["mac"]
+            except APIError:
+                pass
+
+        return str(mac).upper()
 
     async def _reset_api_pwd_to_admin(self, pwd: str):
         try:
@@ -44,6 +108,23 @@ class BTMiner(BaseMiner):
                 if data["Code"] == 131:
                     return True
         return False
+
+    async def check_light(self) -> bool:
+        data = None
+
+        try:
+            data = await self.api.get_miner_info()
+        except APIError:
+            if not self.light:
+                self.light = False
+        if data:
+            if "Msg" in data.keys():
+                if "ledstat" in data["Msg"].keys():
+                    if not data["Msg"]["ledstat"] == "auto":
+                        self.light = True
+                    if data["Msg"]["ledstat"] == "auto":
+                        self.light = False
+        return self.light
 
     async def fault_light_off(self) -> bool:
         try:
@@ -72,21 +153,44 @@ class BTMiner(BaseMiner):
                     return True
         return False
 
-    async def reboot(self) -> bool:
+    async def get_errors(self) -> List[MinerErrorData]:
+        data = []
         try:
-            data = await self.api.reboot()
+            err_data = await self.api.get_error_code()
+            if err_data:
+                if err_data.get("Msg"):
+                    if err_data["Msg"].get("error_code"):
+                        for err in err_data["Msg"]["error_code"]:
+                            if isinstance(err, dict):
+                                for code in err:
+                                    data.append(WhatsminerError(error_code=int(code)))
+                            else:
+                                data.append(WhatsminerError(error_code=int(err)))
         except APIError:
-            return False
+            summary_data = await self.api.summary()
+            if summary_data.get("SUMMARY"):
+                summary_data = summary_data["SUMMARY"]
+                if summary_data[0].get("Error Code Count"):
+                    for i in range(summary_data[0]["Error Code Count"]):
+                        if summary_data[0].get(f"Error Code {i}"):
+                            if not summary_data[0][f"Error Code {i}"] == "":
+                                data.append(
+                                    WhatsminerError(
+                                        error_code=summary_data[0][f"Error Code {i}"]
+                                    )
+                                )
+
+        return data
+
+    async def reboot(self) -> bool:
+        data = await self.api.reboot()
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
         return False
 
     async def restart_backend(self) -> bool:
-        try:
-            data = await self.api.restart()
-        except APIError:
-            return False
+        data = await self.api.restart()
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
@@ -116,20 +220,17 @@ class BTMiner(BaseMiner):
         conf = config.as_wm(user_suffix=user_suffix)
         pools_conf = conf["pools"]
 
-        try:
-            await self.api.update_pools(
-                pools_conf[0]["url"],
-                pools_conf[0]["user"],
-                pools_conf[0]["pass"],
-                pools_conf[1]["url"],
-                pools_conf[1]["user"],
-                pools_conf[1]["pass"],
-                pools_conf[2]["url"],
-                pools_conf[2]["user"],
-                pools_conf[2]["pass"],
-            )
-        except APIError:
-            pass
+        await self.api.update_pools(
+            pools_conf[0]["url"],
+            pools_conf[0]["user"],
+            pools_conf[0]["pass"],
+            pools_conf[1]["url"],
+            pools_conf[1]["user"],
+            pools_conf[1]["pass"],
+            pools_conf[2]["url"],
+            pools_conf[2]["user"],
+            pools_conf[2]["pass"],
+        )
         try:
             await self.api.adjust_power_limit(conf["wattage"])
         except APIError:
@@ -158,6 +259,231 @@ class BTMiner(BaseMiner):
 
         return cfg
 
+    async def get_data(self, allow_warning: bool = True) -> MinerData:
+        """Get data from the miner.
+
+        Returns:
+            A [`MinerData`][pyasic.data.MinerData] instance containing the miners data.
+        """
+        data = MinerData(
+            ip=str(self.ip),
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+        )
+
+        mac = None
+
+        try:
+            model = await self.get_model()
+        except APIError:
+            logging.info(f"Failed to get model: {self}")
+            model = None
+            data.model = "Whatsminer"
+
+        try:
+            hostname = await self.get_hostname()
+        except APIError:
+            logging.info(f"Failed to get hostname: {self}")
+            hostname = None
+            data.hostname = "Whatsminer"
+
+        if model:
+            data.model = model
+
+        if self.make:
+            data.make = self.make
+
+        await self.get_version()
+        data.api_ver = self.api_ver
+        data.fw_ver = self.fw_ver
+
+        if hostname:
+            data.hostname = hostname
+
+        data.fault_light = await self.check_light()
+
+        miner_data = None
+        err_data = None
+        for i in range(PyasicSettings().miner_get_data_retries):
+            try:
+                miner_data = await self.api.multicommand("summary", "devs", "pools", allow_warning=allow_warning)
+                if miner_data:
+                    break
+                else:
+                    err_data = await self.api.get_error_code()
+            except APIError:
+                pass
+        if not (miner_data or err_data):
+            return data
+
+        summary = miner_data["summary"][0] if miner_data.get("summary") else None
+        devs = miner_data["devs"][0] if miner_data.get("devs") else None
+        pools = miner_data["pools"][0] if miner_data.get("pools") else None
+        try:
+            psu_data = await self.api.get_psu()
+        except APIError:
+            psu_data = None
+        if not err_data:
+            try:
+                err_data = await self.api.get_error_code()
+            except APIError:
+                err_data = None
+
+        if summary:
+            summary_data = summary.get("SUMMARY")
+            if summary_data:
+                if len(summary_data) > 0:
+                    wattage_limit = None
+                    if summary_data[0].get("MAC"):
+                        mac = summary_data[0]["MAC"]
+
+                    if summary_data[0].get("Env Temp"):
+                        data.env_temp = summary_data[0]["Env Temp"]
+
+                    if summary_data[0].get("Power Limit"):
+                        wattage_limit = summary_data[0]["Power Limit"]
+
+                    if summary_data[0].get("Power Fanspeed"):
+                        data.fan_psu = summary_data[0]["Power Fanspeed"]
+
+                    if self.fan_count > 0:
+                        data.fan_1 = summary_data[0]["Fan Speed In"]
+                        data.fan_2 = summary_data[0]["Fan Speed Out"]
+
+                    hr = summary_data[0].get("MHS 1m")
+                    if hr:
+                        data.hashrate = round(hr / 1000000, 2)
+
+                    wattage = summary_data[0].get("Power")
+                    if wattage:
+                        data.wattage = round(wattage)
+
+                        if not wattage_limit:
+                            wattage_limit = round(wattage)
+
+                    data.wattage_limit = wattage_limit
+
+                    if summary_data[0].get("Error Code Count"):
+                        for i in range(summary_data[0]["Error Code Count"]):
+                            if summary_data[0].get(f"Error Code {i}"):
+                                if not summary_data[0][f"Error Code {i}"] == "":
+                                    data.errors.append(
+                                        WhatsminerError(
+                                            error_code=summary_data[0][
+                                                f"Error Code {i}"
+                                            ]
+                                        )
+                                    )
+
+        if psu_data:
+            psu = psu_data.get("Msg")
+            if psu:
+                if psu.get("fan_speed"):
+                    data.fan_psu = psu["fan_speed"]
+
+        if err_data:
+            if err_data.get("Msg"):
+                if err_data["Msg"].get("error_code"):
+                    for err in err_data["Msg"]["error_code"]:
+                        if isinstance(err, dict):
+                            for code in err:
+                                data.errors.append(
+                                    WhatsminerError(error_code=int(code))
+                                )
+                        else:
+                            data.errors.append(WhatsminerError(error_code=int(err)))
+
+        if devs:
+            dev_data = devs.get("DEVS")
+            if dev_data:
+                for board in dev_data:
+                    temp_board = HashBoard(
+                        slot=board["ASC"],
+                        chip_temp=round(board["Chip Temp Avg"]),
+                        temp=round(board["Temperature"]),
+                        hashrate=round(board["MHS 1m"] / 1000000, 2),
+                        chips=board["Effective Chips"],
+                        missing=False if board["Effective Chips"] > 0 else True,
+                        expected_chips=self.nominal_chips,
+                    )
+                    data.hashboards.append(temp_board)
+
+        if pools:
+            pool_1 = None
+            pool_2 = None
+            pool_1_user = None
+            pool_2_user = None
+            pool_1_quota = 1
+            pool_2_quota = 1
+            quota = 0
+            for pool in pools.get("POOLS"):
+                if not pool_1_user:
+                    pool_1_user = pool.get("User")
+                    pool_1 = pool["URL"]
+                    pool_1_quota = pool["Quota"]
+                elif not pool_2_user:
+                    pool_2_user = pool.get("User")
+                    pool_2 = pool["URL"]
+                    pool_2_quota = pool["Quota"]
+                if not pool.get("User") == pool_1_user:
+                    if not pool_2_user == pool.get("User"):
+                        pool_2_user = pool.get("User")
+                        pool_2 = pool["URL"]
+                        pool_2_quota = pool["Quota"]
+            if pool_2_user and not pool_2_user == pool_1_user:
+                quota = f"{pool_1_quota}/{pool_2_quota}"
+
+            if pool_1:
+                pool_1 = pool_1.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_1_url = pool_1
+
+            if pool_1_user:
+                data.pool_1_user = pool_1_user
+
+            if pool_2:
+                pool_2 = pool_2.replace("stratum+tcp://", "").replace(
+                    "stratum2+tcp://", ""
+                )
+                data.pool_2_url = pool_2
+
+            if pool_2_user:
+                data.pool_2_user = pool_2_user
+
+            if quota:
+                data.pool_split = str(quota)
+
+        if not mac:
+            try:
+                mac = await self.get_mac()
+            except APIError:
+                logging.info(f"Failed to get mac: {self}")
+                mac = None
+
+        if mac:
+            data.mac = mac
+
+        return data
+
+    async def get_version(self) -> Union[dict, bool]:
+        """Get miner firmware version.
+
+        Returns:
+            Miner api & firmware version or None.
+        """
+        # Check to see if the version info is already cached
+        if self.api_ver and self.fw_ver:
+            return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}
+        data = await self.api.get_version()
+        if "Code" in data.keys():
+            if data["Code"] == 131:
+                self.api_ver = data["Msg"]["api_ver"].replace("whatsminer v", "")
+                self.fw_ver = data["Msg"]["fw_ver"]
+            self.api.api_ver = self.api_ver
+            return {"api_ver": self.api_ver, "fw_ver": self.fw_ver}
+        return False
+
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             await self.api.adjust_power_limit(wattage)
@@ -166,422 +492,3 @@ class BTMiner(BaseMiner):
             return False
         else:
             return True
-
-    ##################################################
-    ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
-    ##################################################
-
-    async def get_mac(
-        self, api_summary: dict = None, api_miner_info: dict = None
-    ) -> Optional[str]:
-        if not api_miner_info:
-            try:
-                api_miner_info = await self.api.get_miner_info()
-            except APIError:
-                pass
-
-        if api_miner_info:
-            try:
-                mac = api_miner_info["Msg"]["mac"]
-                return str(mac).upper()
-            except KeyError:
-                pass
-
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                mac = api_summary["SUMMARY"][0]["MAC"]
-                return str(mac).upper()
-            except (KeyError, IndexError):
-                pass
-
-    async def get_model(self, api_devdetails: dict = None) -> Optional[str]:
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model}")
-            return self.model
-
-        if not api_devdetails:
-            try:
-                api_devdetails = await self.api.devdetails()
-            except APIError:
-                pass
-
-        if api_devdetails:
-            try:
-                self.model = api_devdetails["DEVDETAILS"][0]["Model"].split("V")[0]
-                logging.debug(f"Found model for {self.ip}: {self.model}")
-                return self.model
-            except (TypeError, IndexError, KeyError):
-                pass
-
-        logging.warning(f"Failed to get model for miner: {self}")
-        return None
-
-    async def get_version(
-        self, api_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        # check if version is cached
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        # Check to see if the version info is already cached
-        if self.api_ver and self.fw_ver:
-            return miner_version(self.api_ver, self.fw_ver)
-
-        if not api_version:
-            try:
-                api_version = await self.api.get_version()
-            except APIError:
-                pass
-
-        if api_version:
-            if "Code" in api_version.keys():
-                if api_version["Code"] == 131:
-                    self.api_ver = api_version["Msg"]["api_ver"].replace(
-                        "whatsminer v", ""
-                    )
-                    self.fw_ver = api_version["Msg"]["fw_ver"]
-                self.api.api_ver = self.api_ver
-
-        return miner_version(self.api_ver, self.fw_ver)
-
-    async def get_hostname(self, api_miner_info: dict = None) -> Optional[str]:
-        if self.hostname:
-            return self.hostname
-
-        if not api_miner_info:
-            try:
-                api_miner_info = await self.api.get_miner_info()
-            except APIError:
-                return None  # only one way to get this
-
-        if api_miner_info:
-            try:
-                self.hostname = api_miner_info["Msg"]["hostname"]
-            except KeyError:
-                return None
-
-        return self.hostname
-
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        # get hr from API
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError):
-                pass
-
-    async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
-
-        hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
-        ]
-
-        if not api_devs:
-            try:
-                api_devs = await self.api.devs()
-            except APIError:
-                pass
-
-        if api_devs:
-            try:
-                for board in api_devs["DEVS"]:
-                    hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
-                    hashboards[board["ASC"]].temp = round(board["Temperature"])
-                    hashboards[board["ASC"]].hashrate = round(
-                        float(board["MHS 1m"] / 1000000), 2
-                    )
-                    hashboards[board["ASC"]].chips = board["Effective Chips"]
-                    hashboards[board["ASC"]].missing = False
-            except KeyError:
-                pass
-
-        return hashboards
-
-    async def get_env_temp(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return api_summary["SUMMARY"][0]["Env Temp"]
-            except (KeyError, IndexError):
-                pass
-
-    async def get_wattage(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return api_summary["SUMMARY"][0]["Power"]
-            except (KeyError, IndexError):
-                pass
-
-    async def get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return api_summary["SUMMARY"][0]["Power Limit"]
-            except (KeyError, IndexError):
-                pass
-
-    async def get_fans(
-        self, api_summary: dict = None, api_psu: dict = None
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
-        Tuple[Optional[int]],
-    ]:
-        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
-        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
-        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
-
-        fans = fan_speeds(None, None, None, None)
-        psu_fans = psu_fan_speeds(None)
-
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                if self.fan_count > 0:
-                    fans = fan_speeds(
-                        api_summary["SUMMARY"][0]["Fan Speed In"],
-                        api_summary["SUMMARY"][0]["Fan Speed Out"],
-                        None,
-                        None,
-                    )
-                    psu_fans = psu_fan_speeds(
-                        int(api_summary["SUMMARY"][0]["Power Fanspeed"])
-                    )
-            except (KeyError, IndexError):
-                pass
-
-        if not psu_fans[0]:
-            if not api_psu:
-                try:
-                    api_psu = await self.api.get_psu()
-                except APIError:
-                    pass
-
-            if api_psu:
-                try:
-                    psu_fans = psu_fan_speeds(int(api_psu["Msg"]["fan_speed"]))
-                except (KeyError, TypeError):
-                    pass
-
-        return miner_fan_speeds(fans, psu_fans)
-
-    async def get_pools(self, api_pools: dict = None) -> List[dict]:
-        groups = []
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            try:
-                pools = {}
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["User"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
-
-    async def get_errors(
-        self, api_summary: dict = None, api_error_codes: dict = None
-    ) -> List[MinerErrorData]:
-        errors = []
-        if not api_summary and not api_error_codes:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                for i in range(api_summary["SUMMARY"][0]["Error Code Count"]):
-                    errors.append(
-                        WhatsminerError(
-                            error_code=api_summary["SUMMARY"][0][f"Error Code {i}"]
-                        )
-                    )
-
-            except (KeyError, IndexError, ValueError, TypeError):
-                pass
-
-        if not api_error_codes:
-            try:
-                api_error_codes = await self.api.get_error_code()
-            except APIError:
-                pass
-
-        if api_error_codes:
-            for err in api_error_codes["Msg"]["error_code"]:
-                if isinstance(err, dict):
-                    for code in err:
-                        errors.append(WhatsminerError(error_code=int(code)))
-                else:
-                    errors.append(WhatsminerError(error_code=int(err)))
-
-        return errors
-
-    async def get_fault_light(self, api_miner_info: dict = None) -> bool:
-        data = None
-
-        if not api_miner_info:
-            try:
-                api_miner_info = await self.api.get_miner_info()
-            except APIError:
-                if not self.light:
-                    self.light = False
-
-        if api_miner_info:
-            try:
-                self.light = api_miner_info["Msg"]["ledstat"] == "auto"
-            except KeyError:
-                pass
-
-        return self.light if self.light else False
-
-    async def _get_data(self, allow_warning: bool) -> dict:
-        miner_data = None
-        for i in range(PyasicSettings().miner_get_data_retries):
-            try:
-                miner_data = await self.api.multicommand(
-                    "summary",
-                    "get_version",
-                    "pools",
-                    "devdetails",
-                    "devs",
-                    "get_psu",
-                    "get_miner_info",
-                    "get_error_code",
-                    allow_warning=allow_warning,
-                )
-            except APIError:
-                pass
-            if miner_data:
-                break
-        if miner_data:
-            summary = miner_data.get("summary")
-            if summary:
-                summary = summary[0]
-            version = miner_data.get("get_version")
-            if version:
-                version = version[0]
-            pools = miner_data.get("pools")
-            if pools:
-                pools = pools[0]
-            devdetails = miner_data.get("devdetails")
-            if devdetails:
-                devdetails = devdetails[0]
-            devs = miner_data.get("devs")
-            if devs:
-                devs = devs[0]
-            psu = miner_data.get("get_psu")
-            if psu:
-                psu = psu[0]
-            miner_info = miner_data.get("get_miner_info")
-            if miner_info:
-                miner_info = miner_info[0]
-            error_codes = miner_data.get("get_error_codes")
-            if error_codes:
-                error_codes = error_codes[0]
-        else:
-            summary, version, pools, devdetails, devs, psu, miner_info, error_codes = (
-                None for _ in range(8)
-            )
-
-        data = {  # noqa - Ignore dictionary could be re-written
-            # ip - Done at start
-            # datetime - Done auto
-            "mac": await self.get_mac(api_summary=summary, api_miner_info=miner_info),
-            "model": await self.get_model(api_devdetails=devdetails),
-            # make - Done at start
-            # api_ver - Done at end
-            # fw_ver - Done at end
-            "hostname": await self.get_hostname(api_miner_info=miner_info),
-            "hashrate": await self.get_hashrate(api_summary=summary),
-            "hashboards": await self.get_hashboards(api_devs=devs),
-            # ideal_hashboards - Done at start
-            "env_temp": await self.get_env_temp(api_summary=summary),
-            "wattage": await self.get_wattage(api_summary=summary),
-            "wattage_limit": await self.get_wattage_limit(api_summary=summary),
-            # fan_1 - Done at end
-            # fan_2 - Done at end
-            # fan_3 - Done at end
-            # fan_4 - Done at end
-            # fan_psu - Done at end
-            # ideal_chips - Done at start
-            # pool_split - Done at end
-            # pool_1_url - Done at end
-            # pool_1_user - Done at end
-            # pool_2_url - Done at end
-            # pool_2_user - Done at end`
-            "errors": await self.get_errors(
-                api_summary=summary, api_error_codes=error_codes
-            ),
-            "fault_light": await self.get_fault_light(api_miner_info=miner_info),
-        }
-
-        data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version)
-        fan_data = await self.get_fans()
-
-        data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
-        data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
-        data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
-        data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
-
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
-
-        pools_data = await self.get_pools(api_pools=pools)
-        data["pool_1_url"] = pools_data[0]["pool_1_url"]
-        data["pool_1_user"] = pools_data[0]["pool_1_user"]
-        if len(pools_data) > 1:
-            data["pool_2_url"] = pools_data[1]["pool_1_url"]
-            data["pool_2_user"] = pools_data[1]["pool_1_user"]
-            data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-        else:
-            try:
-                data["pool_2_url"] = pools_data[0]["pool_1_url"]
-                data["pool_2_user"] = pools_data[0]["pool_1_user"]
-                data["quota"] = "0"
-            except KeyError:
-                pass
-
-        return data
