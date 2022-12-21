@@ -15,7 +15,7 @@
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
-from typing import List, TypeVar, Tuple
+from typing import List, TypeVar, Tuple, Optional
 
 import asyncssh
 
@@ -182,7 +182,7 @@ class BaseMiner(ABC):
     ##################################################
 
     @abstractmethod
-    async def get_mac(self, *args, **kwargs) -> str:
+    async def get_mac(self, *args, **kwargs) -> Optional[str]:
         """Get the MAC address of the miner and return it as a string.
 
         Returns:
@@ -191,7 +191,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_model(self) -> str:
+    async def get_model(self) -> Optional[str]:
         """Get the model of the miner and return it as a string.
 
         Returns:
@@ -200,7 +200,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_version(self, *args, **kwargs) -> Tuple[str, str]:
+    async def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         """Get the API version and firmware version of the miner and return them as strings.
 
         Returns:
@@ -209,7 +209,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_hostname(self, *args, **kwargs) -> str:
+    async def get_hostname(self, *args, **kwargs) -> Optional[str]:
         """Get the hostname of the miner and return it as a string.
 
         Returns:
@@ -218,7 +218,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_hashrate(self, *args, **kwargs) -> float:
+    async def get_hashrate(self, *args, **kwargs) -> Optional[float]:
         """Get the hashrate of the miner and return it as a float in TH/s.
 
         Returns:
@@ -236,7 +236,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_env_temp(self, *args, **kwargs) -> float:
+    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
         """Get environment temp from the miner as a float.
 
         Returns:
@@ -245,7 +245,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_wattage(self, *args, **kwargs) -> int:
+    async def get_wattage(self, *args, **kwargs) -> Optional[int]:
         """Get wattage from the miner as an int.
 
         Returns:
@@ -254,7 +254,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_wattage_limit(self, *args, **kwargs) -> int:
+    async def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
         """Get wattage limit from the miner as an int.
 
         Returns:
@@ -263,7 +263,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_fans(self, *args, **kwargs) -> Tuple[Tuple[int, int, int, int], int]:
+    async def get_fans(self, *args, **kwargs) -> Tuple[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Optional[int]]:
         """Get fan data from the miner in the form ((fan_1, fan_2, fan_3, fan_4), psu_fan).
 
         Returns:
@@ -297,13 +297,35 @@ class BaseMiner(ABC):
         """
         pass
 
-    @abstractmethod
     async def get_data(self, allow_warning: bool = True) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
+
+        Parameters:
+            allow_warning: Allow warning when an API command fails.
 
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
         """
+        data = MinerData(
+            ip=str(self.ip),
+            make=self.make,
+            ideal_chips=self.nominal_chips * self.ideal_hashboards,
+            ideal_hashboards=self.ideal_hashboards,
+            hashboards=[
+                HashBoard(slot=i, expected_chips=self.nominal_chips)
+                for i in range(self.ideal_hashboards)
+            ],
+        )
+
+        gathered_data =  await self._get_data(allow_warning)
+        for item in gathered_data:
+            if gathered_data[item] is not None:
+                setattr(data, item, gathered_data[item])
+
+        return data
+
+    @abstractmethod
+    async def _get_data(self, allow_warning: bool) -> dict:
         pass
 
 
