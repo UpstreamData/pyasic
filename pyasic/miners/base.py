@@ -88,6 +88,9 @@ class BaseMiner(ABC):
         except Exception as e:
             raise e
 
+    async def check_light(self) -> bool:
+        return await self.get_fault_light()
+
     @abstractmethod
     async def fault_light_on(self) -> bool:
         """Turn the fault light of the miner on and return success as a boolean.
