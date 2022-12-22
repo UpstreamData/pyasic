@@ -32,7 +32,7 @@ from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
         self.api = BOSMinerAPI(ip, api_ver)

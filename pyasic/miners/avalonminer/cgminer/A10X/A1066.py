@@ -18,6 +18,6 @@ from .A10X import CGMinerA10X
 
 
 class CGMinerAvalon1066(CGMinerA10X, Avalon1066):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
