@@ -16,6 +16,7 @@ import ipaddress
 import json
 import logging
 from typing import List, Union, Tuple, Optional
+from collections import namedtuple
 
 import asyncssh
 import httpx
@@ -69,6 +70,12 @@ class BOSMiner(BaseMiner):
         return str(result)
 
     async def send_graphql_query(self, query) -> Union[dict, None]:
+        # FW version must be equal to or greater than 21.09 to use this
+        if self.fw_ver:
+            if not ((int(self.fw_ver.split(".")[0]) == 21 and int(self.fw_ver.split(".")[1]) >= 9) or int(self.fw_ver.split(".")[0]) > 21):
+                logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
+                return None
+
         url = f"http://{self.ip}/graphql"
         try:
             async with httpx.AsyncClient() as client:
@@ -240,9 +247,10 @@ class BOSMiner(BaseMiner):
         self, api_version: dict = None, graphql_version: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
         # check if version is cached
+        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
         if self.fw_ver and self.api_ver:
             logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            return self.api_ver, self.fw_ver
+            return miner_version(self.api_ver, self.fw_ver)
 
         if not graphql_version:
             graphql_version = await self.send_graphql_query(
@@ -277,7 +285,7 @@ class BOSMiner(BaseMiner):
             self.api_ver = api_ver
             self.api.api_ver = self.api_ver
 
-        return self.api_ver, self.fw_ver
+        return miner_version(self.api_ver, self.fw_ver)
 
     async def get_hostname(self, graphql_hostname: dict = None) -> Union[str, None]:
         if self.hostname:
@@ -390,21 +398,22 @@ class BOSMiner(BaseMiner):
             cmds.append("devdetails")
         if not api_devs:
             cmds.append("devs")
+        if len(cmds) > 0:
+            print(cmds)
+            d = await self.api.multicommand(*cmds)
+            try:
+                api_temps = d["temps"][0]
+            except (KeyError, IndexError):
+                api_temps = None
+            try:
+                api_devdetails = d["devdetails"][0]
+            except (KeyError, IndexError):
+                api_devdetails = None
+            try:
+                api_devs = d["devs"][0]
+            except (KeyError, IndexError):
+                api_devs = None
 
-        d = await self.api.multicommand(*cmds)
-
-        try:
-            api_temps = d["temps"][0]
-        except (KeyError, IndexError):
-            api_temps = None
-        try:
-            api_devdetails = d["devdetails"][0]
-        except (KeyError, IndexError):
-            api_devdetails = None
-        try:
-            api_devs = d["devs"][0]
-        except (KeyError, IndexError):
-            api_devs = None
 
         if api_temps:
             try:
@@ -441,6 +450,8 @@ class BOSMiner(BaseMiner):
                     hashboards[_id].hashrate = hashrate
             except (IndexError, KeyError):
                 pass
+
+        return hashboards
 
     async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
         return None
@@ -501,8 +512,12 @@ class BOSMiner(BaseMiner):
                 pass
 
 
-    async def get_fans(self, api_fans: dict = None, graphql_fans: dict = None) -> Tuple[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Optional[int]]:
+    async def get_fans(self, api_fans: dict = None, graphql_fans: dict = None) -> Tuple[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Tuple[Optional[int]]]:
         psu_fan = None
+
+        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
+        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
+        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
 
         if not graphql_fans and not api_fans:
             graphql_fans = await self.send_graphql_query("{bosminer{info{fans{name, rpm}}}")
@@ -514,7 +529,7 @@ class BOSMiner(BaseMiner):
                     fans[f"fan_{n + 1}"] = graphql_fans["bosminer"]["info"]["fans"][n]["rpm"]
                 except KeyError:
                     pass
-            return (fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan
+            return miner_fan_speeds(fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan_speeds(psu_fan))
 
 
         if not api_fans:
@@ -527,7 +542,7 @@ class BOSMiner(BaseMiner):
                     fans[f"fan_{n + 1}"] = api_fans["FANS"][n]["RPM"]
                 except KeyError:
                     pass
-            return (fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan
+            return miner_fan_speeds(fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan_speeds(psu_fan))
 
 
     async def get_pools(self, api_pools: dict = None, graphql_pools: dict = None) -> List[dict]:
@@ -567,7 +582,7 @@ class BOSMiner(BaseMiner):
                         for _i, _pool in enumerate(group.pools):
                             pools[f"pool_{_i + 1}_url"] = _pool.url.replace("stratum+tcp://", "").replace("stratum2+tcp://", "")
                             pools[f"pool_{_i + 1}_user"] = _pool.username
-                        groups.append(group)
+                        groups.append(pools)
                     return groups
                 else:
                     groups[0][f"pool_{i + 1}_url"] = pool["URL"].replace("stratum+tcp://", "").replace(
@@ -641,7 +656,17 @@ class BOSMiner(BaseMiner):
             return self.light
 
         if not graphql_fault_light:
-            graphql_fault_light = await self.send_graphql_query("{bos {faultLight}}")
+            if self.fw_ver:
+                # fw version has to be greater than 21.09 and not 21.09
+                if (int(self.fw_ver.split(".")[0]) == 21 and int(self.fw_ver.split(".")[1]) > 9) or int(self.fw_ver.split(".")[0]) > 21:
+                    graphql_fault_light = await self.send_graphql_query("{bos {faultLight}}")
+                else:
+                    logging.info(f"FW version {self.fw_ver} is too low for fault light info in graphql.")
+            else:
+                # worth trying
+                graphql_fault_light = await self.send_graphql_query("{bos {faultLight}}")
+                print(graphql_fault_light)
+
         # get light through GraphQL
         if graphql_fault_light:
             try:
@@ -709,8 +734,9 @@ class BOSMiner(BaseMiner):
         if fans:
             fans = fans[0]
         gql_data = await self.send_graphql_query("{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}")
-        if "data" in gql_data:
-            gql_data = gql_data["data"]
+        if gql_data:
+            if "data" in gql_data:
+                gql_data = gql_data["data"]
 
         data = {  # noqa - Ignore dictioonary could be re-written
             # ip - Done at start
