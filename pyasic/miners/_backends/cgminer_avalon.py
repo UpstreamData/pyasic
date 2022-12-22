@@ -27,7 +27,7 @@ from pyasic.miners._backends import CGMiner
 
 
 class CGMinerAvalon(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
         self.ip = ip
 

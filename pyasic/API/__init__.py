@@ -102,7 +102,7 @@ class BaseMinerAPI:
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
-            return {}
+            return {command: [{}] for command in commands}
         logging.debug(f"{self} - (Multicommand) - Received data")
         return data
 
@@ -236,7 +236,9 @@ If you are sure you want to use this command please use API.send_command("{comma
         # fix an error with a bmminer return having a specific comma that breaks json.loads()
         str_data = str_data.replace("[,{", "[{")
         # fix an error with Avalonminers returning inf and nan
+        str_data = str_data.replace("info", "1nfo")
         str_data = str_data.replace("inf", "0")
+        str_data = str_data.replace("1nfo", "info")
         str_data = str_data.replace("nan", "0")
         # fix whatever this garbage from avalonminers is `,"id":1}`
         if str_data.startswith(","):

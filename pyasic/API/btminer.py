@@ -190,6 +190,37 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = None
         self.api_ver = api_ver
 
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+        """Creates and sends multiple commands as one command to the miner.
+
+        Parameters:
+            *commands: The commands to send as a multicommand to the miner.
+            allow_warning: A boolean to supress APIWarnings.
+        """
+        # make sure we can actually run each command, otherwise they will fail
+        commands = self._check_commands(*commands)
+        # standard multicommand format is "command1+command2"
+        # commands starting with "get_" aren't supported, but we can fake that
+        get_commands_data = {}
+        for command in list(commands):
+            if command.startswith("get_"):
+                commands.remove(command)
+                # send seperately and append later
+                try:
+                    get_commands_data[command] = [await self.send_command(command, allow_warning=allow_warning)]
+                except APIError:
+                    get_commands_data[command] = [{}]
+
+        command = "+".join(commands)
+        try:
+            main_data = await self.send_command(command, allow_warning=allow_warning)
+        except APIError:
+            main_data = {command: [{}] for command in commands}
+        logging.debug(f"{self} - (Multicommand) - Received data")
+
+        data = dict(**main_data, **get_commands_data)
+        return data
+
 
     async def send_privileged_command(
         self, command: Union[str, bytes], ignore_errors: bool = False, timeout: int = 10, **kwargs
