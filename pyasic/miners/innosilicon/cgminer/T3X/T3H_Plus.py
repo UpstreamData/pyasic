@@ -28,7 +28,7 @@ from pyasic.settings import PyasicSettings
 
 
 class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
         self.uname = "admin"

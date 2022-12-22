@@ -27,7 +27,7 @@ from pyasic.settings import PyasicSettings
 class BMMiner(BaseMiner):
     """Base handler for BMMiner based miners."""
 
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         self.ip = ipaddress.ip_address(ip)
         self.api = BMMinerAPI(ip, api_ver)

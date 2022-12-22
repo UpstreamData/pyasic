@@ -23,7 +23,7 @@ class UnknownAPI(BaseMinerAPI):
     with as many APIs as possible.
     """
 
-    def __init__(self, ip, api_ver: str = "1.0.0", port: int = 4028):
+    def __init__(self, ip, api_ver: str = "0.0.0", port: int = 4028):
         super().__init__(ip, port)
         self.api_ver = api_ver
 
