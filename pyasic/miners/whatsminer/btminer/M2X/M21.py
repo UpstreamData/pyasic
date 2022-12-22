@@ -17,6 +17,6 @@ from pyasic.miners._types import M21  # noqa - Ignore access to _module
 
 
 class BTMinerM21(BTMiner, M21):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
