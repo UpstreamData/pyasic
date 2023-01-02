@@ -43,21 +43,22 @@ class BOSMiner(BaseMiner):
         self.config = None
 
     async def send_ssh_command(self, cmd: str) -> Union[str, None]:
-        """Send a command to the miner over ssh.
-
-        Returns:
-            Result of the command or None.
-        """
         result = None
 
+        try:
+            conn = await self._get_ssh_connection()
+        except asyncssh.Error:
+            return None
+
         # open an ssh connection
-        async with (await self._get_ssh_connection()) as conn:
+        async with conn:
             # 3 retries
             for i in range(3):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
                     result = result.stdout
+
                 except Exception as e:
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")
@@ -67,12 +68,18 @@ class BOSMiner(BaseMiner):
                         return
                     continue
         # return the result, either command output or None
-        return str(result)
+        return result
 
     async def send_graphql_query(self, query) -> Union[dict, None]:
         # FW version must be equal to or greater than 21.09 to use this
         if self.fw_ver:
-            if not ((int(self.fw_ver.split(".")[0]) == 21 and int(self.fw_ver.split(".")[1]) >= 9) or int(self.fw_ver.split(".")[0]) > 21):
+            if not (
+                (
+                    int(self.fw_ver.split(".")[0]) == 21
+                    and int(self.fw_ver.split(".")[1]) >= 9
+                )
+                or int(self.fw_ver.split(".")[0]) > 21
+            ):
                 logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
                 return None
 
@@ -186,7 +193,6 @@ class BOSMiner(BaseMiner):
                     await file.write(toml_conf)
             logging.debug(f"{self}: Restarting BOSMiner")
             await conn.run("/etc/init.d/bosminer start")
-
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -332,7 +338,7 @@ class BOSMiner(BaseMiner):
                     ),
                     2,
                 )
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, ValueError):
                 pass
 
         # get hr from API
@@ -358,7 +364,9 @@ class BOSMiner(BaseMiner):
         ]
 
         if not graphql_boards and not (api_devs or api_temps or api_devdetails):
-            graphql_boards = await self.send_graphql_query("{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}")
+            graphql_boards = await self.send_graphql_query(
+                "{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}"
+            )
 
         if graphql_boards:
             try:
@@ -414,7 +422,6 @@ class BOSMiner(BaseMiner):
             except (KeyError, IndexError):
                 api_devs = None
 
-
         if api_temps:
             try:
                 offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 0
@@ -425,7 +432,7 @@ class BOSMiner(BaseMiner):
                     board_temp = round(board["Board"])
                     hashboards[_id].chip_temp = chip_temp
                     hashboards[_id].temp = board_temp
-            except (IndexError, KeyError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
         if api_devdetails:
@@ -483,7 +490,6 @@ class BOSMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-
     async def get_wattage_limit(
         self, api_tunerstatus: dict = None, graphql_wattage_limit: dict = None
     ) -> Optional[int]:
@@ -495,8 +501,8 @@ class BOSMiner(BaseMiner):
         if graphql_wattage_limit:
             try:
                 return graphql_wattage_limit["bosminer"]["info"]["workSolver"]["power"][
-                "limitW"
-            ]
+                    "limitW"
+                ]
             except KeyError:
                 pass
 
@@ -505,14 +511,16 @@ class BOSMiner(BaseMiner):
 
         if api_tunerstatus:
             try:
-                return api_tunerstatus["TUNERSTATUS"][0][
-                    "PowerLimit"
-                ]
+                return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
             except (KeyError, IndexError):
                 pass
 
-
-    async def get_fans(self, api_fans: dict = None, graphql_fans: dict = None) -> Tuple[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Tuple[Optional[int]]]:
+    async def get_fans(
+        self, api_fans: dict = None, graphql_fans: dict = None
+    ) -> Tuple[
+        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
+        Tuple[Optional[int]],
+    ]:
         psu_fan = None
 
         fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
@@ -520,17 +528,23 @@ class BOSMiner(BaseMiner):
         miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
 
         if not graphql_fans and not api_fans:
-            graphql_fans = await self.send_graphql_query("{bosminer{info{fans{name, rpm}}}")
+            graphql_fans = await self.send_graphql_query(
+                "{bosminer{info{fans{name, rpm}}}"
+            )
 
         if graphql_fans:
             fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
             for n in range(self.fan_count):
                 try:
-                    fans[f"fan_{n + 1}"] = graphql_fans["bosminer"]["info"]["fans"][n]["rpm"]
+                    fans[f"fan_{n + 1}"] = graphql_fans["bosminer"]["info"]["fans"][n][
+                        "rpm"
+                    ]
                 except KeyError:
                     pass
-            return miner_fan_speeds(fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan_speeds(psu_fan))
-
+            return miner_fan_speeds(
+                fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
+                psu_fan_speeds(psu_fan),
+            )
 
         if not api_fans:
             api_fans = await self.api.fans()
@@ -542,12 +556,18 @@ class BOSMiner(BaseMiner):
                     fans[f"fan_{n + 1}"] = api_fans["FANS"][n]["RPM"]
                 except KeyError:
                     pass
-            return miner_fan_speeds(fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]), psu_fan_speeds(psu_fan))
+            return miner_fan_speeds(
+                fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
+                psu_fan_speeds(psu_fan),
+            )
 
-
-    async def get_pools(self, api_pools: dict = None, graphql_pools: dict = None) -> List[dict]:
+    async def get_pools(
+        self, api_pools: dict = None, graphql_pools: dict = None
+    ) -> List[dict]:
         if not graphql_pools and not api_pools:
-            graphql_pools = await self.send_graphql_query("bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}")
+            graphql_pools = await self.send_graphql_query(
+                "bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}"
+            )
 
         if graphql_pools:
             groups = []
@@ -556,13 +576,16 @@ class BOSMiner(BaseMiner):
                 for group in g:
                     pools = {"quota": group["strategy"]["quota"]}
                     for i, pool in enumerate(group["pools"]):
-                        pools[f"pool_{i + 1}_url"] = pool["url"].replace("stratum+tcp://", "").replace("stratum2+tcp://", "")
+                        pools[f"pool_{i + 1}_url"] = (
+                            pool["url"]
+                            .replace("stratum+tcp://", "")
+                            .replace("stratum2+tcp://", "")
+                        )
                         pools[f"pool_{i + 1}_user"] = pool["user"]
                     groups.append(pools)
                 return groups
             except KeyError:
                 pass
-
 
         if not api_pools:
             api_pools = await self.api.pools()
@@ -580,20 +603,28 @@ class BOSMiner(BaseMiner):
                     for group in cfg.pool_groups:
                         pools = {"quota": group.quota}
                         for _i, _pool in enumerate(group.pools):
-                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace("stratum+tcp://", "").replace("stratum2+tcp://", "")
+                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
+                                "stratum+tcp://", ""
+                            ).replace("stratum2+tcp://", "")
                             pools[f"pool_{_i + 1}_user"] = _pool.username
                         groups.append(pools)
                     return groups
                 else:
-                    groups[0][f"pool_{i + 1}_url"] = pool["URL"].replace("stratum+tcp://", "").replace(
-                        "stratum2+tcp://", "")
+                    groups[0][f"pool_{i + 1}_url"] = (
+                        pool["URL"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
                     groups[0][f"pool_{i + 1}_user"] = pool["User"]
             return groups
 
-
-    async def get_errors(self, api_tunerstatus: dict = None, graphql_errors: dict = None) -> List[MinerErrorData]:
+    async def get_errors(
+        self, api_tunerstatus: dict = None, graphql_errors: dict = None
+    ) -> List[MinerErrorData]:
         if not graphql_errors and not api_tunerstatus:
-            graphql_errors = await self.send_graphql_query("{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}")
+            graphql_errors = await self.send_graphql_query(
+                "{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}"
+            )
 
         if graphql_errors:
             errors = []
@@ -631,7 +662,9 @@ class BOSMiner(BaseMiner):
             try:
                 chain_status = api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
                 if chain_status and len(chain_status) > 0:
-                    offset = 6 if int(chain_status[0]["HashchainIndex"]) in [6, 7, 8] else 0
+                    offset = (
+                        6 if int(chain_status[0]["HashchainIndex"]) in [6, 7, 8] else 0
+                    )
 
                     for board in chain_status:
                         _id = board["HashchainIndex"] - offset
@@ -642,11 +675,7 @@ class BOSMiner(BaseMiner):
                         ]:
                             _error = board["Status"].split(" {")[0]
                             _error = _error[0].lower() + _error[1:]
-                            errors.append(
-                                BraiinsOSError(
-                                    f"Slot {_id} {_error}"
-                                )
-                            )
+                            errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
                 return errors
             except (KeyError, IndexError):
                 pass
@@ -658,13 +687,22 @@ class BOSMiner(BaseMiner):
         if not graphql_fault_light:
             if self.fw_ver:
                 # fw version has to be greater than 21.09 and not 21.09
-                if (int(self.fw_ver.split(".")[0]) == 21 and int(self.fw_ver.split(".")[1]) > 9) or int(self.fw_ver.split(".")[0]) > 21:
-                    graphql_fault_light = await self.send_graphql_query("{bos {faultLight}}")
+                if (
+                    int(self.fw_ver.split(".")[0]) == 21
+                    and int(self.fw_ver.split(".")[1]) > 9
+                ) or int(self.fw_ver.split(".")[0]) > 21:
+                    graphql_fault_light = await self.send_graphql_query(
+                        "{bos {faultLight}}"
+                    )
                 else:
-                    logging.info(f"FW version {self.fw_ver} is too low for fault light info in graphql.")
+                    logging.info(
+                        f"FW version {self.fw_ver} is too low for fault light info in graphql."
+                    )
             else:
                 # worth trying
-                graphql_fault_light = await self.send_graphql_query("{bos {faultLight}}")
+                graphql_fault_light = await self.send_graphql_query(
+                    "{bos {faultLight}}"
+                )
                 print(graphql_fault_light)
 
         # get light through GraphQL
@@ -733,7 +771,9 @@ class BOSMiner(BaseMiner):
         fans = miner_data.get("fans")
         if fans:
             fans = fans[0]
-        gql_data = await self.send_graphql_query("{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}")
+        gql_data = await self.send_graphql_query(
+            "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+        )
         if gql_data:
             if "data" in gql_data:
                 gql_data = gql_data["data"]
@@ -747,12 +787,23 @@ class BOSMiner(BaseMiner):
             # api_ver - Done at end
             # fw_ver - Done at end
             "hostname": await self.get_hostname(graphql_hostname=gql_data),
-            "hashrate": await self.get_hashrate(api_summary=summary, graphql_hashrate=gql_data),
-            "hashboards": await self.get_hashboards(api_temps=temps, api_devdetails=devdetails, api_devs=devs, graphql_boards=gql_data),
+            "hashrate": await self.get_hashrate(
+                api_summary=summary, graphql_hashrate=gql_data
+            ),
+            "hashboards": await self.get_hashboards(
+                api_temps=temps,
+                api_devdetails=devdetails,
+                api_devs=devs,
+                graphql_boards=gql_data,
+            ),
             # ideal_hashboards - Done at start
             "env_temp": await self.get_env_temp(),
-            "wattage": await self.get_wattage(api_tunerstatus=tunerstatus, graphql_wattage=gql_data),
-            "wattage_limit": await self.get_wattage_limit(api_tunerstatus=tunerstatus, graphql_wattage_limit=gql_data),
+            "wattage": await self.get_wattage(
+                api_tunerstatus=tunerstatus, graphql_wattage=gql_data
+            ),
+            "wattage_limit": await self.get_wattage_limit(
+                api_tunerstatus=tunerstatus, graphql_wattage_limit=gql_data
+            ),
             # fan_1 - Done at end
             # fan_2 - Done at end
             # fan_3 - Done at end
@@ -764,19 +815,23 @@ class BOSMiner(BaseMiner):
             # pool_1_user - Done at end
             # pool_2_url - Done at end
             # pool_2_user - Done at end
-            "errors": await self.get_errors(api_tunerstatus=tunerstatus, graphql_errors=gql_data),
+            "errors": await self.get_errors(
+                api_tunerstatus=tunerstatus, graphql_errors=gql_data
+            ),
             "fault_light": await self.get_fault_light(),
         }
 
-        data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version, graphql_version=gql_data)
+        data["api_ver"], data["fw_ver"] = await self.get_version(
+            api_version=version, graphql_version=gql_data
+        )
         fan_data = await self.get_fans(api_fans=fans, graphql_fans=gql_data)
 
-        data["fan_1"] = fan_data[0][0]
-        data["fan_2"] = fan_data[0][1]
-        data["fan_3"] = fan_data[0][2]
-        data["fan_4"] = fan_data[0][3]
+        data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
+        data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
+        data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
+        data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data[1]
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
 
         pools_data = await self.get_pools(api_pools=pools, graphql_pools=gql_data)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]
