@@ -74,25 +74,31 @@ class CGMiner(BaseMiner):
             return None
 
     async def send_ssh_command(self, cmd: str) -> Union[str, None]:
-        """Send a command to the miner over ssh.
-
-        Parameters:
-            cmd: The command to run.
-
-        Returns:
-            Result of the command or None.
-        """
         result = None
-        async with (await self._get_ssh_connection()) as conn:
+
+        try:
+            conn = await self._get_ssh_connection()
+        except asyncssh.Error:
+            return None
+
+        # open an ssh connection
+        async with conn:
+            # 3 retries
             for i in range(3):
                 try:
+                    # run the command and get the result
                     result = await conn.run(cmd)
                     result = result.stdout
+
                 except Exception as e:
-                    print(f"{cmd} error: {e}")
+                    # if the command fails, log it
+                    logging.warning(f"{self} command {cmd} error: {e}")
+
+                    # on the 3rd retry, return None
                     if i == 3:
                         return
                     continue
+        # return the result, either command output or None
         return result
 
     async def restart_backend(self) -> bool:

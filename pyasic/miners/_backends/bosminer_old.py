@@ -33,24 +33,23 @@ class BOSMinerOld(BaseMiner):
         self.pwd = "admin"
 
     async def send_ssh_command(self, cmd: str) -> Union[str, None]:
-        """Send a command to the miner over ssh.
-
-        :return: Result of the command or None.
-        """
         result = None
 
+        try:
+            conn = await self._get_ssh_connection()
+        except asyncssh.Error:
+            return None
+
         # open an ssh connection
-        async with (await self._get_ssh_connection()) as conn:
+        async with conn:
             # 3 retries
             for i in range(3):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
-                    if result.stdout:
-                        result = result.stdout
+                    result = result.stdout
+
                 except Exception as e:
-                    if e == "SSH connection closed":
-                        return "Update completed."
                     # if the command fails, log it
                     logging.warning(f"{self} command {cmd} error: {e}")
 
@@ -59,7 +58,7 @@ class BOSMinerOld(BaseMiner):
                         return
                     continue
         # return the result, either command output or None
-        return str(result)
+        return result
 
     async def update_to_plus(self):
         result = await self.send_ssh_command("opkg update && opkg install bos_plus")

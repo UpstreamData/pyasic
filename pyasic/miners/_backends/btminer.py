@@ -196,10 +196,12 @@ class BTMiner(BaseMiner):
         if self.model:
             logging.debug(f"Found model for {self.ip}: {self.model}")
             return self.model
-        try:
-            api_devdetails = await self.api.devdetails()
-        except APIError:
-            pass
+
+        if not api_devdetails:
+            try:
+                api_devdetails = await self.api.devdetails()
+            except APIError:
+                pass
 
         if api_devdetails:
             try:
@@ -557,7 +559,7 @@ class BTMiner(BaseMiner):
         data["fan_3"] = fan_data.fan_speeds.fan_3 # noqa
         data["fan_4"] = fan_data.fan_speeds.fan_4 # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]
