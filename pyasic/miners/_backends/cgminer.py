@@ -141,8 +141,8 @@ class CGMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> str:
-        return "00:00:00:00:00:00"
+    async def get_mac(self) -> Optional[str]:
+        return None
 
     async def get_model(self, api_devdetails: dict = None) -> Optional[str]:
         if self.model:

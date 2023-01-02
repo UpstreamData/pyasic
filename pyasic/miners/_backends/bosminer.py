@@ -209,12 +209,12 @@ class BOSMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self):
+    async def get_mac(self) -> Optional[str]:
         try:
             result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
             return result.upper().strip()
         except asyncssh.Error:
-            return None
+            pass
 
     async def get_model(self) -> Optional[str]:
         # check if model is cached
@@ -348,7 +348,7 @@ class BOSMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
     async def get_hashboards(

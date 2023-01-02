@@ -165,7 +165,7 @@ class BTMiner(BaseMiner):
 
     async def get_mac(
         self, api_summary: dict = None, api_miner_info: dict = None
-    ) -> str:
+    ) -> Optional[str]:
         if not api_miner_info:
             try:
                 api_miner_info = await self.api.get_miner_info()
@@ -542,7 +542,7 @@ class BTMiner(BaseMiner):
             # pool_1_url - Done at end
             # pool_1_user - Done at end
             # pool_2_url - Done at end
-            # pool_2_user - Done at end
+            # pool_2_user - Done at end`
             "errors": await self.get_errors(
                 api_summary=summary, api_error_codes=error_codes
             ),
