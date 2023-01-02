@@ -72,7 +72,8 @@ class BMMiner(BaseMiner):
         # get pool data
         pools = await self.api.pools()
 
-        return MinerConfig().from_api(pools["POOLS"])
+        self.config =  MinerConfig().from_api(pools["POOLS"])
+        return self.config
 
     async def reboot(self) -> bool:
         logging.debug(f"{self}: Sending reboot command.")
