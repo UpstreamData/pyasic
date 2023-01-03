@@ -50,17 +50,17 @@ class BMMinerAPI(BaseMinerAPI):
             data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
             logging.debug(f"{self} - (Multicommand) - Handling X19 multicommand.")
-            data = await self._x19_multicommand(*command.split("+"))
+            data = await self._x19_multicommand(*command.split("+"), allow_warning=allow_warning)
         return data
 
-    async def _x19_multicommand(self, *commands):
+    async def _x19_multicommand(self, *commands, allow_warning: bool = True):
         data = None
         try:
             data = {}
             # send all commands individually
             for cmd in commands:
                 data[cmd] = []
-                data[cmd].append(await self.send_command(cmd, allow_warning=True))
+                data[cmd].append(await self.send_command(cmd, allow_warning=allow_warning))
         except APIError as e:
             raise APIError(e)
         except Exception as e:

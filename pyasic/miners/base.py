@@ -297,7 +297,7 @@ class BaseMiner(ABC):
         """
         pass
 
-    async def get_data(self, allow_warning: bool = True) -> MinerData:
+    async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
         Parameters:

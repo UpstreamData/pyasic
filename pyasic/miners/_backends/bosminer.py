@@ -703,7 +703,10 @@ class BOSMiner(BaseMiner):
                 graphql_fault_light = await self.send_graphql_query(
                     "{bos {faultLight}}"
                 )
-                print(graphql_fault_light)
+                if graphql_fault_light.get("errors"):
+                    if len(graphql_fault_light["errors"]) > 0:
+                        # it did fail then
+                        logging.debug("GraphQL fault light failed, likely due to version being too low (<=21.0.9)")
 
         # get light through GraphQL
         if graphql_fault_light:
