@@ -13,13 +13,20 @@
 #  limitations under the License.
 
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import M31S, M31SV10, M31SV20, M31SV60, M31SV70  # noqa - Ignore access to _module
+from pyasic.miners._types import (
+    M31S,
+    M31SV10,
+    M31SV20,
+    M31SV60,
+    M31SV70,
+)  # noqa - Ignore access to _module
 
 
 class BTMinerM31S(BTMiner, M31S):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
+
 
 class BTMinerM31SV20(BTMiner, M31SV20):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:

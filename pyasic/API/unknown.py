@@ -27,7 +27,6 @@ class UnknownAPI(BaseMinerAPI):
         super().__init__(ip, port)
         self.api_ver = api_ver
 
-
     async def asccount(self) -> dict:
         return await self.send_command("asccount")
 

@@ -13,6 +13,7 @@
 #  limitations under the License.
 from pyasic.API import APIError
 
+
 class Singleton(type):
     _instances = {}
 
@@ -20,6 +21,7 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 def api_min_version(version: str):
     def decorator(func):
@@ -45,11 +47,24 @@ def api_min_version(version: str):
                     allowed_patch_ver = 0
 
                 if not api_major_ver >= allowed_major_ver:
-                    raise APIError(f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}")
-                if not (api_minor_ver >= allowed_minor_ver and api_major_ver == allowed_major_ver):
-                    raise APIError(f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}")
-                if not (api_patch_ver >= allowed_patch_ver and api_minor_ver == allowed_minor_ver and api_major_ver == allowed_major_ver):
-                    raise APIError(f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}")
+                    raise APIError(
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                    )
+                if not (
+                    api_minor_ver >= allowed_minor_ver
+                    and api_major_ver == allowed_major_ver
+                ):
+                    raise APIError(
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                    )
+                if not (
+                    api_patch_ver >= allowed_patch_ver
+                    and api_minor_ver == allowed_minor_ver
+                    and api_major_ver == allowed_major_ver
+                ):
+                    raise APIError(
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                    )
 
             return await func(*args, **kwargs)
 

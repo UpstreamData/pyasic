@@ -263,7 +263,11 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_fans(self, *args, **kwargs) -> Tuple[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Optional[int]]:
+    async def get_fans(
+        self, *args, **kwargs
+    ) -> Tuple[
+        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Optional[int]
+    ]:
         """Get fan data from the miner in the form ((fan_1, fan_2, fan_3, fan_4), psu_fan).
 
         Returns:
@@ -317,7 +321,7 @@ class BaseMiner(ABC):
             ],
         )
 
-        gathered_data =  await self._get_data(allow_warning)
+        gathered_data = await self._get_data(allow_warning)
         for item in gathered_data:
             if gathered_data[item] is not None:
                 setattr(data, item, gathered_data[item])

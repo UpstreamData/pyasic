@@ -31,6 +31,5 @@ class BraiinsOSError:
     def fields(cls):
         return fields(cls)
 
-
     def asdict(self):
         return asdict(self)

@@ -45,7 +45,6 @@ class BTMiner(BaseMiner):
                     return True
         return False
 
-
     async def fault_light_off(self) -> bool:
         try:
             data = await self.api.set_led(auto=True)
@@ -364,7 +363,9 @@ class BTMiner(BaseMiner):
                         None,
                         None,
                     )
-                    psu_fans = psu_fan_speeds(int(api_summary["SUMMARY"][0]["Power Fanspeed"]))
+                    psu_fans = psu_fan_speeds(
+                        int(api_summary["SUMMARY"][0]["Power Fanspeed"])
+                    )
             except (KeyError, IndexError):
                 pass
 
@@ -423,7 +424,9 @@ class BTMiner(BaseMiner):
             try:
                 for i in range(api_summary["SUMMARY"][0]["Error Code Count"]):
                     errors.append(
-                        WhatsminerError(error_code=api_summary["SUMMARY"][0][f"Error Code {i}"])
+                        WhatsminerError(
+                            error_code=api_summary["SUMMARY"][0][f"Error Code {i}"]
+                        )
                     )
 
             except (KeyError, IndexError, ValueError, TypeError):
@@ -508,10 +511,9 @@ class BTMiner(BaseMiner):
             if error_codes:
                 error_codes = error_codes[0]
         else:
-            summary, version, pools, devdetails, devs, psu, miner_info, error_codes  = (None for _ in range(8))
-
-
-
+            summary, version, pools, devdetails, devs, psu, miner_info, error_codes = (
+                None for _ in range(8)
+            )
 
         data = {  # noqa - Ignore dictionary could be re-written
             # ip - Done at start
@@ -522,20 +524,12 @@ class BTMiner(BaseMiner):
             # api_ver - Done at end
             # fw_ver - Done at end
             "hostname": await self.get_hostname(api_miner_info=miner_info),
-            "hashrate": await self.get_hashrate(
-                api_summary=summary
-            ),
-            "hashboards": await self.get_hashboards(
-                api_devs=devs
-            ),
+            "hashrate": await self.get_hashrate(api_summary=summary),
+            "hashboards": await self.get_hashboards(api_devs=devs),
             # ideal_hashboards - Done at start
             "env_temp": await self.get_env_temp(api_summary=summary),
-            "wattage": await self.get_wattage(
-                api_summary=summary
-            ),
-            "wattage_limit": await self.get_wattage_limit(
-                api_summary=summary
-            ),
+            "wattage": await self.get_wattage(api_summary=summary),
+            "wattage_limit": await self.get_wattage_limit(api_summary=summary),
             # fan_1 - Done at end
             # fan_2 - Done at end
             # fan_3 - Done at end
@@ -553,17 +547,15 @@ class BTMiner(BaseMiner):
             "fault_light": await self.get_fault_light(api_miner_info=miner_info),
         }
 
-        data["api_ver"], data["fw_ver"] = await self.get_version(
-            api_version=version
-        )
+        data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version)
         fan_data = await self.get_fans()
 
-        data["fan_1"] = fan_data.fan_speeds.fan_1 # noqa
-        data["fan_2"] = fan_data.fan_speeds.fan_2 # noqa
-        data["fan_3"] = fan_data.fan_speeds.fan_3 # noqa
-        data["fan_4"] = fan_data.fan_speeds.fan_4 # noqa
+        data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
+        data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
+        data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
+        data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]
