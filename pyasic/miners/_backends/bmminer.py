@@ -72,7 +72,7 @@ class BMMiner(BaseMiner):
         # get pool data
         pools = await self.api.pools()
 
-        self.config =  MinerConfig().from_api(pools["POOLS"])
+        self.config = MinerConfig().from_api(pools["POOLS"])
         return self.config
 
     async def reboot(self) -> bool:
@@ -352,7 +352,7 @@ class BMMiner(BaseMiner):
             if stats:
                 stats = stats[0]
         else:
-            summary, pools, devdetails, version, stats  = (None for _ in range(5))
+            summary, pools, devdetails, version, stats = (None for _ in range(5))
 
         data = {  # noqa - Ignore dictionary could be re-written
             # ip - Done at start
@@ -392,7 +392,7 @@ class BMMiner(BaseMiner):
         data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
         data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]

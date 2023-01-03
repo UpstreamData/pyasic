@@ -14,20 +14,24 @@
 
 from pyasic.miners.base import BaseMiner
 
+
 class WhatsMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self):
         super().__init__()
         self.make = "WhatsMiner"
+
 
 class AntMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self):
         super().__init__()
         self.make = "AntMiner"
 
+
 class AvalonMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self):
         super().__init__()
         self.make = "AvalonMiner"
+
 
 class InnosiliconMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self):

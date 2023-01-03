@@ -99,7 +99,7 @@ class BOSMiner(BaseMiner):
                 d = await client.post(url, json={"query": query})
             if d.status_code == 200:
                 return d.json()
-        except (httpx.ReadError, httpx.ReadTimeout):
+        except httpx.HTTPError:
             return None
         return None
 
@@ -706,7 +706,9 @@ class BOSMiner(BaseMiner):
                 if graphql_fault_light.get("errors"):
                     if len(graphql_fault_light["errors"]) > 0:
                         # it did fail then
-                        logging.debug("GraphQL fault light failed, likely due to version being too low (<=21.0.9)")
+                        logging.debug(
+                            "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
+                        )
 
         # get light through GraphQL
         if graphql_fault_light:
@@ -779,7 +781,9 @@ class BOSMiner(BaseMiner):
             if fans:
                 fans = fans[0]
         else:
-            summary, version, temps, tunerstatus, pools, devdetails, devs, fans = (None for _ in range(8))
+            summary, version, temps, tunerstatus, pools, devdetails, devs, fans = (
+                None for _ in range(8)
+            )
         gql_data = await self.send_graphql_query(
             "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
         )
@@ -840,7 +844,7 @@ class BOSMiner(BaseMiner):
         data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
         data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools, graphql_pools=gql_data)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]

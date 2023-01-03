@@ -51,9 +51,7 @@ class HiveonT9(Hiveon, T9):
         hashboards = []
 
         for board in board_map:
-            hashboard = HashBoard(
-                slot=board, expected_chips=self.nominal_chips
-            )
+            hashboard = HashBoard(slot=board, expected_chips=self.nominal_chips)
             hashrate = 0
             chips = 0
             for chipset in board_map[board]:
@@ -113,8 +111,7 @@ class HiveonT9(Hiveon, T9):
                         pass
 
             if not env_temp_list == []:
-                return round(float(sum(env_temp_list)/len(env_temp_list)), 2)
-
+                return round(float(sum(env_temp_list) / len(env_temp_list)), 2)
 
     async def _get_data(self, allow_warning: bool) -> dict:
         miner_data = None
@@ -149,7 +146,7 @@ class HiveonT9(Hiveon, T9):
             if stats:
                 stats = stats[0]
         else:
-            summary, pools, devdetails, version, stats  = (None for _ in range(5))
+            summary, pools, devdetails, version, stats = (None for _ in range(5))
 
         data = {  # noqa - Ignore dictionary could be re-written
             # ip - Done at start
@@ -189,7 +186,7 @@ class HiveonT9(Hiveon, T9):
         data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
         data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]

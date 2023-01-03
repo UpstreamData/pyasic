@@ -420,7 +420,10 @@ class MinerConfig:
             user_suffix: The suffix to append to username.
         """
         logging.debug(f"MinerConfig - (As Whatsminer) - Generating Whatsminer config")
-        return {"pools": self.pool_groups[0].as_wm(user_suffix=user_suffix), "wattage": self.autotuning_wattage}
+        return {
+            "pools": self.pool_groups[0].as_wm(user_suffix=user_suffix),
+            "wattage": self.autotuning_wattage,
+        }
 
     def as_inno(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a config usable by an Innosilicon device.

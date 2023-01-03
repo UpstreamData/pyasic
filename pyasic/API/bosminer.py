@@ -37,7 +37,6 @@ class BOSMinerAPI(BaseMinerAPI):
         super().__init__(ip, port=port)
         self.api_ver = api_ver
 
-
     async def asccount(self) -> dict:
         """Get data on the number of ASC devices and their info.
         <details>

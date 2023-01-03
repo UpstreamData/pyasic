@@ -59,7 +59,7 @@ class CGMinerAvalon(CGMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Configures miner with yaml config."""
         return None
-        logging.debug(f"{self}: Sending config.") # noqa - This doesnt work...
+        logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
         conf = config.as_avalon(user_suffix=user_suffix)
         data = await self.api.ascset(
             0, "setpool", f"root,root,{conf}"
@@ -116,7 +116,7 @@ class CGMinerAvalon(CGMiner):
                 base_mac = api_version["VERSION"][0]["MAC"]
                 base_mac = base_mac.upper()
                 mac = ":".join(
-                    [base_mac[i: (i + 2)] for i in range(0, len(base_mac), 2)]
+                    [base_mac[i : (i + 2)] for i in range(0, len(base_mac), 2)]
                 )
                 return mac
             except (KeyError, ValueError):
@@ -290,7 +290,7 @@ class CGMinerAvalon(CGMiner):
             if stats:
                 stats = stats[0]
         else:
-            summary, pools, devdetails, version, stats  = (None for _ in range(5))
+            summary, pools, devdetails, version, stats = (None for _ in range(5))
 
         data = {  # noqa - Ignore dictionary could be re-written
             # ip - Done at start
@@ -330,7 +330,7 @@ class CGMinerAvalon(CGMiner):
         data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
         data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan # noqa
+        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
         data["pool_1_url"] = pools_data[0]["pool_1_url"]

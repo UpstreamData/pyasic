@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import json
 import logging
 import warnings
 from typing import List, Union, Optional, Tuple
@@ -57,28 +57,33 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             data = {}
         async with httpx.AsyncClient() as client:
             for i in range(PyasicSettings().miner_get_data_retries):
-                response = await client.post(
-                    f"http://{self.ip}/api/{command}",
-                    headers={"Authorization": "Bearer " + self.jwt},
-                    timeout=5,
-                    data=data,
-                )
-                json_data = response.json()
-                if (
-                    not json_data.get("success")
-                    and "token" in json_data
-                    and json_data.get("token") == "expired"
-                ):
-                    # refresh the token, retry
-                    await self.auth()
-                    continue
-                if not json_data.get("success"):
-                    if json_data.get("msg"):
-                        raise APIError(json_data["msg"])
-                    elif json_data.get("message"):
-                        raise APIError(json_data["message"])
-                    raise APIError("Innosilicon web api command failed.")
-                return json_data
+                try:
+                    response = await client.post(
+                        f"http://{self.ip}/api/{command}",
+                        headers={"Authorization": "Bearer " + self.jwt},
+                        timeout=5,
+                        data=data,
+                    )
+                    json_data = response.json()
+                    if (
+                        not json_data.get("success")
+                        and "token" in json_data
+                        and json_data.get("token") == "expired"
+                    ):
+                        # refresh the token, retry
+                        await self.auth()
+                        continue
+                    if not json_data.get("success"):
+                        if json_data.get("msg"):
+                            raise APIError(json_data["msg"])
+                        elif json_data.get("message"):
+                            raise APIError(json_data["message"])
+                        raise APIError("Innosilicon web api command failed.")
+                    return json_data
+                except httpx.HTTPError:
+                    pass
+                except json.JSONDecodeError:
+                    pass
 
     async def fault_light_on(self) -> bool:
         return False
@@ -383,7 +388,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             if stats:
                 stats = stats[0]
         else:
-            summary, pools, version, stats  = (None for _ in range(4))
+            summary, pools, version, stats = (None for _ in range(4))
 
         try:
             web_all_data = await self.send_web_command("getAll")
