@@ -179,10 +179,7 @@ class BMMiner(BaseMiner):
                 pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
-        hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
-        ]
+        hashboards = []
 
         if not api_stats:
             try:
