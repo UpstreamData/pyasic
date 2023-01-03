@@ -207,15 +207,12 @@ class CGMiner(BaseMiner):
 
         if api_summary:
             try:
-                return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
+                return round(float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
-        hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
-        ]
+        hashboards = []
 
         if not api_stats:
             try:
@@ -358,7 +355,15 @@ class CGMiner(BaseMiner):
                     allow_warning=allow_warning,
                 )
             except APIError:
-                pass
+                try:
+                    miner_data = await self.api.multicommand(
+                        "summary",
+                        "pools",
+                        "stats",
+                        allow_warning=allow_warning,
+                    )
+                except APIError:
+                    pass
             if miner_data:
                 break
         summary = miner_data.get("summary")
