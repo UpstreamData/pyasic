@@ -742,35 +742,41 @@ class BOSMiner(BaseMiner):
                 )
             except APIError as e:
                 if str(e.message) == "Not ready":
-                    miner_data = await self.api.multicommand(
-                        "summary", "tunerstatus", "pools", "devs", "version"
-                    )
+                    try:
+                        miner_data = await self.api.multicommand(
+                            "summary", "tunerstatus", "pools", "devs", "version"
+                        )
+                    except APIError:
+                        pass
             if miner_data:
                 break
-        summary = miner_data.get("summary")
-        if summary:
-            summary = summary[0]
-        version = miner_data.get("version")
-        if version:
-            version = version[0]
-        temps = miner_data.get("temps")
-        if temps:
-            temps = temps[0]
-        tunerstatus = miner_data.get("tunerstatus")
-        if tunerstatus:
-            tunerstatus = tunerstatus[0]
-        pools = miner_data.get("pools")
-        if pools:
-            pools = pools[0]
-        devdetails = miner_data.get("devdetails")
-        if devdetails:
-            devdetails = devdetails[0]
-        devs = miner_data.get("devs")
-        if devs:
-            devs = devs[0]
-        fans = miner_data.get("fans")
-        if fans:
-            fans = fans[0]
+        if miner_data:
+            summary = miner_data.get("summary")
+            if summary:
+                summary = summary[0]
+            version = miner_data.get("version")
+            if version:
+                version = version[0]
+            temps = miner_data.get("temps")
+            if temps:
+                temps = temps[0]
+            tunerstatus = miner_data.get("tunerstatus")
+            if tunerstatus:
+                tunerstatus = tunerstatus[0]
+            pools = miner_data.get("pools")
+            if pools:
+                pools = pools[0]
+            devdetails = miner_data.get("devdetails")
+            if devdetails:
+                devdetails = devdetails[0]
+            devs = miner_data.get("devs")
+            if devs:
+                devs = devs[0]
+            fans = miner_data.get("fans")
+            if fans:
+                fans = fans[0]
+        else:
+            summary, version, temps, tunerstatus, pools, devdetails, devs, fans = (None for _ in range(8))
         gql_data = await self.send_graphql_query(
             "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
         )
