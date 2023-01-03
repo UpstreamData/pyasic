@@ -482,30 +482,34 @@ class BTMiner(BaseMiner):
                 pass
             if miner_data:
                 break
-        summary = miner_data.get("summary")
-        if summary:
-            summary = summary[0]
-        version = miner_data.get("get_version")
-        if version:
-            version = version[0]
-        pools = miner_data.get("pools")
-        if pools:
-            pools = pools[0]
-        devdetails = miner_data.get("devdetails")
-        if devdetails:
-            devdetails = devdetails[0]
-        devs = miner_data.get("devs")
-        if devs:
-            devs = devs[0]
-        psu = miner_data.get("get_psu")
-        if psu:
-            psu = psu[0]
-        miner_info = miner_data.get("get_miner_info")
-        if miner_info:
-            miner_info = miner_info[0]
-        error_codes = miner_data.get("get_error_codes")
-        if error_codes:
-            error_codes = error_codes[0]
+        if miner_data:
+            summary = miner_data.get("summary")
+            if summary:
+                summary = summary[0]
+            version = miner_data.get("get_version")
+            if version:
+                version = version[0]
+            pools = miner_data.get("pools")
+            if pools:
+                pools = pools[0]
+            devdetails = miner_data.get("devdetails")
+            if devdetails:
+                devdetails = devdetails[0]
+            devs = miner_data.get("devs")
+            if devs:
+                devs = devs[0]
+            psu = miner_data.get("get_psu")
+            if psu:
+                psu = psu[0]
+            miner_info = miner_data.get("get_miner_info")
+            if miner_info:
+                miner_info = miner_info[0]
+            error_codes = miner_data.get("get_error_codes")
+            if error_codes:
+                error_codes = error_codes[0]
+        else:
+            summary, version, pools, devdetails, devs, psu, miner_info, error_codes  = (None for _ in range(8))
+
 
 
 

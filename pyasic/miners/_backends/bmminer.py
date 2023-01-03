@@ -317,29 +317,42 @@ class BMMiner(BaseMiner):
                 miner_data = await self.api.multicommand(
                     "summary",
                     "pools",
+                    "version",
                     "devdetails",
                     "stats",
                     allow_warning=allow_warning,
                 )
             except APIError:
-                pass
+                try:
+                    miner_data = await self.api.multicommand(
+                        "summary",
+                        "version",
+                        "pools",
+                        "stats",
+                        allow_warning=allow_warning,
+                    )
+                except APIError:
+                    pass
             if miner_data:
                 break
-        summary = miner_data.get("summary")
-        if summary:
-            summary = summary[0]
-        version = miner_data.get("get_version")
-        if version:
-            version = version[0]
-        pools = miner_data.get("pools")
-        if pools:
-            pools = pools[0]
-        devdetails = miner_data.get("devdetails")
-        if devdetails:
-            devdetails = devdetails[0]
-        stats = miner_data.get("stats")
-        if stats:
-            stats = stats[0]
+        if miner_data:
+            summary = miner_data.get("summary")
+            if summary:
+                summary = summary[0]
+            pools = miner_data.get("pools")
+            if pools:
+                pools = pools[0]
+            version = miner_data.get("version")
+            if version:
+                version = version[0]
+            devdetails = miner_data.get("devdetails")
+            if devdetails:
+                devdetails = devdetails[0]
+            stats = miner_data.get("stats")
+            if stats:
+                stats = stats[0]
+        else:
+            summary, pools, devdetails, version, stats  = (None for _ in range(5))
 
         data = {  # noqa - Ignore dictionary could be re-written
             # ip - Done at start

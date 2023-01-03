@@ -354,18 +354,37 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
             if miner_data:
                 break
-        summary = miner_data.get("summary")
-        if summary:
-            summary = summary[0]
-        version = miner_data.get("version")
-        if version:
-            version = version[0]
-        pools = miner_data.get("pools")
-        if pools:
-            pools = pools[0]
-        stats = miner_data.get("stats")
-        if stats:
-            stats = stats[0]
+        miner_data = None
+        for i in range(PyasicSettings().miner_get_data_retries):
+            try:
+                miner_data = await self.api.multicommand(
+                    "summary",
+                    "pools",
+                    "version",
+                    "devdetails",
+                    "stats",
+                    allow_warning=allow_warning,
+                )
+            except APIError:
+                pass
+            if miner_data:
+                break
+        if miner_data:
+            summary = miner_data.get("summary")
+            if summary:
+                summary = summary[0]
+            pools = miner_data.get("pools")
+            if pools:
+                pools = pools[0]
+            version = miner_data.get("version")
+            if version:
+                version = version[0]
+            stats = miner_data.get("stats")
+            if stats:
+                stats = stats[0]
+        else:
+            summary, pools, version, stats  = (None for _ in range(4))
+
         try:
             web_all_data = await self.send_web_command("getAll")
         except APIError:
