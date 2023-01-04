@@ -34,20 +34,34 @@ class CGMinerAvalon(CGMiner):
         self.ip = ip
 
     async def fault_light_on(self) -> bool:
-        data = await self.api.ascset(0, "led", "1-1")
+        try:
+            data = await self.api.ascset(0, "led", "1-1")
+        except APIError:
+            return False
         if data["STATUS"][0]["Msg"] == "ASC 0 set OK":
             return True
         return False
 
     async def fault_light_off(self) -> bool:
-        data = await self.api.ascset(0, "led", "1-0")
+        try:
+            data = await self.api.ascset(0, "led", "1-0")
+        except APIError:
+            return False
         if data["STATUS"][0]["Msg"] == "ASC 0 set OK":
             return True
         return False
 
     async def reboot(self) -> bool:
-        if (await self.api.restart())["STATUS"] == "RESTART":
-            return True
+        try:
+            data = await self.api.restart()
+        except APIError:
+            return False
+
+        try:
+            if data["STATUS"] == "RESTART":
+                return True
+        except KeyError:
+            return False
         return False
 
     async def stop_mining(self) -> bool:
@@ -61,10 +75,13 @@ class CGMinerAvalon(CGMiner):
         return None
         logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
         conf = config.as_avalon(user_suffix=user_suffix)
-        data = await self.api.ascset(
-            0, "setpool", f"root,root,{conf}"
-        )  # this should work but doesn't
-        return data
+        try:
+            data = await self.api.ascset(
+                0, "setpool", f"root,root,{conf}"
+            )  # this should work but doesn't
+        except APIError:
+            pass
+        # return data
 
     @staticmethod
     def parse_stats(stats):
@@ -131,7 +148,10 @@ class CGMinerAvalon(CGMiner):
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         if not api_summary:
-            api_summary = await self.api.summary()
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
 
         if api_summary:
             try:
@@ -252,7 +272,10 @@ class CGMinerAvalon(CGMiner):
     async def get_fault_light(self) -> bool:
         if self.light:
             return self.light
-        data = await self.api.ascset(0, "led", "1-255")
+        try:
+            data = await self.api.ascset(0, "led", "1-255")
+        except APIError:
+            return False
         if data["STATUS"][0]["Msg"] == "ASC 0 set info: LED[1]":
             return True
         return False

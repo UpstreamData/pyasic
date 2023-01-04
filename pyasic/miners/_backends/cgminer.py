@@ -39,7 +39,7 @@ class CGMiner(BaseMiner):
         self.pwd = "admin"
         self.config = None
 
-    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
 
         try:
@@ -75,18 +75,26 @@ class CGMiner(BaseMiner):
         """Restart cgminer hashing process."""
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
-        _ret = await self.send_ssh_command(commands)
-        if isinstance(_ret, str):
-            return True
+        try:
+            _ret = await self.send_ssh_command(commands)
+        except asyncssh.Error:
+            return False
+        else:
+            if isinstance(_ret, str):
+                return True
         return False
 
     async def reboot(self) -> bool:
         """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        _ret = await self.send_ssh_command("reboot")
-        logging.debug(f"{self}: Reboot command completed.")
-        if isinstance(_ret, str):
-            return True
+        try:
+            _ret = await self.send_ssh_command("reboot")
+        except asyncssh.Error:
+            return False
+        else:
+            logging.debug(f"{self}: Reboot command completed.")
+            if isinstance(_ret, str):
+                return True
         return False
 
     async def resume_mining(self) -> bool:
@@ -99,9 +107,10 @@ class CGMiner(BaseMiner):
             ]
             commands = ";".join(commands)
             await self.send_ssh_command(commands)
-            return True
-        except Exception:
+        except asyncssh.Error:
             return False
+        else:
+            return True
 
     async def stop_mining(self) -> bool:
         try:
@@ -113,15 +122,20 @@ class CGMiner(BaseMiner):
             ]
             commands = ";".join(commands)
             await self.send_ssh_command(commands)
-            return True
-        except Exception:
+        except asyncssh.Error:
             return False
+        else:
+            return True
 
-    async def get_config(self) -> MinerConfig:
+    async def get_config(self, api_pools: dict = None) -> MinerConfig:
         # get pool data
-        pools = await self.api.pools()
+        try:
+            api_pools = await self.api.pools()
+        except APIError:
+            pass
 
-        self.config = MinerConfig().from_api(pools["POOLS"])
+        if api_pools:
+            self.config = MinerConfig().from_api(api_pools["POOLS"])
         return self.config
 
     async def fault_light_off(self) -> bool:
@@ -194,7 +208,10 @@ class CGMiner(BaseMiner):
         return miner_version(self.api_ver, self.fw_ver)
 
     async def get_hostname(self) -> Optional[str]:
-        hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
+        try:
+            hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
+        except asyncssh.Error:
+            return None
         if hn:
             self.hostname = hn
         return self.hostname
@@ -202,7 +219,10 @@ class CGMiner(BaseMiner):
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
-            api_summary = await self.api.summary()
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
 
         if api_summary:
             try:

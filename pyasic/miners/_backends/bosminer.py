@@ -42,7 +42,7 @@ class BOSMiner(BaseMiner):
         self.pwd = "admin"
         self.config = None
 
-    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
 
         try:
@@ -145,14 +145,20 @@ class BOSMiner(BaseMiner):
         return False
 
     async def stop_mining(self) -> bool:
-        data = await self.api.pause()
+        try:
+            data = await self.api.pause()
+        except APIError:
+            return False
         if data.get("PAUSE"):
             if data["PAUSE"][0]:
                 return True
         return False
 
     async def resume_mining(self) -> bool:
-        data = await self.api.resume()
+        try:
+            data = await self.api.resume()
+        except APIError:
+            return False
         if data.get("RESUME"):
             if data["RESUME"][0]:
                 return True
@@ -174,15 +180,27 @@ class BOSMiner(BaseMiner):
             The config from `self.config`.
         """
         logging.debug(f"{self}: Getting config.")
-        async with (await self._get_ssh_connection()) as conn:
-            logging.debug(f"{self}: Opening SFTP connection.")
-            async with conn.start_sftp_client() as sftp:
-                logging.debug(f"{self}: Reading config file.")
-                async with sftp.open("/etc/bosminer.toml") as file:
-                    toml_data = toml.loads(await file.read())
-        logging.debug(f"{self}: Converting config file.")
-        cfg = MinerConfig().from_raw(toml_data)
-        self.config = cfg
+        conn = None
+        try:
+            conn = await self._get_ssh_connection()
+        except asyncssh.Error:
+            try:
+                pools = await self.api.pools()
+            except APIError:
+                return self.config
+            if pools:
+                self.config = MinerConfig().from_api(pools["POOLS"])
+                return self.config
+        if conn:
+            async with conn:
+                logging.debug(f"{self}: Opening SFTP connection.")
+                async with conn.start_sftp_client() as sftp:
+                    logging.debug(f"{self}: Reading config file.")
+                    async with sftp.open("/etc/bosminer.toml") as file:
+                        toml_data = toml.loads(await file.read())
+            logging.debug(f"{self}: Converting config file.")
+            cfg = MinerConfig().from_raw(toml_data)
+            self.config = cfg
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
@@ -191,7 +209,11 @@ class BOSMiner(BaseMiner):
         toml_conf = config.as_bos(
             model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
         )
-        async with (await self._get_ssh_connection()) as conn:
+        try:
+            conn = await self._get_ssh_connection()
+        except asyncssh.Error:
+            return None
+        async with conn:
             await conn.run("/etc/init.d/bosminer stop")
             logging.debug(f"{self}: Opening SFTP connection.")
             async with conn.start_sftp_client() as sftp:
@@ -275,7 +297,10 @@ class BOSMiner(BaseMiner):
 
 
         if not api_version:
-            api_version = await self.api.version()
+            try:
+                api_version = await self.api.version()
+            except APIError:
+                pass
         fw_ver = None
 
         if graphql_version:
@@ -362,7 +387,10 @@ class BOSMiner(BaseMiner):
 
         # get hr from API
         if not api_summary:
-            api_summary = await self.api.summary()
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
 
         if api_summary:
             try:
@@ -430,8 +458,10 @@ class BOSMiner(BaseMiner):
         if not api_devs:
             cmds.append("devs")
         if len(cmds) > 0:
-            print(cmds)
-            d = await self.api.multicommand(*cmds)
+            try:
+                d = await self.api.multicommand(*cmds)
+            except APIError:
+                d = {}
             try:
                 api_temps = d["temps"][0]
             except (KeyError, IndexError):
@@ -506,7 +536,10 @@ class BOSMiner(BaseMiner):
                 pass
 
         if not api_tunerstatus:
-            api_tunerstatus = await self.api.tunerstatus()
+            try:
+                api_tunerstatus = await self.api.tunerstatus()
+            except APIError:
+                pass
 
         if api_tunerstatus:
             try:
@@ -537,7 +570,10 @@ class BOSMiner(BaseMiner):
                 pass
 
         if not api_tunerstatus:
-            api_tunerstatus = await self.api.tunerstatus()
+            try:
+                api_tunerstatus = await self.api.tunerstatus()
+            except APIError:
+                pass
 
         if api_tunerstatus:
             try:
@@ -581,7 +617,10 @@ class BOSMiner(BaseMiner):
             )
 
         if not api_fans:
-            api_fans = await self.api.fans()
+            try:
+                api_fans = await self.api.fans()
+            except APIError:
+                pass
 
         if api_fans:
             fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
@@ -626,7 +665,10 @@ class BOSMiner(BaseMiner):
                 pass
 
         if not api_pools:
-            api_pools = await self.api.pools()
+            try:
+                api_pools = await self.api.pools()
+            except APIError:
+                pass
 
         if api_pools:
             seen = []
@@ -696,7 +738,10 @@ class BOSMiner(BaseMiner):
                                     )
 
         if not api_tunerstatus:
-            api_tunerstatus = await self.api.tunerstatus()
+            try:
+                api_tunerstatus = await self.api.tunerstatus()
+            except APIError:
+                pass
 
         if api_tunerstatus:
             errors = []

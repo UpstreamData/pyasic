@@ -91,19 +91,18 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
     async def fault_light_off(self) -> bool:
         return False
 
-    async def get_config(self) -> MinerConfig:
-        pools = None
-        cfg = MinerConfig()
+    async def get_config(self, api_pools: dict = None) -> MinerConfig:
+        if not api_pools:
+            try:
+                api_pools = await self.api.pools()
+            except APIError as e:
+                logging.warning(e)
 
-        try:
-            pools = await self.api.pools()
-        except APIError as e:
-            logging.warning(e)
-
-        if pools:
-            if "POOLS" in pools.keys():
-                cfg = cfg.from_api(pools["POOLS"])
-        return cfg
+        if api_pools:
+            if "POOLS" in api_pools.keys():
+                cfg = MinerConfig().from_api(api_pools["POOLS"])
+                self.config = cfg
+        return self.config
 
     async def reboot(self) -> bool:
         try:

@@ -73,14 +73,20 @@ class BTMiner(BaseMiner):
         return False
 
     async def reboot(self) -> bool:
-        data = await self.api.reboot()
+        try:
+            data = await self.api.reboot()
+        except APIError:
+            return False
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
         return False
 
     async def restart_backend(self) -> bool:
-        data = await self.api.restart()
+        try:
+            data = await self.api.restart()
+        except APIError:
+            return False
         if data.get("Msg"):
             if data["Msg"] == "API command OK":
                 return True
@@ -110,17 +116,20 @@ class BTMiner(BaseMiner):
         conf = config.as_wm(user_suffix=user_suffix)
         pools_conf = conf["pools"]
 
-        await self.api.update_pools(
-            pools_conf[0]["url"],
-            pools_conf[0]["user"],
-            pools_conf[0]["pass"],
-            pools_conf[1]["url"],
-            pools_conf[1]["user"],
-            pools_conf[1]["pass"],
-            pools_conf[2]["url"],
-            pools_conf[2]["user"],
-            pools_conf[2]["pass"],
-        )
+        try:
+            await self.api.update_pools(
+                pools_conf[0]["url"],
+                pools_conf[0]["user"],
+                pools_conf[0]["pass"],
+                pools_conf[1]["url"],
+                pools_conf[1]["user"],
+                pools_conf[1]["pass"],
+                pools_conf[2]["url"],
+                pools_conf[2]["user"],
+                pools_conf[2]["pass"],
+            )
+        except APIError:
+            pass
         try:
             await self.api.adjust_power_limit(conf["wattage"])
         except APIError:
@@ -260,7 +269,10 @@ class BTMiner(BaseMiner):
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
-            api_summary = await self.api.summary()
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
 
         if api_summary:
             try:

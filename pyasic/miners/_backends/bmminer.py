@@ -40,7 +40,7 @@ class BMMiner(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
 
-    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
 
         try:
@@ -70,7 +70,10 @@ class BMMiner(BaseMiner):
 
     async def get_config(self) -> MinerConfig:
         # get pool data
-        pools = await self.api.pools()
+        try:
+            pools = await self.api.pools()
+        except APIError:
+            return self.config
 
         self.config = MinerConfig().from_api(pools["POOLS"])
         return self.config
@@ -170,7 +173,10 @@ class BMMiner(BaseMiner):
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
-            api_summary = await self.api.summary()
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
 
         if api_summary:
             try:
