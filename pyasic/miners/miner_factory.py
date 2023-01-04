@@ -455,7 +455,7 @@ class MinerFactory(metaclass=Singleton):
                     model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
                     if not model == "BITMICRO":
                         break
-                except KeyError:
+                except (KeyError, IndexError):
                     continue
             try:
                 if devdetails[0]["STATUS"][0]["Msg"]:

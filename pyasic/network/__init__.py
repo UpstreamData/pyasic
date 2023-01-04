@@ -148,7 +148,10 @@ class MinerNetwork:
             ]
         )
         for miner in miners:
-            yield await miner
+            try:
+                yield await miner
+            except TimeoutError:
+                yield None
 
     @staticmethod
     async def ping_miner(
@@ -245,5 +248,6 @@ async def ping_and_get_miner(
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
+            raise e
         continue
     return

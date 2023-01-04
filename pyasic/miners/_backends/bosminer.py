@@ -73,15 +73,18 @@ class BOSMiner(BaseMiner):
     async def send_graphql_query(self, query) -> Union[dict, None]:
         # FW version must be equal to or greater than 21.09 to use this
         if self.fw_ver:
-            if not (
-                (
-                    int(self.fw_ver.split(".")[0]) == 21
-                    and int(self.fw_ver.split(".")[1]) >= 9
-                )
-                or int(self.fw_ver.split(".")[0]) > 21
-            ):
-                logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
-                return None
+            try:
+                if not (
+                    (
+                        int(self.fw_ver.split(".")[0]) == 21
+                        and int(self.fw_ver.split(".")[1]) >= 9
+                    )
+                    or int(self.fw_ver.split(".")[0]) > 21
+                ):
+                    logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
+                    return None
+            except ValueError:
+                pass
 
         url = f"http://{self.ip}/graphql"
         try:
@@ -283,9 +286,9 @@ class BOSMiner(BaseMiner):
     ) -> Tuple[Optional[str], Optional[str]]:
         # check if version is cached
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        if self.fw_ver and self.api_ver:
-            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            return miner_version(self.api_ver, self.fw_ver)
+        # if self.fw_ver and self.api_ver:
+        #     logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+        #     return miner_version(self.api_ver, self.fw_ver)
 
         if not graphql_version:
             try:
@@ -315,8 +318,10 @@ class BOSMiner(BaseMiner):
 
         # if we get the version data, parse it
         if fw_ver:
-            logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-            self.fw_ver = fw_ver.split("-")[5]
+            ver = fw_ver.split("-")[5]
+            if "." in  ver:
+                self.fw_ver = ver
+                logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
 
         # Now get the API version
         if api_version:
@@ -340,7 +345,6 @@ class BOSMiner(BaseMiner):
                 pass
 
         if graphql_hostname:
-            print(graphql_hostname)
             self.hostname = graphql_hostname["bos"]["hostname"]
             return self.hostname
 
@@ -633,6 +637,7 @@ class BOSMiner(BaseMiner):
                 fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
                 psu_fan_speeds(psu_fan),
             )
+        return miner_fan_speeds(fan_speeds(None, None, None, None), psu_fan_speeds(None))
 
     async def get_pools(
         self, api_pools: dict = None, graphql_pools: dict = None
