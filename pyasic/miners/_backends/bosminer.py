@@ -98,7 +98,14 @@ class BOSMiner(BaseMiner):
                 )
                 d = await client.post(url, json={"query": query})
             if d.status_code == 200:
-                return d.json()
+                try:
+                    data = d.json()
+                except json.decoder.JSONDecodeError:
+                    raise APIError(f"GraphQL returned malformed data: {d.text}")
+                if data.get("errors"):
+                    if len(data["errors"]) > 0:
+                        raise APIError(f"GraphQL error: {data['errors'][0]['message']}")
+
         except httpx.HTTPError:
             return None
         return None
@@ -259,9 +266,13 @@ class BOSMiner(BaseMiner):
             return miner_version(self.api_ver, self.fw_ver)
 
         if not graphql_version:
-            graphql_version = await self.send_graphql_query(
-                "{bos{info{version{full}}}}"
-            )
+            try:
+                graphql_version = await self.send_graphql_query(
+                    "{bos{info{version{full}}}}"
+                )
+            except APIError:
+                pass
+
 
         if not api_version:
             api_version = await self.api.version()
@@ -298,9 +309,13 @@ class BOSMiner(BaseMiner):
             return self.hostname
 
         if not graphql_hostname:
-            graphql_hostname = await self.send_graphql_query("{bos {hostname}}")
+            try:
+                graphql_hostname = await self.send_graphql_query("{bos {hostname}}")
+            except APIError:
+                pass
 
         if graphql_hostname:
+            print(graphql_hostname)
             self.hostname = graphql_hostname["bos"]["hostname"]
             return self.hostname
 
@@ -323,9 +338,13 @@ class BOSMiner(BaseMiner):
 
         # get hr from graphql
         if not graphql_hashrate:
-            graphql_hashrate = await self.send_graphql_query(
-                "{bosminer{info{workSolver{realHashrate{mhs1M}}}}}"
-            )
+            try:
+                graphql_hashrate = await self.send_graphql_query(
+                    "{bosminer{info{workSolver{realHashrate{mhs1M}}}}}"
+                )
+            except APIError:
+                pass
+
 
         if graphql_hashrate:
             try:
@@ -364,9 +383,13 @@ class BOSMiner(BaseMiner):
         ]
 
         if not graphql_boards and not (api_devs or api_temps or api_devdetails):
-            graphql_boards = await self.send_graphql_query(
-                "{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}"
-            )
+            try:
+                graphql_boards = await self.send_graphql_query(
+                    "{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}"
+                )
+            except APIError:
+                pass
+
 
         if graphql_boards:
             try:
@@ -467,9 +490,12 @@ class BOSMiner(BaseMiner):
         self, api_tunerstatus: dict = None, graphql_wattage: dict = None
     ) -> Optional[int]:
         if not graphql_wattage and not api_tunerstatus:
-            graphql_wattage = await self.send_graphql_query(
-                "{bosminer{info{workSolver{power{approxConsumptionW}}}}}"
-            )
+            try:
+                graphql_wattage = await self.send_graphql_query(
+                    "{bosminer{info{workSolver{power{approxConsumptionW}}}}}"
+                )
+            except APIError:
+                pass
 
         if graphql_wattage:
             try:
@@ -494,9 +520,13 @@ class BOSMiner(BaseMiner):
         self, api_tunerstatus: dict = None, graphql_wattage_limit: dict = None
     ) -> Optional[int]:
         if not graphql_wattage_limit and not api_tunerstatus:
-            graphql_wattage_limit = await self.send_graphql_query(
-                "{bosminer{info{workSolver{power{limitW}}}}}"
-            )
+            try:
+                graphql_wattage_limit = await self.send_graphql_query(
+                    "{bosminer{info{workSolver{power{limitW}}}}}"
+                )
+            except APIError:
+                pass
+
 
         if graphql_wattage_limit:
             try:
@@ -528,9 +558,13 @@ class BOSMiner(BaseMiner):
         miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
 
         if not graphql_fans and not api_fans:
-            graphql_fans = await self.send_graphql_query(
-                "{bosminer{info{fans{name, rpm}}}"
-            )
+            try:
+                graphql_fans = await self.send_graphql_query(
+                    "{bosminer{info{fans{name, rpm}}}"
+                )
+            except APIError:
+                pass
+
 
         if graphql_fans:
             fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
@@ -565,9 +599,13 @@ class BOSMiner(BaseMiner):
         self, api_pools: dict = None, graphql_pools: dict = None
     ) -> List[dict]:
         if not graphql_pools and not api_pools:
-            graphql_pools = await self.send_graphql_query(
-                "bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}"
-            )
+            try:
+                graphql_pools = await self.send_graphql_query(
+                    "bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}"
+                )
+            except APIError:
+                pass
+
 
         if graphql_pools:
             groups = []
@@ -622,9 +660,12 @@ class BOSMiner(BaseMiner):
         self, api_tunerstatus: dict = None, graphql_errors: dict = None
     ) -> List[MinerErrorData]:
         if not graphql_errors and not api_tunerstatus:
-            graphql_errors = await self.send_graphql_query(
-                "{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}"
-            )
+            try:
+                graphql_errors = await self.send_graphql_query(
+                    "{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}"
+                )
+            except APIError:
+                pass
 
         if graphql_errors:
             errors = []
@@ -691,26 +732,27 @@ class BOSMiner(BaseMiner):
                     int(self.fw_ver.split(".")[0]) == 21
                     and int(self.fw_ver.split(".")[1]) > 9
                 ) or int(self.fw_ver.split(".")[0]) > 21:
-                    graphql_fault_light = await self.send_graphql_query(
-                        "{bos {faultLight}}"
-                    )
+                    try:
+                        graphql_fault_light = await self.send_graphql_query(
+                            "{bos {faultLight}}"
+                        )
+                    except APIError:
+                        pass
                 else:
                     logging.info(
                         f"FW version {self.fw_ver} is too low for fault light info in graphql."
                     )
             else:
                 # worth trying
-                graphql_fault_light = await self.send_graphql_query(
-                    "{bos {faultLight}}"
-                )
-                if graphql_fault_light:
-                    if graphql_fault_light.get("errors"):
-                        if len(graphql_fault_light["errors"]) > 0:
-                            # it did fail then
-                            logging.debug(
-                                "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
-                            )
-                else:
+                try:
+                    graphql_fault_light = await self.send_graphql_query(
+                        "{bos {faultLight}}"
+                    )
+                except APIError:
+                    logging.debug(
+                        "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
+                    )
+                if not graphql_fault_light:
                     # also a failure
                     logging.debug(
                         "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
@@ -790,9 +832,13 @@ class BOSMiner(BaseMiner):
             summary, version, temps, tunerstatus, pools, devdetails, devs, fans = (
                 None for _ in range(8)
             )
-        gql_data = await self.send_graphql_query(
-            "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
-        )
+        try:
+            gql_data = await self.send_graphql_query(
+                "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+            )
+        except APIError:
+            gql_data = None
+
         if gql_data:
             if "data" in gql_data:
                 gql_data = gql_data["data"]
