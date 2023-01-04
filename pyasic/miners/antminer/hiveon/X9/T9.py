@@ -14,6 +14,8 @@
 
 from typing import List, Optional
 
+import asyncssh
+
 from pyasic.data import HashBoard, MinerData
 from pyasic.miners._backends import Hiveon  # noqa - Ignore access to _module
 from pyasic.miners._types import T9  # noqa - Ignore access to _module
@@ -39,7 +41,7 @@ class HiveonT9(Hiveon, T9):
                 .upper()
             )
             return mac
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, asyncssh.Error):
             pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:

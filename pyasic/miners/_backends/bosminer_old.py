@@ -37,7 +37,7 @@ class BOSMinerOld(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
 
-    async def send_ssh_command(self, cmd: str) -> Union[str, None]:
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
 
         try:
