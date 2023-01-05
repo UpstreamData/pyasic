@@ -44,7 +44,7 @@ class CGMiner(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return None
 
         # open an ssh connection
@@ -77,7 +77,7 @@ class CGMiner(BaseMiner):
         commands = ";".join(commands)
         try:
             _ret = await self.send_ssh_command(commands)
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return False
         else:
             if isinstance(_ret, str):
@@ -89,7 +89,7 @@ class CGMiner(BaseMiner):
         logging.debug(f"{self}: Sending reboot command.")
         try:
             _ret = await self.send_ssh_command("reboot")
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return False
         else:
             logging.debug(f"{self}: Reboot command completed.")
@@ -107,7 +107,7 @@ class CGMiner(BaseMiner):
             ]
             commands = ";".join(commands)
             await self.send_ssh_command(commands)
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return False
         else:
             return True
@@ -122,7 +122,7 @@ class CGMiner(BaseMiner):
             ]
             commands = ";".join(commands)
             await self.send_ssh_command(commands)
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return False
         else:
             return True
@@ -210,7 +210,7 @@ class CGMiner(BaseMiner):
     async def get_hostname(self) -> Optional[str]:
         try:
             hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return None
         if hn:
             self.hostname = hn

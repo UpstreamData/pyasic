@@ -47,7 +47,7 @@ class BOSMiner(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return None
 
         # open an ssh connection
@@ -186,7 +186,7 @@ class BOSMiner(BaseMiner):
         conn = None
         try:
             conn = await self._get_ssh_connection()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             try:
                 pools = await self.api.pools()
             except APIError:
@@ -214,7 +214,7 @@ class BOSMiner(BaseMiner):
         )
         try:
             conn = await self._get_ssh_connection()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return None
         async with conn:
             await conn.run("/etc/init.d/bosminer stop")
@@ -245,7 +245,7 @@ class BOSMiner(BaseMiner):
         try:
             result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
             return result.upper().strip()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             pass
 
     async def get_model(self) -> Optional[str]:

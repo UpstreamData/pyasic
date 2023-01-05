@@ -41,7 +41,7 @@ class HiveonT9(Hiveon, T9):
                 .upper()
             )
             return mac
-        except (TypeError, ValueError, asyncssh.Error):
+        except (TypeError, ValueError, asyncssh.Error, OSError):
             pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:

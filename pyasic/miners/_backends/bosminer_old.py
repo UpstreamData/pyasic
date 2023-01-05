@@ -42,7 +42,7 @@ class BOSMinerOld(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except asyncssh.Error:
+        except (asyncssh.Error, OSError):
             return None
 
         # open an ssh connection
