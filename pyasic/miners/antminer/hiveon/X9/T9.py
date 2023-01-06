@@ -156,8 +156,8 @@ class HiveonT9(Hiveon, T9):
             "mac": await self.get_mac(),
             "model": await self.get_model(api_devdetails=devdetails),
             # make - Done at start
-            # api_ver - Done at end
-            # fw_ver - Done at end
+            "api_ver": None, # - Done at end
+            "fw_ver": None,  # - Done at end
             "hostname": await self.get_hostname(),
             "hashrate": await self.get_hashrate(api_summary=summary),
             "hashboards": await self.get_hashboards(api_stats=stats),
@@ -165,17 +165,17 @@ class HiveonT9(Hiveon, T9):
             "env_temp": await self.get_env_temp(api_stats=stats),
             "wattage": await self.get_wattage(api_stats=stats),
             "wattage_limit": await self.get_wattage_limit(),
-            # fan_1 - Done at end
-            # fan_2 - Done at end
-            # fan_3 - Done at end
-            # fan_4 - Done at end
-            # fan_psu - Done at end
+            "fan_1": None,  # - Done at end
+            "fan_2": None,  # - Done at end
+            "fan_3": None,  # - Done at end
+            "fan_4": None,  # - Done at end
+            "fan_psu": None,  # - Done at end
             # ideal_chips - Done at start
-            # pool_split - Done at end
-            # pool_1_url - Done at end
-            # pool_1_user - Done at end
-            # pool_2_url - Done at end
-            # pool_2_user - Done at end
+            "pool_split": None,  # - Done at end
+            "pool_1_url": None,  # - Done at end
+            "pool_1_user": None,  # - Done at end
+            "pool_2_url": None,  # - Done at end
+            "pool_2_user": None,  # - Done at end
             "errors": await self.get_errors(),
             "fault_light": await self.get_fault_light(),
         }
@@ -183,26 +183,29 @@ class HiveonT9(Hiveon, T9):
         data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version)
         fan_data = await self.get_fans()
 
-        data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
-        data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
-        data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
-        data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
+        if fan_data:
+            data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
+            data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
+            data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
+            data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
 
-        data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
+            data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
 
         pools_data = await self.get_pools(api_pools=pools)
-        data["pool_1_url"] = pools_data[0]["pool_1_url"]
-        data["pool_1_user"] = pools_data[0]["pool_1_user"]
-        if len(pools_data) > 1:
-            data["pool_2_url"] = pools_data[1]["pool_1_url"]
-            data["pool_2_user"] = pools_data[1]["pool_1_user"]
-            data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-        else:
-            try:
-                data["pool_2_url"] = pools_data[0]["pool_1_url"]
-                data["pool_2_user"] = pools_data[0]["pool_1_user"]
-                data["quota"] = "0"
-            except KeyError:
-                pass
+
+        if pools_data:
+            data["pool_1_url"] = pools_data[0]["pool_1_url"]
+            data["pool_1_user"] = pools_data[0]["pool_1_user"]
+            if len(pools_data) > 1:
+                data["pool_2_url"] = pools_data[1]["pool_1_url"]
+                data["pool_2_user"] = pools_data[1]["pool_1_user"]
+                data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
+            else:
+                try:
+                    data["pool_2_url"] = pools_data[0]["pool_1_url"]
+                    data["pool_2_user"] = pools_data[0]["pool_1_user"]
+                    data["quota"] = "0"
+                except KeyError:
+                    pass
 
         return data
