@@ -244,7 +244,8 @@ class BOSMiner(BaseMiner):
     async def get_mac(self) -> Optional[str]:
         try:
             result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
-            return result.upper().strip()
+            if result:
+                return result.upper().strip()
         except (asyncssh.Error, OSError):
             pass
 
