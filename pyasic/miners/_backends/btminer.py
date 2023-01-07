@@ -296,6 +296,9 @@ class BTMiner(BaseMiner):
         if api_devs:
             try:
                 for board in api_devs["DEVS"]:
+                    if len(hashboards) < board["ASC"] + 1:
+                        hashboards.append(HashBoard(slot=board["ASC"], expected_chips=self.nominal_chips))
+                        self.ideal_hashboards += 1
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
                     hashboards[board["ASC"]].hashrate = round(
@@ -303,7 +306,7 @@ class BTMiner(BaseMiner):
                     )
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].missing = False
-            except KeyError:
+            except (KeyError, IndexError):
                 pass
 
         return hashboards
