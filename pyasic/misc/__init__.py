@@ -29,7 +29,7 @@ def api_min_version(version: str):
         async def inner(*args, **kwargs):
             api_ver = args[0].api_ver
 
-            if not api_ver == "0.0.0":
+            if not api_ver == "0.0.0" and isinstance(api_ver, str):
                 api_sub_versions = api_ver.split(".")
                 api_major_ver = int(api_sub_versions[0])
                 api_minor_ver = int(api_sub_versions[1])
