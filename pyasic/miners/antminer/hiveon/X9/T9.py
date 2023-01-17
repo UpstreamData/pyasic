@@ -197,13 +197,13 @@ class HiveonT9(Hiveon, T9):
             data["pool_1_url"] = pools_data[0]["pool_1_url"]
             data["pool_1_user"] = pools_data[0]["pool_1_user"]
             if len(pools_data) > 1:
-                data["pool_2_url"] = pools_data[1]["pool_1_url"]
-                data["pool_2_user"] = pools_data[1]["pool_1_user"]
+                data["pool_2_url"] = pools_data[1]["pool_2_url"]
+                data["pool_2_user"] = pools_data[1]["pool_2_user"]
                 data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
             else:
                 try:
-                    data["pool_2_url"] = pools_data[0]["pool_1_url"]
-                    data["pool_2_user"] = pools_data[0]["pool_1_user"]
+                    data["pool_2_url"] = pools_data[0]["pool_2_url"]
+                    data["pool_2_user"] = pools_data[0]["pool_2_user"]
                     data["quota"] = "0"
                 except KeyError:
                     pass
