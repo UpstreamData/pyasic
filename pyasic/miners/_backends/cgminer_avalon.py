@@ -321,7 +321,7 @@ class CGMinerAvalon(CGMiner):
             "mac": await self.get_mac(),
             "model": await self.get_model(api_devdetails=devdetails),
             # make - Done at start
-            "api_ver": None, # - Done at end
+            "api_ver": None,  # - Done at end
             "fw_ver": None,  # - Done at end
             "hostname": await self.get_hostname(),
             "hashrate": await self.get_hashrate(api_summary=summary),
@@ -364,7 +364,9 @@ class CGMinerAvalon(CGMiner):
             if len(pools_data) > 1:
                 data["pool_2_url"] = pools_data[1]["pool_2_url"]
                 data["pool_2_user"] = pools_data[1]["pool_2_user"]
-                data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
+                data[
+                    "pool_split"
+                ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
             else:
                 try:
                     data["pool_2_url"] = pools_data[0]["pool_2_url"]

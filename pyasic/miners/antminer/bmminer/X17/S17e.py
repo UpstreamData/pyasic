@@ -18,6 +18,4 @@ from .X17 import BMMinerX17
 
 
 class BMMinerS17e(BMMinerX17, S17e):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

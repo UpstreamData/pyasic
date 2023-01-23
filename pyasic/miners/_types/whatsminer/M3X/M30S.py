@@ -58,3 +58,12 @@ class M30SVE10(WhatsMiner):  # noqa - ignore ABC method implementation
         self.model = "M30S VE10"
         self.nominal_chips = 105
         self.fan_count = 2
+
+
+class M30SVG10(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M30S VG10"
+        self.nominal_chips = 66
+        self.fan_count = 2

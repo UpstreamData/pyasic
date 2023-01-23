@@ -71,7 +71,8 @@ class BMMinerX19(BMMiner):
 
     async def fault_light_on(self) -> bool:
         data = await self.send_web_command(
-            "blink", params=json.dumps({"blink": "true"})  # noqa - ignore params being a str
+            "blink",
+            params=json.dumps({"blink": "true"}),  # noqa - ignore params being a str
         )
         if data:
             if data.get("code") == "B000":
@@ -80,7 +81,8 @@ class BMMinerX19(BMMiner):
 
     async def fault_light_off(self) -> bool:
         data = await self.send_web_command(
-            "blink", params=json.dumps({"blink": "false"})  # noqa - ignore params being a str
+            "blink",
+            params=json.dumps({"blink": "false"}),  # noqa - ignore params being a str
         )
         if data:
             if data.get("code") == "B100":

@@ -17,6 +17,4 @@ from pyasic.miners._types import S17Pro  # noqa - Ignore access to _module
 
 
 class CGMinerS17Pro(CGMiner, S17Pro):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

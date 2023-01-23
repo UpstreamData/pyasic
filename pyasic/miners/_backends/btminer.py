@@ -297,7 +297,11 @@ class BTMiner(BaseMiner):
             try:
                 for board in api_devs["DEVS"]:
                     if len(hashboards) < board["ASC"] + 1:
-                        hashboards.append(HashBoard(slot=board["ASC"], expected_chips=self.nominal_chips))
+                        hashboards.append(
+                            HashBoard(
+                                slot=board["ASC"], expected_chips=self.nominal_chips
+                            )
+                        )
                         self.ideal_hashboards += 1
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
@@ -581,7 +585,9 @@ class BTMiner(BaseMiner):
             if len(pools_data) > 1:
                 data["pool_2_url"] = pools_data[1]["pool_2_url"]
                 data["pool_2_user"] = pools_data[1]["pool_2_user"]
-                data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
+                data[
+                    "pool_split"
+                ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
             else:
                 try:
                     data["pool_2_url"] = pools_data[0]["pool_2_url"]

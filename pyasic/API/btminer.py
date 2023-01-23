@@ -286,7 +286,9 @@ class BTMinerAPI(BaseMinerAPI):
         """
         logging.debug(f"{self} - (Get Token) - Getting token")
         if self.current_token:
-            if self.current_token["timestamp"] > datetime.datetime.now() - datetime.timedelta(minutes=30):
+            if self.current_token[
+                "timestamp"
+            ] > datetime.datetime.now() - datetime.timedelta(minutes=30):
                 return self.current_token
 
         # get the token
@@ -310,7 +312,7 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = {
             "host_sign": host_sign,
             "host_passwd_md5": host_passwd_md5,
-            "timestamp": datetime.datetime.now()
+            "timestamp": datetime.datetime.now(),
         }
         logging.debug(
             f"{self} - (Get Token) - Gathered token data: {self.current_token}"

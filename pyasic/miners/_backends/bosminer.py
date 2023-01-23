@@ -299,7 +299,6 @@ class BOSMiner(BaseMiner):
             except APIError:
                 pass
 
-
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -320,7 +319,7 @@ class BOSMiner(BaseMiner):
         # if we get the version data, parse it
         if fw_ver:
             ver = fw_ver.split("-")[5]
-            if "." in  ver:
+            if "." in ver:
                 self.fw_ver = ver
                 logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
 
@@ -375,7 +374,6 @@ class BOSMiner(BaseMiner):
             except APIError:
                 pass
 
-
         if graphql_hashrate:
             try:
                 return round(
@@ -422,7 +420,6 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-
 
         if graphql_boards:
             try:
@@ -565,7 +562,6 @@ class BOSMiner(BaseMiner):
             except APIError:
                 pass
 
-
         if graphql_wattage_limit:
             try:
                 return graphql_wattage_limit["bosminer"]["info"]["workSolver"]["power"][
@@ -606,7 +602,6 @@ class BOSMiner(BaseMiner):
             except APIError:
                 pass
 
-
         if graphql_fans:
             fans = {"fan_1": None, "fan_2": None, "fan_3": None, "fan_4": None}
             for n in range(self.fan_count):
@@ -638,7 +633,9 @@ class BOSMiner(BaseMiner):
                 fan_speeds(fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]),
                 psu_fan_speeds(psu_fan),
             )
-        return miner_fan_speeds(fan_speeds(None, None, None, None), psu_fan_speeds(None))
+        return miner_fan_speeds(
+            fan_speeds(None, None, None, None), psu_fan_speeds(None)
+        )
 
     async def get_pools(
         self, api_pools: dict = None, graphql_pools: dict = None
@@ -650,7 +647,6 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-
 
         if graphql_pools:
             groups = []
@@ -956,7 +952,9 @@ class BOSMiner(BaseMiner):
             if len(pools_data) > 1:
                 data["pool_2_url"] = pools_data[1]["pool_2_url"]
                 data["pool_2_user"] = pools_data[1]["pool_2_user"]
-                data["pool_split"] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
+                data[
+                    "pool_split"
+                ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
             else:
                 try:
                     data["pool_2_url"] = pools_data[0]["pool_2_url"]

@@ -24,7 +24,7 @@ from pyasic.errors import APIError
 
 
 class UnknownMiner(BaseMiner):
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, *args, **kwargs) -> None:
         super().__init__()
         self.ip = ip
         self.api = UnknownAPI(ip)

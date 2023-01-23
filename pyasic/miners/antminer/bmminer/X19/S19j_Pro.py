@@ -18,6 +18,4 @@ from .X19 import BMMinerX19
 
 
 class BMMinerS19jPro(BMMinerX19, S19jPro):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

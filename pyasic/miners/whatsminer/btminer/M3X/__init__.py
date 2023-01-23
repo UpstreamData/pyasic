@@ -18,6 +18,7 @@ from .M30S import (
     BTMinerM30SVE10,
     BTMinerM30SVE20,
     BTMinerM30SVG20,
+    BTMinerM30SVG10,
 )
 from .M30S_Plus import (
     BTMinerM30SPlus,

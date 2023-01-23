@@ -367,7 +367,7 @@ class MinerFactory(metaclass=Singleton):
         model: Union[str, None],
         api: Union[str, None],
         ver: Union[str, None],
-        api_ver: Union[str, None],
+        api_ver: Union[str, None] = None,
     ) -> AnyMiner:
         miner = UnknownMiner(str(ip))
         # make sure we have model information

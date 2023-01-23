@@ -25,7 +25,7 @@ from pyasic.data.error_codes import MinerErrorData
 
 
 class BaseMiner(ABC):
-    def __init__(self, *args) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self.ip = None
         self.uname = "root"
         self.pwd = "admin"
