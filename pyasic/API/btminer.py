@@ -20,6 +20,8 @@ import json
 import logging
 import re
 from typing import Union
+import datetime
+
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
@@ -238,6 +240,7 @@ class BTMinerAPI(BaseMinerAPI):
         command = {"cmd": command, **kwargs}
 
         token_data = await self.get_token()
+        print(token_data)
         enc_command = create_privileged_cmd(token_data, command)
 
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
@@ -282,6 +285,10 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         logging.debug(f"{self} - (Get Token) - Getting token")
+        if self.current_token:
+            if self.current_token["timestamp"] > datetime.datetime.now() - datetime.timedelta(minutes=30):
+                return self.current_token
+
         # get the token
         data = await self.send_command("get_token")
 
@@ -303,6 +310,7 @@ class BTMinerAPI(BaseMinerAPI):
         self.current_token = {
             "host_sign": host_sign,
             "host_passwd_md5": host_passwd_md5,
+            "timestamp": datetime.datetime.now()
         }
         logging.debug(
             f"{self} - (Get Token) - Gathered token data: {self.current_token}"
@@ -450,7 +458,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
         if auto:
-            return await self.send_privileged_command("set_led", param=auto)
+            return await self.send_privileged_command("set_led", param="auto")
         return await self.send_privileged_command(
             "set_led", color=color, period=period, duration=duration, start=start
         )
