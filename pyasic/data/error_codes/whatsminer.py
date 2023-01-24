@@ -51,16 +51,16 @@ class WhatsminerError:
                     return select_err_subtype[err_value]
                 elif "n" in select_err_subtype:
                     return select_err_subtype[
-                        "n"
-                    ].replace(  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                        "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                    ].replace(
                         "{n}", str(err_value)
                     )
                 else:
                     return "Unknown error type."
             elif "n" in select_err_type:
                 select_err_subtype = select_err_type[
-                    "n"
-                ]  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                    "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                ]
                 if err_value in select_err_subtype:
                     return select_err_subtype[err_value]
                 elif "c" in select_err_subtype:
@@ -225,7 +225,7 @@ ERROR_CODES = {
     },
     50: {  # water velocity error
         7: {"n": "Slot {n} water velocity is abnormal."},  # abnormal water velocity
-        9: {"n" "Slot {n} chip temp calibration check no balance."},
+        9: {"n": "Slot {n} chip temp calibration check no balance."},
     },
     51: {  # frequency error
         7: {"n": "Slot {n} frequency up timeout."},  # frequency up timeout
