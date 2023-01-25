@@ -67,6 +67,7 @@ details {
                     <summary><a href="../whatsminer/M3X/#m30s">M30S</a></summary>
                         <ul>
                             <li><a href="../whatsminer/M3X/#m30sve10">VE10</a></li>
+                            <li><a href="../whatsminer/M3X/#m30svg10">VG10</a></li>
                             <li><a href="../whatsminer/M3X/#m30svg20">VG20</a></li>
                             <li><a href="../whatsminer/M3X/#m30sve20">VE20</a></li>
                             <li><a href="../whatsminer/M3X/#m30sv50">V50</a></li>
@@ -76,9 +77,11 @@ details {
                     <summary><a href="../whatsminer/M3X/#m30s_1">M30S+</a></summary>
                         <ul>
                             <li><a href="../whatsminer/M3X/#m30svf20">VF20</a></li>
+                            <li><a href="../whatsminer/M3X/#m30svh30">VH30</a></li>
                             <li><a href="../whatsminer/M3X/#m30sve40">VE40</a></li>
                             <li><a href="../whatsminer/M3X/#m30svg40">VG40</a></li>
                             <li><a href="../whatsminer/M3X/#m30svg60">VG60</a></li>
+                            <li><a href="../whatsminer/M3X/#m30svh60">VH60</a></li>
                         </ul>
                 </details>
                 <details>

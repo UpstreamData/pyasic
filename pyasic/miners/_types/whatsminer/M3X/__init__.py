@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from .M30S import M30S, M30SV50, M30SVE10, M30SVE20, M30SVG20, M30SVG10
-from .M30S_Plus import M30SPlus, M30SPlusVE40, M30SPlusVF20, M30SPlusVG60, M30SPlusVG40
+from .M30S_Plus import M30SPlus, M30SPlusVE40, M30SPlusVF20, M30SPlusVG60, M30SPlusVG40, M30SPlusVH30, M30SPlusVH60
 from .M30S_Plus_Plus import (
     M30SPlusPlus,
     M30SPlusPlusVG30,

@@ -177,6 +177,7 @@ MINER_CLASSES = {
         "G20": BTMinerM30SVG20,
         "E20": BTMinerM30SVE20,
         "E10": BTMinerM30SVE10,
+        "G10": BTMinerM30SVG10
     },
     "M30S+": {
         "Default": BTMinerM30SPlus,
@@ -185,6 +186,8 @@ MINER_CLASSES = {
         "E40": BTMinerM30SPlusVE40,
         "G40": BTMinerM30SPlusVG40,
         "G60": BTMinerM30SPlusVG60,
+        "H30": BTMinerM30SPlusVH30,
+        "H60": BTMinerM30SPlusVH60,
     },
     "M30S++": {
         "Default": BTMinerM30SPlusPlus,

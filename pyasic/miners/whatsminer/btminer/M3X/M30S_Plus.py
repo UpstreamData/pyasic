@@ -19,6 +19,8 @@ from pyasic.miners._types import (  # noqa - Ignore access to _module
     M30SPlusVF20,
     M30SPlusVG60,
     M30SPlusVG40,
+    M30SPlusVH60,
+    M30SPlusVH30
 )
 
 
@@ -39,4 +41,8 @@ class BTMinerM30SPlusVG40(BTMiner, M30SPlusVG40):
 
 
 class BTMinerM30SPlusVG60(BTMiner, M30SPlusVG60):
+    pass
+class BTMinerM30SPlusVH30(BTMiner, M30SPlusVH30):
+    pass
+class BTMinerM30SPlusVH60(BTMiner, M30SPlusVH60):
     pass
