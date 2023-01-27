@@ -17,6 +17,4 @@ from pyasic.miners._backends import CGMinerAvalon  # noqa - Ignore access to _mo
 
 
 class CGMinerA8X(CGMinerAvalon):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

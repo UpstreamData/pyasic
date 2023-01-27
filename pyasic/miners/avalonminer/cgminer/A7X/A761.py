@@ -18,6 +18,4 @@ from .A7X import CGMinerA7X  # noqa - Ignore access to _module
 
 
 class CGMinerAvalon761(CGMinerA7X, Avalon761):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

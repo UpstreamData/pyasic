@@ -33,15 +33,44 @@ class WhatsminerError:
 
     @property
     def error_message(self):  # noqa - Skip PyCharm inspection
-        err_type = int(str(self.error_code)[:-2])
-        err_subtype = int(str(self.error_code)[-2:-1])
-        err_value = int(str(self.error_code)[-1:])
+        if len(str(self.error_code)) > 3 and str(self.error_code).startswith("55"):
+            # 55 error code base has chip numbers, so the format is
+            # 55 -> board num len 1 -> chip num len 3
+            err_type = 55
+            err_subtype = int(str(self.error_code)[2:3])
+            err_value = int(str(self.error_code)[3:])
+        else:
+            err_type = int(str(self.error_code)[:-2])
+            err_subtype = int(str(self.error_code)[-2:-1])
+            err_value = int(str(self.error_code)[-1:])
         try:
-            select_err_subtype = ERROR_CODES[err_type][err_subtype]
-            if err_value in select_err_subtype:
-                return select_err_subtype[err_value]
-            elif "n" in select_err_subtype:
-                return select_err_subtype["n"].replace("{n}", str(err_value))  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+            select_err_type = ERROR_CODES[err_type]
+            if err_subtype in select_err_type:
+                select_err_subtype = select_err_type[err_subtype]
+                if err_value in select_err_subtype:
+                    return select_err_subtype[err_value]
+                elif "n" in select_err_subtype:
+                    return select_err_subtype[
+                        "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                    ].replace(
+                        "{n}", str(err_value)
+                    )
+                else:
+                    return "Unknown error type."
+            elif "n" in select_err_type:
+                select_err_subtype = select_err_type[
+                    "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                ]
+                if err_value in select_err_subtype:
+                    return select_err_subtype[err_value]
+                elif "c" in select_err_subtype:
+                    return (
+                        select_err_subtype["c"]
+                        .replace(  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
+                            "{n}", str(err_subtype)
+                        )
+                        .replace("{c}", str(err_value))
+                    )
             else:
                 return "Unknown error type."
         except KeyError:
@@ -196,10 +225,12 @@ ERROR_CODES = {
     },
     50: {  # water velocity error
         7: {"n": "Slot {n} water velocity is abnormal."},  # abnormal water velocity
+        9: {"n": "Slot {n} chip temp calibration check no balance."},
     },
     51: {  # frequency error
         7: {"n": "Slot {n} frequency up timeout."},  # frequency up timeout
     },
+    55: {"n": {"c": "Slot {n} chip {c} has been reset."}},
     84: {
         1: {0: "Software version error."},
     },

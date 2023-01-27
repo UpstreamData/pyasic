@@ -18,6 +18,7 @@ from .M30S import (
     BTMinerM30SVE10,
     BTMinerM30SVE20,
     BTMinerM30SVG20,
+    BTMinerM30SVG10,
 )
 from .M30S_Plus import (
     BTMinerM30SPlus,
@@ -25,6 +26,8 @@ from .M30S_Plus import (
     BTMinerM30SPlusVF20,
     BTMinerM30SPlusVG40,
     BTMinerM30SPlusVG60,
+    BTMinerM30SPlusVH30,
+    BTMinerM30SPlusVH60
 )
 from .M30S_Plus_Plus import (
     BTMinerM30SPlusPlus,
@@ -32,7 +35,13 @@ from .M30S_Plus_Plus import (
     BTMinerM30SPlusPlusVG40,
     BTMinerM30SPlusPlusVH60,
 )
-from .M31S import BTMinerM31S, BTMinerM31SV10, BTMinerM31SV20, BTMinerM31SV60, BTMinerM31SV70
+from .M31S import (
+    BTMinerM31S,
+    BTMinerM31SV10,
+    BTMinerM31SV20,
+    BTMinerM31SV60,
+    BTMinerM31SV70,
+)
 from .M31S_Plus import (
     BTMinerM31SPlus,
     BTMinerM31SPlusV30,

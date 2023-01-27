@@ -21,18 +21,12 @@ from pyasic.miners._types import (  # noqa - Ignore access to _module
 
 
 class BTMinerM20S(BTMiner, M20S):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM20SV10(BTMiner, M20SV10):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM20SV20(BTMiner, M20SV20):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

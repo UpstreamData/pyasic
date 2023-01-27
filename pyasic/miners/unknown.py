@@ -12,17 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List
+from typing import List, Tuple, Optional
+from collections import namedtuple
 
 from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
-from pyasic.data import MinerData
+from pyasic.data import MinerData, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.miners.base import BaseMiner
+from pyasic.errors import APIError
 
 
 class UnknownMiner(BaseMiner):
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, *args, **kwargs) -> None:
         super().__init__()
         self.ip = ip
         self.api = UnknownAPI(ip)
@@ -30,12 +32,6 @@ class UnknownMiner(BaseMiner):
 
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"
-
-    async def get_model(self):
-        return "Unknown"
-
-    async def get_hostname(self):
-        return "Unknown"
 
     async def check_light(self) -> bool:
         if not self.light:
@@ -50,12 +46,6 @@ class UnknownMiner(BaseMiner):
 
     async def get_config(self) -> None:
         return None
-
-    async def get_errors(self) -> List[MinerErrorData]:
-        return []
-
-    async def get_mac(self) -> str:
-        return "00:00:00:00:00:00"
 
     async def reboot(self) -> bool:
         return False
@@ -72,8 +62,89 @@ class UnknownMiner(BaseMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
 
-    async def get_data(self, allow_warning: bool = False) -> MinerData:
-        return MinerData(ip=str(self.ip))
-
     async def set_power_limit(self, wattage: int) -> bool:
         return False
+
+    ##################################################
+    ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
+    ##################################################
+
+    async def get_mac(self) -> Optional[str]:
+        return None
+
+    async def get_model(self) -> Optional[str]:
+        return None
+
+    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
+        return None, None
+
+    async def get_hostname(self) -> Optional[str]:
+        return None
+
+    async def get_hashrate(self) -> Optional[float]:
+        return None
+
+    async def get_hashboards(self) -> List[HashBoard]:
+        return []
+
+    async def get_env_temp(self) -> Optional[float]:
+        return None
+
+    async def get_wattage(self) -> Optional[int]:
+        return None
+
+    async def get_wattage_limit(self) -> Optional[int]:
+        return None
+
+    async def get_fans(
+        self,
+    ) -> Tuple[
+        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
+        Tuple[Optional[int]],
+    ]:
+        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
+        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
+        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
+
+        fans = fan_speeds(None, None, None, None)
+        psu_fans = psu_fan_speeds(None)
+
+        return miner_fan_speeds(fans, psu_fans)
+
+    async def get_pools(self, api_pools: dict = None) -> List[dict]:
+        groups = []
+
+        if not api_pools:
+            try:
+                api_pools = await self.api.pools()
+            except APIError:
+                pass
+
+        if api_pools:
+            try:
+                pools = {}
+                for i, pool in enumerate(api_pools["POOLS"]):
+                    pools[f"pool_{i + 1}_url"] = (
+                        pool["URL"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                    pools[f"pool_{i + 1}_user"] = pool["User"]
+                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
+
+                groups.append(pools)
+            except KeyError:
+                pass
+        return groups
+
+    async def get_errors(self) -> List[MinerErrorData]:
+        return []
+
+    async def get_fault_light(self) -> bool:
+        return False
+
+    async def _get_data(self, allow_warning: bool) -> dict:
+        return {}
+
+    async def get_data(self, allow_warning: bool = False) -> MinerData:
+        return MinerData(ip=str(self.ip))

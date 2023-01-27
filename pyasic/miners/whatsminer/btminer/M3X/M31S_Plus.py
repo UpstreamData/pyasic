@@ -25,42 +25,28 @@ from pyasic.miners._types import (  # noqa - Ignore access to _module
 
 
 class BTMinerM31SPlus(BTMiner, M31SPlus):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusVE20(BTMiner, M31SPlusVE20):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusV30(BTMiner, M31SPlusV30):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusV40(BTMiner, M31SPlusV40):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusV60(BTMiner, M31SPlusV60):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusV80(BTMiner, M31SPlusV80):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass
 
 
 class BTMinerM31SPlusV90(BTMiner, M31SPlusV90):
-    def __init__(self, ip: str, api_ver: str = "1.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
+    pass

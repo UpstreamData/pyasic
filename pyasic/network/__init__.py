@@ -110,13 +110,16 @@ class MinerNetwork:
         scan_tasks = []
         miners = []
 
-
         limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
-        miners = await asyncio.gather(*[self.ping_and_get_miner(host, limit) for host in local_network.hosts()])
+        miners = await asyncio.gather(
+            *[self.ping_and_get_miner(host, limit) for host in local_network.hosts()]
+        )
 
         # remove all None from the miner list
         miners = list(filter(None, miners))
-        logging.debug(f"{self} - (Scan Network For Miners) - Found {len(miners)} miners")
+        logging.debug(
+            f"{self} - (Scan Network For Miners) - Found {len(miners)} miners"
+        )
 
         # return the miner objects
         return miners
@@ -138,13 +141,22 @@ class MinerNetwork:
         scan_tasks = []
 
         limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
-        miners = asyncio.as_completed([loop.create_task(self.ping_and_get_miner(host, limit)) for host in local_network.hosts()])
+        miners = asyncio.as_completed(
+            [
+                loop.create_task(self.ping_and_get_miner(host, limit))
+                for host in local_network.hosts()
+            ]
+        )
         for miner in miners:
-            yield await miner
-
+            try:
+                yield await miner
+            except TimeoutError:
+                yield None
 
     @staticmethod
-    async def ping_miner(ip: ipaddress.ip_address, semaphore: asyncio.Semaphore) -> Union[None, ipaddress.ip_address]:
+    async def ping_miner(
+        ip: ipaddress.ip_address, semaphore: asyncio.Semaphore
+    ) -> Union[None, ipaddress.ip_address]:
         async with semaphore:
             try:
                 miner = await ping_miner(ip)
@@ -236,5 +248,6 @@ async def ping_and_get_miner(
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
+            raise e
         continue
     return

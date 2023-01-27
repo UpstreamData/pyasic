@@ -129,11 +129,9 @@ class MinerData:
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
 
-
     @classmethod
     def fields(cls):
         return [f.name for f in fields(cls)]
-
 
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()

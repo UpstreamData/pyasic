@@ -35,14 +35,11 @@ class CGMinerAPI(BaseMinerAPI):
         port: The port to reference the API on.  Default is 4028.
     """
 
-    def __init__(self, ip: str, api_ver: str = "1.0.0", port: int = 4028):
+    def __init__(self, ip: str, api_ver: str = "0.0.0", port: int = 4028):
         super().__init__(ip, port)
         self.api_ver = api_ver
 
-
-    async def multicommand(
-        self, *commands: str, allow_warning: bool = True
-    ) -> dict:
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         # make sure we can actually run each command, otherwise they will fail
         commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
@@ -66,7 +63,9 @@ class CGMinerAPI(BaseMinerAPI):
         except APIError as e:
             raise APIError(e)
         except Exception as e:
-            logging.warning(f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}")
+            logging.warning(
+                f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}"
+            )
         return data
 
     async def version(self) -> dict:

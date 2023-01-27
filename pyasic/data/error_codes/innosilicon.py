@@ -31,7 +31,6 @@ class InnosiliconError:
     def fields(cls):
         return fields(cls)
 
-
     @property
     def error_message(self):  # noqa - Skip PyCharm inspection
         if self.error_code in ERROR_CODES:

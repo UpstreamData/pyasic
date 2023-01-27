@@ -56,7 +56,12 @@ class BaseMinerAPI:
         Returns:
             The return data from the API command parsed from JSON into a dict.
         """
-        logging.debug(f"{self} - (Send Privileged Command) - {command} " +  f'with args {parameters}' if parameters else '')
+        logging.debug(
+            f"{self} - (Send Privileged Command) - {command} "
+            + f"with args {parameters}"
+            if parameters
+            else ""
+        )
         # create the command
         cmd = {"command": command}
         if parameters:
@@ -81,11 +86,9 @@ class BaseMinerAPI:
         logging.debug(f"{self} - (Send Command) - Received data.")
         return data
 
-
     # Privileged command handler, only used by whatsminers, defined here for consistency.
     async def send_privileged_command(self, *args, **kwargs) -> dict:
         return await self.send_command(*args, **kwargs)
-
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -102,7 +105,7 @@ class BaseMinerAPI:
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
-            return {}
+            return {command: [{}] for command in commands}
         logging.debug(f"{self} - (Multicommand) - Received data")
         return data
 
@@ -148,7 +151,7 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def _send_bytes(self, data: bytes, timeout: int=100) -> bytes:
+    async def _send_bytes(self, data: bytes, timeout: int = 100) -> bytes:
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
         try:
             # get reader and writer streams
@@ -156,7 +159,9 @@ If you are sure you want to use this command please use API.send_command("{comma
         # handle OSError 121
         except OSError as e:
             if getattr(e, "winerror") == "121":
-                logging.warning(f"{self} - ([Hidden] Send Bytes) - Semaphore timeout expired.")
+                logging.warning(
+                    f"{self} - ([Hidden] Send Bytes) - Semaphore timeout expired."
+                )
             return b"{}"
 
         # send the command
@@ -236,7 +241,9 @@ If you are sure you want to use this command please use API.send_command("{comma
         # fix an error with a bmminer return having a specific comma that breaks json.loads()
         str_data = str_data.replace("[,{", "[{")
         # fix an error with Avalonminers returning inf and nan
+        str_data = str_data.replace("info", "1nfo")
         str_data = str_data.replace("inf", "0")
+        str_data = str_data.replace("1nfo", "info")
         str_data = str_data.replace("nan", "0")
         # fix whatever this garbage from avalonminers is `,"id":1}`
         if str_data.startswith(","):

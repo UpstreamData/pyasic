@@ -177,6 +177,7 @@ MINER_CLASSES = {
         "G20": BTMinerM30SVG20,
         "E20": BTMinerM30SVE20,
         "E10": BTMinerM30SVE10,
+        "G10": BTMinerM30SVG10
     },
     "M30S+": {
         "Default": BTMinerM30SPlus,
@@ -185,6 +186,8 @@ MINER_CLASSES = {
         "E40": BTMinerM30SPlusVE40,
         "G40": BTMinerM30SPlusVG40,
         "G60": BTMinerM30SPlusVG60,
+        "H30": BTMinerM30SPlusVH30,
+        "H60": BTMinerM30SPlusVH60,
     },
     "M30S++": {
         "Default": BTMinerM30SPlusPlus,
@@ -352,7 +355,7 @@ class MinerFactory(metaclass=Singleton):
         miner = self._select_miner_from_classes(ip, model, api, ver, api_ver)
 
         # once we have the miner, get the api and firmware version
-        #await miner.get_version()
+        # await miner.get_version()
 
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
@@ -367,7 +370,7 @@ class MinerFactory(metaclass=Singleton):
         model: Union[str, None],
         api: Union[str, None],
         ver: Union[str, None],
-        api_ver: Union[str, None],
+        api_ver: Union[str, None] = None,
     ) -> AnyMiner:
         miner = UnknownMiner(str(ip))
         # make sure we have model information
@@ -455,7 +458,7 @@ class MinerFactory(metaclass=Singleton):
                     model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
                     if not model == "BITMICRO":
                         break
-                except KeyError:
+                except (KeyError, IndexError):
                     continue
             try:
                 if devdetails[0]["STATUS"][0]["Msg"]:
@@ -493,7 +496,11 @@ class MinerFactory(metaclass=Singleton):
             try:
                 if isinstance(version.get("Msg"), dict):
                     if "api_ver" in version["Msg"]:
-                        api_ver = version["Msg"]["api_ver"].replace("whatsminer ", "").replace("v", "")
+                        api_ver = (
+                            version["Msg"]["api_ver"]
+                            .replace("whatsminer ", "")
+                            .replace("v", "")
+                        )
                         api = "BTMiner"
 
                 if version[0]["STATUS"][0]["Msg"]:
@@ -614,22 +621,30 @@ class MinerFactory(metaclass=Singleton):
                     if "Description" in version["STATUS"][0]:
                         if version["STATUS"][0]["Description"] == "btminer":
                             try:
-                                new_version = await self._send_api_command(str(ip), "get_version")
+                                new_version = await self._send_api_command(
+                                    str(ip), "get_version"
+                                )
                                 validation = await self._validate_command(new_version)
                                 if validation[0]:
                                     version = new_version
                             except Exception as e:
-                                logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
+                                logging.warning(
+                                    f"([Hidden] Get Devdetails and Version) - Error {e}"
+                                )
             if "DEVDETAILS" in devdetails:
                 if len(devdetails["DEVDETAILS"]) > 0:
                     if devdetails["DEVDETAILS"][0].get("Driver") == "bitmicro":
                         try:
-                            new_version = await self._send_api_command(str(ip), "get_version")
+                            new_version = await self._send_api_command(
+                                str(ip), "get_version"
+                            )
                             validation = await self._validate_command(new_version)
                             if validation[0]:
                                 version = new_version
                         except Exception as e:
-                            logging.warning(f"([Hidden] Get Devdetails and Version) - Error {e}")
+                            logging.warning(
+                                f"([Hidden] Get Devdetails and Version) - Error {e}"
+                            )
             return devdetails, version
         except APIError:
             # try devdetails and version separately (X19s mainly require this)
@@ -677,29 +692,37 @@ class MinerFactory(metaclass=Singleton):
     async def __get_model_from_graphql(ip: ipaddress.ip_address) -> Union[str, None]:
         model = None
         url = f"http://{ip}/graphql"
-        async with httpx.AsyncClient() as client:
-            d = await client.post(url, json={"query": "{bosminer {info{modelName}}}"})
-        if d.status_code == 200:
-            model = (d.json()["data"]["bosminer"]["info"]["modelName"]).upper()
-        return model
+        try:
+            async with httpx.AsyncClient() as client:
+                d = await client.post(
+                    url, json={"query": "{bosminer {info{modelName}}}"}
+                )
+            if d.status_code == 200:
+                model = (d.json()["data"]["bosminer"]["info"]["modelName"]).upper()
+            return model
+        except httpx.HTTPError:
+            pass
 
     @staticmethod
     async def __get_system_info_from_web(ip) -> dict:
         url = f"http://{ip}/cgi-bin/get_system_info.cgi"
         auth = httpx.DigestAuth("root", "root")
-        async with httpx.AsyncClient() as client:
-            data = await client.get(url, auth=auth)
-        if data.status_code == 200:
-            data = data.json()
-        return data
+        try:
+            async with httpx.AsyncClient() as client:
+                data = await client.get(url, auth=auth)
+            if data.status_code == 200:
+                data = data.json()
+            return data
+        except httpx.HTTPError:
+            pass
 
     @staticmethod
     async def __get_dragonmint_version_from_web(
         ip: ipaddress.ip_address,
     ) -> Union[str, None]:
         response = None
-        async with httpx.AsyncClient() as client:
-            try:
+        try:
+            async with httpx.AsyncClient() as client:
                 auth = (
                     await client.post(
                         f"http://{ip}/api/auth",
@@ -713,10 +736,13 @@ class MinerFactory(metaclass=Singleton):
                         data={},
                     )
                 ).json()
-            except Exception as e:
-                logging.info(e)
+        except httpx.HTTPError as e:
+            logging.info(e)
         if response:
-            return response["type"]
+            try:
+                return response["type"]
+            except KeyError:
+                pass
 
     @staticmethod
     async def _validate_command(data: dict) -> Tuple[bool, Union[str, None]]:
