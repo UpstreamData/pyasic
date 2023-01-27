@@ -411,7 +411,6 @@ class BTMinerAPI(BaseMinerAPI):
         the password of the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of powering on.
         </details>
         """
@@ -426,7 +425,6 @@ class BTMinerAPI(BaseMinerAPI):
         changing the password of the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of resetting the LED.
         </details>
         """
@@ -454,7 +452,6 @@ class BTMinerAPI(BaseMinerAPI):
             duration: LED on time in the cycle in ms.
             start: LED on time offset in the cycle in ms.
         Returns:
-
             A reply informing of the status of setting the LED.
         </details>
         """
@@ -473,7 +470,6 @@ class BTMinerAPI(BaseMinerAPI):
         changing the password of the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of setting low power mode.
         </details>
         """
@@ -491,7 +487,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             A reply informing of the status of the reboot.
         </details>
         """
@@ -510,7 +505,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             A reply informing of the status of the reset.
         </details>
         """
@@ -531,7 +525,6 @@ class BTMinerAPI(BaseMinerAPI):
             old_pwd: The old admin password.
             new_pwd: The new password to set.
         Returns:
-
             A reply informing of the status of setting the password.
         """
         self.pwd = old_pwd
@@ -563,7 +556,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             percent: The frequency % to set.
         Returns:
-
             A reply informing of the status of setting the frequency.
         </details>
         """
@@ -587,7 +579,6 @@ class BTMinerAPI(BaseMinerAPI):
         the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of enabling fast boot.
         </details>
         """
@@ -603,7 +594,6 @@ class BTMinerAPI(BaseMinerAPI):
         the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of disabling fast boot.
         </details>
         """
@@ -619,7 +609,6 @@ class BTMinerAPI(BaseMinerAPI):
         password of the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of enabling web pools.
         </details>
         """
@@ -635,7 +624,6 @@ class BTMinerAPI(BaseMinerAPI):
         password of the miner using the Whatsminer tool.
 
         Returns:
-
             A reply informing of the status of disabling web pools.
         </details>
         """
@@ -653,7 +641,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             hostname: The new hostname to use.
         Returns:
-
             A reply informing of the status of setting the hostname.
         </details>
         """
@@ -671,7 +658,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             percent: The power percentage to set.
         Returns:
-
             A reply informing of the status of setting the power percentage.
         </details>
         """
@@ -700,7 +686,6 @@ class BTMinerAPI(BaseMinerAPI):
                 * `adjust complete`
                 * `adjust continue`
         Returns:
-
             A reply informing of the status of pre power on.
         </details>
         """
@@ -722,7 +707,7 @@ class BTMinerAPI(BaseMinerAPI):
 
     ### ADDED IN V2.0.5 Whatsminer API ###
     @api_min_version("2.0.5")
-    async def set_temp_offset(self, temp_offset: int):
+    async def set_temp_offset(self, temp_offset: int) -> dict:
         """Set the offset of miner hash board target temperature.
 
         <details>
@@ -734,7 +719,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             temp_offset: Target temperature offset.
         Returns:
-
             A reply informing of the status of setting temp offset.
         </details>
 
@@ -751,7 +735,7 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     @api_min_version("2.0.5")
-    async def adjust_power_limit(self, power_limit: int):
+    async def adjust_power_limit(self, power_limit: int) -> dict:
         """Set the upper limit of the miner's power. Cannot be higher than the ordinary power of the machine.
 
         <details>
@@ -764,7 +748,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             power_limit: New power limit.
         Returns:
-
             A reply informing of the status of setting power limit.
         </details>
 
@@ -774,7 +757,7 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     @api_min_version("2.0.5")
-    async def adjust_upfreq_speed(self, upfreq_speed: int):
+    async def adjust_upfreq_speed(self, upfreq_speed: int) -> dict:
         """Set the upfreq speed, 0 is the normal speed, 9 is the fastest speed.
 
         <details>
@@ -788,7 +771,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             upfreq_speed: New upfreq speed.
         Returns:
-
             A reply informing of the status of setting upfreq speed.
         </details>
         """
@@ -803,7 +785,7 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     @api_min_version("2.0.5")
-    async def set_poweroff_cool(self, poweroff_cool: bool):
+    async def set_poweroff_cool(self, poweroff_cool: bool) -> dict:
         """Set whether to cool the machine when mining is stopped.
 
         <details>
@@ -815,7 +797,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             poweroff_cool: Whether to cool the miner during power off mode.
         Returns:
-
             A reply informing of the status of setting power off cooling mode.
         </details>
         """
@@ -825,7 +806,7 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     @api_min_version("2.0.5")
-    async def set_fan_zero_speed(self, fan_zero_speed: bool):
+    async def set_fan_zero_speed(self, fan_zero_speed: bool) -> dict:
         """Sets whether the fan speed supports the lowest 0 speed.
 
         <details>
@@ -837,7 +818,6 @@ class BTMinerAPI(BaseMinerAPI):
         Parameters:
             fan_zero_speed: Whether the fan is allowed to support 0 speed.
         Returns:
-
             A reply informing of the status of setting fan minimum speed.
         </details>
 
@@ -854,7 +834,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Summary status of the miner.
         </details>
         """
@@ -866,7 +845,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Pool status of the miner.
         </details>
         """
@@ -878,7 +856,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Data on each PGA/ASC with their details.
         </details>
         """
@@ -890,7 +867,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Data on each PGA/ASC with their details.
         </details>
         """
@@ -902,7 +878,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Data on all devices with their static details.
         </details>
         """
@@ -914,7 +889,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Data on the PSU and power information.
         </details>
         """
@@ -930,7 +904,6 @@ class BTMinerAPI(BaseMinerAPI):
         with the other miner APIs.
 
         Returns:
-
             Version data for the miner.
         </details>
         """
@@ -942,7 +915,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             Version data for the miner.
         </details>
         """
@@ -954,7 +926,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             BTMiner status and firmware version.
         </details>
         """
@@ -966,7 +937,6 @@ class BTMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Returns:
-
             General miner info.
         </details>
         """
@@ -981,7 +951,6 @@ class BTMinerAPI(BaseMinerAPI):
         Get a list of error codes from the miner.  Replaced `summary` as the location of error codes with API version 2.0.4.
 
         Returns:
-
             A list of error codes on the miner.
         </details>
         """

@@ -25,6 +25,17 @@ from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19E
 
 @dataclass
 class HashBoard:
+    """A Dataclass to standardize hashboard data.
+
+    Attributes:
+        slot: The slot of the board as an int.
+        hashrate: The hashrate of the board in TH/s as a float.
+        temp: The temperature of the PCB as an int.
+        chip_temp: The temperature of the chips as an int.
+        chips: The chip count of the board as an int.
+        expected_chips: The ideal chip count of the board as an int.
+        missing: Whether the board is returned from the miners data as a bool.
+    """
     slot: int = 0
     hashrate: float = 0.0
     temp: int = -1
