@@ -414,6 +414,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             "hashrate": await self.get_hashrate(
                 api_summary=summary, web_all_data=web_all_data
             ),
+            "nominal_hashrate": await self.get_nominal_hashrate(api_stats=stats),
             "hashboards": await self.get_hashboards(
                 api_stats=stats, web_all_data=web_all_data
             ),

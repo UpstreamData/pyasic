@@ -301,6 +301,16 @@ class BaseMiner(ABC):
         """
         pass
 
+    @abstractmethod
+    async def get_nominal_hashrate(self, *args, **kwargs) -> Optional[float]:
+        """Get the nominal hashrate from factory if available.
+
+        Returns:
+            A float value of nominal hashrate in TH/s.
+        """
+        pass
+
+
     async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 

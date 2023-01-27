@@ -487,6 +487,22 @@ class BTMiner(BaseMiner):
 
         return errors
 
+    async def get_nominal_hashrate(self, api_summary: dict = None):
+        if not api_summary:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary:
+            try:
+                nominal_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
+                if nominal_hashrate:
+                    return round(nominal_hashrate/1000, 2)
+            except (KeyError, IndexError):
+                pass
+
+
     async def get_fault_light(self, api_miner_info: dict = None) -> bool:
         data = None
 
@@ -564,6 +580,7 @@ class BTMiner(BaseMiner):
             "fw_ver": None,  # - Done at end
             "hostname": await self.get_hostname(api_miner_info=miner_info),
             "hashrate": await self.get_hashrate(api_summary=summary),
+            "nominal_hashrate": await self.get_nominal_hashrate(api_summary=summary),
             "hashboards": await self.get_hashboards(api_devs=devs),
             # ideal_hashboards - Done at start
             "env_temp": await self.get_env_temp(api_summary=summary),

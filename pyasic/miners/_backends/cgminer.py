@@ -364,6 +364,30 @@ class CGMiner(BaseMiner):
     async def get_fault_light(self) -> bool:
         return False
 
+    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+        # X19 method, not sure compatibility
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                try:
+                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                except KeyError:
+                    rate_unit = "GH"
+                if rate_unit == "GH":
+                    return round(ideal_rate/1000, 2)
+                if rate_unit == "MH":
+                    return round(ideal_rate/1000000, 2)
+                else:
+                    return round(ideal_rate, 2)
+            except (KeyError, IndexError):
+                pass
+
     async def _get_data(self, allow_warning: bool) -> dict:
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
@@ -417,6 +441,7 @@ class CGMiner(BaseMiner):
             "fw_ver": None,  # - Done at end
             "hostname": await self.get_hostname(),
             "hashrate": await self.get_hashrate(api_summary=summary),
+            "nominal_hashrate": await self.get_nominal_hashrate(api_stats=stats),
             "hashboards": await self.get_hashboards(api_stats=stats),
             # ideal_hashboards - Done at start
             "env_temp": await self.get_env_temp(),

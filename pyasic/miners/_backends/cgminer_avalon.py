@@ -325,6 +325,7 @@ class CGMinerAvalon(CGMiner):
             "fw_ver": None,  # - Done at end
             "hostname": await self.get_hostname(),
             "hashrate": await self.get_hashrate(api_summary=summary),
+            "nominal_hashrate": await self.get_nominal_hashrate(api_stats=stats),
             "hashboards": await self.get_hashboards(api_stats=stats),
             # ideal_hashboards - Done at start
             "env_temp": await self.get_env_temp(),

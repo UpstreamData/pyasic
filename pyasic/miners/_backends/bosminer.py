@@ -825,6 +825,31 @@ class BOSMiner(BaseMiner):
             logging.debug(f"SSH command failed - Fault Light - {e}")
         return self.light
 
+    async def get_nominal_hashrate(self, api_devs: dict = None) -> Optional[float]:
+        if not api_devs:
+            try:
+                api_devs = await self.api.devs()
+            except APIError:
+                pass
+        nom_hr = 0
+
+        if api_devs:
+            try:
+                offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 0
+                hr_list = []
+
+                for board in api_devs["DEVS"]:
+                    _id = board["ID"] - offset
+                    nominal_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
+                    if nominal_hashrate:
+                        hr_list.append(nominal_hashrate)
+                if len(hr_list) == 0:
+                    return 0
+                else:
+                    return round((sum(hr_list)/len(hr_list))*self.ideal_hashboards, 2)
+            except (IndexError, KeyError):
+                pass
+
     async def _get_data(self, allow_warning: bool) -> dict:
         miner_data = None
         for i in range(PyasicSettings().miner_get_data_retries):
@@ -902,6 +927,7 @@ class BOSMiner(BaseMiner):
             "hashrate": await self.get_hashrate(
                 api_summary=summary, graphql_hashrate=gql_data
             ),
+            "nominal_hashrate": await self.get_nominal_hashrate(api_devs=devs),
             "hashboards": await self.get_hashboards(
                 api_temps=temps,
                 api_devdetails=devdetails,

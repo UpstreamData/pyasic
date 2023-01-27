@@ -18,6 +18,7 @@ from typing import List, Union, Optional
 
 import httpx
 
+from pyasic.API import APIError
 from pyasic.config import MinerConfig
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
@@ -148,3 +149,26 @@ class BMMinerX19(BMMiner):
         except KeyError:
             pass
         return self.light
+
+    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                try:
+                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                except KeyError:
+                    rate_unit = "GH"
+                if rate_unit == "GH":
+                    return round(ideal_rate/1000, 2)
+                if rate_unit == "MH":
+                    return round(ideal_rate/1000000, 2)
+                else:
+                    return round(ideal_rate, 2)
+            except (KeyError, IndexError):
+                pass
