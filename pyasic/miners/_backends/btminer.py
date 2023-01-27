@@ -223,7 +223,7 @@ class BTMiner(BaseMiner):
         return None
 
     async def get_version(
-        self, api_version: dict = None
+        self, api_version: dict = None, api_summary: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
         # check if version is cached
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
@@ -240,11 +240,31 @@ class BTMiner(BaseMiner):
         if api_version:
             if "Code" in api_version.keys():
                 if api_version["Code"] == 131:
-                    self.api_ver = api_version["Msg"]["api_ver"].replace(
-                        "whatsminer v", ""
-                    )
-                    self.fw_ver = api_version["Msg"]["fw_ver"]
-                self.api.api_ver = self.api_ver
+                    try:
+                        api_ver = api_version["Msg"]
+                        if not isinstance(api_ver, str):
+                            api_ver = api_ver["api_ver"]
+                        self.api_ver = api_ver.replace(
+                            "whatsminer v", ""
+                        )
+                        self.fw_ver = api_version["Msg"]["fw_ver"]
+                    except (KeyError, TypeError):
+                        pass
+                    else:
+                        self.api.api_ver = self.api_ver
+                        return miner_version(self.api_ver, self.fw_ver)
+
+        if not api_summary:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary:
+            try:
+                self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace("'", "")
+            except (KeyError, IndexError):
+                pass
 
         return miner_version(self.api_ver, self.fw_ver)
 

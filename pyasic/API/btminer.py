@@ -240,7 +240,6 @@ class BTMinerAPI(BaseMinerAPI):
         command = {"cmd": command, **kwargs}
 
         token_data = await self.get_token()
-        print(token_data)
         enc_command = create_privileged_cmd(token_data, command)
 
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
