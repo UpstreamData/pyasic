@@ -14,8 +14,8 @@
 
 import ipaddress
 import logging
-from typing import List, Union, Tuple, Optional
 from collections import namedtuple
+from typing import List, Optional, Tuple, Union
 
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.config import MinerConfig
@@ -244,9 +244,7 @@ class BTMiner(BaseMiner):
                         api_ver = api_version["Msg"]
                         if not isinstance(api_ver, str):
                             api_ver = api_ver["api_ver"]
-                        self.api_ver = api_ver.replace(
-                            "whatsminer v", ""
-                        )
+                        self.api_ver = api_ver.replace("whatsminer v", "")
                         self.fw_ver = api_version["Msg"]["fw_ver"]
                     except (KeyError, TypeError):
                         pass
@@ -262,7 +260,9 @@ class BTMiner(BaseMiner):
 
         if api_summary:
             try:
-                self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace("'", "")
+                self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace(
+                    "'", ""
+                )
             except (KeyError, IndexError):
                 pass
 
@@ -462,12 +462,9 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 for i in range(api_summary["SUMMARY"][0]["Error Code Count"]):
-                    errors.append(
-                        WhatsminerError(
-                            error_code=api_summary["SUMMARY"][0][f"Error Code {i}"]
-                        )
-                    )
-
+                    err = api_summary["SUMMARY"][0].get(f"Error Code {i}")
+                    if err:
+                        errors.append(WhatsminerError(error_code=err))
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
@@ -498,10 +495,9 @@ class BTMiner(BaseMiner):
             try:
                 nominal_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
                 if nominal_hashrate:
-                    return round(nominal_hashrate/1000, 2)
+                    return round(nominal_hashrate / 1000, 2)
             except (KeyError, IndexError):
                 pass
-
 
     async def get_fault_light(self, api_miner_info: dict = None) -> bool:
         data = None
