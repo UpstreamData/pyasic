@@ -26,4 +26,4 @@ class M39V20(WhatsMiner):  # noqa - ignore ABC method implementation
         warnings.warn(
             "Unknown chip count for miner type M39 V20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )
-        self.fan_count = 2
+        self.fan_count = 0
