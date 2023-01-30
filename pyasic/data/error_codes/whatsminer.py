@@ -52,9 +52,7 @@ class WhatsminerError:
                 elif "n" in select_err_subtype:
                     return select_err_subtype[
                         "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
-                    ].replace(
-                        "{n}", str(err_value)
-                    )
+                    ].replace("{n}", str(err_value))
                 else:
                     return "Unknown error type."
             elif "n" in select_err_type:

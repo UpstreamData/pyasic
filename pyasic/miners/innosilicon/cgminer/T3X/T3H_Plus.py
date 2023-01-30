@@ -14,8 +14,8 @@
 import json
 import logging
 import warnings
-from typing import List, Union, Optional, Tuple
 from collections import namedtuple
+from typing import List, Optional, Tuple, Union
 
 import httpx
 

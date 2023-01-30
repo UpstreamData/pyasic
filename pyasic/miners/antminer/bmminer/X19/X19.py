@@ -14,7 +14,7 @@
 
 import asyncio
 import json
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 import httpx
 
@@ -165,9 +165,9 @@ class BMMinerX19(BMMiner):
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
-                    return round(ideal_rate/1000, 2)
+                    return round(ideal_rate / 1000, 2)
                 if rate_unit == "MH":
-                    return round(ideal_rate/1000000, 2)
+                    return round(ideal_rate / 1000000, 2)
                 else:
                     return round(ideal_rate, 2)
             except (KeyError, IndexError):

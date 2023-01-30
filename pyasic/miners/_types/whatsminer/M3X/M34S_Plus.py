@@ -15,16 +15,6 @@
 from pyasic.miners._types.makes import WhatsMiner
 
 
-class M34SPlus(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M34S+"
-        self.ideal_hashboards = 4
-        self.nominal_chips = 116
-        self.fan_count = 0
-
-
 class M34SPlusVE10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()

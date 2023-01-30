@@ -15,14 +15,13 @@
 import ipaddress
 import logging
 from collections import namedtuple
-from typing import List, Tuple, Optional
-from typing import Union
+from typing import List, Optional, Tuple, Union
 
 import asyncssh
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import MinerData, HashBoard
+from pyasic.data import HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner

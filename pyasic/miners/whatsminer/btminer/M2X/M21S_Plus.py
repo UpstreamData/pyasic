@@ -13,8 +13,8 @@
 #  limitations under the License.
 
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import M21SPlus  # noqa - Ignore access to _module
+from pyasic.miners._types import M21SPlusV20  # noqa - Ignore access to _module
 
 
-class BTMinerM21SPlus(BTMiner, M21SPlus):
+class BTMinerM21SPlusV20(BTMiner, M21SPlusV20):
     pass

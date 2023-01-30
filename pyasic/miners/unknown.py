@@ -12,15 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List, Tuple, Optional
 from collections import namedtuple
+from typing import List, Optional, Tuple
 
 from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
-from pyasic.data import MinerData, HashBoard
+from pyasic.data import HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
-from pyasic.miners.base import BaseMiner
 from pyasic.errors import APIError
+from pyasic.miners.base import BaseMiner
 
 
 class UnknownMiner(BaseMiner):

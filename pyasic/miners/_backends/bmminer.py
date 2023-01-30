@@ -14,8 +14,8 @@
 
 import ipaddress
 import logging
-from typing import List, Union, Tuple, Optional
 from collections import namedtuple
+from typing import List, Optional, Tuple, Union
 
 import asyncssh
 
@@ -332,9 +332,9 @@ class BMMiner(BaseMiner):
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
-                    return round(ideal_rate/1000, 2)
+                    return round(ideal_rate / 1000, 2)
                 if rate_unit == "MH":
-                    return round(ideal_rate/1000000, 2)
+                    return round(ideal_rate / 1000000, 2)
                 else:
                     return round(ideal_rate, 2)
             except (KeyError, IndexError):

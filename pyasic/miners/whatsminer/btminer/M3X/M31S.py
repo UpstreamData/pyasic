@@ -13,16 +13,23 @@
 #  limitations under the License.
 
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import (
-    M31S,
+from pyasic.miners._types import (  # noqa - Ignore access to _module
     M31SV10,
     M31SV20,
+    M31SV30,
+    M31SV40,
+    M31SV50,
     M31SV60,
     M31SV70,
-)  # noqa - Ignore access to _module
+    M31SV80,
+    M31SV90,
+    M31SVE10,
+    M31SVE20,
+    M31SVE30,
+)
 
 
-class BTMinerM31S(BTMiner, M31S):
+class BTMinerM31SV10(BTMiner, M31SV10):
     pass
 
 
@@ -30,7 +37,15 @@ class BTMinerM31SV20(BTMiner, M31SV20):
     pass
 
 
-class BTMinerM31SV10(BTMiner, M31SV10):
+class BTMinerM31SV30(BTMiner, M31SV30):
+    pass
+
+
+class BTMinerM31SV40(BTMiner, M31SV40):
+    pass
+
+
+class BTMinerM31SV50(BTMiner, M31SV50):
     pass
 
 
@@ -39,4 +54,24 @@ class BTMinerM31SV60(BTMiner, M31SV60):
 
 
 class BTMinerM31SV70(BTMiner, M31SV70):
+    pass
+
+
+class BTMinerM31SV80(BTMiner, M31SV80):
+    pass
+
+
+class BTMinerM31SV90(BTMiner, M31SV90):
+    pass
+
+
+class BTMinerM31SVE10(BTMiner, M31SVE10):
+    pass
+
+
+class BTMinerM31SVE20(BTMiner, M31SVE20):
+    pass
+
+
+class BTMinerM31SVE30(BTMiner, M31SVE30):
     pass

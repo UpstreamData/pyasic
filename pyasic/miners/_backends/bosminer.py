@@ -15,8 +15,8 @@
 import ipaddress
 import json
 import logging
-from typing import List, Union, Tuple, Optional
 from collections import namedtuple
+from typing import List, Optional, Tuple, Union
 
 import asyncssh
 import httpx
@@ -846,7 +846,9 @@ class BOSMiner(BaseMiner):
                 if len(hr_list) == 0:
                     return 0
                 else:
-                    return round((sum(hr_list)/len(hr_list))*self.ideal_hashboards, 2)
+                    return round(
+                        (sum(hr_list) / len(hr_list)) * self.ideal_hashboards, 2
+                    )
             except (IndexError, KeyError):
                 pass
 

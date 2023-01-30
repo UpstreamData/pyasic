@@ -15,15 +15,6 @@
 from pyasic.miners._types.makes import WhatsMiner
 
 
-class M20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M20"
-        self.nominal_chips = 70
-        self.fan_count = 2
-
-
 class M20V10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()

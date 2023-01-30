@@ -12,9 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M20 import M20, M20V10
-from .M20S import M20S, M20SV10, M20SV20
-from .M20S_Plus import M20SPlus
-from .M21 import M21
-from .M21S import M21S, M21SV20, M21SV60
-from .M21S_Plus import M21SPlus
+from .M20 import M20V10
+from .M20S import M20SV10, M20SV20, M20SV30
+from .M20S_Plus import M20SPlusV30
+from .M21 import M21V10
+from .M21S import M21SV20, M21SV60, M21SV70
+from .M21S_Plus import M21SPlusV20
+from .M29 import M29V10

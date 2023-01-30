@@ -12,16 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import warnings
+
 from pyasic.miners._types.makes import WhatsMiner
-
-
-class M20S(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M20S"
-        self.nominal_chips = 66
-        self.fan_count = 2
 
 
 class M20SV10(WhatsMiner):  # noqa - ignore ABC method implementation
@@ -39,4 +32,16 @@ class M20SV20(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M20S V20"
         self.nominal_chips = 111
+        self.fan_count = 2
+
+
+class M20SV30(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M20S V30"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M20SV30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
         self.fan_count = 2

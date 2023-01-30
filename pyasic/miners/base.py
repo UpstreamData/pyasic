@@ -15,12 +15,12 @@
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
-from typing import List, TypeVar, Tuple, Optional
+from typing import List, Optional, Tuple, TypeVar
 
 import asyncssh
 
 from pyasic.config import MinerConfig
-from pyasic.data import MinerData, HashBoard
+from pyasic.data import HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 
 
@@ -309,7 +309,6 @@ class BaseMiner(ABC):
             A float value of nominal hashrate in TH/s.
         """
         pass
-
 
     async def get_data(self, allow_warning: bool = False) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].

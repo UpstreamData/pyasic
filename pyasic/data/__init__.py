@@ -36,6 +36,7 @@ class HashBoard:
         expected_chips: The ideal chip count of the board as an int.
         missing: Whether the board is returned from the miners data as a bool.
     """
+
     slot: int = 0
     hashrate: float = 0.0
     temp: int = -1

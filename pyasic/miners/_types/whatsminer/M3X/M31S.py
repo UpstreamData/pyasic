@@ -12,16 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import warnings
+
 from pyasic.miners._types.makes import WhatsMiner
-
-
-class M31S(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
-        self.model = "M31S"
-        self.nominal_chips = 111
-        self.fan_count = 2
 
 
 class M31SV10(WhatsMiner):  # noqa - ignore ABC method implementation
@@ -42,6 +35,42 @@ class M31SV20(WhatsMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 2
 
 
+class M31SV30(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V30"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SV30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SV40(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V40"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SV40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SV50(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V50"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SV50, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
 class M31SV60(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
@@ -57,4 +86,64 @@ class M31SV70(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M31S V70"
         self.nominal_chips = 111
+        self.fan_count = 2
+
+
+class M31SV80(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V80"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SV80, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SV90(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S V90"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SV90, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SVE10(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S VE10"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SVE10, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SVE20(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S VE20"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SVE20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 2
+
+
+class M31SVE30(WhatsMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "M31S VE30"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M31SVE30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
         self.fan_count = 2

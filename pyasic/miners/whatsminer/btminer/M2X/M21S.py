@@ -14,14 +14,10 @@
 
 from pyasic.miners._backends import BTMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import (  # noqa - Ignore access to _module
-    M21S,
     M21SV20,
     M21SV60,
+    M21SV70,
 )
-
-
-class BTMinerM21S(BTMiner, M21S):
-    pass
 
 
 class BTMinerM21SV20(BTMiner, M21SV20):
@@ -29,4 +25,8 @@ class BTMinerM21SV20(BTMiner, M21SV20):
 
 
 class BTMinerM21SV60(BTMiner, M21SV60):
+    pass
+
+
+class BTMinerM21SV70(BTMiner, M21SV70):
     pass

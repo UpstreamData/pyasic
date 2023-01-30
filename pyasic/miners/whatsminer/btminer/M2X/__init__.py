@@ -12,9 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .M20 import BTMinerM20, BTMinerM20V10
-from .M20S import BTMinerM20S, BTMinerM20SV10, BTMinerM20SV20
-from .M20S_Plus import BTMinerM20SPlus
-from .M21 import BTMinerM21
-from .M21S import BTMinerM21S, BTMinerM21SV20, BTMinerM21SV60
-from .M21S_Plus import BTMinerM21SPlus
+from .M20 import BTMinerM20V10
+from .M20S import BTMinerM20SV10, BTMinerM20SV20, BTMinerM20SV30
+from .M20S_Plus import BTMinerM20SPlusV30
+from .M21 import BTMinerM21V10
+from .M21S import BTMinerM21SV20, BTMinerM21SV60, BTMinerM21SV70
+from .M21S_Plus import BTMinerM21SPlusV20
+from .M29 import BTMinerM29V10
