@@ -14,6 +14,8 @@
 
 from dataclasses import asdict, dataclass, field, fields
 
+C_N_CODES = ["52", "53", "54", "55"]
+
 
 @dataclass
 class WhatsminerError:
@@ -33,7 +35,7 @@ class WhatsminerError:
 
     @property
     def error_message(self):  # noqa - Skip PyCharm inspection
-        if len(str(self.error_code)) > 3 and str(self.error_code).startswith("55"):
+        if len(str(self.error_code)) > 3 and str(self.error_code)[:2] in C_N_CODES:
             # 55 error code base has chip numbers, so the format is
             # 55 -> board num len 1 -> chip num len 3
             err_type = 55
@@ -84,6 +86,7 @@ class WhatsminerError:
 
 ERROR_CODES = {
     1: {  # Fan error
+        0: {0: "Fan unknown."},
         1: {  # Fan speed error of 1000+
             0: "Intake fan speed error.",
             1: "Exhaust fan speed error.",
@@ -108,10 +111,16 @@ ERROR_CODES = {
             5: "Power current error.",
             6: "Power input low voltage error.",
             7: "Power input current protecting due to bad power input.",
+            8: "Power power error.",
+            9: "Power voltage offset error.",
         },
         1: {
             0: "Power error.",
+            1: "Power iout error, please reboot.",
+            2: "Power vout error, reach vout border. Border: [1150, 1500]",
             3: "Power input voltage and current do not match power output.",
+            4: "Power pin did not change.",
+            5: "Power vout set error.",
             6: "Power remained unchanged for a long time.",
             7: "Power set enable error.",
             8: "Power input voltage is lower than 230V for high power mode.",
@@ -171,8 +180,15 @@ ERROR_CODES = {
         },
         5: {"n": "Slot {n} temperature protecting."},  # temperature protection
         6: {0: "Hashboard high temperature error."},  # high temp
+        8: {
+            0: "Humidity sensor not found.",
+            1: "Humidity sensor read error.",
+            2: "Humidity sensor read error.",
+            3: "Humidity sensor protecting.",
+        },
     },
     4: {  # EEPROM error
+        0: {0: "Eeprom unknown error."},
         1: {"n": "Slot {n} eeprom detection error."},  # EEPROM detection error
         2: {"n": "Slot {n} eeprom parsing error."},  # EEPROM parsing error
         3: {"n": "Slot {n} chip bin type error."},  # chip bin error
@@ -180,12 +196,16 @@ ERROR_CODES = {
         5: {"n": "Slot {n} eeprom xfer error."},  # EEPROM xfer error
     },
     5: {  # hashboard error
+        0: {0: "Board unknown error."},
         1: {"n": "Slot {n} miner type error."},  # board miner type error
         2: {"n": "Slot {n} bin type error."},  # chip bin type error
         3: {"n": "Slot {n} not found."},  # board not found error
         4: {"n": "Slot {n} error reading chip id."},  # reading chip id error
         5: {"n": "Slot {n} has bad chips."},  # board has bad chips error
         6: {"n": "Slot {n} loss of balance error."},  # loss of balance error
+        7: {"n": "Slot {n} xfer error chip."},  # xfer error
+        8: {"n": "Slot {n} reset error."},  # reset error
+        9: {"n": "Slot {n} frequency too low."},  # freq error
     },
     6: {  # env temp error
         0: {0: "Environment temperature is too high."},  # normal env temp error
@@ -194,9 +214,10 @@ ERROR_CODES = {
         },
     },
     7: {  # control board error
-        0: {1: "Control board no support chip."},
+        0: {0: "MAC address invalid", 1: "Control board no support chip."},
         1: {
             0: "Control board rebooted as an exception.",
+            1: "Control board rebooted as exception and cpufreq reduced, please upgrade the firmware",
             2: "Control board rebooted as an exception.",
         },
     },
@@ -207,6 +228,7 @@ ERROR_CODES = {
             2: "Remote daemon checksum error.",
         }
     },
+    9: {0: {1: "Power rate error."}},  # power rate error
     20: {  # pool error
         1: {0: "All pools are disabled."},  # all disabled error
         2: {"n": "Pool {n} connection failed."},  # pool connection failed error
@@ -215,28 +237,99 @@ ERROR_CODES = {
             0: "The pool does not support asicboost mode."
         },
     },
+    21: {1: {"n": "Slot {n} factory test step failed."}},
     23: {  # hashrate error
         1: {0: "Hashrate is too low."},
         2: {0: "Hashrate is too low."},
         3: {0: "Hashrate loss is too high."},
         4: {0: "Hashrate loss is too high."},
+        5: {0: "Hashrate loss."},
     },
-    50: {  # water velocity error
+    50: {  # water velocity error/voltage error
+        1: {"n": "Slot {n} chip voltage too low."},
+        2: {"n": "Slot {n} chip voltage changed."},
+        3: {"n": "Slot {n} chip temperature difference is too large."},
+        4: {"n": "Slot {n} chip hottest temperature difference is too large."},
         7: {"n": "Slot {n} water velocity is abnormal."},  # abnormal water velocity
+        8: {0: "Chip temp calibration failed, please restore factory settings."},
         9: {"n": "Slot {n} chip temp calibration check no balance."},
     },
     51: {  # frequency error
+        1: {"n": "Slot {n} frequency up timeout."},  # frequency up timeout
         7: {"n": "Slot {n} frequency up timeout."},  # frequency up timeout
     },
+    52: {"n": {"c": "Slot {n} chip {c} error nonce."}},
+    53: {"n": {"c": "Slot {n} chip {c} too few nonce."}},
+    54: {"n": {"c": "Slot {n} chip {c} temp protected."}},
     55: {"n": {"c": "Slot {n} chip {c} has been reset."}},
+    80: {
+        0: {0: "The tool version is too low, please update."},
+        1: {0: "Low freq."},
+        2: {0: "Low hashrate."},
+        3: {5: "High env temp."},
+    },
+    81: {
+        0: {0: "Chip data error."},
+    },
+    82: {
+        0: {0: "Power version error."},
+        1: {0: "Miner type error."},
+        2: {0: "Version info error."},
+    },
+    83: {
+        0: {0: "Empty level error."},
+    },
     84: {
+        0: {0: "Old firmware."},
         1: {0: "Software version error."},
     },
+    85: {
+        "n": {
+            0: "Hashrate substandard L{n}.",
+            1: "Power consumption substandard L{n}.",
+            2: "Fan speed substandard L{n}.",
+            3: "Fan speed substandard L{n}.",
+            4: "Voltage substandard L{n}.",
+        },
+    },
+    86: {
+        0: {0: "Missing product serial #."},
+        1: {0: "Missing product type."},
+        2: {
+            0: "Missing miner serial #.",
+            1: "Wrong miner serial # length.",
+        },
+        3: {
+            0: "Missing power serial #.",
+            1: "Wrong power serial #.",
+            2: "Fault miner serial #.",
+        },
+        4: {
+            0: "Missing power model.",
+            1: "Wrong power model name.",
+            2: "Wrong power model vout.",
+            3: "Wrong power model rate.",
+            4: "Wrong power model format.",
+        },
+        5: {0: "Wrong hash board struct."},
+        6: {0: "Wrong miner cooling type."},
+        7: {0: "Missing PCB serial #."},
+    },
+    87: {0: {0: "Miner power mismatch."}},
+    99: {9: {9: "Miner unknown error."}},
     1000: {
         0: {
+            0: "Security library error, please upgrade firmware",
             1: "/antiv/signature illegal.",
             2: "/antiv/dig/init.d illegal.",
             3: "/antiv/dig/pf_partial.dig illegal.",
         },
+    },
+    1001: {0: {0: "Security BTMiner removed, please upgrade firmware."}},
+    1100: {
+        0: {
+            0: "Security illegal file, please upgrade firmware.",
+            1: "Security virus 0001 is removed, please upgrade firmware.",
+        }
     },
 }
