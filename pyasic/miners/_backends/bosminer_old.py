@@ -21,7 +21,7 @@ import asyncssh
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import HashBoard, MinerData
+from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
@@ -131,18 +131,17 @@ class BOSMinerOld(BaseMiner):
 
     async def get_fans(
         self,
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
-        Tuple[Optional[int]],
-    ]:
-        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
-        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
-        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
+    ) -> List[Fan]:
+        return [Fan(), Fan(), Fan(), Fan()]
 
-        fans = fan_speeds(None, None, None, None)
-        psu_fans = psu_fan_speeds(None)
+    async def get_fan_psu(self) -> Optional[int]:
+        return None
 
-        return miner_fan_speeds(fans, psu_fans)
+    async def get_api_ver(self) -> Optional[str]:
+        return None
+
+    async def get_fw_ver(self) -> Optional[str]:
+        return None
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
         groups = []
@@ -178,9 +177,6 @@ class BOSMinerOld(BaseMiner):
 
     async def get_nominal_hashrate(self) -> Optional[float]:
         return None
-
-    async def _get_data(self, allow_warning: bool) -> dict:
-        return {}
 
     async def get_data(self, allow_warning: bool = False) -> MinerData:
         return MinerData(ip=str(self.ip))

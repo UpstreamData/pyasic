@@ -63,8 +63,8 @@ class BMMinerAPI(BaseMinerAPI):
                 data[cmd].append(
                     await self.send_command(cmd, allow_warning=allow_warning)
                 )
-        except APIError as e:
-            raise APIError(e)
+        except APIError:
+            pass
         except Exception as e:
             logging.warning(
                 f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}"

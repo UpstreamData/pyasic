@@ -21,7 +21,7 @@ import asyncssh
 
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import HashBoard, MinerData
+from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
@@ -185,9 +185,14 @@ class CGMiner(BaseMiner):
         self, api_version: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        # Check to see if the version info is already cached
-        if self.api_ver and self.fw_ver:
-            return miner_version(self.api_ver, self.fw_ver)
+        return miner_version(
+            api_ver=await self.get_api_ver(api_version=api_version),
+            fw_ver=await self.get_fw_ver(api_version=api_version),
+        )
+
+    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
+        if self.api_ver:
+            return self.api_ver
 
         if not api_version:
             try:
@@ -200,12 +205,26 @@ class CGMiner(BaseMiner):
                 self.api_ver = api_version["VERSION"][0]["API"]
             except (KeyError, IndexError):
                 pass
+
+        return self.api_ver
+
+    async def get_fw_ver(self, api_version: dict = None) -> Optional[str]:
+        if self.fw_ver:
+            return self.fw_ver
+
+        if not api_version:
+            try:
+                api_version = await self.api.version()
+            except APIError:
+                pass
+
+        if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CGMiner"]
             except (KeyError, IndexError):
                 pass
 
-        return miner_version(self.api_ver, self.fw_ver)
+        return self.fw_ver
 
     async def get_hostname(self) -> Optional[str]:
         try:
@@ -293,25 +312,14 @@ class CGMiner(BaseMiner):
     async def get_wattage_limit(self) -> Optional[int]:
         return None
 
-    async def get_fans(
-        self, api_stats: dict = None
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
-        Tuple[Optional[int]],
-    ]:
-        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
-        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
-        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
-
-        psu_fans = psu_fan_speeds(None)
-
+    async def get_fans(self, api_stats: dict = None) -> List[Fan]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        fans_data = [None, None, None, None]
+        fans_data = [Fan(), Fan(), Fan(), Fan()]
         if api_stats:
             try:
                 fan_offset = -1
@@ -325,12 +333,15 @@ class CGMiner(BaseMiner):
                     fan_offset = 1
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    fans_data[fan] = Fan(
+                        api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    )
             except (KeyError, IndexError):
                 pass
-        fans = fan_speeds(*fans_data)
+        return fans_data
 
-        return miner_fan_speeds(fans, psu_fans)
+    async def get_fan_psu(self) -> Optional[int]:
+        return None
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
         groups = []
@@ -387,109 +398,3 @@ class CGMiner(BaseMiner):
                     return round(ideal_rate, 2)
             except (KeyError, IndexError):
                 pass
-
-    async def _get_data(self, allow_warning: bool) -> dict:
-        miner_data = None
-        for i in range(PyasicSettings().miner_get_data_retries):
-            try:
-                miner_data = await self.api.multicommand(
-                    "summary",
-                    "pools",
-                    "devdetails",
-                    "stats",
-                    allow_warning=allow_warning,
-                )
-            except APIError:
-                try:
-                    miner_data = await self.api.multicommand(
-                        "summary",
-                        "pools",
-                        "version",
-                        "stats",
-                        allow_warning=allow_warning,
-                    )
-                except APIError:
-                    pass
-            if miner_data:
-                break
-        if miner_data:
-            summary = miner_data.get("summary")
-            if summary:
-                summary = summary[0]
-            pools = miner_data.get("pools")
-            if pools:
-                pools = pools[0]
-            version = miner_data.get("version")
-            if version:
-                version = version[0]
-            devdetails = miner_data.get("devdetails")
-            if devdetails:
-                devdetails = devdetails[0]
-            stats = miner_data.get("stats")
-            if stats:
-                stats = stats[0]
-        else:
-            summary, pools, devdetails, version, stats = (None for _ in range(5))
-
-        data = {  # noqa - Ignore dictionary could be re-written
-            # ip - Done at start
-            # datetime - Done auto
-            "mac": await self.get_mac(),
-            "model": await self.get_model(api_devdetails=devdetails),
-            # make - Done at start
-            "api_ver": None,  # - Done at end
-            "fw_ver": None,  # - Done at end
-            "hostname": await self.get_hostname(),
-            "hashrate": await self.get_hashrate(api_summary=summary),
-            "nominal_hashrate": await self.get_nominal_hashrate(api_stats=stats),
-            "hashboards": await self.get_hashboards(api_stats=stats),
-            # ideal_hashboards - Done at start
-            "env_temp": await self.get_env_temp(),
-            "wattage": await self.get_wattage(),
-            "wattage_limit": await self.get_wattage_limit(),
-            "fan_1": None,  # - Done at end
-            "fan_2": None,  # - Done at end
-            "fan_3": None,  # - Done at end
-            "fan_4": None,  # - Done at end
-            "fan_psu": None,  # - Done at end
-            # ideal_chips - Done at start
-            "pool_split": None,  # - Done at end
-            "pool_1_url": None,  # - Done at end
-            "pool_1_user": None,  # - Done at end
-            "pool_2_url": None,  # - Done at end
-            "pool_2_user": None,  # - Done at end
-            "errors": await self.get_errors(),
-            "fault_light": await self.get_fault_light(),
-        }
-
-        data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version)
-        fan_data = await self.get_fans()
-
-        if fan_data:
-            data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
-            data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
-            data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
-            data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
-
-            data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
-
-        pools_data = await self.get_pools(api_pools=pools)
-
-        if pools_data:
-            data["pool_1_url"] = pools_data[0]["pool_1_url"]
-            data["pool_1_user"] = pools_data[0]["pool_1_user"]
-            if len(pools_data) > 1:
-                data["pool_2_url"] = pools_data[1]["pool_2_url"]
-                data["pool_2_user"] = pools_data[1]["pool_2_user"]
-                data[
-                    "pool_split"
-                ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-            else:
-                try:
-                    data["pool_2_url"] = pools_data[0]["pool_2_url"]
-                    data["pool_2_user"] = pools_data[0]["pool_2_user"]
-                    data["quota"] = "0"
-                except KeyError:
-                    pass
-
-        return data

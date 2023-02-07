@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple, Union
 import httpx
 
 from pyasic.config import MinerConfig
-from pyasic.data import HashBoard
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
@@ -133,8 +133,11 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
     ##################################################
 
     async def get_mac(
-        self, web_all_data: dict = None, web_overview: dict = None
+        self,
+        web_getAll: dict = None,
+        web_overview: dict = None,  # noqa: named this way for automatic functionality
     ) -> Optional[str]:
+        web_all_data = web_getAll
         if not web_all_data and not web_overview:
             try:
                 web_overview = await self.send_web_command("overview")
@@ -174,8 +177,11 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashrate(
-        self, api_summary: dict = None, web_all_data: dict = None
+        self,
+        api_summary: dict = None,
+        web_getAll: dict = None,  # noqa: named this way for automatic functionality
     ) -> Optional[float]:
+        web_all_data = web_getAll
         if not api_summary and not web_all_data:
             try:
                 api_summary = await self.api.summary()
@@ -197,8 +203,11 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashboards(
-        self, api_stats: dict = None, web_all_data: dict = None
+        self,
+        api_stats: dict = None,
+        web_getAll: dict = None,  # noqa: named this way for automatic functionality
     ) -> List[HashBoard]:
+        web_all_data = web_getAll
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)
@@ -246,7 +255,10 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         return hashboards
 
-    async def get_wattage(self, web_all_data: dict = None) -> Optional[int]:
+    async def get_wattage(
+        self, web_getAll: dict = None
+    ) -> Optional[int]:  # noqa: named this way for automatic functionality
+        web_all_data = web_getAll
         if not web_all_data:
             try:
                 web_all_data = await self.send_web_command("getAll")
@@ -262,18 +274,10 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_fans(
-        self, web_all_data: dict = None
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]],
-        Tuple[Optional[int]],
-    ]:
-        fan_speeds = namedtuple("FanSpeeds", "fan_1 fan_2 fan_3 fan_4")
-        psu_fan_speeds = namedtuple("PSUFanSpeeds", "psu_fan")
-        miner_fan_speeds = namedtuple("MinerFans", "fan_speeds psu_fan_speeds")
-
-        fans = fan_speeds(None, None, None, None)
-        psu_fans = psu_fan_speeds(None)
-
+        self,
+        web_getAll: dict = None,  # noqa: named this way for automatic functionality
+    ) -> List[Fan]:
+        web_all_data = web_getAll
         if not web_all_data:
             try:
                 web_all_data = await self.send_web_command("getAll")
@@ -282,19 +286,18 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             else:
                 web_all_data = web_all_data["all"]
 
+        fan_data = [Fan(), Fan(), Fan(), Fan()]
         if web_all_data:
             try:
                 spd = web_all_data["fansSpeed"]
             except KeyError:
                 pass
             else:
-                f = [None, None, None, None]
                 round((int(spd) * 6000) / 100)
                 for i in range(self.fan_count):
-                    f[i] = spd
-                fans = fan_speeds(*f)
+                    fan_data[i] = Fan(spd)
 
-        return miner_fan_speeds(fans, psu_fans)
+        return fan_data
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
         groups = []
@@ -322,7 +325,10 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
         return groups
 
-    async def get_errors(self, web_error_details: dict = None) -> List[MinerErrorData]:
+    async def get_errors(
+        self, web_getErrorDetail: dict = None
+    ) -> List[MinerErrorData]:  # noqa: named this way for automatic functionality
+        web_error_details = web_getErrorDetail
         errors = []
         if not web_error_details:
             try:
@@ -342,129 +348,3 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 if not err == 0:
                     errors.append(InnosiliconError(error_code=err))
         return errors
-
-    async def _get_data(self, allow_warning: bool) -> dict:
-        miner_data = None
-        for i in range(PyasicSettings().miner_get_data_retries):
-            try:
-                miner_data = await self.api.multicommand(
-                    "summary",
-                    "version",
-                    "pools",
-                    "stats",
-                    allow_warning=allow_warning,
-                )
-            except APIError:
-                pass
-            if miner_data:
-                break
-        miner_data = None
-        for i in range(PyasicSettings().miner_get_data_retries):
-            try:
-                miner_data = await self.api.multicommand(
-                    "summary",
-                    "pools",
-                    "version",
-                    "devdetails",
-                    "stats",
-                    allow_warning=allow_warning,
-                )
-            except APIError:
-                pass
-            if miner_data:
-                break
-        if miner_data:
-            summary = miner_data.get("summary")
-            if summary:
-                summary = summary[0]
-            pools = miner_data.get("pools")
-            if pools:
-                pools = pools[0]
-            version = miner_data.get("version")
-            if version:
-                version = version[0]
-            stats = miner_data.get("stats")
-            if stats:
-                stats = stats[0]
-        else:
-            summary, pools, version, stats = (None for _ in range(4))
-
-        try:
-            web_all_data = await self.send_web_command("getAll")
-        except APIError:
-            web_all_data = None
-        try:
-            web_type = await self.send_web_command("type")
-        except APIError:
-            web_type = None
-        try:
-            web_error_details = await self.send_web_command("getErrorDetail")
-        except APIError:
-            web_error_details = None
-
-        data = {  # noqa - Ignore dictionary could be re-written
-            # ip - Done at start
-            # datetime - Done auto
-            "mac": await self.get_mac(web_all_data=web_all_data),
-            "model": await self.get_model(web_type=web_type),
-            # make - Done at start
-            "api_ver": None,  # - Done at end
-            "fw_ver": None,  # - Done at end
-            "hostname": await self.get_hostname(),
-            "hashrate": await self.get_hashrate(
-                api_summary=summary, web_all_data=web_all_data
-            ),
-            "nominal_hashrate": await self.get_nominal_hashrate(api_stats=stats),
-            "hashboards": await self.get_hashboards(
-                api_stats=stats, web_all_data=web_all_data
-            ),
-            # ideal_hashboards - Done at start
-            "env_temp": await self.get_env_temp(),
-            "wattage": await self.get_wattage(web_all_data=web_all_data),
-            "wattage_limit": await self.get_wattage_limit(),
-            "fan_1": None,  # - Done at end
-            "fan_2": None,  # - Done at end
-            "fan_3": None,  # - Done at end
-            "fan_4": None,  # - Done at end
-            "fan_psu": None,  # - Done at end
-            # ideal_chips - Done at start
-            "pool_split": None,  # - Done at end
-            "pool_1_url": None,  # - Done at end
-            "pool_1_user": None,  # - Done at end
-            "pool_2_url": None,  # - Done at end
-            "pool_2_user": None,  # - Done at end
-            "errors": await self.get_errors(web_error_details=web_error_details),
-            "fault_light": await self.get_fault_light(),
-        }
-
-        data["api_ver"], data["fw_ver"] = await self.get_version(api_version=version)
-        fan_data = await self.get_fans(web_all_data=web_all_data)
-
-        if fan_data:
-            data["fan_1"] = fan_data.fan_speeds.fan_1  # noqa
-            data["fan_2"] = fan_data.fan_speeds.fan_2  # noqa
-            data["fan_3"] = fan_data.fan_speeds.fan_3  # noqa
-            data["fan_4"] = fan_data.fan_speeds.fan_4  # noqa
-
-            data["fan_psu"] = fan_data.psu_fan_speeds.psu_fan  # noqa
-
-        pools_data = await self.get_pools(api_pools=pools)
-
-        if pools_data:
-            data["pool_1_url"] = pools_data[0]["pool_1_url"]
-            data["pool_1_user"] = pools_data[0]["pool_1_user"]
-            if len(pools_data) > 1:
-                data["pool_2_url"] = pools_data[1]["pool_2_url"]
-                data["pool_2_user"] = pools_data[1]["pool_2_user"]
-                data[
-                    "pool_split"
-                ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-            else:
-                try:
-                    data["pool_2_url"] = pools_data[0]["pool_2_url"]
-                    data["pool_2_user"] = pools_data[0]["pool_2_user"]
-                    data["quota"] = "0"
-                except KeyError:
-                    pass
-
-        return data

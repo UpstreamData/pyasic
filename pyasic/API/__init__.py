@@ -95,7 +95,9 @@ class BaseMinerAPI:
 
         Parameters:
             *commands: The commands to send as a multicommand to the miner.
+            ignore_errors: Whether to raise APIError when the command returns an error.
             allow_warning: A boolean to supress APIWarnings.
+
         """
         # make sure we can actually run each command, otherwise they will fail
         commands = self._check_commands(*commands)

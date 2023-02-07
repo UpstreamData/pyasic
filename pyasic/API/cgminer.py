@@ -61,7 +61,7 @@ class CGMinerAPI(BaseMinerAPI):
                 data[cmd] = []
                 data[cmd].append(await self.send_command(cmd, allow_warning=True))
         except APIError as e:
-            raise APIError(e)
+            pass
         except Exception as e:
             logging.warning(
                 f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}"

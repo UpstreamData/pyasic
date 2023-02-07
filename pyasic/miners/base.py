@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import inspect
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
@@ -20,7 +21,7 @@ from typing import List, Optional, Tuple, TypeVar
 import asyncssh
 
 from pyasic.config import MinerConfig
-from pyasic.data import HashBoard, MinerData
+from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 
 
@@ -200,6 +201,24 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
+    async def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+        """Get the API version of the miner and is as a string.
+
+        Returns:
+            API version as a string.
+        """
+        pass
+
+    @abstractmethod
+    async def get_fw_ver(self, *args, **kwargs) -> Optional[str]:
+        """Get the firmware version of the miner and is as a string.
+
+        Returns:
+            Firmware version as a string.
+        """
+        pass
+
+    @abstractmethod
     async def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         """Get the API version and firmware version of the miner and return them as strings.
 
@@ -263,15 +282,20 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_fans(
-        self, *args, **kwargs
-    ) -> Tuple[
-        Tuple[Optional[int], Optional[int], Optional[int], Optional[int]], Optional[int]
-    ]:
-        """Get fan data from the miner in the form ((fan_1, fan_2, fan_3, fan_4), psu_fan).
+    async def get_fans(self, *args, **kwargs) -> List[Fan]:
+        """Get fan data from the miner in the form [fan_1, fan_2, fan_3, fan_4].
 
         Returns:
-            A list of error classes representing different errors.
+            A list of fan data.
+        """
+        pass
+
+    @abstractmethod
+    async def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+        """Get PSU fan speed from the miner.
+
+        Returns:
+            PSU fan speed.
         """
         pass
 
@@ -282,6 +306,7 @@ class BaseMiner(ABC):
         Returns:
             Pool groups and quotas in a list of dicts.
         """
+        pass
 
     @abstractmethod
     async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
@@ -310,11 +335,104 @@ class BaseMiner(ABC):
         """
         pass
 
-    async def get_data(self, allow_warning: bool = False) -> MinerData:
+    async def _get_data(self, allow_warning: bool, data_to_get: list = None) -> dict:
+        if not data_to_get:
+            # everything
+            data_to_get = [
+                "mac",
+                "model",
+                "api_ver",
+                "fw_ver",
+                "hostname",
+                "hashrate",
+                "nominal_hashrate",
+                "hashboards",
+                "env_temp",
+                "wattage",
+                "wattage_limit",
+                "fans",
+                "fan_psu",
+                "errors",
+                "fault_light",
+                "pools",
+            ]
+        api_params = []
+        web_params = []
+        gql = False
+        for data_name in data_to_get:
+            function = getattr(self, "get_" + data_name)
+            sig = inspect.signature(function)
+            for item in sig.parameters:
+                if item.startswith("api_"):
+                    command = item.replace("api_", "")
+                    api_params.append(command)
+                elif item.startswith("graphql_"):
+                    gql = True
+                elif item.startswith("web_"):
+                    web_params.append(item.replace("web_", ""))
+        api_params = list(set(api_params))
+        web_params = list(set(web_params))
+        miner_data = {}
+        command_data = await self.api.multicommand(
+            *api_params, allow_warning=allow_warning
+        )
+        if gql:
+            gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
+                "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+            )
+        web_data = {}
+        for command in web_params:
+            data = await self.send_web_command(command)  # noqa: web only anyway
+            web_data[command] = data
+        for data_name in data_to_get:
+            function = getattr(self, "get_" + data_name)
+            sig = inspect.signature(function)
+            kwargs = {}
+            for arg_name in sig.parameters:
+                if arg_name.startswith("api_"):
+                    try:
+                        kwargs[arg_name] = command_data[arg_name.replace("api_", "")][0]
+                    except (KeyError, IndexError):
+                        kwargs[arg_name] = None
+                elif arg_name.startswith("graphql_"):
+                    kwargs[
+                        arg_name
+                    ] = gql_data  # noqa: variable is not referenced before assignment
+                elif arg_name.startswith("web_"):
+                    try:
+                        kwargs[arg_name] = web_data[arg_name.replace("web_", "")]
+                    except (KeyError, IndexError):
+                        kwargs[arg_name] = None
+            if not data_name == "pools":
+                miner_data[data_name] = await function(**kwargs)
+            else:
+                pools_data = await function(**kwargs)
+                if pools_data:
+                    miner_data["pool_1_url"] = pools_data[0]["pool_1_url"]
+                    miner_data["pool_1_user"] = pools_data[0]["pool_1_user"]
+                    if len(pools_data) > 1:
+                        miner_data["pool_2_url"] = pools_data[1]["pool_2_url"]
+                        miner_data["pool_2_user"] = pools_data[1]["pool_2_user"]
+                        miner_data[
+                            "pool_split"
+                        ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
+                    else:
+                        try:
+                            miner_data["pool_2_url"] = pools_data[0]["pool_2_url"]
+                            miner_data["pool_2_user"] = pools_data[0]["pool_2_user"]
+                            miner_data["quota"] = "0"
+                        except KeyError:
+                            pass
+        return miner_data
+
+    async def get_data(
+        self, allow_warning: bool = False, data_to_get: list = None
+    ) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
         Parameters:
             allow_warning: Allow warning when an API command fails.
+            data_to_get: Names of data items you want to gather. Defaults to all data.
 
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
@@ -330,16 +448,12 @@ class BaseMiner(ABC):
             ],
         )
 
-        gathered_data = await self._get_data(allow_warning)
+        gathered_data = await self._get_data(allow_warning, data_to_get=data_to_get)
         for item in gathered_data:
             if gathered_data[item] is not None:
                 setattr(data, item, gathered_data[item])
 
         return data
-
-    @abstractmethod
-    async def _get_data(self, allow_warning: bool) -> dict:
-        pass
 
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)

@@ -47,6 +47,17 @@ class HashBoard:
 
 
 @dataclass
+class Fan:
+    """A Dataclass to standardize fan data.
+
+    Attributes:
+        speed: The speed of the fan.
+    """
+
+    speed: int = -1
+
+
+@dataclass
 class MinerData:
     """A Dataclass to standardize data returned from miners (specifically `AnyMiner().get_data()`)
 
@@ -120,10 +131,11 @@ class MinerData:
     right_board_chip_temp: int = field(init=False)
     wattage: int = -1
     wattage_limit: int = -1
-    fan_1: int = -1
-    fan_2: int = -1
-    fan_3: int = -1
-    fan_4: int = -1
+    fans: List[Fan] = field(default_factory=list)
+    fan_1: int = field(init=False)
+    fan_2: int = field(init=False)
+    fan_3: int = field(init=False)
+    fan_4: int = field(init=False)
     fan_psu: int = -1
     left_chips: int = field(init=False)
     center_chips: int = field(init=False)
@@ -198,6 +210,42 @@ class MinerData:
             if isinstance(item, bool):
                 setattr(cp, key, item & other_item)
         return cp
+
+    @property
+    def fan_1(self):  # noqa - Skip PyCharm inspection
+        if len(self.fans) > 0:
+            return self.fans[0].speed
+
+    @fan_1.setter
+    def fan_1(self, val):
+        pass
+
+    @property
+    def fan_2(self):  # noqa - Skip PyCharm inspection
+        if len(self.fans) > 1:
+            return self.fans[1].speed
+
+    @fan_2.setter
+    def fan_2(self, val):
+        pass
+
+    @property
+    def fan_3(self):  # noqa - Skip PyCharm inspection
+        if len(self.fans) > 2:
+            return self.fans[2].speed
+
+    @fan_3.setter
+    def fan_3(self, val):
+        pass
+
+    @property
+    def fan_4(self):  # noqa - Skip PyCharm inspection
+        if len(self.fans) > 3:
+            return self.fans[3].speed
+
+    @fan_4.setter
+    def fan_4(self, val):
+        pass
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
