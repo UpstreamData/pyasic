@@ -172,17 +172,17 @@ class BTMiner(BaseMiner):
     ##################################################
 
     async def get_mac(
-        self, api_summary: dict = None, api_miner_info: dict = None
+        self, api_summary: dict = None, api_get_miner_info: dict = None
     ) -> Optional[str]:
-        if not api_miner_info:
+        if not api_get_miner_info:
             try:
-                api_miner_info = await self.api.get_miner_info()
+                api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 pass
 
-        if api_miner_info:
+        if api_get_miner_info:
             try:
-                mac = api_miner_info["Msg"]["mac"]
+                mac = api_get_miner_info["Msg"]["mac"]
                 return str(mac).upper()
             except KeyError:
                 pass
@@ -223,29 +223,31 @@ class BTMiner(BaseMiner):
         return None
 
     async def get_version(
-        self, api_version: dict = None, api_summary: dict = None
+        self, api_get_version: dict = None, api_summary: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        api_ver = await self.get_api_ver(api_version=api_version)
-        fw_ver = await self.get_fw_ver(api_version=api_version, api_summary=api_summary)
+        api_ver = await self.get_api_ver(api_get_version=api_get_version)
+        fw_ver = await self.get_fw_ver(
+            api_get_version=api_get_version, api_summary=api_summary
+        )
         return miner_version(api_ver, fw_ver)
 
-    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
+    async def get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
         # Check to see if the version info is already cached
         if self.api_ver:
             return self.api_ver
 
-        if not api_version:
+        if not api_get_version:
             try:
-                api_version = await self.api.get_version()
+                api_get_version = await self.api.get_version()
             except APIError:
                 pass
 
-        if api_version:
-            if "Code" in api_version.keys():
-                if api_version["Code"] == 131:
+        if api_get_version:
+            if "Code" in api_get_version.keys():
+                if api_get_version["Code"] == 131:
                     try:
-                        api_ver = api_version["Msg"]
+                        api_ver = api_get_version["Msg"]
                         if not isinstance(api_ver, str):
                             api_ver = api_ver["api_ver"]
                         self.api_ver = api_ver.replace("whatsminer v", "")
@@ -258,23 +260,23 @@ class BTMiner(BaseMiner):
         return self.api_ver
 
     async def get_fw_ver(
-        self, api_version: dict = None, api_summary: dict = None
+        self, api_get_version: dict = None, api_summary: dict = None
     ) -> Optional[str]:
         # Check to see if the version info is already cached
         if self.fw_ver:
             return self.fw_ver
 
-        if not api_version:
+        if not api_get_version:
             try:
-                api_version = await self.api.get_version()
+                api_get_version = await self.api.get_version()
             except APIError:
                 pass
 
-        if api_version:
-            if "Code" in api_version.keys():
-                if api_version["Code"] == 131:
+        if api_get_version:
+            if "Code" in api_get_version.keys():
+                if api_get_version["Code"] == 131:
                     try:
-                        self.fw_ver = api_version["Msg"]["fw_ver"]
+                        self.fw_ver = api_get_version["Msg"]["fw_ver"]
                     except (KeyError, TypeError):
                         pass
                     else:
@@ -296,19 +298,19 @@ class BTMiner(BaseMiner):
 
         return self.fw_ver
 
-    async def get_hostname(self, api_miner_info: dict = None) -> Optional[str]:
+    async def get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
         if self.hostname:
             return self.hostname
 
-        if not api_miner_info:
+        if not api_get_miner_info:
             try:
-                api_miner_info = await self.api.get_miner_info()
+                api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 return None  # only one way to get this
 
-        if api_miner_info:
+        if api_get_miner_info:
             try:
-                self.hostname = api_miner_info["Msg"]["hostname"]
+                self.hostname = api_get_miner_info["Msg"]["hostname"]
             except KeyError:
                 return None
 
@@ -403,7 +405,7 @@ class BTMiner(BaseMiner):
                 pass
 
     async def get_fans(
-        self, api_summary: dict = None, api_psu: dict = None
+        self, api_summary: dict = None, api_get_psu: dict = None
     ) -> List[Fan]:
         if not api_summary:
             try:
@@ -427,7 +429,7 @@ class BTMiner(BaseMiner):
         return fans
 
     async def get_fan_psu(
-        self, api_summary: dict = None, api_psu: dict = None
+        self, api_summary: dict = None, api_get_psu: dict = None
     ) -> Optional[int]:
         if not api_summary:
             try:
@@ -441,15 +443,15 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-        if not api_psu:
+        if not api_get_psu:
             try:
-                api_psu = await self.api.get_psu()
+                api_get_psu = await self.api.get_psu()
             except APIError:
                 pass
 
-        if api_psu:
+        if api_get_psu:
             try:
-                return int(api_psu["Msg"]["fan_speed"])
+                return int(api_get_psu["Msg"]["fan_speed"])
             except (KeyError, TypeError):
                 pass
 
@@ -480,10 +482,10 @@ class BTMiner(BaseMiner):
         return groups
 
     async def get_errors(
-        self, api_summary: dict = None, api_error_codes: dict = None
+        self, api_summary: dict = None, api_get_error_code: dict = None
     ) -> List[MinerErrorData]:
         errors = []
-        if not api_summary and not api_error_codes:
+        if not api_summary and not api_get_error_code:
             try:
                 api_summary = await self.api.summary()
             except APIError:
@@ -498,14 +500,14 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
-        if not api_error_codes:
+        if not api_get_error_code:
             try:
-                api_error_codes = await self.api.get_error_code()
+                api_get_error_code = await self.api.get_error_code()
             except APIError:
                 pass
 
-        if api_error_codes:
-            for err in api_error_codes["Msg"]["error_code"]:
+        if api_get_error_code:
+            for err in api_get_error_code["Msg"]["error_code"]:
                 if isinstance(err, dict):
                     for code in err:
                         errors.append(WhatsminerError(error_code=int(code)))
@@ -529,19 +531,19 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_fault_light(self, api_miner_info: dict = None) -> bool:
+    async def get_fault_light(self, api_get_miner_info: dict = None) -> bool:
         data = None
 
-        if not api_miner_info:
+        if not api_get_miner_info:
             try:
-                api_miner_info = await self.api.get_miner_info()
+                api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 if not self.light:
                     self.light = False
 
-        if api_miner_info:
+        if api_get_miner_info:
             try:
-                self.light = api_miner_info["Msg"]["ledstat"] == "auto"
+                self.light = api_get_miner_info["Msg"]["ledstat"] == "auto"
             except KeyError:
                 pass
 
