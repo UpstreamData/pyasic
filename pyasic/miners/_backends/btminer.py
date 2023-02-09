@@ -543,7 +543,7 @@ class BTMiner(BaseMiner):
 
         if api_get_miner_info:
             try:
-                self.light = api_get_miner_info["Msg"]["ledstat"] == "auto"
+                self.light = not (api_get_miner_info["Msg"]["ledstat"] == "auto")
             except KeyError:
                 pass
 
