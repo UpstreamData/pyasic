@@ -1,4 +1,18 @@
-#  Copyright 2022 Upstream Data Inc
+# ------------------------------------------------------------------------------
+#  Copyright 2022 Upstream Data Inc                                            -
+#                                                                              -
+#  Licensed under the Apache License, Version 2.0 (the "License");             -
+#  you may not use this file except in compliance with the License.            -
+#  You may obtain a copy of the License at                                     -
+#                                                                              -
+#      http://www.apache.org/licenses/LICENSE-2.0                              -
+#                                                                              -
+#  Unless required by applicable law or agreed to in writing, software         -
+#  distributed under the License is distributed on an "AS IS" BASIS,           -
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
+#  See the License for the specific language governing permissions and         -
+#  limitations under the License.                                              -
+# ------------------------------------------------------------------------------
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -13,14 +27,13 @@
 #  limitations under the License.
 import unittest
 
+from pyasic.config import MinerConfig, _Pool, _PoolGroup  # noqa
 from tests.test_data import (
     bosminer_api_pools,
     bosminer_config_pools,
     x19_api_pools,
     x19_web_pools,
 )
-
-from pyasic.config import MinerConfig, _Pool, _PoolGroup  # noqa
 
 
 class ConfigTest(unittest.TestCase):
