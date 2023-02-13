@@ -550,6 +550,23 @@ class BTMinerAPI(BaseMinerAPI):
         self.pwd = new_pwd
         return data
 
+    async def net_config(
+        self,
+        ip: str = None,
+        mask: str = None,
+        gate: str = None,
+        dns: str = None,
+        host: str = None,
+        dhcp: bool = True,
+    ):
+        if dhcp:
+            return await self.send_privileged_command("net_config", param="dhcp")
+        if None in [ip, mask, gate, dns, host]:
+            raise APIError("Incorrect parameters.")
+        return await self.send_privileged_command(
+            "net_config", ip=ip, mask=mask, gate=gate, dns=dns, host=host
+        )
+
     async def set_target_freq(self, percent: int) -> dict:
         """Update the target frequency.
 

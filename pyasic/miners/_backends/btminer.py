@@ -548,3 +548,25 @@ class BTMiner(BaseMiner):
                 pass
 
         return self.light if self.light else False
+
+    async def set_static_ip(
+        self,
+        ip: str,
+        dns: str,
+        gateway: str,
+        subnet_mask: str = "255.255.255.0",
+        hostname: str = None,
+    ):
+        if not hostname:
+            hostname = await self.get_hostname()
+        await self.api.net_config(
+            ip=ip, mask=subnet_mask, dns=dns, gate=gateway, host=hostname, dhcp=False
+        )
+
+    async def set_dhcp(self, hostname: str = None):
+        if hostname:
+            await self.set_hostname(hostname)
+        await self.api.net_config()
+
+    async def set_hostname(self, hostname: str):
+        await self.api.set_hostname(hostname)
