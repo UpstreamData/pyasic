@@ -172,3 +172,53 @@ class BMMinerX19(BMMiner):
                     return round(ideal_rate, 2)
             except (KeyError, IndexError):
                 pass
+
+    async def set_static_ip(
+        self,
+        ip: str,
+        dns: str,
+        gateway: str,
+        subnet_mask: str = "255.255.255.0",
+        hostname: str = None,
+    ):
+        if not hostname:
+            hostname = await self.get_hostname()
+        payload = {
+            "ipAddress": ip,
+            "ipDns": dns,
+            "ipGateway": gateway,
+            "ipHost": hostname,
+            "ipPro": 2,  # static
+            "ipSub": subnet_mask,
+        }
+        await self.send_web_command("set_network_conf", params=payload)
+
+    async def set_dhcp(self, hostname: str = None):
+        if not hostname:
+            hostname = await self.get_hostname()
+        payload = {
+            "ipAddress": "",
+            "ipDns": "",
+            "ipGateway": "",
+            "ipHost": hostname,
+            "ipPro": 1,  # DHCP
+            "ipSub": "",
+        }
+        await self.send_web_command("set_network_conf", params=payload)
+
+    async def set_hostname(self, hostname: str):
+        cfg = await self.send_web_command("get_network_info")
+        dns = cfg["conf_dnsservers"]
+        gateway = cfg["conf_gateway"]
+        ip = cfg["conf_ipaddress"]
+        subnet_mask = cfg["conf_netmask"]
+        protocol = 1 if cfg["conf_nettype"] == "DHCP" else 2
+        payload = {
+            "ipAddress": ip,
+            "ipDns": dns,
+            "ipGateway": gateway,
+            "ipHost": hostname,
+            "ipPro": protocol,
+            "ipSub": subnet_mask,
+        }
+        await self.send_web_command("set_network_conf", params=payload)
