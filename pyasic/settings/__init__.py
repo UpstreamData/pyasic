@@ -33,6 +33,7 @@ class PyasicSettings(metaclass=Singleton):
     global_innosilicon_password = "admin"
     global_x19_password = "root"
     global_x17_password = "root"
+    global_vnish_password = "admin"
 
     debug: bool = False
     logfile: bool = False

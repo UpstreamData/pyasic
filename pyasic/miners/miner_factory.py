@@ -106,24 +106,28 @@ MINER_CLASSES = {
         "BOSMiner+": BOSMinerS19,
         "BMMiner": BMMinerS19,
         "CGMiner": CGMinerS19,
+        "VNish": VNishS19,
     },
     "ANTMINER S19 PRO": {
         "Default": BMMinerS19Pro,
         "BOSMiner+": BOSMinerS19Pro,
         "BMMiner": BMMinerS19Pro,
         "CGMiner": CGMinerS19Pro,
+        "VNish": VNishS19Pro,
     },
     "ANTMINER S19J": {
         "Default": BMMinerS19j,
         "BOSMiner+": BOSMinerS19j,
         "BMMiner": BMMinerS19j,
         "CGMiner": CGMinerS19j,
+        "VNish": VNishS19j,
     },
     "ANTMINER S19J PRO": {
         "Default": BMMinerS19jPro,
         "BOSMiner+": BOSMinerS19jPro,
         "BMMiner": BMMinerS19jPro,
         "CGMiner": CGMinerS19jPro,
+        "VNish": VNishS19jPro,
     },
     "ANTMINER S19 XP": {
         "Default": BMMinerS19XP,
@@ -132,16 +136,19 @@ MINER_CLASSES = {
     "ANTMINER S19A": {
         "Default": BMMinerS19a,
         "BMMiner": BMMinerS19a,
+        "VNish": VNishS19a,
     },
     "ANTMINER S19A PRO": {
         "Default": BMMinerS19aPro,
         "BMMiner": BMMinerS19aPro,
+        "VNish": VNishS19aPro,
     },
     "ANTMINER T19": {
         "Default": BMMinerT19,
         "BOSMiner+": BOSMinerT19,
         "BMMiner": BMMinerT19,
         "CGMiner": CGMinerT19,
+        "VNish": VNishT19,
     },
     "M20": {"Default": BTMinerM20V10, "BTMiner": BTMinerM20V10, "10": BTMinerM20V10},
     "M20S": {
@@ -781,6 +788,8 @@ class MinerFactory(metaclass=Singleton):
                 except KeyError:
                     pass
                 else:
+                    if "VNISH" in _model:
+                        api = "VNish"
                     for split_point in [" BB", " XILINX", " (VNISH"]:
                         if split_point in _model:
                             _model = _model.split(split_point)[0]

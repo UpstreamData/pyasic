@@ -20,3 +20,5 @@ from .btminer import BTMiner
 from .cgminer import CGMiner
 from .cgminer_avalon import CGMinerAvalon
 from .hiveon import Hiveon
+from .vnish import VNish
+from .X19 import X19

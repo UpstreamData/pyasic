@@ -27,7 +27,7 @@ from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 from pyasic.settings import PyasicSettings
 
 
-class BMMinerX19(BMMiner):
+class X19(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip

@@ -14,10 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from pyasic.miners._backends import X19
 from pyasic.miners._types import S19aPro  # noqa - Ignore access to _module
 
-from .X19 import BMMinerX19
+# noqa - Ignore access to _module
 
 
-class BMMinerS19aPro(BMMinerX19, S19aPro):
+class BMMinerS19aPro(X19, S19aPro):
     pass
