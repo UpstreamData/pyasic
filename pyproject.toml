@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyasic"
-version = "0.28.1"
+version = "0.28.2"
 description = "A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH."
 authors = ["UpstreamData <brett@upstreamdata.ca>"]
 repository = "https://github.com/UpstreamData/pyasic"
