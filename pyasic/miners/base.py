@@ -25,6 +25,7 @@ import asyncssh
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.errors import APIError
 
 
 class BaseMiner(ABC):
@@ -379,9 +380,20 @@ class BaseMiner(ABC):
             *api_params, allow_warning=allow_warning
         )
         if gql:
-            gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
-                "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
-            )
+            try:
+                gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
+                    "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+                )
+            except APIError:
+                # hostname hates me
+                try:
+                    gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
+                        "{bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
+                    )
+                except APIError:
+                    # AGAIN???
+                    gql_data = None
+
         web_data = {}
         for command in web_params:
             data = await self.send_web_command(command)  # noqa: web only anyway
