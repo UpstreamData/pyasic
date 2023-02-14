@@ -126,6 +126,13 @@ class X19(BMMiner):
         except KeyError:
             pass
 
+        try:
+            data = await self.send_web_command("get_network_info")
+            if data:
+                return data["macaddr"]
+        except KeyError:
+            pass
+
     async def get_errors(self) -> List[MinerErrorData]:
         errors = []
         data = await self.send_web_command("summary")
