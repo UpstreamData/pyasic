@@ -247,21 +247,9 @@ class BTMinerAPI(BaseMinerAPI):
         try:
             data = await self._send_bytes(enc_command, timeout)
         except (asyncio.CancelledError, asyncio.TimeoutError) as e:
-            if command["cmd"] in ["reboot", "restart_btminer", "power_on", "power_off"]:
-                logging.info(
-                    f"{self} - (reboot/restart_btminer/power_on/power_off) - Whatsminers currently break this. "
-                    f"Ignoring exception. Command probably worked."
-                )
-                # FAKING IT HERE
-                data = (
-                    b'{"STATUS": "S", "When": 1670966423, "Code": 131, "Msg": "API command OK", "Description": "'
-                    + command["cmd"].encode("utf-8")
-                    + b'"}'
-                )
-            else:
-                if ignore_errors:
-                    return {}
-                raise APIError("No data was returned from the API.")
+            if ignore_errors:
+                return {}
+            raise APIError("No data was returned from the API.")
 
         if not data:
             if ignore_errors:

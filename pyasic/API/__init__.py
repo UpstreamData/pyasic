@@ -173,9 +173,14 @@ If you are sure you want to use this command please use API.send_command("{comma
         writer.write(data)
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
         await writer.drain()
-
-        # instantiate data
-        ret_data = b""
+        ret_data = await asyncio.wait_for(reader.read(4096), timeout=timeout)
+        try:
+            # Fix for stupid whatsminer bug, reboot/restart seem to not load properly in the loop
+            # have to receive, save the data, check if there is more data by reading with a short timeout
+            # append that data if there is more, and then onto the main loop.
+            ret_data += await asyncio.wait_for(reader.read(1), timeout=1)
+        except asyncio.TimeoutError:
+            return ret_data
 
         # loop to receive all the data
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
@@ -185,6 +190,7 @@ If you are sure you want to use this command please use API.send_command("{comma
                     d = await asyncio.wait_for(reader.read(4096), timeout=timeout)
                     if not d:
                         break
+                    print("hello", d)
                     ret_data += d
                 except (asyncio.CancelledError, asyncio.TimeoutError) as e:
                     raise e
@@ -244,6 +250,8 @@ If you are sure you want to use this command please use API.send_command("{comma
         str_data = str_data.replace("}{", "},{")
         # fix an error with a bmminer return having a specific comma that breaks json.loads()
         str_data = str_data.replace("[,{", "[{")
+        # fix an error with a btminer return having a missing comma. (2023-01-06 version)
+        str_data = str_data.replace('""temp0', '","temp0')
         # fix an error with Avalonminers returning inf and nan
         str_data = str_data.replace("info", "1nfo")
         str_data = str_data.replace("inf", "0")
