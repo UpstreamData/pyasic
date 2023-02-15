@@ -190,7 +190,6 @@ If you are sure you want to use this command please use API.send_command("{comma
                     d = await asyncio.wait_for(reader.read(4096), timeout=timeout)
                     if not d:
                         break
-                    print("hello", d)
                     ret_data += d
                 except (asyncio.CancelledError, asyncio.TimeoutError) as e:
                     raise e
