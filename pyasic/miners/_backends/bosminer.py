@@ -483,9 +483,6 @@ class BOSMiner(BaseMiner):
                 api_devs = d["devs"][0]
             except (KeyError, IndexError):
                 api_devs = None
-        print(api_devdetails)
-        print(api_devs)
-        print(api_temps)
         if api_temps:
             try:
                 offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 1
