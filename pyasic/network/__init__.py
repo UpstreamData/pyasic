@@ -183,14 +183,14 @@ class MinerNetwork:
                 miner = await ping_and_get_miner(ip)
                 if miner:
                     return miner
-            except ConnectionRefusedError:
+            except (ConnectionRefusedError, OSError):
                 tasks = [ping_and_get_miner(ip, port=port) for port in [4029, 8889]]
                 for miner in asyncio.as_completed(tasks):
                     try:
                         miner = await miner
                         if miner:
                             return miner
-                    except ConnectionRefusedError:
+                    except (ConnectionRefusedError, OSError):
                         pass
 
 
@@ -250,6 +250,5 @@ async def ping_and_get_miner(
         # ping failed, likely with an exception
         except Exception as e:
             logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
-            raise e
-        continue
+            raise ConnectionRefusedError
     return
