@@ -108,10 +108,6 @@ class MinerNetwork:
         # clear cached miners
         MinerFactory().clear_cached_miners()
 
-        # create a list of tasks and miner IPs
-        scan_tasks = []
-        miners = []
-
         limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
         miners = await asyncio.gather(
             *[self.ping_and_get_miner(host, limit) for host in local_network.hosts()]
@@ -140,8 +136,6 @@ class MinerNetwork:
         local_network = self.get_network()
 
         # create a list of scan tasks
-        scan_tasks = []
-
         limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
         miners = asyncio.as_completed(
             [
@@ -183,14 +177,14 @@ class MinerNetwork:
                 miner = await ping_and_get_miner(ip)
                 if miner:
                     return miner
-            except (ConnectionRefusedError, OSError):
+            except ConnectionRefusedError:
                 tasks = [ping_and_get_miner(ip, port=port) for port in [4029, 8889]]
                 for miner in asyncio.as_completed(tasks):
                     try:
                         miner = await miner
                         if miner:
                             return miner
-                    except (ConnectionRefusedError, OSError):
+                    except ConnectionRefusedError:
                         pass
 
 
@@ -213,14 +207,13 @@ async def ping_miner(
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
-        except ConnectionRefusedError:
+        except (ConnectionRefusedError, OSError):
             # handle for other connection errors
             logging.debug(f"{str(ip)}: Connection Refused.")
             raise ConnectionRefusedError
-        # ping failed, likely with an exception
         except Exception as e:
-            logging.warning(f"{str(ip)}: {e}")
-        continue
+            logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
+            raise ConnectionRefusedError
     return
 
 
@@ -228,8 +221,8 @@ async def ping_and_get_miner(
     ip: ipaddress.ip_address, port=4028
 ) -> Union[None, AnyMiner]:
     for i in range(PyasicSettings().network_ping_retries):
-        connection_fut = asyncio.open_connection(str(ip), port)
         try:
+            connection_fut = asyncio.open_connection(str(ip), port)
             # get the read and write streams from the connection
             reader, writer = await asyncio.wait_for(
                 connection_fut, timeout=PyasicSettings().network_ping_timeout
@@ -243,11 +236,10 @@ async def ping_and_get_miner(
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
-        except ConnectionRefusedError as e:
+        except (ConnectionRefusedError, OSError):
             # handle for other connection errors
             logging.debug(f"{str(ip)}: Connection Refused.")
-            raise e
-        # ping failed, likely with an exception
+            raise ConnectionRefusedError
         except Exception as e:
             logging.warning(f"{str(ip)}: Ping And Get Miner Exception: {e}")
             raise ConnectionRefusedError
