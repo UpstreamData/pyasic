@@ -136,10 +136,10 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
     async def get_mac(
         self,
-        web_getAll: dict = None,
+        web_getAll: dict = None,  # noqa
         web_overview: dict = None,  # noqa: named this way for automatic functionality
     ) -> Optional[str]:
-        web_all_data = web_getAll
+        web_all_data = web_getAll.get("all")
         if not web_all_data and not web_overview:
             try:
                 web_overview = await self.send_web_command("overview")
@@ -183,7 +183,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         api_summary: dict = None,
         web_getAll: dict = None,  # noqa: named this way for automatic functionality
     ) -> Optional[float]:
-        web_all_data = web_getAll
+        web_all_data = web_getAll.get("all")
         if not api_summary and not web_all_data:
             try:
                 api_summary = await self.api.summary()
@@ -209,7 +209,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         api_stats: dict = None,
         web_getAll: dict = None,  # noqa: named this way for automatic functionality
     ) -> List[HashBoard]:
-        web_all_data = web_getAll
+        web_all_data = web_getAll.get("all")
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)
@@ -231,8 +231,9 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         if api_stats:
             if api_stats.get("STATS"):
-                for idx, board in enumerate(api_stats["STATS"]):
+                for board in api_stats["STATS"]:
                     try:
+                        idx = board["Chain ID"]
                         chips = board["Num active chips"]
                     except KeyError:
                         pass
@@ -242,25 +243,31 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         if web_all_data:
             if web_all_data.get("chain"):
-                for idx, board in enumerate(web_all_data["chain"]):
-                    temp = board.get("Temp min")
-                    if temp:
-                        hashboards[idx].temp = round(temp)
+                for board in web_all_data["chain"]:
+                    idx = board.get("ASC")
+                    if idx is not None:
+                        temp = board.get("Temp min")
+                        if temp:
+                            hashboards[idx].temp = round(temp)
 
-                    hashrate = board.get("Hash Rate H")
-                    if hashrate:
-                        hashboards[idx].hashrate = round(hashrate / 1000000000000, 2)
+                        hashrate = board.get("Hash Rate H")
+                        if hashrate:
+                            hashboards[idx].hashrate = round(
+                                hashrate / 1000000000000, 2
+                            )
 
-                    chip_temp = board.get("Temp max")
-                    if chip_temp:
-                        hashboards[idx].chip_temp = round(chip_temp)
+                        chip_temp = board.get("Temp max")
+                        if chip_temp:
+                            hashboards[idx].chip_temp = round(chip_temp)
 
         return hashboards
 
     async def get_wattage(
-        self, web_getAll: dict = None
-    ) -> Optional[int]:  # noqa: named this way for automatic functionality
-        web_all_data = web_getAll
+        self,
+        web_getAll: dict = None,
+        api_stats: dict = None,  # noqa: named this way for automatic functionality
+    ) -> Optional[int]:
+        web_all_data = web_getAll.get("all")
         if not web_all_data:
             try:
                 web_all_data = await self.send_web_command("getAll")
@@ -275,11 +282,28 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             except KeyError:
                 pass
 
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            if api_stats.get("STATS"):
+                for board in api_stats["STATS"]:
+                    try:
+                        wattage = board["power"]
+                    except KeyError:
+                        pass
+                    else:
+                        wattage = int(wattage)
+                        return wattage
+
     async def get_fans(
         self,
         web_getAll: dict = None,  # noqa: named this way for automatic functionality
     ) -> List[Fan]:
-        web_all_data = web_getAll
+        web_all_data = web_getAll.get("all")
         if not web_all_data:
             try:
                 web_all_data = await self.send_web_command("getAll")
@@ -350,3 +374,24 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 if not err == 0:
                     errors.append(InnosiliconError(error_code=err))
         return errors
+
+    async def get_wattage_limit(self, web_getAll: dict = None) -> Optional[int]:
+        web_all_data = web_getAll.get("all")
+        if not web_all_data:
+            try:
+                web_all_data = await self.send_web_command("getAll")
+            except APIError:
+                pass
+            else:
+                web_all_data = web_all_data["all"]
+
+        if web_all_data:
+            try:
+                level = web_all_data["running_mode"]["level"]
+            except KeyError:
+                pass
+            else:
+                # this is very possibly not correct.
+                level = int(level)
+                limit = 1250 + (250 * level)
+                return limit

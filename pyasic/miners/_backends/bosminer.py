@@ -483,10 +483,12 @@ class BOSMiner(BaseMiner):
                 api_devs = d["devs"][0]
             except (KeyError, IndexError):
                 api_devs = None
-
+        print(api_devdetails)
+        print(api_devs)
+        print(api_temps)
         if api_temps:
             try:
-                offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 0
+                offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 1
 
                 for board in api_temps["TEMPS"]:
                     _id = board["ID"] - offset
@@ -499,7 +501,7 @@ class BOSMiner(BaseMiner):
 
         if api_devdetails:
             try:
-                offset = 6 if api_devdetails["DEVDETAILS"][0]["ID"] in [6, 7, 8] else 0
+                offset = 6 if api_devdetails["DEVDETAILS"][0]["ID"] in [6, 7, 8] else 1
 
                 for board in api_devdetails["DEVDETAILS"]:
                     _id = board["ID"] - offset
@@ -511,7 +513,7 @@ class BOSMiner(BaseMiner):
 
         if api_devs:
             try:
-                offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 0
+                offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 1
 
                 for board in api_devs["DEVS"]:
                     _id = board["ID"] - offset
