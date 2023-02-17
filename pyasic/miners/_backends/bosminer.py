@@ -198,11 +198,8 @@ class BOSMiner(BaseMiner):
                 return self.config
         if conn:
             async with conn:
-                logging.debug(f"{self}: Opening SFTP connection.")
-                async with conn.start_sftp_client() as sftp:
-                    logging.debug(f"{self}: Reading config file.")
-                    async with sftp.open("/etc/bosminer.toml") as file:
-                        toml_data = toml.loads(await file.read())
+                # good ol' BBB compatibility :/
+                toml_data = toml.loads((await conn.run("cat /etc/bosminer.toml")).stdout)
             logging.debug(f"{self}: Converting config file.")
             cfg = MinerConfig().from_raw(toml_data)
             self.config = cfg
@@ -219,14 +216,28 @@ class BOSMiner(BaseMiner):
         except (asyncssh.Error, OSError):
             return None
         async with conn:
-            await conn.run("/etc/init.d/bosminer stop")
-            logging.debug(f"{self}: Opening SFTP connection.")
-            async with conn.start_sftp_client() as sftp:
-                logging.debug(f"{self}: Opening config file.")
-                async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                    await file.write(toml_conf)
-            logging.debug(f"{self}: Restarting BOSMiner")
-            await conn.run("/etc/init.d/bosminer start")
+            # BBB check because bitmain suxx
+            bbb_check = await conn.run("if [ ! -f /etc/init.d/bosminer ]; then echo '1'; else echo '0'; fi;")
+
+            bbb = bbb_check.stdout.strip() == "1"
+
+            if not bbb:
+                await conn.run("/etc/init.d/bosminer stop")
+                logging.debug(f"{self}: Opening SFTP connection.")
+                async with conn.start_sftp_client() as sftp:
+                    logging.debug(f"{self}: Opening config file.")
+                    async with sftp.open("/etc/bosminer.toml", "w+") as file:
+                        await file.write(toml_conf)
+                logging.debug(f"{self}: Restarting BOSMiner")
+                await conn.run("/etc/init.d/bosminer start")
+
+            # I really hate BBB, please get rid of it if you have it
+            else:
+                await conn.run("/etc/init.d/S99Bosminer stop")
+                logging.debug(f"{self}: BBB sending config")
+                await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
+                logging.debug(f"{self}: BBB restarting bosminer.")
+                await conn.run("/etc/init.d/S99Bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:

@@ -245,7 +245,9 @@ class MinerConfig:
         fan_speed: Manual fan speed to run the fan at (only if temp_mode == "manual").
         asicboost: Whether or not to enable asicboost.
         autotuning_enabled: Whether or not to enable autotuning.
+        autotuning_mode: Autotuning mode, either "wattage" or "hashrate".
         autotuning_wattage: The wattage to use when autotuning.
+        autotuning_hashrate: The hashrate to use when autotuning.
         dps_enabled: Whether or not to enable dynamic power scaling.
         dps_power_step: The amount of power to reduce autotuning by when the miner reaches dangerous temp.
         dps_min_power: The minimum power to reduce autotuning to.
@@ -266,7 +268,9 @@ class MinerConfig:
     asicboost: bool = None
 
     autotuning_enabled: bool = True
-    autotuning_wattage: int = 900
+    autotuning_mode: Literal["power", "hashrate"] = None
+    autotuning_wattage: int = None
+    autotuning_hashrate: int = None
 
     dps_enabled: bool = None
     dps_power_step: int = None
@@ -349,14 +353,20 @@ class MinerConfig:
                         self.autotuning_enabled = data[key][_key]
                     elif _key == "psu_power_limit":
                         self.autotuning_wattage = data[key][_key]
+                    elif _key == "power_target":
+                        self.autotuning_wattage = data[key][_key]
+                    elif _key == "hashrate_target":
+                        self.autotuning_hashrate = data[key][_key]
+                    elif _key == "mode":
+                        self.autotuning_mode = data[key][_key].replace("_target", "")
 
-            if key == "power_scaling":
+            if key in ["power_scaling", "performance_scaling"]:
                 for _key in data[key].keys():
                     if _key == "enabled":
                         self.dps_enabled = data[key][_key]
                     elif _key == "power_step":
                         self.dps_power_step = data[key][_key]
-                    elif _key == "min_psu_power_limit":
+                    elif _key in ["min_psu_power_limit", "min_power_target"]:
                         self.dps_min_power = data[key][_key]
                     elif _key == "shutdown_enabled":
                         self.dps_shutdown_enabled = data[key][_key]
@@ -482,7 +492,7 @@ class MinerConfig:
             "format": {
                 "version": "1.2+",
                 "model": f"Antminer {model}",
-                "generator": "Upstream Config Utility",
+                "generator": "pyasic",
                 "timestamp": int(time.time()),
             },
             "group": [
@@ -500,8 +510,16 @@ class MinerConfig:
             cfg["autotuning"] = {}
             if self.autotuning_enabled:
                 cfg["autotuning"]["enabled"] = self.autotuning_enabled
-            if self.autotuning_wattage:
-                cfg["autotuning"]["psu_power_limit"] = self.autotuning_wattage
+            if self.autotuning_mode:
+                cfg["format"]["version"] = "2.0"
+                cfg["autotuning"]["mode"] = self.autotuning_mode + "_target"
+                if self.autotuning_wattage:
+                    cfg["autotuning"]["power_target"] = self.autotuning_wattage
+                elif self.autotuning_hashrate:
+                    cfg["autotuning"]["hashrate_target"] = self.autotuning_hashrate
+            else:
+                if self.autotuning_wattage:
+                    cfg["autotuning"]["psu_power_limit"] = self.autotuning_wattage
 
         if self.asicboost:
             cfg["hash_chain_global"] = {}
@@ -525,7 +543,10 @@ class MinerConfig:
             if self.dps_power_step:
                 cfg["power_scaling"]["power_step"] = self.dps_power_step
             if self.dps_min_power:
-                cfg["power_scaling"]["min_psu_power_limit"] = self.dps_min_power
+                if cfg["format"]["version"] == "2.0":
+                    cfg["power_scaling"]["min_power_target"] = self.dps_min_power
+                else:
+                    cfg["power_scaling"]["min_psu_power_limit"] = self.dps_min_power
             if self.dps_shutdown_enabled:
                 cfg["power_scaling"]["shutdown_enabled"] = self.dps_shutdown_enabled
             if self.dps_shutdown_duration:
