@@ -491,7 +491,7 @@ class MinerConfig:
         cfg = {
             "format": {
                 "version": "1.2+",
-                "model": f"Antminer {model}",
+                "model": f"Antminer {model.replace('j', 'J')}",
                 "generator": "pyasic",
                 "timestamp": int(time.time()),
             },
@@ -509,7 +509,9 @@ class MinerConfig:
         if self.autotuning_enabled or self.autotuning_wattage:
             cfg["autotuning"] = {}
             if self.autotuning_enabled:
-                cfg["autotuning"]["enabled"] = self.autotuning_enabled
+                cfg["autotuning"]["enabled"] = True
+            else:
+                cfg["autotuning"]["enabled"] = False
             if self.autotuning_mode:
                 cfg["format"]["version"] = "2.0"
                 cfg["autotuning"]["mode"] = self.autotuning_mode + "_target"
