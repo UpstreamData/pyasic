@@ -233,11 +233,11 @@ class BOSMiner(BaseMiner):
 
             # I really hate BBB, please get rid of it if you have it
             else:
-                await conn.run("/etc/init.d/S99Bosminer stop")
+                await conn.run("/etc/init.d/S99bosminer stop")
                 logging.debug(f"{self}: BBB sending config")
                 await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
                 logging.debug(f"{self}: BBB restarting bosminer.")
-                await conn.run("/etc/init.d/S99Bosminer start")
+                await conn.run("/etc/init.d/S99bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
