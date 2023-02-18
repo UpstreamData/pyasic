@@ -401,8 +401,8 @@ class MinerConfig:
         pool_groups = []
         for group in data["pool_groups"]:
             pool_groups.append(_PoolGroup().from_dict(group))
-        for key in data.keys():
-            if getattr(self, key) and not key == "pool_groups":
+        for key in data:
+            if hasattr(self, key) and not key == "pool_groups":
                 setattr(self, key, data[key])
         self.pool_groups = pool_groups
         return self
