@@ -16,7 +16,6 @@
 
 import unittest
 
-from tests.config_tests import ConfigTest
 from tests.miners_tests import MinerFactoryTest, MinersTest
 from tests.network_tests import NetworkTest
 

@@ -162,7 +162,7 @@ class BaseMiner(ABC):
 
     @abstractmethod
     async def resume_mining(self) -> bool:
-        """Stop the mining process of the miner.
+        """Resume the mining process of the miner.
 
         Returns:
             A boolean value of the success of resuming the mining process.
