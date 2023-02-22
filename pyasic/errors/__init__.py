@@ -29,6 +29,20 @@ class APIError(Exception):
             return "Incorrect API parameters."
 
 
+class PhaseBalancingError(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return f"{self.message}"
+        else:
+            return "Failed to balance phase."
+
+
 class APIWarning(Warning):
     def __init__(self, *args):
         if args:
