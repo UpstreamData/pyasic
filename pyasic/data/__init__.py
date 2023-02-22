@@ -403,6 +403,8 @@ class MinerData:
 
     @property
     def percent_ideal(self):  # noqa - Skip PyCharm inspection
+        if self.total_chips == 0 or self.ideal_chips == 0:
+            return 0
         return round((self.total_chips / self.ideal_chips) * 100)
 
     @percent_ideal.setter
