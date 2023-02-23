@@ -16,6 +16,7 @@
 
 import ipaddress
 import logging
+import warnings
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
@@ -151,6 +152,12 @@ class BTMiner(BaseMiner):
             summary = data["summary"][0]
         except APIError as e:
             logging.warning(e)
+        except LookupError:
+            # somethings wrong with the miner
+            warnings.warn(
+                f"Failed to gather pool config for miner: {self}, miner did not return pool information."
+            )
+            pass
 
         if pools:
             if "POOLS" in pools:
