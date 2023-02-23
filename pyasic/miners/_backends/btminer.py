@@ -153,15 +153,16 @@ class BTMiner(BaseMiner):
         except APIError as e:
             logging.warning(e)
         except LookupError:
-            # somethings wrong with the miner
-            warnings.warn(
-                f"Failed to gather pool config for miner: {self}, miner did not return pool information."
-            )
             pass
 
         if pools:
             if "POOLS" in pools:
                 cfg = cfg.from_api(pools["POOLS"])
+        else:
+            # somethings wrong with the miner
+            warnings.warn(
+                f"Failed to gather pool config for miner: {self}, miner did not return pool information."
+            )
         if summary:
             if "SUMMARY" in summary:
                 if wattage := summary["SUMMARY"][0].get("Power Limit"):
