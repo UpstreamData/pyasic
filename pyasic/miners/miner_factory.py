@@ -339,6 +339,10 @@ MINER_CLASSES = {
         "10": BTMinerM32V10,
         "20": BTMinerM32V20,
     },
+    "M32S": {
+        "Default": BTMinerM32S,
+        "BTMiner": BTMinerM32S,
+    },
     "M33": {
         "Default": BTMinerM33V10,
         "BTMiner": BTMinerM33V10,

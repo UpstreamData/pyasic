@@ -142,6 +142,7 @@ from .M31S_Plus import (
 )
 from .M31SE import M31SEV10, M31SEV20, M31SEV30
 from .M32 import M32V10, M32V20
+from .M32S import M32S
 from .M33 import M33V10, M33V20, M33V30
 from .M33S import M33SVG30
 from .M33S_Plus import M33SPlusVH20, M33SPlusVH30

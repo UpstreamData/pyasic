@@ -17,6 +17,7 @@ import asyncio
 import inspect
 import sys
 import unittest
+import warnings
 
 from pyasic.miners._backends import CGMiner  # noqa
 from pyasic.miners.base import BaseMiner
@@ -25,6 +26,7 @@ from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
 
 class MinersTest(unittest.TestCase):
     def test_miner_model_creation(self):
+        warnings.filterwarnings("ignore")
         for miner_model in MINER_CLASSES.keys():
             for miner_api in MINER_CLASSES[miner_model].keys():
                 with self.subTest(
@@ -38,6 +40,8 @@ class MinersTest(unittest.TestCase):
                     )
 
     def test_miner_backend_backup_creation(self):
+        warnings.filterwarnings("ignore")
+
         backends = inspect.getmembers(
             sys.modules["pyasic.miners._backends"], inspect.isclass
         )
@@ -48,6 +52,8 @@ class MinersTest(unittest.TestCase):
                 self.assertTrue(isinstance(miner, miner_class))
 
     def test_miner_type_creation_failure(self):
+        warnings.filterwarnings("ignore")
+
         backends = inspect.getmembers(
             sys.modules["pyasic.miners._types"], inspect.isclass
         )
@@ -70,6 +76,8 @@ class MinersTest(unittest.TestCase):
 
 class MinerFactoryTest(unittest.TestCase):
     def test_miner_factory_creation(self):
+        warnings.filterwarnings("ignore")
+
         self.assertDictEqual(MinerFactory().miners, {})
         miner_factory = MinerFactory()
         self.assertIs(MinerFactory(), miner_factory)
@@ -86,6 +94,8 @@ class MinerFactoryTest(unittest.TestCase):
         self.assertListEqual(_miners, [])
 
     def test_miner_selection(self):
+        warnings.filterwarnings("ignore")
+
         for miner_model in MINER_CLASSES.keys():
             with self.subTest():
                 miner = MinerFactory()._select_miner_from_classes(
