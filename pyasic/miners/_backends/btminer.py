@@ -115,6 +115,8 @@ class BTMiner(BaseMiner):
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
+
         conf = config.as_wm(user_suffix=user_suffix)
         pools_conf = conf["pools"]
 
@@ -158,7 +160,9 @@ class BTMiner(BaseMiner):
                 if wattage := summary["SUMMARY"][0].get("Power Limit"):
                     cfg.autotuning_wattage = wattage
 
-        return cfg
+        self.config = cfg
+
+        return self.config
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:

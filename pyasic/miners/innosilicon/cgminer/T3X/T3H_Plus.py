@@ -126,6 +126,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return await self.restart_cgminer()
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
         await self.send_web_command(
             "updatePools", data=config.as_inno(user_suffix=user_suffix)
         )

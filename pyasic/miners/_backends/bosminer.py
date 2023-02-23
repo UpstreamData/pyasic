@@ -199,7 +199,9 @@ class BOSMiner(BaseMiner):
         if conn:
             async with conn:
                 # good ol' BBB compatibility :/
-                toml_data = toml.loads((await conn.run("cat /etc/bosminer.toml")).stdout)
+                toml_data = toml.loads(
+                    (await conn.run("cat /etc/bosminer.toml")).stdout
+                )
             logging.debug(f"{self}: Converting config file.")
             cfg = MinerConfig().from_raw(toml_data)
             self.config = cfg
@@ -208,6 +210,7 @@ class BOSMiner(BaseMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
+        self.config = config
         toml_conf = config.as_bos(
             model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
         )
@@ -217,7 +220,9 @@ class BOSMiner(BaseMiner):
             return None
         async with conn:
             # BBB check because bitmain suxx
-            bbb_check = await conn.run("if [ ! -f /etc/init.d/bosminer ]; then echo '1'; else echo '0'; fi;")
+            bbb_check = await conn.run(
+                "if [ ! -f /etc/init.d/bosminer ]; then echo '1'; else echo '0'; fi;"
+            )
 
             bbb = bbb_check.stdout.strip() == "1"
 

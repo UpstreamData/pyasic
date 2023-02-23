@@ -61,6 +61,7 @@ class X19(BMMiner):
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
         conf = config.as_x19(user_suffix=user_suffix)
         await self.send_web_command(
             "set_miner_conf", params=conf  # noqa: ignore conf being a str
