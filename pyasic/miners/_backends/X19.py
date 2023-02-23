@@ -107,7 +107,7 @@ class X19(BMMiner):
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.autotuning_wattage = 1
+        cfg.autotuning_wattage = 3600
         await self.send_config(cfg)
         return True
 

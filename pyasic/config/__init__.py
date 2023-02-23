@@ -326,6 +326,8 @@ class MinerConfig:
                 if data[key]:
                     if data[key] == 1:
                         self.autotuning_wattage = 0
+                    if data[key] == 2:
+                        self.autotuning_wattage = 1200
             elif key == "fan_control":
                 for _key in data[key].keys():
                     if _key == "min_fans":
@@ -461,6 +463,9 @@ class MinerConfig:
         }
         if self.autotuning_wattage == 0:
             cfg["miner-mode"] = 1  # Sleep Mode
+
+        if self.autotuning_wattage < 1800:
+            cfg["miner-mode"] = 2  # LPM?
 
         if not self.temp_mode == "auto":
             cfg["bitmain-fan-ctrl"] = True

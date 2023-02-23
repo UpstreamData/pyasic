@@ -24,6 +24,8 @@ class APIError(Exception):
 
     def __str__(self):
         if self.message:
+            if self.message == "can't access write cmd":
+                return f"{self.message}, please make sure your miner has been unlocked."
             return f"{self.message}"
         else:
             return "Incorrect API parameters."
