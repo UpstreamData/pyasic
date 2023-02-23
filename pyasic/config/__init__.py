@@ -466,7 +466,7 @@ class MinerConfig:
                 cfg["miner-mode"] = 1  # Sleep Mode
 
             if self.autotuning_wattage < 1800:
-                cfg["miner-mode"] = 2  # LPM?
+                cfg["miner-mode"] = 3  # LPM
 
         if not self.temp_mode == "auto":
             cfg["bitmain-fan-ctrl"] = True
