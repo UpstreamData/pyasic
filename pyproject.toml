@@ -8,9 +8,9 @@ documentation = "https://pyasic.readthedocs.io/en/latest/"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-asyncssh = "^2.11.0"
-httpx = "^0.23.0"
+python = "^3.8"
+asyncssh = "^2.13.1"
+httpx = "^0.23.3"
 passlib = "^1.7.4"
 pyaml = "^21.10.1"
 toml = "^0.10.2"
@@ -19,15 +19,15 @@ toml = "^0.10.2"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^2.20.0"
-isort = "^5.10.1"
+pre-commit = "^3.1.0"
+isort = "^5.12.0"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = "^1.4.0"
-mkdocstrings = {extras = ["python"], version = "^0.19.0"}
+mkdocs = "^1.4.2"
+mkdocstrings = {extras = ["python"], version = "^0.20.0"}
 
 
 [build-system]
