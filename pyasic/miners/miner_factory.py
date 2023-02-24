@@ -781,6 +781,10 @@ class MinerFactory(metaclass=Singleton):
         if version and not model:
             try:
                 model = version["VERSION"][0]["Type"].upper()
+                if "ANTMINER BHB" in model:
+                    # def antminer, get from web
+                    sysinfo = await self.__get_system_info_from_web(str(ip))
+                    model = sysinfo["minertype"].upper()
             except KeyError:
                 pass
 
