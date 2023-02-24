@@ -334,7 +334,7 @@ class MinerConfig:
                         self.fan_speed = int(data["bitmain-fan-pwm"])
             elif key == "bitmain-work-mode":
                 if data[key]:
-                    self.miner_mode = X19PowerMode(data[key])
+                    self.miner_mode = X19PowerMode(int(data[key]))
             elif key == "fan_control":
                 for _key in data[key].keys():
                     if _key == "min_fans":
