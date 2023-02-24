@@ -101,13 +101,13 @@ class X19(BMMiner):
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Normal
+        cfg.miner_mode = X19PowerMode.Sleep
         await self.send_config(cfg)
         return True
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Sleep
+        cfg.miner_mode = X19PowerMode.Normal
         await self.send_config(cfg)
         return True
 
