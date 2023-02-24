@@ -21,7 +21,7 @@ from typing import List, Optional, Union
 import httpx
 
 from pyasic.API import APIError
-from pyasic.config import MinerConfig
+from pyasic.config import MinerConfig, X19PowerMode
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 from pyasic.settings import PyasicSettings
@@ -101,13 +101,13 @@ class X19(BMMiner):
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.autotuning_wattage = 0
+        cfg.miner_mode = X19PowerMode.Normal
         await self.send_config(cfg)
         return True
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.autotuning_wattage = 3600
+        cfg.miner_mode = X19PowerMode.Sleep
         await self.send_config(cfg)
         return True
 

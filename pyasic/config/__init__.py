@@ -20,10 +20,17 @@ import random
 import string
 import time
 from dataclasses import asdict, dataclass, fields
+from enum import IntEnum
 from typing import Dict, List, Literal
 
 import toml
 import yaml
+
+
+class X19PowerMode(IntEnum):
+    Normal = 0
+    Sleep = 1
+    LPM = 3
 
 
 @dataclass
@@ -267,6 +274,7 @@ class MinerConfig:
 
     asicboost: bool = None
 
+    miner_mode: IntEnum = X19PowerMode.Normal
     autotuning_enabled: bool = True
     autotuning_mode: Literal["power", "hashrate"] = None
     autotuning_wattage: int = None
@@ -287,6 +295,8 @@ class MinerConfig:
         logging.debug(f"MinerConfig - (To Dict) - Dumping Dict config")
         data_dict = asdict(self)
         for key in asdict(self).keys():
+            if isinstance(data_dict[key], IntEnum):
+                data_dict[key] = data_dict[key].value
             if data_dict[key] is None:
                 del data_dict[key]
         return data_dict
@@ -324,10 +334,7 @@ class MinerConfig:
                         self.fan_speed = int(data["bitmain-fan-pwm"])
             elif key == "bitmain-work-mode":
                 if data[key]:
-                    if data[key] == 1:
-                        self.autotuning_wattage = 0
-                    if data[key] == 2:
-                        self.autotuning_wattage = 1200
+                    self.miner_mode = X19PowerMode(data[key])
             elif key == "fan_control":
                 for _key in data[key].keys():
                     if _key == "min_fans":
@@ -459,14 +466,8 @@ class MinerConfig:
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
             "bitmain-fan-pwn": 100,
-            "miner-mode": 0,  # Normal Mode
+            "miner-mode": self.miner_mode.value,
         }
-        if self.autotuning_wattage:
-            if self.autotuning_wattage == 0:
-                cfg["miner-mode"] = 1  # Sleep Mode
-
-            if self.autotuning_wattage < 1800:
-                cfg["miner-mode"] = 3  # LPM
 
         if not self.temp_mode == "auto":
             cfg["bitmain-fan-ctrl"] = True
