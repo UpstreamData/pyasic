@@ -22,10 +22,10 @@ from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
 
-class X19WebAPI(BaseWebAPI):
+class X17WebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_x19_password
+        self.pwd = PyasicSettings().global_x17_password
 
     async def send_command(
         self,
@@ -39,9 +39,7 @@ class X19WebAPI(BaseWebAPI):
         try:
             async with httpx.AsyncClient() as client:
                 if parameters:
-                    data = await client.post(
-                        url, data=json.dumps(parameters), auth=auth  # noqa
-                    )
+                    data = await client.post(url, data=parameters, auth=auth)
                 else:
                     data = await client.get(url, auth=auth)
         except httpx.HTTPError:
@@ -53,47 +51,16 @@ class X19WebAPI(BaseWebAPI):
                 except json.decoder.JSONDecodeError:
                     pass
 
-    async def get_miner_conf(self) -> dict:
-        return await self.send_command("get_miner_conf")
-
-    async def set_miner_conf(self, conf: dict) -> dict:
-        return await self.send_command("set_miner_conf", **conf)
-
-    async def blink(self, blink: bool) -> dict:
-        if blink:
-            return await self.send_command("blink", blink="true")
-        return await self.send_command("blink", blink="false")
-
-    async def reboot(self) -> dict:
-        return await self.send_command("reboot")
-
     async def get_system_info(self) -> dict:
         return await self.send_command("get_system_info")
 
-    async def get_network_info(self) -> dict:
-        return await self.send_command("get_network_info")
+    async def blink(self, blink: bool):
+        if blink:
+            return await self.send_command("blink", action="startBlink")
+        return await self.send_command("blink", action="stopBlink")
 
-    async def summary(self) -> dict:
-        return await self.send_command("summary")
+    async def reboot(self):
+        return await self.send_command("reboot")
 
     async def get_blink_status(self) -> dict:
-        return await self.send_command("get_blink_status")
-
-    async def set_network_conf(
-        self,
-        ip: str,
-        dns: str,
-        gateway: str,
-        subnet_mask: str,
-        hostname: str,
-        protocol: int,
-    ) -> dict:
-        return await self.send_command(
-            "set_network_conf",
-            ipAddress=ip,
-            ipDns=dns,
-            ipGateway=gateway,
-            ipHost=hostname,
-            ipPro=protocol,
-            ipSub=subnet_mask,
-        )
+        return await self.send_command("blink", action="onPageLoaded")
