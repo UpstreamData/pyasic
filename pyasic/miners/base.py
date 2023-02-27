@@ -395,8 +395,13 @@ class BaseMiner(ABC):
 
         web_data = {}
         for command in web_params:
-            data = await self.send_web_command(command)  # noqa: web only anyway
-            web_data[command] = data
+            try:
+                cmd_func = getattr(self.web, command)
+                data = await cmd_func()  # noqa: web only anyway
+            except (LookupError, APIError):
+                pass
+            else:
+                web_data[command] = data
         for data_name in data_to_get:
             function = getattr(self, "get_" + data_name)
             sig = inspect.signature(function)

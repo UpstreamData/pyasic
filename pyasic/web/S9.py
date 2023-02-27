@@ -13,34 +13,46 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
 import json
-from typing import Optional, Union
+from typing import Union
 
 import httpx
 
-from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
-from pyasic.miners._types import S9  # noqa - Ignore access to _module
-from pyasic.web.S9 import S9WebAPI
+from pyasic.settings import PyasicSettings
+from pyasic.web import BaseWebAPI
 
 
-class BMMinerS9(BMMiner, S9):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
-        self.web = S9WebAPI(ip)
+class S9WebAPI(BaseWebAPI):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
+        self.pwd = PyasicSettings().global_x17_password
 
-    async def get_mac(self) -> Union[str, None]:
+    async def send_command(
+        self,
+        command: Union[str, bytes],
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        **parameters: Union[str, int, bool],
+    ) -> dict:
+        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+        auth = httpx.DigestAuth(self.username, self.pwd)
         try:
-            data = await self.web.get_system_info()
-            if data:
-                return data["macaddr"]
-        except KeyError:
+            async with httpx.AsyncClient() as client:
+                if parameters:
+                    data = await client.post(url, data=parameters, auth=auth)
+                else:
+                    data = await client.get(url, auth=auth)
+        except httpx.HTTPError:
             pass
+        else:
+            if data.status_code == 200:
+                try:
+                    return data.json()
+                except json.decoder.JSONDecodeError:
+                    pass
 
-        try:
-            data = await self.web.get_network_info()
-            if data:
-                return data["macaddr"]
-        except KeyError:
-            pass
+    async def get_system_info(self) -> dict:
+        return await self.send_command("get_system_info")
+
+    async def get_network_info(self) -> dict:
+        return await self.send_command("get_network_info")

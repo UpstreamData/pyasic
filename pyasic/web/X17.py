@@ -54,12 +54,12 @@ class X17WebAPI(BaseWebAPI):
     async def get_system_info(self) -> dict:
         return await self.send_command("get_system_info")
 
-    async def blink(self, blink: bool):
+    async def blink(self, blink: bool) -> dict:
         if blink:
             return await self.send_command("blink", action="startBlink")
         return await self.send_command("blink", action="stopBlink")
 
-    async def reboot(self):
+    async def reboot(self) -> dict:
         return await self.send_command("reboot")
 
     async def get_blink_status(self) -> dict:
