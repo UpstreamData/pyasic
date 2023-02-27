@@ -455,7 +455,7 @@ class MinerConfig:
         logging.debug(f"MinerConfig - (As Inno) - Generating Innosilicon config")
         return self.pool_groups[0].as_inno(user_suffix=user_suffix)
 
-    def as_x19(self, user_suffix: str = None) -> str:
+    def as_x19(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a config usable by an X19 device.
 
         Parameters:
@@ -475,7 +475,7 @@ class MinerConfig:
         if self.fan_speed:
             cfg["bitmain-fan-ctrl"] = str(self.fan_speed)
 
-        return json.dumps(cfg)
+        return cfg
 
     def as_avalon(self, user_suffix: str = None) -> str:
         """Convert the data in this class to a config usable by an Avalonminer device.

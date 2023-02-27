@@ -31,9 +31,8 @@ from pyasic.errors import APIError
 class BaseMiner(ABC):
     def __init__(self, *args, **kwargs) -> None:
         self.ip = None
-        self.uname = "root"
-        self.pwd = "admin"
         self.api = None
+        self.web = None
         self.api_type = None
         self.api_ver = None
         self.fw_ver = None
