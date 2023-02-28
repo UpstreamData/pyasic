@@ -17,17 +17,16 @@
 import ipaddress
 import logging
 from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import asyncssh
 
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
-from pyasic.settings import PyasicSettings
 
 
 class CGMiner(BaseMiner):

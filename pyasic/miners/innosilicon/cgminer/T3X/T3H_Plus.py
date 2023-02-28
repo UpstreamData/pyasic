@@ -13,13 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import json
 import logging
-import warnings
-from collections import namedtuple
-from typing import List, Optional, Tuple, Union
-
-import httpx
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
@@ -27,7 +22,6 @@ from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
-from pyasic.settings import PyasicSettings
 from pyasic.web.Inno import InnosiliconWebAPI
 
 
@@ -84,9 +78,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
     ##################################################
 
     async def get_mac(
-        self,
-        web_get_all: dict = None,  # noqa
-        web_overview: dict = None,  # noqa: named this way for automatic functionality
+        self, web_get_all: dict = None, web_overview: dict = None
     ) -> Optional[str]:
         if not web_get_all and not web_overview:
             try:
@@ -127,9 +119,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashrate(
-        self,
-        api_summary: dict = None,
-        web_get_all: dict = None,  # noqa: named this way for automatic functionality
+        self, api_summary: dict = None, web_get_all: dict = None
     ) -> Optional[float]:
         if not api_summary and not web_get_all:
             try:
@@ -152,9 +142,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashboards(
-        self,
-        api_stats: dict = None,
-        web_get_all: dict = None,  # noqa: named this way for automatic functionality
+        self, api_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
@@ -209,9 +197,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return hashboards
 
     async def get_wattage(
-        self,
-        web_get_all: dict = None,
-        api_stats: dict = None,  # noqa: named this way for automatic functionality
+        self, web_get_all: dict = None, api_stats: dict = None
     ) -> Optional[int]:
         if not web_get_all:
             try:
@@ -244,10 +230,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                         wattage = int(wattage)
                         return wattage
 
-    async def get_fans(
-        self,
-        web_get_all: dict = None,  # noqa: named this way for automatic functionality
-    ) -> List[Fan]:
+    async def get_fans(self, web_get_all: dict = None) -> List[Fan]:
         if not web_get_all:
             try:
                 web_get_all = await self.web.get_all()

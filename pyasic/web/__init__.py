@@ -19,7 +19,6 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from pyasic.errors import APIWarning
-from pyasic.settings import PyasicSettings
 
 
 class BaseWebAPI(ABC):

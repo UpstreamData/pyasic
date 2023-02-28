@@ -14,14 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import json
 import logging
 import random
 import string
 import time
 from dataclasses import asdict, dataclass, fields
 from enum import IntEnum
-from typing import Dict, List, Literal
+from typing import List, Literal
 
 import toml
 import yaml
@@ -202,17 +201,23 @@ class _PoolGroup:
                 pools[f"{key}{idx+1}"] = pool_data[key]
         return pools
 
-    def as_wm(self, user_suffix: str = None) -> List[dict]:
+    def as_wm(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a list usable by a Whatsminer device.
 
         Parameters:
              user_suffix: The suffix to append to username.
         """
-        pools = []
-        for pool in self.pools[:3]:
-            pools.append(pool.as_wm(user_suffix=user_suffix))
-        while len(pools) < 3:
-            pools.append({"url": None, "user": None, "pass": None})
+        pools = {}
+        for i in range(1, 4):
+            if i <= len(self.pools):
+                pool_wm = self.pools[i - 1].as_wm(user_suffix)
+                pools[f"pool_{i}"] = pool_wm["url"]
+                pools[f"worker_{i}"] = pool_wm["user"]
+                pools[f"passwd_{i}"] = pool_wm["pass"]
+            else:
+                pools[f"pool_{i}"] = None
+                pools[f"worker_{i}"] = None
+                pools[f"passwd_{i}"] = None
         return pools
 
     def as_avalon(self, user_suffix: str = None) -> str:
@@ -434,7 +439,7 @@ class MinerConfig:
         logging.debug(f"MinerConfig - (From YAML) - Loading YAML config")
         return self.from_dict(yaml.load(data, Loader=yaml.SafeLoader))
 
-    def as_wm(self, user_suffix: str = None) -> Dict[str, int]:
+    def as_wm(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a config usable by a Whatsminer device.
 
         Parameters:

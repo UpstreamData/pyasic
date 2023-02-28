@@ -27,7 +27,8 @@ class _MinerListener:
     def connection_made(self, transport):
         self.transport = transport
 
-    def datagram_received(self, data, _addr):
+    @staticmethod
+    def datagram_received(data, _addr):
         m = data.decode()
         if "," in m:
             ip, mac = m.split(",")

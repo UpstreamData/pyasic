@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from collections import namedtuple
 from typing import List, Optional, Tuple
 
 from pyasic.API.unknown import UnknownAPI
@@ -26,7 +25,9 @@ from pyasic.miners.base import BaseMiner
 
 
 class UnknownMiner(BaseMiner):
-    def __init__(self, ip: str, *args, **kwargs) -> None:
+    def __init__(
+        self, ip: str, *args, **kwargs
+    ) -> None:  # noqa - ignore *args and **kwargs for signature consistency
         super().__init__()
         self.ip = ip
         self.api = UnknownAPI(ip)

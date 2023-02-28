@@ -14,10 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import json
-from typing import Optional, Union
-
-import httpx
+from typing import Union
 
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import S9  # noqa - Ignore access to _module

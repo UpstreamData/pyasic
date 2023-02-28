@@ -33,6 +33,8 @@ class BaseMiner(ABC):
         self.ip = None
         self.api = None
         self.web = None
+        self.uname = None
+        self.pwd = None
         self.api_type = None
         self.api_ver = None
         self.fw_ver = None
