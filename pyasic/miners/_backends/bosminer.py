@@ -690,14 +690,15 @@ class BOSMiner(BaseMiner):
                     # need to use get_config, as this will never read perfectly as there are some bad edge cases
                     groups = []
                     cfg = await self.get_config()
-                    for group in cfg.pool_groups:
-                        pools = {"quota": group.quota}
-                        for _i, _pool in enumerate(group.pools):
-                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
-                                "stratum+tcp://", ""
-                            ).replace("stratum2+tcp://", "")
-                            pools[f"pool_{_i + 1}_user"] = _pool.username
-                        groups.append(pools)
+                    if cfg:
+                        for group in cfg.pool_groups:
+                            pools = {"quota": group.quota}
+                            for _i, _pool in enumerate(group.pools):
+                                pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
+                                    "stratum+tcp://", ""
+                                ).replace("stratum2+tcp://", "")
+                                pools[f"pool_{_i + 1}_user"] = _pool.username
+                            groups.append(pools)
                     return groups
                 else:
                     groups[0][f"pool_{i + 1}_url"] = (
