@@ -19,12 +19,12 @@ from typing import List, Union
 
 from pyasic.errors import APIError
 from pyasic.miners import AnyMiner
-from pyasic.miners._backends import (  # noqa - Ignore access to _module
+from pyasic.miners.btc._backends import (  # noqa - Ignore access to _module
     X19,
     BOSMiner,
     BTMiner,
 )
-from pyasic.miners._types import (  # noqa - Ignore access to _module
+from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
     S9,
     S17,
     T17,

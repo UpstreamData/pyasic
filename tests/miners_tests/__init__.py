@@ -19,8 +19,8 @@ import sys
 import unittest
 import warnings
 
-from pyasic.miners._backends import CGMiner  # noqa
 from pyasic.miners.base import BaseMiner
+from pyasic.miners.btc._backends import CGMiner  # noqa
 from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
 
 
@@ -42,9 +42,15 @@ class MinersTest(unittest.TestCase):
     def test_miner_backend_backup_creation(self):
         warnings.filterwarnings("ignore")
 
-        backends = inspect.getmembers(
-            sys.modules["pyasic.miners._backends"], inspect.isclass
-        )
+        backends = [
+            list(
+                inspect.getmembers(
+                    sys.modules[f"pyasic.miners.{algo}._backends"], inspect.isclass
+                )
+            )
+            for algo in ["btc", "zec", "ltc"]
+        ]
+        backends = [item for sublist in backends for item in sublist]
         for backend in backends:
             miner_class = backend[1]
             with self.subTest(miner_class=miner_class):
@@ -54,9 +60,15 @@ class MinersTest(unittest.TestCase):
     def test_miner_type_creation_failure(self):
         warnings.filterwarnings("ignore")
 
-        backends = inspect.getmembers(
-            sys.modules["pyasic.miners._types"], inspect.isclass
-        )
+        backends = [
+            list(
+                inspect.getmembers(
+                    sys.modules[f"pyasic.miners.{algo}._types"], inspect.isclass
+                )
+            )
+            for algo in ["btc", "zec", "ltc"]
+        ]
+        backends = [item for sublist in backends for item in sublist]
         for backend in backends:
             miner_class = backend[1]
             with self.subTest(miner_class=miner_class):
