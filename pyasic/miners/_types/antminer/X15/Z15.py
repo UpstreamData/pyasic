@@ -13,8 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X7 import *
-from .X9 import *
-from .X15 import *
-from .X17 import *
-from .X19 import *
+
+from pyasic.miners._types.makes import AntMiner
+
+
+class Z15(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "Z15"
+        self.nominal_chips = 3
+        self.fan_count = 2

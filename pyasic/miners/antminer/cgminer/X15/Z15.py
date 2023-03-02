@@ -13,8 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X7 import *
-from .X9 import *
-from .X15 import *
-from .X17 import *
-from .X19 import *
+
+from pyasic.miners._backends import X15  # noqa - Ignore access to _module
+from pyasic.miners._types import Z15  # noqa - Ignore access to _module
+
+
+class CGMinerZ15(X15, Z15):
+    pass

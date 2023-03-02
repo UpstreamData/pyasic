@@ -63,6 +63,10 @@ MINER_CLASSES = {
         "Hiveon": HiveonT9,
         "CGMiner": CGMinerT9,
     },
+    "ANTMINER Z15": {
+        "Default": CGMinerZ15,
+        "CGMiner": CGMinerZ15,
+    },
     "ANTMINER S17": {
         "Default": BMMinerS17,
         "BOSMiner+": BOSMinerS17,

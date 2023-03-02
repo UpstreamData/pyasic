@@ -23,3 +23,4 @@ from .hiveon import Hiveon
 from .vnish import VNish
 from .X19 import X19
 from .X7 import X7
+from .X15 import X15

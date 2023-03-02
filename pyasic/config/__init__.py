@@ -91,6 +91,19 @@ class _Pool:
         pool = {"url": self.url, "user": username, "pass": self.password}
         return pool
 
+    def as_x15(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a dict usable by an X19 device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = {"url": self.url, "user": username, "pass": self.password}
+        return pool
+
     def as_inno(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a dict usable by an Innosilicon device.
 
@@ -186,6 +199,34 @@ class _PoolGroup:
         pools = []
         for pool in self.pools[:3]:
             pools.append(pool.as_x19(user_suffix=user_suffix))
+        return pools
+
+    def as_x15(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a list usable by an X15 device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        pools = {
+            "_ant_pool1url": "",
+            "_ant_pool1user": "",
+            "_ant_pool1pw": "",
+            "_ant_pool2url": "",
+            "_ant_pool2user": "",
+            "_ant_pool2pw": "",
+            "_ant_pool3url": "",
+            "_ant_pool3user": "",
+            "_ant_pool3pw": "",
+        }
+        for idx, pool in enumerate(self.pools[:3]):
+            pools[f"_ant_pool{idx+1}url"] = pool.as_x15(user_suffix=user_suffix)["url"]
+            pools[f"_ant_pool{idx+1}user"] = pool.as_x15(user_suffix=user_suffix)[
+                "user"
+            ]
+            pools[f"_ant_pool{idx+1}pw"] = pool.as_x15(user_suffix=user_suffix)[
+                "pass"
+            ]
+
         return pools
 
     def as_inno(self, user_suffix: str = None) -> dict:
@@ -479,6 +520,16 @@ class MinerConfig:
 
         if self.fan_speed:
             cfg["bitmain-fan-ctrl"] = str(self.fan_speed)
+
+        return cfg
+
+    def as_x15(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a config usable by an X15 device.
+
+        Parameters:
+            user_suffix: The suffix to append to username.
+        """
+        cfg = self.pool_groups[0].as_x15(user_suffix=user_suffix)
 
         return cfg
 

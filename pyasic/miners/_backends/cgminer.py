@@ -128,12 +128,8 @@ class CGMiner(BaseMiner):
         else:
             return True
 
-    async def get_config(self, api_pools: dict = None) -> MinerConfig:
-        # get pool data
-        try:
-            api_pools = await self.api.pools()
-        except APIError:
-            pass
+    async def get_config(self) -> MinerConfig:
+        api_pools = await self.api.pools()
 
         if api_pools:
             self.config = MinerConfig().from_api(api_pools["POOLS"])
