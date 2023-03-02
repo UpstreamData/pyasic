@@ -246,7 +246,7 @@ class BTMinerAPI(BaseMinerAPI):
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
         try:
             data = await self._send_bytes(enc_command, timeout)
-        except (asyncio.CancelledError, asyncio.TimeoutError) as e:
+        except (asyncio.CancelledError, asyncio.TimeoutError):
             if ignore_errors:
                 return {}
             raise APIError("No data was returned from the API.")

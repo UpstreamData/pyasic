@@ -16,8 +16,7 @@
 
 import ipaddress
 import logging
-from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import asyncssh
 
@@ -180,5 +179,5 @@ class BOSMinerOld(BaseMiner):
     async def get_nominal_hashrate(self) -> Optional[float]:
         return None
 
-    async def get_data(self, allow_warning: bool = False) -> MinerData:
+    async def get_data(self, allow_warning: bool = False, **kwargs) -> MinerData:
         return MinerData(ip=str(self.ip))

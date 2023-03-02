@@ -14,45 +14,21 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import json
-from typing import Optional, Union
-
-import httpx
+from typing import Union
 
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
-from pyasic.settings import PyasicSettings
+from pyasic.web.X17 import X17WebAPI
 
 
 class BMMinerX17(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
-        self.uname = "root"
-        self.pwd = PyasicSettings().global_x17_password
-
-    async def send_web_command(
-        self, command: str, params: dict = None
-    ) -> Optional[dict]:
-        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
-        auth = httpx.DigestAuth(self.uname, self.pwd)
-        try:
-            async with httpx.AsyncClient() as client:
-                if params:
-                    data = await client.post(url, data=params, auth=auth)
-                else:
-                    data = await client.get(url, auth=auth)
-        except httpx.HTTPError:
-            pass
-        else:
-            if data.status_code == 200:
-                try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
+        self.web = X17WebAPI(ip)
 
     async def get_mac(self) -> Union[str, None]:
         try:
-            data = await self.send_web_command("get_system_info")
+            data = await self.web.get_system_info()
             if data:
                 return data["macaddr"]
         except KeyError:
@@ -60,11 +36,9 @@ class BMMinerX17(BMMiner):
 
     async def fault_light_on(self) -> bool:
         # this should time out, after it does do a check
-        await self.send_web_command("blink", params={"action": "startBlink"})
+        await self.web.blink(blink=True)
         try:
-            data = await self.send_web_command(
-                "blink", params={"action": "onPageLoaded"}
-            )
+            data = await self.web.get_blink_status()
             if data:
                 if data["isBlinking"]:
                     self.light = True
@@ -73,11 +47,9 @@ class BMMinerX17(BMMiner):
         return self.light
 
     async def fault_light_off(self) -> bool:
-        await self.send_web_command("blink", params={"action": "stopBlink"})
+        await self.web.blink(blink=False)
         try:
-            data = await self.send_web_command(
-                "blink", params={"action": "onPageLoaded"}
-            )
+            data = await self.web.get_blink_status()
             if data:
                 if not data["isBlinking"]:
                     self.light = False
@@ -86,7 +58,7 @@ class BMMinerX17(BMMiner):
         return self.light
 
     async def reboot(self) -> bool:
-        data = await self.send_web_command("reboot")
+        data = await self.web.reboot()
         if data:
             return True
         return False
@@ -95,9 +67,7 @@ class BMMinerX17(BMMiner):
         if self.light:
             return self.light
         try:
-            data = await self.send_web_command(
-                "blink", params={"action": "onPageLoaded"}
-            )
+            data = await self.web.get_blink_status()
             if data:
                 self.light = data["isBlinking"]
         except KeyError:
@@ -106,7 +76,7 @@ class BMMinerX17(BMMiner):
 
     async def get_hostname(self) -> Union[str, None]:
         try:
-            data = await self.send_web_command("get_system_info")
+            data = await self.web.get_system_info()
             if data:
                 return data["hostname"]
         except KeyError:

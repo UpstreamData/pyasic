@@ -13,13 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import json
 import logging
-import warnings
-from collections import namedtuple
-from typing import List, Optional, Tuple, Union
-
-import httpx
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
@@ -27,65 +22,14 @@ from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners._types import InnosiliconT3HPlus  # noqa - Ignore access to _module
-from pyasic.settings import PyasicSettings
+from pyasic.web.Inno import InnosiliconWebAPI
 
 
 class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
-        self.uname = "admin"
-        self.pwd = PyasicSettings().global_innosilicon_password
-        self.jwt = None
-
-    async def auth(self):
-        async with httpx.AsyncClient() as client:
-            try:
-                auth = await client.post(
-                    f"http://{self.ip}/api/auth",
-                    data={"username": self.uname, "password": self.pwd},
-                )
-            except httpx.HTTPError:
-                warnings.warn(f"Could not authenticate web token with miner: {self}")
-            else:
-                json_auth = auth.json()
-                self.jwt = json_auth.get("jwt")
-            return self.jwt
-
-    async def send_web_command(self, command: str, data: Union[dict, None] = None):
-        if not self.jwt:
-            await self.auth()
-        if not data:
-            data = {}
-        async with httpx.AsyncClient() as client:
-            for i in range(PyasicSettings().miner_get_data_retries):
-                try:
-                    response = await client.post(
-                        f"http://{self.ip}/api/{command}",
-                        headers={"Authorization": "Bearer " + self.jwt},
-                        timeout=5,
-                        data=data,
-                    )
-                    json_data = response.json()
-                    if (
-                        not json_data.get("success")
-                        and "token" in json_data
-                        and json_data.get("token") == "expired"
-                    ):
-                        # refresh the token, retry
-                        await self.auth()
-                        continue
-                    if not json_data.get("success"):
-                        if json_data.get("msg"):
-                            raise APIError(json_data["msg"])
-                        elif json_data.get("message"):
-                            raise APIError(json_data["message"])
-                        raise APIError("Innosilicon web api command failed.")
-                    return json_data
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
-                    pass
+        self.web = InnosiliconWebAPI(ip)
 
     async def fault_light_on(self) -> bool:
         return False
@@ -108,7 +52,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
     async def reboot(self) -> bool:
         try:
-            data = await self.send_web_command("reboot")
+            data = await self.web.reboot()
         except APIError:
             pass
         else:
@@ -116,7 +60,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
     async def restart_cgminer(self) -> bool:
         try:
-            data = await self.send_web_command("restartCgMiner")
+            data = await self.web.restart_cgminer()
         except APIError:
             pass
         else:
@@ -127,29 +71,24 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
-        await self.send_web_command(
-            "updatePools", data=config.as_inno(user_suffix=user_suffix)
-        )
+        await self.web.update_pools(config.as_inno(user_suffix=user_suffix))
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
     async def get_mac(
-        self,
-        web_getAll: dict = None,  # noqa
-        web_overview: dict = None,  # noqa: named this way for automatic functionality
+        self, web_get_all: dict = None, web_overview: dict = None
     ) -> Optional[str]:
-        web_all_data = web_getAll.get("all")
-        if not web_all_data and not web_overview:
+        if not web_get_all and not web_overview:
             try:
-                web_overview = await self.send_web_command("overview")
+                web_overview = await self.web.overview()
             except APIError:
                 pass
 
-        if web_all_data:
+        if web_get_all:
             try:
-                mac = web_all_data["mac"]
+                mac = web_get_all["mac"]
                 return mac.upper()
             except KeyError:
                 pass
@@ -168,7 +107,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         if not web_type:
             try:
-                web_type = await self.send_web_command("type")
+                web_type = await self.web.type()
             except APIError:
                 pass
 
@@ -180,21 +119,18 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashrate(
-        self,
-        api_summary: dict = None,
-        web_getAll: dict = None,  # noqa: named this way for automatic functionality
+        self, api_summary: dict = None, web_get_all: dict = None
     ) -> Optional[float]:
-        web_all_data = web_getAll.get("all")
-        if not api_summary and not web_all_data:
+        if not api_summary and not web_get_all:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if web_all_data:
+        if web_get_all:
             try:
                 return round(
-                    float(web_all_data["total_hash"]["Hash Rate H"] / 1000000000000), 2
+                    float(web_get_all["total_hash"]["Hash Rate H"] / 1000000000000), 2
                 )
             except KeyError:
                 pass
@@ -206,11 +142,8 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 pass
 
     async def get_hashboards(
-        self,
-        api_stats: dict = None,
-        web_getAll: dict = None,  # noqa: named this way for automatic functionality
+        self, api_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
-        web_all_data = web_getAll.get("all")
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)
@@ -222,13 +155,13 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
             except APIError:
                 pass
 
-        if not web_all_data:
+        if not web_get_all:
             try:
-                web_all_data = await self.send_web_command("getAll")
+                web_get_all = await self.web.get_all()
             except APIError:
                 pass
             else:
-                web_all_data = web_all_data["all"]
+                web_get_all = web_get_all["all"]
 
         if api_stats:
             if api_stats.get("STATS"):
@@ -242,9 +175,9 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                         hashboards[idx].chips = chips
                         hashboards[idx].missing = False
 
-        if web_all_data:
-            if web_all_data.get("chain"):
-                for board in web_all_data["chain"]:
+        if web_get_all:
+            if web_get_all.get("chain"):
+                for board in web_get_all["chain"]:
                     idx = board.get("ASC")
                     if idx is not None:
                         temp = board.get("Temp min")
@@ -264,22 +197,19 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return hashboards
 
     async def get_wattage(
-        self,
-        web_getAll: dict = None,
-        api_stats: dict = None,  # noqa: named this way for automatic functionality
+        self, web_get_all: dict = None, api_stats: dict = None
     ) -> Optional[int]:
-        web_all_data = web_getAll.get("all")
-        if not web_all_data:
+        if not web_get_all:
             try:
-                web_all_data = await self.send_web_command("getAll")
+                web_get_all = await self.web.get_all()
             except APIError:
                 pass
             else:
-                web_all_data = web_all_data["all"]
+                web_get_all = web_get_all["all"]
 
-        if web_all_data:
+        if web_get_all:
             try:
-                return web_all_data["power"]
+                return web_get_all["power"]
             except KeyError:
                 pass
 
@@ -300,23 +230,19 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                         wattage = int(wattage)
                         return wattage
 
-    async def get_fans(
-        self,
-        web_getAll: dict = None,  # noqa: named this way for automatic functionality
-    ) -> List[Fan]:
-        web_all_data = web_getAll.get("all")
-        if not web_all_data:
+    async def get_fans(self, web_get_all: dict = None) -> List[Fan]:
+        if not web_get_all:
             try:
-                web_all_data = await self.send_web_command("getAll")
+                web_get_all = await self.web.get_all()
             except APIError:
                 pass
             else:
-                web_all_data = web_all_data["all"]
+                web_get_all = web_get_all["all"]
 
         fan_data = [Fan(), Fan(), Fan(), Fan()]
-        if web_all_data:
+        if web_get_all:
             try:
-                spd = web_all_data["fansSpeed"]
+                spd = web_get_all["fansSpeed"]
             except KeyError:
                 pass
             else:
@@ -353,21 +279,20 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
         return groups
 
     async def get_errors(
-        self, web_getErrorDetail: dict = None
+        self, web_get_error_detail: dict = None
     ) -> List[MinerErrorData]:  # noqa: named this way for automatic functionality
-        web_error_details = web_getErrorDetail
         errors = []
-        if not web_error_details:
+        if not web_get_error_detail:
             try:
-                web_error_details = await self.send_web_command("getErrorDetail")
+                web_get_error_detail = await self.web.get_error_detail()
             except APIError:
                 pass
 
-        if web_error_details:
+        if web_get_error_detail:
             try:
                 # only 1 error?
                 # TODO: check if this should be a loop, can't remember.
-                err = web_error_details["code"]
+                err = web_get_error_detail["code"]
             except KeyError:
                 pass
             else:
@@ -376,19 +301,18 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                     errors.append(InnosiliconError(error_code=err))
         return errors
 
-    async def get_wattage_limit(self, web_getAll: dict = None) -> Optional[int]:
-        web_all_data = web_getAll.get("all")
-        if not web_all_data:
+    async def get_wattage_limit(self, web_get_all: dict = None) -> Optional[int]:
+        if not web_get_all:
             try:
-                web_all_data = await self.send_web_command("getAll")
+                web_get_all = await self.web.get_all()
             except APIError:
                 pass
             else:
-                web_all_data = web_all_data["all"]
+                web_get_all = web_get_all["all"]
 
-        if web_all_data:
+        if web_get_all:
             try:
-                level = web_all_data["running_mode"]["level"]
+                level = web_get_all["running_mode"]["level"]
             except KeyError:
                 pass
             else:

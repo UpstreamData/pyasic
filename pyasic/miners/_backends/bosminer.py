@@ -26,11 +26,10 @@ import toml
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
-from pyasic.settings import PyasicSettings
 
 
 class BOSMiner(BaseMiner):
@@ -840,7 +839,6 @@ class BOSMiner(BaseMiner):
                 api_devs = await self.api.devs()
             except APIError:
                 pass
-        nom_hr = 0
 
         if api_devs:
             try:

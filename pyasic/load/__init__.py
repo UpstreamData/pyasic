@@ -15,17 +15,25 @@
 # ------------------------------------------------------------------------------
 
 import asyncio
-import logging
 from typing import List, Union
 
-# from pyasic.errors import PhaseBalancingError
 from pyasic.errors import APIError
 from pyasic.miners import AnyMiner
-from pyasic.miners._backends import X19, BOSMiner, BTMiner
-from pyasic.miners._types import S9, S17, T17, S17e, S17Plus, S17Pro, T17e, T17Plus
-
-# from pprint import pprint as print
-
+from pyasic.miners._backends import (  # noqa - Ignore access to _module
+    X19,
+    BOSMiner,
+    BTMiner,
+)
+from pyasic.miners._types import (  # noqa - Ignore access to _module
+    S9,
+    S17,
+    T17,
+    S17e,
+    S17Plus,
+    S17Pro,
+    T17e,
+    T17Plus,
+)
 
 FAN_USAGE = 50  # 50 W per fan
 

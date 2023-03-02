@@ -14,92 +14,19 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import json
 import logging
-import warnings
-from typing import Optional, Union
-
-import httpx
+from typing import Optional
 
 from pyasic.errors import APIError
 from pyasic.miners._backends.bmminer import BMMiner
-from pyasic.settings import PyasicSettings
+from pyasic.web.vnish import VNishWebAPI
 
 
 class VNish(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
         self.api_type = "VNish"
-        self.uname = "root"
-        self.pwd = PyasicSettings().global_vnish_password
-        self.jwt = None
-
-    async def auth(self):
-        async with httpx.AsyncClient() as client:
-            try:
-                auth = await client.post(
-                    f"http://{self.ip}/api/v1/unlock",
-                    json={"pw": self.pwd},
-                )
-            except httpx.HTTPError:
-                warnings.warn(f"Could not authenticate web token with miner: {self}")
-            else:
-                if not auth.status_code == 200:
-                    warnings.warn(
-                        f"Could not authenticate web token with miner: {self}"
-                    )
-                    return None
-                json_auth = auth.json()
-                self.jwt = json_auth["token"]
-            return self.jwt
-
-    async def send_web_command(
-        self, command: str, data: Union[dict, None] = None, method: str = "GET"
-    ):
-        if not self.jwt:
-            await self.auth()
-        if not data:
-            data = {}
-        async with httpx.AsyncClient() as client:
-            for i in range(PyasicSettings().miner_get_data_retries):
-                try:
-                    auth = self.jwt
-                    if command.startswith("system"):
-                        auth = "Bearer " + self.jwt
-                    if method == "GET":
-                        response = await client.get(
-                            f"http://{self.ip}/api/v1/{command}",
-                            headers={"Authorization": auth},
-                            timeout=5,
-                        )
-                    elif method == "POST":
-                        if data:
-                            response = await client.post(
-                                f"http://{self.ip}/api/v1/{command}",
-                                headers={"Authorization": auth},
-                                timeout=5,
-                                json=data,
-                            )
-                        else:
-                            response = await client.post(
-                                f"http://{self.ip}/api/v1/{command}",
-                                headers={"Authorization": auth},
-                                timeout=5,
-                            )
-                    else:
-                        raise APIError("Bad method type.")
-                    if not response.status_code == 200:
-                        # refresh the token, retry
-                        await self.auth()
-                        continue
-                    json_data = response.json()
-                    if json_data:
-                        return json_data
-                    return True
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
-                    pass
+        self.web = VNishWebAPI(ip)
 
     async def get_model(self, api_stats: dict = None) -> Optional[str]:
         # check if model is cached
@@ -122,16 +49,26 @@ class VNish(BMMiner):
                 pass
 
     async def restart_backend(self) -> bool:
-        data = await self.send_web_command("mining/restart", method="POST")
-        return data
+        data = await self.web.restart_vnish()
+        if data:
+            try:
+                return data["success"]
+            except KeyError:
+                pass
+        return False
 
     async def reboot(self) -> bool:
-        data = await self.send_web_command("system/reboot", method="POST")
-        return data
+        data = await self.web.reboot()
+        if data:
+            try:
+                return data["success"]
+            except KeyError:
+                pass
+        return False
 
     async def get_mac(self, web_summary: dict = None) -> str:
         if not web_summary:
-            web_info = await self.send_web_command("info")
+            web_info = await self.web.info()
 
             if web_info:
                 try:
@@ -149,7 +86,7 @@ class VNish(BMMiner):
 
     async def get_hostname(self, web_summary: dict = None) -> str:
         if not web_summary:
-            web_info = await self.send_web_command("info")
+            web_info = await self.web.info()
 
             if web_info:
                 try:
@@ -167,7 +104,7 @@ class VNish(BMMiner):
 
     async def get_wattage(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
-            web_summary = await self.send_web_command("summary")
+            web_summary = await self.web.summary()
 
         if web_summary:
             try:
@@ -196,7 +133,7 @@ class VNish(BMMiner):
 
     async def get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
         if not web_settings:
-            web_settings = await self.send_web_command("summary")
+            web_settings = await self.web.summary()
 
         if web_settings:
             try:
@@ -207,7 +144,7 @@ class VNish(BMMiner):
 
     async def get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
         if not web_summary:
-            web_summary = await self.send_web_command("summary")
+            web_summary = await self.web.summary()
 
         if web_summary:
             try:

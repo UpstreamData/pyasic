@@ -62,7 +62,7 @@ class CGMinerAPI(BaseMinerAPI):
             for cmd in commands:
                 data[cmd] = []
                 data[cmd].append(await self.send_command(cmd, allow_warning=True))
-        except APIError as e:
+        except APIError:
             pass
         except Exception as e:
             logging.warning(

@@ -14,20 +14,15 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
 import logging
 import re
-from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional
 
-from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners._backends import CGMiner
-from pyasic.miners.base import BaseMiner
-from pyasic.settings import PyasicSettings
 
 
 class CGMinerAvalon(CGMiner):
@@ -79,7 +74,7 @@ class CGMinerAvalon(CGMiner):
         logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
         conf = config.as_avalon(user_suffix=user_suffix)
         try:
-            data = await self.api.ascset(
+            data = await self.api.ascset(  # noqa
                 0, "setpool", f"root,root,{conf}"
             )  # this should work but doesn't
         except APIError:

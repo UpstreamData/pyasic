@@ -31,9 +31,10 @@ from pyasic.errors import APIError
 class BaseMiner(ABC):
     def __init__(self, *args, **kwargs) -> None:
         self.ip = None
-        self.uname = "root"
-        self.pwd = "admin"
         self.api = None
+        self.web = None
+        self.uname = None
+        self.pwd = None
         self.api_type = None
         self.api_ver = None
         self.fw_ver = None
@@ -396,8 +397,13 @@ class BaseMiner(ABC):
 
         web_data = {}
         for command in web_params:
-            data = await self.send_web_command(command)  # noqa: web only anyway
-            web_data[command] = data
+            try:
+                cmd_func = getattr(self.web, command)
+                data = await cmd_func()  # noqa: web only anyway
+            except (LookupError, APIError):
+                pass
+            else:
+                web_data[command] = data
         for data_name in data_to_get:
             function = getattr(self, "get_" + data_name)
             sig = inspect.signature(function)

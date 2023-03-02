@@ -92,7 +92,9 @@ class BaseMinerAPI:
     async def send_privileged_command(self, *args, **kwargs) -> dict:
         return await self.send_command(*args, **kwargs)
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
@@ -107,7 +109,9 @@ class BaseMinerAPI:
         # standard format doesn't work for X19
         command = "+".join(commands)
         try:
-            data = await self.send_command(command, allow_warning=allow_warning)
+            data = await self.send_command(
+                command, allow_warning=allow_warning, ignore_errors=ignore_errors
+            )
         except APIError:
             return {command: [{}] for command in commands}
         logging.debug(f"{self} - (Multicommand) - Received data")

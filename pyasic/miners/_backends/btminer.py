@@ -18,15 +18,14 @@ import ipaddress
 import logging
 import warnings
 from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
-from pyasic.settings import PyasicSettings
 
 
 class BTMiner(BaseMiner):
@@ -122,17 +121,7 @@ class BTMiner(BaseMiner):
         pools_conf = conf["pools"]
 
         try:
-            await self.api.update_pools(
-                pools_conf[0]["url"],
-                pools_conf[0]["user"],
-                pools_conf[0]["pass"],
-                pools_conf[1]["url"],
-                pools_conf[1]["user"],
-                pools_conf[1]["pass"],
-                pools_conf[2]["url"],
-                pools_conf[2]["user"],
-                pools_conf[2]["pass"],
-            )
+            await self.api.update_pools(**pools_conf)
         except APIError:
             pass
         try:
@@ -546,8 +535,6 @@ class BTMiner(BaseMiner):
                 pass
 
     async def get_fault_light(self, api_get_miner_info: dict = None) -> bool:
-        data = None
-
         if not api_get_miner_info:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
