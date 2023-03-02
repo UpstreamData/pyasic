@@ -356,15 +356,15 @@ class BTMinerAPI(BaseMinerAPI):
         """
         return await self.send_privileged_command(
             "update_pools",
-            pool1=pool_1,
-            worker1=worker_1,
-            passwd1=passwd_1,
-            pool2=pool_2,
-            worker2=worker_2,
-            passwd2=passwd_2,
-            pool3=pool_3,
-            worker3=worker_3,
-            passwd3=passwd_3,
+            pool1=pool_1 if pool_1 else "",
+            worker1=worker_1 if worker_1 else "",
+            passwd1=passwd_1 if passwd_1 else "",
+            pool2=pool_2 if pool_2 else "",
+            worker2=worker_2 if worker_2 else "",
+            passwd2=passwd_2 if passwd_2 else "",
+            pool3=pool_3 if pool_3 else "",
+            worker3=worker_3 if worker_3 else "",
+            passwd3=passwd_3 if passwd_3 else "",
         )
 
     async def restart(self) -> dict:
