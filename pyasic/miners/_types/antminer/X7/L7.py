@@ -13,13 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.miners._types.makes import AntMiner
 
-from .bmminer import BMMiner
-from .bosminer import BOSMiner
-from .btminer import BTMiner
-from .cgminer import CGMiner
-from .cgminer_avalon import CGMinerAvalon
-from .hiveon import Hiveon
-from .vnish import VNish
-from .X19 import X19
-from .X7 import X7
+
+class L7(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "L7"
+        self.nominal_chips = 120
+        self.fan_count = 4

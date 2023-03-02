@@ -14,12 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import BMMiner
-from .bosminer import BOSMiner
-from .btminer import BTMiner
-from .cgminer import CGMiner
-from .cgminer_avalon import CGMinerAvalon
-from .hiveon import Hiveon
-from .vnish import VNish
-from .X19 import X19
-from .X7 import X7
+from .L7 import BMMinerL7

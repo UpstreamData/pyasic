@@ -429,7 +429,7 @@ class MinerData:
 
     @property
     def efficiency(self):  # noqa - Skip PyCharm inspection
-        if self.hashrate == 0:
+        if self.hashrate == 0 or self.wattage == -1:
             return 0
         return round(self.wattage / self.hashrate)
 

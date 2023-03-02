@@ -20,21 +20,113 @@ from typing import List, Optional, Union
 from pyasic.API import APIError
 from pyasic.config import MinerConfig, X19PowerMode
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.data import HashBoard
 from pyasic.miners._backends import BMMiner  # noqa - Ignore access to _module
-from pyasic.web.X19 import X19WebAPI
+from pyasic.web.X7 import X7WebAPI
 
-
-class X19(BMMiner):
+class X7(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
-        self.web = X19WebAPI(ip)
+        self.web = X7WebAPI(ip)
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
             self.config = MinerConfig().from_raw(data)
         return self.config
+
+    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+        # get hr from API
+        if not api_summary:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary:
+            try:
+                # not actually GHS, MHS.
+                return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000000), 5)
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
+
+
+    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+        hashboards = []
+
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                board_offset = -1
+                boards = api_stats["STATS"]
+                if len(boards) > 1:
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
+
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
+
+                    for i in range(board_offset, board_offset + self.ideal_hashboards):
+                        hashboard = HashBoard(
+                            slot=i - board_offset, expected_chips=self.nominal_chips
+                        )
+
+                        chip_temp = boards[1].get(f"temp{i}")
+                        if chip_temp:
+                            hashboard.chip_temp = round(chip_temp)
+
+                        temp = boards[1].get(f"temp2_{i}")
+                        if temp:
+                            hashboard.temp = round(temp)
+
+                        hashrate = boards[1].get(f"chain_rate{i}")
+                        if hashrate:
+                            hashboard.hashrate = round(float(hashrate) / 1000, 5)
+
+                        chips = boards[1].get(f"chain_acn{i}")
+                        if chips:
+                            hashboard.chips = chips
+                            hashboard.missing = False
+                        if (not chips) or (not chips > 0):
+                            hashboard.missing = True
+                        hashboards.append(hashboard)
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
+
+        return hashboards
+
+    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+        # X19 method, not sure compatibility
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                try:
+                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                except KeyError:
+                    rate_unit = "MH"
+                if rate_unit == "GH":
+                    return round(ideal_rate, 2)
+                if rate_unit == "MH":
+                    return round(ideal_rate / 1000000, 5)
+                else:
+                    return round(ideal_rate, 2)
+            except (KeyError, IndexError):
+                pass
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
@@ -127,29 +219,6 @@ class X19(BMMiner):
         except KeyError:
             pass
         return self.light
-
-    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
-            try:
-                api_stats = await self.api.stats()
-            except APIError:
-                pass
-
-        if api_stats:
-            try:
-                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
-                try:
-                    rate_unit = api_stats["STATS"][1]["rate_unit"]
-                except KeyError:
-                    rate_unit = "GH"
-                if rate_unit == "GH":
-                    return round(ideal_rate / 1000, 2)
-                if rate_unit == "MH":
-                    return round(ideal_rate / 1000000, 2)
-                else:
-                    return round(ideal_rate, 2)
-            except (KeyError, IndexError):
-                pass
 
     async def set_static_ip(
         self,

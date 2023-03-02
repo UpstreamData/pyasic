@@ -14,12 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import BMMiner
-from .bosminer import BOSMiner
-from .btminer import BTMiner
-from .cgminer import CGMiner
-from .cgminer_avalon import CGMinerAvalon
-from .hiveon import Hiveon
-from .vnish import VNish
-from .X19 import X19
-from .X7 import X7
+from pyasic.miners._backends import X7  # noqa - Ignore access to _module
+from pyasic.miners._types import L7  # noqa - Ignore access to _module
+
+# noqa - Ignore access to _module
+
+
+class BMMinerL7(X7, L7):
+    pass

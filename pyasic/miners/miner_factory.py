@@ -42,6 +42,10 @@ from pyasic.misc import Singleton
 from pyasic.settings import PyasicSettings
 
 MINER_CLASSES = {
+    "ANTMINER L7": {
+        "Default": BMMinerL7,
+        "BMMiner": BMMinerL7,
+    },
     "ANTMINER S9": {
         "Default": BOSMinerS9,
         "BOSMiner": BOSMinerOld,
