@@ -48,10 +48,7 @@ class M50VH20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__()
         self.ip = ip
         self.model = "M50 VH20"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VH20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 111
         self.fan_count = 2
 
 
@@ -72,10 +69,7 @@ class M50VH40(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__()
         self.ip = ip
         self.model = "M50 VH40"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VH40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 84
         self.fan_count = 2
 
 
