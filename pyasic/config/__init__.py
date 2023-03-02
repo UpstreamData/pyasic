@@ -215,9 +215,9 @@ class _PoolGroup:
                 pools[f"worker_{i}"] = pool_wm["user"]
                 pools[f"passwd_{i}"] = pool_wm["pass"]
             else:
-                pools[f"pool_{i}"] = None
-                pools[f"worker_{i}"] = None
-                pools[f"passwd_{i}"] = None
+                pools[f"pool_{i}"] = ""
+                pools[f"worker_{i}"] = ""
+                pools[f"passwd_{i}"] = ""
         return pools
 
     def as_avalon(self, user_suffix: str = None) -> str:
