@@ -37,16 +37,16 @@ class CGMinerA10X(CGMiner, A10X):
     async def fault_light_off(self) -> bool:
         return False
 
-    async def get_config(self, api_pools: dict = None) -> MinerConfig:
-        if not api_pools:
+    async def get_config(self, web_pools: dict = None) -> MinerConfig:
+        if not web_pools:
             try:
-                api_pools = await self.api.pools()
+                web_pools = await self.web.pools()
             except APIError as e:
                 logging.warning(e)
 
-        if api_pools:
-            if "POOLS" in api_pools.keys():
-                cfg = MinerConfig().from_api(api_pools["POOLS"])
+        if web_pools:
+            if "pools" in web_pools.keys():
+                cfg = MinerConfig().from_raw(web_pools)
                 self.config = cfg
         return self.config
 
@@ -68,6 +68,12 @@ class CGMinerA10X(CGMiner, A10X):
 
     async def restart_backend(self) -> bool:
         return await self.restart_cgminer()
+
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
+        return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config

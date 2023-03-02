@@ -291,7 +291,17 @@ class _PoolGroup:
         Parameters:
              user_suffix: The suffix to append to username.
         """
-        pools = {}
+        pools = {
+            "Pool1": None,
+            "UserName1": None,
+            "Password1": None,
+            "Pool2": None,
+            "UserName2": None,
+            "Password2": None,
+            "Pool3": None,
+            "UserName3": None,
+            "Password3": None,
+        }
         for idx, pool in enumerate(self.pools[:3]):
             pool_data = pool.as_inno(user_suffix=user_suffix)
             for key in pool_data:
@@ -516,8 +526,14 @@ class MinerConfig:
         for group in data["pool_groups"]:
             pool_groups.append(_PoolGroup().from_dict(group))
         for key in data:
-            if hasattr(self, key) and not key == "pool_groups":
+            if (
+                hasattr(self, key)
+                and not key == "pool_groups"
+                and not key == "miner_mode"
+            ):
                 setattr(self, key, data[key])
+            if key == "miner_mode":
+                self.miner_mode = X19PowerMode(data[key])
         self.pool_groups = pool_groups
         return self
 

@@ -19,8 +19,6 @@ import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
-import asyncssh
-
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
@@ -39,64 +37,6 @@ class CGMiner(BaseMiner):
         self.uname = "root"
         self.pwd = "admin"
         self.config = None
-
-    async def send_ssh_command(self, cmd: str) -> Optional[str]:
-        result = None
-
-        try:
-            conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
-            return None
-
-        # open an ssh connection
-        async with conn:
-            # 3 retries
-            for i in range(3):
-                try:
-                    # run the command and get the result
-                    result = await conn.run(cmd)
-                    result = result.stdout
-
-                except Exception as e:
-                    # if the command fails, log it
-                    logging.warning(f"{self} command {cmd} error: {e}")
-
-                    # on the 3rd retry, return None
-                    if i == 3:
-                        return
-                    continue
-        # return the result, either command output or None
-        return result
-
-    async def restart_backend(self) -> bool:
-        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners._backends.cgminer.CGMiner.restart_cgminer] to standardize."""
-        return await self.restart_cgminer()
-
-    async def restart_cgminer(self) -> bool:
-        """Restart cgminer hashing process."""
-        commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
-        commands = ";".join(commands)
-        try:
-            _ret = await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            if isinstance(_ret, str):
-                return True
-        return False
-
-    async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
-        logging.debug(f"{self}: Sending reboot command.")
-        try:
-            _ret = await self.send_ssh_command("reboot")
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            logging.debug(f"{self}: Reboot command completed.")
-            if isinstance(_ret, str):
-                return True
-        return False
 
     async def resume_mining(self) -> bool:
         return False
@@ -198,15 +138,6 @@ class CGMiner(BaseMiner):
                 pass
 
         return self.fw_ver
-
-    async def get_hostname(self) -> Optional[str]:
-        try:
-            hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        except (asyncssh.Error, OSError):
-            return None
-        if hn:
-            self.hostname = hn
-        return self.hostname
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API

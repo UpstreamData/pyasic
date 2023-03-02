@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import json
+import urllib.parse
 import warnings
 from typing import Union
 
@@ -61,9 +62,10 @@ class InnosiliconWebAPI(BaseWebAPI):
                         f"http://{self.ip}/api/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
                         timeout=5,
-                        data=parameters,
+                        json=parameters,
                     )
                     json_data = response.json()
+                    print(json_data)
                     if (
                         not json_data.get("success")
                         and "token" in json_data
@@ -104,3 +106,6 @@ class InnosiliconWebAPI(BaseWebAPI):
 
     async def get_error_detail(self):
         return await self.send_command("getErrorDetail")
+
+    async def pools(self):
+        return await self.send_command("pools")

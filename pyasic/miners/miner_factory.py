@@ -949,22 +949,25 @@ class MinerFactory(metaclass=Singleton):
     @staticmethod
     async def __get_model_from_ssh(ip: ipaddress.ip_address) -> Union[str, None]:
         model = None
-        async with asyncssh.connect(
-            str(ip),
-            known_hosts=None,
-            username="root",
-            password="admin",
-            server_host_key_algs=["ssh-rsa"],
-        ) as conn:
-            board_name = None
-            cmd = await conn.run("cat /tmp/sysinfo/board_name")
-            if cmd:
-                board_name = cmd.stdout.strip()
-        if board_name == "am1-s9":
-            model = "ANTMINER S9"
-        if board_name == "am2-s17":
-            model = "ANTMINER S17"
-        return model
+        try:
+            async with asyncssh.connect(
+                str(ip),
+                known_hosts=None,
+                username="root",
+                password="admin",
+                server_host_key_algs=["ssh-rsa"],
+            ) as conn:
+                board_name = None
+                cmd = await conn.run("cat /tmp/sysinfo/board_name")
+                if cmd:
+                    board_name = cmd.stdout.strip()
+            if board_name == "am1-s9":
+                model = "ANTMINER S9"
+            if board_name == "am2-s17":
+                model = "ANTMINER S17"
+            return model
+        except ConnectionRefusedError:
+            return None
 
     @staticmethod
     async def __get_model_from_graphql(ip: ipaddress.ip_address) -> Union[str, None]:

@@ -33,13 +33,14 @@ class Goldshell(BFGMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         pools_data = await self.web.pools()
         # have to delete all the pools one at a time first
-        for pool in pools_data:
-            await self.web.delpool(
-                url=pool["url"],
-                user=pool["user"],
-                password=pool["pass"],
-                dragid=pool["dragid"],
-            )
+        if pools_data:
+            for pool in pools_data:
+                await self.web.delpool(
+                    url=pool["url"],
+                    user=pool["user"],
+                    password=pool["pass"],
+                    dragid=pool["dragid"],
+                )
 
         self.config = config
 

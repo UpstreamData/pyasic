@@ -160,16 +160,19 @@ class X7(BMMiner):
         return False
 
     async def stop_mining(self) -> bool:
-        cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Sleep
-        await self.send_config(cfg)
-        return True
+        return False
+        # maybe in a later update
+        # cfg = await self.get_config()
+        # cfg.miner_mode = X19PowerMode.Sleep
+        # await self.send_config(cfg)
+        # return True
 
     async def resume_mining(self) -> bool:
-        cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Normal
-        await self.send_config(cfg)
-        return True
+        return False
+        # cfg = await self.get_config()
+        # cfg.miner_mode = X19PowerMode.Normal
+        # await self.send_config(cfg)
+        # return True
 
     async def get_hostname(self) -> Union[str, None]:
         try:
