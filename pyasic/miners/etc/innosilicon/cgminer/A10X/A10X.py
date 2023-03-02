@@ -20,14 +20,12 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.btc._backends import CGMiner  # noqa - Ignore access to _module
-from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
-    InnosiliconT3HPlus,
-)
+from pyasic.miners.etc._backends import CGMiner  # noqa - Ignore access to _module
+from pyasic.miners.etc._types import A10X  # noqa - Ignore access to _module
 from pyasic.web.inno import InnosiliconWebAPI
 
 
-class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
+class CGMinerA10X(CGMiner, A10X):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
@@ -137,28 +135,27 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
 
         if web_get_all:
             try:
-                return round(
-                    float(web_get_all["total_hash"]["Hash Rate H"] / 1000000000000), 2
-                )
+                return round(float(web_get_all["total_hash"]["Hash Rate"] / 1000000), 5)
             except KeyError:
                 pass
 
         if api_summary:
             try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return round(
+                    float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000000000), 5
+                )
             except (KeyError, IndexError):
                 pass
 
     async def get_hashboards(
         self, api_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
-        if web_get_all:
-            web_get_all = web_get_all["all"]
-
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)
         ]
+        if web_get_all:
+            web_get_all = web_get_all["all"]
 
         if not api_stats:
             try:
@@ -198,7 +195,7 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                         hashrate = board.get("Hash Rate H")
                         if hashrate:
                             hashboards[idx].hashrate = round(
-                                hashrate / 1000000000000, 2
+                                hashrate / 1000000000000, 5
                             )
 
                         chip_temp = board.get("Temp max")
@@ -317,6 +314,24 @@ class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):
                 if not err == 0:
                     errors.append(InnosiliconError(error_code=err))
         return errors
+
+    async def get_fw_ver(self, api_version: dict = None) -> Optional[str]:
+        if self.fw_ver:
+            return self.fw_ver
+
+        if not api_version:
+            try:
+                api_version = await self.api.version()
+            except APIError:
+                pass
+
+        if api_version:
+            try:
+                self.fw_ver = api_version["VERSION"][0]["CGMiner"].split("-")[-1:][0]
+            except (KeyError, IndexError):
+                pass
+
+        return self.fw_ver
 
     async def get_wattage_limit(self, web_get_all: dict = None) -> Optional[int]:
         if web_get_all:

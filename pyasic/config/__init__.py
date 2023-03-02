@@ -104,6 +104,19 @@ class _Pool:
         pool = {"url": self.url, "user": username, "pass": self.password}
         return pool
 
+    def as_x5(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a dict usable by an X5 device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = {"url": self.url, "user": username, "pass": self.password}
+        return pool
+
     def as_goldshell(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a dict usable by a goldshell device.
 
@@ -237,6 +250,30 @@ class _PoolGroup:
                 "user"
             ]
             pools[f"_ant_pool{idx+1}pw"] = pool.as_x15(user_suffix=user_suffix)["pass"]
+
+        return pools
+
+    def as_x5(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a list usable by an X5 device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        pools = {
+            "_ant_pool1url": "",
+            "_ant_pool1user": "",
+            "_ant_pool1pw": "",
+            "_ant_pool2url": "",
+            "_ant_pool2user": "",
+            "_ant_pool2pw": "",
+            "_ant_pool3url": "",
+            "_ant_pool3user": "",
+            "_ant_pool3pw": "",
+        }
+        for idx, pool in enumerate(self.pools[:3]):
+            pools[f"_ant_pool{idx+1}url"] = pool.as_x5(user_suffix=user_suffix)["url"]
+            pools[f"_ant_pool{idx+1}user"] = pool.as_x5(user_suffix=user_suffix)["user"]
+            pools[f"_ant_pool{idx+1}pw"] = pool.as_x5(user_suffix=user_suffix)["pass"]
 
         return pools
 
@@ -552,6 +589,16 @@ class MinerConfig:
             user_suffix: The suffix to append to username.
         """
         cfg = self.pool_groups[0].as_x15(user_suffix=user_suffix)
+
+        return cfg
+
+    def as_x5(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a config usable by an X5 device.
+
+        Parameters:
+            user_suffix: The suffix to append to username.
+        """
+        cfg = self.pool_groups[0].as_x5(user_suffix=user_suffix)
 
         return cfg
 

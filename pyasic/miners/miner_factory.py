@@ -34,7 +34,11 @@ from pyasic.miners.btc._backends.bosminer_old import (  # noqa - Ignore _module 
     BOSMinerOld,
 )
 from pyasic.miners.btc._backends.btminer import BTMiner  # noqa - Ignore _module import
+from pyasic.miners.ckb import *
+from pyasic.miners.dcr import *
+from pyasic.miners.etc import *
 from pyasic.miners.hns import *
+from pyasic.miners.kda import *
 from pyasic.miners.ltc import *
 from pyasic.miners.unknown import UnknownMiner
 from pyasic.miners.zec import *
@@ -42,6 +46,10 @@ from pyasic.misc import Singleton
 from pyasic.settings import PyasicSettings
 
 MINER_CLASSES = {
+    "ANTMINER DR5": {
+        "Default": CGMinerDR5,
+        "CGMiner": CGMinerDR5,
+    },
     "ANTMINER L7": {
         "Default": BMMinerL7,
         "BMMiner": BMMinerL7,
@@ -158,10 +166,25 @@ MINER_CLASSES = {
         "CGMiner": CGMinerT19,
         "VNish": VNishT19,
     },
+    "GOLDSHELL CK5": {
+        "Default": BFGMinerCK5,
+        "BFGMiner": BFGMinerCK5,
+        "CGMiner": BFGMinerCK5,
+    },
     "GOLDSHELL HS5": {
         "Default": BFGMinerHS5,
         "BFGMiner": BFGMinerHS5,
         "CGMiner": BFGMinerHS5,
+    },
+    "GOLDSHELL KD5": {
+        "Default": BFGMinerKD5,
+        "BFGMiner": BFGMinerKD5,
+        "CGMiner": BFGMinerKD5,
+    },
+    "GOLDSHELL KDMAX": {
+        "Default": BFGMinerKDMax,
+        "BFGMiner": BFGMinerKDMax,
+        "CGMiner": BFGMinerKDMax,
     },
     "M20": {"Default": BTMinerM20V10, "BTMiner": BTMinerM20V10, "10": BTMinerM20V10},
     "M20S": {
@@ -516,6 +539,10 @@ MINER_CLASSES = {
         "Default": CGMinerInnosiliconT3HPlus,
         "CGMiner": CGMinerInnosiliconT3HPlus,
     },
+    "A10X": {
+        "Default": CGMinerA10X,
+        "CGMiner": CGMinerA10X,
+    },
     "Unknown": {"Default": UnknownMiner},
 }
 
@@ -829,7 +856,7 @@ class MinerFactory(metaclass=Singleton):
                     model = _model
 
         if model:
-            if "DRAGONMINT" in model:
+            if "DRAGONMINT" in model or "A10" in model:
                 _model = await self.__get_dragonmint_version_from_web(ip)
                 if _model:
                     model = _model

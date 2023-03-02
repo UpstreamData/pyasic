@@ -14,30 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import dataclass
+from pyasic.miners.dcr._backends import X5  # noqa - Ignore access to _module
+from pyasic.miners.dcr._types import DR5  # noqa - Ignore access to _module
 
-from pyasic.misc import Singleton
 
-
-@dataclass
-class PyasicSettings(metaclass=Singleton):
-    network_ping_retries: int = 1
-    network_ping_timeout: int = 3
-    network_scan_threads: int = 300
-
-    miner_factory_get_version_retries: int = 1
-
-    miner_get_data_retries: int = 1
-
-    global_whatsminer_password = "admin"
-    global_innosilicon_password = "admin"
-    global_x19_password = "root"
-    global_x17_password = "root"
-    global_x15_password = "root"
-    global_x7_password = "root"
-    global_x5_password = "root"
-    global_vnish_password = "admin"
-    global_goldshell_password = "123456789"
-
-    debug: bool = False
-    logfile: bool = False
+class CGMinerDR5(X5, DR5):
+    pass

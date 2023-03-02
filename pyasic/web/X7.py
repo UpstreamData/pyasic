@@ -25,7 +25,7 @@ from pyasic.web import BaseWebAPI
 class X7WebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_x19_password
+        self.pwd = PyasicSettings().global_x7_password
 
     async def send_command(
         self,

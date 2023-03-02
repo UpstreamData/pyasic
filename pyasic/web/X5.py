@@ -22,10 +22,10 @@ from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
 
-class X15WebAPI(BaseWebAPI):
+class X5WebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_x15_password
+        self.pwd = PyasicSettings().global_x5_password
 
     async def send_command(
         self,
