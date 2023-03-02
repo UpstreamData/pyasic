@@ -24,7 +24,7 @@ from pyasic.miners.btc._backends import CGMiner  # noqa - Ignore access to _modu
 from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
     InnosiliconT3HPlus,
 )
-from pyasic.web.Inno import InnosiliconWebAPI
+from pyasic.web.inno import InnosiliconWebAPI
 
 
 class CGMinerInnosiliconT3HPlus(CGMiner, InnosiliconT3HPlus):

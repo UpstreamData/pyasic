@@ -34,6 +34,7 @@ from pyasic.miners.btc._backends.bosminer_old import (  # noqa - Ignore _module 
     BOSMinerOld,
 )
 from pyasic.miners.btc._backends.btminer import BTMiner  # noqa - Ignore _module import
+from pyasic.miners.hns import *
 from pyasic.miners.ltc import *
 from pyasic.miners.unknown import UnknownMiner
 from pyasic.miners.zec import *
@@ -156,6 +157,11 @@ MINER_CLASSES = {
         "BMMiner": BMMinerT19,
         "CGMiner": CGMinerT19,
         "VNish": VNishT19,
+    },
+    "GOLDSHELL HS5": {
+        "Default": BFGMinerHS5,
+        "BFGMiner": BFGMinerHS5,
+        "CGMiner": BFGMinerHS5,
     },
     "M20": {"Default": BTMinerM20V10, "BTMiner": BTMinerM20V10, "10": BTMinerM20V10},
     "M20S": {
@@ -688,10 +694,16 @@ class MinerFactory(metaclass=Singleton):
         if devdetails:
             for _devdetails_key in ["Model", "Driver"]:
                 try:
-                    model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
-                    if not model == "BITMICRO":
-                        break
-                except (KeyError, IndexError):
+                    if devdetails.get("DEVDETAILS"):
+                        model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
+                        if not model == "BITMICRO":
+                            break
+                    elif devdetails.get("DEVS"):
+                        model = devdetails["DEVS"][0][_devdetails_key].upper()
+                        if "QOMO" in model:
+                            model = await self.__get_goldshell_model_from_web(ip)
+
+                except LookupError:
                     continue
             try:
                 if devdetails[0]["STATUS"][0]["Msg"]:
@@ -954,6 +966,26 @@ class MinerFactory(metaclass=Singleton):
             return data
         except httpx.HTTPError:
             pass
+
+    @staticmethod
+    async def __get_goldshell_model_from_web(ip):
+        response = None
+        try:
+            async with httpx.AsyncClient() as client:
+                response = (
+                    await client.get(
+                        f"http://{ip}/mcb/status",
+                    )
+                ).json()
+        except httpx.HTTPError as e:
+            logging.info(e)
+        if response:
+            try:
+                model = response["model"]
+                if model:
+                    return model.replace("-", " ").upper()
+            except KeyError:
+                pass
 
     @staticmethod
     async def __get_dragonmint_version_from_web(

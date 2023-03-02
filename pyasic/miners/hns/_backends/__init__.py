@@ -13,4 +13,5 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .bmminer import *
+from .bfgminer import BFGMiner
+from .goldshell import Goldshell

@@ -39,3 +39,9 @@ class InnosiliconMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self):
         super().__init__()
         self.make = "Innosilicon"
+
+
+class GoldshellMiner(BaseMiner):  # noqa - ignore ABC method implementation
+    def __init__(self):
+        super().__init__()
+        self.make = "Goldshell"

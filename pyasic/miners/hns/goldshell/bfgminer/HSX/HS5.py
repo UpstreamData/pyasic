@@ -13,4 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .bmminer import *
+from pyasic.miners.hns._backends import Goldshell  # noqa - Ignore access to _module
+from pyasic.miners.hns._types import HS5  # noqa - Ignore access to _module
+
+
+class BFGMinerHS5(Goldshell, HS5):
+    pass

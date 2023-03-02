@@ -34,6 +34,9 @@ class PyasicSettings(metaclass=Singleton):
     global_x19_password = "root"
     global_x17_password = "root"
     global_vnish_password = "admin"
+    global_goldshell_password = (
+        "123456789"  # "bbad7537f4c8b6ea31eea0b3d760e257" in ciphertext
+    )
 
     debug: bool = False
     logfile: bool = False

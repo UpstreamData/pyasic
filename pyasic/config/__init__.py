@@ -92,7 +92,20 @@ class _Pool:
         return pool
 
     def as_x15(self, user_suffix: str = None) -> dict:
-        """Convert the data in this class to a dict usable by an X19 device.
+        """Convert the data in this class to a dict usable by an X15 device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        username = self.username
+        if user_suffix:
+            username = f"{username}{user_suffix}"
+
+        pool = {"url": self.url, "user": username, "pass": self.password}
+        return pool
+
+    def as_goldshell(self, user_suffix: str = None) -> dict:
+        """Convert the data in this class to a dict usable by a goldshell device.
 
         Parameters:
              user_suffix: The suffix to append to username.
@@ -223,11 +236,17 @@ class _PoolGroup:
             pools[f"_ant_pool{idx+1}user"] = pool.as_x15(user_suffix=user_suffix)[
                 "user"
             ]
-            pools[f"_ant_pool{idx+1}pw"] = pool.as_x15(user_suffix=user_suffix)[
-                "pass"
-            ]
+            pools[f"_ant_pool{idx+1}pw"] = pool.as_x15(user_suffix=user_suffix)["pass"]
 
         return pools
+
+    def as_goldshell(self, user_suffix: str = None) -> list:
+        """Convert the data in this class to a list usable by a goldshell device.
+
+        Parameters:
+             user_suffix: The suffix to append to username.
+        """
+        return [pool.as_goldshell(user_suffix=user_suffix) for pool in self.pools[:3]]
 
     def as_inno(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a list usable by an Innosilicon device.
@@ -366,6 +385,9 @@ class MinerConfig:
         """
         logging.debug(f"MinerConfig - (From Raw) - Loading raw config")
         pool_groups = []
+        if isinstance(data, list):
+            # goldshell config list
+            data = {"pools": data}
         for key in data.keys():
             if key == "pools":
                 pool_groups.append(_PoolGroup().from_dict({"pools": data[key]}))
@@ -530,6 +552,16 @@ class MinerConfig:
             user_suffix: The suffix to append to username.
         """
         cfg = self.pool_groups[0].as_x15(user_suffix=user_suffix)
+
+        return cfg
+
+    def as_goldshell(self, user_suffix: str = None) -> list:
+        """Convert the data in this class to a config usable by a goldshell device.
+
+        Parameters:
+            user_suffix: The suffix to append to username.
+        """
+        cfg = self.pool_groups[0].as_goldshell(user_suffix=user_suffix)
 
         return cfg
 

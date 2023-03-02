@@ -13,4 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .bmminer import *
+from .HS5 import HS5
