@@ -71,9 +71,20 @@ class CGMinerA10X(CGMiner, A10X):
 
     async def stop_mining(self) -> bool:
         return False
+        # data = await self.web.poweroff()
+        # try:
+        #     return data["success"]
+        # except KeyError:
+        #     return False
 
     async def resume_mining(self) -> bool:
         return False
+        # data = await self.web.restart_cgminer()
+        # print(data)
+        # try:
+        #     return data["success"]
+        # except KeyError:
+        #     return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config

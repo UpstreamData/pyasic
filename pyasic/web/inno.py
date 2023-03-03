@@ -109,3 +109,6 @@ class InnosiliconWebAPI(BaseWebAPI):
 
     async def pools(self):
         return await self.send_command("pools")
+
+    async def poweroff(self):
+        return await self.send_command("poweroff")

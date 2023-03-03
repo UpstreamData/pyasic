@@ -767,7 +767,7 @@ class BTMinerAPI(BaseMinerAPI):
 
         """
         return await self.send_privileged_command(
-            "adjust_power_limit", power_limit=power_limit
+            "adjust_power_limit", power_limit=str(power_limit)
         )
 
     @api_min_version("2.0.5")
