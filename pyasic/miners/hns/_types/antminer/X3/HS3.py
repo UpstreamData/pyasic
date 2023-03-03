@@ -13,5 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .antminer import *
-from .goldshell import *
+
+from pyasic.miners.makes import AntMiner
+
+
+class HS3(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str):
+        super().__init__()
+        self.ip = ip
+        self.model = "HS3"
+        self.nominal_chips = 72
+        self.ideal_hashboards = 3
+        self.fan_count = 2

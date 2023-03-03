@@ -14,4 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .bfgminer import BFGMiner
+from .cgminer import CGMiner
 from .goldshell import Goldshell
+from .X3 import X3

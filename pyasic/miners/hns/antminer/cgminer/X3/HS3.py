@@ -13,5 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .antminer import *
-from .goldshell import *
+
+from pyasic.miners.hns._backends import X3  # noqa - Ignore access to _module
+from pyasic.miners.hns._types import HS3  # noqa - Ignore access to _module
+
+
+class CGMinerHS3(X3, HS3):
+    pass

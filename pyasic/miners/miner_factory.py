@@ -50,6 +50,10 @@ MINER_CLASSES = {
         "Default": CGMinerDR5,
         "CGMiner": CGMinerDR5,
     },
+    "ANTMINER HS3": {
+        "Default": CGMinerHS3,
+        "CGMiner": CGMinerHS3,
+    },
     "ANTMINER L7": {
         "Default": BMMinerL7,
         "BMMiner": BMMinerL7,
