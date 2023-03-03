@@ -143,13 +143,19 @@ class _MinerPhaseBalancer:
 
     async def get_balance_setpoints(self, wattage: int) -> dict:
         # gather data needed to optimize shutdown only miners
-        dp = ["hashrate", "wattage", "wattage_limit"]
+        dp = ["hashrate", "wattage", "wattage_limit", "hashboards"]
         data = await asyncio.gather(
             *[
                 self.miners[miner]["miner"].get_data(data_to_get=dp)
                 for miner in self.miners
             ]
         )
+        pct_ideal_list = [d.percent_ideal for d in data]
+        pct_ideal = 0
+        if len(pct_ideal_list) > 0:
+            pct_ideal = sum(pct_ideal_list) / len(pct_ideal_list)
+
+        wattage = round(wattage * 1 / (pct_ideal / 100))
 
         for data_point in data:
             if (not self.miners[data_point.ip]["tune"]) and (
