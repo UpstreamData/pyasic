@@ -138,6 +138,8 @@ class VNish(BMMiner):
         if web_settings:
             try:
                 wattage_limit = web_settings["miner"]["overclock"]["preset"]
+                if wattage_limit == "disabled":
+                    return None
                 return int(wattage_limit)
             except (KeyError, TypeError):
                 pass
