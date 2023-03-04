@@ -22,14 +22,14 @@ from pyasic.config import MinerConfig, X19PowerMode
 from pyasic.data import HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners.btc._backends import BMMiner  # noqa - Ignore access to _module
-from pyasic.web.X7 import X7WebAPI
+from pyasic.web.X19 import X19WebAPI
 
 
 class X7(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
-        self.web = X7WebAPI(ip)
+        self.web = X19WebAPI(ip)
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()

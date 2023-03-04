@@ -20,14 +20,14 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.zec._backends import CGMiner  # noqa - Ignore access to _module
-from pyasic.web.X5 import X5WebAPI
+from pyasic.web.X17 import X17WebAPI
 
 
 class X5(CGMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip
-        self.web = X5WebAPI(ip)
+        self.web = X17WebAPI(ip)
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
@@ -36,7 +36,7 @@ class X5(CGMiner):
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        await self.web.set_miner_conf(config.as_x5(user_suffix=user_suffix))
+        await self.web.set_miner_conf(config.as_x17(user_suffix=user_suffix))
 
     async def get_mac(self) -> Union[str, None]:
         try:

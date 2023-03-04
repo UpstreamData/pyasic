@@ -22,6 +22,6 @@ class HS3(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__()
         self.ip = ip
         self.model = "HS3"
-        self.nominal_chips = 72
+        self.nominal_chips = 92
         self.ideal_hashboards = 3
         self.fan_count = 2

@@ -19,11 +19,11 @@ from typing import List, Optional, Union
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
-from pyasic.miners.hns._backends import CGMiner  # noqa - Ignore access to _module
+from pyasic.miners.etc._backends import CGMiner  # noqa - Ignore access to _module
 from pyasic.web.X19 import X19WebAPI
 
 
-class X3(CGMiner):
+class X9(CGMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver=api_ver)
         self.ip = ip

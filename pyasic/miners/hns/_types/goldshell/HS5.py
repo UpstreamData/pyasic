@@ -22,5 +22,5 @@ class HS5(GoldshellMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "HS5"
         self.ideal_hashboards = 4
-        self.chip_count = 18
+        self.nominal_chips = 46
         self.fan_count = 4

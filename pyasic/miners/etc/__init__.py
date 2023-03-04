@@ -14,3 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .innosilicon import *
+from .antminer import *

@@ -76,7 +76,7 @@ class Goldshell(BFGMiner):
             except KeyError:
                 pass
 
-    async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
+    async def get_hashboards(self, api_devs: dict = None, api_devdetails: dict = None) -> List[HashBoard]:
         if not api_devs:
             try:
                 api_devs = await self.api.devs()
@@ -90,12 +90,27 @@ class Goldshell(BFGMiner):
 
         if api_devs:
             for board in api_devs["DEVS"]:
-                if board.get("ID"):
+                if board.get("ID") is not None:
                     try:
                         b_id = board["ID"]
                         hashboards[b_id].hashrate = round(board["MHS 20s"] / 1000000, 2)
                         hashboards[b_id].temp = board["tstemp-2"]
                         hashboards[b_id].missing = False
+                    except KeyError:
+                        pass
+
+        if not api_devdetails:
+            try:
+                api_devdetails = await self.api.devdetails()
+            except APIError:
+                pass
+
+        if api_devdetails:
+            for board in api_devdetails["DEVS"]:
+                if board.get("ID") is not None:
+                    try:
+                        b_id = board["ID"]
+                        hashboards[b_id].chips = board["chips-nr"]
                     except KeyError:
                         pass
 

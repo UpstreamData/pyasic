@@ -65,7 +65,6 @@ class InnosiliconWebAPI(BaseWebAPI):
                         json=parameters,
                     )
                     json_data = response.json()
-                    print(json_data)
                     if (
                         not json_data.get("success")
                         and "token" in json_data

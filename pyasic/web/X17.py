@@ -64,3 +64,9 @@ class X17WebAPI(BaseWebAPI):
 
     async def get_blink_status(self) -> dict:
         return await self.send_command("blink", action="onPageLoaded")
+
+    async def get_miner_conf(self) -> dict:
+        return await self.send_command("get_miner_conf")
+
+    async def set_miner_conf(self, conf: dict) -> dict:
+        return await self.send_command("set_miner_conf", **conf)

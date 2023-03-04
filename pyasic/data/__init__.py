@@ -259,8 +259,9 @@ class MinerData:
 
     @property
     def left_chips(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3]:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[0].chips
+
         return 0
 
     @left_chips.setter
@@ -271,7 +272,7 @@ class MinerData:
     def center_chips(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) == 1:
             return self.hashboards[0].chips
-        if len(self.hashboards) == 3:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[1].chips
         return 0
 
@@ -285,6 +286,8 @@ class MinerData:
             return self.hashboards[1].chips
         if len(self.hashboards) == 3:
             return self.hashboards[2].chips
+        if len(self.hashboards) > 3:
+            return self.hashboards[-1:][0].chips
         return 0
 
     @right_chips.setter
@@ -293,7 +296,7 @@ class MinerData:
 
     @property
     def left_board_hashrate(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3]:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[0].hashrate
         return 0
 
@@ -305,7 +308,7 @@ class MinerData:
     def center_board_hashrate(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) == 1:
             return self.hashboards[0].hashrate
-        if len(self.hashboards) == 3:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[1].hashrate
         return 0
 
@@ -319,6 +322,8 @@ class MinerData:
             return self.hashboards[1].hashrate
         if len(self.hashboards) == 3:
             return self.hashboards[2].hashrate
+        if len(self.hashboards) > 3:
+            return self.hashboards[-1:][0].hashrate
         return 0
 
     @right_board_hashrate.setter
@@ -327,7 +332,7 @@ class MinerData:
 
     @property
     def left_board_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3]:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[0].temp
         return 0
 
@@ -339,7 +344,7 @@ class MinerData:
     def center_board_temp(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) == 1:
             return self.hashboards[0].temp
-        if len(self.hashboards) == 3:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[1].temp
         return 0
 
@@ -353,6 +358,8 @@ class MinerData:
             return self.hashboards[1].temp
         if len(self.hashboards) == 3:
             return self.hashboards[2].temp
+        if len(self.hashboards) > 3:
+            return self.hashboards[-1:][0].temp
         return 0
 
     @right_board_temp.setter
@@ -361,7 +368,7 @@ class MinerData:
 
     @property
     def left_board_chip_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3]:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[0].chip_temp
         return 0
 
@@ -373,7 +380,7 @@ class MinerData:
     def center_board_chip_temp(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) == 1:
             return self.hashboards[0].chip_temp
-        if len(self.hashboards) == 3:
+        if len(self.hashboards) in [2, 3, 4]:
             return self.hashboards[1].chip_temp
         return 0
 
@@ -387,6 +394,8 @@ class MinerData:
             return self.hashboards[1].chip_temp
         if len(self.hashboards) == 3:
             return self.hashboards[2].chip_temp
+        if len(self.hashboards) > 3:
+            return self.hashboards[-1:][0].chip_temp
         return 0
 
     @right_board_chip_temp.setter

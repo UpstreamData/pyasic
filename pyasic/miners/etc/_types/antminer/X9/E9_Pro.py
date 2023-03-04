@@ -13,14 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import GoldshellMiner
+
+from pyasic.miners.makes import AntMiner
 
 
-class CK5(GoldshellMiner):  # noqa - ignore ABC method implementation
+class E9Pro(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str):
         super().__init__()
         self.ip = ip
-        self.model = "CK5"
-        self.ideal_hashboards = 4
-        self.nominal_chips = 46
+        self.model = "E9Pro"
+        self.nominal_chips = 8
+        self.ideal_hashboards = 2
         self.fan_count = 4
