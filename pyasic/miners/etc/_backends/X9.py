@@ -29,6 +29,12 @@ class X9(CGMiner):
         self.ip = ip
         self.web = X19WebAPI(ip)
 
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
+        return False
+
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
