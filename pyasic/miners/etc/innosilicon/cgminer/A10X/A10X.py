@@ -87,8 +87,10 @@ class CGMinerA10X(CGMiner, A10X):
         #     return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        self.config = config
-        await self.web.update_pools(config.as_inno(user_suffix=user_suffix))
+        pass
+        # doesnt work for some reason
+        # self.config = config
+        # await self.web.update_pools(config.as_inno(user_suffix=user_suffix))
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
