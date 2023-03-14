@@ -432,6 +432,7 @@ details {
         <summary>X19 Series:</summary>
             <ul>
                 <li><a href="../antminer/X19/#s19">S19</a></li>
+                <li><a href="../antminer/X19/#s19l">S19L</a></li>
                 <li><a href="../antminer/X19/#s19-pro">S19 Pro</a></li>
                 <li><a href="../antminer/X19/#s19a">S19a</a></li>
                 <li><a href="../antminer/X19/#s19j">S19j</a></li>
