@@ -453,11 +453,36 @@ details {
             </ul>
         </details>
         <details>
+        <summary>X15 Series:</summary>
+            <ul>
+                <li><a href="../antminer/X15/#z15">Z15</a></li>
+            </ul>
+        </details>
+        <details>
         <summary>X9 Series:</summary>
             <ul>
                 <li><a href="../antminer/X9/#s9">S9</a></li>
                 <li><a href="../antminer/X9/#s9i">S9i</a></li>
                 <li><a href="../antminer/X9/#t9">T9</a></li>
+                <li><a href="../antminer/X9/#e9-pro">E9 Pro</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>X7 Series:</summary>
+            <ul>
+                <li><a href="../antminer/X7/#l7">L7</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>X5 Series:</summary>
+            <ul>
+                <li><a href="../antminer/X5/#dr5">DR5</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>X3 Series:</summary>
+            <ul>
+                <li><a href="../antminer/X3/#hs3">HS3</a></li>
             </ul>
         </details>
     </ul>
@@ -504,6 +529,36 @@ details {
         <summary>T3X Series:</summary>
             <ul>
                 <li><a href="../innosilicon/T3X/#t3h">T3H+</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>A10X Series:</summary>
+            <ul>
+                <li><a href="../innosilicon/A10X/#a10x">A10X</a></li>
+            </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Goldshell Miners:</summary>
+    <ul>
+        <details>
+        <summary>CKX Series:</summary>
+            <ul>
+                <li><a href="../goldshell/CKX/#ck5">CK5</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>HSX Series:</summary>
+            <ul>
+                <li><a href="../goldshell/HSX/#hs5">HS5</a></li>
+            </ul>
+        </details>
+        <details>
+        <summary>KDX Series:</summary>
+            <ul>
+                <li><a href="../goldshell/KDX/#kd5">KD5</a></li>
+                <li><a href="../goldshell/KDX/#kd-max">KD Max</a></li>
             </ul>
         </details>
     </ul>

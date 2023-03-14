@@ -1,7 +1,7 @@
 # pyasic
 ## BOSMiner Backend
 
-::: pyasic.miners._backends.bosminer.BOSMiner
+::: pyasic.miners.btc._backends.bosminer.BOSMiner
     handler: python
     options:
         show_root_heading: false

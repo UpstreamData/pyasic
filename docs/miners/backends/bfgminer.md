@@ -1,7 +1,7 @@
 # pyasic
-## Hiveon Backend
+## BFGMiner Backend
 
-::: pyasic.miners.btc._backends.hiveon.Hiveon
+::: pyasic.miners.kda._backends.bfgminer.BFGMiner
     handler: python
     options:
         show_root_heading: false

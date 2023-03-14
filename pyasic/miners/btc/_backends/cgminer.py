@@ -69,7 +69,7 @@ class CGMiner(BaseMiner):
         return result
 
     async def restart_backend(self) -> bool:
-        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners._backends.cgminer.CGMiner.restart_cgminer] to standardize."""
+        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners.btc._backends.cgminer.CGMiner.restart_cgminer] to standardize."""
         return await self.restart_cgminer()
 
     async def restart_cgminer(self) -> bool:

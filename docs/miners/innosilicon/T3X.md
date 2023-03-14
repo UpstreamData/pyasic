@@ -3,7 +3,7 @@
 
 ## T3H+
 
-::: pyasic.miners.innosilicon.cgminer.T3X.T3H_Plus.CGMinerInnosiliconT3HPlus
+::: pyasic.miners.btc.innosilicon.cgminer.T3X.T3H_Plus.CGMinerInnosiliconT3HPlus
     handler: python
     options:
         show_root_heading: false

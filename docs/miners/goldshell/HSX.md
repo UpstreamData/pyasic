@@ -1,7 +1,9 @@
 # pyasic
-## Hiveon Backend
+## HSX Models
 
-::: pyasic.miners.btc._backends.hiveon.Hiveon
+## HS5
+
+::: pyasic.miners.hns.goldshell.bfgminer.HSX.HS5.BFGMinerHS5
     handler: python
     options:
         show_root_heading: false

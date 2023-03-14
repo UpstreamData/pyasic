@@ -1,7 +1,9 @@
 # pyasic
-## Hiveon Backend
+## CKX Models
 
-::: pyasic.miners.btc._backends.hiveon.Hiveon
+## CK5
+
+::: pyasic.miners.ckb.goldshell.bfgminer.CKX.CK5.BFGMinerCK5
     handler: python
     options:
         show_root_heading: false

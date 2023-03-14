@@ -136,7 +136,7 @@ class BOSMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
-        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners._backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
+        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners.btc._backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
