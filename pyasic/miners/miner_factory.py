@@ -735,6 +735,9 @@ class MinerFactory(metaclass=Singleton):
                 try:
                     if devdetails.get("DEVDETAILS"):
                         model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
+                        if " NOPIC" in model:
+                            # Braiins OS identifies some X19 differently
+                            model = model.replace(" NOPIC", "")
                         if not model == "BITMICRO":
                             break
                     elif devdetails.get("DEVS"):

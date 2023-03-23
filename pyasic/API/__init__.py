@@ -146,9 +146,10 @@ class BaseMinerAPI:
         ]
 
     def _check_commands(self, *commands):
-        allowed_commands = self.get_commands()
+        allowed_commands = self.commands
         return_commands = []
-        for command in [*commands]:
+
+        for command in commands:
             if command in allowed_commands:
                 return_commands.append(command)
             else:
