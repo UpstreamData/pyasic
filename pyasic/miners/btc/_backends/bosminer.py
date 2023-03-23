@@ -58,7 +58,11 @@ class BOSMiner(BaseMiner):
                 try:
                     # run the command and get the result
                     result = await conn.run(cmd)
+                    stderr = result.stderr
                     result = result.stdout
+
+                    if len(stderr) > len(result):
+                        result = stderr
 
                 except Exception as e:
                     # if the command fails, log it
