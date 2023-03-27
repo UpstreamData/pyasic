@@ -40,7 +40,7 @@ class BOSMiner(BaseMiner):
         self.api_type = "BOSMiner"
         self.api_ver = api_ver
         self.uname = "root"
-        self.pwd = "admin"
+        self.pwd = "root"
         self.config = None
 
     async def send_ssh_command(self, cmd: str) -> Optional[str]:
