@@ -14,11 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import X19  # noqa - Ignore access to _module
+from pyasic.miners.backends import AntminerModern
 from pyasic.miners.btc._types import T19  # noqa - Ignore access to _module
 
 # noqa - Ignore access to _module
 
 
-class BMMinerT19(X19, T19):
+class BMMinerT19(AntminerModern, T19):
     pass

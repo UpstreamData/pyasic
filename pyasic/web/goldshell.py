@@ -19,7 +19,6 @@ from typing import Union
 
 import httpx
 
-from pyasic.errors import APIError
 from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
@@ -96,6 +95,30 @@ class GoldshellWebAPI(BaseWebAPI):
                     pass
                 except TypeError:
                     await self.auth()
+
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
+        data = {k: None for k in commands}
+        data["multicommand"] = True
+        await self.auth()
+        async with httpx.AsyncClient() as client:
+            for command in commands:
+                try:
+                    response = await client.get(
+                        f"http://{self.ip}/mcb/{command}",
+                        headers={"Authorization": "Bearer " + self.jwt},
+                        timeout=5,
+                    )
+                    json_data = response.json()
+                    data[command] = json_data
+                except httpx.HTTPError:
+                    pass
+                except json.JSONDecodeError:
+                    pass
+                except TypeError:
+                    await self.auth()
+        return data
 
     async def pools(self):
         return await self.send_command("pools")

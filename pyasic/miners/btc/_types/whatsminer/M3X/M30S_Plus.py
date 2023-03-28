@@ -20,8 +20,8 @@ from pyasic.miners.makes import WhatsMiner
 
 
 class M30SPlusV10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V10"
         self.nominal_chips = 0
@@ -32,8 +32,8 @@ class M30SPlusV10(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V20"
         self.nominal_chips = 0
@@ -44,8 +44,8 @@ class M30SPlusV20(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V30"
         self.nominal_chips = 0
@@ -56,8 +56,8 @@ class M30SPlusV30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V40"
         self.nominal_chips = 0
@@ -68,8 +68,8 @@ class M30SPlusV40(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V50"
         self.nominal_chips = 0
@@ -80,8 +80,8 @@ class M30SPlusV50(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V60"
         self.nominal_chips = 0
@@ -92,8 +92,8 @@ class M30SPlusV60(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV70(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V70"
         self.nominal_chips = 0
@@ -104,8 +104,8 @@ class M30SPlusV70(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V80"
         self.nominal_chips = 0
@@ -116,8 +116,8 @@ class M30SPlusV80(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV90(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V90"
         self.nominal_chips = 0
@@ -128,8 +128,8 @@ class M30SPlusV90(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusV100(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ V100"
         self.nominal_chips = 0
@@ -140,8 +140,8 @@ class M30SPlusV100(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE30"
         self.nominal_chips = 0
@@ -152,8 +152,8 @@ class M30SPlusVE30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE40"
         self.nominal_chips = 156
@@ -161,8 +161,8 @@ class M30SPlusVE40(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE50"
         self.nominal_chips = 0
@@ -173,8 +173,8 @@ class M30SPlusVE50(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE60"
         self.nominal_chips = 0
@@ -185,8 +185,8 @@ class M30SPlusVE60(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE70(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE70"
         self.nominal_chips = 0
@@ -197,8 +197,8 @@ class M30SPlusVE70(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE80"
         self.nominal_chips = 0
@@ -209,8 +209,8 @@ class M30SPlusVE80(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE90(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE90"
         self.nominal_chips = 0
@@ -221,8 +221,8 @@ class M30SPlusVE90(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVE100(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VE100"
         self.nominal_chips = 0
@@ -233,8 +233,8 @@ class M30SPlusVE100(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVF20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VF20"
         self.nominal_chips = 111
@@ -242,8 +242,8 @@ class M30SPlusVF20(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVF30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VF30"
         self.nominal_chips = 0
@@ -254,8 +254,8 @@ class M30SPlusVF30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M36SPlusVG30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M36S+ VG30"
         self.nominal_chips = 0
@@ -266,8 +266,8 @@ class M36SPlusVG30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVG30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VG30"
         self.nominal_chips = 0
@@ -278,8 +278,8 @@ class M30SPlusVG30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVG40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VG40"
         self.nominal_chips = 105
@@ -287,8 +287,8 @@ class M30SPlusVG40(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVG50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VG50"
         self.nominal_chips = 0
@@ -299,8 +299,8 @@ class M30SPlusVG50(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVG60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VG60"
         self.nominal_chips = 86
@@ -308,8 +308,8 @@ class M30SPlusVG60(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH10"
         self.nominal_chips = 0
@@ -320,8 +320,8 @@ class M30SPlusVH10(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH20"
         self.nominal_chips = 0
@@ -332,8 +332,8 @@ class M30SPlusVH20(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH30"
         self.nominal_chips = 70
@@ -341,8 +341,8 @@ class M30SPlusVH30(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH40"
         self.nominal_chips = 0
@@ -353,8 +353,8 @@ class M30SPlusVH40(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH50"
         self.nominal_chips = 0
@@ -365,8 +365,8 @@ class M30SPlusVH50(WhatsMiner):  # noqa - ignore ABC method implementation
 
 
 class M30SPlusVH60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S+ VH60"
         self.nominal_chips = 66

@@ -17,8 +17,8 @@ from pyasic.miners.makes import GoldshellMiner
 
 
 class HS5(GoldshellMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "HS5"
         self.ideal_hashboards = 4

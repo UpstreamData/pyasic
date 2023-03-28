@@ -14,9 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends.cgminer import (  # noqa - Ignore access to _module
-    CGMiner,
-)
+from pyasic.miners.backends.cgminer import CGMiner  # noqa - Ignore access to _module
 from pyasic.miners.btc._types.antminer import T9  # noqa - Ignore access to _module
 
 

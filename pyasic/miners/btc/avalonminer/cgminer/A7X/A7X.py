@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import CGMinerAvalon  # noqa - Ignore access to _module
+from pyasic.miners.backends import CGMinerAvalon  # noqa - Ignore access to _module
 
 
 class CGMinerA7X(CGMinerAvalon):

@@ -14,9 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.zec._backends import X15  # noqa - Ignore access to _module
+from pyasic.miners.backends import AntminerOld
 from pyasic.miners.zec._types import Z15  # noqa - Ignore access to _module
 
 
-class CGMinerZ15(X15, Z15):
-    pass
+class CGMinerZ15(AntminerOld, Z15):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_shutdown = False

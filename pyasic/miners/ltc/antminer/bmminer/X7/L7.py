@@ -14,11 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.ltc._backends import X7  # noqa - Ignore access to _module
+from pyasic.miners.backends import AntminerModern
 from pyasic.miners.ltc._types import L7  # noqa - Ignore access to _module
 
-# noqa - Ignore access to _module
 
-
-class BMMinerL7(X7, L7):
-    pass
+class BMMinerL7(AntminerModern, L7):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_shutdown = False

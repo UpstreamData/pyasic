@@ -13,5 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .bfgminer import BFGMiner
-from .goldshell import Goldshell
+
+from pyasic.miners.backends import BMMiner
+
+
+class Hiveon(BMMiner):
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+        super().__init__(ip, api_ver)
+        # static data
+        self.api_type = "Hiveon"

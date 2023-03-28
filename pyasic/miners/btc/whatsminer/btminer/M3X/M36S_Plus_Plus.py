@@ -14,9 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import M3X
 from pyasic.miners.btc._types import M36SPlusPlusVH30  # noqa - Ignore access to _module
 
 
-class BTMinerM36SPlusPlusVH30(BTMiner, M36SPlusPlusVH30):
+class BTMinerM36SPlusPlusVH30(M3X, M36SPlusPlusVH30):
     pass

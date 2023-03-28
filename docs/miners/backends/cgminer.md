@@ -1,7 +1,7 @@
 # pyasic
 ## CGMiner Backend
 
-::: pyasic.miners.btc._backends.cgminer.CGMiner
+::: pyasic.miners.backends.cgminer.CGMiner
     handler: python
     options:
         show_root_heading: false

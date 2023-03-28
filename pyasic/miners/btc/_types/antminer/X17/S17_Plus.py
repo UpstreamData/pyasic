@@ -18,9 +18,8 @@ from pyasic.miners.makes import AntMiner
 
 
 class S17Plus(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str):
-        super().__init__()
-        self.ip = ip
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.model = "S17+"
         self.nominal_chips = 65
         self.fan_count = 4

@@ -13,9 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.kda._backends import Goldshell  # noqa - Ignore access to _module
+from pyasic.miners.backends import BFGMinerGoldshell
 from pyasic.miners.kda._types import KD5  # noqa - Ignore access to _module
 
 
-class BFGMinerKD5(Goldshell, KD5):
+class BFGMinerKD5(BFGMinerGoldshell, KD5):
     pass

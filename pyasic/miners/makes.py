@@ -18,30 +18,30 @@ from pyasic.miners.base import BaseMiner
 
 
 class WhatsMiner(BaseMiner):  # noqa - ignore ABC method implementation
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.make = "WhatsMiner"
 
 
 class AntMiner(BaseMiner):  # noqa - ignore ABC method implementation
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.make = "AntMiner"
 
 
 class AvalonMiner(BaseMiner):  # noqa - ignore ABC method implementation
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.make = "AvalonMiner"
 
 
 class InnosiliconMiner(BaseMiner):  # noqa - ignore ABC method implementation
-    def __init__(self):
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
         self.make = "Innosilicon"
 
 
 class GoldshellMiner(BaseMiner):  # noqa - ignore ABC method implementation
-    def __init__(self):
-        super().__init__()
-        self.make = "Goldshell"
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.make = "BFGMinerGoldshell"

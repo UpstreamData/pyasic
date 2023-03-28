@@ -99,6 +99,15 @@ class VNishWebAPI(BaseWebAPI):
                 except json.JSONDecodeError:
                     pass
 
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
+        data = {k: None for k in commands}
+        data["multicommand"] = True
+        for command in commands:
+            data[command] = await self.send_command(command)
+        return data
+
     async def restart_vnish(self) -> dict:
         return await self.send_command("mining/restart", post=True)
 

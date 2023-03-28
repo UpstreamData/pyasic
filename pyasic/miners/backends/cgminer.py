@@ -14,10 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
 import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple
+
+import asyncssh
 
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
@@ -26,32 +27,130 @@ from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 
+CGMINER_DATA_LOC = {
+    "mac": {"cmd": "get_mac", "kwargs": {}},
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
+
 
 class CGMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
-        self.ip = ipaddress.ip_address(ip)
+        # interfaces
         self.api = CGMinerAPI(ip, api_ver)
-        self.api_ver = api_ver
+
+        # static data
         self.api_type = "CGMiner"
-        self.uname = "root"
-        self.pwd = "admin"
-        self.config = None
+        # data gathering locations
+        self.data_locations = CGMINER_DATA_LOC
+
+        # data storage
+        self.api_ver = api_ver
+
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
+        result = None
+
+        try:
+            conn = await self._get_ssh_connection()
+        except (asyncssh.Error, OSError):
+            return None
+
+        # open an ssh connection
+        async with conn:
+            # 3 retries
+            for i in range(3):
+                try:
+                    # run the command and get the result
+                    result = await conn.run(cmd)
+                    result = result.stdout
+
+                except Exception as e:
+                    # if the command fails, log it
+                    logging.warning(f"{self} command {cmd} error: {e}")
+
+                    # on the 3rd retry, return None
+                    if i == 3:
+                        return
+                    continue
+        # return the result, either command output or None
+        return result
 
     async def restart_backend(self) -> bool:
-        return False
+        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners.backends.cgminer.CGMiner.restart_cgminer] to standardize."""
+        return await self.restart_cgminer()
 
-    async def get_hostname(self, *args, **kwargs) -> Optional[str]:
-        return None
+    async def restart_cgminer(self) -> bool:
+        """Restart cgminer hashing process."""
+        commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
+        commands = ";".join(commands)
+        try:
+            _ret = await self.send_ssh_command(commands)
+        except (asyncssh.Error, OSError):
+            return False
+        else:
+            if isinstance(_ret, str):
+                return True
+        return False
 
     async def reboot(self) -> bool:
-        return False
-
-    async def stop_mining(self) -> bool:
+        """Reboots power to the physical miner."""
+        logging.debug(f"{self}: Sending reboot command.")
+        try:
+            _ret = await self.send_ssh_command("reboot")
+        except (asyncssh.Error, OSError):
+            return False
+        else:
+            logging.debug(f"{self}: Reboot command completed.")
+            if isinstance(_ret, str):
+                return True
         return False
 
     async def resume_mining(self) -> bool:
-        return False
+        try:
+            commands = [
+                "mkdir -p /etc/tmp/",
+                'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
+                "crontab -u root /etc/tmp/root",
+                "/usr/bin/cgminer-monitor >/dev/null 2>&1",
+            ]
+            commands = ";".join(commands)
+            await self.send_ssh_command(commands)
+        except (asyncssh.Error, OSError):
+            return False
+        else:
+            return True
+
+    async def stop_mining(self) -> bool:
+        try:
+            commands = [
+                "mkdir -p /etc/tmp/",
+                'echo "" > /etc/tmp/root',
+                "crontab -u root /etc/tmp/root",
+                "killall cgminer",
+            ]
+            commands = ";".join(commands)
+            await self.send_ssh_command(commands)
+        except (asyncssh.Error, OSError):
+            return False
+        else:
+            return True
 
     async def get_config(self) -> MinerConfig:
         api_pools = await self.api.pools()
@@ -77,30 +176,6 @@ class CGMiner(BaseMiner):
     ##################################################
 
     async def get_mac(self) -> Optional[str]:
-        return None
-
-    async def get_model(self, api_devdetails: dict = None) -> Optional[str]:
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model}")
-            return self.model
-
-        if not api_devdetails:
-            try:
-                api_devdetails = await self.api.devdetails()
-            except APIError:
-                pass
-
-        if api_devdetails:
-            try:
-                self.model = api_devdetails["DEVDETAILS"][0]["Model"].replace(
-                    "Antminer ", ""
-                )
-                logging.debug(f"Found model for {self.ip}: {self.model}")
-                return self.model
-            except (TypeError, IndexError, KeyError):
-                pass
-
-        logging.warning(f"Failed to get model for miner: {self}")
         return None
 
     async def get_version(
@@ -147,6 +222,14 @@ class CGMiner(BaseMiner):
                 pass
 
         return self.fw_ver
+
+    async def get_hostname(self) -> Optional[str]:
+        try:
+            hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
+        except (asyncssh.Error, OSError):
+            return None
+        if hn:
+            return hn
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API

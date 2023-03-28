@@ -1,7 +1,7 @@
 # pyasic
 ## BTMiner Backend
 
-::: pyasic.miners.btc._backends.btminer.BTMiner
+::: pyasic.miners.backends.btminer.BTMiner
     handler: python
     options:
         show_root_heading: false

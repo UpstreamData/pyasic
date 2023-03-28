@@ -13,5 +13,5 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .innosilicon import *
 from .antminer import *
+from .innosilicon import *

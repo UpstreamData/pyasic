@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import M2X
 from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
     M21SV20,
     M21SV60,
@@ -22,13 +22,13 @@ from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
 )
 
 
-class BTMinerM21SV20(BTMiner, M21SV20):
+class BTMinerM21SV20(M2X, M21SV20):
     pass
 
 
-class BTMinerM21SV60(BTMiner, M21SV60):
+class BTMinerM21SV60(M2X, M21SV60):
     pass
 
 
-class BTMinerM21SV70(BTMiner, M21SV70):
+class BTMinerM21SV70(M2X, M21SV70):
     pass

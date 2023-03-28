@@ -46,6 +46,12 @@ class BaseWebAPI(ABC):
     ) -> dict:
         pass
 
+    @abstractmethod
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
+        pass
+
     def _check_commands(self, *commands):
         allowed_commands = self.get_commands()
         return_commands = []

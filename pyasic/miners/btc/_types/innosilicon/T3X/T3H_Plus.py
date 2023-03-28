@@ -18,8 +18,8 @@ from pyasic.miners.makes import InnosiliconMiner
 
 
 class InnosiliconT3HPlus(InnosiliconMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str) -> None:
-        super().__init__()
+    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+        super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T3H+"
         self.nominal_chips = 114

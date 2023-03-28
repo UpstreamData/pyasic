@@ -19,8 +19,8 @@ import sys
 import unittest
 import warnings
 
+from pyasic.miners.backends import CGMiner  # noqa
 from pyasic.miners.base import BaseMiner
-from pyasic.miners.btc._backends import CGMiner  # noqa
 from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
 
 
@@ -45,10 +45,9 @@ class MinersTest(unittest.TestCase):
         backends = [
             list(
                 inspect.getmembers(
-                    sys.modules[f"pyasic.miners.{algo}._backends"], inspect.isclass
+                    sys.modules[f"pyasic.miners.backends"], inspect.isclass
                 )
             )
-            for algo in ["btc", "zec", "ltc"]
         ]
         backends = [item for sublist in backends for item in sublist]
         for backend in backends:

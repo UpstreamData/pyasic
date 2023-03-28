@@ -28,7 +28,7 @@ class UnknownMiner(BaseMiner):
     def __init__(
         self, ip: str, *args, **kwargs
     ) -> None:  # noqa - ignore *args and **kwargs for signature consistency
-        super().__init__()
+        super().__init__(ip)
         self.ip = ip
         self.api = UnknownAPI(ip)
         self.model = "Unknown"
@@ -73,9 +73,6 @@ class UnknownMiner(BaseMiner):
     ##################################################
 
     async def get_mac(self) -> Optional[str]:
-        return None
-
-    async def get_model(self) -> Optional[str]:
         return None
 
     async def get_version(self) -> Tuple[Optional[str], Optional[str]]:

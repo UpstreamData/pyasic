@@ -53,9 +53,10 @@ class BMMinerAPI(BaseMinerAPI):
             data = await self._x19_multicommand(
                 *command.split("+"), allow_warning=allow_warning
             )
+        data["multicommand"] = True
         return data
 
-    async def _x19_multicommand(self, *commands, allow_warning: bool = True):
+    async def _x19_multicommand(self, *commands, allow_warning: bool = True) -> dict:
         data = None
         try:
             data = {}

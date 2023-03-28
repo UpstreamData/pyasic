@@ -18,35 +18,48 @@ import logging
 from typing import Optional
 
 from pyasic.errors import APIError
-from pyasic.miners.btc._backends.bmminer import BMMiner
+from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.web.vnish import VNishWebAPI
+
+VNISH_DATA_LOC = {
+    "mac": {"cmd": "get_mac", "kwargs": {"web_summary": {"web": "summary"}}},
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_summary": {"web": "summary"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
+    "wattage_limit": {
+        "cmd": "get_wattage_limit",
+        "kwargs": {"web_settings": {"web": "settings"}},
+    },
+    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
 
 
 class VNish(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
-        self.api_type = "VNish"
+        # interfaces
         self.web = VNishWebAPI(ip)
 
+        # static data
+        self.api_type = "VNish"
+        # data gathering locations
+        self.data_locations = VNISH_DATA_LOC
+
     async def get_model(self, api_stats: dict = None) -> Optional[str]:
-        # check if model is cached
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model} (VNish)")
-            return self.model + " (VNish)"
-
-        if not api_stats:
-            try:
-                api_stats = await self.api.stats()
-            except APIError:
-                pass
-
-        if api_stats:
-            try:
-                m_type = api_stats["STATS"][0]["Type"]
-                self.model = m_type.split(" ")[1]
-                return self.model
-            except (KeyError, IndexError):
-                pass
+        return self.model + "(VNISH)"
 
     async def restart_backend(self) -> bool:
         data = await self.web.restart_vnish()

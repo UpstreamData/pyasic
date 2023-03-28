@@ -13,5 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from .antminer import AntminerModern, AntminerOld
 from .bfgminer import BFGMiner
-from .goldshell import Goldshell
+from .bfgminer_goldshell import BFGMinerGoldshell
+from .bmminer import BMMiner
+from .bosminer import BOSMiner
+from .btminer import BTMiner
+from .cgminer import CGMiner
+from .cgminer_avalon import CGMinerAvalon
+from .hiveon import Hiveon
+from .vnish import VNish
+from .whatsminer import M2X, M3X, M5X

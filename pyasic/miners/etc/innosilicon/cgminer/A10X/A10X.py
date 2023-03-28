@@ -20,7 +20,7 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import InnosiliconError, MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.etc._backends import CGMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import CGMiner
 from pyasic.miners.etc._types import A10X  # noqa - Ignore access to _module
 from pyasic.web.inno import InnosiliconWebAPI
 
@@ -119,24 +119,6 @@ class CGMinerA10X(CGMiner, A10X):
             try:
                 mac = web_overview["version"]["ethaddr"]
                 return mac.upper()
-            except KeyError:
-                pass
-
-    async def get_model(self, web_type: dict = None) -> Optional[str]:
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model}")
-            return self.model
-
-        if not web_type:
-            try:
-                web_type = await self.web.type()
-            except APIError:
-                pass
-
-        if web_type:
-            try:
-                self.model = web_type["type"]
-                return self.model
             except KeyError:
                 pass
 

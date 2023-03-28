@@ -22,26 +22,39 @@ from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
 
-class S9WebAPI(BaseWebAPI):
+class BOSMinerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_antminer_password
+        self.pwd = PyasicSettings().global_bosminer_password
+
+    def parse_command(self, graphql_command: Union[dict, set]) -> str:
+        if isinstance(graphql_command, dict):
+            data = []
+            for key in graphql_command:
+                if graphql_command[key]:
+                    parsed = self.parse_command(graphql_command[key])
+                    if key.startswith("... on"):
+                        parsed = parsed.replace(",", "")
+                    data.append(key + parsed)
+                else:
+                    data.append(key)
+        else:
+            data = graphql_command
+        return "{" + ",".join(data) + "}"
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: dict,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
-        auth = httpx.DigestAuth(self.username, self.pwd)
+        url = f"http://{self.ip}/graphql"
+        query = self.parse_command(command)
         try:
             async with httpx.AsyncClient() as client:
-                if parameters:
-                    data = await client.post(url, data=parameters, auth=auth)
-                else:
-                    data = await client.get(url, auth=auth)
+                await self.auth(client)
+                data = await client.post(url, json={"query": query})
         except httpx.HTTPError:
             pass
         else:
@@ -54,27 +67,33 @@ class S9WebAPI(BaseWebAPI):
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
-        data["multicommand"] = True
-        auth = httpx.DigestAuth(self.username, self.pwd)
-        for command in commands:
-            async with httpx.AsyncClient() as client:
-                try:
-                    url = f"http://{self.ip}/cgi-bin/{command}.cgi"
-                    ret = await client.get(url, auth=auth)
-                except httpx.HTTPError:
-                    pass
-                else:
-                    if ret.status_code == 200:
-                        try:
-                            json_data = ret.json()
-                            data[command] = json_data
-                        except json.decoder.JSONDecodeError:
-                            pass
+        def merge(*d: dict):
+            ret = {}
+            for i in d:
+                if i:
+                    for k in i:
+                        if not k in ret:
+                            ret[k] = i[k]
+                        else:
+                            ret[k] = merge(ret[k], i[k])
+            return None if ret == {} else ret
+
+        command = merge(*commands)
+        data = await self.send_command(command)
+        if not data:
+            data = {}
+        data["multicommand"] = False
         return data
 
-    async def get_system_info(self) -> dict:
-        return await self.send_command("get_system_info")
-
-    async def get_network_info(self) -> dict:
-        return await self.send_command("get_network_info")
+    async def auth(self, client: httpx.AsyncClient) -> None:
+        url = f"http://{self.ip}/graphql"
+        await client.post(
+            url,
+            json={
+                "query": 'mutation{auth{login(username:"'
+                + "root"
+                + '", password:"'
+                + self.pwd
+                + '"){__typename}}}'
+            },
+        )

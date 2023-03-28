@@ -224,6 +224,7 @@ class BTMinerAPI(BaseMinerAPI):
         logging.debug(f"{self} - (Multicommand) - Received data")
 
         data = dict(**main_data, **get_commands_data)
+        data["multicommand"] = True
         return data
 
     async def send_privileged_command(

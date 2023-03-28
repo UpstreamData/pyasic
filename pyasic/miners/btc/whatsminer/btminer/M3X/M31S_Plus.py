@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import BTMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import M3X
 from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
     M31SPlusV10,
     M31SPlusV20,
@@ -39,81 +39,81 @@ from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
 )
 
 
-class BTMinerM31SPlusV10(BTMiner, M31SPlusV10):
+class BTMinerM31SPlusV10(M3X, M31SPlusV10):
     pass
 
 
-class BTMinerM31SPlusV20(BTMiner, M31SPlusV20):
+class BTMinerM31SPlusV20(M3X, M31SPlusV20):
     pass
 
 
-class BTMinerM31SPlusV30(BTMiner, M31SPlusV30):
+class BTMinerM31SPlusV30(M3X, M31SPlusV30):
     pass
 
 
-class BTMinerM31SPlusV40(BTMiner, M31SPlusV40):
+class BTMinerM31SPlusV40(M3X, M31SPlusV40):
     pass
 
 
-class BTMinerM31SPlusV50(BTMiner, M31SPlusV50):
+class BTMinerM31SPlusV50(M3X, M31SPlusV50):
     pass
 
 
-class BTMinerM31SPlusV60(BTMiner, M31SPlusV60):
+class BTMinerM31SPlusV60(M3X, M31SPlusV60):
     pass
 
 
-class BTMinerM31SPlusV80(BTMiner, M31SPlusV80):
+class BTMinerM31SPlusV80(M3X, M31SPlusV80):
     pass
 
 
-class BTMinerM31SPlusV90(BTMiner, M31SPlusV90):
+class BTMinerM31SPlusV90(M3X, M31SPlusV90):
     pass
 
 
-class BTMinerM31SPlusV100(BTMiner, M31SPlusV100):
+class BTMinerM31SPlusV100(M3X, M31SPlusV100):
     pass
 
 
-class BTMinerM31SPlusVE10(BTMiner, M31SPlusVE10):
+class BTMinerM31SPlusVE10(M3X, M31SPlusVE10):
     pass
 
 
-class BTMinerM31SPlusVE20(BTMiner, M31SPlusVE20):
+class BTMinerM31SPlusVE20(M3X, M31SPlusVE20):
     pass
 
 
-class BTMinerM31SPlusVE30(BTMiner, M31SPlusVE30):
+class BTMinerM31SPlusVE30(M3X, M31SPlusVE30):
     pass
 
 
-class BTMinerM31SPlusVE40(BTMiner, M31SPlusVE40):
+class BTMinerM31SPlusVE40(M3X, M31SPlusVE40):
     pass
 
 
-class BTMinerM31SPlusVE50(BTMiner, M31SPlusVE50):
+class BTMinerM31SPlusVE50(M3X, M31SPlusVE50):
     pass
 
 
-class BTMinerM31SPlusVE60(BTMiner, M31SPlusVE60):
+class BTMinerM31SPlusVE60(M3X, M31SPlusVE60):
     pass
 
 
-class BTMinerM31SPlusVE80(BTMiner, M31SPlusVE80):
+class BTMinerM31SPlusVE80(M3X, M31SPlusVE80):
     pass
 
 
-class BTMinerM31SPlusVF20(BTMiner, M31SPlusVF20):
+class BTMinerM31SPlusVF20(M3X, M31SPlusVF20):
     pass
 
 
-class BTMinerM31SPlusVF30(BTMiner, M31SPlusVF30):
+class BTMinerM31SPlusVF30(M3X, M31SPlusVF30):
     pass
 
 
-class BTMinerM31SPlusVG20(BTMiner, M31SPlusVG20):
+class BTMinerM31SPlusVG20(M3X, M31SPlusVG20):
     pass
 
 
-class BTMinerM31SPlusVG30(BTMiner, M31SPlusVG30):
+class BTMinerM31SPlusVG30(M3X, M31SPlusVG30):
     pass

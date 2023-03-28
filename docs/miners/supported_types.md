@@ -541,7 +541,7 @@ details {
     </ul>
 </details>
 <details>
-<summary>Stock Firmware Goldshell Miners:</summary>
+<summary>Stock Firmware BFGMinerGoldshell Miners:</summary>
     <ul>
         <details>
         <summary>CKX Series:</summary>

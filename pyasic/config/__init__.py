@@ -214,7 +214,6 @@ class _PoolGroup:
             pools.append(pool.as_x19(user_suffix=user_suffix))
         return pools
 
-
     def as_x17(self, user_suffix: str = None) -> dict:
         """Convert the data in this class to a list usable by an X5 device.
 
@@ -234,7 +233,9 @@ class _PoolGroup:
         }
         for idx, pool in enumerate(self.pools[:3]):
             pools[f"_ant_pool{idx+1}url"] = pool.as_x17(user_suffix=user_suffix)["url"]
-            pools[f"_ant_pool{idx+1}user"] = pool.as_x17(user_suffix=user_suffix)["user"]
+            pools[f"_ant_pool{idx+1}user"] = pool.as_x17(user_suffix=user_suffix)[
+                "user"
+            ]
             pools[f"_ant_pool{idx+1}pw"] = pool.as_x17(user_suffix=user_suffix)["pass"]
 
         return pools
@@ -413,13 +414,13 @@ class MinerConfig:
                 if data[key]:
                     self.miner_mode = X19PowerMode(int(data[key]))
             elif key == "fan_control":
-                for _key in data[key].keys():
+                for _key in data[key]:
                     if _key == "min_fans":
                         self.minimum_fans = data[key][_key]
                     elif _key == "speed":
                         self.fan_speed = data[key][_key]
             elif key == "temp_control":
-                for _key in data[key].keys():
+                for _key in data[key]:
                     if _key == "mode":
                         self.temp_mode = data[key][_key]
                     elif _key == "target_temp":
@@ -434,7 +435,7 @@ class MinerConfig:
                     self.asicboost = data[key]["asic_boost"]
 
             if key == "autotuning":
-                for _key in data[key].keys():
+                for _key in data[key]:
                     if _key == "enabled":
                         self.autotuning_enabled = data[key][_key]
                     elif _key == "psu_power_limit":
@@ -447,7 +448,7 @@ class MinerConfig:
                         self.autotuning_mode = data[key][_key].replace("_target", "")
 
             if key in ["power_scaling", "performance_scaling"]:
-                for _key in data[key].keys():
+                for _key in data[key]:
                     if _key == "enabled":
                         self.dps_enabled = data[key][_key]
                     elif _key == "power_step":

@@ -25,15 +25,15 @@ import asyncssh
 import httpx
 
 from pyasic.errors import APIError
-from pyasic.miners.base import AnyMiner
-from pyasic.miners.btc import *
-from pyasic.miners.btc._backends import BOSMiner  # noqa - Ignore _module import
-from pyasic.miners.btc._backends import CGMiner  # noqa - Ignore _module import
-from pyasic.miners.btc._backends.bmminer import BMMiner  # noqa - Ignore _module import
-from pyasic.miners.btc._backends.bosminer_old import (  # noqa - Ignore _module import
+from pyasic.miners.backends import BOSMiner  # noqa - Ignore _module import
+from pyasic.miners.backends import CGMiner  # noqa - Ignore _module import
+from pyasic.miners.backends.bmminer import BMMiner  # noqa - Ignore _module import
+from pyasic.miners.backends.bosminer_old import (  # noqa - Ignore _module import
     BOSMinerOld,
 )
-from pyasic.miners.btc._backends.btminer import BTMiner  # noqa - Ignore _module import
+from pyasic.miners.backends.btminer import BTMiner  # noqa - Ignore _module import
+from pyasic.miners.base import AnyMiner
+from pyasic.miners.btc import *
 from pyasic.miners.ckb import *
 from pyasic.miners.dcr import *
 from pyasic.miners.etc import *

@@ -14,14 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
-import json
 import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
 import asyncssh
-import httpx
 import toml
 
 from pyasic.API.bosminer import BOSMinerAPI
@@ -30,18 +27,167 @@ from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
+from pyasic.web.bosminer import BOSMinerWebAPI
+
+BOSMINER_DATA_LOC = {
+    "mac": {"cmd": "get_mac", "kwargs": {}},
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {
+        "cmd": "get_api_ver",
+        "kwargs": {"api_version": {"api": "version"}},
+    },
+    "fw_ver": {
+        "cmd": "get_fw_ver",
+        "kwargs": {
+            "graphql_version": {"web": {"bos": {"info": {"version": {"full": None}}}}}
+        },
+    },
+    "hostname": {
+        "cmd": "get_hostname",
+        "kwargs": {"graphql_hostname": {"web": {"bos": {"hostname": None}}}},
+    },
+    "hashrate": {
+        "cmd": "get_hashrate",
+        "kwargs": {
+            "api_summary": {"api": "summary"},
+            "graphql_hashrate": {
+                "web": {
+                    "bosminer": {
+                        "info": {"workSolver": {"realHashrate": {"mhs1M": None}}}
+                    }
+                },
+            },
+        },
+    },
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_devs": {"api": "devs"}},
+    },
+    "hashboards": {
+        "cmd": "get_hashboards",
+        "kwargs": {
+            "api_temps": {"api": "temps"},
+            "api_devdetails": {"api": "devdetails"},
+            "api_devs": {"api": "devs"},
+            "graphql_boards": {
+                "web": {
+                    "bosminer": {
+                        "info": {
+                            "workSolver": {
+                                "childSolvers": {
+                                    "name": None,
+                                    "realHashrate": {"mhs1M": None},
+                                    "hwDetails": {"chips": None},
+                                    "temperatures": {"degreesC": None},
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+        },
+    },
+    "wattage": {
+        "cmd": "get_wattage",
+        "kwargs": {
+            "api_tunerstatus": {"api": "tunerstatus"},
+            "graphql_wattage": {
+                "web": {
+                    "bosminer": {
+                        "info": {"workSolver": {"power": {"approxConsumptionW": None}}}
+                    }
+                }
+            },
+        },
+    },
+    "wattage_limit": {
+        "cmd": "get_wattage_limit",
+        "kwargs": {
+            "api_tunerstatus": {"api": "tunerstatus"},
+            "graphql_wattage_limit": {
+                "web": {
+                    "bosminer": {"info": {"workSolver": {"power": {"limitW": None}}}}
+                }
+            },
+        },
+    },
+    "fans": {
+        "cmd": "get_fans",
+        "kwargs": {
+            "api_fans": {"api": "fans"},
+            "graphql_fans": {
+                "web": {"bosminer": {"info": {"fans": {"name": None, "rpm": None}}}}
+            },
+        },
+    },
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "errors": {
+        "cmd": "get_errors",
+        "kwargs": {
+            "api_tunerstatus": {"api": "tunerstatus"},
+            "graphql_errors": {
+                "web": {
+                    "bosminer": {
+                        "info": {
+                            "workSolver": {
+                                "childSolvers": {
+                                    "name": None,
+                                    "tuner": {"statusMessages": None},
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        },
+    },
+    "fault_light": {
+        "cmd": "get_fault_light",
+        "kwargs": {"graphql_fault_light": {"web": {"bos": {"faultLight": None}}}},
+    },
+    "pools": {
+        "cmd": "get_pools",
+        "kwargs": {
+            "api_pools": {"api": "pools"},
+            "graphql_pools": {
+                "web": {
+                    "bosminer": {
+                        "config": {
+                            "... on BosminerConfig": {
+                                "groups": {
+                                    "pools": {"urluser": None},
+                                    "strategy": {
+                                        "... on QuotaStrategy": {"quota": None}
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+        },
+    },
+}
 
 
 class BOSMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
-        self.ip = ipaddress.ip_address(ip)
+        # interfaces
         self.api = BOSMinerAPI(ip, api_ver)
+        self.web = BOSMinerWebAPI(ip)
+
+        # static data
         self.api_type = "BOSMiner"
+        # data gathering locations
+        self.data_locations = BOSMINER_DATA_LOC
+        # autotuning/shutdown support
+        self.supports_autotuning = True
+        self.supports_shutdown = True
+
+        # data storage
         self.api_ver = api_ver
-        self.uname = "root"
-        self.pwd = "root"
-        self.config = None
 
     async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
@@ -75,49 +221,6 @@ class BOSMiner(BaseMiner):
         # return the result, either command output or None
         return result
 
-    async def send_graphql_query(self, query) -> Union[dict, None]:
-        # FW version must be equal to or greater than 21.09 to use this
-        if self.fw_ver:
-            try:
-                if not (
-                    (
-                        int(self.fw_ver.split(".")[0]) == 21
-                        and int(self.fw_ver.split(".")[1]) >= 9
-                    )
-                    or int(self.fw_ver.split(".")[0]) > 21
-                ):
-                    logging.info(f"FW version {self.fw_ver} is too low to use graphql.")
-                    return None
-            except ValueError:
-                pass
-
-        url = f"http://{self.ip}/graphql"
-        try:
-            async with httpx.AsyncClient() as client:
-                _auth = await client.post(
-                    url,
-                    json={
-                        "query": 'mutation{auth{login(username:"'
-                        + self.uname
-                        + '", password:"'
-                        + self.pwd
-                        + '"){__typename}}}'
-                    },
-                )
-                d = await client.post(url, json={"query": query})
-            if d.status_code == 200:
-                try:
-                    data = d.json()
-                except json.decoder.JSONDecodeError:
-                    raise APIError(f"GraphQL returned malformed data: {d.text}")
-                if data.get("errors"):
-                    if len(data["errors"]) > 0:
-                        raise APIError(f"GraphQL error: {data['errors'][0]['message']}")
-
-        except httpx.HTTPError:
-            return None
-        return None
-
     async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
@@ -140,7 +243,7 @@ class BOSMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
-        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners.btc._backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
+        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners.backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
@@ -271,37 +374,7 @@ class BOSMiner(BaseMiner):
             pass
 
     async def get_model(self) -> Optional[str]:
-        # check if model is cached
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model} (BOS)")
-            return self.model + " (BOS)"
-
-        # get devdetails data
-        try:
-            version_data = await self.api.devdetails()
-        except APIError as e:
-            version_data = None
-            if e.message == "Not ready":
-                cfg = json.loads(await self.send_ssh_command("bosminer config --data"))
-                model = cfg.get("data").get("format").get("model")
-                if model:
-                    model = model.replace("Antminer ", "")
-                    self.model = model
-                    return self.model + " (BOS)"
-
-        # if we get data back, parse it for model
-        if version_data:
-            if not version_data["DEVDETAILS"] == []:
-                # handle Antminer BOSMiner as a base
-                self.model = version_data["DEVDETAILS"][0]["Model"].replace(
-                    "Antminer ", ""
-                )
-                logging.debug(f"Found model for {self.ip}: {self.model} (BOS)")
-                return self.model + " (BOS)"
-
-        # if we don't get devdetails, log a failed attempt
-        logging.warning(f"Failed to get model for miner: {self}")
-        return None
+        return self.model + " (BOS)"
 
     async def get_version(
         self, api_version: dict = None, graphql_version: dict = None
@@ -333,8 +406,8 @@ class BOSMiner(BaseMiner):
     async def get_fw_ver(self, graphql_version: dict = None) -> Optional[str]:
         if not graphql_version:
             try:
-                graphql_version = await self.send_graphql_query(
-                    "{bos{info{version{full}}}}"
+                graphql_version = await self.web.send_command(
+                    {"bos": {"info": {"version": {"full"}}}}
                 )
             except APIError:
                 pass
@@ -361,18 +434,20 @@ class BOSMiner(BaseMiner):
         return self.fw_ver
 
     async def get_hostname(self, graphql_hostname: dict = None) -> Union[str, None]:
-        if self.hostname:
-            return self.hostname
+        hostname = None
 
         if not graphql_hostname:
             try:
-                graphql_hostname = await self.send_graphql_query("{bos {hostname}}")
+                graphql_hostname = await self.web.send_command({"bos": {"hostname"}})
             except APIError:
                 pass
 
         if graphql_hostname:
-            self.hostname = graphql_hostname["bos"]["hostname"]
-            return self.hostname
+            try:
+                hostname = graphql_hostname["bos"]["hostname"]
+                return hostname
+            except KeyError:
+                pass
 
         try:
             async with (await self._get_ssh_connection()) as conn:
@@ -380,12 +455,12 @@ class BOSMiner(BaseMiner):
                     data = await conn.run("cat /proc/sys/kernel/hostname")
                     host = data.stdout.strip()
                     logging.debug(f"Found hostname for {self.ip}: {host}")
-                    self.hostname = host
+                    hostname = host
                 else:
                     logging.warning(f"Failed to get hostname for miner: {self}")
         except Exception as e:
             logging.warning(f"Failed to get hostname for miner: {self}, {e}")
-        return self.hostname
+        return hostname
 
     async def get_hashrate(
         self, api_summary: dict = None, graphql_hashrate: dict = None
@@ -394,8 +469,8 @@ class BOSMiner(BaseMiner):
         # get hr from graphql
         if not graphql_hashrate:
             try:
-                graphql_hashrate = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{realHashrate{mhs1M}}}}}"
+                graphql_hashrate = await self.web.send_command(
+                    {"bosminer": {"info": {"workSolver": {"realHashrate": {"mhs1M"}}}}}
                 )
             except APIError:
                 pass
@@ -441,8 +516,21 @@ class BOSMiner(BaseMiner):
 
         if not graphql_boards and not (api_devs or api_temps or api_devdetails):
             try:
-                graphql_boards = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{childSolvers{name, realHashrate {mhs1M}, hwDetails {chips}, temperatures {degreesC}}}}}}"
+                graphql_boards = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "realHashrate": {"mhs1M"},
+                                        "hwDetails": {"chips"},
+                                        "temperatures": {"degreesC"},
+                                    }
+                                }
+                            }
+                        }
+                    },
                 )
             except APIError:
                 pass
@@ -540,7 +628,7 @@ class BOSMiner(BaseMiner):
 
         return hashboards
 
-    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    async def get_env_temp(self) -> Optional[float]:
         return None
 
     async def get_wattage(
@@ -548,8 +636,12 @@ class BOSMiner(BaseMiner):
     ) -> Optional[int]:
         if not graphql_wattage and not api_tunerstatus:
             try:
-                graphql_wattage = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{power{approxConsumptionW}}}}}"
+                graphql_wattage = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {"workSolver": {"power": {"approxConsumptionW"}}}
+                        }
+                    }
                 )
             except APIError:
                 pass
@@ -581,8 +673,8 @@ class BOSMiner(BaseMiner):
     ) -> Optional[int]:
         if not graphql_wattage_limit and not api_tunerstatus:
             try:
-                graphql_wattage_limit = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{power{limitW}}}}}"
+                graphql_wattage_limit = await self.web.send_command(
+                    {"bosminer": {"info": {"workSolver": {"power": {"limitW"}}}}}
                 )
             except APIError:
                 pass
@@ -612,8 +704,8 @@ class BOSMiner(BaseMiner):
     ) -> List[Fan]:
         if not graphql_fans and not api_fans:
             try:
-                graphql_fans = await self.send_graphql_query(
-                    "{bosminer{info{fans{name, rpm}}}"
+                graphql_fans = await self.web.send_command(
+                    {"bosminer": {"info": {"fans": {"name", "rpm"}}}}
                 )
             except APIError:
                 pass
@@ -640,7 +732,7 @@ class BOSMiner(BaseMiner):
             for n in range(self.fan_count):
                 try:
                     fans[f"fan_{n + 1}"].speed = api_fans["FANS"][n]["RPM"]
-                except KeyError:
+                except (IndexError, KeyError):
                     pass
             return [fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]]
         return [Fan(), Fan(), Fan(), Fan()]
@@ -653,8 +745,19 @@ class BOSMiner(BaseMiner):
     ) -> List[dict]:
         if not graphql_pools and not api_pools:
             try:
-                graphql_pools = await self.send_graphql_query(
-                    "bosminer{config{... on BosminerConfig{groups{pools{urluser}strategy{... on QuotaStrategy{quota}}}}}"
+                graphql_pools = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "config": {
+                                "... on BosminerConfig": {
+                                    "groups": {
+                                        "pools": {"urluser"},
+                                        "strategy": {"... on QuotaStrategy": {"quota"}},
+                                    }
+                                }
+                            }
+                        }
+                    }
                 )
             except APIError:
                 pass
@@ -686,30 +789,44 @@ class BOSMiner(BaseMiner):
         if api_pools:
             seen = []
             groups = [{"quota": "0"}]
-            for i, pool in enumerate(api_pools["POOLS"]):
-                if len(seen) == 0:
-                    seen.append(pool["User"])
-                if not pool["User"] in seen:
-                    # need to use get_config, as this will never read perfectly as there are some bad edge cases
-                    groups = []
-                    cfg = await self.get_config()
-                    if cfg:
-                        for group in cfg.pool_groups:
-                            pools = {"quota": group.quota}
-                            for _i, _pool in enumerate(group.pools):
-                                pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
-                                    "stratum+tcp://", ""
-                                ).replace("stratum2+tcp://", "")
-                                pools[f"pool_{_i + 1}_user"] = _pool.username
-                            groups.append(pools)
-                    return groups
-                else:
-                    groups[0][f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    groups[0][f"pool_{i + 1}_user"] = pool["User"]
+            if api_pools.get("POOLS"):
+                for i, pool in enumerate(api_pools["POOLS"]):
+                    if len(seen) == 0:
+                        seen.append(pool["User"])
+                    if not pool["User"] in seen:
+                        # need to use get_config, as this will never read perfectly as there are some bad edge cases
+                        groups = []
+                        cfg = await self.get_config()
+                        if cfg:
+                            for group in cfg.pool_groups:
+                                pools = {"quota": group.quota}
+                                for _i, _pool in enumerate(group.pools):
+                                    pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
+                                        "stratum+tcp://", ""
+                                    ).replace("stratum2+tcp://", "")
+                                    pools[f"pool_{_i + 1}_user"] = _pool.username
+                                groups.append(pools)
+                        return groups
+                    else:
+                        groups[0][f"pool_{i + 1}_url"] = (
+                            pool["URL"]
+                            .replace("stratum+tcp://", "")
+                            .replace("stratum2+tcp://", "")
+                        )
+                        groups[0][f"pool_{i + 1}_user"] = pool["User"]
+            else:
+                groups = []
+                cfg = await self.get_config()
+                if cfg:
+                    for group in cfg.pool_groups:
+                        pools = {"quota": group.quota}
+                        for _i, _pool in enumerate(group.pools):
+                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
+                                "stratum+tcp://", ""
+                            ).replace("stratum2+tcp://", "")
+                            pools[f"pool_{_i + 1}_user"] = _pool.username
+                        groups.append(pools)
+                return groups
             return groups
 
     async def get_errors(
@@ -717,8 +834,19 @@ class BOSMiner(BaseMiner):
     ) -> List[MinerErrorData]:
         if not graphql_errors and not api_tunerstatus:
             try:
-                graphql_errors = await self.send_graphql_query(
-                    "{bosminer{info{workSolver{childSolvers{name, tuner{statusMessages}}}}}}"
+                graphql_errors = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "tuner": {"statusMessages"},
+                                    }
+                                }
+                            }
+                        }
+                    }
                 )
             except APIError:
                 pass
@@ -792,8 +920,8 @@ class BOSMiner(BaseMiner):
                     and int(self.fw_ver.split(".")[1]) > 9
                 ) or int(self.fw_ver.split(".")[0]) > 21:
                     try:
-                        graphql_fault_light = await self.send_graphql_query(
-                            "{bos {faultLight}}"
+                        graphql_fault_light = await self.web.send_command(
+                            {"bos": {"faultLight"}}
                         )
                     except APIError:
                         pass
@@ -804,8 +932,8 @@ class BOSMiner(BaseMiner):
             else:
                 # worth trying
                 try:
-                    graphql_fault_light = await self.send_graphql_query(
-                        "{bos {faultLight}}"
+                    graphql_fault_light = await self.web.send_command(
+                        {"bos": {"faultLight"}}
                     )
                 except APIError:
                     logging.debug(

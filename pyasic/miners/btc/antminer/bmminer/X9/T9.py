@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import BMMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import BMMiner
 from pyasic.miners.btc._types import T9  # noqa - Ignore access to _module
 
 

@@ -14,28 +14,20 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
 import logging
 from typing import List, Optional, Tuple
 
 import asyncssh
 
-from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
-from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
+from pyasic.miners.backends import BOSMiner
 
 
-class BOSMinerOld(BaseMiner):
+class BOSMinerOld(BOSMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        self.ip = ipaddress.ip_address(ip)
-        self.api = BOSMinerAPI(ip, api_ver)
-        self.api_type = "BOSMiner"
-        self.uname = "root"
-        self.pwd = "admin"
+        super().__init__(ip, api_ver)
 
     async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
@@ -103,80 +95,59 @@ class BOSMinerOld(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> Optional[str]:
+    async def get_mac(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_model(self) -> str:
+    async def get_model(self, *args, **kwargs) -> str:
         return "S9"
 
-    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
+    async def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         return None, None
 
-    async def get_hostname(self) -> Optional[str]:
+    async def get_hostname(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_hashrate(self) -> Optional[float]:
+    async def get_hashrate(self, *args, **kwargs) -> Optional[float]:
         return None
 
-    async def get_hashboards(self) -> List[HashBoard]:
+    async def get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
         return []
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
         return None
 
-    async def get_wattage(self) -> Optional[int]:
+    async def get_wattage(self, *args, **kwargs) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
         return None
 
     async def get_fans(
         self,
+        *args,
+        **kwargs,
     ) -> List[Fan]:
         return [Fan(), Fan(), Fan(), Fan()]
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
         return None
 
-    async def get_api_ver(self) -> Optional[str]:
+    async def get_api_ver(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_fw_ver(self) -> Optional[str]:
+    async def get_fw_ver(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_pools(self, api_pools: dict = None) -> List[dict]:
-        groups = []
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            try:
-                pools = {}
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["User"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
-
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def get_pools(self, *args, **kwargs) -> List[dict]:
         return []
 
-    async def get_fault_light(self) -> bool:
+    async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
+        return []
+
+    async def get_fault_light(self, *args, **kwargs) -> bool:
         return False
 
-    async def get_nominal_hashrate(self) -> Optional[float]:
+    async def get_nominal_hashrate(self, *args, **kwargs) -> Optional[float]:
         return None
 
     async def get_data(self, allow_warning: bool = False, **kwargs) -> MinerData:

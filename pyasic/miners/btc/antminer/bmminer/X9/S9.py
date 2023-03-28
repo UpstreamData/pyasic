@@ -16,7 +16,7 @@
 
 from typing import Union
 
-from pyasic.miners.btc._backends import BMMiner  # noqa - Ignore access to _module
+from pyasic.miners.backends import BMMiner
 from pyasic.miners.btc._types import S9  # noqa - Ignore access to _module
 from pyasic.web.S9 import S9WebAPI
 

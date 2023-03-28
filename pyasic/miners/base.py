@@ -29,23 +29,32 @@ from pyasic.errors import APIError
 
 
 class BaseMiner(ABC):
-    def __init__(self, *args, **kwargs) -> None:
-        self.ip = None
+    def __init__(self, ip: str, *args, **kwargs) -> None:
+        # interfaces
         self.api = None
         self.web = None
-        self.uname = None
-        self.pwd = None
+
+        # static data
+        self.ip = ip
         self.api_type = None
-        self.api_ver = None
-        self.fw_ver = None
-        self.model = None
+        # type
         self.make = None
-        self.light = None
-        self.hostname = None
+        self.model = None
+        # physical attributes
+        self.ideal_hashboards = 3
         self.nominal_chips = 1
         self.fan_count = 2
+        # data gathering locations
+        self.data_locations = None
+        # autotuning/shutdown support
+        self.supports_autotuning = False
+        self.supports_shutdown = False
+
+        # data storage
+        self.api_ver = None
+        self.fw_ver = None
+        self.light = None
         self.config = None
-        self.ideal_hashboards = 3
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseMiner:
@@ -70,8 +79,8 @@ class BaseMiner(ABC):
             conn = await asyncssh.connect(
                 str(self.ip),
                 known_hosts=None,
-                username=self.uname,
-                password=self.pwd,
+                username="root",
+                password="root",
                 server_host_key_algs=["ssh-rsa"],
             )
             return conn
@@ -195,14 +204,13 @@ class BaseMiner(ABC):
         """
         pass
 
-    @abstractmethod
     async def get_model(self) -> Optional[str]:
         """Get the model of the miner and return it as a string.
 
         Returns:
             A string representing the model of the miner.
         """
-        pass
+        return self.model
 
     @abstractmethod
     async def get_api_ver(self, *args, **kwargs) -> Optional[str]:
@@ -360,76 +368,75 @@ class BaseMiner(ABC):
                 "fault_light",
                 "pools",
             ]
-        api_params = []
-        web_params = []
-        gql = False
+        api_multicommand = []
+        web_multicommand = []
         for data_name in data_to_get:
-            function = getattr(self, "get_" + data_name)
-            sig = inspect.signature(function)
-            for item in sig.parameters:
-                if item.startswith("api_"):
-                    command = item.replace("api_", "")
-                    api_params.append(command)
-                elif item.startswith("graphql_"):
-                    gql = True
-                elif item.startswith("web_"):
-                    web_params.append(item.replace("web_", ""))
-        api_params = list(set(api_params))
-        web_params = list(set(web_params))
-        miner_data = {}
-        command_data = await self.api.multicommand(
-            *api_params, allow_warning=allow_warning
-        )
-        if gql:
             try:
-                gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
-                    "{bos {hostname}, bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
-                )
-            except APIError:
-                # hostname hates me
-                try:
-                    gql_data = await self.send_graphql_query(  # noqa: bosminer only anyway
-                        "{bosminer{config{... on BosminerConfig{groups{pools{url, user}, strategy{... on QuotaStrategy {quota}}}}}, info{fans{name, rpm}, workSolver{realHashrate{mhs1M}, temperatures{degreesC}, power{limitW, approxConsumptionW}, childSolvers{name, realHashrate{mhs1M}, hwDetails{chips}, tuner{statusMessages}, temperatures{degreesC}}}}}}"
-                    )
-                except APIError:
-                    # AGAIN???
-                    gql_data = None
+                fn_args = self.data_locations[data_name]["kwargs"]
+                for arg_name in fn_args:
+                    if fn_args[arg_name].get("api"):
+                        api_multicommand.append(fn_args[arg_name]["api"])
+                    if fn_args[arg_name].get("web"):
+                        web_multicommand.append(fn_args[arg_name]["web"])
+            except KeyError as e:
+                print(e, data_name)
+                continue
 
-        web_data = {}
-        for command in web_params:
-            try:
-                cmd_func = getattr(self.web, command)
-                data = await cmd_func()  # noqa: web only anyway
-            except (LookupError, APIError):
-                pass
-            else:
-                web_data[command] = data
+        api_multicommand = list(set(api_multicommand))
+        _web_multicommand = web_multicommand
+        for item in web_multicommand:
+            if item not in _web_multicommand:
+                _web_multicommand.append(item)
+        web_multicommand = _web_multicommand
+        if len(api_multicommand) > 0:
+            api_command_data = await self.api.multicommand(
+                *api_multicommand, allow_warning=allow_warning
+            )
+        else:
+            api_command_data = {}
+        if len(web_multicommand) > 0:
+            web_command_data = await self.web.multicommand(
+                *web_multicommand, allow_warning=allow_warning
+            )
+        else:
+            web_command_data = {}
+
+        miner_data = {}
+
         for data_name in data_to_get:
-            function = getattr(self, "get_" + data_name)
-            sig = inspect.signature(function)
-            kwargs = {}
-            for arg_name in sig.parameters:
-                if arg_name.startswith("api_"):
-                    try:
-                        kwargs[arg_name] = command_data[arg_name.replace("api_", "")][0]
-                    except (KeyError, IndexError):
-                        kwargs[arg_name] = None
-                elif arg_name.startswith("graphql_"):
-                    kwargs[
-                        arg_name
-                    ] = gql_data  # noqa: variable is not referenced before assignment
-                elif arg_name.startswith("web_"):
-                    try:
-                        kwargs[arg_name] = web_data[arg_name.replace("web_", "")]
-                    except (KeyError, IndexError):
-                        kwargs[arg_name] = None
+            try:
+                fn_args = self.data_locations[data_name]["kwargs"]
+                args_to_send = {k: None for k in fn_args}
+                for arg_name in fn_args:
+                    if fn_args[arg_name].get("api"):
+                        if api_command_data.get("multicommand"):
+                            args_to_send[arg_name] = api_command_data[
+                                fn_args[arg_name]["api"]
+                            ][0]
+                        else:
+                            args_to_send[arg_name] = api_command_data
+                    if fn_args[arg_name].get("web"):
+                        if web_command_data.get("multicommand"):
+                            args_to_send[arg_name] = web_command_data[
+                                fn_args[arg_name]["web"]
+                            ]
+                        else:
+                            if not web_command_data == {"multicommand": False}:
+                                args_to_send[arg_name] = web_command_data
+            except (KeyError, IndexError) as e:
+                continue
+
+            function = getattr(self, self.data_locations[data_name]["cmd"])
             if not data_name == "pools":
-                miner_data[data_name] = await function(**kwargs)
+                miner_data[data_name] = await function(**args_to_send)
             else:
-                pools_data = await function(**kwargs)
+                pools_data = await function(**args_to_send)
                 if pools_data:
-                    miner_data["pool_1_url"] = pools_data[0]["pool_1_url"]
-                    miner_data["pool_1_user"] = pools_data[0]["pool_1_user"]
+                    try:
+                        miner_data["pool_1_url"] = pools_data[0]["pool_1_url"]
+                        miner_data["pool_1_user"] = pools_data[0]["pool_1_user"]
+                    except KeyError:
+                        pass
                     if len(pools_data) > 1:
                         miner_data["pool_2_url"] = pools_data[1]["pool_2_url"]
                         miner_data["pool_2_user"] = pools_data[1]["pool_2_user"]

@@ -13,19 +13,52 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
+from typing import List
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import HashBoard
 from pyasic.errors import APIError
-from pyasic.miners.hns._backends import BFGMiner
+from pyasic.miners.backends import BFGMiner
 from pyasic.web.goldshell import GoldshellWebAPI
 
+GOLDSHELL_DATA_LOC = {
+    "mac": {"cmd": "get_mac", "kwargs": {"web_setting": {"web": "setting"}}},
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_status": {"web": "status"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
+    "hashboards": {
+        "cmd": "get_hashboards",
+        "kwargs": {
+            "api_devs": {"api": "devs"},
+            "api_devdetails": {"api": "devdetails"},
+        },
+    },
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
 
-class Goldshell(BFGMiner):
+
+class BFGMinerGoldshell(BFGMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
+        # interfaces
         self.web = GoldshellWebAPI(ip)
+
+        # static data
+        # data gathering locations
+        self.data_locations = GOLDSHELL_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         return MinerConfig().from_raw(await self.web.pools())
@@ -33,14 +66,13 @@ class Goldshell(BFGMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         pools_data = await self.web.pools()
         # have to delete all the pools one at a time first
-        if pools_data:
-            for pool in pools_data:
-                await self.web.delpool(
-                    url=pool["url"],
-                    user=pool["user"],
-                    password=pool["pass"],
-                    dragid=pool["dragid"],
-                )
+        for pool in pools_data:
+            await self.web.delpool(
+                url=pool["url"],
+                user=pool["user"],
+                password=pool["pass"],
+                dragid=pool["dragid"],
+            )
 
         self.config = config
 
@@ -76,7 +108,9 @@ class Goldshell(BFGMiner):
             except KeyError:
                 pass
 
-    async def get_hashboards(self, api_devs: dict = None, api_devdetails: dict = None) -> List[HashBoard]:
+    async def get_hashboards(
+        self, api_devs: dict = None, api_devdetails: dict = None
+    ) -> List[HashBoard]:
         if not api_devs:
             try:
                 api_devs = await self.api.devs()
@@ -89,15 +123,20 @@ class Goldshell(BFGMiner):
         ]
 
         if api_devs:
-            for board in api_devs["DEVS"]:
-                if board.get("ID") is not None:
-                    try:
-                        b_id = board["ID"]
-                        hashboards[b_id].hashrate = round(board["MHS 20s"] / 1000000, 2)
-                        hashboards[b_id].temp = board["tstemp-2"]
-                        hashboards[b_id].missing = False
-                    except KeyError:
-                        pass
+            if api_devs.get("DEVS"):
+                for board in api_devs["DEVS"]:
+                    if board.get("ID") is not None:
+                        try:
+                            b_id = board["ID"]
+                            hashboards[b_id].hashrate = round(
+                                board["MHS 20s"] / 1000000, 2
+                            )
+                            hashboards[b_id].temp = board["tstemp-2"]
+                            hashboards[b_id].missing = False
+                        except KeyError:
+                            pass
+            else:
+                print(self, api_devs)
 
         if not api_devdetails:
             try:
@@ -106,12 +145,15 @@ class Goldshell(BFGMiner):
                 pass
 
         if api_devdetails:
-            for board in api_devdetails["DEVS"]:
-                if board.get("ID") is not None:
-                    try:
-                        b_id = board["ID"]
-                        hashboards[b_id].chips = board["chips-nr"]
-                    except KeyError:
-                        pass
+            if api_devdetails.get("DEVS"):
+                for board in api_devdetails["DEVS"]:
+                    if board.get("ID") is not None:
+                        try:
+                            b_id = board["ID"]
+                            hashboards[b_id].chips = board["chips-nr"]
+                        except KeyError:
+                            pass
+            else:
+                print(self, api_devdetails)
 
         return hashboards

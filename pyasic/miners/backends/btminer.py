@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
 import logging
 import warnings
 from collections import namedtuple
@@ -27,13 +26,85 @@ from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 
+BTMINER_DATA_LOC = {
+    "mac": {
+        "cmd": "get_mac",
+        "kwargs": {
+            "api_summary": {"api": "summary"},
+            "api_get_miner_info": {"api": "get_miner_info"},
+        },
+    },
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {
+        "cmd": "get_api_ver",
+        "kwargs": {"api_get_version": {"api": "get_version"}},
+    },
+    "fw_ver": {
+        "cmd": "get_fw_ver",
+        "kwargs": {
+            "api_get_version": {"api": "get_version"},
+            "api_summary": {"api": "summary"},
+        },
+    },
+    "hostname": {
+        "cmd": "get_hostname",
+        "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
+    },
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_summary": {"api": "summary"}},
+    },
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_devs": {"api": "devs"}}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {"api_summary": {"api": "summary"}}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {"api_summary": {"api": "summary"}}},
+    "wattage_limit": {
+        "cmd": "get_wattage_limit",
+        "kwargs": {"api_summary": {"api": "summary"}},
+    },
+    "fans": {
+        "cmd": "get_fans",
+        "kwargs": {
+            "api_summary": {"api": "summary"},
+            "api_get_psu": {"api": "get_psu"},
+        },
+    },
+    "fan_psu": {
+        "cmd": "get_fan_psu",
+        "kwargs": {
+            "api_summary": {"api": "summary"},
+            "api_get_psu": {"api": "get_psu"},
+        },
+    },
+    "errors": {
+        "cmd": "get_errors",
+        "kwargs": {
+            "api_summary": {"api": "summary"},
+            "api_get_error_code": {"api": "get_error_code"},
+        },
+    },
+    "fault_light": {
+        "cmd": "get_fault_light",
+        "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
+    },
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
+
 
 class BTMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
-        self.ip = ipaddress.ip_address(ip)
+        # interfaces
         self.api = BTMinerAPI(ip, api_ver)
+
+        # static data
         self.api_type = "BTMiner"
+        # data gathering locations
+        self.data_locations = BTMINER_DATA_LOC
+        # autotuning/shutdown support
+        self.supports_shutdown = True
+
+        # data storage
         self.api_ver = api_ver
 
     async def _reset_api_pwd_to_admin(self, pwd: str):
@@ -203,28 +274,6 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_model(self, api_devdetails: dict = None) -> Optional[str]:
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model}")
-            return self.model
-
-        if not api_devdetails:
-            try:
-                api_devdetails = await self.api.devdetails()
-            except APIError:
-                pass
-
-        if api_devdetails:
-            try:
-                self.model = api_devdetails["DEVDETAILS"][0]["Model"].split("V")[0]
-                logging.debug(f"Found model for {self.ip}: {self.model}")
-                return self.model
-            except (TypeError, IndexError, KeyError):
-                pass
-
-        logging.warning(f"Failed to get model for miner: {self}")
-        return None
-
     async def get_version(
         self, api_get_version: dict = None, api_summary: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
@@ -302,9 +351,7 @@ class BTMiner(BaseMiner):
         return self.fw_ver
 
     async def get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
-        if self.hostname:
-            return self.hostname
-
+        hostname = None
         if not api_get_miner_info:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
@@ -313,11 +360,11 @@ class BTMiner(BaseMiner):
 
         if api_get_miner_info:
             try:
-                self.hostname = api_get_miner_info["Msg"]["hostname"]
+                hostname = api_get_miner_info["Msg"]["hostname"]
             except KeyError:
                 return None
 
-        return self.hostname
+        return hostname
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API

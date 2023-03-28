@@ -31,11 +31,8 @@ class PyasicSettings(metaclass=Singleton):
 
     global_whatsminer_password = "admin"
     global_innosilicon_password = "admin"
-    global_x19_password = "root"
-    global_x17_password = "root"
-    global_x15_password = "root"
-    global_x7_password = "root"
-    global_x5_password = "root"
+    global_antminer_password = "root"
+    global_bosminer_password = "root"
     global_vnish_password = "admin"
     global_goldshell_password = "123456789"
 

@@ -1,7 +1,7 @@
 # pyasic
 ## Hiveon Backend
 
-::: pyasic.miners.btc._backends.hiveon.Hiveon
+::: pyasic.miners.backends.hiveon.Hiveon
     handler: python
     options:
         show_root_heading: false

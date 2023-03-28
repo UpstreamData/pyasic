@@ -52,9 +52,10 @@ class CGMinerAPI(BaseMinerAPI):
         except APIError:
             logging.debug(f"{self} - (Multicommand) - Handling X19 multicommand.")
             data = await self._x19_multicommand(*command.split("+"))
+        data["multicommand"] = True
         return data
 
-    async def _x19_multicommand(self, *commands):
+    async def _x19_multicommand(self, *commands) -> dict:
         data = None
         try:
             data = {}

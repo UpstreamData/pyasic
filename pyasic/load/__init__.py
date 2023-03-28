@@ -19,8 +19,8 @@ from typing import List, Union
 
 from pyasic.errors import APIError
 from pyasic.miners import AnyMiner
-from pyasic.miners.btc._backends import (  # noqa - Ignore access to _module
-    X19,
+from pyasic.miners.backends import (  # noqa - Ignore access to _module
+    AntminerModern,
     BOSMiner,
     BTMiner,
 )
@@ -103,7 +103,7 @@ class _MinerPhaseBalancer:
                     self.miners[str(miner.ip)]["tune"] = True
                     self.miners[str(miner.ip)]["shutdown"] = True
                     self.miners[str(miner.ip)]["max"] = 3600
-            elif isinstance(miner, X19):
+            elif isinstance(miner, AntminerModern):
                 self.miners[str(miner.ip)]["tune"] = False
                 self.miners[str(miner.ip)]["shutdown"] = True
                 self.miners[str(miner.ip)]["max"] = 3600

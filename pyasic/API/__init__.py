@@ -92,9 +92,7 @@ class BaseMinerAPI:
     async def send_privileged_command(self, *args, **kwargs) -> dict:
         return await self.send_command(*args, **kwargs)
 
-    async def multicommand(
-        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
@@ -103,19 +101,25 @@ class BaseMinerAPI:
             allow_warning: A boolean to supress APIWarnings.
 
         """
-        # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
-        # standard multicommand format is "command1+command2"
-        # standard format doesn't work for X19
-        command = "+".join(commands)
-        try:
-            data = await self.send_command(
-                command, allow_warning=allow_warning, ignore_errors=ignore_errors
-            )
-        except APIError:
-            return {command: [{}] for command in commands}
-        logging.debug(f"{self} - (Multicommand) - Received data")
-        return data
+        while True:
+            # make sure we can actually run each command, otherwise they will fail
+            commands = self._check_commands(*commands)
+            # standard multicommand format is "command1+command2"
+            # standard format doesn't work for X19
+            command = "+".join(commands)
+            try:
+                data = await self.send_command(command, allow_warning=allow_warning)
+            except APIError as e:
+                # try to identify the error
+                if ":" in e.message:
+                    err_command = e.message.split(":")[0]
+                    if err_command in commands:
+                        commands.remove(err_command)
+                        continue
+                return {command: [{}] for command in commands}
+            logging.debug(f"{self} - (Multicommand) - Received data")
+            data["multicommand"] = True
+            return data
 
     @property
     def commands(self) -> list:

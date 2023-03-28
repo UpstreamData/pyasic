@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.btc._backends import VNish  # noqa - Ignore access to _module
+from pyasic.miners.backends import VNish  # noqa - Ignore access to _module
 from pyasic.miners.btc._types import S19aPro  # noqa - Ignore access to _module
 
 

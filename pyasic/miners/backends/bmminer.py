@@ -14,31 +14,57 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
 import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
 import asyncssh
 
-from pyasic.API.cgminer import CGMinerAPI
+from pyasic.API.bmminer import BMMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 
+BMMINER_DATA_LOC = {
+    "mac": {"cmd": "mac", "kwargs": {}},
+    "model": {"cmd": "model", "kwargs": {"api_devdetails": {"api": "devdetails"}}},
+    "api_ver": {"cmd": "api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "fw_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "hostname": {"cmd": "hostname", "kwargs": {}},
+    "hashrate": {"cmd": "hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "nominal_hashrate",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
+    "hashboards": {"cmd": "hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "env_temp": {"cmd": "env_temp", "kwargs": {}},
+    "wattage": {"cmd": "wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "fan_psu", "kwargs": {}},
+    "errors": {"cmd": "errors", "kwargs": {}},
+    "fault_light": {"cmd": "fault_light", "kwargs": {}},
+    "pools": {"cmd": "pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
 
-class CGMiner(BaseMiner):
+
+class BMMiner(BaseMiner):
+    """Base handler for BMMiner based miners."""
+
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
-        self.ip = ipaddress.ip_address(ip)
-        self.api = CGMinerAPI(ip, api_ver)
+        # interfaces
+        self.api = BMMinerAPI(ip, api_ver)
+
+        # static data
+        self.api_type = "BMMiner"
+        # data gathering locations
+        self.data_locations = BMMINER_DATA_LOC
+
+        # data storage
         self.api_ver = api_ver
-        self.api_type = "CGMiner"
-        self.uname = "root"
-        self.pwd = "admin"
-        self.config = None
 
     async def send_ssh_command(self, cmd: str) -> Optional[str]:
         result = None
@@ -68,72 +94,26 @@ class CGMiner(BaseMiner):
         # return the result, either command output or None
         return result
 
-    async def restart_backend(self) -> bool:
-        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners._backends.cgminer.CGMiner.restart_cgminer] to standardize."""
-        return await self.restart_cgminer()
-
-    async def restart_cgminer(self) -> bool:
-        """Restart cgminer hashing process."""
-        commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
-        commands = ";".join(commands)
+    async def get_config(self) -> MinerConfig:
+        # get pool data
         try:
-            _ret = await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            if isinstance(_ret, str):
-                return True
-        return False
+            pools = await self.api.pools()
+        except APIError:
+            return self.config
+
+        self.config = MinerConfig().from_api(pools["POOLS"])
+        return self.config
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        try:
-            _ret = await self.send_ssh_command("reboot")
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            logging.debug(f"{self}: Reboot command completed.")
-            if isinstance(_ret, str):
-                return True
+        _ret = await self.send_ssh_command("reboot")
+        logging.debug(f"{self}: Reboot command completed.")
+        if isinstance(_ret, str):
+            return True
         return False
 
-    async def resume_mining(self) -> bool:
-        try:
-            commands = [
-                "mkdir -p /etc/tmp/",
-                'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
-                "crontab -u root /etc/tmp/root",
-                "/usr/bin/cgminer-monitor >/dev/null 2>&1",
-            ]
-            commands = ";".join(commands)
-            await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            return True
-
-    async def stop_mining(self) -> bool:
-        try:
-            commands = [
-                "mkdir -p /etc/tmp/",
-                'echo "" > /etc/tmp/root',
-                "crontab -u root /etc/tmp/root",
-                "killall cgminer",
-            ]
-            commands = ";".join(commands)
-            await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
-            return False
-        else:
-            return True
-
-    async def get_config(self) -> MinerConfig:
-        api_pools = await self.api.pools()
-
-        if api_pools:
-            self.config = MinerConfig().from_api(api_pools["POOLS"])
-        return self.config
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        return None
 
     async def fault_light_off(self) -> bool:
         return False
@@ -141,8 +121,14 @@ class CGMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         return False
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        return None
+    async def restart_backend(self) -> bool:
+        return False
+
+    async def stop_mining(self) -> bool:
+        return False
+
+    async def resume_mining(self) -> bool:
+        return False
 
     async def set_power_limit(self, wattage: int) -> bool:
         return False
@@ -151,43 +137,11 @@ class CGMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> Optional[str]:
-        return None
-
-    async def get_model(self, api_devdetails: dict = None) -> Optional[str]:
-        if self.model:
-            logging.debug(f"Found model for {self.ip}: {self.model}")
-            return self.model
-
-        if not api_devdetails:
-            try:
-                api_devdetails = await self.api.devdetails()
-            except APIError:
-                pass
-
-        if api_devdetails:
-            try:
-                self.model = api_devdetails["DEVDETAILS"][0]["Model"].replace(
-                    "Antminer ", ""
-                )
-                logging.debug(f"Found model for {self.ip}: {self.model}")
-                return self.model
-            except (TypeError, IndexError, KeyError):
-                pass
-
-        logging.warning(f"Failed to get model for miner: {self}")
-        return None
-
-    async def get_version(
-        self, api_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        return miner_version(
-            api_ver=await self.get_api_ver(api_version=api_version),
-            fw_ver=await self.get_fw_ver(api_version=api_version),
-        )
+    async def get_mac(self) -> str:
+        return "00:00:00:00:00:00"
 
     async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
+        # Check to see if the version info is already cached
         if self.api_ver:
             return self.api_ver
 
@@ -206,6 +160,7 @@ class CGMiner(BaseMiner):
         return self.api_ver
 
     async def get_fw_ver(self, api_version: dict = None) -> Optional[str]:
+        # Check to see if the version info is already cached
         if self.fw_ver:
             return self.fw_ver
 
@@ -217,20 +172,29 @@ class CGMiner(BaseMiner):
 
         if api_version:
             try:
-                self.fw_ver = api_version["VERSION"][0]["CGMiner"]
+                self.fw_ver = api_version["VERSION"][0]["CompileTime"]
             except (KeyError, IndexError):
                 pass
 
         return self.fw_ver
 
+    async def get_version(
+        self, api_version: dict = None
+    ) -> Tuple[Optional[str], Optional[str]]:
+        # check if version is cached
+        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
+        return miner_version(
+            api_ver=await self.get_api_ver(api_version),
+            fw_ver=await self.get_fw_ver(api_version=api_version),
+        )
+
+    async def get_fan_psu(self):
+        return None
+
     async def get_hostname(self) -> Optional[str]:
-        try:
-            hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        except (asyncssh.Error, OSError):
-            return None
+        hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
         if hn:
-            self.hostname = hn
-        return self.hostname
+            return hn
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
@@ -242,9 +206,7 @@ class CGMiner(BaseMiner):
 
         if api_summary:
             try:
-                return round(
-                    float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
-                )
+                return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
@@ -316,7 +278,7 @@ class CGMiner(BaseMiner):
             except APIError:
                 pass
 
-        fans_data = [Fan(), Fan(), Fan(), Fan()]
+        fans_data = [None, None, None, None]
         if api_stats:
             try:
                 fan_offset = -1
@@ -330,15 +292,12 @@ class CGMiner(BaseMiner):
                     fan_offset = 1
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = Fan(
-                        api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
-                    )
+                    fans_data[fan] = api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
             except (KeyError, IndexError):
                 pass
-        return fans_data
+        fans = [Fan(speed=d) if d else Fan() for d in fans_data]
 
-    async def get_fan_psu(self) -> Optional[int]:
-        return None
+        return fans
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
         groups = []

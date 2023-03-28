@@ -22,13 +22,37 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.btc._backends import CGMiner
+from pyasic.miners.backends import CGMiner
+
+AVALON_DATA_LOC = {
+    "mac": {"cmd": "get_mac", "kwargs": {"api_version": {"api": "version"}}},
+    "model": {"cmd": "get_model", "kwargs": {}},
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"web": "mac"}}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "nominal_hashrate": {
+        "cmd": "get_nominal_hashrate",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+}
 
 
 class CGMinerAvalon(CGMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
-        self.ip = ip
+
+        # data gathering locations
+        self.data_locations = AVALON_DATA_LOC
 
     async def fault_light_on(self) -> bool:
         try:

@@ -14,9 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.hns._backends import X3  # noqa - Ignore access to _module
+from pyasic.miners.backends import AntminerModern
 from pyasic.miners.hns._types import HS3  # noqa - Ignore access to _module
 
 
-class CGMinerHS3(X3, HS3):
-    pass
+class CGMinerHS3(AntminerModern, HS3):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_shutdown = False

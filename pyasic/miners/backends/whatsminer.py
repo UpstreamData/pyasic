@@ -13,16 +13,20 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-import ipaddress
-
-from pyasic.miners.btc._backends import BMMiner
+from pyasic.miners.backends.btminer import BTMiner
 
 
-class Hiveon(BMMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+class M5X(BTMiner):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.ip = ipaddress.ip_address(ip)
-        self.api_type = "Hiveon"
-        self.uname = "root"
-        self.pwd = "admin"
+        self.supports_autotuning = True
+
+
+class M3X(BTMiner):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_autotuning = True
+
+
+class M2X(BTMiner):
+    pass

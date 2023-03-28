@@ -14,9 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.dcr._backends import X5  # noqa - Ignore access to _module
+from pyasic.miners.backends import AntminerOld
 from pyasic.miners.dcr._types import DR5  # noqa - Ignore access to _module
 
 
-class CGMinerDR5(X5, DR5):
-    pass
+class CGMinerDR5(AntminerOld, DR5):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_shutdown = False
