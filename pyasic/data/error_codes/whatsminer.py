@@ -16,7 +16,7 @@
 
 from dataclasses import asdict, dataclass, field, fields
 
-C_N_CODES = ["52", "53", "54", "55"]
+C_N_CODES = ["52", "53", "54", "55", "56"]
 
 
 @dataclass
@@ -264,6 +264,7 @@ ERROR_CODES = {
     53: {"n": {"c": "Slot {n} chip {c} too few nonce."}},
     54: {"n": {"c": "Slot {n} chip {c} temp protected."}},
     55: {"n": {"c": "Slot {n} chip {c} has been reset."}},
+    56: {"n": {"c": "Slot {n} chip {c} does not return to the nonce."}},
     80: {
         0: {0: "The tool version is too low, please update."},
         1: {0: "Low freq."},
