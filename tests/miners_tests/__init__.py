@@ -34,7 +34,7 @@ class MinersTest(unittest.TestCase):
                     miner_model=miner_model,
                     miner_api=miner_api,
                 ):
-                    miner = MINER_CLASSES[miner_model][miner_api]("0.0.0.0")
+                    miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
                     self.assertTrue(
                         isinstance(miner, MINER_CLASSES[miner_model][miner_api])
                     )
@@ -53,7 +53,7 @@ class MinersTest(unittest.TestCase):
         for backend in backends:
             miner_class = backend[1]
             with self.subTest(miner_class=miner_class):
-                miner = miner_class("0.0.0.0")
+                miner = miner_class("127.0.0.1")
                 self.assertTrue(isinstance(miner, miner_class))
 
     def test_miner_type_creation_failure(self):
@@ -72,9 +72,9 @@ class MinersTest(unittest.TestCase):
             miner_class = backend[1]
             with self.subTest(miner_class=miner_class):
                 with self.assertRaises(TypeError):
-                    miner_class("0.0.0.0")
+                    miner_class("127.0.0.1")
         with self.assertRaises(TypeError):
-            BaseMiner("0.0.0.0")
+            BaseMiner("127.0.0.1")
 
     def test_miner_comparisons(self):
         miner_1 = CGMiner("1.1.1.1")
@@ -110,25 +110,25 @@ class MinerFactoryTest(unittest.TestCase):
         for miner_model in MINER_CLASSES.keys():
             with self.subTest():
                 miner = MinerFactory()._select_miner_from_classes(
-                    "0.0.0.0", miner_model, None, None
+                    "127.0.0.1", miner_model, None, None
                 )
                 self.assertIsInstance(miner, BaseMiner)
         for api in ["BOSMiner+", "BOSMiner", "CGMiner", "BTMiner", "BMMiner"]:
             with self.subTest():
                 miner = MinerFactory()._select_miner_from_classes(
-                    "0.0.0.0", None, api, None
+                    "127.0.0.1", None, api, None
                 )
                 self.assertIsInstance(miner, BaseMiner)
 
         with self.subTest():
             miner = MinerFactory()._select_miner_from_classes(
-                "0.0.0.0", "ANTMINER S17+", "Fake API", None
+                "127.0.0.1", "ANTMINER S17+", "Fake API", None
             )
             self.assertIsInstance(miner, BaseMiner)
 
         with self.subTest():
             miner = MinerFactory()._select_miner_from_classes(
-                "0.0.0.0", "M30S", "BTMiner", "G20"
+                "127.0.0.1", "M30S", "BTMiner", "G20"
             )
             self.assertIsInstance(miner, BaseMiner)
 
