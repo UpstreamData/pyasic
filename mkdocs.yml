@@ -1,54 +1,54 @@
 site_name: pyasic
 repo_url: https://github.com/UpstreamData/pyasic
 nav:
-  - Introduction: "index.md"
-  - Miners:
-      - Supported Miners: "miners/supported_types.md"
-      - Miner Factory: "miners/miner_factory.md"
-      - Backends:
-          - BMMiner: "miners/backends/bmminer.md"
-          - BOSMiner: "miners/backends/bosminer.md"
-          - BFGMiner: "miners/backends/bfgminer.md"
-          - BTMiner: "miners/backends/btminer.md"
-          - CGMiner: "miners/backends/cgminer.md"
-          - Hiveon: "miners/backends/hiveon.md"
-      - Classes:
-          - Antminer X3: "miners/antminer/X3.md"
-          - Antminer X5: "miners/antminer/X5.md"
-          - Antminer X7: "miners/antminer/X7.md"
-          - Antminer X9: "miners/antminer/X9.md"
-          - Antminer X15: "miners/antminer/X15.md"
-          - Antminer X17: "miners/antminer/X17.md"
-          - Antminer X19: "miners/antminer/X19.md"
-          - Avalon 7X: "miners/avalonminer/A7X.md"
-          - Avalon 8X: "miners/avalonminer/A8X.md"
-          - Avalon 9X: "miners/avalonminer/A9X.md"
-          - Avalon 10X: "miners/avalonminer/A10X.md"
-          - Whatsminer M2X: "miners/whatsminer/M2X.md"
-          - Whatsminer M3X: "miners/whatsminer/M3X.md"
-          - Whatsminer M5X: "miners/whatsminer/M5X.md"
-          - Innosilicon T3X: "miners/innosilicon/T3X.md"
-          - Innosilicon A10X: "miners/innosilicon/A10X.md"
-          - Goldshell CKX: "miners/goldshell/CKX.md"
-          - Goldshell HSX: "miners/goldshell/HSX.md"
-          - Goldshell KDX: "miners/goldshell/KDX.md"
-  - Network:
-      - Miner Network: "network/miner_network.md"
-      - Miner Network Range: "network/miner_network_range.md"
-  - Dataclasses:
-      - Miner Data: "data/miner_data.md"
-      - Error Codes: "data/error_codes.md"
-      - Miner Config: "config/miner_config.md"
-  - Advanced:
-      - Miner APIs:
-          - Intro: "API/api.md"
-          - BMMiner: "API/bmminer.md"
-          - BOSMiner: "API/bosminer.md"
-          - BTMiner: "API/btminer.md"
-          - CGMiner: "API/cgminer.md"
-          - Unknown: "API/unknown.md"
-
-      - Base Miner: "miners/base_miner.md"
+- Introduction: "index.md"
+- Miners:
+    - Supported Miners: "miners/supported_types.md"
+    - Miner Factory: "miners/miner_factory.md"
+- Network:
+    - Miner Network: "network/miner_network.md"
+    - Miner Network Range: "network/miner_network_range.md"
+- Dataclasses:
+    - Miner Data: "data/miner_data.md"
+    - Error Codes: "data/error_codes.md"
+    - Miner Config: "config/miner_config.md"
+- Advanced:
+    - Miner APIs:
+        - Intro: "API/api.md"
+        - BFGMiner: "API/bfgminer.md"
+        - BMMiner: "API/bmminer.md"
+        - BOSMiner: "API/bosminer.md"
+        - BTMiner: "API/btminer.md"
+        - CGMiner: "API/cgminer.md"
+        - Unknown: "API/unknown.md"
+    - Backends:
+        - BMMiner: "miners/backends/bmminer.md"
+        - BOSMiner: "miners/backends/bosminer.md"
+        - BFGMiner: "miners/backends/bfgminer.md"
+        - BTMiner: "miners/backends/btminer.md"
+        - CGMiner: "miners/backends/cgminer.md"
+        - Hiveon: "miners/backends/hiveon.md"
+    - Classes:
+        - Antminer X3: "miners/antminer/X3.md"
+        - Antminer X5: "miners/antminer/X5.md"
+        - Antminer X7: "miners/antminer/X7.md"
+        - Antminer X9: "miners/antminer/X9.md"
+        - Antminer X15: "miners/antminer/X15.md"
+        - Antminer X17: "miners/antminer/X17.md"
+        - Antminer X19: "miners/antminer/X19.md"
+        - Avalon 7X: "miners/avalonminer/A7X.md"
+        - Avalon 8X: "miners/avalonminer/A8X.md"
+        - Avalon 9X: "miners/avalonminer/A9X.md"
+        - Avalon 10X: "miners/avalonminer/A10X.md"
+        - Whatsminer M2X: "miners/whatsminer/M2X.md"
+        - Whatsminer M3X: "miners/whatsminer/M3X.md"
+        - Whatsminer M5X: "miners/whatsminer/M5X.md"
+        - Innosilicon T3X: "miners/innosilicon/T3X.md"
+        - Innosilicon A10X: "miners/innosilicon/A10X.md"
+        - Goldshell CKX: "miners/goldshell/CKX.md"
+        - Goldshell HSX: "miners/goldshell/HSX.md"
+        - Goldshell KDX: "miners/goldshell/KDX.md"
+    - Base Miner: "miners/base_miner.md"
 
 
 plugins:

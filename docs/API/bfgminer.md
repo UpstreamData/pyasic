@@ -1,7 +1,6 @@
 # pyasic
-## BFGMiner Backend
-
-::: pyasic.miners.backends.bfgminer.BFGMiner
+## BFGMinerAPI
+::: pyasic.API.bfgminer.BFGMinerAPI
     handler: python
     options:
         show_root_heading: false

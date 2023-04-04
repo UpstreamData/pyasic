@@ -10,6 +10,7 @@ All API implementations inherit from [`BaseMinerAPI`][pyasic.API.BaseMinerAPI], 
 [`BaseMinerAPI`][pyasic.API.BaseMinerAPI] cannot be instantiated directly, it will raise a `TypeError`.
 Use these instead -
 
+#### [BFGMiner API][pyasic.API.bfgminer.BFGMinerAPI]
 #### [BMMiner API][pyasic.API.bmminer.BMMinerAPI]
 #### [BOSMiner API][pyasic.API.bosminer.BOSMinerAPI]
 #### [BTMiner API][pyasic.API.btminer.BTMinerAPI]

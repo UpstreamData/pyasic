@@ -560,7 +560,7 @@ MINER_CLASSES = {
 
 
 class MinerFactory(metaclass=Singleton):
-    """A factory to handle identification and selection of the proper class of miner"""
+    """A factory to handle identification and selection of the proper class of miner."""
 
     def __init__(self) -> None:
         self.miners = {}

@@ -42,20 +42,26 @@ if __name__ == "__main__":
 <br>
 
 ## Creating miners based on IP
-If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners.
-The function [`MinerFactory().get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
+If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners, or an abstraction of its functionality, [`get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner].
+The function [`get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
 ```python
 import asyncio  # asyncio for handling the async part
-from pyasic.miners.miner_factory import MinerFactory  # miner factory handles miners creation
+from pyasic import get_miner # handles miner creation
 
 
 async def get_miners():  # define async scan function to allow awaiting
-    # get the miner with miner factory
-    # miner factory is a singleton, and will always use the same object and cache
-    # this means you can always call it as MinerFactory().get_miner()
-    miner_1 = await MinerFactory().get_miner("192.168.1.75")
-    miner_2 = await MinerFactory().get_miner("192.168.1.76")
+    # get the miner with the miner factory
+    # the miner factory is a singleton, and will always use the same object and cache
+    # this means you can always call it as MinerFactory().get_miner(), or just get_miner()
+    miner_1 = await get_miner("192.168.1.75")
+    miner_2 = await get_miner("192.168.1.76")
     print(miner_1, miner_2)
+
+    # can also gather these, since they are async
+    tasks = [get_miner("192.168.1.75"), get_miner("192.168.1.76")]
+    miners = await asyncio.gather(*tasks)
+    print(miners)
+
 
 if __name__ == "__main__":
     asyncio.run(get_miners())  # get the miners asynchronously with asyncio.run()
@@ -66,7 +72,7 @@ if __name__ == "__main__":
 ## Getting data from miners
 
 Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built in function in each miner called `get_data()`.
-This function will return a instance of the dataclass [`MinerData`][pyasic.data.MinerData] with all data it can gather from the miner.
+This function will return an instance of the dataclass [`MinerData`][pyasic.data.MinerData] with all data it can gather from the miner.
 Each piece of data in a [`MinerData`][pyasic.data.MinerData] instance can be referenced by getting it as an attribute, such as [`MinerData().hashrate`][pyasic.data.MinerData].
 ```python
 import asyncio
