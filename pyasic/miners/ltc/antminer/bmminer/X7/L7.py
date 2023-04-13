@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
 from pyasic.miners.backends import AntminerModern
 from pyasic.miners.ltc._types import L7  # noqa - Ignore access to _module
 

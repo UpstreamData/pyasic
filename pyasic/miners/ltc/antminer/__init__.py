@@ -14,3 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .bmminer import *
+from .vnish import *

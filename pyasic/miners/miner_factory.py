@@ -54,6 +54,11 @@ MINER_CLASSES = {
         "Default": CGMinerHS3,
         "CGMiner": CGMinerHS3,
     },
+    "ANTMINER L3+": {
+        "Default": BMMinerL3Plus,
+        "BMMiner": BMMinerL3Plus,
+        "VNish": VnishL3Plus,
+    },
     "ANTMINER L7": {
         "Default": BMMinerL7,
         "BMMiner": BMMinerL7,
@@ -632,9 +637,6 @@ class MinerFactory(metaclass=Singleton):
                 logging.warning(f"{ip}: Get Miner Timed Out")
         miner = self._select_miner_from_classes(ip, model, api, ver, api_ver)
 
-        # once we have the miner, get the api and firmware version
-        # await miner.get_version()
-
         # save the miner to the cache at its IP if its not unknown
         if not isinstance(miner, UnknownMiner):
             self.miners[ip] = miner
@@ -700,6 +702,7 @@ class MinerFactory(metaclass=Singleton):
 
         try:
             devdetails, version = await self.__get_devdetails_and_version(ip)
+            print(devdetails, version)
         except APIError as e:
             # catch APIError and let the factory know we cant get data
             logging.warning(f"{ip}: API Command Error: {e}")
@@ -842,10 +845,17 @@ class MinerFactory(metaclass=Singleton):
         if version and not model:
             try:
                 model = version["VERSION"][0]["Type"].upper()
+                print(model)
                 if "ANTMINER BHB" in model:
                     # def antminer, get from web
                     sysinfo = await self.__get_system_info_from_web(str(ip))
                     model = sysinfo["minertype"].upper()
+                if "VNISH" in model:
+                    api = "VNish"
+                for split_point in [" BB", " XILINX", " (VNISH"]:
+                    if split_point in model:
+                        model = model.split(split_point)[0]
+
             except KeyError:
                 pass
 

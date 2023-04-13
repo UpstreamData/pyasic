@@ -13,5 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X3 import *
-from .X7 import *
+
+from pyasic.miners.backends import AntminerOld
+from pyasic.miners.ltc._types import L3Plus  # noqa - Ignore access to _module
+
+
+class BMMinerL3Plus(AntminerOld, L3Plus):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)

@@ -28,25 +28,25 @@ from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 
 BMMINER_DATA_LOC = {
-    "mac": {"cmd": "mac", "kwargs": {}},
-    "model": {"cmd": "model", "kwargs": {"api_devdetails": {"api": "devdetails"}}},
-    "api_ver": {"cmd": "api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {"cmd": "fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {"cmd": "hostname", "kwargs": {}},
-    "hashrate": {"cmd": "hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "mac": {"cmd": "get_mac", "kwargs": {}},
+    "model": {"cmd": "get_model", "kwargs": {"api_devdetails": {"api": "devdetails"}}},
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
     "nominal_hashrate": {
-        "cmd": "nominal_hashrate",
+        "cmd": "get_nominal_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
-    "hashboards": {"cmd": "hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
-    "env_temp": {"cmd": "env_temp", "kwargs": {}},
-    "wattage": {"cmd": "wattage", "kwargs": {}},
-    "wattage_limit": {"cmd": "wattage_limit", "kwargs": {}},
-    "fans": {"cmd": "fans", "kwargs": {"api_stats": {"api": "stats"}}},
-    "fan_psu": {"cmd": "fan_psu", "kwargs": {}},
-    "errors": {"cmd": "errors", "kwargs": {}},
-    "fault_light": {"cmd": "fault_light", "kwargs": {}},
-    "pools": {"cmd": "pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
+    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
 }
 
 

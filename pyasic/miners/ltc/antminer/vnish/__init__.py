@@ -14,4 +14,3 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .X3 import *
-from .X7 import *
