@@ -24,6 +24,7 @@ class M33SPlusPlusVH20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M33S++ VH20"
+        self.ideal_hashboards = 4
         self.nominal_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M30S++ VH20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
@@ -36,6 +37,7 @@ class M33SPlusPlusVH30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M33S++ VH30"
+        self.ideal_hashboards = 4
         self.nominal_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M30S++ VH30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
@@ -48,6 +50,7 @@ class M33SPlusPlusVG40(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M33S++ VG40"
+        self.ideal_hashboards = 4
         self.nominal_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M30S++ VG40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
