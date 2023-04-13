@@ -13,13 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+
 from pyasic.miners.makes import AntMiner
 
 
-class L3Plus(AntMiner):  # noqa - ignore ABC method implementation
+class D3(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "L3+"
-        self.nominal_chips = 72
+        self.model = "D3"
+        self.nominal_chips = 60
+        self.ideal_hashboards = 3
         self.fan_count = 2

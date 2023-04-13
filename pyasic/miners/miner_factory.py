@@ -36,6 +36,7 @@ from pyasic.miners.base import AnyMiner
 from pyasic.miners.btc import *
 from pyasic.miners.ckb import *
 from pyasic.miners.dcr import *
+from pyasic.miners.dsh import *
 from pyasic.miners.etc import *
 from pyasic.miners.hns import *
 from pyasic.miners.kda import *
@@ -49,6 +50,10 @@ MINER_CLASSES = {
     "ANTMINER DR5": {
         "Default": CGMinerDR5,
         "CGMiner": CGMinerDR5,
+    },
+    "ANTMINER D3": {
+        "Default": CGMinerD3,
+        "CGMiner": CGMinerD3,
     },
     "ANTMINER HS3": {
         "Default": CGMinerHS3,
@@ -702,7 +707,6 @@ class MinerFactory(metaclass=Singleton):
 
         try:
             devdetails, version = await self.__get_devdetails_and_version(ip)
-            print(devdetails, version)
         except APIError as e:
             # catch APIError and let the factory know we cant get data
             logging.warning(f"{ip}: API Command Error: {e}")
@@ -845,7 +849,6 @@ class MinerFactory(metaclass=Singleton):
         if version and not model:
             try:
                 model = version["VERSION"][0]["Type"].upper()
-                print(model)
                 if "ANTMINER BHB" in model:
                     # def antminer, get from web
                     sysinfo = await self.__get_system_info_from_web(str(ip))

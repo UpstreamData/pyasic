@@ -13,13 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import AntMiner
+
+from pyasic.miners.backends import AntminerOld
+from pyasic.miners.dsh._types import D3  # noqa - Ignore access to _module
 
 
-class L3Plus(AntMiner):  # noqa - ignore ABC method implementation
+class CGMinerD3(AntminerOld, D3):
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "L3+"
-        self.nominal_chips = 72
-        self.fan_count = 2
+        self.supports_shutdown = False
