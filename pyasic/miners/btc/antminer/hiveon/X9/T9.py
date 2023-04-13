@@ -69,7 +69,6 @@ class HiveonT9(Hiveon, T9):
                 try:
                     hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
                     chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
-                    print(chips)
                 except (KeyError, IndexError):
                     pass
             hashboard.hashrate = round(hashrate / 1000, 2)

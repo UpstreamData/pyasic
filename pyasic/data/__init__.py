@@ -116,7 +116,8 @@ class MinerData:
     api_ver: str = "Unknown"
     fw_ver: str = "Unknown"
     hostname: str = "Unknown"
-    hashrate: float = 0
+    hashrate: float = field(init=False)
+    _hashrate: float = field(init=False)
     nominal_hashrate: float = 0
     hashboards: List[HashBoard] = field(default_factory=list)
     ideal_hashboards: int = 1
@@ -212,6 +213,16 @@ class MinerData:
             if isinstance(item, bool):
                 setattr(cp, key, item & other_item)
         return cp
+
+    @property
+    def hashrate(self):  # noqa - Skip PyCharm inspection
+        if len(self.hashboards) > 0:
+            return round(sum(map(lambda x: x.hashrate, self.hashboards)), 2)
+        return self._hashrate
+
+    @hashrate.setter
+    def hashrate(self, val):
+        self._hashrate = val
 
     @property
     def fan_1(self):  # noqa - Skip PyCharm inspection
