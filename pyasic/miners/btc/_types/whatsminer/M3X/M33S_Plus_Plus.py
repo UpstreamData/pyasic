@@ -25,10 +25,7 @@ class M33SPlusPlusVH20(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M33S++ VH20"
         self.ideal_hashboards = 4
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M30S++ VH20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 112
         self.fan_count = 0
 
 
