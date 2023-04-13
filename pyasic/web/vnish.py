@@ -98,6 +98,8 @@ class VNishWebAPI(BaseWebAPI):
                     pass
                 except json.JSONDecodeError:
                     pass
+                except AttributeError:
+                    pass
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
