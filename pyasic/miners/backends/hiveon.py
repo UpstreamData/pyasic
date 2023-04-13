@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Optional
+
 from pyasic.miners.backends import BMMiner
 
 
@@ -22,3 +24,6 @@ class Hiveon(BMMiner):
         super().__init__(ip, api_ver)
         # static data
         self.api_type = "Hiveon"
+
+    async def get_model(self) -> Optional[str]:
+        return self.model + " (Hiveon)"

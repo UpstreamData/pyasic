@@ -42,7 +42,7 @@ class HiveonT9(Hiveon, T9):
                 .upper()
             )
             return mac
-        except (TypeError, ValueError, asyncssh.Error, OSError):
+        except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
@@ -62,13 +62,17 @@ class HiveonT9(Hiveon, T9):
                     try:
                         hashboard.board_temp = api_stats["STATS"][1][f"temp{chipset}"]
                         hashboard.chip_temp = api_stats["STATS"][1][f"temp2_{chipset}"]
-                        hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
-                        chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
                     except (KeyError, IndexError):
                         pass
                     else:
                         hashboard.missing = False
-            hashboard.hashrate = hashrate
+                try:
+                    hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
+                    chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
+                    print(chips)
+                except (KeyError, IndexError):
+                    pass
+            hashboard.hashrate = round(hashrate / 1000, 2)
             hashboard.chips = chips
             hashboards.append(hashboard)
 

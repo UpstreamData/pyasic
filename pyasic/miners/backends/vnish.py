@@ -58,8 +58,8 @@ class VNish(BMMiner):
         # data gathering locations
         self.data_locations = VNISH_DATA_LOC
 
-    async def get_model(self, api_stats: dict = None) -> Optional[str]:
-        return self.model + "(VNISH)"
+    async def get_model(self) -> Optional[str]:
+        return self.model + " (VNISH)"
 
     async def restart_backend(self) -> bool:
         data = await self.web.restart_vnish()

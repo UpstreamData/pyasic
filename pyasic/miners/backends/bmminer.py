@@ -29,7 +29,7 @@ from pyasic.miners.base import BaseMiner
 
 BMMINER_DATA_LOC = {
     "mac": {"cmd": "get_mac", "kwargs": {}},
-    "model": {"cmd": "get_model", "kwargs": {"api_devdetails": {"api": "devdetails"}}},
+    "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {}},
