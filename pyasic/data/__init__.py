@@ -117,7 +117,7 @@ class MinerData:
     fw_ver: str = "Unknown"
     hostname: str = "Unknown"
     hashrate: float = field(init=False)
-    _hashrate: float = field(init=False)
+    _hashrate: float = 0
     nominal_hashrate: float = 0
     hashboards: List[HashBoard] = field(default_factory=list)
     ideal_hashboards: int = 1
