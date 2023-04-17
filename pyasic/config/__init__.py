@@ -638,6 +638,13 @@ class MinerConfig:
             cfg["hash_chain_global"] = {}
             cfg["hash_chain_global"]["asic_boost"] = self.asicboost
 
+        if self.minimum_fans is not None or self.fan_speed is not None:
+            cfg["fan_control"] = {}
+            if self.minimum_fans is not None:
+                cfg["fan_control"]["min_fans"] = self.minimum_fans
+            if self.fan_speed is not None:
+                cfg["fan_control"]["speed"] = self.fan_speed
+
         if any(
             [
                 getattr(self, item)
