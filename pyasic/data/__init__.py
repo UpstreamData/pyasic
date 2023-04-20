@@ -96,7 +96,9 @@ class MinerData:
         right_chips: The number of chips online in the left board as an int.
         total_chips: The total number of chips on all boards.  Calculated automatically.
         ideal_chips: The ideal number of chips in the miner as an int.
-        percent_ideal: The percent of total chips out of the ideal count.  Calculated automatically.
+        percent_ideal_chips: The percent of total chips out of the ideal count.  Calculated automatically.
+        percent_ideal_hashrate: The percent of total hashrate out of the ideal hashrate.  Calculated automatically.
+        percent_ideal_wattage: The percent of total wattage out of the ideal wattage.  Calculated automatically.
         nominal: Whether the number of chips in the miner is nominal.  Calculated automatically.
         pool_split: The pool split as a str.
         pool_1_url: The first pool url on the miner as a str.
@@ -145,7 +147,9 @@ class MinerData:
     right_chips: int = field(init=False)
     total_chips: int = field(init=False)
     ideal_chips: int = 1
-    percent_ideal: float = field(init=False)
+    percent_ideal_chips: float = field(init=False)
+    percent_ideal_hashrate: float = field(init=False)
+    percent_ideal_wattage: float = field(init=False)
     nominal: int = field(init=False)
     pool_split: str = "0"
     pool_1_url: str = "Unknown"
@@ -422,13 +426,33 @@ class MinerData:
         pass
 
     @property
-    def percent_ideal(self):  # noqa - Skip PyCharm inspection
+    def percent_ideal_chips(self):  # noqa - Skip PyCharm inspection
         if self.total_chips == 0 or self.ideal_chips == 0:
             return 0
         return round((self.total_chips / self.ideal_chips) * 100)
 
-    @percent_ideal.setter
-    def percent_ideal(self, val):
+    @percent_ideal_chips.setter
+    def percent_ideal_chips(self, val):
+        pass
+
+    @property
+    def percent_ideal_hashrate(self):  # noqa - Skip PyCharm inspection
+        if self.hashrate == 0 or self.nominal_hashrate == 0:
+            return 0
+        return round((self.hashrate / self.nominal_hashrate) * 100)
+
+    @percent_ideal_hashrate.setter
+    def percent_ideal_hashrate(self, val):
+        pass
+
+    @property
+    def percent_ideal_wattage(self):  # noqa - Skip PyCharm inspection
+        if self.wattage_limit == 0 or self.wattage == 0:
+            return 0
+        return round((self.wattage / self.wattage_limit) * 100)
+
+    @percent_ideal_wattage.setter
+    def percent_ideal_wattage(self, val):
         pass
 
     @property
