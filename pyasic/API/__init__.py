@@ -46,6 +46,7 @@ class BaseMinerAPI:
         parameters: Union[str, int, bool] = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
+        **kwargs
     ) -> dict:
         """Send an API command to the miner and return the result.
 
@@ -65,7 +66,7 @@ class BaseMinerAPI:
             else ""
         )
         # create the command
-        cmd = {"command": command}
+        cmd = {"command": command, **kwargs}
         if parameters:
             cmd["parameter"] = parameters
 
