@@ -549,15 +549,19 @@ class MinerConfig:
         cfg = {
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
-            "bitmain-fan-pwn": 100,
-            "miner-mode": self.miner_mode.value,
+            "bitmain-fan-pwn": "100",
+            "miner-mode": str(self.miner_mode.value),
+            "freq-level": "100"
         }
 
         if not self.temp_mode == "auto":
             cfg["bitmain-fan-ctrl"] = True
 
         if self.fan_speed:
-            cfg["bitmain-fan-ctrl"] = str(self.fan_speed)
+            cfg["bitmain-fan-pwn"] = str(self.fan_speed)
+
+        if self.miner_mode == X19PowerMode.Sleep:
+            cfg["freq-level"] = "0"
 
         return cfg
 

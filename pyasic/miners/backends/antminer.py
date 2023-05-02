@@ -69,7 +69,11 @@ class AntminerModern(BMMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
         conf = config.as_x19(user_suffix=user_suffix)
-        await self.web.set_miner_conf(conf)
+        data = await self.web.set_miner_conf(conf)
+
+        if data:
+            if data.get("code") == "M000":
+                return
 
         for i in range(7):
             data = await self.get_config()

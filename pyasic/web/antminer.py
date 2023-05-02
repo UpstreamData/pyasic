@@ -40,7 +40,7 @@ class AntminerModernWebAPI(BaseWebAPI):
             async with httpx.AsyncClient() as client:
                 if parameters:
                     data = await client.post(
-                        url, data=json.dumps(parameters), auth=auth  # noqa
+                        url, data=json.dumps(parameters), auth=auth, timeout=15  # noqa
                     )
                 else:
                     data = await client.get(url, auth=auth)
@@ -138,7 +138,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         try:
             async with httpx.AsyncClient() as client:
                 if parameters:
-                    data = await client.post(url, data=parameters, auth=auth)
+                    data = await client.post(url, data=parameters, auth=auth, timeout=15)
                 else:
                     data = await client.get(url, auth=auth)
         except httpx.HTTPError:
