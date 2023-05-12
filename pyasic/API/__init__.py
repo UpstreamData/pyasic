@@ -182,7 +182,10 @@ If you are sure you want to use this command please use API.send_command("{comma
         writer.write(data)
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
         await writer.drain()
-        ret_data = await asyncio.wait_for(reader.read(4096), timeout=timeout)
+        try:
+            ret_data = await asyncio.wait_for(reader.read(4096), timeout=timeout)
+        except ConnectionAbortedError:
+            return b"{}"
         try:
             # Fix for stupid whatsminer bug, reboot/restart seem to not load properly in the loop
             # have to receive, save the data, check if there is more data by reading with a short timeout
