@@ -34,7 +34,7 @@ class BOSMinerOld(BOSMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             return None
 
         # open an ssh connection

@@ -71,7 +71,7 @@ class BMMiner(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             return None
 
         # open an ssh connection
@@ -106,11 +106,11 @@ class BMMiner(BaseMiner):
 
     async def reboot(self) -> bool:
         logging.debug(f"{self}: Sending reboot command.")
-        _ret = await self.send_ssh_command("reboot")
+        ret = await self.send_ssh_command("reboot")
         logging.debug(f"{self}: Reboot command completed.")
-        if isinstance(_ret, str):
-            return True
-        return False
+        if ret is None:
+            return False
+        return True
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         return None
@@ -193,8 +193,7 @@ class BMMiner(BaseMiner):
 
     async def get_hostname(self) -> Optional[str]:
         hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        if hn:
-            return hn
+        return hn
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API

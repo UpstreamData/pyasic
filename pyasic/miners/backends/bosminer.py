@@ -194,7 +194,7 @@ class BOSMiner(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             return None
 
         # open an ssh connection
@@ -224,9 +224,9 @@ class BOSMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
-        _ret = await self.send_ssh_command("miner fault_light on")
+        ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
-        if isinstance(_ret, str):
+        if isinstance(ret, str):
             self.light = True
             return self.light
         return False
@@ -235,9 +235,9 @@ class BOSMiner(BaseMiner):
         """Sends command to turn off fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light off command.")
         self.light = False
-        _ret = await self.send_ssh_command("miner fault_light off")
+        ret = await self.send_ssh_command("miner fault_light off")
         logging.debug(f"{self}: fault_light off command completed.")
-        if isinstance(_ret, str):
+        if isinstance(ret, str):
             self.light = False
             return True
         return False
@@ -249,9 +249,9 @@ class BOSMiner(BaseMiner):
     async def restart_bosminer(self) -> bool:
         """Restart bosminer hashing process."""
         logging.debug(f"{self}: Sending bosminer restart command.")
-        _ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
+        ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
         logging.debug(f"{self}: bosminer restart command completed.")
-        if isinstance(_ret, str):
+        if isinstance(ret, str):
             return True
         return False
 
@@ -278,9 +278,9 @@ class BOSMiner(BaseMiner):
     async def reboot(self) -> bool:
         """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        _ret = await self.send_ssh_command("/sbin/reboot")
+        ret = await self.send_ssh_command("/sbin/reboot")
         logging.debug(f"{self}: Reboot command completed.")
-        if isinstance(_ret, str):
+        if isinstance(ret, str):
             return True
         return False
 
@@ -294,7 +294,7 @@ class BOSMiner(BaseMiner):
         conn = None
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             try:
                 pools = await self.api.pools()
             except APIError:
@@ -322,7 +322,7 @@ class BOSMiner(BaseMiner):
         )
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             return None
         async with conn:
             # BBB check because bitmain suxx
@@ -366,12 +366,9 @@ class BOSMiner(BaseMiner):
     ##################################################
 
     async def get_mac(self) -> Optional[str]:
-        try:
-            result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
-            if result:
-                return result.upper().strip()
-        except (asyncssh.Error, OSError):
-            pass
+        result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
+        if result:
+            return result.upper().strip()
 
     async def get_model(self) -> Optional[str]:
         return self.model + " (BOS)"
@@ -425,7 +422,7 @@ class BOSMiner(BaseMiner):
             fw_ver = await self.send_ssh_command("cat /etc/bos_version")
 
         # if we get the version data, parse it
-        if fw_ver:
+        if fw_ver is not None:
             ver = fw_ver.split("-")[5]
             if "." in ver:
                 self.fw_ver = ver
@@ -954,15 +951,12 @@ class BOSMiner(BaseMiner):
                 pass
 
         # get light via ssh if that fails (10x slower)
-        try:
-            data = (
-                await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
-            ).strip()
-            self.light = False
-            if data == "50":
-                self.light = True
-        except Exception as e:
-            logging.debug(f"SSH command failed - Fault Light - {e}")
+        data = (
+            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+        ).strip()
+        self.light = False
+        if data == "50":
+            self.light = True
         return self.light
 
     async def get_nominal_hashrate(self, api_devs: dict = None) -> Optional[float]:

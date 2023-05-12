@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import inspect
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
@@ -25,7 +24,6 @@ import asyncssh
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
-from pyasic.errors import APIError
 
 
 class BaseMiner(ABC):
@@ -95,12 +93,12 @@ class BaseMiner(ABC):
                 )
                 return conn
             except Exception as e:
-                raise e
+                raise ConnectionError from e
         except OSError as e:
             logging.warning(f"Connection refused: {self}")
-            raise e
+            raise ConnectionError from e
         except Exception as e:
-            raise e
+            raise ConnectionError from e
 
     async def check_light(self) -> bool:
         return await self.get_fault_light()

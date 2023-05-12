@@ -69,7 +69,7 @@ class CGMiner(BaseMiner):
 
         try:
             conn = await self._get_ssh_connection()
-        except (asyncssh.Error, OSError):
+        except ConnectionError:
             return None
 
         # open an ssh connection
@@ -100,57 +100,44 @@ class CGMiner(BaseMiner):
         """Restart cgminer hashing process."""
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
-        try:
-            _ret = await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
+        ret = await self.send_ssh_command(commands)
+        if ret is None:
             return False
-        else:
-            if isinstance(_ret, str):
-                return True
-        return False
+        return True
 
     async def reboot(self) -> bool:
         """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
-        try:
-            _ret = await self.send_ssh_command("reboot")
-        except (asyncssh.Error, OSError):
+        ret = await self.send_ssh_command("reboot")
+        if ret is None:
             return False
-        else:
-            logging.debug(f"{self}: Reboot command completed.")
-            if isinstance(_ret, str):
-                return True
-        return False
+        return True
 
     async def resume_mining(self) -> bool:
-        try:
-            commands = [
-                "mkdir -p /etc/tmp/",
-                'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
-                "crontab -u root /etc/tmp/root",
-                "/usr/bin/cgminer-monitor >/dev/null 2>&1",
-            ]
-            commands = ";".join(commands)
-            await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
+        commands = [
+            "mkdir -p /etc/tmp/",
+            'echo "*/3 * * * * /usr/bin/cgminer-monitor" > /etc/tmp/root',
+            "crontab -u root /etc/tmp/root",
+            "/usr/bin/cgminer-monitor >/dev/null 2>&1",
+        ]
+        commands = ";".join(commands)
+        ret = await self.send_ssh_command(commands)
+        if ret is None:
             return False
-        else:
-            return True
+        return True
 
     async def stop_mining(self) -> bool:
-        try:
-            commands = [
-                "mkdir -p /etc/tmp/",
-                'echo "" > /etc/tmp/root',
-                "crontab -u root /etc/tmp/root",
-                "killall cgminer",
-            ]
-            commands = ";".join(commands)
-            await self.send_ssh_command(commands)
-        except (asyncssh.Error, OSError):
+        commands = [
+            "mkdir -p /etc/tmp/",
+            'echo "" > /etc/tmp/root',
+            "crontab -u root /etc/tmp/root",
+            "killall cgminer",
+        ]
+        commands = ";".join(commands)
+        ret = await self.send_ssh_command(commands)
+        if ret is None:
             return False
-        else:
-            return True
+        return True
 
     async def get_config(self) -> MinerConfig:
         api_pools = await self.api.pools()
@@ -224,12 +211,8 @@ class CGMiner(BaseMiner):
         return self.fw_ver
 
     async def get_hostname(self) -> Optional[str]:
-        try:
-            hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        except (asyncssh.Error, OSError):
-            return None
-        if hn:
-            return hn
+        hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
+        return hn
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
