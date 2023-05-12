@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple
 

@@ -10,9 +10,9 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 asyncssh = "^2.13.1"
-httpx = "^0.23.3"
+httpx = "^0.24.0"
 passlib = "^1.7.4"
-pyaml = "^21.10.1"
+pyaml = "^23.5.9"
 toml = "^0.10.2"
 
 [tool.poetry.group.dev]

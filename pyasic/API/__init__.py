@@ -46,7 +46,7 @@ class BaseMinerAPI:
         parameters: Union[str, int, bool] = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **kwargs
+        **kwargs,
     ) -> dict:
         """Send an API command to the miner and return the result.
 
@@ -98,7 +98,6 @@ class BaseMinerAPI:
 
         Parameters:
             *commands: The commands to send as a multicommand to the miner.
-            ignore_errors: Whether to raise APIError when the command returns an error.
             allow_warning: A boolean to supress APIWarnings.
 
         """

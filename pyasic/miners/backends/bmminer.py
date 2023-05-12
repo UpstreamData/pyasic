@@ -18,8 +18,6 @@ import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
-import asyncssh
-
 from pyasic.API.bmminer import BMMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard

@@ -421,7 +421,7 @@ class BaseMiner(ABC):
                         else:
                             if not web_command_data == {"multicommand": False}:
                                 args_to_send[arg_name] = web_command_data
-            except (KeyError, IndexError) as e:
+            except (KeyError, IndexError):
                 continue
 
             function = getattr(self, self.data_locations[data_name]["cmd"])

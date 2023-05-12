@@ -18,7 +18,6 @@ import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
-import asyncssh
 import toml
 
 from pyasic.API.bosminer import BOSMinerAPI

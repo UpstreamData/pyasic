@@ -17,8 +17,6 @@
 import logging
 from typing import List, Optional, Tuple
 
-import asyncssh
-
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData

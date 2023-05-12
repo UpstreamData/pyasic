@@ -26,8 +26,11 @@ from pyasic.miners.base import BaseMiner
 
 class UnknownMiner(BaseMiner):
     def __init__(
-        self, ip: str, *args, **kwargs
-    ) -> None:  # noqa - ignore *args and **kwargs for signature consistency
+        self,
+        ip: str,
+        *args,
+        **kwargs,  # noqa - ignore *args and **kwargs for signature consistency
+    ) -> None:
         super().__init__(ip)
         self.ip = ip
         self.api = UnknownAPI(ip)
