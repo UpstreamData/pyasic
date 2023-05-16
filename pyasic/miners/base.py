@@ -256,7 +256,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_hashboards(self, *args, **kwargs) -> list[HashBoard]:
+    async def get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
         """Get hashboard data from the miner in the form of [`HashBoard`][pyasic.data.HashBoard].
 
         Returns:
