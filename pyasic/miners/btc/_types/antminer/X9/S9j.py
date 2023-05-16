@@ -14,7 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S9 import S9
-from .S9i import S9i
-from .S9j import S9j
-from .T9 import T9
+from pyasic.miners.makes import AntMiner
+
+
+class S9j(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.ip = ip
+        self.model = "S9j"
+        self.nominal_chips = 63
+        self.fan_count = 2

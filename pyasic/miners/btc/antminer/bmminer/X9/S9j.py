@@ -14,7 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S9 import S9
-from .S9i import S9i
-from .S9j import S9j
-from .T9 import T9
+from pyasic.miners.backends import BMMiner
+from pyasic.miners.btc._types import S9j  # noqa - Ignore access to _module
+
+
+class BMMinerS9j(BMMiner, S9j):
+    pass
