@@ -44,4 +44,4 @@ class InnosiliconMiner(BaseMiner):  # noqa - ignore ABC method implementation
 class GoldshellMiner(BaseMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.make = "BFGMinerGoldshell"
+        self.make = "Goldshell"

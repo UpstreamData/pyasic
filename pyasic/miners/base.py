@@ -40,7 +40,7 @@ class BaseMiner(ABC):
         self.model = None
         # physical attributes
         self.ideal_hashboards = 3
-        self.nominal_chips = 1
+        self.nominal_chips = 0
         self.fan_count = 2
         # data gathering locations
         self.data_locations = None

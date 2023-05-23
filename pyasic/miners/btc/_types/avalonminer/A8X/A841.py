@@ -23,5 +23,5 @@ class Avalon841(AvalonMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "Avalon 841"
         self.ideal_hashboards = 4
-        self.chip_count = 26
+        self.nominal_chips = 26
         self.fan_count = 1
