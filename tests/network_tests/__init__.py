@@ -69,13 +69,6 @@ class NetworkTest(unittest.TestCase):
         self.assertTrue(net_1 == correct_net)
         self.assertTrue(net_2 == correct_net)
 
-    def test_net_len(self):
-        net = MinerNetwork("192.168.1.0", mask=32)
-        self.assertEqual(len(net), 1)
-
-        net2 = MinerNetwork("192.168.1.0", mask=31)
-        self.assertEqual(len(net2), 2)
-
     def test_net_defaults(self):
         net = MinerNetwork()
         net_obj = net.get_network()

@@ -18,8 +18,7 @@ import asyncio
 import ipaddress
 import json
 import logging
-from collections.abc import AsyncIterable
-from typing import List, Tuple, Union
+from typing import AsyncIterable, List, Tuple, Union
 
 import asyncssh
 import httpx
