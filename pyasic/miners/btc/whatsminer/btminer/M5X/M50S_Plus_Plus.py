@@ -14,36 +14,26 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .M50 import (
-    BTMinerM50VG30,
-    BTMinerM50VH10,
-    BTMinerM50VH20,
-    BTMinerM50VH30,
-    BTMinerM50VH40,
-    BTMinerM50VH50,
-    BTMinerM50VH60,
-    BTMinerM50VH70,
-    BTMinerM50VH80,
-    BTMinerM50VJ10,
-    BTMinerM50VJ20,
-    BTMinerM50VJ30,
+from pyasic.miners.backends import M5X
+
+from pyasic.miners.btc._types.whatsminer.M5X.M50S_Plus_Plus import (  # noqa - ignore _module import
+    M50SPlusPlusVK10,
+    M50SPlusPlusVK20,
+    M50SPlusPlusVK30,
 )
-from .M50S import (
-    BTMinerM50SVH10,
-    BTMinerM50SVH20,
-    BTMinerM50SVH30,
-    BTMinerM50SVH40,
-    BTMinerM50SVH50,
-    BTMinerM50SVJ10,
-    BTMinerM50SVJ20,
-    BTMinerM50SVJ30,
-)
-from .M50S_Plus import BTMinerM50SPlusVH30, BTMinerM50SPlusVH40, BTMinerM50SPlusVJ30
-from .M50S_Plus_Plus import BTMinerM50SPlusPlusVK20, BTMinerM50SPlusPlusVK30, BTMinerM50SPlusPlusVK10
-from .M53 import BTMinerM53VH30
-from .M53S import BTMinerM53SVH30
-from .M53S_Plus import BTMinerM53SPlusVJ30
-from .M56 import BTMinerM56VH30
-from .M56S import BTMinerM56SVH30
-from .M56S_Plus import BTMinerM56SPlusVJ30
-from .M59 import BTMinerM59VH30
+
+
+class BTMinerM50SPlusPlusVK10(  # noqa - ignore ABC method implementation
+    M50SPlusPlusVK10, M5X
+):
+    pass
+
+class BTMinerM50SPlusPlusVK20(  # noqa - ignore ABC method implementation
+    M50SPlusPlusVK20, M5X
+):
+    pass
+
+class BTMinerM50SPlusPlusVK30(  # noqa - ignore ABC method implementation
+    M50SPlusPlusVK30, M5X
+):
+    pass
