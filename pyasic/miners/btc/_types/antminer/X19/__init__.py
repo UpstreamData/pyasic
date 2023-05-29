@@ -19,7 +19,7 @@ from .S19_Pro import S19Pro
 from .S19_XP import S19XP
 from .S19a import S19a
 from .S19a_Pro import S19aPro
-from .S19j import S19j
+from .S19j import S19j, S19jNoPIC
 from .S19j_Pro import S19jPro
 from .S19L import S19L
 from .T19 import T19

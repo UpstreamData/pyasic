@@ -15,8 +15,12 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSMiner
-from pyasic.miners.btc._types import S19j  # noqa - Ignore access to _module
+from pyasic.miners.btc._types import S19j, S19jNoPIC  # noqa - Ignore access to _module
 
 
 class BOSMinerS19j(BOSMiner, S19j):
+    pass
+
+
+class BOSMinerS19jNoPIC(BOSMiner, S19jNoPIC):
     pass

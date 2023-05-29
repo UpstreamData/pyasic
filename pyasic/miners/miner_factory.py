@@ -163,6 +163,11 @@ MINER_CLASSES = {
         "CGMiner": CGMinerS19j,
         "VNish": VNishS19j,
     },
+    "ANTMINER S19J NOPIC": {
+        "Default": BMMinerS19jNoPIC,
+        "BOSMiner+": BOSMinerS19jNoPIC,
+        "BMMiner": BMMinerS19jNoPIC,
+    },
     "ANTMINER S19J PRO": {
         "Default": BMMinerS19jPro,
         "BOSMiner+": BOSMinerS19jPro,
@@ -752,9 +757,12 @@ class MinerFactory(metaclass=Singleton):
                 try:
                     if devdetails.get("DEVDETAILS"):
                         model = devdetails["DEVDETAILS"][0][_devdetails_key].upper()
-                        if " NOPIC" in model:
-                            # Braiins OS identifies some X19 differently
-                            model = model.replace(" NOPIC", "")
+                        if "NOPIC" in model:
+                            # bos, weird model
+                            if model == "ANTMINER S19J88NOPIC":
+                                model = "ANTMINER S19J NOPIC"
+                            else:
+                                print(model)
                         if not model == "BITMICRO":
                             break
                     elif devdetails.get("DEVS"):
