@@ -16,6 +16,7 @@
 
 from .S19 import BMMinerS19
 from .S19_Pro import BMMinerS19Pro
+from .S19_Pro_Plus import BMMinerS19ProPlus
 from .S19_XP import BMMinerS19XP
 from .S19a import BMMinerS19a
 from .S19a_Pro import BMMinerS19aPro

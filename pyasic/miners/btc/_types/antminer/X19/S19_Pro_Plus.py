@@ -14,13 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S19 import S19
-from .S19_Pro import S19Pro
-from .S19_Pro_Plus import S19ProPlus
-from .S19_XP import S19XP
-from .S19a import S19a
-from .S19a_Pro import S19aPro
-from .S19j import S19j, S19jNoPIC
-from .S19j_Pro import S19jPro
-from .S19L import S19L
-from .T19 import T19
+from pyasic.miners.makes import AntMiner
+
+
+class S19ProPlus(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.ip = ip
+        self.model = "S19 Pro+"
+        self.nominal_chips = 120
+        self.fan_count = 4

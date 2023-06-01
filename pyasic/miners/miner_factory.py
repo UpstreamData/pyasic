@@ -168,6 +168,10 @@ MINER_CLASSES = {
         "BOSMiner+": BOSMinerS19jNoPIC,
         "BMMiner": BMMinerS19jNoPIC,
     },
+    "AANTMINER S19 PRO+": {
+        "Default": BMMinerS19ProPlus,
+        "BMMiner": BMMinerS19ProPlus,
+    },
     "ANTMINER S19J PRO": {
         "Default": BMMinerS19jPro,
         "BOSMiner+": BOSMinerS19jPro,
@@ -490,7 +494,7 @@ MINER_CLASSES = {
         "H40": BTMinerM50SPlusVH40,
         "J30": BTMinerM50SPlusVJ30,
     },
-    "M50S+": {
+    "M50S++": {
         "Default": BTMinerM50SPlusPlusVK10,
         "BTMiner": BTMinerM50SPlusPlusVK10,
         "K10": BTMinerM50SPlusPlusVK10,
