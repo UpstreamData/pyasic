@@ -168,7 +168,7 @@ MINER_CLASSES = {
         "BOSMiner+": BOSMinerS19jNoPIC,
         "BMMiner": BMMinerS19jNoPIC,
     },
-    "AANTMINER S19PRO+": {
+    "ANTMINER S19PRO+": {
         "Default": BMMinerS19ProPlus,
         "BMMiner": BMMinerS19ProPlus,
     },
