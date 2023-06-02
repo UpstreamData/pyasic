@@ -215,7 +215,7 @@ class _PoolGroup:
         return pools
 
     def as_x17(self, user_suffix: str = None) -> dict:
-        """Convert the data in this class to a list usable by an X5 device.
+        """Convert the data in this class to a list usable by an X17 device.
 
         Parameters:
              user_suffix: The suffix to append to username.
@@ -547,11 +547,11 @@ class MinerConfig:
         """
         logging.debug(f"MinerConfig - (As X19) - Generating X19 config")
         cfg = {
-            "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
             "bitmain-fan-ctrl": False,
             "bitmain-fan-pwn": "100",
+            "freq-level": "100",
             "miner-mode": str(self.miner_mode.value),
-            "freq-level": "100"
+            "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
         }
 
         if not self.temp_mode == "auto":
