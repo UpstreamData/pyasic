@@ -734,7 +734,7 @@ class MinerFactory:
                 ).upper()
                 return self._select_miner_from_classes(
                     ip=IPv4Address(ip),
-                    miner_model=miner_model.upper(),
+                    miner_model=miner_model,
                     miner_type=MinerTypes.BRAIINS_OS,
                 )
         except aiohttp.ClientError:
@@ -754,7 +754,7 @@ class MinerFactory:
 
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
-                miner_model=miner_model.upper(),
+                miner_model=miner_model,
                 miner_type=MinerTypes.VNISH,
             )
         except (TypeError, LookupError):
@@ -771,7 +771,7 @@ class MinerFactory:
 
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
-                miner_model=miner_type.upper().replace(" HIVEON", ""),
+                miner_model=miner_type.replace(" HIVEON", ""),
                 miner_type=MinerTypes.HIVEON,
             )
         except (TypeError, LookupError):
