@@ -661,7 +661,7 @@ class MinerFactory:
 
         if web_json_data:
             if web_json_data.get("minertype") is not None:
-                miner_model = web_json_data["minertype"].upper()
+                miner_model = web_json_data["minertype"]
                 return self._select_miner_from_classes(
                     ip=ip, miner_model=miner_model, miner_type=MinerTypes.ANTMINER
                 )
@@ -674,7 +674,7 @@ class MinerFactory:
 
         if json_data:
             if json_data.get("model") is not None:
-                miner_model = json_data["model"].replace("-", " ").upper()
+                miner_model = json_data["model"].replace("-", " ")
                 return self._select_miner_from_classes(
                     ip=ip, miner_model=miner_model, miner_type=MinerTypes.GOLDSHELL
                 )
@@ -729,9 +729,7 @@ class MinerFactory:
                 )
             if d.status == 200:
                 json_data = await d.json()
-                miner_model = (
-                    json_data["data"]["bosminer"]["info"]["modelName"]
-                ).upper()
+                miner_model = json_data["data"]["bosminer"]["info"]["modelName"]
                 return self._select_miner_from_classes(
                     ip=IPv4Address(ip),
                     miner_model=miner_model,
