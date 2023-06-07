@@ -14,9 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
+from pyasic.miners.btc._types import Avalon1246
+
+from .A12X import CGMinerA12X
+
+
+class CGMinerAvalon1246(CGMinerA12X, Avalon1246):
+    pass

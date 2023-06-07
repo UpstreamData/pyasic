@@ -13,10 +13,17 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import warnings
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
+from pyasic.miners.makes import AvalonMiner
+
+
+class Avalon1246(AvalonMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.ip = ip
+        self.model = "Avalon 1246"
+        warnings.warn(
+            f"Unknown chip count for miner type {self.model}, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 4

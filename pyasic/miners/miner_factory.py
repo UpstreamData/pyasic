@@ -65,7 +65,7 @@ class MinerTypes(enum.Enum):
 
 MINER_CLASSES = {
     MinerTypes.ANTMINER: {
-        # None: BMMiner,
+        None: BMMiner,
         "ANTMINER DR5": CGMinerDR5,
         "ANTMINER D3": CGMinerD3,
         "ANTMINER HS3": CGMinerHS3,
@@ -97,7 +97,7 @@ MINER_CLASSES = {
         "ANTMINER T19": BMMinerT19,
     },
     MinerTypes.WHATSMINER: {
-        # None: BTMiner,
+        None: BTMiner,
         "M20V10": BTMinerM20V10,
         "M20SV10": BTMinerM20SV10,
         "M20SV20": BTMinerM20SV20,
@@ -280,7 +280,7 @@ MINER_CLASSES = {
         "M59VH30": BTMinerM59VH30,
     },
     MinerTypes.AVALONMINER: {
-        # None: CGMinerAvalon,
+        None: CGMinerAvalon,
         "AVALONMINER 721": CGMinerAvalon721,
         "AVALONMINER 741": CGMinerAvalon741,
         "AVALONMINER 761": CGMinerAvalon761,
@@ -291,21 +291,23 @@ MINER_CLASSES = {
         "AVALONMINER 1026": CGMinerAvalon1026,
         "AVALONMINER 1047": CGMinerAvalon1047,
         "AVALONMINER 1066": CGMinerAvalon1066,
+        "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
+        "AVALONMINER 1246": CGMinerAvalon1246,
     },
     MinerTypes.INNOSILICON: {
-        # None: CGMiner,
+        None: CGMiner,
         "T3H+": CGMinerInnosiliconT3HPlus,
         "A10X": CGMinerA10X,
     },
     MinerTypes.GOLDSHELL: {
-        # None: BFGMiner,
+        None: BFGMiner,
         "GOLDSHELL CK5": BFGMinerCK5,
         "GOLDSHELL HS5": BFGMinerHS5,
         "GOLDSHELL KD5": BFGMinerKD5,
         "GOLDSHELL KDMAX": BFGMinerKDMax,
     },
     MinerTypes.BRAIINS_OS: {
-        # None: BOSMiner,
+        None: BOSMiner,
         "ANTMINER S9": BOSMinerS9,
         "ANTMINER S17": BOSMinerS17,
         "ANTMINER S17+": BOSMinerS17Plus,
@@ -322,7 +324,7 @@ MINER_CLASSES = {
         "ANTMINER T19": BOSMinerT19,
     },
     MinerTypes.VNISH: {
-        # None: VNish,
+        None: VNish,
         "ANTMINER L3+": VnishL3Plus,
         "ANTMINER S19": VNishS19,
         "ANTMINER S19 PRO": VNishS19Pro,
@@ -333,7 +335,7 @@ MINER_CLASSES = {
         "ANTMINER T19": VNishT19,
     },
     MinerTypes.HIVEON: {
-        # None: Hiveon,
+        None: Hiveon,
         "ANTMINER T9": HiveonT9,
     },
 }
@@ -442,16 +444,6 @@ class MinerFactory:
             pass
         return None, None
 
-    async def _get_miner_socket(self, ip: str):
-        commands = ["devdetails", "version"]
-        tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
-
-        data = await concurrent_get_first_result(
-            tasks, lambda x: x is not None and self._parse_socket_type(x) is not None
-        )
-        if data is not None:
-            return self._parse_socket_type(data)
-
     @staticmethod
     def _parse_web_type(web_text: str, web_resp: aiohttp.ClientResponse) -> MinerTypes:
         if web_resp.status == 401 and 'realm="antMiner' in web_resp.headers.get(
@@ -468,6 +460,18 @@ class MinerFactory:
             return MinerTypes.GOLDSHELL
         if "AnthillOS" in web_text:
             return MinerTypes.VNISH
+        if "Avalon" in web_text:
+            return MinerTypes.AVALONMINER
+
+    async def _get_miner_socket(self, ip: str):
+        commands = ["devdetails", "version"]
+        tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
+
+        data = await concurrent_get_first_result(
+            tasks, lambda x: x is not None and self._parse_socket_type(x) is not None
+        )
+        if data is not None:
+            return self._parse_socket_type(data)
 
     @staticmethod
     async def _socket_ping(ip: str, cmd: str) -> Optional[str]:
@@ -529,6 +533,8 @@ class MinerFactory:
             return MinerTypes.ANTMINER
         if "INTCHAINS_QOMO" in upper_data:
             return MinerTypes.GOLDSHELL
+        if "AVALON" in upper_data:
+            return MinerTypes.AVALONMINER
 
     async def send_web_command(
         self,
@@ -690,7 +696,7 @@ class MinerFactory:
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
                 miner_model=miner_model,
-                miner_type=MinerTypes.BRAIINS_OS,
+                miner_type=MinerTypes.WHATSMINER,
             )
         except (TypeError, LookupError):
             pass
@@ -700,6 +706,20 @@ class MinerFactory:
         )
 
     async def get_miner_avalonminer(self, ip: str):
+        sock_json_data = await self.send_api_command(ip, "version")
+        try:
+            miner_model = sock_json_data["VERSION"][0]["PROD"]
+            if "-" in miner_model:
+                miner_model = miner_model.split("-")
+
+            return self._select_miner_from_classes(
+                ip=IPv4Address(ip),
+                miner_model=miner_model,
+                miner_type=MinerTypes.AVALONMINER,
+            )
+        except (TypeError, LookupError):
+            pass
+
         return self._select_miner_from_classes(
             ip=ip, miner_model=None, miner_type=MinerTypes.AVALONMINER
         )
