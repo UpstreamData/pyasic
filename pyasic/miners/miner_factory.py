@@ -26,8 +26,16 @@ from typing import Callable, List, Optional, Tuple, Union
 import aiohttp
 
 from pyasic.logger import logger
-from pyasic.miners.backends import BFGMiner, BMMiner, BOSMiner, BTMiner, CGMiner, VNish
-from pyasic.miners.backends.bosminer_old import BOSMinerOld
+from pyasic.miners.backends import (
+    BFGMiner,
+    BMMiner,
+    BOSMiner,
+    BTMiner,
+    CGMiner,
+    CGMinerAvalon,
+    Hiveon,
+    VNish,
+)
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.btc import *
 from pyasic.miners.ckb import *
@@ -43,548 +51,6 @@ from pyasic.miners.zec import *
 TIMEOUT = 20
 RETRIES = 3
 
-MINER_CLASSES = {
-    "ANTMINER DR5": {
-        "Default": CGMinerDR5,
-        "CGMiner": CGMinerDR5,
-    },
-    "ANTMINER D3": {
-        "Default": CGMinerD3,
-        "CGMiner": CGMinerD3,
-    },
-    "ANTMINER HS3": {
-        "Default": CGMinerHS3,
-        "CGMiner": CGMinerHS3,
-    },
-    "ANTMINER L3+": {
-        "Default": BMMinerL3Plus,
-        "BMMiner": BMMinerL3Plus,
-        "VNish": VnishL3Plus,
-    },
-    "ANTMINER L7": {
-        "Default": BMMinerL7,
-        "BMMiner": BMMinerL7,
-    },
-    "ANTMINER E9 PRO": {
-        "Default": CGMinerE9Pro,
-        "BMMiner": CGMinerE9Pro,
-    },
-    "ANTMINER S9": {
-        "Default": BOSMinerS9,
-        "BOSMiner": BOSMinerOld,
-        "BOSMiner+": BOSMinerS9,
-        "BMMiner": BMMinerS9,
-        "CGMiner": CGMinerS9,
-    },
-    "ANTMINER S9I": {
-        "Default": BMMinerS9i,
-        "BMMiner": BMMinerS9i,
-    },
-    "ANTMINER S9J": {
-        "Default": BMMinerS9j,
-        "BMMiner": BMMinerS9j,
-    },
-    "ANTMINER T9": {
-        "Default": BMMinerT9,
-        "BMMiner": BMMinerT9,
-        "Hiveon": HiveonT9,
-        "CGMiner": CGMinerT9,
-    },
-    "ANTMINER Z15": {
-        "Default": CGMinerZ15,
-        "CGMiner": CGMinerZ15,
-    },
-    "ANTMINER S17": {
-        "Default": BMMinerS17,
-        "BOSMiner+": BOSMinerS17,
-        "BMMiner": BMMinerS17,
-        "CGMiner": CGMinerS17,
-    },
-    "ANTMINER S17+": {
-        "Default": BMMinerS17Plus,
-        "BOSMiner+": BOSMinerS17Plus,
-        "BMMiner": BMMinerS17Plus,
-        "CGMiner": CGMinerS17Plus,
-    },
-    "ANTMINER S17 PRO": {
-        "Default": BMMinerS17Pro,
-        "BOSMiner+": BOSMinerS17Pro,
-        "BMMiner": BMMinerS17Pro,
-        "CGMiner": CGMinerS17Pro,
-    },
-    "ANTMINER S17E": {
-        "Default": BMMinerS17e,
-        "BOSMiner+": BOSMinerS17e,
-        "BMMiner": BMMinerS17e,
-        "CGMiner": CGMinerS17e,
-    },
-    "ANTMINER T17": {
-        "Default": BMMinerT17,
-        "BOSMiner+": BOSMinerT17,
-        "BMMiner": BMMinerT17,
-        "CGMiner": CGMinerT17,
-    },
-    "ANTMINER T17+": {
-        "Default": BMMinerT17Plus,
-        "BOSMiner+": BOSMinerT17Plus,
-        "BMMiner": BMMinerT17Plus,
-        "CGMiner": CGMinerT17Plus,
-    },
-    "ANTMINER T17E": {
-        "Default": BMMinerT17e,
-        "BOSMiner+": BOSMinerT17e,
-        "BMMiner": BMMinerT17e,
-        "CGMiner": CGMinerT17e,
-    },
-    "ANTMINER S19": {
-        "Default": BMMinerS19,
-        "BOSMiner+": BOSMinerS19,
-        "BMMiner": BMMinerS19,
-        "CGMiner": CGMinerS19,
-        "VNish": VNishS19,
-    },
-    "ANTMINER S19L": {
-        "Default": BMMinerS19L,
-        "BMMiner": BMMinerS19L,
-    },
-    "ANTMINER S19 PRO": {
-        "Default": BMMinerS19Pro,
-        "BOSMiner+": BOSMinerS19Pro,
-        "BMMiner": BMMinerS19Pro,
-        "CGMiner": CGMinerS19Pro,
-        "VNish": VNishS19Pro,
-    },
-    "ANTMINER S19J": {
-        "Default": BMMinerS19j,
-        "BOSMiner+": BOSMinerS19j,
-        "BMMiner": BMMinerS19j,
-        "CGMiner": CGMinerS19j,
-        "VNish": VNishS19j,
-    },
-    "ANTMINER S19J NOPIC": {
-        "Default": BMMinerS19jNoPIC,
-        "BOSMiner+": BOSMinerS19jNoPIC,
-        "BMMiner": BMMinerS19jNoPIC,
-    },
-    "ANTMINER S19PRO+": {
-        "Default": BMMinerS19ProPlus,
-        "BMMiner": BMMinerS19ProPlus,
-    },
-    "ANTMINER S19J PRO": {
-        "Default": BMMinerS19jPro,
-        "BOSMiner+": BOSMinerS19jPro,
-        "BMMiner": BMMinerS19jPro,
-        "CGMiner": CGMinerS19jPro,
-        "VNish": VNishS19jPro,
-    },
-    "ANTMINER S19 XP": {
-        "Default": BMMinerS19XP,
-        "BMMiner": BMMinerS19XP,
-    },
-    "ANTMINER S19A": {
-        "Default": BMMinerS19a,
-        "BMMiner": BMMinerS19a,
-        "VNish": VNishS19a,
-    },
-    "ANTMINER S19A PRO": {
-        "Default": BMMinerS19aPro,
-        "BMMiner": BMMinerS19aPro,
-        "VNish": VNishS19aPro,
-    },
-    "ANTMINER T19": {
-        "Default": BMMinerT19,
-        "BOSMiner+": BOSMinerT19,
-        "BMMiner": BMMinerT19,
-        "CGMiner": CGMinerT19,
-        "VNish": VNishT19,
-    },
-    "GOLDSHELL CK5": {
-        "Default": BFGMinerCK5,
-        "BFGMiner": BFGMinerCK5,
-        "CGMiner": BFGMinerCK5,
-    },
-    "GOLDSHELL HS5": {
-        "Default": BFGMinerHS5,
-        "BFGMiner": BFGMinerHS5,
-        "CGMiner": BFGMinerHS5,
-    },
-    "GOLDSHELL KD5": {
-        "Default": BFGMinerKD5,
-        "BFGMiner": BFGMinerKD5,
-        "CGMiner": BFGMinerKD5,
-    },
-    "GOLDSHELL KDMAX": {
-        "Default": BFGMinerKDMax,
-        "BFGMiner": BFGMinerKDMax,
-        "CGMiner": BFGMinerKDMax,
-    },
-    "M20": {"Default": BTMinerM20V10, "BTMiner": BTMinerM20V10, "10": BTMinerM20V10},
-    "M20S": {
-        "Default": BTMinerM20SV10,
-        "BTMiner": BTMinerM20SV10,
-        "10": BTMinerM20SV10,
-        "20": BTMinerM20SV20,
-        "30": BTMinerM20SV30,
-    },
-    "M20S+": {
-        "Default": BTMinerM20SPlusV30,
-        "BTMiner": BTMinerM20SPlusV30,
-        "30": BTMinerM20SPlusV30,
-    },
-    "M21": {"Default": BTMinerM21V10, "BTMiner": BTMinerM21V10, "10": BTMinerM21V10},
-    "M21S": {
-        "Default": BTMinerM21SV20,
-        "BTMiner": BTMinerM21SV20,
-        "20": BTMinerM21SV20,
-        "60": BTMinerM21SV60,
-        "70": BTMinerM21SV70,
-    },
-    "M21S+": {
-        "Default": BTMinerM21SPlusV20,
-        "BTMiner": BTMinerM21SPlusV20,
-        "20": BTMinerM21SPlusV20,
-    },
-    "M29": {"Default": BTMinerM29V10, "BTMiner": BTMinerM29V10, "10": BTMinerM29V10},
-    "M30": {
-        "Default": BTMinerM30V10,
-        "BTMiner": BTMinerM30V10,
-        "10": BTMinerM30V10,
-        "20": BTMinerM30V20,
-    },
-    "M30S": {
-        "Default": BTMinerM30SV10,
-        "BTMiner": BTMinerM30SV10,
-        "10": BTMinerM30SV10,
-        "20": BTMinerM30SV20,
-        "30": BTMinerM30SV30,
-        "40": BTMinerM30SV40,
-        "50": BTMinerM30SV50,
-        "60": BTMinerM30SV60,
-        "70": BTMinerM30SV70,
-        "80": BTMinerM30SV80,
-        "E10": BTMinerM30SVE10,
-        "E20": BTMinerM30SVE20,
-        "E30": BTMinerM30SVE30,
-        "E40": BTMinerM30SVE40,
-        "E50": BTMinerM30SVE50,
-        "E60": BTMinerM30SVE60,
-        "E70": BTMinerM30SVE70,
-        "F10": BTMinerM30SVF10,
-        "F20": BTMinerM30SVF20,
-        "F30": BTMinerM30SVF30,
-        "G10": BTMinerM30SVG10,
-        "G20": BTMinerM30SVG20,
-        "G30": BTMinerM30SVG30,
-        "G40": BTMinerM30SVG40,
-        "H10": BTMinerM30SVH10,
-        "H20": BTMinerM30SVH20,
-        "H30": BTMinerM30SVH30,
-        "H40": BTMinerM30SVH40,
-        "H50": BTMinerM30SVH50,
-        "H60": BTMinerM30SVH60,
-        "I20": BTMinerM30SVI20,
-    },
-    "M30S+": {
-        "Default": BTMinerM30SPlusV10,
-        "BTMiner": BTMinerM30SPlusV10,
-        "10": BTMinerM30SPlusV10,
-        "20": BTMinerM30SPlusV20,
-        "30": BTMinerM30SPlusV30,
-        "40": BTMinerM30SPlusV40,
-        "50": BTMinerM30SPlusV50,
-        "60": BTMinerM30SPlusV60,
-        "70": BTMinerM30SPlusV70,
-        "80": BTMinerM30SPlusV80,
-        "90": BTMinerM30SPlusV90,
-        "100": BTMinerM30SPlusV100,
-        "E30": BTMinerM30SPlusVE30,
-        "E40": BTMinerM30SPlusVE40,
-        "E50": BTMinerM30SPlusVE50,
-        "E60": BTMinerM30SPlusVE60,
-        "E70": BTMinerM30SPlusVE70,
-        "E80": BTMinerM30SPlusVE80,
-        "E90": BTMinerM30SPlusVE90,
-        "E100": BTMinerM30SPlusVE100,
-        "F20": BTMinerM30SPlusVF20,
-        "F30": BTMinerM30SPlusVF30,
-        "G30": BTMinerM30SPlusVG30,
-        "G40": BTMinerM30SPlusVG40,
-        "G50": BTMinerM30SPlusVG50,
-        "G60": BTMinerM30SPlusVG60,
-        "H10": BTMinerM30SPlusVH10,
-        "H20": BTMinerM30SPlusVH20,
-        "H30": BTMinerM30SPlusVH30,
-        "H40": BTMinerM30SPlusVH40,
-        "H50": BTMinerM30SPlusVH50,
-        "H60": BTMinerM30SPlusVH60,
-    },
-    "M30S++": {
-        "Default": BTMinerM30SPlusPlusV10,
-        "BTMiner": BTMinerM30SPlusPlusV10,
-        "10": BTMinerM30SPlusPlusV10,
-        "20": BTMinerM30SPlusPlusV20,
-        "E30": BTMinerM30SPlusPlusVE30,
-        "E40": BTMinerM30SPlusPlusVE40,
-        "E50": BTMinerM30SPlusPlusVE50,
-        "F40": BTMinerM30SPlusPlusVF40,
-        "G30": BTMinerM30SPlusPlusVG30,
-        "G40": BTMinerM30SPlusPlusVG40,
-        "G50": BTMinerM30SPlusPlusVG50,
-        "H10": BTMinerM30SPlusPlusVH10,
-        "H20": BTMinerM30SPlusPlusVH20,
-        "H30": BTMinerM30SPlusPlusVH30,
-        "H40": BTMinerM30SPlusPlusVH40,
-        "H50": BTMinerM30SPlusPlusVH50,
-        "H60": BTMinerM30SPlusPlusVH60,
-        "H70": BTMinerM30SPlusPlusVH70,
-        "H80": BTMinerM30SPlusPlusVH80,
-        "H90": BTMinerM30SPlusPlusVH90,
-        "H100": BTMinerM30SPlusPlusVH100,
-        "J20": BTMinerM30SPlusPlusVJ20,
-        "J30": BTMinerM30SPlusPlusVJ30,
-    },
-    "M31": {
-        "Default": BTMinerM31V10,
-        "BTMiner": BTMinerM31V10,
-        "10": BTMinerM31V10,
-        "20": BTMinerM31V20,
-    },
-    "M31S": {
-        "Default": BTMinerM31SV10,
-        "BTMiner": BTMinerM31SV10,
-        "10": BTMinerM31SV10,
-        "20": BTMinerM31SV20,
-        "30": BTMinerM31SV30,
-        "40": BTMinerM31SV40,
-        "50": BTMinerM31SV50,
-        "60": BTMinerM31SV60,
-        "70": BTMinerM31SV70,
-        "80": BTMinerM31SV80,
-        "90": BTMinerM31SV90,
-        "E10": BTMinerM31SVE10,
-        "E20": BTMinerM31SVE20,
-        "E30": BTMinerM31SVE30,
-    },
-    "M31SE": {
-        "Default": BTMinerM31SEV10,
-        "BTMiner": BTMinerM31SEV10,
-        "10": BTMinerM31SEV10,
-        "20": BTMinerM31SEV20,
-        "30": BTMinerM31SEV30,
-    },
-    "M31H": {
-        "Default": BTMinerM31HV40,
-        "BTMiner": BTMinerM31HV40,
-        "40": BTMinerM31HV40,
-    },
-    "M31S+": {
-        "Default": BTMinerM31SPlusV10,
-        "BTMiner": BTMinerM31SPlusV10,
-        "10": BTMinerM31SPlusV10,
-        "20": BTMinerM31SPlusV20,
-        "30": BTMinerM31SPlusV30,
-        "40": BTMinerM31SPlusV40,
-        "50": BTMinerM31SPlusV50,
-        "60": BTMinerM31SPlusV60,
-        "80": BTMinerM31SPlusV80,
-        "90": BTMinerM31SPlusV90,
-        "100": BTMinerM31SPlusV100,
-        "E10": BTMinerM31SPlusVE10,
-        "E20": BTMinerM31SPlusVE20,
-        "E30": BTMinerM31SPlusVE30,
-        "E40": BTMinerM31SPlusVE40,
-        "E50": BTMinerM31SPlusVE50,
-        "E60": BTMinerM31SPlusVE60,
-        "E80": BTMinerM31SPlusVE80,
-        "F20": BTMinerM31SPlusVF20,
-        "F30": BTMinerM31SPlusVF30,
-        "G20": BTMinerM31SPlusVG20,
-        "G30": BTMinerM31SPlusVG30,
-    },
-    "M32": {
-        "Default": BTMinerM32V10,
-        "BTMiner": BTMinerM32V10,
-        "10": BTMinerM32V10,
-        "20": BTMinerM32V20,
-    },
-    "M32S": {
-        "Default": BTMinerM32S,
-        "BTMiner": BTMinerM32S,
-    },
-    "M33": {
-        "Default": BTMinerM33V10,
-        "BTMiner": BTMinerM33V10,
-        "10": BTMinerM33V10,
-        "20": BTMinerM33V20,
-        "30": BTMinerM33V30,
-    },
-    "M33S": {
-        "Default": BTMinerM33SVG30,
-        "BTMiner": BTMinerM33SVG30,
-        "G30": BTMinerM33SVG30,
-    },
-    "M33S+": {
-        "Default": BTMinerM33SPlusVH20,
-        "BTMiner": BTMinerM33SPlusVH20,
-        "H20": BTMinerM33SPlusVH20,
-        "H30": BTMinerM33SPlusVH30,
-    },
-    "M33S++": {
-        "Default": BTMinerM33SPlusPlusVH20,
-        "BTMiner": BTMinerM33SPlusPlusVH20,
-        "H20": BTMinerM33SPlusPlusVH20,
-        "H30": BTMinerM33SPlusPlusVH30,
-        "G40": BTMinerM33SPlusPlusVG40,
-    },
-    "M34S+": {
-        "Default": BTMinerM34SPlusVE10,
-        "BTMiner": BTMinerM34SPlusVE10,
-        "E10": BTMinerM34SPlusVE10,
-    },
-    "M36S": {
-        "Default": BTMinerM36SVE10,
-        "BTMiner": BTMinerM36SVE10,
-        "E10": BTMinerM36SVE10,
-    },
-    "M36S+": {
-        "Default": BTMinerM36SPlusVG30,
-        "BTMiner": BTMinerM36SPlusVG30,
-        "G30": BTMinerM36SPlusVG30,
-    },
-    "M36S++": {
-        "Default": BTMinerM36SPlusPlusVH30,
-        "BTMiner": BTMinerM36SPlusPlusVH30,
-        "H30": BTMinerM36SPlusPlusVH30,
-    },
-    "M39": {"Default": BTMinerM39V20, "BTMiner": BTMinerM39V20, "20": BTMinerM39V20},
-    "M50": {
-        "Default": BTMinerM50VG30,
-        "BTMiner": BTMinerM50VG30,
-        "G30": BTMinerM50VG30,
-        "H10": BTMinerM50VH10,
-        "H20": BTMinerM50VH20,
-        "H30": BTMinerM50VH30,
-        "H40": BTMinerM50VH40,
-        "H50": BTMinerM50VH50,
-        "H60": BTMinerM50VH60,
-        "H70": BTMinerM50VH70,
-        "H80": BTMinerM50VH80,
-        "J10": BTMinerM50VJ10,
-        "J20": BTMinerM50VJ20,
-        "J30": BTMinerM50VJ30,
-    },
-    "M50S": {
-        "Default": BTMinerM50SVJ10,
-        "BTMiner": BTMinerM50SVJ10,
-        "J10": BTMinerM50SVJ10,
-        "J20": BTMinerM50SVJ20,
-        "J30": BTMinerM50SVJ30,
-        "H10": BTMinerM50SVH10,
-        "H20": BTMinerM50SVH20,
-        "H30": BTMinerM50SVH30,
-        "H40": BTMinerM50SVH40,
-        "H50": BTMinerM50SVH50,
-    },
-    "M50S+": {
-        "Default": BTMinerM50SPlusVH30,
-        "BTMiner": BTMinerM50SPlusVH30,
-        "H30": BTMinerM50SPlusVH30,
-        "H40": BTMinerM50SPlusVH40,
-        "J30": BTMinerM50SPlusVJ30,
-    },
-    "M50S++": {
-        "Default": BTMinerM50SPlusPlusVK10,
-        "BTMiner": BTMinerM50SPlusPlusVK10,
-        "K10": BTMinerM50SPlusPlusVK10,
-        "K20": BTMinerM50SPlusPlusVK20,
-        "K30": BTMinerM50SPlusPlusVK30,
-    },
-    "M53": {
-        "Default": BTMinerM53VH30,
-        "BTMiner": BTMinerM53VH30,
-        "H30": BTMinerM53VH30,
-    },
-    "M53S": {
-        "Default": BTMinerM53SVH30,
-        "BTMiner": BTMinerM53SVH30,
-        "H30": BTMinerM53SVH30,
-    },
-    "M53S+": {
-        "Default": BTMinerM53SPlusVJ30,
-        "BTMiner": BTMinerM53SPlusVJ30,
-        "J30": BTMinerM53SPlusVJ30,
-    },
-    "M56": {
-        "Default": BTMinerM56VH30,
-        "BTMiner": BTMinerM56VH30,
-        "H30": BTMinerM56VH30,
-    },
-    "M56S": {
-        "Default": BTMinerM56SVH30,
-        "BTMiner": BTMinerM56SVH30,
-        "H30": BTMinerM56SVH30,
-    },
-    "M56S+": {
-        "Default": BTMinerM56SPlusVJ30,
-        "BTMiner": BTMinerM56SPlusVJ30,
-        "J30": BTMinerM56SPlusVJ30,
-    },
-    "M59": {
-        "Default": BTMinerM59VH30,
-        "BTMiner": BTMinerM59VH30,
-        "H30": BTMinerM59VH30,
-    },
-    "AVALONMINER 721": {
-        "Default": CGMinerAvalon721,
-        "CGMiner": CGMinerAvalon721,
-    },
-    "AVALONMINER 741": {
-        "Default": CGMinerAvalon741,
-        "CGMiner": CGMinerAvalon741,
-    },
-    "AVALONMINER 761": {
-        "Default": CGMinerAvalon761,
-        "CGMiner": CGMinerAvalon761,
-    },
-    "AVALONMINER 821": {
-        "Default": CGMinerAvalon821,
-        "CGMiner": CGMinerAvalon821,
-    },
-    "AVALONMINER 841": {
-        "Default": CGMinerAvalon841,
-        "CGMiner": CGMinerAvalon841,
-    },
-    "AVALONMINER 851": {
-        "Default": CGMinerAvalon851,
-        "CGMiner": CGMinerAvalon851,
-    },
-    "AVALONMINER 921": {
-        "Default": CGMinerAvalon921,
-        "CGMiner": CGMinerAvalon921,
-    },
-    "AVALONMINER 1026": {
-        "Default": CGMinerAvalon1026,
-        "CGMiner": CGMinerAvalon1026,
-    },
-    "AVALONMINER 1047": {
-        "Default": CGMinerAvalon1047,
-        "CGMiner": CGMinerAvalon1047,
-    },
-    "AVALONMINER 1066": {
-        "Default": CGMinerAvalon1066,
-        "CGMiner": CGMinerAvalon1066,
-    },
-    "T3H+": {
-        "Default": CGMinerInnosiliconT3HPlus,
-        "CGMiner": CGMinerInnosiliconT3HPlus,
-    },
-    "A10X": {
-        "Default": CGMinerA10X,
-        "CGMiner": CGMinerA10X,
-    },
-    "Unknown": {"Default": UnknownMiner},
-}
-
 
 class MinerTypes(enum.Enum):
     ANTMINER = 0
@@ -595,6 +61,282 @@ class MinerTypes(enum.Enum):
     BRAIINS_OS = 5
     VNISH = 6
     HIVEON = 7
+
+
+MINER_CLASSES = {
+    MinerTypes.ANTMINER: {
+        # None: BMMiner,
+        "ANTMINER DR5": CGMinerDR5,
+        "ANTMINER D3": CGMinerD3,
+        "ANTMINER HS3": CGMinerHS3,
+        "ANTMINER L3+": BMMinerL3Plus,
+        "ANTMINER L7": BMMinerL7,
+        "ANTMINER E9 PRO": CGMinerE9Pro,
+        "ANTMINER S9": BMMinerS9,
+        "ANTMINER S9I": BMMinerS9i,
+        "ANTMINER S9J": BMMinerS9j,
+        "ANTMINER T9": BMMinerT9,
+        "ANTMINER Z15": CGMinerZ15,
+        "ANTMINER S17": BMMinerS17,
+        "ANTMINER S17+": BMMinerS17Plus,
+        "ANTMINER S17 PRO": BMMinerS17Pro,
+        "ANTMINER S17E": BMMinerS17e,
+        "ANTMINER T17": BMMinerT17,
+        "ANTMINER T17+": BMMinerT17Plus,
+        "ANTMINER T17E": BMMinerT17e,
+        "ANTMINER S19": BMMinerS19,
+        "ANTMINER S19L": BMMinerS19L,
+        "ANTMINER S19 PRO": BMMinerS19Pro,
+        "ANTMINER S19J": BMMinerS19j,
+        "ANTMINER S19J88NOPIC": BMMinerS19jNoPIC,
+        "ANTMINER S19PRO+": BMMinerS19ProPlus,
+        "ANTMINER S19J PRO": BMMinerS19jPro,
+        "ANTMINER S19 XP": BMMinerS19XP,
+        "ANTMINER S19A": BMMinerS19a,
+        "ANTMINER S19A PRO": BMMinerS19aPro,
+        "ANTMINER T19": BMMinerT19,
+    },
+    MinerTypes.WHATSMINER: {
+        # None: BTMiner,
+        "M20V10": BTMinerM20V10,
+        "M20SV10": BTMinerM20SV10,
+        "M20SV20": BTMinerM20SV20,
+        "M20SV30": BTMinerM20SV30,
+        "M20S+V30": BTMinerM20SPlusV30,
+        "M21V10": BTMinerM21V10,
+        "M21SV20": BTMinerM21SV20,
+        "M21SV60": BTMinerM21SV60,
+        "M21SV70": BTMinerM21SV70,
+        "M21S+V20": BTMinerM21SPlusV20,
+        "M29V10": BTMinerM29V10,
+        "M30V10": BTMinerM30V10,
+        "M30V20": BTMinerM30V20,
+        "M30SV10": BTMinerM30SV10,
+        "M30SV20": BTMinerM30SV20,
+        "M30SV30": BTMinerM30SV30,
+        "M30SV40": BTMinerM30SV40,
+        "M30SV50": BTMinerM30SV50,
+        "M30SV60": BTMinerM30SV60,
+        "M30SV70": BTMinerM30SV70,
+        "M30SV80": BTMinerM30SV80,
+        "M30SVE10": BTMinerM30SVE10,
+        "M30SVE20": BTMinerM30SVE20,
+        "M30SVE30": BTMinerM30SVE30,
+        "M30SVE40": BTMinerM30SVE40,
+        "M30SVE50": BTMinerM30SVE50,
+        "M30SVE60": BTMinerM30SVE60,
+        "M30SVE70": BTMinerM30SVE70,
+        "M30SVF10": BTMinerM30SVF10,
+        "M30SVF20": BTMinerM30SVF20,
+        "M30SVF30": BTMinerM30SVF30,
+        "M30SVG10": BTMinerM30SVG10,
+        "M30SVG20": BTMinerM30SVG20,
+        "M30SVG30": BTMinerM30SVG30,
+        "M30SVG40": BTMinerM30SVG40,
+        "M30SVH10": BTMinerM30SVH10,
+        "M30SVH20": BTMinerM30SVH20,
+        "M30SVH30": BTMinerM30SVH30,
+        "M30SVH40": BTMinerM30SVH40,
+        "M30SVH50": BTMinerM30SVH50,
+        "M30SVH60": BTMinerM30SVH60,
+        "M30SVI20": BTMinerM30SVI20,
+        "M30S+V10": BTMinerM30SPlusV10,
+        "M30S+V20": BTMinerM30SPlusV20,
+        "M30S+V30": BTMinerM30SPlusV30,
+        "M30S+V40": BTMinerM30SPlusV40,
+        "M30S+V50": BTMinerM30SPlusV50,
+        "M30S+V60": BTMinerM30SPlusV60,
+        "M30S+V70": BTMinerM30SPlusV70,
+        "M30S+V80": BTMinerM30SPlusV80,
+        "M30S+V90": BTMinerM30SPlusV90,
+        "M30S+V100": BTMinerM30SPlusV100,
+        "M30S+VE30": BTMinerM30SPlusVE30,
+        "M30S+VE40": BTMinerM30SPlusVE40,
+        "M30S+VE50": BTMinerM30SPlusVE50,
+        "M30S+VE60": BTMinerM30SPlusVE60,
+        "M30S+VE70": BTMinerM30SPlusVE70,
+        "M30S+VE80": BTMinerM30SPlusVE80,
+        "M30S+VE90": BTMinerM30SPlusVE90,
+        "M30S+VE100": BTMinerM30SPlusVE100,
+        "M30S+VF20": BTMinerM30SPlusVF20,
+        "M30S+VF30": BTMinerM30SPlusVF30,
+        "M30S+VG30": BTMinerM30SPlusVG30,
+        "M30S+VG40": BTMinerM30SPlusVG40,
+        "M30S+VG50": BTMinerM30SPlusVG50,
+        "M30S+VG60": BTMinerM30SPlusVG60,
+        "M30S+VH10": BTMinerM30SPlusVH10,
+        "M30S+VH20": BTMinerM30SPlusVH20,
+        "M30S+VH30": BTMinerM30SPlusVH30,
+        "M30S+VH40": BTMinerM30SPlusVH40,
+        "M30S+VH50": BTMinerM30SPlusVH50,
+        "M30S+VH60": BTMinerM30SPlusVH60,
+        "M30S++V10": BTMinerM30SPlusPlusV10,
+        "M30S++V20": BTMinerM30SPlusPlusV20,
+        "M30S++VE30": BTMinerM30SPlusPlusVE30,
+        "M30S++VE40": BTMinerM30SPlusPlusVE40,
+        "M30S++VE50": BTMinerM30SPlusPlusVE50,
+        "M30S++VF40": BTMinerM30SPlusPlusVF40,
+        "M30S++VG30": BTMinerM30SPlusPlusVG30,
+        "M30S++VG40": BTMinerM30SPlusPlusVG40,
+        "M30S++VG50": BTMinerM30SPlusPlusVG50,
+        "M30S++VH10": BTMinerM30SPlusPlusVH10,
+        "M30S++VH20": BTMinerM30SPlusPlusVH20,
+        "M30S++VH30": BTMinerM30SPlusPlusVH30,
+        "M30S++VH40": BTMinerM30SPlusPlusVH40,
+        "M30S++VH50": BTMinerM30SPlusPlusVH50,
+        "M30S++VH60": BTMinerM30SPlusPlusVH60,
+        "M30S++VH70": BTMinerM30SPlusPlusVH70,
+        "M30S++VH80": BTMinerM30SPlusPlusVH80,
+        "M30S++VH90": BTMinerM30SPlusPlusVH90,
+        "M30S++VH100": BTMinerM30SPlusPlusVH100,
+        "M30S++VJ20": BTMinerM30SPlusPlusVJ20,
+        "M30S++VJ30": BTMinerM30SPlusPlusVJ30,
+        "M31V10": BTMinerM31V10,
+        "M31V20": BTMinerM31V20,
+        "M31SV10": BTMinerM31SV10,
+        "M31SV20": BTMinerM31SV20,
+        "M31SV30": BTMinerM31SV30,
+        "M31SV40": BTMinerM31SV40,
+        "M31SV50": BTMinerM31SV50,
+        "M31SV60": BTMinerM31SV60,
+        "M31SV70": BTMinerM31SV70,
+        "M31SV80": BTMinerM31SV80,
+        "M31SV90": BTMinerM31SV90,
+        "M31SVE10": BTMinerM31SVE10,
+        "M31SVE20": BTMinerM31SVE20,
+        "M31SVE30": BTMinerM31SVE30,
+        "M31SEV10": BTMinerM31SEV10,
+        "M31SEV20": BTMinerM31SEV20,
+        "M31SEV30": BTMinerM31SEV30,
+        "M31HV40": BTMinerM31HV40,
+        "M31S+V10": BTMinerM31SPlusV10,
+        "M31S+V20": BTMinerM31SPlusV20,
+        "M31S+V30": BTMinerM31SPlusV30,
+        "M31S+V40": BTMinerM31SPlusV40,
+        "M31S+V50": BTMinerM31SPlusV50,
+        "M31S+V60": BTMinerM31SPlusV60,
+        "M31S+V80": BTMinerM31SPlusV80,
+        "M31S+V90": BTMinerM31SPlusV90,
+        "M31S+V100": BTMinerM31SPlusV100,
+        "M31S+VE10": BTMinerM31SPlusVE10,
+        "M31S+VE20": BTMinerM31SPlusVE20,
+        "M31S+VE30": BTMinerM31SPlusVE30,
+        "M31S+VE40": BTMinerM31SPlusVE40,
+        "M31S+VE50": BTMinerM31SPlusVE50,
+        "M31S+VE60": BTMinerM31SPlusVE60,
+        "M31S+VE80": BTMinerM31SPlusVE80,
+        "M31S+VF20": BTMinerM31SPlusVF20,
+        "M31S+VF30": BTMinerM31SPlusVF30,
+        "M31S+VG20": BTMinerM31SPlusVG20,
+        "M31S+VG30": BTMinerM31SPlusVG30,
+        "M32V10": BTMinerM32V10,
+        "M32V20": BTMinerM32V20,
+        "M33V10": BTMinerM33V10,
+        "M33V20": BTMinerM33V20,
+        "M33V30": BTMinerM33V30,
+        "M33SVG30": BTMinerM33SVG30,
+        "M33S+VH20": BTMinerM33SPlusVH20,
+        "M33S+VH30": BTMinerM33SPlusVH30,
+        "M33S++VH20": BTMinerM33SPlusPlusVH20,
+        "M33S++VH30": BTMinerM33SPlusPlusVH30,
+        "M33S++VG40": BTMinerM33SPlusPlusVG40,
+        "M34S+VE10": BTMinerM34SPlusVE10,
+        "M36SVE10": BTMinerM36SVE10,
+        "M36S+VG30": BTMinerM36SPlusVG30,
+        "M36S++VH30": BTMinerM36SPlusPlusVH30,
+        "M39V20": BTMinerM39V20,
+        "M50VG30": BTMinerM50VG30,
+        "M50VH10": BTMinerM50VH10,
+        "M50VH20": BTMinerM50VH20,
+        "M50VH30": BTMinerM50VH30,
+        "M50VH40": BTMinerM50VH40,
+        "M50VH50": BTMinerM50VH50,
+        "M50VH60": BTMinerM50VH60,
+        "M50VH70": BTMinerM50VH70,
+        "M50VH80": BTMinerM50VH80,
+        "M50VJ10": BTMinerM50VJ10,
+        "M50VJ20": BTMinerM50VJ20,
+        "M50VJ30": BTMinerM50VJ30,
+        "M50SVJ10": BTMinerM50SVJ10,
+        "M50SVJ20": BTMinerM50SVJ20,
+        "M50SVJ30": BTMinerM50SVJ30,
+        "M50SVH10": BTMinerM50SVH10,
+        "M50SVH20": BTMinerM50SVH20,
+        "M50SVH30": BTMinerM50SVH30,
+        "M50SVH40": BTMinerM50SVH40,
+        "M50SVH50": BTMinerM50SVH50,
+        "M50S+VH30": BTMinerM50SPlusVH30,
+        "M50S+VH40": BTMinerM50SPlusVH40,
+        "M50S+VJ30": BTMinerM50SPlusVJ30,
+        "M50S++VK10": BTMinerM50SPlusPlusVK10,
+        "M50S++VK20": BTMinerM50SPlusPlusVK20,
+        "M50S++VK30": BTMinerM50SPlusPlusVK30,
+        "M53VH30": BTMinerM53VH30,
+        "M53SVH30": BTMinerM53SVH30,
+        "M53S+VJ30": BTMinerM53SPlusVJ30,
+        "M56VH30": BTMinerM56VH30,
+        "M56SVH30": BTMinerM56SVH30,
+        "M56S+VJ30": BTMinerM56SPlusVJ30,
+        "M59VH30": BTMinerM59VH30,
+    },
+    MinerTypes.AVALONMINER: {
+        # None: CGMinerAvalon,
+        "AVALONMINER 721": CGMinerAvalon721,
+        "AVALONMINER 741": CGMinerAvalon741,
+        "AVALONMINER 761": CGMinerAvalon761,
+        "AVALONMINER 821": CGMinerAvalon821,
+        "AVALONMINER 841": CGMinerAvalon841,
+        "AVALONMINER 851": CGMinerAvalon851,
+        "AVALONMINER 921": CGMinerAvalon921,
+        "AVALONMINER 1026": CGMinerAvalon1026,
+        "AVALONMINER 1047": CGMinerAvalon1047,
+        "AVALONMINER 1066": CGMinerAvalon1066,
+    },
+    MinerTypes.INNOSILICON: {
+        # None: CGMiner,
+        "T3H+": CGMinerInnosiliconT3HPlus,
+        "A10X": CGMinerA10X,
+    },
+    MinerTypes.GOLDSHELL: {
+        # None: BFGMiner,
+        "GOLDSHELL CK5": BFGMinerCK5,
+        "GOLDSHELL HS5": BFGMinerHS5,
+        "GOLDSHELL KD5": BFGMinerKD5,
+        "GOLDSHELL KDMAX": BFGMinerKDMax,
+    },
+    MinerTypes.BRAIINS_OS: {
+        # None: BOSMiner,
+        "ANTMINER S9": BOSMinerS9,
+        "ANTMINER S17": BOSMinerS17,
+        "ANTMINER S17+": BOSMinerS17Plus,
+        "ANTMINER S17 PRO": BOSMinerS17Pro,
+        "ANTMINER S17E": BOSMinerS17e,
+        "ANTMINER T17": BOSMinerT17,
+        "ANTMINER T17+": BOSMinerT17Plus,
+        "ANTMINER T17E": BOSMinerT17e,
+        "ANTMINER S19": BOSMinerS19,
+        "ANTMINER S19 PRO": BOSMinerS19Pro,
+        "ANTMINER S19J": BOSMinerS19j,
+        "ANTMINER S19J88NOPIC": BOSMinerS19jNoPIC,
+        "ANTMINER S19J PRO": BOSMinerS19jPro,
+        "ANTMINER T19": BOSMinerT19,
+    },
+    MinerTypes.VNISH: {
+        # None: VNish,
+        "ANTMINER L3+": VnishL3Plus,
+        "ANTMINER S19": VNishS19,
+        "ANTMINER S19 PRO": VNishS19Pro,
+        "ANTMINER S19J": VNishS19j,
+        "ANTMINER S19J PRO": VNishS19jPro,
+        "ANTMINER S19A": VNishS19a,
+        "ANTMINER S19A PRO": VNishS19aPro,
+        "ANTMINER T19": VNishT19,
+    },
+    MinerTypes.HIVEON: {
+        # None: Hiveon,
+        "ANTMINER T9": HiveonT9,
+    },
+}
 
 
 async def concurrent_get_first_result(tasks: list, verification_func: Callable):
@@ -689,6 +431,17 @@ class MinerFactory:
             if text is not None:
                 return self._parse_web_type(text, resp)
 
+    @staticmethod
+    async def _web_ping(
+        session: aiohttp.ClientSession, url: str
+    ) -> Tuple[Optional[str], Optional[aiohttp.ClientResponse]]:
+        try:
+            resp = await session.get(url)
+            return await resp.text(), resp
+        except aiohttp.ClientError:
+            pass
+        return None, None
+
     async def _get_miner_socket(self, ip: str):
         commands = ["devdetails", "version"]
         tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
@@ -699,9 +452,8 @@ class MinerFactory:
         if data is not None:
             return self._parse_socket_type(data)
 
-    def _parse_web_type(
-        self, web_text: str, web_resp: aiohttp.ClientResponse
-    ) -> MinerTypes:
+    @staticmethod
+    def _parse_web_type(web_text: str, web_resp: aiohttp.ClientResponse) -> MinerTypes:
         if web_resp.status == 401 and 'realm="antMiner' in web_resp.headers.get(
             "www-authenticate", ""
         ):
@@ -717,32 +469,8 @@ class MinerFactory:
         if "AnthillOS" in web_text:
             return MinerTypes.VNISH
 
-    def _parse_socket_type(self, data: str) -> MinerTypes:
-        upper_data = data.upper()
-        if "BOSMINER" in upper_data or "BOSER" in upper_data:
-            return MinerTypes.BRAIINS_OS
-        if "BTMINER" in upper_data or "BITMICRO" in upper_data:
-            return MinerTypes.WHATSMINER
-        if "VNISH" in upper_data:
-            return MinerTypes.VNISH
-        if "HIVEON" in upper_data:
-            return MinerTypes.HIVEON
-        if "ANTMINER" in upper_data:
-            return MinerTypes.ANTMINER
-        if "INTCHAINS_QOMO" in upper_data:
-            return MinerTypes.GOLDSHELL
-
-    async def _web_ping(
-        self, session: aiohttp.ClientSession, url: str
-    ) -> Tuple[Optional[str], Optional[aiohttp.ClientResponse]]:
-        try:
-            resp = await session.get(url)
-            return await resp.text(), resp
-        except aiohttp.ClientError:
-            pass
-        return None, None
-
-    async def _socket_ping(self, ip: str, cmd: str) -> Optional[str]:
+    @staticmethod
+    async def _socket_ping(ip: str, cmd: str) -> Optional[str]:
         data = b""
         try:
             reader, writer = await asyncio.wait_for(
@@ -785,6 +513,22 @@ class MinerFactory:
                 return
         if data:
             return data.decode("utf-8")
+
+    @staticmethod
+    def _parse_socket_type(data: str) -> MinerTypes:
+        upper_data = data.upper()
+        if "BOSMINER" in upper_data or "BOSER" in upper_data:
+            return MinerTypes.BRAIINS_OS
+        if "BTMINER" in upper_data or "BITMICRO" in upper_data:
+            return MinerTypes.WHATSMINER
+        if "VNISH" in upper_data:
+            return MinerTypes.VNISH
+        if "HIVEON" in upper_data:
+            return MinerTypes.HIVEON
+        if "ANTMINER" in upper_data:
+            return MinerTypes.ANTMINER
+        if "INTCHAINS_QOMO" in upper_data:
+            return MinerTypes.GOLDSHELL
 
     async def send_web_command(
         self,
@@ -845,13 +589,14 @@ class MinerFactory:
         except (ConnectionError, OSError):
             return
 
-        data = await self.fix_api_data(data)
+        data = await self._fix_api_data(data)
 
         data = json.loads(data)
 
         return data
 
-    async def fix_api_data(self, data: bytes):
+    @staticmethod
+    async def _fix_api_data(data: bytes):
         if data.endswith(b"\x00"):
             str_data = data.decode("utf-8")[:-1]
         else:
@@ -885,23 +630,25 @@ class MinerFactory:
 
         return str_data
 
+    @staticmethod
+    def _select_miner_from_classes(
+        ip: ipaddress.ip_address,
+        miner_model: Union[str, None],
+        miner_type: Union[MinerTypes, None],
+    ) -> AnyMiner:
+        try:
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
+        except LookupError:
+            if miner_type in MINER_CLASSES:
+                return MINER_CLASSES[miner_type][None](ip)
+            return UnknownMiner(str(ip))
+
     async def get_miner_antminer(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "version")
         try:
-            miner_type = sock_json_data["VERSION"][0]["Type"]
-            api_type = None
-            api_ver = sock_json_data["VERSION"][0]["API"]
-            keys_str = "_".join(sock_json_data["VERSION"][0].keys())
-            if "cgminer" in keys_str:
-                api_type = "CGMiner"
-            elif "bmminer" in keys_str:
-                api_type = "BMMiner"
+            miner_model = sock_json_data["VERSION"][0]["Type"]
             return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                model=miner_type.upper(),
-                api=api_type,
-                ver=None,
-                api_ver=api_ver,
+                ip=ip, miner_model=miner_model, miner_type=MinerTypes.ANTMINER
             )
         except (TypeError, LookupError):
             pass
@@ -912,63 +659,65 @@ class MinerFactory:
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )
 
-        if not web_json_data:
-            return UnknownMiner(ip)
-
-        if web_json_data.get("minertype") is not None:
-            miner_type = web_json_data["minertype"].upper()
-            api_type = None
-            if "cgminer" in "_".join(web_json_data.keys()):
-                api_type = "CGMiner"
-            elif "bmminer" in "_".join(web_json_data.keys()):
-                api_type = "BMMiner"
-            return self._select_miner_from_classes(
-                IPv4Address(ip), miner_type, api_type, None
-            )
+        if web_json_data:
+            if web_json_data.get("minertype") is not None:
+                miner_model = web_json_data["minertype"].upper()
+                return self._select_miner_from_classes(
+                    ip=ip, miner_model=miner_model, miner_type=MinerTypes.ANTMINER
+                )
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.ANTMINER
+        )
 
     async def get_miner_goldshell(self, ip: str):
         json_data = await self.send_web_command(ip, "/mcb/status")
 
         if json_data:
             if json_data.get("model") is not None:
-                miner_type = json_data["model"].replace("-", " ").upper()
+                miner_model = json_data["model"].replace("-", " ").upper()
                 return self._select_miner_from_classes(
-                    IPv4Address(ip), miner_type, None, None
+                    ip=ip, miner_model=miner_model, miner_type=MinerTypes.GOLDSHELL
                 )
-        return BFGMiner(ip)
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.GOLDSHELL
+        )
 
     async def get_miner_whatsminer(self, ip: str):
-        try:
-            json_data = await self.send_api_command(ip, "devdetails")
-        except (asyncio.exceptions.TimeoutError, OSError, ConnectionError):
-            return BTMiner(ip)
-
-        try:
-            miner_type, submodel = json_data["DEVDETAILS"][0]["Model"].split("V")
-            return self._select_miner_from_classes(
-                IPv4Address(ip), miner_type, submodel, None
-            )
-        except (LookupError, TypeError):
-            return BTMiner(ip)
-
-    async def get_miner_avalonminer(self, ip: str):
-        return CGMiner(ip)
-
-    async def get_miner_innosilicon(self, ip: str):
-        return CGMiner(ip)
-
-    async def get_miner_braiins_os(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "devdetails")
-        api_type = "BOSMiner+"
         try:
-            miner_type = sock_json_data["DEVDETAILS"][0]["Model"]
+            miner_model = sock_json_data["DEVDETAILS"][0]["Model"]
 
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
-                model=miner_type.upper(),
-                api=api_type,
-                ver=None,
-                api_ver=None,
+                miner_model=miner_model,
+                miner_type=MinerTypes.BRAIINS_OS,
+            )
+        except (TypeError, LookupError):
+            pass
+
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.WHATSMINER
+        )
+
+    async def get_miner_avalonminer(self, ip: str):
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.AVALONMINER
+        )
+
+    async def get_miner_innosilicon(self, ip: str):
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.INNOSILICON
+        )
+
+    async def get_miner_braiins_os(self, ip: str):
+        sock_json_data = await self.send_api_command(ip, "devdetails")
+        try:
+            miner_model = sock_json_data["DEVDETAILS"][0]["Model"]
+
+            return self._select_miner_from_classes(
+                ip=IPv4Address(ip),
+                miner_model=miner_model,
+                miner_type=MinerTypes.BRAIINS_OS,
             )
         except (TypeError, LookupError):
             pass
@@ -980,106 +729,56 @@ class MinerFactory:
                 )
             if d.status == 200:
                 json_data = await d.json()
-                miner_type = (
+                miner_model = (
                     json_data["data"]["bosminer"]["info"]["modelName"]
                 ).upper()
                 return self._select_miner_from_classes(
                     ip=IPv4Address(ip),
-                    model=miner_type.upper(),
-                    api=api_type,
-                    ver=None,
-                    api_ver=None,
+                    miner_model=miner_model.upper(),
+                    miner_type=MinerTypes.BRAIINS_OS,
                 )
         except aiohttp.ClientError:
             pass
 
-        return BOSMiner(ip)
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.BRAIINS_OS
+        )
 
     async def get_miner_vnish(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "stats")
-        api_type = "VNish"
         try:
-            miner_type = sock_json_data["STATS"][0]["Type"].upper()
-            miner_api_ver = None
-            if " (VNISH" in miner_type:
-                split_miner_type = miner_type.split(" (VNISH ")
-                miner_type = split_miner_type[0]
-                miner_api_ver = split_miner_type[1].replace(")", "")
+            miner_model = sock_json_data["STATS"][0]["Type"].upper()
+            if " (VNISH" in miner_model:
+                split_miner_model = miner_model.split(" (VNISH ")
+                miner_model = split_miner_model[0]
 
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
-                model=miner_type.upper(),
-                api=api_type,
-                ver=None,
-                api_ver=miner_api_ver,
+                miner_model=miner_model.upper(),
+                miner_type=MinerTypes.VNISH,
             )
         except (TypeError, LookupError):
             pass
 
-        return VNish(ip)
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.VNISH
+        )
 
     async def get_miner_hiveon(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_type = sock_json_data["VERSION"][0]["Type"]
-            api_type = "Hiveon"
-            api_ver = sock_json_data["VERSION"][0]["API"]
 
             return self._select_miner_from_classes(
                 ip=IPv4Address(ip),
-                model=miner_type.upper().replace(" HIVEON", ""),
-                api=api_type,
-                ver=None,
-                api_ver=api_ver,
+                miner_model=miner_type.upper().replace(" HIVEON", ""),
+                miner_type=MinerTypes.HIVEON,
             )
         except (TypeError, LookupError):
             pass
-
-    @staticmethod
-    def _select_miner_from_classes(
-        ip: ipaddress.ip_address,
-        model: Union[str, None],
-        api: Union[str, None],
-        ver: Union[str, None],
-        api_ver: Union[str, None] = None,
-    ) -> AnyMiner:
-        miner = UnknownMiner(str(ip))
-        # make sure we have model information
-        if model:
-            if not api:
-                api = "Default"
-
-            if model not in MINER_CLASSES.keys():
-                if "avalon" in model:
-                    if model == "avalon10":
-                        miner = CGMinerAvalon1066(str(ip), api_ver)
-                    else:
-                        miner = CGMinerAvalon821(str(ip), api_ver)
-                return miner
-            if api not in MINER_CLASSES[model].keys():
-                api = "Default"
-            if ver in MINER_CLASSES[model].keys():
-                miner = MINER_CLASSES[model][ver](str(ip), api_ver)
-                return miner
-            miner = MINER_CLASSES[model][api](str(ip), api_ver)
-
-        # if we cant find a model, check if we found the API
-        else:
-
-            # return the miner base class with some API if we found it
-            if api:
-                if "BOSMiner+" in api:
-                    miner = BOSMiner(str(ip), api_ver)
-                elif "BOSMiner" in api:
-                    miner = BOSMinerOld(str(ip), api_ver)
-                elif "CGMiner" in api:
-                    miner = CGMiner(str(ip), api_ver)
-                elif "BTMiner" in api:
-                    miner = BTMiner(str(ip), api_ver)
-                elif "BMMiner" in api:
-                    miner = BMMiner(str(ip), api_ver)
-
-        return miner
+        return self._select_miner_from_classes(
+            ip=ip, miner_model=None, miner_type=MinerTypes.HIVEON
+        )
 
 
 miner_factory = MinerFactory()
