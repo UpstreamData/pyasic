@@ -396,22 +396,26 @@ class MinerFactory:
                     break
 
         if miner_type is not None:
+            miner_model = None
             if miner_type == MinerTypes.ANTMINER:
-                return await self.get_miner_antminer(ip)
+                miner_model = await self.get_miner_model_antminer(ip)
             if miner_type == MinerTypes.WHATSMINER:
-                return await self.get_miner_whatsminer(ip)
+                miner_model = await self.get_miner_model_whatsminer(ip)
             if miner_type == MinerTypes.AVALONMINER:
-                return await self.get_miner_avalonminer(ip)
+                miner_model = await self.get_miner_model_avalonminer(ip)
             if miner_type == MinerTypes.INNOSILICON:
-                return await self.get_miner_innosilicon(ip)
+                miner_model = await self.get_miner_model_innosilicon(ip)
             if miner_type == MinerTypes.GOLDSHELL:
-                return await self.get_miner_goldshell(ip)
+                miner_model = await self.get_miner_model_goldshell(ip)
             if miner_type == MinerTypes.BRAIINS_OS:
-                return await self.get_miner_braiins_os(ip)
+                miner_model = await self.get_miner_model_braiins_os(ip)
             if miner_type == MinerTypes.VNISH:
-                return await self.get_miner_vnish(ip)
+                miner_model = await self.get_miner_model_vnish(ip)
             if miner_type == MinerTypes.HIVEON:
-                return await self.get_miner_hiveon(ip)
+                miner_model = await self.get_miner_model_hiveon(ip)
+            return self._select_miner_from_classes(
+                ip, miner_type=miner_type, miner_model=miner_model
+            )
 
     async def _get_miner_type(self, ip: str):
         tasks = [
@@ -462,6 +466,8 @@ class MinerFactory:
             return MinerTypes.VNISH
         if "Avalon" in web_text:
             return MinerTypes.AVALONMINER
+        if "DragonMint" in web_text:
+            return MinerTypes.INNOSILICON
 
     async def _get_miner_socket(self, ip: str):
         commands = ["devdetails", "version"]
@@ -649,13 +655,12 @@ class MinerFactory:
                 return MINER_CLASSES[miner_type][None](ip)
             return UnknownMiner(str(ip))
 
-    async def get_miner_antminer(self, ip: str):
+    async def get_miner_model_antminer(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
-            return self._select_miner_from_classes(
-                ip=ip, miner_model=miner_model, miner_type=MinerTypes.ANTMINER
-            )
+
+            return miner_model
         except (TypeError, LookupError):
             pass
 
@@ -665,80 +670,69 @@ class MinerFactory:
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )
 
-        if web_json_data:
-            if web_json_data.get("minertype") is not None:
-                miner_model = web_json_data["minertype"]
-                return self._select_miner_from_classes(
-                    ip=ip, miner_model=miner_model, miner_type=MinerTypes.ANTMINER
-                )
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.ANTMINER
-        )
+        try:
+            miner_model = web_json_data["minertype"]
 
-    async def get_miner_goldshell(self, ip: str):
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_goldshell(self, ip: str):
         json_data = await self.send_web_command(ip, "/mcb/status")
 
-        if json_data:
-            if json_data.get("model") is not None:
-                miner_model = json_data["model"].replace("-", " ")
-                return self._select_miner_from_classes(
-                    ip=ip, miner_model=miner_model, miner_type=MinerTypes.GOLDSHELL
-                )
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.GOLDSHELL
-        )
+        try:
+            miner_model = json_data["model"].replace("-", " ")
 
-    async def get_miner_whatsminer(self, ip: str):
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_whatsminer(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"]
 
-            return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                miner_model=miner_model,
-                miner_type=MinerTypes.WHATSMINER,
-            )
+            return miner_model
         except (TypeError, LookupError):
             pass
 
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.WHATSMINER
-        )
-
-    async def get_miner_avalonminer(self, ip: str):
+    async def get_miner_model_avalonminer(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["PROD"]
             if "-" in miner_model:
-                miner_model = miner_model.split("-")
+                miner_model = miner_model.split("-")[0]
 
-            return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                miner_model=miner_model,
-                miner_type=MinerTypes.AVALONMINER,
-            )
+            return miner_model
         except (TypeError, LookupError):
             pass
 
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.AVALONMINER
-        )
+    async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
+        try:
+            async with aiohttp.ClientSession as session:
+                auth_req = await session.post(
+                    f"http://{ip}/api/auth",
+                    data={"username": "admin", "password": "admin"},
+                )
+                auth = (await auth_req.json())["jwt"]
 
-    async def get_miner_innosilicon(self, ip: str):
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.INNOSILICON
-        )
+                web_data = await (
+                    await session.post(
+                        f"http://{ip}/api/type",
+                        headers={"Authorization": "Bearer " + auth},
+                        data={},
+                    )
+                ).json()
+                return web_data["type"]
+        except (aiohttp.ClientError, LookupError):
+            pass
 
-    async def get_miner_braiins_os(self, ip: str):
+    async def get_miner_model_braiins_os(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"]
 
-            return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                miner_model=miner_model,
-                miner_type=MinerTypes.BRAIINS_OS,
-            )
+            return miner_model
         except (TypeError, LookupError):
             pass
 
@@ -750,19 +744,11 @@ class MinerFactory:
             if d.status == 200:
                 json_data = await d.json()
                 miner_model = json_data["data"]["bosminer"]["info"]["modelName"]
-                return self._select_miner_from_classes(
-                    ip=IPv4Address(ip),
-                    miner_model=miner_model,
-                    miner_type=MinerTypes.BRAIINS_OS,
-                )
-        except aiohttp.ClientError:
+                return miner_model
+        except (aiohttp.ClientError, LookupError):
             pass
 
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.BRAIINS_OS
-        )
-
-    async def get_miner_vnish(self, ip: str):
+    async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "stats")
         try:
             miner_model = sock_json_data["STATS"][0]["Type"].upper()
@@ -770,33 +756,18 @@ class MinerFactory:
                 split_miner_model = miner_model.split(" (VNISH ")
                 miner_model = split_miner_model[0]
 
-            return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                miner_model=miner_model,
-                miner_type=MinerTypes.VNISH,
-            )
+            return miner_model
         except (TypeError, LookupError):
             pass
 
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.VNISH
-        )
-
-    async def get_miner_hiveon(self, ip: str):
+    async def get_miner_model_hiveon(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_type = sock_json_data["VERSION"][0]["Type"]
 
-            return self._select_miner_from_classes(
-                ip=IPv4Address(ip),
-                miner_model=miner_type.replace(" HIVEON", ""),
-                miner_type=MinerTypes.HIVEON,
-            )
+            return miner_type.replace(" HIVEON", "")
         except (TypeError, LookupError):
             pass
-        return self._select_miner_from_classes(
-            ip=ip, miner_model=None, miner_type=MinerTypes.HIVEON
-        )
 
 
 miner_factory = MinerFactory()
