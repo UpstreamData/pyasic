@@ -20,7 +20,6 @@ import enum
 import ipaddress
 import json
 import re
-from ipaddress import IPv4Address
 from typing import Callable, List, Optional, Tuple, Union
 
 import aiohttp
@@ -68,10 +67,10 @@ MINER_CLASSES = {
         None: BMMiner,
         "ANTMINER DR5": CGMinerDR5,
         "ANTMINER D3": CGMinerD3,
-        "ANTMINER HS3": CGMinerHS3,
+        "ANTMINER HS3": BMMinerHS3,
         "ANTMINER L3+": BMMinerL3Plus,
         "ANTMINER L7": BMMinerL7,
-        "ANTMINER E9 PRO": CGMinerE9Pro,
+        "ANTMINER E9 PRO": BMMinerE9Pro,
         "ANTMINER S9": BMMinerS9,
         "ANTMINER S9I": BMMinerS9i,
         "ANTMINER S9J": BMMinerS9j,
@@ -397,22 +396,30 @@ class MinerFactory:
 
         if miner_type is not None:
             miner_model = None
+            fn = None
             if miner_type == MinerTypes.ANTMINER:
-                miner_model = await self.get_miner_model_antminer(ip)
+                fn = self.get_miner_model_antminer
             if miner_type == MinerTypes.WHATSMINER:
-                miner_model = await self.get_miner_model_whatsminer(ip)
+                fn = self.get_miner_model_whatsminer
             if miner_type == MinerTypes.AVALONMINER:
-                miner_model = await self.get_miner_model_avalonminer(ip)
+                fn = self.get_miner_model_avalonminer
             if miner_type == MinerTypes.INNOSILICON:
-                miner_model = await self.get_miner_model_innosilicon(ip)
+                fn = self.get_miner_model_innosilicon
             if miner_type == MinerTypes.GOLDSHELL:
-                miner_model = await self.get_miner_model_goldshell(ip)
+                fn = self.get_miner_model_goldshell
             if miner_type == MinerTypes.BRAIINS_OS:
-                miner_model = await self.get_miner_model_braiins_os(ip)
+                fn = self.get_miner_model_braiins_os
             if miner_type == MinerTypes.VNISH:
-                miner_model = await self.get_miner_model_vnish(ip)
+                fn = self.get_miner_model_vnish
             if miner_type == MinerTypes.HIVEON:
-                miner_model = await self.get_miner_model_hiveon(ip)
+                fn = self.get_miner_model_hiveon
+            if fn is not None:
+                task = asyncio.create_task(fn(ip))
+                try:
+                    miner_model = await asyncio.wait_for(task, timeout=30)
+                except asyncio.TimeoutError:
+                    task.cancel()
+
             return self._select_miner_from_classes(
                 ip, miner_type=miner_type, miner_model=miner_model
             )

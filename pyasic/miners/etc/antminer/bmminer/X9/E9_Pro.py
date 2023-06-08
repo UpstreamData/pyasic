@@ -15,10 +15,10 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.hns._types import HS3  # noqa - Ignore access to _module
+from pyasic.miners.etc._types import E9Pro  # noqa - Ignore access to _module
 
 
-class CGMinerHS3(AntminerModern, HS3):
+class BMMinerE9Pro(AntminerModern, E9Pro):
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.supports_shutdown = False

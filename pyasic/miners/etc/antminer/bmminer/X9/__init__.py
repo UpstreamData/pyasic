@@ -13,4 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .E9_Pro import CGMinerE9Pro
+from .E9_Pro import BMMinerE9Pro
