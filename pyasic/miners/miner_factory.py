@@ -716,7 +716,7 @@ class MinerFactory:
 
     async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
         try:
-            async with aiohttp.ClientSession as session:
+            async with aiohttp.ClientSession() as session:
                 auth_req = await session.post(
                     f"http://{ip}/api/auth",
                     data={"username": "admin", "password": "admin"},
@@ -744,7 +744,7 @@ class MinerFactory:
             pass
 
         try:
-            async with aiohttp.ClientSession as session:
+            async with aiohttp.ClientSession() as session:
                 d = await session.post(
                     url, json={"query": "{bosminer {info{modelName}}}"}
                 )
