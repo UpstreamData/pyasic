@@ -25,6 +25,8 @@ from typing import Callable, List, Optional, Tuple, Union
 import aiohttp
 
 from pyasic.logger import logger
+from pyasic.miners.antminer import *
+from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
     BFGMiner,
     BMMiner,
@@ -36,16 +38,10 @@ from pyasic.miners.backends import (
     VNish,
 )
 from pyasic.miners.base import AnyMiner
-from pyasic.miners.btc import *
-from pyasic.miners.ckb import *
-from pyasic.miners.dcr import *
-from pyasic.miners.dsh import *
-from pyasic.miners.etc import *
-from pyasic.miners.hns import *
-from pyasic.miners.kda import *
-from pyasic.miners.ltc import *
+from pyasic.miners.goldshell import *
+from pyasic.miners.innosilicon import *
 from pyasic.miners.unknown import UnknownMiner
-from pyasic.miners.zec import *
+from pyasic.miners.whatsminer import *
 
 TIMEOUT = 20
 RETRIES = 3
@@ -295,7 +291,7 @@ MINER_CLASSES = {
     },
     MinerTypes.INNOSILICON: {
         None: CGMiner,
-        "T3H+": CGMinerInnosiliconT3HPlus,
+        "T3H+": CGMinerT3HPlus,
         "A10X": CGMinerA10X,
     },
     MinerTypes.GOLDSHELL: {
