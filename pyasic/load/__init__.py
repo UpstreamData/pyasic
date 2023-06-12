@@ -19,21 +19,8 @@ from typing import List, Union
 
 from pyasic.errors import APIError
 from pyasic.miners import AnyMiner
-from pyasic.miners.backends import (  # noqa - Ignore access to _module
-    AntminerModern,
-    BOSMiner,
-    BTMiner,
-)
-from pyasic.miners.btc._types import (  # noqa - Ignore access to _module
-    S9,
-    S17,
-    T17,
-    S17e,
-    S17Plus,
-    S17Pro,
-    T17e,
-    T17Plus,
-)
+from pyasic.miners.backends import AntminerModern, BOSMiner, BTMiner
+from pyasic.miners.types import S9, S17, T17, S17e, S17Plus, S17Pro, T17e, T17Plus
 
 FAN_USAGE = 50  # 50 W per fan
 

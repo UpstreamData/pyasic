@@ -138,7 +138,9 @@ class AntminerOldWebAPI(BaseWebAPI):
         try:
             async with httpx.AsyncClient() as client:
                 if parameters:
-                    data = await client.post(url, data=parameters, auth=auth, timeout=15)
+                    data = await client.post(
+                        url, data=parameters, auth=auth, timeout=15
+                    )
                 else:
                     data = await client.get(url, auth=auth)
         except httpx.HTTPError:

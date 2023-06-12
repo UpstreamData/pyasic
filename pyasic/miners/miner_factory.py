@@ -25,6 +25,8 @@ from typing import Callable, List, Optional, Tuple, Union
 import aiohttp
 
 from pyasic.logger import logger
+from pyasic.miners.antminer import *
+from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
     BFGMiner,
     BMMiner,
@@ -36,16 +38,10 @@ from pyasic.miners.backends import (
     VNish,
 )
 from pyasic.miners.base import AnyMiner
-from pyasic.miners.btc import *
-from pyasic.miners.ckb import *
-from pyasic.miners.dcr import *
-from pyasic.miners.dsh import *
-from pyasic.miners.etc import *
-from pyasic.miners.hns import *
-from pyasic.miners.kda import *
-from pyasic.miners.ltc import *
+from pyasic.miners.goldshell import *
+from pyasic.miners.innosilicon import *
 from pyasic.miners.unknown import UnknownMiner
-from pyasic.miners.zec import *
+from pyasic.miners.whatsminer import *
 
 TIMEOUT = 20
 RETRIES = 3
@@ -295,7 +291,7 @@ MINER_CLASSES = {
     },
     MinerTypes.INNOSILICON: {
         None: CGMiner,
-        "T3H+": CGMinerInnosiliconT3HPlus,
+        "T3H+": CGMinerT3HPlus,
         "A10X": CGMinerA10X,
     },
     MinerTypes.GOLDSHELL: {
@@ -362,10 +358,22 @@ async def concurrent_get_first_result(tasks: list, verification_func: Callable):
 
 
 class MinerFactory:
+    def __init__(self):
+        self.cache = {}
+
+    def clear_cached_miners(self):
+        self.cache = {}
+
     async def get_multiple_miners(self, ips: List[str], limit: int = 200):
-        tasks = []
         results = []
 
+        async for miner in self.get_miner_generator(ips, limit):
+            results.append(miner)
+
+        return results
+
+    async def get_miner_generator(self, ips: list, limit: int = 200):
+        tasks = []
         semaphore = asyncio.Semaphore(limit)
 
         for ip in ips:
@@ -376,13 +384,14 @@ class MinerFactory:
             try:
                 result = await task
                 if result is not None:
-                    results.append(result)
+                    yield result
             finally:
                 semaphore.release()
 
-        return results
-
     async def get_miner(self, ip: str):
+        ip = str(ip)
+        if ip in self.cache:
+            return self.cache[ip]
         miner_type = None
         for _ in range(RETRIES):
             task = asyncio.create_task(self._get_miner_type(ip))
@@ -420,9 +429,12 @@ class MinerFactory:
                 except asyncio.TimeoutError:
                     task.cancel()
 
-            return self._select_miner_from_classes(
+            miner = self._select_miner_from_classes(
                 ip, miner_type=miner_type, miner_model=miner_model
             )
+            if miner is not None and not isinstance(miner, UnknownMiner):
+                self.cache[ip] = miner
+            return miner
 
     async def _get_miner_type(self, ip: str):
         tasks = [
