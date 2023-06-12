@@ -358,6 +358,12 @@ async def concurrent_get_first_result(tasks: list, verification_func: Callable):
 
 
 class MinerFactory:
+    def __init__(self):
+        self.cache = {}
+
+    def clear_cached_miners(self):
+        self.cache = {}
+
     async def get_multiple_miners(self, ips: List[str], limit: int = 200):
         tasks = []
         results = []
@@ -416,9 +422,12 @@ class MinerFactory:
                 except asyncio.TimeoutError:
                     task.cancel()
 
-            return self._select_miner_from_classes(
+            miner = self._select_miner_from_classes(
                 ip, miner_type=miner_type, miner_model=miner_model
             )
+            if miner is not None and not isinstance(miner, UnknownMiner):
+                self.cache[ip] = miner
+            return miner
 
     async def _get_miner_type(self, ip: str):
         tasks = [
