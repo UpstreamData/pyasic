@@ -370,7 +370,9 @@ class BOSMiner(BaseMiner):
             return result.upper().strip()
 
     async def get_model(self) -> Optional[str]:
-        return self.model + " (BOS)"
+        if self.model is not None:
+            return self.model + " (BOS)"
+        return "? (BOS)"
 
     async def get_version(
         self, api_version: dict = None, graphql_version: dict = None

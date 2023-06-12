@@ -26,4 +26,6 @@ class Hiveon(BMMiner):
         self.api_type = "Hiveon"
 
     async def get_model(self) -> Optional[str]:
-        return self.model + " (Hiveon)"
+        if self.model is not None:
+            return self.model + " (Hiveon)"
+        return "? (Hiveon)"
