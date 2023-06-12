@@ -18,9 +18,9 @@ import ipaddress
 from typing import Union
 
 from pyasic.miners.base import AnyMiner, BaseMiner
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import miner_factory
 
 
 # abstracted version of get miner that is easier to access
 async def get_miner(ip: Union[ipaddress.ip_address, str]) -> AnyMiner:
-    return await MinerFactory().get_miner(ip)
+    return await miner_factory.get_miner(ip)

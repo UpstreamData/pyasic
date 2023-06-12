@@ -13,10 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
+from .E9_Pro import BMMinerE9Pro

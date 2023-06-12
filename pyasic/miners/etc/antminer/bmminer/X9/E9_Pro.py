@@ -13,4 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .HS3 import CGMinerHS3
+
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.etc._types import E9Pro  # noqa - Ignore access to _module
+
+
+class BMMinerE9Pro(AntminerModern, E9Pro):
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.supports_shutdown = False

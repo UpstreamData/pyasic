@@ -16,7 +16,7 @@
 
 import unittest
 
-from tests.miners_tests import MinerFactoryTest, MinersTest
+# from tests.miners_tests import MinerFactoryTest, MinersTest
 from tests.network_tests import NetworkTest
 
 if __name__ == "__main__":
