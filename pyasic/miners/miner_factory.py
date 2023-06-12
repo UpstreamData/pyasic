@@ -365,9 +365,15 @@ class MinerFactory:
         self.cache = {}
 
     async def get_multiple_miners(self, ips: List[str], limit: int = 200):
-        tasks = []
         results = []
 
+        async for miner in self.get_miner_generator(ips, limit):
+            results.append(miner)
+
+        return results
+
+    async def get_miner_generator(self, ips: list, limit: int = 200):
+        tasks = []
         semaphore = asyncio.Semaphore(limit)
 
         for ip in ips:
@@ -378,13 +384,14 @@ class MinerFactory:
             try:
                 result = await task
                 if result is not None:
-                    results.append(result)
+                    yield result
             finally:
                 semaphore.release()
 
-        return results
-
     async def get_miner(self, ip: str):
+        ip = str(ip)
+        if ip in self.cache:
+            return self.cache[ip]
         miner_type = None
         for _ in range(RETRIES):
             task = asyncio.create_task(self._get_miner_type(ip))

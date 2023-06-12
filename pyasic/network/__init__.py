@@ -19,7 +19,7 @@ import ipaddress
 import logging
 from typing import AsyncIterator, List, Union
 
-from pyasic.miners.miner_factory import AnyMiner, MinerFactory
+from pyasic.miners.miner_factory import AnyMiner, miner_factory
 from pyasic.network.net_range import MinerNetworkRange
 from pyasic.settings import PyasicSettings
 
@@ -106,7 +106,7 @@ class MinerNetwork:
         logging.debug(f"{self} - (Scan Network For Miners) - Scanning")
 
         # clear cached miners
-        MinerFactory().clear_cached_miners()
+        miner_factory.clear_cached_miners()
 
         limit = asyncio.Semaphore(PyasicSettings().network_scan_threads)
         miners = await asyncio.gather(
@@ -232,7 +232,7 @@ async def ping_and_get_miner(
             # make sure the writer is closed
             await writer.wait_closed()
             # ping was successful
-            return await MinerFactory().get_miner(ip)
+            return await miner_factory.get_miner(ip)
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
