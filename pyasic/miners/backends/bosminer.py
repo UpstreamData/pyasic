@@ -155,7 +155,7 @@ BOSMINER_DATA_LOC = {
                         "config": {
                             "... on BosminerConfig": {
                                 "groups": {
-                                    "pools": {"urluser": None},
+                                    "pools": {"url": None, "user": None},
                                     "strategy": {
                                         "... on QuotaStrategy": {"quota": None}
                                     },
@@ -414,7 +414,7 @@ class BOSMiner(BaseMiner):
 
         if graphql_version:
             try:
-                fw_ver = graphql_version["bos"]["info"]["version"]["full"]
+                fw_ver = graphql_version["data"]["bos"]["info"]["version"]["full"]
             except KeyError:
                 pass
 
@@ -442,7 +442,7 @@ class BOSMiner(BaseMiner):
 
         if graphql_hostname:
             try:
-                hostname = graphql_hostname["bos"]["hostname"]
+                hostname = graphql_hostname["data"]["bos"]["hostname"]
                 return hostname
             except KeyError:
                 pass
@@ -477,7 +477,7 @@ class BOSMiner(BaseMiner):
             try:
                 return round(
                     float(
-                        graphql_hashrate["bosminer"]["info"]["workSolver"][
+                        graphql_hashrate["data"]["bosminer"]["info"]["workSolver"][
                             "realHashrate"
                         ]["mhs1M"]
                         / 1000000
@@ -535,7 +535,7 @@ class BOSMiner(BaseMiner):
 
         if graphql_boards:
             try:
-                boards = graphql_boards["bosminer"]["info"]["workSolver"][
+                boards = graphql_boards["data"]["bosminer"]["info"]["workSolver"][
                     "childSolvers"
                 ]
             except (KeyError, IndexError):
@@ -646,9 +646,9 @@ class BOSMiner(BaseMiner):
 
         if graphql_wattage:
             try:
-                return graphql_wattage["bosminer"]["info"]["workSolver"]["power"][
-                    "approxConsumptionW"
-                ]
+                return graphql_wattage["data"]["bosminer"]["info"]["workSolver"][
+                    "power"
+                ]["approxConsumptionW"]
             except KeyError:
                 pass
 
@@ -679,9 +679,9 @@ class BOSMiner(BaseMiner):
 
         if graphql_wattage_limit:
             try:
-                return graphql_wattage_limit["bosminer"]["info"]["workSolver"]["power"][
-                    "limitW"
-                ]
+                return graphql_wattage_limit["data"]["bosminer"]["info"]["workSolver"][
+                    "power"
+                ]["limitW"]
             except KeyError:
                 pass
 
@@ -707,17 +707,20 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-
         if graphql_fans:
-            fans = {"fan_1": Fan(), "fan_2": Fan(), "fan_3": Fan(), "fan_4": Fan()}
+            fans = []
             for n in range(self.fan_count):
                 try:
-                    fans[f"fan_{n + 1}"].speed = graphql_fans["bosminer"]["info"][
-                        "fans"
-                    ][n]["rpm"]
+                    fans.append(
+                        Fan(
+                            speed=graphql_fans["data"]["bosminer"]["info"]["fans"][n][
+                                "rpm"
+                            ]
+                        )
+                    )
                 except KeyError:
                     pass
-            return [fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]]
+            return fans
 
         if not api_fans:
             try:
@@ -726,14 +729,14 @@ class BOSMiner(BaseMiner):
                 pass
 
         if api_fans:
-            fans = {"fan_1": Fan(), "fan_2": Fan(), "fan_3": Fan(), "fan_4": Fan()}
+            fans = []
             for n in range(self.fan_count):
                 try:
-                    fans[f"fan_{n + 1}"].speed = api_fans["FANS"][n]["RPM"]
+                    fans.append(Fan(api_fans["FANS"][n]["RPM"]))
                 except (IndexError, KeyError):
                     pass
-            return [fans["fan_1"], fans["fan_2"], fans["fan_3"], fans["fan_4"]]
-        return [Fan(), Fan(), Fan(), Fan()]
+            return fans
+        return [Fan() for _ in range(self.fan_count)]
 
     async def get_fan_psu(self) -> Optional[int]:
         return None
@@ -763,7 +766,7 @@ class BOSMiner(BaseMiner):
         if graphql_pools:
             groups = []
             try:
-                g = graphql_pools["bosminer"]["config"]["groups"]
+                g = graphql_pools["data"]["bosminer"]["config"]["groups"]
                 for group in g:
                     pools = {"quota": group["strategy"]["quota"]}
                     for i, pool in enumerate(group["pools"]):
@@ -852,7 +855,7 @@ class BOSMiner(BaseMiner):
         if graphql_errors:
             errors = []
             try:
-                boards = graphql_errors["bosminer"]["info"]["workSolver"][
+                boards = graphql_errors["data"]["bosminer"]["info"]["workSolver"][
                     "childSolvers"
                 ]
             except (KeyError, IndexError):
@@ -946,7 +949,7 @@ class BOSMiner(BaseMiner):
         # get light through GraphQL
         if graphql_fault_light:
             try:
-                self.light = graphql_fault_light["bos"]["faultLight"]
+                self.light = graphql_fault_light["data"]["bos"]["faultLight"]
                 return self.light
             except (TypeError, KeyError, ValueError, IndexError):
                 pass

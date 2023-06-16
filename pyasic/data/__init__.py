@@ -123,28 +123,12 @@ class MinerData:
     nominal_hashrate: float = 0
     hashboards: List[HashBoard] = field(default_factory=list)
     ideal_hashboards: int = 1
-    left_board_hashrate: float = field(init=False)
-    center_board_hashrate: float = field(init=False)
-    right_board_hashrate: float = field(init=False)
     temperature_avg: int = field(init=False)
     env_temp: float = -1.0
-    left_board_temp: int = field(init=False)
-    left_board_chip_temp: int = field(init=False)
-    center_board_temp: int = field(init=False)
-    center_board_chip_temp: int = field(init=False)
-    right_board_temp: int = field(init=False)
-    right_board_chip_temp: int = field(init=False)
     wattage: int = -1
     wattage_limit: int = -1
     fans: List[Fan] = field(default_factory=list)
-    fan_1: int = field(init=False)
-    fan_2: int = field(init=False)
-    fan_3: int = field(init=False)
-    fan_4: int = field(init=False)
     fan_psu: int = -1
-    left_chips: int = field(init=False)
-    center_chips: int = field(init=False)
-    right_chips: int = field(init=False)
     total_chips: int = field(init=False)
     ideal_chips: int = 1
     percent_ideal_chips: float = field(init=False)
@@ -229,192 +213,11 @@ class MinerData:
         self._hashrate = val
 
     @property
-    def fan_1(self):  # noqa - Skip PyCharm inspection
-        if len(self.fans) > 0:
-            return self.fans[0].speed
-
-    @fan_1.setter
-    def fan_1(self, val):
-        pass
-
-    @property
-    def fan_2(self):  # noqa - Skip PyCharm inspection
-        if len(self.fans) > 1:
-            return self.fans[1].speed
-
-    @fan_2.setter
-    def fan_2(self, val):
-        pass
-
-    @property
-    def fan_3(self):  # noqa - Skip PyCharm inspection
-        if len(self.fans) > 2:
-            return self.fans[2].speed
-
-    @fan_3.setter
-    def fan_3(self, val):
-        pass
-
-    @property
-    def fan_4(self):  # noqa - Skip PyCharm inspection
-        if len(self.fans) > 3:
-            return self.fans[3].speed
-
-    @fan_4.setter
-    def fan_4(self, val):
-        pass
-
-    @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
         return sum([hb.chips for hb in self.hashboards])
 
     @total_chips.setter
     def total_chips(self, val):
-        pass
-
-    @property
-    def left_chips(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[0].chips
-
-        return 0
-
-    @left_chips.setter
-    def left_chips(self, val):
-        pass
-
-    @property
-    def center_chips(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 1:
-            return self.hashboards[0].chips
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[1].chips
-        return 0
-
-    @center_chips.setter
-    def center_chips(self, val):
-        pass
-
-    @property
-    def right_chips(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 2:
-            return self.hashboards[1].chips
-        if len(self.hashboards) == 3:
-            return self.hashboards[2].chips
-        if len(self.hashboards) > 3:
-            return self.hashboards[-1:][0].chips
-        return 0
-
-    @right_chips.setter
-    def right_chips(self, val):
-        pass
-
-    @property
-    def left_board_hashrate(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[0].hashrate
-        return 0
-
-    @left_board_hashrate.setter
-    def left_board_hashrate(self, val):
-        pass
-
-    @property
-    def center_board_hashrate(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 1:
-            return self.hashboards[0].hashrate
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[1].hashrate
-        return 0
-
-    @center_board_hashrate.setter
-    def center_board_hashrate(self, val):
-        pass
-
-    @property
-    def right_board_hashrate(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 2:
-            return self.hashboards[1].hashrate
-        if len(self.hashboards) == 3:
-            return self.hashboards[2].hashrate
-        if len(self.hashboards) > 3:
-            return self.hashboards[-1:][0].hashrate
-        return 0
-
-    @right_board_hashrate.setter
-    def right_board_hashrate(self, val):
-        pass
-
-    @property
-    def left_board_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[0].temp
-        return 0
-
-    @left_board_temp.setter
-    def left_board_temp(self, val):
-        pass
-
-    @property
-    def center_board_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 1:
-            return self.hashboards[0].temp
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[1].temp
-        return 0
-
-    @center_board_temp.setter
-    def center_board_temp(self, val):
-        pass
-
-    @property
-    def right_board_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 2:
-            return self.hashboards[1].temp
-        if len(self.hashboards) == 3:
-            return self.hashboards[2].temp
-        if len(self.hashboards) > 3:
-            return self.hashboards[-1:][0].temp
-        return 0
-
-    @right_board_temp.setter
-    def right_board_temp(self, val):
-        pass
-
-    @property
-    def left_board_chip_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[0].chip_temp
-        return 0
-
-    @left_board_chip_temp.setter
-    def left_board_chip_temp(self, val):
-        pass
-
-    @property
-    def center_board_chip_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 1:
-            return self.hashboards[0].chip_temp
-        if len(self.hashboards) in [2, 3, 4]:
-            return self.hashboards[1].chip_temp
-        return 0
-
-    @center_board_chip_temp.setter
-    def center_board_chip_temp(self, val):
-        pass
-
-    @property
-    def right_board_chip_temp(self):  # noqa - Skip PyCharm inspection
-        if len(self.hashboards) == 2:
-            return self.hashboards[1].chip_temp
-        if len(self.hashboards) == 3:
-            return self.hashboards[2].chip_temp
-        if len(self.hashboards) > 3:
-            return self.hashboards[-1:][0].chip_temp
-        return 0
-
-    @right_board_chip_temp.setter
-    def right_board_chip_temp(self, val):
         pass
 
     @property
@@ -536,24 +339,40 @@ class MinerData:
                 escaped_data = self[attribute].replace(" ", "\\ ")
                 tag_data.append(f"{attribute}={escaped_data}")
                 continue
-            if isinstance(self[attribute], str):
+            elif str(attribute).startswith("_"):
+                continue
+            elif isinstance(self[attribute], str):
                 field_data.append(f'{attribute}="{self[attribute]}"')
                 continue
-            if isinstance(self[attribute], bool):
+            elif isinstance(self[attribute], bool):
                 field_data.append(f"{attribute}={str(self[attribute]).lower()}")
                 continue
-            if isinstance(self[attribute], int):
+            elif isinstance(self[attribute], int):
                 field_data.append(f"{attribute}={self[attribute]}")
                 continue
-            if isinstance(self[attribute], float):
+            elif isinstance(self[attribute], float):
                 field_data.append(f"{attribute}={self[attribute]}")
                 continue
-            if attribute == "fault_light" and not self[attribute]:
+            elif attribute == "fault_light" and not self[attribute]:
                 field_data.append(f"{attribute}=false")
                 continue
-            if attribute == "errors":
+            elif attribute == "errors":
                 for idx, item in enumerate(self[attribute]):
                     field_data.append(f'error_{idx+1}="{item.error_message}"')
+            elif attribute == "hashboards":
+                for idx, item in enumerate(self[attribute]):
+                    field_data.append(f"hashboard_{idx+1}_hashrate={item.hashrate}")
+                    field_data.append(f"hashboard_{idx+1}_temperature={item.temp}")
+                    field_data.append(
+                        f"hashboard_{idx+1}_chip_temperature={item.chip_temp}"
+                    )
+                    field_data.append(f"hashboard_{idx+1}_chips={item.chips}")
+                    field_data.append(
+                        f"hashboard_{idx+1}_expected_chips={item.expected_chips}"
+                    )
+            elif attribute == "fans":
+                for idx, item in enumerate(self[attribute]):
+                    field_data.append(f'fan_{idx+1}="{item.speed}"')
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
