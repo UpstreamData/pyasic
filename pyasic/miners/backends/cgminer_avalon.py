@@ -115,8 +115,17 @@ class CGMinerAvalon(CGMiner):
                 data = item.replace("]", "").split("[")
                 data_list = [i.split(": ") for i in data[1].strip().split(", ")]
                 data_dict = {}
-                for key, val in [tuple(item) for item in data_list]:
-                    data_dict[key] = val
+                try:
+                    for key, val in [tuple(item) for item in data_list]:
+                        data_dict[key] = val
+                except ValueError:
+                    # --avalon args
+                    for arg_item in data_list:
+                        item_data = arg_item[0].split(" ")
+                        for idx in range(len(item_data)):
+                            if idx % 2 == 0 or idx == 0:
+                                data_dict[item_data[idx]] = item_data[idx + 1]
+
                 raw_data = [data[0].strip(), data_dict]
             else:
                 raw_data = [
