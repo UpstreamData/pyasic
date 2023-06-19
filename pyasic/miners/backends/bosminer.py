@@ -643,7 +643,6 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-        print(graphql_wattage)
         if graphql_wattage is not None:
             try:
                 return graphql_wattage["data"]["bosminer"]["info"]["workSolver"][
