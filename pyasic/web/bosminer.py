@@ -78,19 +78,20 @@ class BOSMinerWebAPI(BaseWebAPI):
 
         command = merge(*commands)
         data = await self.send_command(command)
-        if data.get("data") is None:
-            try:
-                commands = list(commands)
-                # noinspection PyTypeChecker
-                commands.remove({"bos": {"faultLight": None}})
-                command = merge(*commands)
-                data = await self.send_command(command)
-            except LookupError:
-                pass
-        if not data:
-            data = {}
-        data["multicommand"] = False
-        return data
+        if data is not None:
+            if data.get("data") is None:
+                try:
+                    commands = list(commands)
+                    # noinspection PyTypeChecker
+                    commands.remove({"bos": {"faultLight": None}})
+                    command = merge(*commands)
+                    data = await self.send_command(command)
+                except LookupError:
+                    pass
+            if not data:
+                data = {}
+            data["multicommand"] = False
+            return data
 
     async def auth(self, client: httpx.AsyncClient) -> None:
         url = f"http://{self.ip}/graphql"
