@@ -263,6 +263,7 @@ MINER_CLASSES = {
         "M50S+VH30": BTMinerM50SPlusVH30,
         "M50S+VH40": BTMinerM50SPlusVH40,
         "M50S+VJ30": BTMinerM50SPlusVJ30,
+        "M50S+VK20": BTMinerM50SPlusVK20,
         "M50S++VK10": BTMinerM50SPlusPlusVK10,
         "M50S++VK20": BTMinerM50SPlusPlusVK20,
         "M50S++VK30": BTMinerM50SPlusPlusVK30,
