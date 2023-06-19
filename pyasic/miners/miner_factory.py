@@ -760,7 +760,8 @@ class MinerFactory:
         try:
             async with aiohttp.ClientSession() as session:
                 d = await session.post(
-                    url, json={"query": "{bosminer {info{modelName}}}"}
+                    f"http://{ip}/graphql",
+                    json={"query": "{bosminer {info{modelName}}}"},
                 )
             if d.status == 200:
                 json_data = await d.json()

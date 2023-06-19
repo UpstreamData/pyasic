@@ -643,13 +643,13 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-
-        if graphql_wattage:
+        print(graphql_wattage)
+        if graphql_wattage is not None:
             try:
                 return graphql_wattage["data"]["bosminer"]["info"]["workSolver"][
                     "power"
                 ]["approxConsumptionW"]
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
 
         if not api_tunerstatus:
@@ -682,7 +682,7 @@ class BOSMiner(BaseMiner):
                 return graphql_wattage_limit["data"]["bosminer"]["info"]["workSolver"][
                     "power"
                 ]["limitW"]
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
 
         if not api_tunerstatus:
