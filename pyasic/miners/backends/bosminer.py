@@ -782,7 +782,7 @@ class BOSMiner(BaseMiner):
                         pools[f"pool_{i + 1}_user"] = pool["user"]
                     groups.append(pools)
                 return groups
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
 
         if not api_pools:
