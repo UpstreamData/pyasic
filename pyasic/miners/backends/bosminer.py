@@ -542,7 +542,12 @@ class BOSMiner(BaseMiner):
                 boards = None
 
             if boards:
-                offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else 0
+                b_names = [int(b["name"]) for b in boards]
+                offset = 0
+                if 3 in b_names:
+                    offset = 1
+                elif 6 in b_names:
+                    offset = 6
                 for hb in boards:
                     _id = int(hb["name"]) - offset
                     board = hashboards[_id]
