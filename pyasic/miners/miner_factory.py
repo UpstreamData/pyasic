@@ -322,6 +322,7 @@ MINER_CLASSES = {
     MinerTypes.VNISH: {
         None: VNish,
         "ANTMINER L3+": VnishL3Plus,
+        "ANTMINER S17+": VNishS17Plus,
         "ANTMINER S19": VNishS19,
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,

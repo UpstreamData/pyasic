@@ -13,7 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-from .X3 import *
-from .X17 import *
-from .X19 import *
+from .S17 import VNishS17Plus
