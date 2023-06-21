@@ -395,7 +395,9 @@ class MinerFactory:
         ip = str(ip)
         if ip in self.cache:
             return self.cache[ip]
+
         miner_type = None
+
         for _ in range(RETRIES):
             task = asyncio.create_task(self._get_miner_type(ip))
             try:
@@ -408,23 +410,18 @@ class MinerFactory:
 
         if miner_type is not None:
             miner_model = None
-            fn = None
-            if miner_type == MinerTypes.ANTMINER:
-                fn = self.get_miner_model_antminer
-            if miner_type == MinerTypes.WHATSMINER:
-                fn = self.get_miner_model_whatsminer
-            if miner_type == MinerTypes.AVALONMINER:
-                fn = self.get_miner_model_avalonminer
-            if miner_type == MinerTypes.INNOSILICON:
-                fn = self.get_miner_model_innosilicon
-            if miner_type == MinerTypes.GOLDSHELL:
-                fn = self.get_miner_model_goldshell
-            if miner_type == MinerTypes.BRAIINS_OS:
-                fn = self.get_miner_model_braiins_os
-            if miner_type == MinerTypes.VNISH:
-                fn = self.get_miner_model_vnish
-            if miner_type == MinerTypes.HIVEON:
-                fn = self.get_miner_model_hiveon
+            miner_model_fns = {
+                MinerTypes.ANTMINER: self.get_miner_model_antminer,
+                MinerTypes.WHATSMINER: self.get_miner_model_whatsminer,
+                MinerTypes.AVALONMINER: self.get_miner_model_avalonminer,
+                MinerTypes.INNOSILICON: self.get_miner_model_innosilicon,
+                MinerTypes.GOLDSHELL: self.get_miner_model_goldshell,
+                MinerTypes.BRAIINS_OS: self.get_miner_model_braiins_os,
+                MinerTypes.VNISH: self.get_miner_model_vnish,
+                MinerTypes.HIVEON: self.get_miner_model_hiveon,
+            }
+            fn = miner_model_fns.get(miner_type)
+
             if fn is not None:
                 task = asyncio.create_task(fn(ip))
                 try:
@@ -435,6 +432,7 @@ class MinerFactory:
             miner = self._select_miner_from_classes(
                 ip, miner_type=miner_type, miner_model=miner_model
             )
+
             if miner is not None and not isinstance(miner, UnknownMiner):
                 self.cache[ip] = miner
             return miner
@@ -682,6 +680,22 @@ class MinerFactory:
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
 
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
+                miner_model = split_miner_model[0]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+        sock_json_data = await self.send_api_command(ip, "stats")
+        try:
+            miner_model = sock_json_data["STATS"][0]["Type"]
+
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
+                miner_model = split_miner_model[0]
+
             return miner_model
         except (TypeError, LookupError):
             pass
@@ -776,7 +790,7 @@ class MinerFactory:
     async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "stats")
         try:
-            miner_model = sock_json_data["STATS"][0]["Type"].upper()
+            miner_model = sock_json_data["STATS"][0]["Type"]
             if " (" in miner_model:
                 split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
