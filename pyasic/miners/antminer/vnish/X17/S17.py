@@ -14,8 +14,12 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import VNish
-from pyasic.miners.types import S17Plus
+from pyasic.miners.types import S17Plus, S17Pro
 
 
 class VNishS17Plus(VNish, S17Plus):
+    pass
+
+
+class VNishS17Pro(VNish, S17Pro):
     pass

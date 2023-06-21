@@ -13,4 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .S17 import VNishS17Plus
+from .S17 import VNishS17Plus, VNishS17Pro

@@ -323,6 +323,7 @@ MINER_CLASSES = {
         None: VNish,
         "ANTMINER L3+": VnishL3Plus,
         "ANTMINER S17+": VNishS17Plus,
+        "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
@@ -776,8 +777,8 @@ class MinerFactory:
         sock_json_data = await self.send_api_command(ip, "stats")
         try:
             miner_model = sock_json_data["STATS"][0]["Type"].upper()
-            if " (VNISH" in miner_model:
-                split_miner_model = miner_model.split(" (VNISH ")
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
 
             return miner_model
