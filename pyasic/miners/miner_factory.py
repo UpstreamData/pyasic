@@ -465,7 +465,7 @@ class MinerFactory:
         try:
             resp = await session.get(url)
             return await resp.text(), resp
-        except aiohttp.ClientError:
+        except (aiohttp.ClientError, asyncio.TimeoutError):
             pass
         return None, None
 

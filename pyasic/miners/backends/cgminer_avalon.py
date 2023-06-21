@@ -29,7 +29,7 @@ AVALON_DATA_LOC = {
     "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"web": "mac"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"api": "version"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
     "nominal_hashrate": {
         "cmd": "get_nominal_hashrate",
