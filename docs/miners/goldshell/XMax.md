@@ -1,10 +1,10 @@
 # pyasic
-## CKX Models
+## XMax Models
 
-## CK5
-
-::: pyasic.miners.ckb.goldshell.bfgminer.CKX.CK5.BFGMinerCK5
+## KD Max
+::: pyasic.miners.goldshell.bfgminer.XMax.KDMax.BFGMinerKDMax
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
+
