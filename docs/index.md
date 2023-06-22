@@ -42,8 +42,8 @@ if __name__ == "__main__":
 <br>
 
 ## Creating miners based on IP
-If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners, or an abstraction of its functionality, [`get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner].
-The function [`get_miner()`][pyasic.miners.miner_factory.MinerFactory.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
+If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners, or an abstraction of its functionality, [`get_miner()`][pyasic.miners.get_miner].
+The function [`get_miner()`][pyasic.miners.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic import get_miner # handles miner creation

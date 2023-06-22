@@ -236,7 +236,7 @@ class CGMinerT3HPlus(CGMiner, T3HPlus):
             else:
                 web_get_all = web_get_all["all"]
 
-        fan_data = [Fan(), Fan(), Fan(), Fan()]
+        fans = [Fan() for _ in range(self.fan_count)]
         if web_get_all:
             try:
                 spd = web_get_all["fansSpeed"]
@@ -245,9 +245,9 @@ class CGMinerT3HPlus(CGMiner, T3HPlus):
             else:
                 round((int(spd) * 6000) / 100)
                 for i in range(self.fan_count):
-                    fan_data[i] = Fan(spd)
+                    fans[i].speed = spd
 
-        return fan_data
+        return fans
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
         groups = []

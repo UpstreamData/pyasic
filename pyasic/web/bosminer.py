@@ -31,10 +31,8 @@ class BOSMinerWebAPI(BaseWebAPI):
         if isinstance(graphql_command, dict):
             data = []
             for key in graphql_command:
-                if graphql_command[key]:
+                if graphql_command[key] is not None:
                     parsed = self.parse_command(graphql_command[key])
-                    if key.startswith("... on"):
-                        parsed = parsed.replace(",", "")
                     data.append(key + parsed)
                 else:
                     data.append(key)
@@ -80,10 +78,20 @@ class BOSMinerWebAPI(BaseWebAPI):
 
         command = merge(*commands)
         data = await self.send_command(command)
-        if not data:
-            data = {}
-        data["multicommand"] = False
-        return data
+        if data is not None:
+            if data.get("data") is None:
+                try:
+                    commands = list(commands)
+                    # noinspection PyTypeChecker
+                    commands.remove({"bos": {"faultLight": None}})
+                    command = merge(*commands)
+                    data = await self.send_command(command)
+                except LookupError:
+                    pass
+            if not data:
+                data = {}
+            data["multicommand"] = False
+            return data
 
     async def auth(self, client: httpx.AsyncClient) -> None:
         url = f"http://{self.ip}/graphql"

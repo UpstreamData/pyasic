@@ -61,10 +61,10 @@ class MinerTypes(enum.Enum):
 MINER_CLASSES = {
     MinerTypes.ANTMINER: {
         None: BMMiner,
-        "ANTMINER DR5": CGMinerDR5,
         "ANTMINER D3": CGMinerD3,
         "ANTMINER HS3": BMMinerHS3,
         "ANTMINER L3+": BMMinerL3Plus,
+        "ANTMINER DR5": CGMinerDR5,
         "ANTMINER L7": BMMinerL7,
         "ANTMINER E9 PRO": BMMinerE9Pro,
         "ANTMINER S9": BMMinerS9,
@@ -322,6 +322,8 @@ MINER_CLASSES = {
     MinerTypes.VNISH: {
         None: VNish,
         "ANTMINER L3+": VnishL3Plus,
+        "ANTMINER S17+": VNishS17Plus,
+        "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
@@ -393,7 +395,9 @@ class MinerFactory:
         ip = str(ip)
         if ip in self.cache:
             return self.cache[ip]
+
         miner_type = None
+
         for _ in range(RETRIES):
             task = asyncio.create_task(self._get_miner_type(ip))
             try:
@@ -406,23 +410,18 @@ class MinerFactory:
 
         if miner_type is not None:
             miner_model = None
-            fn = None
-            if miner_type == MinerTypes.ANTMINER:
-                fn = self.get_miner_model_antminer
-            if miner_type == MinerTypes.WHATSMINER:
-                fn = self.get_miner_model_whatsminer
-            if miner_type == MinerTypes.AVALONMINER:
-                fn = self.get_miner_model_avalonminer
-            if miner_type == MinerTypes.INNOSILICON:
-                fn = self.get_miner_model_innosilicon
-            if miner_type == MinerTypes.GOLDSHELL:
-                fn = self.get_miner_model_goldshell
-            if miner_type == MinerTypes.BRAIINS_OS:
-                fn = self.get_miner_model_braiins_os
-            if miner_type == MinerTypes.VNISH:
-                fn = self.get_miner_model_vnish
-            if miner_type == MinerTypes.HIVEON:
-                fn = self.get_miner_model_hiveon
+            miner_model_fns = {
+                MinerTypes.ANTMINER: self.get_miner_model_antminer,
+                MinerTypes.WHATSMINER: self.get_miner_model_whatsminer,
+                MinerTypes.AVALONMINER: self.get_miner_model_avalonminer,
+                MinerTypes.INNOSILICON: self.get_miner_model_innosilicon,
+                MinerTypes.GOLDSHELL: self.get_miner_model_goldshell,
+                MinerTypes.BRAIINS_OS: self.get_miner_model_braiins_os,
+                MinerTypes.VNISH: self.get_miner_model_vnish,
+                MinerTypes.HIVEON: self.get_miner_model_hiveon,
+            }
+            fn = miner_model_fns.get(miner_type)
+
             if fn is not None:
                 task = asyncio.create_task(fn(ip))
                 try:
@@ -433,6 +432,7 @@ class MinerFactory:
             miner = self._select_miner_from_classes(
                 ip, miner_type=miner_type, miner_model=miner_model
             )
+
             if miner is not None and not isinstance(miner, UnknownMiner):
                 self.cache[ip] = miner
             return miner
@@ -464,7 +464,7 @@ class MinerFactory:
         try:
             resp = await session.get(url)
             return await resp.text(), resp
-        except aiohttp.ClientError:
+        except (aiohttp.ClientError, asyncio.TimeoutError):
             pass
         return None, None
 
@@ -680,6 +680,22 @@ class MinerFactory:
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
 
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
+                miner_model = split_miner_model[0]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+        sock_json_data = await self.send_api_command(ip, "stats")
+        try:
+            miner_model = sock_json_data["STATS"][0]["Type"]
+
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
+                miner_model = split_miner_model[0]
+
             return miner_model
         except (TypeError, LookupError):
             pass
@@ -761,7 +777,8 @@ class MinerFactory:
         try:
             async with aiohttp.ClientSession() as session:
                 d = await session.post(
-                    url, json={"query": "{bosminer {info{modelName}}}"}
+                    f"http://{ip}/graphql",
+                    json={"query": "{bosminer {info{modelName}}}"},
                 )
             if d.status == 200:
                 json_data = await d.json()
@@ -773,9 +790,9 @@ class MinerFactory:
     async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "stats")
         try:
-            miner_model = sock_json_data["STATS"][0]["Type"].upper()
-            if " (VNISH" in miner_model:
-                split_miner_model = miner_model.split(" (VNISH ")
+            miner_model = sock_json_data["STATS"][0]["Type"]
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
 
             return miner_model

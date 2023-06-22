@@ -29,20 +29,26 @@ AVALON_DATA_LOC = {
     "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"web": "mac"}}},
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"api": "version"}}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_devs": {"api": "devs"}}},
     "nominal_hashrate": {
         "cmd": "get_nominal_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
+    "env_temp": {"cmd": "get_env_temp", "kwargs": {"api_stats": {"api": "stats"}}},
     "wattage": {"cmd": "get_wattage", "kwargs": {}},
-    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "wattage_limit": {
+        "cmd": "get_wattage_limit",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
     "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
     "errors": {"cmd": "get_errors", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "fault_light": {
+        "cmd": "get_fault_light",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
 }
 
@@ -115,8 +121,17 @@ class CGMinerAvalon(CGMiner):
                 data = item.replace("]", "").split("[")
                 data_list = [i.split(": ") for i in data[1].strip().split(", ")]
                 data_dict = {}
-                for key, val in [tuple(item) for item in data_list]:
-                    data_dict[key] = val
+                try:
+                    for key, val in [tuple(item) for item in data_list]:
+                        data_dict[key] = val
+                except ValueError:
+                    # --avalon args
+                    for arg_item in data_list:
+                        item_data = arg_item[0].split(" ")
+                        for idx in range(len(item_data)):
+                            if idx % 2 == 0 or idx == 0:
+                                data_dict[item_data[idx]] = item_data[idx + 1]
+
                 raw_data = [data[0].strip(), data_dict]
             else:
                 raw_data = [
@@ -168,16 +183,16 @@ class CGMinerAvalon(CGMiner):
         if mac:
             return f"Avalon{mac.replace(':', '')[-6:]}"
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
+    async def get_hashrate(self, api_devs: dict = None) -> Optional[float]:
+        if not api_devs:
             try:
-                api_summary = await self.api.summary()
+                api_devs = await self.api.devs()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_devs:
             try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return round(float(api_devs["DEVS"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
@@ -195,38 +210,87 @@ class CGMinerAvalon(CGMiner):
 
         if api_stats:
             try:
-                stats_data = api_stats[0].get("STATS")
-                if stats_data:
-                    for key in stats_data[0].keys():
-                        if key.startswith("MM ID"):
-                            raw_data = self.parse_stats(stats_data[0][key])
-                            for board in range(self.ideal_hashboards):
-                                chip_temp = raw_data.get("MTmax")
-                                if chip_temp:
-                                    hashboards[board].chip_temp = chip_temp[board]
-
-                                temp = raw_data.get("MTavg")
-                                if temp:
-                                    hashboards[board].temp = temp[board]
-
-                                chips = raw_data.get(f"PVT_T{board}")
-                                if chips:
-                                    hashboards[board].chips = len(
-                                        [item for item in chips if not item == "0"]
-                                    )
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
             except (IndexError, KeyError, ValueError, TypeError):
-                pass
+                return hashboards
+
+            for board in range(self.ideal_hashboards):
+                try:
+                    hashboards[board].chip_temp = int(parsed_stats["MTmax"][board])
+                except LookupError:
+                    pass
+
+                try:
+                    board_hr = parsed_stats["MGHS"][board]
+                    hashboards[board].hashrate = round(float(board_hr) / 1000, 2)
+                except LookupError:
+                    pass
+
+                try:
+                    hashboards[board].temp = int(parsed_stats["MTavg"][board])
+                except LookupError:
+                    pass
+
+                try:
+                    chip_data = parsed_stats[f"PVT_T{board}"]
+                    hashboards[board].missing = False
+                    if chip_data:
+                        hashboards[board].chips = len(
+                            [item for item in chip_data if not item == "0"]
+                        )
+                except LookupError:
+                    pass
 
         return hashboards
 
-    async def get_env_temp(self) -> Optional[float]:
-        return None
+    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
+                return round(float(parsed_stats["GHSmm"]) / 1000, 2)
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
+
+    async def get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
+                return float(parsed_stats["Temp"])
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
 
     async def get_wattage(self) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self) -> Optional[int]:
-        return None
+    async def get_wattage_limit(self, api_stats: dict = None) -> Optional[int]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
+                return int(parsed_stats["MPO"])
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
 
     async def get_fans(self, api_stats: dict = None) -> List[Fan]:
         if not api_stats:
@@ -235,19 +299,19 @@ class CGMinerAvalon(CGMiner):
             except APIError:
                 pass
 
-        fans_data = [Fan(), Fan(), Fan(), Fan()]
+        fans_data = [Fan() for _ in range(self.fan_count)]
         if api_stats:
             try:
-                stats_data = api_stats[0].get("STATS")
-                if stats_data:
-                    for key in stats_data[0].keys():
-                        if key.startswith("MM ID"):
-                            raw_data = self.parse_stats(stats_data[0][key])
-                            for fan in range(self.fan_count):
-                                fans_data[fan] = Fan(int(raw_data[f"Fan{fan + 1}"]))
-            except (KeyError, IndexError, ValueError, TypeError):
-                pass
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
+            except LookupError:
+                return fans_data
 
+            for fan in range(self.fan_count):
+                try:
+                    fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
+                except (IndexError, KeyError, ValueError, TypeError):
+                    pass
         return fans_data
 
     async def get_pools(self, api_pools: dict = None) -> List[dict]:
@@ -279,13 +343,31 @@ class CGMinerAvalon(CGMiner):
     async def get_errors(self) -> List[MinerErrorData]:
         return []
 
-    async def get_fault_light(self) -> bool:
+    async def get_fault_light(self, api_stats: dict = None) -> bool:  # noqa
         if self.light:
             return self.light
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                unparsed_stats = api_stats["STATS"][0]["MM ID0"]
+                parsed_stats = self.parse_stats(unparsed_stats)
+                led = int(parsed_stats["Led"])
+                return True if led == 1 else False
+            except (IndexError, KeyError, ValueError, TypeError):
+                pass
+
         try:
             data = await self.api.ascset(0, "led", "1-255")
         except APIError:
             return False
-        if data["STATUS"][0]["Msg"] == "ASC 0 set info: LED[1]":
-            return True
+        try:
+            if data["STATUS"][0]["Msg"] == "ASC 0 set info: LED[1]":
+                return True
+        except LookupError:
+            pass
         return False

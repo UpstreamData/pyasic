@@ -296,7 +296,7 @@ class CGMiner(BaseMiner):
             except APIError:
                 pass
 
-        fans_data = [Fan(), Fan(), Fan(), Fan()]
+        fans = [Fan() for _ in range(self.fan_count)]
         if api_stats:
             try:
                 fan_offset = -1
@@ -310,12 +310,12 @@ class CGMiner(BaseMiner):
                     fan_offset = 1
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = Fan(
-                        api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    fans[fan].speed = api_stats["STATS"][1].get(
+                        f"fan{fan_offset+fan}", 0
                     )
             except (KeyError, IndexError):
                 pass
-        return fans_data
+        return fans
 
     async def get_fan_psu(self) -> Optional[int]:
         return None

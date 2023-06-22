@@ -463,15 +463,13 @@ class BTMiner(BaseMiner):
             except APIError:
                 pass
 
-        fans = [Fan(), Fan(), Fan(), Fan()]
+        fans = [Fan() for _ in range(self.fan_count)]
         if api_summary:
             try:
                 if self.fan_count > 0:
                     fans = [
-                        Fan(api_summary["SUMMARY"][0]["Fan Speed In"]),
-                        Fan(api_summary["SUMMARY"][0]["Fan Speed Out"]),
-                        Fan(),
-                        Fan(),
+                        Fan(api_summary["SUMMARY"][0].get("Fan Speed In", 0)),
+                        Fan(api_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
                     ]
             except (KeyError, IndexError):
                 pass
