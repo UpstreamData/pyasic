@@ -8,6 +8,14 @@
         heading_level: 4
 <br>
 
+## Get Miner
+::: pyasic.miners.get_miner
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+<br>
+
 ## AnyMiner
 ::: pyasic.miners.miner_factory.AnyMiner
     handler: python
