@@ -61,10 +61,10 @@ class MinerTypes(enum.Enum):
 MINER_CLASSES = {
     MinerTypes.ANTMINER: {
         None: BMMiner,
-        "ANTMINER DR5": CGMinerDR5,
         "ANTMINER D3": CGMinerD3,
         "ANTMINER HS3": BMMinerHS3,
         "ANTMINER L3+": BMMinerL3Plus,
+        "ANTMINER DR5": CGMinerDR5,
         "ANTMINER L7": BMMinerL7,
         "ANTMINER E9 PRO": BMMinerE9Pro,
         "ANTMINER S9": BMMinerS9,

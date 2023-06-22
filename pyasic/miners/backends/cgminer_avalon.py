@@ -309,7 +309,7 @@ class CGMinerAvalon(CGMiner):
 
             for fan in range(self.fan_count):
                 try:
-                    fans_data[fan] = Fan(int(parsed_stats[f"Fan{fan + 1}"]))
+                    fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
                 except (IndexError, KeyError, ValueError, TypeError):
                     pass
         return fans_data
