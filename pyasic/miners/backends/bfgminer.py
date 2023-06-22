@@ -247,14 +247,16 @@ class BFGMiner(BaseMiner):
 
                 for fan_num in range(0, 8, 4):
                     for _f_num in range(4):
-                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}")
-                        if f and not f == 0 and fan_offset == -1:
+                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
+                        if not f == 0 and fan_offset == -1:
                             fan_offset = fan_num
                 if fan_offset == -1:
                     fan_offset = 1
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    fans_data[fan] = api_stats["STATS"][1].get(
+                        f"fan{fan_offset+fan}", 0
+                    )
             except (KeyError, IndexError):
                 pass
         fans = [Fan(speed=d) if d else Fan() for d in fans_data]

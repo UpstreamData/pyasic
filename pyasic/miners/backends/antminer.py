@@ -353,7 +353,7 @@ class AntminerOld(CGMiner):
             except APIError:
                 pass
 
-        fans_data = [Fan(), Fan(), Fan(), Fan()]
+        fans_data = [Fan() for _ in range(self.fan_count)]
         if api_stats:
             try:
                 fan_offset = -1
@@ -367,8 +367,8 @@ class AntminerOld(CGMiner):
                     fan_offset = 3
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = Fan(
-                        api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    fans_data[fan].speed = api_stats["STATS"][1].get(
+                        f"fan{fan_offset+fan}", 0
                     )
             except (KeyError, IndexError):
                 pass

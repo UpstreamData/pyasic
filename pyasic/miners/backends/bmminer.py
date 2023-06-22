@@ -275,24 +275,25 @@ class BMMiner(BaseMiner):
             except APIError:
                 pass
 
-        fans_data = [None, None, None, None]
+        fans = [Fan() for _ in range(self.fan_count)]
         if api_stats:
             try:
                 fan_offset = -1
 
                 for fan_num in range(1, 8, 4):
                     for _f_num in range(4):
-                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}")
+                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
                         if f and not f == 0 and fan_offset == -1:
                             fan_offset = fan_num
                 if fan_offset == -1:
                     fan_offset = 1
 
                 for fan in range(self.fan_count):
-                    fans_data[fan] = api_stats["STATS"][1].get(f"fan{fan_offset+fan}")
+                    fans[fan].speed = api_stats["STATS"][1].get(
+                        f"fan{fan_offset+fan}", 0
+                    )
             except (KeyError, IndexError):
                 pass
-        fans = [Fan(speed=d) if d else Fan() for d in fans_data]
 
         return fans
 
