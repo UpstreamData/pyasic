@@ -66,34 +66,22 @@ class MinerData:
     Attributes:
         ip: The IP of the miner as a str.
         datetime: The time and date this data was generated.
+        mac: The MAC address of the miner as a str.
         model: The model of the miner as a str.
         make: The make of the miner as a str.
         api_ver: The current api version on the miner as a str.
         fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
-        hashrate: The hashrate of the miner in TH/s as a float.
+        hashrate: The hashrate of the miner in TH/s as a float.  Calculated automatically.
+        _hashrate: Backup for hashrate found via API instead of hashboards.
         nominal_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
-        left_board_hashrate: The hashrate of the left board of the miner in TH/s as a float.
-        center_board_hashrate: The hashrate of the center board of the miner in TH/s as a float.
-        right_board_hashrate: The hashrate of the right board of the miner in TH/s as a float.
+        hashboards: A list of hashboards on the miner with their statistics.
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
-        left_board_temp: The temp of the left PCB as an int.
-        left_board_chip_temp: The temp of the left board chips as an int.
-        center_board_temp: The temp of the center PCB as an int.
-        center_board_chip_temp: The temp of the center board chips as an int.
-        right_board_temp: The temp of the right PCB as an int.
-        right_board_chip_temp: The temp of the right board chips as an int.
         wattage: Current power draw of the miner as an int.
         wattage_limit: Power limit of the miner as an int.
-        fan_1: The speed of the first fan as an int.
-        fan_2: The speed of the second fan as an int.
-        fan_3: The speed of the third fan as an int.
-        fan_4: The speed of the fourth fan as an int.
+        fans: A list of fans on the miner with their speeds.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
-        left_chips: The number of chips online in the left board as an int.
-        center_chips: The number of chips online in the left board as an int.
-        right_chips: The number of chips online in the left board as an int.
         total_chips: The total number of chips on all boards.  Calculated automatically.
         ideal_chips: The ideal number of chips in the miner as an int.
         percent_ideal_chips: The percent of total chips out of the ideal count.  Calculated automatically.
@@ -106,7 +94,7 @@ class MinerData:
         pool_2_url: The second pool url on the miner as a str.
         pool_2_user: The second pool user on the miner as a str.
         errors: A list of errors on the miner.
-        fault_light: Whether or not the fault light is on as a boolean.
+        fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
     """
 
@@ -134,7 +122,7 @@ class MinerData:
     percent_ideal_chips: float = field(init=False)
     percent_ideal_hashrate: float = field(init=False)
     percent_ideal_wattage: float = field(init=False)
-    nominal: int = field(init=False)
+    nominal: bool = field(init=False)
     pool_split: str = "0"
     pool_1_url: str = "Unknown"
     pool_1_user: str = "Unknown"
