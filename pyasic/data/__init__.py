@@ -372,7 +372,7 @@ class MinerData:
                     )
             elif attribute == "fans":
                 for idx, item in enumerate(self[attribute]):
-                    field_data.append(f'fan_{idx+1}="{item.speed}"')
+                    field_data.append(f"fan_{idx+1}={item.speed}")
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
