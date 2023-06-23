@@ -227,6 +227,19 @@ class AntminerModern(BMMiner):
             protocol=protocol,
         )
 
+    async def is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
+        if not web_get_conf:
+            try:
+                web_get_conf = await self.web.get_miner_conf()
+            except APIError:
+                pass
+
+        if web_get_conf:
+            try:
+                return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
+            except LookupError:
+                pass
+
 
 ANTMINER_OLD_DATA_LOC = {
     "mac": {"cmd": "get_mac", "kwargs": {}},
@@ -425,3 +438,16 @@ class AntminerOld(CGMiner):
                 pass
 
         return hashboards
+
+    async def is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
+        if not web_get_conf:
+            try:
+                web_get_conf = await self.web.get_miner_conf()
+            except APIError:
+                pass
+
+        if web_get_conf:
+            try:
+                return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
+            except LookupError:
+                pass
