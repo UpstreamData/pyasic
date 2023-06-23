@@ -169,3 +169,6 @@ class VNish(BMMiner):
                 return fw_ver
             except KeyError:
                 pass
+
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None

@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import HashBoard
@@ -157,3 +157,6 @@ class BFGMinerGoldshell(BFGMiner):
                 print(self, api_devdetails)
 
         return hashboards
+
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None

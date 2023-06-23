@@ -371,3 +371,6 @@ class CGMinerAvalon(CGMiner):
         except LookupError:
             pass
         return False
+
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None

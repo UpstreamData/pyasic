@@ -352,3 +352,6 @@ class BMMiner(BaseMiner):
                     return round(ideal_rate, 2)
             except (KeyError, IndexError):
                 pass
+
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None

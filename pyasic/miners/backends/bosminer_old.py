@@ -150,3 +150,6 @@ class BOSMinerOld(BOSMiner):
 
     async def get_data(self, allow_warning: bool = False, **kwargs) -> MinerData:
         return MinerData(ip=str(self.ip))
+
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None
