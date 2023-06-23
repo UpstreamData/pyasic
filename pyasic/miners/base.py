@@ -374,6 +374,7 @@ class BaseMiner(ABC):
                 "errors",
                 "fault_light",
                 "pools",
+                "is_mining",
             ]
         api_multicommand = []
         web_multicommand = []

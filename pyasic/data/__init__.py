@@ -96,6 +96,7 @@ class MinerData:
         errors: A list of errors on the miner.
         fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
+        is_mining: Whether the miner is mining.
     """
 
     ip: str
@@ -133,6 +134,7 @@ class MinerData:
     ] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
+    is_mining: bool = True
 
     @classmethod
     def fields(cls):

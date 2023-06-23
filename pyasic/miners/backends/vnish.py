@@ -43,6 +43,7 @@ VNISH_DATA_LOC = {
     "errors": {"cmd": "get_errors", "kwargs": {}},
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "is_mining": {"cmd": "is_mining", "kwargs": {}},
 }
 
 

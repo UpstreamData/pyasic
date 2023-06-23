@@ -45,6 +45,10 @@ ANTMINER_MODERN_DATA_LOC = {
     "errors": {"cmd": "get_errors", "kwargs": {}},
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "is_mining": {
+        "cmd": "is_mining",
+        "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
+    },
 }
 
 
@@ -270,6 +274,10 @@ ANTMINER_OLD_DATA_LOC = {
         "kwargs": {"web_get_blink_status": {"web": "get_blink_status"}},
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "is_mining": {
+        "cmd": "is_mining",
+        "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
+    },
 }
 
 

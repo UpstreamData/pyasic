@@ -167,6 +167,10 @@ BOSMINER_DATA_LOC = {
             },
         },
     },
+    "is_mining": {
+        "cmd": "is_mining",
+        "kwargs": {"api_tunerstatus": {"api": "tunerstatus"}},
+    },
 }
 
 

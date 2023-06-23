@@ -88,6 +88,7 @@ BTMINER_DATA_LOC = {
         "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "is_mining": {"cmd": "is_mining", "kwargs": {"api_status": {"api": "status"}}},
 }
 
 

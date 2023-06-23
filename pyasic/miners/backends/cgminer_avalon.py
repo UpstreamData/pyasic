@@ -50,6 +50,7 @@ AVALON_DATA_LOC = {
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "is_mining": {"cmd": "is_mining", "kwargs": {}},
 }
 
 
