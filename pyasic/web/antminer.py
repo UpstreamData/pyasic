@@ -192,3 +192,12 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def set_miner_conf(self, conf: dict) -> dict:
         return await self.send_command("set_miner_conf", **conf)
+
+    async def stats(self) -> dict:
+        return await self.send_command("miner_stats")
+
+    async def summary(self) -> dict:
+        return await self.send_command("miner_summary")
+
+    async def pools(self) -> dict:
+        return await self.send_command("miner_pools")

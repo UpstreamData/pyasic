@@ -451,3 +451,15 @@ class AntminerOld(CGMiner):
                 return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
             except LookupError:
                 pass
+
+        api_summary = None
+        try:
+            api_summary = await self.api.summary()
+        except APIError:
+            pass
+
+        if api_summary is not None:
+            if not api_summary == {}:
+                return True
+            else:
+                return False
