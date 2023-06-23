@@ -346,7 +346,7 @@ class BaseMiner(ABC):
         pass
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
-        """Check whether the miner is mining
+        """Check whether the miner is mining.
 
         Returns:
             A boolean value representing if the miner is mining.

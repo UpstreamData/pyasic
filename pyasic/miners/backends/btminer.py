@@ -616,3 +616,22 @@ class BTMiner(BaseMiner):
 
     async def set_hostname(self, hostname: str):
         await self.api.set_hostname(hostname)
+
+    async def is_mining(self, api_status: dict = None) -> Optional[bool]:
+        if not api_status:
+            try:
+                api_status = await self.api.status()
+            except APIError:
+                pass
+
+        if api_status:
+            try:
+                if api_status["Msg"].get("btmineroff"):
+                    try:
+                        await self.api.devdetails()
+                    except APIError:
+                        return False
+                    return True
+                return True if api_status["Msg"]["mineroff"] == "false" else False
+            except LookupError:
+                pass

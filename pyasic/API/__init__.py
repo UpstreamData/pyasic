@@ -73,6 +73,11 @@ class BaseMinerAPI:
         # send the command
         data = await self._send_bytes(json.dumps(cmd).encode("utf-8"))
 
+        if data == b"Socket connect failed: Connection refused\n":
+            if not ignore_errors:
+                raise APIError(data.decode("utf-8"))
+            return {}
+
         data = self._load_api_data(data)
 
         # check for if the user wants to allow errors to return

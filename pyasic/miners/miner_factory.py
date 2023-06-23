@@ -453,7 +453,6 @@ class MinerFactory:
             text, resp = await concurrent_get_first_result(
                 tasks, lambda x: x[0] is not None
             )
-
             if text is not None:
                 return self._parse_web_type(text, resp)
 
@@ -462,7 +461,7 @@ class MinerFactory:
         session: aiohttp.ClientSession, url: str
     ) -> Tuple[Optional[str], Optional[aiohttp.ClientResponse]]:
         try:
-            resp = await session.get(url)
+            resp = await session.get(url, allow_redirects=False)
             return await resp.text(), resp
         except (aiohttp.ClientError, asyncio.TimeoutError):
             pass
@@ -619,6 +618,8 @@ class MinerFactory:
             await writer.wait_closed()
             return
         except (ConnectionError, OSError):
+            return
+        if data == b"Socket connect failed: Connection refused\n":
             return
 
         data = await self._fix_api_data(data)
