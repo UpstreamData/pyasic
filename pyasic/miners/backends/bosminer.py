@@ -992,3 +992,22 @@ class BOSMiner(BaseMiner):
                     )
             except (IndexError, KeyError):
                 pass
+
+    async def is_mining(self, api_tunerstatus: dict = None) -> Optional[bool]:
+        if not api_tunerstatus:
+            try:
+                api_tunerstatus = await self.api.tunerstatus()
+            except APIError:
+                pass
+
+        if api_tunerstatus:
+            try:
+                running = any(
+                    [
+                        d["TunerRunning"]
+                        for d in api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
+                    ]
+                )
+                return running
+            except LookupError:
+                pass

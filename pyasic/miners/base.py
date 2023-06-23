@@ -345,6 +345,14 @@ class BaseMiner(ABC):
         """
         pass
 
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        """Check whether the miner is mining
+
+        Returns:
+            A boolean value representing if the miner is mining.
+        """
+        return None
+
     async def _get_data(self, allow_warning: bool, data_to_get: list = None) -> dict:
         if not data_to_get:
             # everything
