@@ -126,6 +126,7 @@ These functions are
 [`restart_backend`](#restart-backend),
 [`stop_mining`](#stop-mining),
 [`resume_mining`](#resume-mining),
+[`is_mining`](#is-mining),
 [`send_config`](#send-config), and
 [`set_power_limit`](#set-power-limit).
 
@@ -221,6 +222,14 @@ These functions are
 
 ### Resume Mining
 ::: pyasic.miners.BaseMiner.resume_mining
+    handler: python
+    options:
+        heading_level: 4
+
+<br>
+
+### Is Mining
+::: pyasic.miners.BaseMiner.is_mining
     handler: python
     options:
         heading_level: 4
