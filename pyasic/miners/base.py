@@ -414,13 +414,14 @@ class BaseMiner(ABC):
                         else:
                             args_to_send[arg_name] = api_command_data
                     if fn_args[arg_name].get("web"):
-                        if web_command_data.get("multicommand"):
-                            args_to_send[arg_name] = web_command_data[
-                                fn_args[arg_name]["web"]
-                            ]
-                        else:
-                            if not web_command_data == {"multicommand": False}:
-                                args_to_send[arg_name] = web_command_data
+                        if web_command_data is not None:
+                            if web_command_data.get("multicommand"):
+                                args_to_send[arg_name] = web_command_data[
+                                    fn_args[arg_name]["web"]
+                                ]
+                            else:
+                                if not web_command_data == {"multicommand": False}:
+                                    args_to_send[arg_name] = web_command_data
             except (KeyError, IndexError):
                 continue
 
