@@ -35,6 +35,7 @@ from pyasic.miners.backends import (
     CGMiner,
     CGMinerAvalon,
     Hiveon,
+    LUXMiner,
     VNish,
 )
 from pyasic.miners.base import AnyMiner
@@ -56,6 +57,7 @@ class MinerTypes(enum.Enum):
     BRAIINS_OS = 5
     VNISH = 6
     HIVEON = 7
+    LUX_OS = 8
 
 
 MINER_CLASSES = {
@@ -337,6 +339,10 @@ MINER_CLASSES = {
         None: Hiveon,
         "ANTMINER T9": HiveonT9,
     },
+    MinerTypes.LUX_OS: {
+        None: LUXMiner,
+        "ANTMINER S9": LUXMinerS9,
+    },
 }
 
 
@@ -420,6 +426,7 @@ class MinerFactory:
                 MinerTypes.BRAIINS_OS: self.get_miner_model_braiins_os,
                 MinerTypes.VNISH: self.get_miner_model_vnish,
                 MinerTypes.HIVEON: self.get_miner_model_hiveon,
+                MinerTypes.LUX_OS: self.get_miner_model_luxos,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -490,14 +497,15 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
 
     async def _get_miner_socket(self, ip: str):
-        commands = ["devdetails", "version"]
+        commands = ["version", "devdetails"]
         tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
 
         data = await concurrent_get_first_result(
             tasks, lambda x: x is not None and self._parse_socket_type(x) is not None
         )
         if data is not None:
-            return self._parse_socket_type(data)
+            d = self._parse_socket_type(data)
+            return d
 
     @staticmethod
     async def _socket_ping(ip: str, cmd: str) -> Optional[str]:
@@ -555,7 +563,9 @@ class MinerFactory:
             return MinerTypes.VNISH
         if "HIVEON" in upper_data:
             return MinerTypes.HIVEON
-        if "ANTMINER" in upper_data:
+        if "LUXMINER" in upper_data:
+            return MinerTypes.LUX_OS
+        if "ANTMINER" in upper_data and not "DEVDETAILS" in upper_data:
             return MinerTypes.ANTMINER
         if "INTCHAINS_QOMO" in upper_data:
             return MinerTypes.GOLDSHELL
@@ -813,6 +823,18 @@ class MinerFactory:
             miner_type = sock_json_data["VERSION"][0]["Type"]
 
             return miner_type.replace(" HIVEON", "")
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_luxos(self, ip: str):
+        sock_json_data = await self.send_api_command(ip, "version")
+        try:
+            miner_model = sock_json_data["VERSION"][0]["Type"]
+
+            if " (" in miner_model:
+                split_miner_model = miner_model.split(" (")
+                miner_model = split_miner_model[0]
+            return miner_model
         except (TypeError, LookupError):
             pass
 

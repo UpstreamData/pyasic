@@ -148,6 +148,9 @@ class UnknownMiner(BaseMiner):
     async def get_nominal_hashrate(self) -> Optional[float]:
         return None
 
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None
+
     async def get_data(
         self, allow_warning: bool = False, data_to_get: list = None
     ) -> MinerData:

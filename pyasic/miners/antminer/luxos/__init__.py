@@ -14,9 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import *
-from .bosminer import *
-from .cgminer import *
-from .hiveon import *
-from .luxos import *
-from .vnish import *
+from .X9 import *

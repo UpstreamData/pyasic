@@ -14,9 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import *
-from .bosminer import *
-from .cgminer import *
-from .hiveon import *
-from .luxos import *
-from .vnish import *
+from pyasic.miners.backends import LUXMiner
+from pyasic.miners.types import S9
+
+
+class LUXMinerS9(LUXMiner, S9):
+    pass
