@@ -325,6 +325,7 @@ MINER_CLASSES = {
         "ANTMINER S17+": VNishS17Plus,
         "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
+        "ANTMINER S19NOPIC": VNishS19NoPIC,
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
         "ANTMINER S19J PRO": VNishS19jPro,
@@ -795,6 +796,9 @@ class MinerFactory:
             if " (" in miner_model:
                 split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
+
+            if "(88)" in miner_model:
+                miner_model = miner_model.replace("(88)", "NOPIC")
 
             return miner_model
         except (TypeError, LookupError):

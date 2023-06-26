@@ -15,10 +15,23 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.types import S19, S19XP, S19a, S19aPro, S19j, S19jPro, S19Pro
+from pyasic.miners.types import (
+    S19,
+    S19XP,
+    S19a,
+    S19aPro,
+    S19j,
+    S19jPro,
+    S19NoPIC,
+    S19Pro,
+)
 
 
 class VNishS19(VNish, S19):
+    pass
+
+
+class VNishS19NoPIC(VNish, S19NoPIC):
     pass
 
 

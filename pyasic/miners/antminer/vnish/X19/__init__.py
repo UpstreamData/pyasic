@@ -20,6 +20,7 @@ from .S19 import (
     VNishS19aPro,
     VNishS19j,
     VNishS19jPro,
+    VNishS19NoPIC,
     VNishS19Pro,
     VNishS19XP,
 )
