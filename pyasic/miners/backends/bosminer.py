@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+import asyncio
 import logging
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
@@ -29,7 +29,12 @@ from pyasic.miners.base import BaseMiner
 from pyasic.web.bosminer import BOSMinerWebAPI
 
 BOSMINER_DATA_LOC = {
-    "mac": {"cmd": "get_mac", "kwargs": {}},
+    "mac": {
+        "cmd": "get_mac",
+        "kwargs": {
+            "web_net_conf": {"web": "/cgi-bin/luci/admin/network/iface_status/lan"}
+        },
+    },
     "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {
         "cmd": "get_api_ver",
@@ -196,8 +201,8 @@ class BOSMiner(BaseMiner):
         result = None
 
         try:
-            conn = await self._get_ssh_connection()
-        except ConnectionError:
+            conn = await asyncio.wait_for(self._get_ssh_connection(), timeout=10)
+        except (ConnectionError, asyncio.TimeoutError):
             return None
 
         # open an ssh connection
@@ -368,10 +373,30 @@ class BOSMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> Optional[str]:
-        result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
-        if result:
-            return result.upper().strip()
+    async def get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
+        if not web_net_conf:
+            try:
+                web_net_conf = await self.web.send_command(
+                    "/cgi-bin/luci/admin/network/iface_status/lan"
+                )
+            except APIError:
+                pass
+
+        if isinstance(web_net_conf, dict):
+            if "/cgi-bin/luci/admin/network/iface_status/lan" in web_net_conf.keys():
+                web_net_conf = web_net_conf[
+                    "/cgi-bin/luci/admin/network/iface_status/lan"
+                ]
+
+        if web_net_conf:
+            try:
+                return web_net_conf[0]["macaddr"]
+            except LookupError:
+                pass
+        # could use ssh, but its slow and buggy
+        # result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
+        # if result:
+        #     return result.upper().strip()
 
     async def get_model(self) -> Optional[str]:
         if self.model is not None:

@@ -625,7 +625,10 @@ class MinerFactory:
 
         data = await self._fix_api_data(data)
 
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return {}
 
         return data
 

@@ -18,6 +18,7 @@ from typing import Union
 
 import httpx
 
+from pyasic import APIError
 from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
@@ -26,6 +27,18 @@ class BOSMinerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.pwd = PyasicSettings().global_bosminer_password
+
+    async def send_command(
+        self,
+        command: Union[str, dict],
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        **parameters: Union[str, int, bool],
+    ) -> dict:
+        if isinstance(command, str):
+            return await self.send_luci_command(command)
+        else:
+            return await self.send_gql_command(command)
 
     def parse_command(self, graphql_command: Union[dict, set]) -> str:
         if isinstance(graphql_command, dict):
@@ -40,12 +53,9 @@ class BOSMinerWebAPI(BaseWebAPI):
             data = graphql_command
         return "{" + ",".join(data) + "}"
 
-    async def send_command(
+    async def send_gql_command(
         self,
         command: dict,
-        ignore_errors: bool = False,
-        allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
     ) -> dict:
         url = f"http://{self.ip}/graphql"
         query = self.parse_command(command)
@@ -63,8 +73,29 @@ class BOSMinerWebAPI(BaseWebAPI):
                     pass
 
     async def multicommand(
-        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+        self, *commands: Union[dict, str], allow_warning: bool = True
+    ):
+        luci_commands = []
+        gql_commands = []
+        for cmd in commands:
+            if isinstance(cmd, dict):
+                gql_commands.append(cmd)
+            if isinstance(cmd, str):
+                luci_commands.append(cmd)
+
+        luci_data = await self.luci_multicommand(*luci_commands)
+        gql_data = await self.gql_multicommand(*gql_commands)
+
+        data = dict(**luci_data, **gql_data)
+        return data
+
+    async def luci_multicommand(self, *commands: str) -> dict:
+        data = {}
+        for command in commands:
+            data[command] = await self.send_luci_command(command, ignore_errors=True)
+        return data
+
+    async def gql_multicommand(self, *commands: dict) -> dict:
         def merge(*d: dict):
             ret = {}
             for i in d:
@@ -85,8 +116,8 @@ class BOSMinerWebAPI(BaseWebAPI):
                     # noinspection PyTypeChecker
                     commands.remove({"bos": {"faultLight": None}})
                     command = merge(*commands)
-                    data = await self.send_command(command)
-                except LookupError:
+                    data = await self.send_gql_command(command)
+                except (LookupError, ValueError):
                     pass
             if not data:
                 data = {}
@@ -105,3 +136,51 @@ class BOSMinerWebAPI(BaseWebAPI):
                 + '"){__typename}}}'
             },
         )
+
+    async def send_luci_command(self, path: str, ignore_errors: bool = False) -> dict:
+        try:
+            async with httpx.AsyncClient() as client:
+                await self.luci_auth(client)
+                data = await client.get(f"http://{self.ip}{path}")
+                if data.status_code == 200:
+                    return data.json()
+                if ignore_errors:
+                    return {}
+                raise APIError(
+                    f"Web command failed: path={path}, code={data.status_code}"
+                )
+        except (httpx.HTTPError, json.JSONDecodeError):
+            if ignore_errors:
+                return {}
+            raise APIError(f"Web command failed: path={path}")
+
+    async def luci_auth(self, session: httpx.AsyncClient):
+        login = {"luci_username": self.username, "luci_password": self.pwd}
+        url = f"http://{self.ip}/cgi-bin/luci"
+        headers = {
+            "User-Agent": "BTC Tools v0.1",  # only seems to respond if this user-agent is set
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+        d = await session.post(url, headers=headers, data=login)
+
+    async def get_net_conf(self):
+        return await self.send_luci_command(
+            "/cgi-bin/luci/admin/network/iface_status/lan"
+        )
+
+    async def get_cfg_metadata(self):
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_metadata")
+
+    async def get_cfg_data(self):
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_data")
+
+    async def get_bos_info(self):
+        return await self.send_luci_command("/cgi-bin/luci/bos/info")
+
+    async def get_overview(self):
+        return await self.send_luci_command(
+            "/cgi-bin/luci/admin/status/overview?status=1"
+        )  # needs status=1 or it fails
+
+    async def get_api_status(self):
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/api_status")
