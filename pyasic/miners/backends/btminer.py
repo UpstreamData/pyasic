@@ -89,6 +89,10 @@ BTMINER_DATA_LOC = {
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {"api_status": {"api": "status"}}},
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_summary": {"api": "summary"}},
+    },
 }
 
 
@@ -634,5 +638,18 @@ class BTMiner(BaseMiner):
                         return False
                     return True
                 return True if api_status["Msg"]["mineroff"] == "false" else False
+            except LookupError:
+                pass
+
+    async def get_uptime(self, api_summary: dict = None) -> Optional[int]:
+        if not api_summary:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary:
+            try:
+                return int(api_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass

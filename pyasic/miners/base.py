@@ -354,6 +354,15 @@ class BaseMiner(ABC):
         """
         pass
 
+    @abstractmethod
+    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+        """Get the uptime of the miner in seconds.
+
+        Returns:
+            The uptime of the miner in seconds.
+        """
+        pass
+
     async def _get_data(self, allow_warning: bool, data_to_get: list = None) -> dict:
         if not data_to_get:
             # everything
@@ -375,6 +384,7 @@ class BaseMiner(ABC):
                 "fault_light",
                 "pools",
                 "is_mining",
+                "uptime",
             ]
         api_multicommand = []
         web_multicommand = []

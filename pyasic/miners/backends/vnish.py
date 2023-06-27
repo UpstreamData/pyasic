@@ -44,6 +44,7 @@ VNISH_DATA_LOC = {
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
+    "uptime": {"cmd": "get_uptime", "kwargs": {}},
 }
 
 
@@ -172,4 +173,7 @@ class VNish(BMMiner):
                 pass
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None
+
+    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None

@@ -89,6 +89,10 @@ LUXMINER_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {},
     },
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
 }
 
 
@@ -429,3 +433,16 @@ class LUXMiner(BaseMiner):
 
     async def is_mining(self) -> Optional[bool]:
         pass
+
+    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                return int(api_stats["STATS"][0]["Elapsed"])
+            except LookupError:
+                pass

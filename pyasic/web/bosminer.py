@@ -141,7 +141,11 @@ class BOSMinerWebAPI(BaseWebAPI):
         try:
             async with httpx.AsyncClient() as client:
                 await self.luci_auth(client)
-                data = await client.get(f"http://{self.ip}{path}")
+                data = await client.get(
+                    f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}
+                )
+                print(data.status_code)
+                print(data.text)
                 if data.status_code == 200:
                     return data.json()
                 if ignore_errors:
@@ -161,7 +165,7 @@ class BOSMinerWebAPI(BaseWebAPI):
             "User-Agent": "BTC Tools v0.1",  # only seems to respond if this user-agent is set
             "Content-Type": "application/x-www-form-urlencoded",
         }
-        d = await session.post(url, headers=headers, data=login)
+        await session.post(url, headers=headers, data=login)
 
     async def get_net_conf(self):
         return await self.send_luci_command(

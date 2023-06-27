@@ -49,6 +49,10 @@ ANTMINER_MODERN_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
     },
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
 }
 
 
@@ -244,6 +248,19 @@ class AntminerModern(BMMiner):
             except LookupError:
                 pass
 
+    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                return int(api_stats["STATS"][0]["Elapsed"])
+            except LookupError:
+                pass
+
 
 ANTMINER_OLD_DATA_LOC = {
     "mac": {"cmd": "get_mac", "kwargs": {}},
@@ -277,6 +294,10 @@ ANTMINER_OLD_DATA_LOC = {
     "is_mining": {
         "cmd": "is_mining",
         "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
+    },
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_stats": {"api": "stats"}},
     },
 }
 
@@ -471,3 +492,16 @@ class AntminerOld(CGMiner):
                 return True
             else:
                 return False
+
+    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+        if not api_stats:
+            try:
+                api_stats = await self.api.stats()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                return int(api_stats["STATS"][0]["Elapsed"])
+            except LookupError:
+                pass

@@ -51,6 +51,7 @@ AVALON_DATA_LOC = {
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
+    "uptime": {"cmd": "get_uptime", "kwargs": {}},
 }
 
 

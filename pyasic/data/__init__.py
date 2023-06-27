@@ -66,6 +66,7 @@ class MinerData:
     Attributes:
         ip: The IP of the miner as a str.
         datetime: The time and date this data was generated.
+        uptime: The uptime of the miner in seconds.
         mac: The MAC address of the miner as a str.
         model: The model of the miner as a str.
         make: The make of the miner as a str.
@@ -101,6 +102,7 @@ class MinerData:
 
     ip: str
     datetime: datetime = None
+    uptime: int = 0
     mac: str = "00:00:00:00:00:00"
     model: str = "Unknown"
     make: str = "Unknown"

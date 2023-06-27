@@ -46,6 +46,10 @@ BMMINER_DATA_LOC = {
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_stats": {"api": "stats"}},
+    },
 }
 
 
@@ -356,3 +360,16 @@ class BMMiner(BaseMiner):
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
+
+    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+        if not api_stats:
+            try:
+                api_stats = await self.web.get_miner_conf()
+            except APIError:
+                pass
+
+        if api_stats:
+            try:
+                return int(api_stats["STATS"][0]["Elapsed"])
+            except LookupError:
+                pass

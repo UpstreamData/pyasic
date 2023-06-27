@@ -153,3 +153,6 @@ class BOSMinerOld(BOSMiner):
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
+
+    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+        return None

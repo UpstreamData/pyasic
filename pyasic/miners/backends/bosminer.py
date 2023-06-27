@@ -176,6 +176,10 @@ BOSMINER_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {"api_tunerstatus": {"api": "tunerstatus"}},
     },
+    "uptime": {
+        "cmd": "get_uptime",
+        "kwargs": {"api_summary": {"api": "summary"}},
+    },
 }
 
 
@@ -381,6 +385,8 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
+
+        print(web_net_conf)
 
         if isinstance(web_net_conf, dict):
             if "/cgi-bin/luci/admin/network/iface_status/lan" in web_net_conf.keys():
@@ -1038,5 +1044,18 @@ class BOSMiner(BaseMiner):
                     ]
                 )
                 return running
+            except LookupError:
+                pass
+
+    async def get_uptime(self, api_summary: dict = None) -> Optional[int]:
+        if not api_summary:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary:
+            try:
+                return int(api_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
