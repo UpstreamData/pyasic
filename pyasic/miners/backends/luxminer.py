@@ -248,7 +248,6 @@ class LUXMiner(BaseMiner):
         pass
 
     async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        # get hr from API
         if not api_summary:
             try:
                 api_summary = await self.api.summary()

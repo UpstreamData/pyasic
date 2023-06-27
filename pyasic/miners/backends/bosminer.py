@@ -373,6 +373,52 @@ class BOSMiner(BaseMiner):
         else:
             return True
 
+    async def set_static_ip(
+        self,
+        ip: str,
+        dns: str,
+        gateway: str,
+        subnet_mask: str = "255.255.255.0",
+    ):
+        cfg_data_lan = (
+            "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'static'\n\toption ipaddr '"
+            + ip
+            + "'\n\toption netmask '"
+            + subnet_mask
+            + "'\n\toption gateway '"
+            + gateway
+            + "'\n\toption dns '"
+            + dns
+            + "'"
+        )
+        data = await self.send_ssh_command("cat /etc/config/network")
+
+        split_data = data.split("\n\n")
+        for idx in range(len(split_data)):
+            if "config interface 'lan'" in split_data[idx]:
+                split_data[idx] = cfg_data_lan
+        config = "\n\n".join(split_data)
+
+        conn = await self._get_ssh_connection()
+
+        async with conn:
+            await conn.run("echo '" + config + "' > /etc/config/network")
+
+    async def set_dhcp(self):
+        cfg_data_lan = "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'dhcp'"
+        data = await self.send_ssh_command("cat /etc/config/network")
+
+        split_data = data.split("\n\n")
+        for idx in range(len(split_data)):
+            if "config interface 'lan'" in split_data[idx]:
+                split_data[idx] = cfg_data_lan
+        config = "\n\n".join(split_data)
+
+        conn = await self._get_ssh_connection()
+
+        async with conn:
+            await conn.run("echo '" + config + "' > /etc/config/network")
+
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
@@ -385,8 +431,6 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-
-        print(web_net_conf)
 
         if isinstance(web_net_conf, dict):
             if "/cgi-bin/luci/admin/network/iface_status/lan" in web_net_conf.keys():

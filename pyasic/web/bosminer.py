@@ -58,11 +58,13 @@ class BOSMinerWebAPI(BaseWebAPI):
         command: dict,
     ) -> dict:
         url = f"http://{self.ip}/graphql"
-        query = self.parse_command(command)
+        query = command
+        if command.get("query") is None:
+            query = {"query": self.parse_command(command)}
         try:
             async with httpx.AsyncClient() as client:
                 await self.auth(client)
-                data = await client.post(url, json={"query": query})
+                data = await client.post(url, json=query)
         except httpx.HTTPError:
             pass
         else:
