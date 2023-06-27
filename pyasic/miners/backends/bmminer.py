@@ -370,6 +370,6 @@ class BMMiner(BaseMiner):
 
         if api_stats:
             try:
-                return int(api_stats["STATS"][0]["Elapsed"])
+                return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
