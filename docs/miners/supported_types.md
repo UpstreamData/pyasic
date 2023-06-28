@@ -10,6 +10,9 @@ details {
     padding-top:0px;
     padding-bottom:0px;
 }
+ul {
+    margin:0px;
+}
 </style>
 
 <details>
@@ -419,6 +422,7 @@ details {
             <summary>X19 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X19#s19-vnish">S19 (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-no-pic-vnish">S19 No PIC (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-vnish">S19 Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-vnish">S19j (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
@@ -436,6 +440,17 @@ details {
             <summary>X9 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X9#t9-hiveon">T9 (Hiveon)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>LuxOS Firmware Miners:</summary>
+    <ul>
+        <details>
+            <summary>X9 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X9#s9-luxos">S9 (LuxOS)</a></li>
                 </ul>
         </details>
     </ul>
