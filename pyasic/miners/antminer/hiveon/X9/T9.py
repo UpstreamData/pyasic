@@ -58,7 +58,7 @@ class HiveonT9(Hiveon, T9):
             hashrate = 0
             chips = 0
             for chipset in board_map[board]:
-                if hashboard.chip_temp == -1:
+                if hashboard.chip_temp == None:
                     try:
                         hashboard.board_temp = api_stats["STATS"][1][f"temp{chipset}"]
                         hashboard.chip_temp = api_stats["STATS"][1][f"temp2_{chipset}"]

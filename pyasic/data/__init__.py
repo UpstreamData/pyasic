@@ -255,7 +255,7 @@ class MinerData:
         total_temp = 0
         temp_count = 0
         for hb in self.hashboards:
-            if hb.temp and not hb.temp == -1:
+            if hb.temp and not hb.temp == None:
                 total_temp += hb.temp
                 temp_count += 1
         if not temp_count > 0:
@@ -268,7 +268,7 @@ class MinerData:
 
     @property
     def efficiency(self):  # noqa - Skip PyCharm inspection
-        if self.hashrate == 0 or self.wattage == -1:
+        if self.hashrate == 0 or self.wattage == None:
             return 0
         return round(self.wattage / self.hashrate)
 
