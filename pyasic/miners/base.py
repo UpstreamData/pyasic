@@ -461,8 +461,8 @@ class BaseMiner(ABC):
                     except KeyError:
                         pass
                     if len(pools_data) > 1:
-                        miner_data["pool_2_url"] = pools_data[1]["pool_2_url"]
-                        miner_data["pool_2_user"] = pools_data[1]["pool_2_user"]
+                        miner_data["pool_2_url"] = pools_data[1]["pool_1_url"]
+                        miner_data["pool_2_user"] = pools_data[1]["pool_1_user"]
                         miner_data[
                             "pool_split"
                         ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
