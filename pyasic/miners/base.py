@@ -427,23 +427,26 @@ class BaseMiner(ABC):
                 fn_args = self.data_locations[data_name]["kwargs"]
                 args_to_send = {k: None for k in fn_args}
                 for arg_name in fn_args:
-                    if fn_args[arg_name].get("api"):
-                        if api_command_data.get("multicommand"):
-                            args_to_send[arg_name] = api_command_data[
-                                fn_args[arg_name]["api"]
-                            ][0]
-                        else:
-                            args_to_send[arg_name] = api_command_data
-                    if fn_args[arg_name].get("web"):
-                        if web_command_data is not None:
-                            if web_command_data.get("multicommand"):
-                                args_to_send[arg_name] = web_command_data[
-                                    fn_args[arg_name]["web"]
-                                ]
+                    try:
+                        if fn_args[arg_name].get("api"):
+                            if api_command_data.get("multicommand"):
+                                args_to_send[arg_name] = api_command_data[
+                                    fn_args[arg_name]["api"]
+                                ][0]
                             else:
-                                if not web_command_data == {"multicommand": False}:
-                                    args_to_send[arg_name] = web_command_data
-            except (KeyError, IndexError):
+                                args_to_send[arg_name] = api_command_data
+                        if fn_args[arg_name].get("web"):
+                            if web_command_data is not None:
+                                if web_command_data.get("multicommand"):
+                                    args_to_send[arg_name] = web_command_data[
+                                        fn_args[arg_name]["web"]
+                                    ]
+                                else:
+                                    if not web_command_data == {"multicommand": False}:
+                                        args_to_send[arg_name] = web_command_data
+                    except LookupError:
+                        args_to_send[arg_name] = None
+            except LookupError as e:
                 continue
 
             function = getattr(self, self.data_locations[data_name]["cmd"])

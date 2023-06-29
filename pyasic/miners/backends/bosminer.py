@@ -174,7 +174,7 @@ BOSMINER_DATA_LOC = {
     },
     "is_mining": {
         "cmd": "is_mining",
-        "kwargs": {"api_tunerstatus": {"api": "tunerstatus"}},
+        "kwargs": {"api_devdetails": {"api": "devdetails"}},
     },
     "uptime": {
         "cmd": "get_uptime",
@@ -1072,22 +1072,16 @@ class BOSMiner(BaseMiner):
             except (IndexError, KeyError):
                 pass
 
-    async def is_mining(self, api_tunerstatus: dict = None) -> Optional[bool]:
-        if not api_tunerstatus:
+    async def is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
+        if not api_devdetails:
             try:
-                api_tunerstatus = await self.api.tunerstatus()
+                api_devdetails = await self.api.send_command("devdetails", ignore_errors=True, allow_warning=False)
             except APIError:
                 pass
 
-        if api_tunerstatus:
+        if api_devdetails:
             try:
-                running = any(
-                    [
-                        d["TunerRunning"]
-                        for d in api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
-                    ]
-                )
-                return running
+                return not api_devdetails["STATUS"][0]["Msg"] == "Unavailable"
             except LookupError:
                 pass
 
