@@ -18,6 +18,7 @@ from typing import List, Optional
 from pyasic.config import MinerConfig
 from pyasic.data import HashBoard
 from pyasic.errors import APIError
+from pyasic.logger import logger
 from pyasic.miners.backends import BFGMiner
 from pyasic.web.goldshell import GoldshellWebAPI
 
@@ -138,7 +139,7 @@ class BFGMinerGoldshell(BFGMiner):
                         except KeyError:
                             pass
             else:
-                print(self, api_devs)
+                logger.error(self, api_devs)
 
         if not api_devdetails:
             try:
@@ -156,7 +157,7 @@ class BFGMinerGoldshell(BFGMiner):
                         except KeyError:
                             pass
             else:
-                print(self, api_devdetails)
+                logger.error(self, api_devdetails)
 
         return hashboards
 

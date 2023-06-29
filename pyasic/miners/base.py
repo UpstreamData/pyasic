@@ -24,6 +24,7 @@ import asyncssh
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.logger import logger
 
 
 class BaseMiner(ABC):
@@ -397,7 +398,7 @@ class BaseMiner(ABC):
                     if fn_args[arg_name].get("web"):
                         web_multicommand.append(fn_args[arg_name]["web"])
             except KeyError as e:
-                print(e, data_name)
+                logger.error(e, data_name)
                 continue
 
         api_multicommand = list(set(api_multicommand))

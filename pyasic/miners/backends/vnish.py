@@ -17,6 +17,7 @@
 from typing import Optional
 
 from pyasic.errors import APIError
+from pyasic.logger import logger
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.web.vnish import VNishWebAPI
 
@@ -144,7 +145,7 @@ class VNish(BMMiner):
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
             except (IndexError, KeyError, ValueError, TypeError) as e:
-                print(e)
+                logger.error(e)
                 pass
 
     async def get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:

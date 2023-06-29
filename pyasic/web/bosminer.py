@@ -146,8 +146,6 @@ class BOSMinerWebAPI(BaseWebAPI):
                 data = await client.get(
                     f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}
                 )
-                print(data.status_code)
-                print(data.text)
                 if data.status_code == 200:
                     return data.json()
                 if ignore_errors:
