@@ -72,6 +72,52 @@ class BaseMiner(ABC):
     def __eq__(self, other):
         return ipaddress.ip_address(self.ip) == ipaddress.ip_address(other.ip)
 
+    @property
+    def pwd(self):  # noqa - Skip PyCharm inspection
+        data = []
+        try:
+            if self.web is not None:
+                data.append(f"web={self.web.pwd}")
+        except TypeError:
+            pass
+        try:
+            if self.api is not None:
+                data.append(f"api={self.api.pwd}")
+        except TypeError:
+            pass
+        return ",".join(data)
+
+    @pwd.setter
+    def pwd(self, val):
+        try:
+            if self.web is not None:
+                self.web.pwd = val
+        except TypeError:
+            pass
+        try:
+            if self.api is not None:
+                self.api.pwd = val
+        except TypeError:
+            pass
+
+    @property
+    def username(self):  # noqa - Skip PyCharm inspection
+        data = []
+        try:
+            if self.web is not None:
+                data.append(f"web={self.web.username}")
+        except TypeError:
+            pass
+        return ",".join(data)
+
+    @username.setter
+    def username(self, val):
+        try:
+            if self.web is not None:
+                self.web.username = val
+        except TypeError:
+            pass
+
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
         try:
