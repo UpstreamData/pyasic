@@ -494,7 +494,7 @@ class BOSMiner(BaseMiner):
         if graphql_version:
             try:
                 fw_ver = graphql_version["data"]["bos"]["info"]["version"]["full"]
-            except KeyError:
+            except (KeyError, TypeError):
                 pass
 
         if not fw_ver:
@@ -523,7 +523,7 @@ class BOSMiner(BaseMiner):
             try:
                 hostname = graphql_hostname["data"]["bos"]["hostname"]
                 return hostname
-            except KeyError:
+            except (TypeError, KeyError):
                 pass
 
         try:
@@ -563,7 +563,7 @@ class BOSMiner(BaseMiner):
                     ),
                     2,
                 )
-            except (KeyError, IndexError, ValueError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         # get hr from API
@@ -617,7 +617,7 @@ class BOSMiner(BaseMiner):
                 boards = graphql_boards["data"]["bosminer"]["info"]["workSolver"][
                     "childSolvers"
                 ]
-            except (KeyError, IndexError):
+            except (TypeError, LookupError):
                 boards = None
 
             if boards:
@@ -732,7 +732,7 @@ class BOSMiner(BaseMiner):
                 return graphql_wattage["data"]["bosminer"]["info"]["workSolver"][
                     "power"
                 ]["approxConsumptionW"]
-            except (KeyError, TypeError):
+            except (LookupError, TypeError):
                 pass
 
         if not api_tunerstatus:
@@ -765,7 +765,7 @@ class BOSMiner(BaseMiner):
                 return graphql_wattage_limit["data"]["bosminer"]["info"]["workSolver"][
                     "power"
                 ]["limitW"]
-            except (KeyError, TypeError):
+            except (LookupError, TypeError):
                 pass
 
         if not api_tunerstatus:
@@ -801,7 +801,7 @@ class BOSMiner(BaseMiner):
                             ]
                         )
                     )
-                except KeyError:
+                except (LookupError, TypeError):
                     pass
             return fans
 
@@ -941,7 +941,7 @@ class BOSMiner(BaseMiner):
                 boards = graphql_errors["data"]["bosminer"]["info"]["workSolver"][
                     "childSolvers"
                 ]
-            except (KeyError, IndexError):
+            except (LookupError, TypeError):
                 boards = None
 
             if boards:
@@ -1034,7 +1034,7 @@ class BOSMiner(BaseMiner):
             try:
                 self.light = graphql_fault_light["data"]["bos"]["faultLight"]
                 return self.light
-            except (TypeError, KeyError, ValueError, IndexError):
+            except (TypeError, ValueError, LookupError):
                 pass
 
         # get light via ssh if that fails (10x slower)
