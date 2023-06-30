@@ -76,7 +76,7 @@ class BOSMinerWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: Union[dict, str], allow_warning: bool = True
-    ):
+    ) -> dict:
         luci_commands = []
         gql_commands = []
         for cmd in commands:
@@ -87,6 +87,11 @@ class BOSMinerWebAPI(BaseWebAPI):
 
         luci_data = await self.luci_multicommand(*luci_commands)
         gql_data = await self.gql_multicommand(*gql_commands)
+
+        if gql_data is None:
+            gql_data = {}
+        if luci_data is None:
+            luci_data = {}
 
         data = dict(**luci_data, **gql_data)
         return data
