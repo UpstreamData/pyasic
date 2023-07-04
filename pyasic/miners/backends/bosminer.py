@@ -1038,13 +1038,16 @@ class BOSMiner(BaseMiner):
                 pass
 
         # get light via ssh if that fails (10x slower)
-        data = (
-            await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
-        ).strip()
-        self.light = False
-        if data == "50":
-            self.light = True
-        return self.light
+        try:
+            data = (
+                await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+            ).strip()
+            self.light = False
+            if data == "50":
+                self.light = True
+            return self.light
+        except TypeError:
+            return self.light
 
     async def get_nominal_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if not api_devs:
