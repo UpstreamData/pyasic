@@ -550,7 +550,7 @@ class MinerConfig:
             "bitmain-fan-ctrl": False,
             "bitmain-fan-pwn": "100",
             "freq-level": "100",
-            "miner-mode": str(self.miner_mode.value),
+            "miner-mode": self.miner_mode.value,
             "pools": self.pool_groups[0].as_x19(user_suffix=user_suffix),
         }
 
