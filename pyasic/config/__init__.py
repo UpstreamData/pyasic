@@ -560,9 +560,6 @@ class MinerConfig:
         if self.fan_speed:
             cfg["bitmain-fan-pwn"] = str(self.fan_speed)
 
-        if self.miner_mode == X19PowerMode.Sleep:
-            cfg["freq-level"] = "0"
-
         return cfg
 
     def as_x17(self, user_suffix: str = None) -> dict:
