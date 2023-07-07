@@ -41,8 +41,8 @@ class HashBoard:
 
     slot: int = 0
     hashrate: float = 0.0
-    temp: int = -1
-    chip_temp: int = -1
+    temp: int = None
+    chip_temp: int = None
     chips: int = 0
     expected_chips: int = 0
     missing: bool = True
@@ -56,7 +56,7 @@ class Fan:
         speed: The speed of the fan.
     """
 
-    speed: int = -1
+    speed: int = None
 
 
 @dataclass
@@ -115,11 +115,11 @@ class MinerData:
     hashboards: List[HashBoard] = field(default_factory=list)
     ideal_hashboards: int = 1
     temperature_avg: int = field(init=False)
-    env_temp: float = -1.0
-    wattage: int = -1
-    wattage_limit: int = -1
+    env_temp: float = None
+    wattage: int = None
+    wattage_limit: int = None
     fans: List[Fan] = field(default_factory=list)
-    fan_psu: int = -1
+    fan_psu: int = None
     total_chips: int = field(init=False)
     ideal_chips: int = 1
     percent_ideal_chips: float = field(init=False)
@@ -255,7 +255,7 @@ class MinerData:
         total_temp = 0
         temp_count = 0
         for hb in self.hashboards:
-            if hb.temp and not hb.temp == -1:
+            if hb.temp and not hb.temp == None:
                 total_temp += hb.temp
                 temp_count += 1
         if not temp_count > 0:
@@ -268,7 +268,7 @@ class MinerData:
 
     @property
     def efficiency(self):  # noqa - Skip PyCharm inspection
-        if self.hashrate == 0 or self.wattage == -1:
+        if self.hashrate == 0 or self.wattage == None:
             return 0
         return round(self.wattage / self.hashrate)
 

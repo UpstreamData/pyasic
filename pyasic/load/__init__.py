@@ -149,10 +149,10 @@ class _MinerPhaseBalancer:
                 not self.miners[data_point.ip]["shutdown"]
             ):
                 # cant do anything with it so need to find a semi-accurate power limit
-                if not data_point.wattage_limit == -1:
+                if not data_point.wattage_limit == None:
                     self.miners[data_point.ip]["max"] = int(data_point.wattage_limit)
                     self.miners[data_point.ip]["min"] = int(data_point.wattage_limit)
-                elif not data_point.wattage == -1:
+                elif not data_point.wattage == None:
                     self.miners[data_point.ip]["max"] = int(data_point.wattage)
                     self.miners[data_point.ip]["min"] = int(data_point.wattage)
 
