@@ -20,7 +20,7 @@ import logging
 import time
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
-from typing import List, Union
+from typing import List, Union, Any
 
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
@@ -40,12 +40,27 @@ class HashBoard:
     """
 
     slot: int = 0
-    hashrate: float = 0.0
+    hashrate: float = None
     temp: int = None
     chip_temp: int = None
-    chips: int = 0
-    expected_chips: int = 0
+    chips: int = None
+    expected_chips: int = None
     missing: bool = True
+
+    def get(self, __key: str, default: Any = None):
+        try:
+            val = self.__getitem__(__key)
+            if val is None:
+                return default
+            return val
+        except KeyError:
+            return default
+
+    def __getitem__(self, item: str):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"{item}")
 
 
 @dataclass
@@ -57,6 +72,21 @@ class Fan:
     """
 
     speed: int = None
+
+    def get(self, __key: str, default: Any = None):
+        try:
+            val = self.__getitem__(__key)
+            if val is None:
+                return default
+            return val
+        except KeyError:
+            return default
+
+    def __getitem__(self, item: str):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"{item}")
 
 
 @dataclass
@@ -102,18 +132,18 @@ class MinerData:
 
     ip: str
     datetime: datetime = None
-    uptime: int = 0
-    mac: str = "00:00:00:00:00:00"
-    model: str = "Unknown"
-    make: str = "Unknown"
-    api_ver: str = "Unknown"
-    fw_ver: str = "Unknown"
-    hostname: str = "Unknown"
+    uptime: int = None
+    mac: str = None
+    model: str = None
+    make: str = None
+    api_ver: str = None
+    fw_ver: str = None
+    hostname: str = None
     hashrate: float = field(init=False)
-    _hashrate: float = 0
-    nominal_hashrate: float = 0
+    _hashrate: float = None
+    nominal_hashrate: float = None
     hashboards: List[HashBoard] = field(default_factory=list)
-    ideal_hashboards: int = 1
+    ideal_hashboards: int = None
     temperature_avg: int = field(init=False)
     env_temp: float = None
     wattage: int = None
@@ -121,7 +151,7 @@ class MinerData:
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None
     total_chips: int = field(init=False)
-    ideal_chips: int = 1
+    ideal_chips: int = None
     percent_ideal_chips: float = field(init=False)
     percent_ideal_hashrate: float = field(init=False)
     percent_ideal_wattage: float = field(init=False)
@@ -145,7 +175,16 @@ class MinerData:
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()
 
-    def __getitem__(self, item):
+    def get(self, __key: str, default: Any = None):
+        try:
+            val = self.__getitem__(__key)
+            if val is None:
+                return default
+            return val
+        except KeyError:
+            return default
+
+    def __getitem__(self, item: str):
         try:
             return getattr(self, item)
         except AttributeError:
@@ -197,7 +236,12 @@ class MinerData:
     @property
     def hashrate(self):  # noqa - Skip PyCharm inspection
         if len(self.hashboards) > 0:
-            return round(sum(map(lambda x: x.hashrate, self.hashboards)), 2)
+            hr_data = []
+            for item in self.hashboards:
+                if item.hashrate is not None:
+                    hr_data.append(item.hashrate)
+            if len(hr_data) > 0:
+                return round(sum(hr_data) / len(hr_data), 2)
         return self._hashrate
 
     @hashrate.setter
@@ -206,7 +250,14 @@ class MinerData:
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
-        return sum([hb.chips for hb in self.hashboards])
+        if len(self.hashboards) > 0:
+            chip_data = []
+            for item in self.hashboards:
+                if item.chips is not None:
+                    chip_data.append(item.chips)
+            if len(chip_data) > 0:
+                return round(sum(chip_data) / len(chip_data), 2)
+            return None
 
     @total_chips.setter
     def total_chips(self, val):
@@ -214,6 +265,8 @@ class MinerData:
 
     @property
     def nominal(self):  # noqa - Skip PyCharm inspection
+        if self.total_chips is None or self.ideal_chips is None:
+            return None
         return self.ideal_chips == self.total_chips
 
     @nominal.setter
@@ -222,6 +275,8 @@ class MinerData:
 
     @property
     def percent_ideal_chips(self):  # noqa - Skip PyCharm inspection
+        if self.total_chips is None or self.ideal_chips is None:
+            return None
         if self.total_chips == 0 or self.ideal_chips == 0:
             return 0
         return round((self.total_chips / self.ideal_chips) * 100)
@@ -232,6 +287,8 @@ class MinerData:
 
     @property
     def percent_ideal_hashrate(self):  # noqa - Skip PyCharm inspection
+        if self.hashrate is None or self.nominal_hashrate is None:
+            return None
         if self.hashrate == 0 or self.nominal_hashrate == 0:
             return 0
         return round((self.hashrate / self.nominal_hashrate) * 100)
@@ -242,6 +299,8 @@ class MinerData:
 
     @property
     def percent_ideal_wattage(self):  # noqa - Skip PyCharm inspection
+        if self.wattage_limit is None or self.wattage is None:
+            return None
         if self.wattage_limit == 0 or self.wattage == 0:
             return 0
         return round((self.wattage / self.wattage_limit) * 100)
@@ -255,11 +314,11 @@ class MinerData:
         total_temp = 0
         temp_count = 0
         for hb in self.hashboards:
-            if hb.temp and not hb.temp == None:
+            if hb.temp is not None:
                 total_temp += hb.temp
                 temp_count += 1
         if not temp_count > 0:
-            return 0
+            return None
         return round(total_temp / temp_count)
 
     @temperature_avg.setter
@@ -268,7 +327,9 @@ class MinerData:
 
     @property
     def efficiency(self):  # noqa - Skip PyCharm inspection
-        if self.hashrate == 0 or self.wattage == None:
+        if self.hashrate is None or self.wattage is None:
+            return None
+        if self.hashrate == 0 or self.wattage == 0:
             return 0
         return round(self.wattage / self.hashrate)
 
@@ -328,7 +389,7 @@ class MinerData:
         tags = ["ip", "mac", "model", "hostname"]
         for attribute in self:
             if attribute in tags:
-                escaped_data = self[attribute].replace(" ", "\\ ")
+                escaped_data = self.get(attribute, "Unknown").replace(" ", "\\ ")
                 tag_data.append(f"{attribute}={escaped_data}")
                 continue
             elif str(attribute).startswith("_"):
@@ -345,26 +406,24 @@ class MinerData:
             elif isinstance(self[attribute], float):
                 field_data.append(f"{attribute}={self[attribute]}")
                 continue
-            elif attribute == "fault_light" and not self[attribute]:
-                field_data.append(f"{attribute}=false")
-                continue
             elif attribute == "errors":
                 for idx, item in enumerate(self[attribute]):
                     field_data.append(f'error_{idx+1}="{item.error_message}"')
             elif attribute == "hashboards":
                 for idx, item in enumerate(self[attribute]):
-                    field_data.append(f"hashboard_{idx+1}_hashrate={item.hashrate}")
-                    field_data.append(f"hashboard_{idx+1}_temperature={item.temp}")
+                    field_data.append(f"hashboard_{idx+1}_hashrate={item.get('hashrate', 0.0)}")
+                    field_data.append(f"hashboard_{idx+1}_temperature={item.get('temp', 0)}")
                     field_data.append(
-                        f"hashboard_{idx+1}_chip_temperature={item.chip_temp}"
+                        f"hashboard_{idx+1}_chip_temperature={item.get('chip_temp', 0)}"
                     )
-                    field_data.append(f"hashboard_{idx+1}_chips={item.chips}")
+                    field_data.append(f"hashboard_{idx+1}_chips={item.get('chips', 0)}")
                     field_data.append(
-                        f"hashboard_{idx+1}_expected_chips={item.expected_chips}"
+                        f"hashboard_{idx+1}_expected_chips={item.get('expected_chips', 0)}"
                     )
             elif attribute == "fans":
                 for idx, item in enumerate(self[attribute]):
-                    field_data.append(f"fan_{idx+1}={item.speed}")
+                    if item.speed is not None:
+                        field_data.append(f"fan_{idx+1}={item.speed}")
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
