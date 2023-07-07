@@ -241,7 +241,7 @@ class MinerData:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return round(sum(hr_data) / len(hr_data), 2)
+                return sum(hr_data)
         return self._hashrate
 
     @hashrate.setter
@@ -256,7 +256,7 @@ class MinerData:
                 if item.chips is not None:
                     chip_data.append(item.chips)
             if len(chip_data) > 0:
-                return round(sum(chip_data) / len(chip_data), 2)
+                return sum(chip_data)
             return None
 
     @total_chips.setter
