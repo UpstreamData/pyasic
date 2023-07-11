@@ -76,13 +76,14 @@ This function will return an instance of the dataclass [`MinerData`][pyasic.data
 Each piece of data in a [`MinerData`][pyasic.data.MinerData] instance can be referenced by getting it as an attribute, such as [`MinerData().hashrate`][pyasic.data.MinerData].
 ```python
 import asyncio
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic import get_miner
 
 async def gather_miner_data():
-    miner = await MinerFactory().get_miner("192.168.1.75")
-    miner_data = await miner.get_data()
-    print(miner_data)  # all data from the dataclass
-    print(miner_data.hashrate)  # hashrate of the miner in TH/s
+    miner = await get_miner("192.168.1.75")
+    if miner is not None:
+        miner_data = await miner.get_data()
+        print(miner_data)  # all data from the dataclass
+        print(miner_data.hashrate)  # hashrate of the miner in TH/s
 
 if __name__ == "__main__":
     asyncio.run(gather_miner_data())

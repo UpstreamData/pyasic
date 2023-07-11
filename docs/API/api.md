@@ -15,6 +15,7 @@ Use these instead -
 #### [BOSMiner API][pyasic.API.bosminer.BOSMinerAPI]
 #### [BTMiner API][pyasic.API.btminer.BTMinerAPI]
 #### [CGMiner API][pyasic.API.cgminer.CGMinerAPI]
+#### [LUXMiner API][pyasic.API.luxminer.LUXMinerAPI]
 #### [Unknown API][pyasic.API.unknown.UnknownAPI]
 
 <br>

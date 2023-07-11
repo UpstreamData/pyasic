@@ -20,6 +20,7 @@ nav:
         - BOSMiner: "API/bosminer.md"
         - BTMiner: "API/btminer.md"
         - CGMiner: "API/cgminer.md"
+        - LUXMiner: "API/luxminer.md"
         - Unknown: "API/unknown.md"
     - Backends:
         - BMMiner: "miners/backends/bmminer.md"
@@ -27,6 +28,8 @@ nav:
         - BFGMiner: "miners/backends/bfgminer.md"
         - BTMiner: "miners/backends/btminer.md"
         - CGMiner: "miners/backends/cgminer.md"
+        - LUXMiner: "miners/backends/luxminer.md"
+        - VNish: "miners/backends/vnish.md"
         - Hiveon: "miners/backends/hiveon.md"
     - Classes:
         - Antminer X3: "miners/antminer/X3.md"
@@ -40,14 +43,15 @@ nav:
         - Avalon 8X: "miners/avalonminer/A8X.md"
         - Avalon 9X: "miners/avalonminer/A9X.md"
         - Avalon 10X: "miners/avalonminer/A10X.md"
+        - Avalon 11X: "miners/avalonminer/A11X.md"
+        - Avalon 12X: "miners/avalonminer/A12X.md"
         - Whatsminer M2X: "miners/whatsminer/M2X.md"
         - Whatsminer M3X: "miners/whatsminer/M3X.md"
         - Whatsminer M5X: "miners/whatsminer/M5X.md"
         - Innosilicon T3X: "miners/innosilicon/T3X.md"
         - Innosilicon A10X: "miners/innosilicon/A10X.md"
-        - Goldshell CKX: "miners/goldshell/CKX.md"
-        - Goldshell HSX: "miners/goldshell/HSX.md"
-        - Goldshell KDX: "miners/goldshell/KDX.md"
+        - Goldshell X5: "miners/goldshell/X5.md"
+        - Goldshell XMax: "miners/goldshell/XMax.md"
     - Base Miner: "miners/base_miner.md"
 
 
