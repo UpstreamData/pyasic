@@ -22,7 +22,7 @@ import json
 import re
 from typing import Callable, List, Optional, Tuple, Union
 
-import aiohttp
+import httpx
 
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
@@ -455,7 +455,7 @@ class MinerFactory:
 
     async def _get_miner_web(self, ip: str):
         urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with aiohttp.ClientSession() as session:
+        async with httpx.AsyncClient() as session:
             tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
 
             text, resp = await concurrent_get_first_result(
@@ -466,22 +466,22 @@ class MinerFactory:
 
     @staticmethod
     async def _web_ping(
-        session: aiohttp.ClientSession, url: str
-    ) -> Tuple[Optional[str], Optional[aiohttp.ClientResponse]]:
+        session: httpx.AsyncClient, url: str
+    ) -> Tuple[Optional[str], Optional[httpx.Response]]:
         try:
-            resp = await session.get(url, allow_redirects=False)
-            return await resp.text(), resp
-        except (aiohttp.ClientError, asyncio.TimeoutError):
+            resp = await session.get(url, follow_redirects=False)
+            return resp.text, resp
+        except (httpx.HTTPError, asyncio.TimeoutError):
             pass
         return None, None
 
     @staticmethod
-    def _parse_web_type(web_text: str, web_resp: aiohttp.ClientResponse) -> MinerTypes:
-        if web_resp.status == 401 and 'realm="antMiner' in web_resp.headers.get(
+    def _parse_web_type(web_text: str, web_resp: httpx.Response) -> MinerTypes:
+        if web_resp.status_code == 401 and 'realm="antMiner' in web_resp.headers.get(
             "www-authenticate", ""
         ):
             return MinerTypes.ANTMINER
-        if web_resp.status == 307 and "https://" in web_resp.headers.get(
+        if web_resp.status_code == 307 and "https://" in web_resp.headers.get(
             "location", ""
         ):
             return MinerTypes.WHATSMINER
@@ -576,26 +576,26 @@ class MinerFactory:
         self,
         ip: Union[ipaddress.ip_address, str],
         location: str,
-        auth: Optional[aiohttp.BasicAuth] = None,
+        auth: Optional[httpx.DigestAuth] = None,
     ) -> Optional[dict]:
-        async with aiohttp.ClientSession() as session:
+        async with httpx.AsyncClient() as session:
             try:
                 data = await session.get(
                     f"http://{str(ip)}{location}",
                     auth=auth,
                     timeout=30,
                 )
-            except (aiohttp.ClientError, asyncio.TimeoutError):
+            except (httpx.HTTPError, asyncio.TimeoutError):
                 logger.info(f"{ip}: Web command timeout.")
                 return
         if data is None:
             return
         try:
-            json_data = await data.json()
-        except (aiohttp.ContentTypeError, asyncio.TimeoutError):
+            json_data = data.json()
+        except (json.JSONDecodeError, asyncio.TimeoutError):
             try:
-                return json.loads(await data.text())
-            except (json.JSONDecodeError, aiohttp.ClientError):
+                return json.loads(data.text)
+            except (json.JSONDecodeError, httpx.HTTPError):
                 return
         else:
             return json_data
@@ -716,7 +716,7 @@ class MinerFactory:
             pass
 
         # last resort, this is slow
-        auth = aiohttp.BasicAuth("root", "root")
+        auth = httpx.DigestAuth("root", "root")
         web_json_data = await self.send_web_command(
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )
@@ -760,7 +760,7 @@ class MinerFactory:
 
     async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
         try:
-            async with aiohttp.ClientSession() as session:
+            async with httpx.AsyncClient() as session:
                 auth_req = await session.post(
                     f"http://{ip}/api/auth",
                     data={"username": "admin", "password": "admin"},
@@ -775,7 +775,7 @@ class MinerFactory:
                     )
                 ).json()
                 return web_data["type"]
-        except (aiohttp.ClientError, LookupError):
+        except (httpx.HTTPError, LookupError):
             pass
 
     async def get_miner_model_braiins_os(self, ip: str) -> Optional[str]:
@@ -790,16 +790,16 @@ class MinerFactory:
             pass
 
         try:
-            async with aiohttp.ClientSession() as session:
+            async with httpx.AsyncClient() as session:
                 d = await session.post(
                     f"http://{ip}/graphql",
                     json={"query": "{bosminer {info{modelName}}}"},
                 )
-            if d.status == 200:
+            if d.status_code == 200:
                 json_data = await d.json()
                 miner_model = json_data["data"]["bosminer"]["info"]["modelName"]
                 return miner_model
-        except (aiohttp.ClientError, LookupError):
+        except (httpx.HTTPError, LookupError):
             pass
 
     async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
