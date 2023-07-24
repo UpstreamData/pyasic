@@ -203,27 +203,35 @@ class BTMinerAPI(BaseMinerAPI):
         # make sure we can actually run each command, otherwise they will fail
         commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
-        # commands starting with "get_" aren't supported, but we can fake that
-        get_commands_data = {}
+        # commands starting with "get_" and the "status" command aren't supported, but we can fake that
+
+        tasks = []
+
         for command in list(commands):
-            if command.startswith("get_"):
+            if command.startswith("get_") or command == "status":
                 commands.remove(command)
                 # send seperately and append later
-                try:
-                    get_commands_data[command] = [
-                        await self.send_command(command, allow_warning=allow_warning)
-                    ]
-                except APIError:
-                    get_commands_data[command] = [{}]
+                tasks.append(
+                    asyncio.create_task(
+                        self._handle_multicommand(command, allow_warning=allow_warning)
+                    )
+                )
 
         command = "+".join(commands)
-        try:
-            main_data = await self.send_command(command, allow_warning=allow_warning)
-        except APIError:
-            main_data = {command: [{}] for command in commands}
+        tasks.append(
+            asyncio.create_task(
+                self._handle_multicommand(command, allow_warning=allow_warning)
+            )
+        )
+
+        all_data = await asyncio.gather(*tasks)
+
         logging.debug(f"{self} - (Multicommand) - Received data")
 
-        data = dict(**main_data, **get_commands_data)
+        data = {}
+        for item in all_data:
+            data.update(item)
+
         data["multicommand"] = True
         return data
 

@@ -20,7 +20,7 @@ import json
 import logging
 import re
 import warnings
-from typing import Union
+from typing import Tuple, Union
 
 from pyasic.errors import APIError, APIWarning
 
@@ -128,6 +128,18 @@ class BaseMinerAPI:
             data["multicommand"] = True
             return data
 
+    async def _handle_multicommand(self, command: str, allow_warning: bool = True):
+        try:
+            data = await self.send_command(command, allow_warning=allow_warning)
+            if not "+" in command:
+                return {command: [data]}
+            return data
+
+        except APIError:
+            if "+" in command:
+                return {command: [{}] for command in command.split("+")}
+            return {command: [{}]}
+
     @property
     def commands(self) -> list:
         return self.get_commands()
@@ -171,7 +183,11 @@ If you are sure you want to use this command please use API.send_command("{comma
                 )
         return return_commands
 
-    async def _send_bytes(self, data: bytes, timeout: int = 100) -> bytes:
+    async def _send_bytes(
+        self,
+        data: bytes,
+        timeout: int = 100,
+    ) -> bytes:
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
         try:
             # get reader and writer streams

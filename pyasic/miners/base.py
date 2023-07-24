@@ -413,46 +413,22 @@ class BaseMiner(ABC):
     async def _get_data(self, allow_warning: bool, data_to_get: list = None) -> dict:
         if not data_to_get:
             # everything
-            data_to_get = [
-                "mac",
-                "model",
-                "api_ver",
-                "fw_ver",
-                "hostname",
-                "hashrate",
-                "nominal_hashrate",
-                "hashboards",
-                "env_temp",
-                "wattage",
-                "wattage_limit",
-                "fans",
-                "fan_psu",
-                "errors",
-                "fault_light",
-                "pools",
-                "is_mining",
-                "uptime",
-            ]
-        api_multicommand = []
-        web_multicommand = []
+            data_to_get = list(self.data_locations.keys())
+
+        api_multicommand = set()
+        web_multicommand = set()
         for data_name in data_to_get:
             try:
                 fn_args = self.data_locations[data_name]["kwargs"]
                 for arg_name in fn_args:
                     if fn_args[arg_name].get("api"):
-                        api_multicommand.append(fn_args[arg_name]["api"])
+                        api_multicommand.add(fn_args[arg_name]["api"])
                     if fn_args[arg_name].get("web"):
-                        web_multicommand.append(fn_args[arg_name]["web"])
+                        web_multicommand.add(fn_args[arg_name]["web"])
             except KeyError as e:
                 logger.error(e, data_name)
                 continue
 
-        api_multicommand = list(set(api_multicommand))
-        _web_multicommand = web_multicommand
-        for item in web_multicommand:
-            if item not in _web_multicommand:
-                _web_multicommand.append(item)
-        web_multicommand = _web_multicommand
         if len(api_multicommand) > 0:
             api_command_data = await self.api.multicommand(
                 *api_multicommand, allow_warning=allow_warning
@@ -492,7 +468,7 @@ class BaseMiner(ABC):
                                         args_to_send[arg_name] = web_command_data
                     except LookupError:
                         args_to_send[arg_name] = None
-            except LookupError as e:
+            except LookupError:
                 continue
 
             function = getattr(self, self.data_locations[data_name]["cmd"])
