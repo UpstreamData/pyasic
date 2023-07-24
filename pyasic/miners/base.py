@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+import asyncio
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
@@ -430,17 +430,34 @@ class BaseMiner(ABC):
                 continue
 
         if len(api_multicommand) > 0:
-            api_command_data = await self.api.multicommand(
-                *api_multicommand, allow_warning=allow_warning
+            api_command_task = asyncio.create_task(
+                self.api.multicommand(*api_multicommand, allow_warning=allow_warning)
             )
         else:
-            api_command_data = {}
+            api_command_task = asyncio.sleep(0)
         if len(web_multicommand) > 0:
-            web_command_data = await self.web.multicommand(
-                *web_multicommand, allow_warning=allow_warning
+            web_command_task = asyncio.create_task(
+                self.web.multicommand(*web_multicommand, allow_warning=allow_warning)
             )
         else:
+            web_command_task = asyncio.sleep(0)
+
+        import pprint
+        from datetime import datetime
+
+        s1 = datetime.now()
+        web_command_data = await web_command_task
+        if web_command_data is None:
             web_command_data = {}
+        print("WEB", datetime.now() - s1)
+        # pprint.pprint(web_command_data)
+
+        s2 = datetime.now()
+        api_command_data = await api_command_task
+        if api_command_data is None:
+            api_command_data = {}
+        print("API:", datetime.now() - s2)
+        # pprint.pprint(api_command_data)
 
         miner_data = {}
 

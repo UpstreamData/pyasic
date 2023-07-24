@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import asyncio
 import json
 from typing import Union
 
@@ -56,24 +57,36 @@ class AntminerModernWebAPI(BaseWebAPI):
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
-        data["multicommand"] = True
-        auth = httpx.DigestAuth(self.username, self.pwd)
         async with httpx.AsyncClient() as client:
-            for command in commands:
-                try:
-                    url = f"http://{self.ip}/cgi-bin/{command}.cgi"
-                    ret = await client.get(url, auth=auth)
-                except httpx.HTTPError:
-                    pass
-                else:
-                    if ret.status_code == 200:
-                        try:
-                            json_data = ret.json()
-                            data[command] = json_data
-                        except json.decoder.JSONDecodeError:
-                            pass
+            tasks = [
+                asyncio.create_task(self._handle_multicommand(client, command))
+                for command in commands
+            ]
+            all_data = await asyncio.gather(*tasks)
+
+        data = {}
+        for item in all_data:
+            data.update(item)
+
+        data["multicommand"] = True
         return data
+
+    async def _handle_multicommand(self, client: httpx.AsyncClient, command: str):
+        auth = httpx.DigestAuth(self.username, self.pwd)
+
+        try:
+            url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+            ret = await client.get(url, auth=auth)
+        except httpx.HTTPError:
+            pass
+        else:
+            if ret.status_code == 200:
+                try:
+                    json_data = ret.json()
+                    return {command: json_data}
+                except json.decoder.JSONDecodeError:
+                    pass
+        return {command: {}}
 
     async def get_miner_conf(self) -> dict:
         return await self.send_command("get_miner_conf")

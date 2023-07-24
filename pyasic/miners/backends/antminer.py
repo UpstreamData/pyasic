@@ -26,11 +26,17 @@ from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
 ANTMINER_MODERN_DATA_LOC = {
-    "mac": {"cmd": "get_mac", "kwargs": {}},
+    "mac": {
+        "cmd": "get_mac",
+        "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
+    },
     "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {}},
+    "hostname": {
+        "cmd": "get_hostname",
+        "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
+    },
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
     "nominal_hashrate": {
         "cmd": "get_nominal_hashrate",
@@ -42,8 +48,11 @@ ANTMINER_MODERN_DATA_LOC = {
     "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
     "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "errors": {"cmd": "get_errors", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
+    "fault_light": {
+        "cmd": "get_fault_light",
+        "kwargs": {"web_get_blink_status": {"web": "get_blink_status"}},
+    },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {
         "cmd": "is_mining",
@@ -121,21 +130,31 @@ class AntminerModern(BMMiner):
         await self.send_config(cfg)
         return True
 
-    async def get_hostname(self) -> Union[str, None]:
-        try:
-            data = await self.web.get_system_info()
-            if data:
-                return data["hostname"]
-        except KeyError:
-            pass
+    async def get_hostname(self, web_get_system_info: dict = None) -> Union[str, None]:
+        if not web_get_system_info:
+            try:
+                web_get_system_info = await self.web.get_system_info()
+            except APIError:
+                pass
 
-    async def get_mac(self) -> Union[str, None]:
-        try:
-            data = await self.web.get_system_info()
-            if data:
-                return data["macaddr"]
-        except KeyError:
-            pass
+        if web_get_system_info:
+            try:
+                return web_get_system_info["hostname"]
+            except KeyError:
+                pass
+
+    async def get_mac(self, web_get_system_info: dict = None) -> Union[str, None]:
+        if not web_get_system_info:
+            try:
+                web_get_system_info = await self.web.get_system_info()
+            except APIError:
+                pass
+
+        if web_get_system_info:
+            try:
+                return web_get_system_info["macaddr"]
+            except KeyError:
+                pass
 
         try:
             data = await self.web.get_network_info()
@@ -144,12 +163,17 @@ class AntminerModern(BMMiner):
         except KeyError:
             pass
 
-    async def get_errors(self) -> List[MinerErrorData]:
-        errors = []
-        data = await self.web.summary()
-        if data:
+    async def get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+        if not web_summary:
             try:
-                for item in data["SUMMARY"][0]["status"]:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        errors = []
+        if web_summary:
+            try:
+                for item in web_summary["SUMMARY"][0]["status"]:
                     try:
                         if not item["status"] == "s":
                             errors.append(X19Error(item["msg"]))
@@ -159,15 +183,21 @@ class AntminerModern(BMMiner):
                 pass
         return errors
 
-    async def get_fault_light(self) -> bool:
+    async def get_fault_light(self, web_get_blink_status: dict = None) -> bool:
         if self.light:
             return self.light
-        try:
-            data = await self.web.get_blink_status()
-            if data:
-                self.light = data["blink"]
-        except KeyError:
-            pass
+
+        if not web_get_blink_status:
+            try:
+                web_get_blink_status = await self.web.get_blink_status()
+            except APIError:
+                pass
+
+        if web_get_blink_status:
+            try:
+                self.light = web_get_blink_status["blink"]
+            except KeyError:
+                pass
         return self.light
 
     async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:

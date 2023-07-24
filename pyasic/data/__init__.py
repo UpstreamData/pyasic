@@ -20,7 +20,7 @@ import logging
 import time
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
-from typing import List, Union, Any
+from typing import Any, List, Union
 
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
@@ -411,8 +411,12 @@ class MinerData:
                     field_data.append(f'error_{idx+1}="{item.error_message}"')
             elif attribute == "hashboards":
                 for idx, item in enumerate(self[attribute]):
-                    field_data.append(f"hashboard_{idx+1}_hashrate={item.get('hashrate', 0.0)}")
-                    field_data.append(f"hashboard_{idx+1}_temperature={item.get('temp', 0)}")
+                    field_data.append(
+                        f"hashboard_{idx+1}_hashrate={item.get('hashrate', 0.0)}"
+                    )
+                    field_data.append(
+                        f"hashboard_{idx+1}_temperature={item.get('temp', 0)}"
+                    )
                     field_data.append(
                         f"hashboard_{idx+1}_chip_temperature={item.get('chip_temp', 0)}"
                     )

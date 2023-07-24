@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+import asyncio
 import logging
 
 from pyasic.API import APIError, BaseMinerAPI
@@ -56,19 +56,19 @@ class CGMinerAPI(BaseMinerAPI):
         return data
 
     async def _x19_multicommand(self, *commands) -> dict:
-        data = None
-        try:
-            data = {}
-            # send all commands individually
-            for cmd in commands:
-                data[cmd] = []
-                data[cmd].append(await self.send_command(cmd, allow_warning=True))
-        except APIError:
-            pass
-        except Exception as e:
-            logging.warning(
-                f"{self} - ([Hidden] X19 Multicommand) - API Command Error {e}"
+        tasks = []
+        # send all commands individually
+        for cmd in commands:
+            tasks.append(
+                asyncio.create_task(self._handle_multicommand(cmd, allow_warning=True))
             )
+
+        all_data = await asyncio.gather(*tasks)
+
+        data = {}
+        for item in all_data:
+            data.update(item)
+
         return data
 
     async def version(self) -> dict:

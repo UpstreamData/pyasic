@@ -1078,7 +1078,9 @@ class BOSMiner(BaseMiner):
     async def is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
         if not api_devdetails:
             try:
-                api_devdetails = await self.api.send_command("devdetails", ignore_errors=True, allow_warning=False)
+                api_devdetails = await self.api.send_command(
+                    "devdetails", ignore_errors=True, allow_warning=False
+                )
             except APIError:
                 pass
 
