@@ -813,6 +813,9 @@ class MinerFactory:
             if "(88)" in miner_model:
                 miner_model = miner_model.replace("(88)", "NOPIC")
 
+            if " AML" in miner_model:
+                miner_model = miner_model.replace(" AML", "")
+
             return miner_model
         except (TypeError, LookupError):
             pass
