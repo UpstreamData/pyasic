@@ -691,6 +691,28 @@ class MinerFactory:
             return UnknownMiner(str(ip))
 
     async def get_miner_model_antminer(self, ip: str):
+        tasks = [
+            asyncio.create_task(self._get_model_antminer_web(ip)),
+            asyncio.create_task(self._get_model_antminer_sock(ip)),
+        ]
+
+        return await concurrent_get_first_result(tasks, lambda x: x is not None)
+
+    async def _get_model_antminer_web(self, ip: str):
+        # last resort, this is slow
+        auth = httpx.DigestAuth("root", "root")
+        web_json_data = await self.send_web_command(
+            ip, "/cgi-bin/get_system_info.cgi", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["minertype"]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def _get_model_antminer_sock(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
@@ -710,19 +732,6 @@ class MinerFactory:
             if " (" in miner_model:
                 split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
-
-            return miner_model
-        except (TypeError, LookupError):
-            pass
-
-        # last resort, this is slow
-        auth = httpx.DigestAuth("root", "root")
-        web_json_data = await self.send_web_command(
-            ip, "/cgi-bin/get_system_info.cgi", auth=auth
-        )
-
-        try:
-            miner_model = web_json_data["minertype"]
 
             return miner_model
         except (TypeError, LookupError):
