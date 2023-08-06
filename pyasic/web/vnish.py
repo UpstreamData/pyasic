@@ -116,8 +116,32 @@ class VNishWebAPI(BaseWebAPI):
     async def reboot(self) -> dict:
         return await self.send_command("system/reboot", post=True)
 
+    async def pause_mining(self) -> dict:
+        return await self.send_command("mining/pause", post=True)
+
+    async def resume_mining(self) -> dict:
+        return await self.send_command("mining/resume", post=True)
+
+    async def stop_mining(self) -> dict:
+        return await self.send_command("mining/stop", post=True)
+
+    async def start_mining(self) -> dict:
+        return await self.send_command("mining/start", post=True)
+
     async def info(self):
         return await self.send_command("info")
 
     async def summary(self):
         return await self.send_command("summary")
+
+    async def chips(self):
+        return await self.send_command("chips")
+
+    async def layout(self):
+        return await self.send_command("layout")
+
+    async def status(self):
+        return await self.send_command("status")
+
+    async def settings(self):
+        return await self.send_command("settings")

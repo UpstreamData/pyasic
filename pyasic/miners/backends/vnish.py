@@ -74,6 +74,24 @@ class VNish(BMMiner):
                 pass
         return False
 
+    async def stop_mining(self) -> bool:
+        data = await self.web.stop_mining()
+        if data:
+            try:
+                return data["success"]
+            except KeyError:
+                pass
+        return False
+
+    async def resume_mining(self) -> bool:
+        data = await self.web.resume_mining()
+        if data:
+            try:
+                return data["success"]
+            except KeyError:
+                pass
+        return False
+
     async def reboot(self) -> bool:
         data = await self.web.reboot()
         if data:
