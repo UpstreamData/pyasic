@@ -486,7 +486,7 @@ class MinerFactory:
             "location", ""
         ):
             return MinerTypes.WHATSMINER
-        if "Braiins OS" in web_text or 'href="/cgi-bin/luci"' in web_text:
+        if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
         if "cloud-box" in web_text:
             return MinerTypes.GOLDSHELL
