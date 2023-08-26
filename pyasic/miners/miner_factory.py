@@ -775,15 +775,13 @@ class MinerFactory:
                     f"http://{ip}/api/auth",
                     data={"username": "admin", "password": "admin"},
                 )
-                auth = (await auth_req.json())["jwt"]
+                auth = auth_req.json()["jwt"]
 
-                web_data = await (
-                    await session.post(
+                web_data = (await session.post(
                         f"http://{ip}/api/type",
                         headers={"Authorization": "Bearer " + auth},
                         data={},
-                    )
-                ).json()
+                    )).json()
                 return web_data["type"]
         except (httpx.HTTPError, LookupError):
             pass
@@ -806,7 +804,7 @@ class MinerFactory:
                     json={"query": "{bosminer {info{modelName}}}"},
                 )
             if d.status_code == 200:
-                json_data = await d.json()
+                json_data = d.json()
                 miner_model = json_data["data"]["bosminer"]["info"]["modelName"]
                 return miner_model
         except (httpx.HTTPError, LookupError):
