@@ -419,7 +419,7 @@ class BaseMiner(ABC):
             data_to_get = list(self.data_locations.keys())
 
         api_multicommand = set()
-        web_multicommand = set()
+        web_multicommand = []
         for data_name in data_to_get:
             try:
                 fn_args = self.data_locations[data_name]["kwargs"]
@@ -427,7 +427,8 @@ class BaseMiner(ABC):
                     if fn_args[arg_name].get("api"):
                         api_multicommand.add(fn_args[arg_name]["api"])
                     if fn_args[arg_name].get("web"):
-                        web_multicommand.add(fn_args[arg_name]["web"])
+                        if not fn_args[arg_name]["web"] in web_multicommand:
+                            web_multicommand.append(fn_args[arg_name]["web"])
             except KeyError as e:
                 logger.error(e, data_name)
                 continue
@@ -444,8 +445,6 @@ class BaseMiner(ABC):
             )
         else:
             web_command_task = asyncio.sleep(0)
-
-        from datetime import datetime
 
         web_command_data = await web_command_task
         if web_command_data is None:
