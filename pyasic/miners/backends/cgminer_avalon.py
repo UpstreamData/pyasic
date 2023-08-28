@@ -179,11 +179,12 @@ class CGMinerAvalon(CGMiner):
                 pass
 
     async def get_hostname(self, mac: str = None) -> Optional[str]:
-        if not mac:
-            mac = await self.get_mac()
-
-        if mac:
-            return f"Avalon{mac.replace(':', '')[-6:]}"
+        return None
+        # if not mac:
+        #     mac = await self.get_mac()
+        #
+        # if mac:
+        #     return f"Avalon{mac.replace(':', '')[-6:]}"
 
     async def get_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if not api_devs:
