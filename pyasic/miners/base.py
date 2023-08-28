@@ -413,14 +413,21 @@ class BaseMiner(ABC):
         """
         pass
 
-    async def _get_data(self, allow_warning: bool, data_to_get: list = None) -> dict:
-        if not data_to_get:
+    async def _get_data(
+        self, allow_warning: bool, include: list = None, exclude: list = None
+    ) -> dict:
+        if include is None:
             # everything
-            data_to_get = list(self.data_locations.keys())
+            include = list(self.data_locations.keys())
+
+        if exclude is not None:
+            for item in exclude:
+                if item in include:
+                    include.remove(item)
 
         api_multicommand = set()
         web_multicommand = []
-        for data_name in data_to_get:
+        for data_name in include:
             try:
                 fn_args = self.data_locations[data_name]["kwargs"]
                 for arg_name in fn_args:
@@ -456,7 +463,7 @@ class BaseMiner(ABC):
 
         miner_data = {}
 
-        for data_name in data_to_get:
+        for data_name in include:
             try:
                 fn_args = self.data_locations[data_name]["kwargs"]
                 args_to_send = {k: None for k in fn_args}
@@ -510,13 +517,14 @@ class BaseMiner(ABC):
         return miner_data
 
     async def get_data(
-        self, allow_warning: bool = False, data_to_get: list = None
+        self, allow_warning: bool = False, include: list = None, exclude: list = None
     ) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
         Parameters:
             allow_warning: Allow warning when an API command fails.
-            data_to_get: Names of data items you want to gather. Defaults to all data.
+            include: Names of data items you want to gather. Defaults to all data.
+            exclude: Names of data items to exclude.  Exclusion happens after considering included items.
 
         Returns:
             A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
@@ -532,7 +540,9 @@ class BaseMiner(ABC):
             ],
         )
 
-        gathered_data = await self._get_data(allow_warning, data_to_get=data_to_get)
+        gathered_data = await self._get_data(
+            allow_warning, include=include, exclude=exclude
+        )
         for item in gathered_data:
             if gathered_data[item] is not None:
                 setattr(data, item, gathered_data[item])
