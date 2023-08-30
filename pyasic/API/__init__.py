@@ -258,8 +258,11 @@ If you are sure you want to use this command please use API.send_command("{comma
                 return False, data["Msg"]
         else:
             # make sure the command succeeded
-            if type(data["STATUS"]) == str:
+            if isinstance(data["STATUS"], str):
                 if data["STATUS"] in ["RESTART"]:
+                    return True, None
+            elif isinstance(data["STATUS"], dict):
+                if data["STATUS"].get("STATUS") in ["S", "I"]:
                     return True, None
             elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
                 # this is an error
