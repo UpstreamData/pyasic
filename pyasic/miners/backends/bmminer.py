@@ -235,7 +235,17 @@ class BMMiner(BaseMiner):
                     if board_offset == -1:
                         board_offset = 1
 
-                    for i in range(board_offset, board_offset + self.ideal_hashboards):
+                    real_slots = []
+
+                    for i in range(board_offset, board_offset + 4):
+                        key = f'chain_acs{i}'
+                        if boards[1][key] != '':
+                            real_slots.append(i)
+
+                    if len(real_slots) < 3:
+                        real_slots = list(range(board_offset, board_offset + self.ideal_hashboards))
+
+                    for i in real_slots:
                         hashboard = HashBoard(
                             slot=i - board_offset, expected_chips=self.nominal_chips
                         )
@@ -259,7 +269,7 @@ class BMMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
