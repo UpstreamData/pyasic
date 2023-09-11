@@ -338,13 +338,16 @@ class MinerData:
         pass
 
     def asdict(self) -> dict:
+        logging.debug(f"MinerData - (To Dict) - Dumping Dict data")
+        return asdict(self)
+
+    def as_dict(self) -> dict:
         """Get this dataclass as a dictionary.
 
         Returns:
             A dictionary version of this class.
         """
-        logging.debug(f"MinerData - (To Dict) - Dumping Dict data")
-        return asdict(self)
+        return self.asdict()
 
     def as_json(self) -> str:
         """Get this dataclass as JSON.
