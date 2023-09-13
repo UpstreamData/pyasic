@@ -303,17 +303,12 @@ class BOSMiner(BaseMiner):
             The config from `self.config`.
         """
         logging.debug(f"{self}: Getting config.")
-        conn = None
+
         try:
             conn = await self._get_ssh_connection()
         except ConnectionError:
-            try:
-                pools = await self.api.pools()
-            except APIError:
-                return self.config
-            if pools:
-                self.config = MinerConfig().from_api(pools["POOLS"])
-                return self.config
+            conn = None
+
         if conn:
             async with conn:
                 # good ol' BBB compatibility :/
@@ -365,6 +360,8 @@ class BOSMiner(BaseMiner):
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             cfg = await self.get_config()
+            if cfg is None:
+                return False
             cfg.autotuning_wattage = wattage
             await self.send_config(cfg)
         except Exception as e:
