@@ -22,7 +22,7 @@ import hashlib
 import json
 import logging
 import re
-from typing import Union
+from typing import Literal, Union
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
@@ -39,6 +39,12 @@ from pyasic.settings import PyasicSettings
 # or the privileged API will not work using admin as the password.  If
 # you change the password, you can pass that to this class as pwd,
 # or add it as the Whatsminer_pwd in the settings.toml file.
+
+PrePowerOnMessage = Union[
+    Literal["wait for adjust temp"],
+    Literal["adjust complete"],
+    Literal["adjust continue"],
+]
 
 
 def _crypt(word: str, salt: str) -> str:
@@ -693,7 +699,7 @@ class BTMinerAPI(BaseMinerAPI):
             )
         return await self.send_privileged_command("set_power_pct", percent=str(percent))
 
-    async def pre_power_on(self, complete: bool, msg: str) -> dict:
+    async def pre_power_on(self, complete: bool, msg: PrePowerOnMessage) -> dict:
         """Configure or check status of pre power on.
 
         <details>
@@ -713,7 +719,7 @@ class BTMinerAPI(BaseMinerAPI):
         </details>
         """
 
-        if not msg == "wait for adjust temp" or "adjust complete" or "adjust continue":
+        if msg not in ("wait for adjust temp", "adjust complete", "adjust continue"):
             raise APIError(
                 "Message is incorrect, please choose one of "
                 '["wait for adjust temp", '
