@@ -109,7 +109,7 @@ class AntminerModern(BMMiner):
         data = await self.web.blink(blink=False)
         if data:
             if data.get("code") == "B100":
-                self.light = True
+                self.light = False
         return self.light
 
     async def reboot(self) -> bool:
