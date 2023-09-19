@@ -53,6 +53,15 @@ class S19i(AntMiner):  # noqa - ignore ABC method implementation
         self.fan_count = 4
 
 
+class S19Plus(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.ip = ip
+        self.model = "S19+"
+        self.nominal_chips = 80
+        self.fan_count = 4
+
+
 class S19ProPlus(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
