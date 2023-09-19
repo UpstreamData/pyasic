@@ -20,6 +20,7 @@ from .S19 import (
     S19XP,
     S19a,
     S19aPro,
+    S19i,
     S19j,
     S19jNoPIC,
     S19jPro,

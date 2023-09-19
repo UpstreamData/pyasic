@@ -239,14 +239,16 @@ class BMMiner(BaseMiner):
 
                     for i in range(board_offset, board_offset + 4):
                         try:
-                            key = f'chain_acs{i}'
-                            if boards[1].get(key, '') != '':
+                            key = f"chain_acs{i}"
+                            if boards[1].get(key, "") != "":
                                 real_slots.append(i)
                         except LookupError:
                             pass
 
                     if len(real_slots) < 3:
-                        real_slots = list(range(board_offset, board_offset + self.ideal_hashboards))
+                        real_slots = list(
+                            range(board_offset, board_offset + self.ideal_hashboards)
+                        )
 
                     for i in real_slots:
                         hashboard = HashBoard(

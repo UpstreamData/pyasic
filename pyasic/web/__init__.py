@@ -24,7 +24,7 @@ from pyasic.errors import APIWarning
 class BaseWebAPI(ABC):
     def __init__(self, ip: str) -> None:
         # ip address of the miner
-        self.ip = ip # ipaddress.ip_address(ip)
+        self.ip = ip  # ipaddress.ip_address(ip)
         self.username = "root"
         self.pwd = "root"
 

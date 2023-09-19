@@ -21,6 +21,7 @@ from pyasic.miners.types import (
     S19XP,
     S19a,
     S19aPro,
+    S19i,
     S19j,
     S19jNoPIC,
     S19jPro,
@@ -30,6 +31,10 @@ from pyasic.miners.types import (
 
 
 class BMMinerS19(AntminerModern, S19):
+    pass
+
+
+class BMMinerS19i(AntminerModern, S19i):
     pass
 
 

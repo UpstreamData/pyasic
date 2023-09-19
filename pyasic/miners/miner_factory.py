@@ -85,6 +85,7 @@ MINER_CLASSES = {
         "ANTMINER S19L": BMMinerS19L,
         "ANTMINER S19 PRO": BMMinerS19Pro,
         "ANTMINER S19J": BMMinerS19j,
+        "ANTMINER S19I": BMMinerS19i,
         "ANTMINER S19J88NOPIC": BMMinerS19jNoPIC,
         "ANTMINER S19PRO+": BMMinerS19ProPlus,
         "ANTMINER S19J PRO": BMMinerS19jPro,
@@ -777,11 +778,13 @@ class MinerFactory:
                 )
                 auth = auth_req.json()["jwt"]
 
-                web_data = (await session.post(
+                web_data = (
+                    await session.post(
                         f"http://{ip}/api/type",
                         headers={"Authorization": "Bearer " + auth},
                         data={},
-                    )).json()
+                    )
+                ).json()
                 return web_data["type"]
         except (httpx.HTTPError, LookupError):
             pass
