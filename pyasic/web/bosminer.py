@@ -217,3 +217,9 @@ class BOSMinerLuCIAPI:
 
     async def get_api_status(self):
         return await self.send_command("/cgi-bin/luci/admin/miner/api_status")
+
+
+class BOSMinerGRPCAPI:
+    def __init__(self, ip: str, pwd: str):
+        self.ip = ip
+        self.pwd = pwd
