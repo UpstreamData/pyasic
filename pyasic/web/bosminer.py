@@ -25,8 +25,20 @@ from pyasic.web import BaseWebAPI
 
 class BOSMinerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
+        self.gql = BOSMinerGQLAPI(ip, PyasicSettings().global_bosminer_password)
+        self.luci = BOSMinerLuCIAPI(ip, PyasicSettings().global_bosminer_password)
+        self._pwd = PyasicSettings().global_bosminer_password
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_bosminer_password
+
+    @property
+    def pwd(self):
+        return self._pwd
+
+    @pwd.setter
+    def pwd(self, other: str):
+        self._pwd = other
+        self.luci.pwd = other
+        self.gql.pwd = other
 
     async def send_command(
         self,
@@ -35,44 +47,10 @@ class BOSMinerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        if isinstance(command, str):
-            return await self.send_luci_command(command)
+        if command.startswith("/cgi-bin/luci"):
+            return await self.luci.send_command(command)
         else:
-            return await self.send_gql_command(command)
-
-    def parse_command(self, graphql_command: Union[dict, set]) -> str:
-        if isinstance(graphql_command, dict):
-            data = []
-            for key in graphql_command:
-                if graphql_command[key] is not None:
-                    parsed = self.parse_command(graphql_command[key])
-                    data.append(key + parsed)
-                else:
-                    data.append(key)
-        else:
-            data = graphql_command
-        return "{" + ",".join(data) + "}"
-
-    async def send_gql_command(
-        self,
-        command: dict,
-    ) -> dict:
-        url = f"http://{self.ip}/graphql"
-        query = command
-        if command.get("query") is None:
-            query = {"query": self.parse_command(command)}
-        try:
-            async with httpx.AsyncClient() as client:
-                await self.auth(client)
-                data = await client.post(url, json=query)
-        except httpx.HTTPError:
-            pass
-        else:
-            if data.status_code == 200:
-                try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
+            return await self.gql.send_command(command)
 
     async def multicommand(
         self, *commands: Union[dict, str], allow_warning: bool = True
@@ -80,13 +58,13 @@ class BOSMinerWebAPI(BaseWebAPI):
         luci_commands = []
         gql_commands = []
         for cmd in commands:
+            if cmd.startswith("/cgi-bin/luci"):
+                luci_commands.append(cmd)
             if isinstance(cmd, dict):
                 gql_commands.append(cmd)
-            if isinstance(cmd, str):
-                luci_commands.append(cmd)
 
-        luci_data = await self.luci_multicommand(*luci_commands)
-        gql_data = await self.gql_multicommand(*gql_commands)
+        luci_data = await self.luci.multicommand(*luci_commands)
+        gql_data = await self.gql.multicommand(*gql_commands)
 
         if gql_data is None:
             gql_data = {}
@@ -96,13 +74,14 @@ class BOSMinerWebAPI(BaseWebAPI):
         data = dict(**luci_data, **gql_data)
         return data
 
-    async def luci_multicommand(self, *commands: str) -> dict:
-        data = {}
-        for command in commands:
-            data[command] = await self.send_luci_command(command, ignore_errors=True)
-        return data
 
-    async def gql_multicommand(self, *commands: dict) -> dict:
+class BOSMinerGQLAPI:
+    def __init__(self, ip: str, pwd: str):
+        self.ip = ip
+        self.username = "root"
+        self.pwd = pwd
+
+    async def multicommand(self, *commands: dict) -> dict:
         def merge(*d: dict):
             ret = {}
             for i in d:
@@ -123,13 +102,47 @@ class BOSMinerWebAPI(BaseWebAPI):
                     # noinspection PyTypeChecker
                     commands.remove({"bos": {"faultLight": None}})
                     command = merge(*commands)
-                    data = await self.send_gql_command(command)
+                    data = await self.send_command(command)
                 except (LookupError, ValueError):
                     pass
             if not data:
                 data = {}
             data["multicommand"] = False
             return data
+
+    async def send_command(
+        self,
+        command: dict,
+    ) -> dict:
+        url = f"http://{self.ip}/graphql"
+        query = command
+        if command.get("query") is None:
+            query = {"query": self.parse_command(command)}
+        try:
+            async with httpx.AsyncClient() as client:
+                await self.auth(client)
+                data = await client.post(url, json=query)
+        except httpx.HTTPError:
+            pass
+        else:
+            if data.status_code == 200:
+                try:
+                    return data.json()
+                except json.decoder.JSONDecodeError:
+                    pass
+
+    def parse_command(self, graphql_command: Union[dict, set]) -> str:
+        if isinstance(graphql_command, dict):
+            data = []
+            for key in graphql_command:
+                if graphql_command[key] is not None:
+                    parsed = self.parse_command(graphql_command[key])
+                    data.append(key + parsed)
+                else:
+                    data.append(key)
+        else:
+            data = graphql_command
+        return "{" + ",".join(data) + "}"
 
     async def auth(self, client: httpx.AsyncClient) -> None:
         url = f"http://{self.ip}/graphql"
@@ -144,10 +157,23 @@ class BOSMinerWebAPI(BaseWebAPI):
             },
         )
 
-    async def send_luci_command(self, path: str, ignore_errors: bool = False) -> dict:
+
+class BOSMinerLuCIAPI:
+    def __init__(self, ip: str, pwd: str):
+        self.ip = ip
+        self.username = "root"
+        self.pwd = pwd
+
+    async def multicommand(self, *commands: str) -> dict:
+        data = {}
+        for command in commands:
+            data[command] = await self.send_command(command, ignore_errors=True)
+        return data
+
+    async def send_command(self, path: str, ignore_errors: bool = False) -> dict:
         try:
             async with httpx.AsyncClient() as client:
-                await self.luci_auth(client)
+                await self.auth(client)
                 data = await client.get(
                     f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}
                 )
@@ -163,7 +189,7 @@ class BOSMinerWebAPI(BaseWebAPI):
                 return {}
             raise APIError(f"Web command failed: path={path}")
 
-    async def luci_auth(self, session: httpx.AsyncClient):
+    async def auth(self, session: httpx.AsyncClient):
         login = {"luci_username": self.username, "luci_password": self.pwd}
         url = f"http://{self.ip}/cgi-bin/luci"
         headers = {
@@ -173,23 +199,21 @@ class BOSMinerWebAPI(BaseWebAPI):
         await session.post(url, headers=headers, data=login)
 
     async def get_net_conf(self):
-        return await self.send_luci_command(
-            "/cgi-bin/luci/admin/network/iface_status/lan"
-        )
+        return await self.send_command("/cgi-bin/luci/admin/network/iface_status/lan")
 
     async def get_cfg_metadata(self):
-        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_metadata")
+        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_metadata")
 
     async def get_cfg_data(self):
-        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_data")
+        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_data")
 
     async def get_bos_info(self):
-        return await self.send_luci_command("/cgi-bin/luci/bos/info")
+        return await self.send_command("/cgi-bin/luci/bos/info")
 
     async def get_overview(self):
-        return await self.send_luci_command(
+        return await self.send_command(
             "/cgi-bin/luci/admin/status/overview?status=1"
         )  # needs status=1 or it fails
 
     async def get_api_status(self):
-        return await self.send_luci_command("/cgi-bin/luci/admin/miner/api_status")
+        return await self.send_command("/cgi-bin/luci/admin/miner/api_status")
