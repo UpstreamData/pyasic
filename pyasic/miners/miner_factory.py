@@ -753,7 +753,7 @@ class MinerFactory:
     async def get_miner_model_whatsminer(self, ip: str):
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
-            miner_model = sock_json_data["DEVDETAILS"][0]["Model"]
+            miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
 
             return miner_model
         except (TypeError, LookupError):
