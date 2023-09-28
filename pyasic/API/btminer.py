@@ -735,6 +735,34 @@ class BTMinerAPI(BaseMinerAPI):
         )
 
     ### ADDED IN V2.0.5 Whatsminer API ###
+
+    @api_min_version("2.0.5")
+    async def set_power_pct_v2(self, percent: int) -> dict:
+        """Set the power percentage of the miner based on current power.  Used for temporary adjustment.  Added in API v2.0.5.
+
+        <details>
+            <summary>Expand</summary>
+
+        Set the power percentage of the miner, only works after changing
+        the password of the miner using the Whatsminer tool.
+
+        Parameters:
+            percent: The power percentage to set.
+        Returns:
+            A reply informing of the status of setting the power percentage.
+        </details>
+        """
+
+        if not 0 < percent < 100:
+            raise APIError(
+                f"Power PCT % is outside of the allowed "
+                f"range.  Please set a % between 0 and "
+                f"100"
+            )
+        return await self.send_privileged_command(
+            "set_power_pct_v2", percent=str(percent)
+        )
+
     @api_min_version("2.0.5")
     async def set_temp_offset(self, temp_offset: int) -> dict:
         """Set the offset of miner hash board target temperature.
