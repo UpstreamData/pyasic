@@ -27,10 +27,10 @@ from typing import Literal, Union
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
 
+from pyasic import settings
 from pyasic.API import BaseMinerAPI
 from pyasic.errors import APIError
 from pyasic.misc import api_min_version
-from pyasic.settings import PyasicSettings
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer
@@ -192,7 +192,7 @@ class BTMinerAPI(BaseMinerAPI):
         ip: str,
         api_ver: str = "0.0.0",
         port: int = 4028,
-        pwd: str = PyasicSettings().global_whatsminer_password,
+        pwd: str = settings.get("default_whatsminer_password", "admin"),
     ):
         super().__init__(ip, port)
         self.pwd = pwd

@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic import settings
 from pyasic.API.bmminer import BMMinerAPI
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API.btminer import BTMinerAPI
@@ -32,7 +33,6 @@ from pyasic.miners.base import AnyMiner
 from pyasic.miners.miner_factory import MinerFactory
 from pyasic.miners.miner_listener import MinerListener
 from pyasic.network import MinerNetwork
-from pyasic.settings import PyasicSettings
 
 __all__ = [
     "BMMinerAPI",
@@ -53,5 +53,5 @@ __all__ = [
     "MinerFactory",
     "MinerListener",
     "MinerNetwork",
-    "PyasicSettings",
+    "settings",
 ]

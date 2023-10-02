@@ -18,27 +18,14 @@ from typing import Union
 
 import httpx
 
-from pyasic import APIError
-from pyasic.settings import PyasicSettings
+from pyasic import APIError, settings
 from pyasic.web import BaseWebAPI
 
 
 class BOSMinerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
-        self.gql = BOSMinerGQLAPI(ip, PyasicSettings().global_bosminer_password)
-        self.luci = BOSMinerLuCIAPI(ip, PyasicSettings().global_bosminer_password)
-        self._pwd = PyasicSettings().global_bosminer_password
         super().__init__(ip)
-
-    @property
-    def pwd(self):
-        return self._pwd
-
-    @pwd.setter
-    def pwd(self, other: str):
-        self._pwd = other
-        self.luci.pwd = other
-        self.gql.pwd = other
+        self.pwd = settings.get("default_bosminer_password", "root")
 
     async def send_command(
         self,
@@ -47,70 +34,25 @@ class BOSMinerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        if command.startswith("/cgi-bin/luci"):
-            return await self.luci.send_command(command)
+        if isinstance(command, str):
+            return await self.send_luci_command(command)
         else:
-            return await self.gql.send_command(command)
+            return await self.send_gql_command(command)
 
-    async def multicommand(
-        self, *commands: Union[dict, str], allow_warning: bool = True
-    ) -> dict:
-        luci_commands = []
-        gql_commands = []
-        for cmd in commands:
-            if cmd.startswith("/cgi-bin/luci"):
-                luci_commands.append(cmd)
-            if isinstance(cmd, dict):
-                gql_commands.append(cmd)
+    def parse_command(self, graphql_command: Union[dict, set]) -> str:
+        if isinstance(graphql_command, dict):
+            data = []
+            for key in graphql_command:
+                if graphql_command[key] is not None:
+                    parsed = self.parse_command(graphql_command[key])
+                    data.append(key + parsed)
+                else:
+                    data.append(key)
+        else:
+            data = graphql_command
+        return "{" + ",".join(data) + "}"
 
-        luci_data = await self.luci.multicommand(*luci_commands)
-        gql_data = await self.gql.multicommand(*gql_commands)
-
-        if gql_data is None:
-            gql_data = {}
-        if luci_data is None:
-            luci_data = {}
-
-        data = dict(**luci_data, **gql_data)
-        return data
-
-
-class BOSMinerGQLAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
-        self.username = "root"
-        self.pwd = pwd
-
-    async def multicommand(self, *commands: dict) -> dict:
-        def merge(*d: dict):
-            ret = {}
-            for i in d:
-                if i:
-                    for k in i:
-                        if not k in ret:
-                            ret[k] = i[k]
-                        else:
-                            ret[k] = merge(ret[k], i[k])
-            return None if ret == {} else ret
-
-        command = merge(*commands)
-        data = await self.send_command(command)
-        if data is not None:
-            if data.get("data") is None:
-                try:
-                    commands = list(commands)
-                    # noinspection PyTypeChecker
-                    commands.remove({"bos": {"faultLight": None}})
-                    command = merge(*commands)
-                    data = await self.send_command(command)
-                except (LookupError, ValueError):
-                    pass
-            if not data:
-                data = {}
-            data["multicommand"] = False
-            return data
-
-    async def send_command(
+    async def send_gql_command(
         self,
         command: dict,
     ) -> dict:
@@ -131,18 +73,62 @@ class BOSMinerGQLAPI:
                 except json.decoder.JSONDecodeError:
                     pass
 
-    def parse_command(self, graphql_command: Union[dict, set]) -> str:
-        if isinstance(graphql_command, dict):
-            data = []
-            for key in graphql_command:
-                if graphql_command[key] is not None:
-                    parsed = self.parse_command(graphql_command[key])
-                    data.append(key + parsed)
-                else:
-                    data.append(key)
-        else:
-            data = graphql_command
-        return "{" + ",".join(data) + "}"
+    async def multicommand(
+        self, *commands: Union[dict, str], allow_warning: bool = True
+    ) -> dict:
+        luci_commands = []
+        gql_commands = []
+        for cmd in commands:
+            if isinstance(cmd, dict):
+                gql_commands.append(cmd)
+            if isinstance(cmd, str):
+                luci_commands.append(cmd)
+
+        luci_data = await self.luci_multicommand(*luci_commands)
+        gql_data = await self.gql_multicommand(*gql_commands)
+
+        if gql_data is None:
+            gql_data = {}
+        if luci_data is None:
+            luci_data = {}
+
+        data = dict(**luci_data, **gql_data)
+        return data
+
+    async def luci_multicommand(self, *commands: str) -> dict:
+        data = {}
+        for command in commands:
+            data[command] = await self.send_luci_command(command, ignore_errors=True)
+        return data
+
+    async def gql_multicommand(self, *commands: dict) -> dict:
+        def merge(*d: dict):
+            ret = {}
+            for i in d:
+                if i:
+                    for k in i:
+                        if not k in ret:
+                            ret[k] = i[k]
+                        else:
+                            ret[k] = merge(ret[k], i[k])
+            return None if ret == {} else ret
+
+        command = merge(*commands)
+        data = await self.send_command(command)
+        if data is not None:
+            if data.get("data") is None:
+                try:
+                    commands = list(commands)
+                    # noinspection PyTypeChecker
+                    commands.remove({"bos": {"faultLight": None}})
+                    command = merge(*commands)
+                    data = await self.send_gql_command(command)
+                except (LookupError, ValueError):
+                    pass
+            if not data:
+                data = {}
+            data["multicommand"] = False
+            return data
 
     async def auth(self, client: httpx.AsyncClient) -> None:
         url = f"http://{self.ip}/graphql"
@@ -157,23 +143,10 @@ class BOSMinerGQLAPI:
             },
         )
 
-
-class BOSMinerLuCIAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
-        self.username = "root"
-        self.pwd = pwd
-
-    async def multicommand(self, *commands: str) -> dict:
-        data = {}
-        for command in commands:
-            data[command] = await self.send_command(command, ignore_errors=True)
-        return data
-
-    async def send_command(self, path: str, ignore_errors: bool = False) -> dict:
+    async def send_luci_command(self, path: str, ignore_errors: bool = False) -> dict:
         try:
             async with httpx.AsyncClient() as client:
-                await self.auth(client)
+                await self.luci_auth(client)
                 data = await client.get(
                     f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}
                 )
@@ -189,7 +162,7 @@ class BOSMinerLuCIAPI:
                 return {}
             raise APIError(f"Web command failed: path={path}")
 
-    async def auth(self, session: httpx.AsyncClient):
+    async def luci_auth(self, session: httpx.AsyncClient):
         login = {"luci_username": self.username, "luci_password": self.pwd}
         url = f"http://{self.ip}/cgi-bin/luci"
         headers = {
@@ -199,27 +172,23 @@ class BOSMinerLuCIAPI:
         await session.post(url, headers=headers, data=login)
 
     async def get_net_conf(self):
-        return await self.send_command("/cgi-bin/luci/admin/network/iface_status/lan")
+        return await self.send_luci_command(
+            "/cgi-bin/luci/admin/network/iface_status/lan"
+        )
 
     async def get_cfg_metadata(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_metadata")
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_metadata")
 
     async def get_cfg_data(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_data")
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/cfg_data")
 
     async def get_bos_info(self):
-        return await self.send_command("/cgi-bin/luci/bos/info")
+        return await self.send_luci_command("/cgi-bin/luci/bos/info")
 
     async def get_overview(self):
-        return await self.send_command(
+        return await self.send_luci_command(
             "/cgi-bin/luci/admin/status/overview?status=1"
         )  # needs status=1 or it fails
 
     async def get_api_status(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/api_status")
-
-
-class BOSMinerGRPCAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
-        self.pwd = pwd
+        return await self.send_luci_command("/cgi-bin/luci/admin/miner/api_status")
