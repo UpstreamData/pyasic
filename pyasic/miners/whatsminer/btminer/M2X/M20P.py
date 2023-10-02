@@ -14,33 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
-from pyasic.miners.makes import WhatsMiner
-
-
-class M20SV10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "M20S V10"
-        self.nominal_chips = 105
-        self.fan_count = 2
+from pyasic.miners.backends import M2X
+from pyasic.miners.types import M20PV10, M20PV30
 
 
-class M20SV20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "M20S V20"
-        self.nominal_chips = 111
-        self.fan_count = 2
+class BTMinerM20PV10(M2X, M20PV10):
+    pass
 
 
-class M20SV30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "M20S V30"
-        self.nominal_chips = 140
-        self.fan_count = 2
+class BTMinerM20PV30(M2X, M20PV30):
+    pass
