@@ -19,7 +19,7 @@ from typing import Union
 
 import httpx
 
-from pyasic.settings import PyasicSettings
+from pyasic import settings
 from pyasic.web import BaseWebAPI
 
 
@@ -27,7 +27,7 @@ class GoldshellWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "admin"
-        self.pwd = PyasicSettings().global_goldshell_password
+        self.pwd = settings.get("default_goldshell_password", "123456789")
         self.jwt = None
 
     async def auth(self):
@@ -72,7 +72,7 @@ class GoldshellWebAPI(BaseWebAPI):
         if not self.jwt:
             await self.auth()
         async with httpx.AsyncClient() as client:
-            for i in range(PyasicSettings().miner_get_data_retries):
+            for i in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters:
                         response = await client.put(

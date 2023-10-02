@@ -18,15 +18,14 @@ from typing import Union
 
 import httpx
 
-from pyasic import APIError
-from pyasic.settings import PyasicSettings
+from pyasic import APIError, settings
 from pyasic.web import BaseWebAPI
 
 
 class BOSMinerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = PyasicSettings().global_bosminer_password
+        self.pwd = settings.get("default_bosminer_password", "root")
 
     async def send_command(
         self,

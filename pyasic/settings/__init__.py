@@ -14,27 +14,26 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import dataclass
+from typing import Any
 
-from pyasic.misc import Singleton
+_settings = {  # defaults
+    "network_ping_retries": 1,
+    "network_ping_timeout": 3,
+    "network_scan_threads": 300,
+    "factory_get_retries": 1,
+    "get_data_retries": 1,
+    "default_whatsminer_password": "admin",
+    "default_innosilicon_password": "admin",
+    "default_antminer_password": "root",
+    "default_bosminer_password": "root",
+    "default_vnish_password": "admin",
+    "default_goldshell_password": "123456789",
+}
 
 
-@dataclass
-class PyasicSettings(metaclass=Singleton):
-    network_ping_retries: int = 1
-    network_ping_timeout: int = 3
-    network_scan_threads: int = 300
+def get(key: str, other: Any = None) -> Any:
+    return _settings.get(key, other)
 
-    miner_factory_get_version_retries: int = 1
 
-    miner_get_data_retries: int = 1
-
-    global_whatsminer_password = "admin"
-    global_innosilicon_password = "admin"
-    global_antminer_password = "root"
-    global_bosminer_password = "root"
-    global_vnish_password = "admin"
-    global_goldshell_password = "123456789"
-
-    debug: bool = False
-    logfile: bool = False
+def update(key: str, val: Any) -> Any:
+    _settings[key] = val

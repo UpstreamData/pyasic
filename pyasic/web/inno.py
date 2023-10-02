@@ -19,8 +19,8 @@ from typing import Union
 
 import httpx
 
+from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.settings import PyasicSettings
 from pyasic.web import BaseWebAPI
 
 
@@ -28,7 +28,7 @@ class InnosiliconWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "admin"
-        self.pwd = PyasicSettings().global_innosilicon_password
+        self.pwd = settings.get("default_innosilicon_password", "admin")
         self.jwt = None
 
     async def auth(self):
@@ -55,7 +55,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         if not self.jwt:
             await self.auth()
         async with httpx.AsyncClient() as client:
-            for i in range(PyasicSettings().miner_get_data_retries):
+            for i in range(settings.get("get_data_retries", 1)):
                 try:
                     response = await client.post(
                         f"http://{self.ip}/api/{command}",
