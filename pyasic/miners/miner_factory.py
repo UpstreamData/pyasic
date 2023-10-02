@@ -101,6 +101,8 @@ MINER_CLASSES = {
         "M20SV10": BTMinerM20SV10,
         "M20SV20": BTMinerM20SV20,
         "M20SV30": BTMinerM20SV30,
+        "M20PV10": BTMinerM20PV10,
+        "M20PV30": BTMinerM20PV30,
         "M20S+V30": BTMinerM20SPlusV30,
         "M21V10": BTMinerM21V10,
         "M21SV20": BTMinerM21SV20,
