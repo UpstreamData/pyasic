@@ -53,7 +53,8 @@ nav:
         - Goldshell X5: "miners/goldshell/X5.md"
         - Goldshell XMax: "miners/goldshell/XMax.md"
     - Base Miner: "miners/base_miner.md"
-
+- Settings:
+      - Settings: "settings/settings.md"
 
 plugins:
   - mkdocstrings
