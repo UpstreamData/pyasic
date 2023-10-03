@@ -442,7 +442,8 @@ class BTMiner(BaseMiner):
 
         if api_summary:
             try:
-                return api_summary["SUMMARY"][0]["Power"]
+                wattage = api_summary["SUMMARY"][0]["Power"]
+                return wattage if not wattage == -1 else None
             except (KeyError, IndexError):
                 pass
 

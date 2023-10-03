@@ -1043,7 +1043,7 @@ class BOSMiner(BaseMiner):
             if data == "50":
                 self.light = True
             return self.light
-        except TypeError:
+        except (TypeError, AttributeError):
             return self.light
 
     async def get_nominal_hashrate(self, api_devs: dict = None) -> Optional[float]:
