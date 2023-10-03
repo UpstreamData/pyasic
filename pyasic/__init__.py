@@ -30,7 +30,7 @@ from pyasic.data import (
 from pyasic.errors import APIError, APIWarning
 from pyasic.miners import get_miner
 from pyasic.miners.base import AnyMiner
-from pyasic.miners.miner_factory import MinerFactory
+from pyasic.miners.miner_factory import MinerFactory, miner_factory
 from pyasic.miners.miner_listener import MinerListener
 from pyasic.network import MinerNetwork
 
@@ -51,6 +51,7 @@ __all__ = [
     "get_miner",
     "AnyMiner",
     "MinerFactory",
+    "miner_factory",
     "MinerListener",
     "MinerNetwork",
     "settings",

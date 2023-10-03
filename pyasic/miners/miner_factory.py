@@ -20,7 +20,7 @@ import enum
 import ipaddress
 import json
 import re
-from typing import Callable, List, Optional, Tuple, Union
+from typing import AsyncGenerator, Callable, List, Optional, Tuple, Union
 
 import httpx
 
@@ -379,7 +379,9 @@ class MinerFactory:
     def clear_cached_miners(self):
         self.cache = {}
 
-    async def get_multiple_miners(self, ips: List[str], limit: int = 200):
+    async def get_multiple_miners(
+        self, ips: List[str], limit: int = 200
+    ) -> List[AnyMiner]:
         results = []
 
         async for miner in self.get_miner_generator(ips, limit):
@@ -387,7 +389,7 @@ class MinerFactory:
 
         return results
 
-    async def get_miner_generator(self, ips: list, limit: int = 200):
+    async def get_miner_generator(self, ips: list, limit: int = 200) -> AsyncGenerator:
         tasks = []
         semaphore = asyncio.Semaphore(limit)
 
@@ -395,13 +397,10 @@ class MinerFactory:
             tasks.append(asyncio.create_task(self.get_miner(ip)))
 
         for task in tasks:
-            await semaphore.acquire()
-            try:
+            async with semaphore:
                 result = await task
                 if result is not None:
                     yield result
-            finally:
-                semaphore.release()
 
     async def get_miner(self, ip: str):
         ip = str(ip)

@@ -263,7 +263,7 @@ Pyasic implements a few dataclasses as helpers to make data return types consist
 
 [`MinerData`][pyasic.data.MinerData] is a return from the [`get_data()`](#get-data) function, and is used to have a consistent dataset across all returns.
 
-You can call [`MinerData.asdict()`][pyasic.data.MinerData.asdict] to get the dataclass as a dictionary, and there are many other helper functions contained in the class to convert to different data formats.
+You can call [`MinerData.as_dict()`][pyasic.data.MinerData.as_dict] to get the dataclass as a dictionary, and there are many other helper functions contained in the class to convert to different data formats.
 
 [`MinerData`][pyasic.data.MinerData] instances can also be added to each other to combine their data and can be divided by a number to divide all their data, allowing you to get average data from many miners by doing -
 ```python
@@ -288,3 +288,27 @@ It is the return from [`get_config()`](#get-config).
 
 Each miner has a unique way to convert the [`MinerConfig`][pyasic.config.MinerConfig] to their specific type, there are helper functions in the class.
 In most cases these helper functions should not be used, as [`send_config()`](#send-config) takes a [`MinerConfig`][pyasic.config.MinerConfig] and will do the conversion to the right type for you.
+
+## Settings
+`pyasic` has settings designed to make using large groups of miners easier.  You can set the default password for all types of miners using the [`pyasic.settings`][pyasic.settings] module, used as follows:
+
+```python
+from pyasic import settings
+
+settings.update("default_antminer_password", "my_pwd")
+```
+
+Here are of all the settings, and their default values:
+```
+"network_ping_retries": 1,
+"network_ping_timeout": 3,
+"network_scan_threads": 300,
+"factory_get_retries": 1,
+"get_data_retries": 1,
+"default_whatsminer_password": "admin",
+"default_innosilicon_password": "admin",
+"default_antminer_password": "root",
+"default_bosminer_password": "root",
+"default_vnish_password": "admin",
+"default_goldshell_password": "123456789",
+```
