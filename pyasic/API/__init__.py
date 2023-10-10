@@ -20,7 +20,7 @@ import json
 import logging
 import re
 import warnings
-from typing import Tuple, Union
+from typing import Union
 
 from pyasic.errors import APIError, APIWarning
 

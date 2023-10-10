@@ -241,7 +241,7 @@ class MinerData:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return sum(hr_data)
+                return round(sum(hr_data), 2)
         return self._hashrate
 
     @hashrate.setter
