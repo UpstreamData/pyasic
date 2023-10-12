@@ -274,7 +274,11 @@ class AntminerModern(BMMiner):
 
         if web_get_conf:
             try:
-                return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
+                if web_get_conf["bitmain-work-mode"].isdigit():
+                    return (
+                        False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
+                    )
+                return False
             except LookupError:
                 pass
 
