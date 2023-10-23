@@ -787,7 +787,7 @@ class BOSMiner(BaseMiner):
                 )
             except APIError:
                 pass
-        if graphql_fans:
+        if graphql_fans.get("data"):
             fans = []
             for n in range(self.fan_count):
                 try:
