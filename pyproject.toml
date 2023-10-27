@@ -14,7 +14,7 @@ httpx = "^0.24.0"
 passlib = "^1.7.4"
 pyaml = "^23.5.9"
 toml = "^0.10.2"
-grpc-requests = "^0.1.10"
+grpc-requests = "^0.1.11"
 
 [tool.poetry.group.dev]
 optional = true
