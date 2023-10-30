@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyasic"
-version = "0.39.4"
+version = "0.40.0"
 description = "A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH."
 authors = ["UpstreamData <brett@upstreamdata.ca>"]
 repository = "https://github.com/UpstreamData/pyasic"
@@ -14,6 +14,7 @@ httpx = "^0.24.0"
 passlib = "^1.7.4"
 pyaml = "^23.5.9"
 toml = "^0.10.2"
+grpc-requests = "^0.1.11"
 
 [tool.poetry.group.dev]
 optional = true
