@@ -83,15 +83,15 @@ class BaseMinerAPI:
         data = self._load_api_data(data)
 
         # check for if the user wants to allow errors to return
-        if not ignore_errors:
-            # validate the command succeeded
-            validation = self._validate_command_output(data)
-            if not validation[0]:
-                if allow_warning:
-                    logging.warning(
-                        f"{self.ip}: API Command Error: {command}: {validation[1]}"
-                    )
+        validation = self._validate_command_output(data)
+        if not validation[0]:
+            if not ignore_errors:
+                # validate the command succeeded
                 raise APIError(validation[1])
+            if allow_warning:
+                logging.warning(
+                    f"{self.ip}: API Command Error: {command}: {validation[1]}"
+                )
 
         logging.debug(f"{self} - (Send Command) - Received data.")
         return data
@@ -118,11 +118,12 @@ class BaseMinerAPI:
                 data = await self.send_command(command, allow_warning=allow_warning)
             except APIError as e:
                 # try to identify the error
-                if ":" in e.message:
-                    err_command = e.message.split(":")[0]
-                    if err_command in commands:
-                        commands.remove(err_command)
-                        continue
+                if e.message is not None:
+                    if ":" in e.message:
+                        err_command = e.message.split(":")[0]
+                        if err_command in commands:
+                            commands.remove(err_command)
+                            continue
                 return {command: [{}] for command in commands}
             logging.debug(f"{self} - (Multicommand) - Received data")
             data["multicommand"] = True

@@ -541,7 +541,7 @@ class BaseMiner(ABC):
         )
 
         gathered_data = await self._get_data(
-            allow_warning, include=include, exclude=exclude
+            allow_warning=allow_warning, include=include, exclude=exclude
         )
         for item in gathered_data:
             if gathered_data[item] is not None:
