@@ -13,9 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
 import json
-import warnings
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Union
@@ -30,13 +28,11 @@ from pyasic.web.bosminer.proto import (
     get_auth_service_descriptors,
     get_service_descriptors,
 )
-
-
-class SaveAction(Enum):
-    UNSPECIFIED = "SaveAction.SAVE_ACTION_UNSPECIFIED"
-    SAVE = "SaveAction.SAVE_ACTION_SAVE"
-    SAVE_AND_APPLY = "SaveAction.SAVE_ACTION_SAVE_AND_APPLY"
-    SAVE_AND_FORCE_APPLY = "SaveAction.SAVE_ACTION_SAVE_AND_FORCE_APPLY"
+from pyasic.web.bosminer.proto.bos.v1.actions import SaveAction
+from pyasic.web.bosminer.proto.bos.v1.performance import (
+    ManualPerformanceMode,
+    PerformanceMode,
+)
 
 
 class BOSMinerWebAPI(BaseWebAPI):
@@ -464,10 +460,20 @@ class BOSMinerGRPCAPI:
         raise NotImplementedError
         return await self.send_command("braiins.bos.v1.PerformanceService/SetDPS")
 
-    async def set_performance_mode(self):
-        raise NotImplementedError
+    async def set_performance_mode(
+        self,
+        power_target: int = None,
+        hashrate_target: float = None,
+        manual_config: ManualPerformanceMode = None,
+    ):
+        config = PerformanceMode.create(
+            power_target=power_target,
+            hashrate_target=hashrate_target,
+            manual_configuration=manual_config,
+        )
+
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetPerformanceMode"
+            "braiins.bos.v1.PerformanceService/SetPerformanceMode", **config
         )
 
     async def get_active_performance_mode(self):

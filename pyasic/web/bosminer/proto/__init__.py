@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from .bos import version_pb2
 from .bos.v1 import (
     actions_pb2,
