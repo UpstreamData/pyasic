@@ -22,6 +22,7 @@ import json
 import re
 from typing import AsyncGenerator, Callable, List, Optional, Tuple, Union
 
+import anyio
 import httpx
 
 from pyasic.logger import logger
@@ -475,7 +476,7 @@ class MinerFactory:
         try:
             resp = await session.get(url, follow_redirects=False)
             return resp.text, resp
-        except (httpx.HTTPError, asyncio.TimeoutError):
+        except (httpx.HTTPError, asyncio.TimeoutError, anyio.EndOfStream):
             pass
         return None, None
 
