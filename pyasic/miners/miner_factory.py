@@ -476,7 +476,7 @@ class MinerFactory:
         try:
             resp = await session.get(url, follow_redirects=False)
             return resp.text, resp
-        except (httpx.HTTPError, asyncio.TimeoutError, anyio.EndOfStream):
+        except (httpx.HTTPError, asyncio.TimeoutError, anyio.EndOfStream, anyio.ClosedResourceError):
             pass
         return None, None
 
