@@ -207,16 +207,18 @@ If you are sure you want to use this command please use API.send_command("{comma
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
         await writer.drain()
         try:
-            ret_data = await asyncio.wait_for(reader.read(4096), timeout=timeout)
-        except ConnectionAbortedError:
-            return b"{}"
-        try:
+            # TO address a situation where a whatsminer has an unknown PW -AND-
             # Fix for stupid whatsminer bug, reboot/restart seem to not load properly in the loop
             # have to receive, save the data, check if there is more data by reading with a short timeout
             # append that data if there is more, and then onto the main loop.
-            ret_data += await asyncio.wait_for(reader.read(1), timeout=1)
-        except asyncio.TimeoutError:
-            return ret_data
+            # the password timeout might need to be longer than 1, but it seems to work for now.
+            ret_data = await asyncio.wait_for(reader.read(1), timeout=1)
+        except (asyncio.TimeoutError):
+            return b"{}"
+        try:
+            ret_data += await asyncio.wait_for(reader.read(4096), timeout=timeout)
+        except (ConnectionAbortedError):
+            return b"{}"
 
         # loop to receive all the data
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
