@@ -9,12 +9,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-asyncssh = "^2.13.1"
-httpx = "^0.24.0"
-passlib = "^1.7.4"
-pyaml = "^23.5.9"
-toml = "^0.10.2"
+httpx = "^0.25.0"
+asyncssh = "^2.14.1"
 grpc-requests = "^0.1.11"
+passlib = "^1.7.4"
+pyaml = "^23.9.7"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev]
 optional = true
