@@ -28,43 +28,53 @@ from pyasic.web.bosminer.proto import (
     get_auth_service_descriptors,
     get_service_descriptors,
 )
-from pyasic.web.bosminer.proto.bos.v1.actions_pb2 import (
-    SetLocateDeviceStatusRequest,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.actions_pb2 import (  # noqa: this will be defined
+    SetLocateDeviceStatusRequest,
 )
-from pyasic.web.bosminer.proto.bos.v1.authentication_pb2 import (
-    SetPasswordRequest,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.authentication_pb2 import (  # noqa: this will be defined
+    SetPasswordRequest,
 )
-from pyasic.web.bosminer.proto.bos.v1.common_pb2 import (
-    SaveAction,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.common_pb2 import (  # noqa: this will be defined
+    SaveAction,
 )
-from pyasic.web.bosminer.proto.bos.v1.cooling_pb2 import (
-    SetImmersionModeRequest,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.cooling_pb2 import (  # noqa: this will be defined
+    SetImmersionModeRequest,
 )
-from pyasic.web.bosminer.proto.bos.v1.miner_pb2 import (
-    EnableHashboardsRequest,  # noqa: this will be defined
-    DisableHashboardsRequest,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.miner_pb2 import (  # noqa: this will be defined
+    DisableHashboardsRequest,
+    EnableHashboardsRequest,
 )
-from pyasic.web.bosminer.proto.bos.v1.performance_pb2 import (
-    SetDefaultPowerTargetRequest,  # noqa: this will be defined
-    IncrementPowerTargetRequest,  # noqa: this will be defined
-    DecrementPowerTargetRequest,  # noqa: this will be defined
-    SetPowerTargetRequest,  # noqa: this will be defined
-    SetDefaultHashrateTargetRequest,  # noqa: this will be defined
-    SetHashrateTargetRequest,  # noqa: this will be defined
-    IncrementHashrateTargetRequest,  # noqa: this will be defined
-    DecrementHashrateTargetRequest,  # noqa: this will be defined
+from pyasic.web.bosminer.proto.bos.v1.performance_pb2 import (  # noqa: this will be defined
+    DecrementHashrateTargetRequest,
+    DecrementPowerTargetRequest,
+    IncrementHashrateTargetRequest,
+    IncrementPowerTargetRequest,
+    SetDefaultHashrateTargetRequest,
+    SetDefaultPowerTargetRequest,
+    SetHashrateTargetRequest,
+    SetPowerTargetRequest,
 )
 
 
 class BOSMinerWebAPI(BaseWebAPI):
-    def __init__(self, ip: str) -> None:
-        self.gql = BOSMinerGQLAPI(ip, settings.get("default_bosminer_password", "root"))
+    def __init__(self, ip: str, boser: bool = None) -> None:
+        if boser is None:
+            boser = True
+
+        if boser:
+            self.gql = BOSMinerGQLAPI(
+                ip, settings.get("default_bosminer_password", "root")
+            )
+            self.grpc = BOSMinerGRPCAPI(
+                ip, settings.get("default_bosminer_password", "root")
+            )
+        else:
+            self.gql = None
+            self.grpc = None
         self.luci = BOSMinerLuCIAPI(
             ip, settings.get("default_bosminer_password", "root")
         )
-        self.grpc = BOSMinerGRPCAPI(
-            ip, settings.get("default_bosminer_password", "root")
-        )
+
         self._pwd = settings.get("default_bosminer_password", "root")
         super().__init__(ip)
 
@@ -76,7 +86,10 @@ class BOSMinerWebAPI(BaseWebAPI):
     def pwd(self, other: str):
         self._pwd = other
         self.luci.pwd = other
-        self.gql.pwd = other
+        if self.gql is not None:
+            self.gql.pwd = other
+        if self.grpc is not None:
+            self.grpc.pwd = other
 
     async def send_command(
         self,
@@ -86,30 +99,46 @@ class BOSMinerWebAPI(BaseWebAPI):
         **parameters: Union[str, int, bool],
     ) -> dict:
         if isinstance(command, dict):
-            return await self.gql.send_command(command)
+            if self.gql is not None:
+                return await self.gql.send_command(command)
         elif command.startswith("/cgi-bin/luci"):
             return await self.gql.send_command(command)
+        else:
+            if self.grpc is not None:
+                return await self.grpc.send_command(command)
 
     async def multicommand(
         self, *commands: Union[dict, str], allow_warning: bool = True
     ) -> dict:
         luci_commands = []
         gql_commands = []
+        grpc_commands = []
         for cmd in commands:
             if isinstance(cmd, dict):
                 gql_commands.append(cmd)
             elif cmd.startswith("/cgi-bin/luci"):
                 luci_commands.append(cmd)
+            else:
+                grpc_commands.append(cmd)
 
         luci_data = await self.luci.multicommand(*luci_commands)
-        gql_data = await self.gql.multicommand(*gql_commands)
+        if self.gql is not None:
+            gql_data = await self.gql.multicommand(*gql_commands)
+        else:
+            gql_data = None
+        if self.grpc is not None:
+            grpc_data = await self.grpc.multicommand(*grpc_commands)
+        else:
+            grpc_data = None
 
         if gql_data is None:
             gql_data = {}
         if luci_data is None:
             luci_data = {}
+        if grpc_data is None:
+            grpc_data = {}
 
-        data = dict(**luci_data, **gql_data)
+        data = dict(**luci_data, **gql_data, **grpc_data)
         return data
 
 
@@ -464,7 +493,7 @@ class BOSMinerGRPCAPI:
 
         return await self.send_command(
             "braiins.bos.v1.PerformanceService/SetDefaultHashrateTarget",
-            message=message
+            message=message,
         )
 
     async def set_hashrate_target(
@@ -477,8 +506,7 @@ class BOSMinerGRPCAPI:
         message.save_action = save_action
 
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetHashrateTarget",
-            message=message
+            "braiins.bos.v1.PerformanceService/SetHashrateTarget", message=message
         )
 
     async def increment_hashrate_target(
@@ -487,7 +515,9 @@ class BOSMinerGRPCAPI:
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
         message = IncrementHashrateTargetRequest()
-        message.hashrate_target_increment.terahash_per_second = hashrate_target_increment
+        message.hashrate_target_increment.terahash_per_second = (
+            hashrate_target_increment
+        )
         message.save_action = save_action
 
         return await self.send_command(
@@ -501,7 +531,9 @@ class BOSMinerGRPCAPI:
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
         message = DecrementHashrateTargetRequest()
-        message.hashrate_target_decrement.terahash_per_second = hashrate_target_decrement
+        message.hashrate_target_decrement.terahash_per_second = (
+            hashrate_target_decrement
+        )
         message.save_action = save_action
 
         return await self.send_command(
@@ -577,8 +609,7 @@ class BOSMinerGRPCAPI:
         message.save_action = save_action
 
         return await self.send_command(
-            "braiins.bos.v1.MinerService/EnableHashboards",
-            message = message
+            "braiins.bos.v1.MinerService/EnableHashboards", message=message
         )
 
     async def disable_hashboards(
@@ -591,6 +622,5 @@ class BOSMinerGRPCAPI:
         message.save_action = save_action
 
         return await self.send_command(
-            "braiins.bos.v1.MinerService/DisableHashboards",
-            message=message
+            "braiins.bos.v1.MinerService/DisableHashboards", message=message
         )

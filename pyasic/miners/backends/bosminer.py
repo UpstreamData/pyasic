@@ -184,11 +184,11 @@ BOSMINER_DATA_LOC = {
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0", boser: bool = None) -> None:
         super().__init__(ip)
         # interfaces
         self.api = BOSMinerAPI(ip, api_ver)
-        self.web = BOSMinerWebAPI(ip)
+        self.web = BOSMinerWebAPI(ip, boser=boser)
 
         # static data
         self.api_type = "BOSMiner"

@@ -438,12 +438,19 @@ class MinerFactory:
             if fn is not None:
                 task = asyncio.create_task(fn(ip))
                 try:
-                    miner_model = await asyncio.wait_for(task, timeout=30)
+                    miner_model = await asyncio.wait_for(task, timeout=TIMEOUT)
                 except asyncio.TimeoutError:
                     task.cancel()
 
+            boser_enabled = None
+            if miner_type == MinerTypes.BRAIINS_OS:
+                boser_enabled = await self.get_boser_braiins_os(ip)
+
             miner = self._select_miner_from_classes(
-                ip, miner_type=miner_type, miner_model=miner_model
+                ip,
+                miner_type=miner_type,
+                miner_model=miner_model,
+                boser_enabled=boser_enabled,
             )
 
             if miner is not None and not isinstance(miner, UnknownMiner):
@@ -476,7 +483,12 @@ class MinerFactory:
         try:
             resp = await session.get(url, follow_redirects=False)
             return resp.text, resp
-        except (httpx.HTTPError, asyncio.TimeoutError, anyio.EndOfStream, anyio.ClosedResourceError):
+        except (
+            httpx.HTTPError,
+            asyncio.TimeoutError,
+            anyio.EndOfStream,
+            anyio.ClosedResourceError,
+        ):
             pass
         return None, None
 
@@ -687,9 +699,13 @@ class MinerFactory:
         ip: ipaddress.ip_address,
         miner_model: Union[str, None],
         miner_type: Union[MinerTypes, None],
+        boser_enabled: bool = None,
     ) -> AnyMiner:
+        kwargs = {}
+        if boser_enabled is not None:
+            kwargs["boser"] = boser_enabled
         try:
-            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, **kwargs)
         except LookupError:
             if miner_type in MINER_CLASSES:
                 return MINER_CLASSES[miner_type][None](ip)
@@ -816,6 +832,15 @@ class MinerFactory:
                 return miner_model
         except (httpx.HTTPError, LookupError):
             pass
+
+    async def get_boser_braiins_os(self, ip: str):
+        # TODO: refine this check
+        try:
+            sock_json_data = await self.send_api_command(ip, "version")
+            return sock_json_data["STATUS"][0]["Msg"].split(" ")[0].upper() == "BOSER"
+        except LookupError:
+            # let the bosminer class decide
+            return None
 
     async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_api_command(ip, "stats")
