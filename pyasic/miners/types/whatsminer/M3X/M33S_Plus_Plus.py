@@ -48,8 +48,5 @@ class M33SPlusPlusVG40(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M33S++ VG40"
         self.ideal_hashboards = 4
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M30S++ VG40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 174
         self.fan_count = 0

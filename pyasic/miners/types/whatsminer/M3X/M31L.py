@@ -18,29 +18,10 @@ import warnings
 
 from pyasic.miners.makes import WhatsMiner
 
-
-class M21SV20(WhatsMiner):  # noqa - ignore ABC method implementation
+class M31LV10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M21S V20"
-        self.nominal_chips = 66
-        self.fan_count = 2
-
-
-class M21SV60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "M21S V60"
-        self.nominal_chips = 105
-        self.fan_count = 2
-
-
-class M21SV70(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.model = "M21S V70"
-        self.nominal_chips = 111
+        self.model = "M31L V10"
+        self.nominal_chips = 114
         self.fan_count = 2

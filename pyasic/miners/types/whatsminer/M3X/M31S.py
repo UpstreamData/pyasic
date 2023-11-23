@@ -42,10 +42,7 @@ class M31SV30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31S V30"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SV30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 117
         self.fan_count = 2
 
 
@@ -54,10 +51,7 @@ class M31SV40(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31S V40"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SV40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 123
         self.fan_count = 2
 
 
@@ -66,10 +60,7 @@ class M31SV50(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31S V50"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SV50, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 78
         self.fan_count = 2
 
 
@@ -108,10 +99,7 @@ class M31SV90(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31S V90"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SV90, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 117
         self.fan_count = 2
 
 
@@ -129,10 +117,7 @@ class M31SVE20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31S VE20"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SVE20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.nominal_chips = 74
         self.fan_count = 2
 
 
