@@ -15,8 +15,16 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M3X
-from pyasic.miners.types import M39V20
+from pyasic.miners.types import M39V10, M39V20, M39V30
+
+
+class BTMinerM39V10(M3X, M39V10):
+    pass
 
 
 class BTMinerM39V20(M3X, M39V20):
+    pass
+
+
+class BTMinerM39V30(M3X, M39V30):
     pass

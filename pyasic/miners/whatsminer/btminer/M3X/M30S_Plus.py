@@ -36,6 +36,7 @@ from pyasic.miners.types import (
     M30SPlusVE100,
     M30SPlusVF20,
     M30SPlusVF30,
+    M30SPlusVG20,
     M30SPlusVG30,
     M30SPlusVG40,
     M30SPlusVG50,
@@ -46,7 +47,6 @@ from pyasic.miners.types import (
     M30SPlusVH40,
     M30SPlusVH50,
     M30SPlusVH60,
-    M36SPlusVG30,
 )
 
 
@@ -130,7 +130,7 @@ class BTMinerM30SPlusVF30(M3X, M30SPlusVF30):
     pass
 
 
-class BTMinerM36SPlusVG30(M3X, M36SPlusVG30):
+class BTMinerM30SPlusVG20(M3X, M30SPlusVG20):
     pass
 
 

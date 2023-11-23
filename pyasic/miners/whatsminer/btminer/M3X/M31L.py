@@ -14,71 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import M5X
-from pyasic.miners.types import (
-    M50VE30,
-    M50VG30,
-    M50VH10,
-    M50VH20,
-    M50VH30,
-    M50VH40,
-    M50VH50,
-    M50VH60,
-    M50VH70,
-    M50VH80,
-    M50VJ10,
-    M50VJ20,
-    M50VJ30,
-)
+from pyasic.miners.backends import M3X
+from pyasic.miners.types import M30LV10
 
 
-class BTMinerM50VE30(M5X, M50VE30):
-    pass
-
-
-class BTMinerM50VG30(M5X, M50VG30):
-    pass
-
-
-class BTMinerM50VH10(M5X, M50VH10):
-    pass
-
-
-class BTMinerM50VH20(M5X, M50VH20):
-    pass
-
-
-class BTMinerM50VH30(M5X, M50VH30):
-    pass
-
-
-class BTMinerM50VH40(M5X, M50VH40):
-    pass
-
-
-class BTMinerM50VH50(M5X, M50VH50):
-    pass
-
-
-class BTMinerM50VH60(M5X, M50VH60):
-    pass
-
-
-class BTMinerM50VH70(M5X, M50VH70):
-    pass
-
-
-class BTMinerM50VH80(M5X, M50VH80):
-    pass
-
-
-class BTMinerM50VJ10(M5X, M50VJ10):
-    pass
-
-
-class BTMinerM50VJ20(M5X, M50VJ20):
-    pass
-
-
-class BTMinerM50VJ30(M5X, M50VJ30):
+class BTMinerM31LV10(M3X, M30LV10):
     pass
