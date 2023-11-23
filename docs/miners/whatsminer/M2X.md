@@ -29,6 +29,20 @@
         show_root_heading: false
         heading_level: 4
 
+## M20P V10
+::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV10
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M20P V30
+::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV30
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M20S+ V30
 ::: pyasic.miners.whatsminer.btminer.M2X.M20S_Plus.BTMinerM20SPlusV30
     handler: python

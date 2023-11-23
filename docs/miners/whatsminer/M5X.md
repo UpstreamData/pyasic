@@ -1,6 +1,13 @@
 # pyasic
 ## M5X Models
 
+## M50 VE30
+::: pyasic.miners.whatsminer.btminer.M5X.M50.BTMinerM50VE30
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M50 VG30
 ::: pyasic.miners.whatsminer.btminer.M5X.M50.BTMinerM50VG30
     handler: python

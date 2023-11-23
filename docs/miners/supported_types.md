@@ -10,9 +10,6 @@ details {
     padding-top:0px;
     padding-bottom:0px;
 }
-ul {
-    margin:0px;
-}
 </style>
 
 <details>
@@ -73,6 +70,8 @@ ul {
                     <li><a href="../antminer/X19#s19l">S19L</a></li>
                     <li><a href="../antminer/X19#s19-pro">S19 Pro</a></li>
                     <li><a href="../antminer/X19#s19j">S19j</a></li>
+                    <li><a href="../antminer/X19#s19i">S19i</a></li>
+                    <li><a href="../antminer/X19#s19_1">S19+</a></li>
                     <li><a href="../antminer/X19#s19j-no-pic">S19j No PIC</a></li>
                     <li><a href="../antminer/X19#s19-pro_1">S19 Pro+</a></li>
                     <li><a href="../antminer/X19#s19j-pro">S19j Pro</a></li>
@@ -94,6 +93,8 @@ ul {
                     <li><a href="../whatsminer/M2X#m20s-v10">M20S V10</a></li>
                     <li><a href="../whatsminer/M2X#m20s-v20">M20S V20</a></li>
                     <li><a href="../whatsminer/M2X#m20s-v30">M20S V30</a></li>
+                    <li><a href="../whatsminer/M2X#m20p-v10">M20P V10</a></li>
+                    <li><a href="../whatsminer/M2X#m20p-v30">M20P V30</a></li>
                     <li><a href="../whatsminer/M2X#m20s_1-v30">M20S+ V30</a></li>
                     <li><a href="../whatsminer/M2X#m21-v10">M21 V10</a></li>
                     <li><a href="../whatsminer/M2X#m21s-v20">M21S V20</a></li>
@@ -108,6 +109,8 @@ ul {
                 <ul>
                     <li><a href="../whatsminer/M3X#m30-v10">M30 V10</a></li>
                     <li><a href="../whatsminer/M3X#m30-v20">M30 V20</a></li>
+                    <li><a href="../whatsminer/M3X#m30k-v10">M30K V10</a></li>
+                    <li><a href="../whatsminer/M3X#m30l-v10">M30L V10</a></li>
                     <li><a href="../whatsminer/M3X#m30s-v10">M30S V10</a></li>
                     <li><a href="../whatsminer/M3X#m30s-v20">M30S V20</a></li>
                     <li><a href="../whatsminer/M3X#m30s-v30">M30S V30</a></li>
@@ -157,6 +160,7 @@ ul {
                     <li><a href="../whatsminer/M3X#m30s_1-ve100">M30S+ VE100</a></li>
                     <li><a href="../whatsminer/M3X#m30s_1-vf20">M30S+ VF20</a></li>
                     <li><a href="../whatsminer/M3X#m30s_1-vf30">M30S+ VF30</a></li>
+                    <li><a href="../whatsminer/M3X#m30s_1-vg20">M30S+ VG20</a></li>
                     <li><a href="../whatsminer/M3X#m30s_1-vg30">M30S+ VG30</a></li>
                     <li><a href="../whatsminer/M3X#m30s_1-vg40">M30S+ VG40</a></li>
                     <li><a href="../whatsminer/M3X#m30s_1-vg50">M30S+ VG50</a></li>
@@ -190,6 +194,9 @@ ul {
                     <li><a href="../whatsminer/M3X#m30s_1_1-vj30">M30S++ VJ30</a></li>
                     <li><a href="../whatsminer/M3X#m31-v10">M31 V10</a></li>
                     <li><a href="../whatsminer/M3X#m31-v20">M31 V20</a></li>
+                    <li><a href="../whatsminer/M3X#m31h-v10">M31H V10</a></li>
+                    <li><a href="../whatsminer/M3X#m31h-v40">M31H V40</a></li>
+                    <li><a href="../whatsminer/M3X#m30l-v10">M30L V10</a></li>
                     <li><a href="../whatsminer/M3X#m31s-v10">M31S V10</a></li>
                     <li><a href="../whatsminer/M3X#m31s-v20">M31S V20</a></li>
                     <li><a href="../whatsminer/M3X#m31s-v30">M31S V30</a></li>
@@ -205,7 +212,6 @@ ul {
                     <li><a href="../whatsminer/M3X#m31se-v10">M31SE V10</a></li>
                     <li><a href="../whatsminer/M3X#m31se-v20">M31SE V20</a></li>
                     <li><a href="../whatsminer/M3X#m31se-v30">M31SE V30</a></li>
-                    <li><a href="../whatsminer/M3X#m31h-v40">M31H V40</a></li>
                     <li><a href="../whatsminer/M3X#m31s_1-v10">M31S+ V10</a></li>
                     <li><a href="../whatsminer/M3X#m31s_1-v20">M31S+ V20</a></li>
                     <li><a href="../whatsminer/M3X#m31s_1-v30">M31S+ V30</a></li>
@@ -232,6 +238,7 @@ ul {
                     <li><a href="../whatsminer/M3X#m33-v20">M33 V20</a></li>
                     <li><a href="../whatsminer/M3X#m33-v30">M33 V30</a></li>
                     <li><a href="../whatsminer/M3X#m33s-vg30">M33S VG30</a></li>
+                    <li><a href="../whatsminer/M3X#m33s_1-vg20">M33S+ VG20</a></li>
                     <li><a href="../whatsminer/M3X#m33s_1-vh20">M33S+ VH20</a></li>
                     <li><a href="../whatsminer/M3X#m33s_1-vh30">M33S+ VH30</a></li>
                     <li><a href="../whatsminer/M3X#m33s_1_1-vh20">M33S++ VH20</a></li>
@@ -241,12 +248,15 @@ ul {
                     <li><a href="../whatsminer/M3X#m36s-ve10">M36S VE10</a></li>
                     <li><a href="../whatsminer/M3X#m36s_1-vg30">M36S+ VG30</a></li>
                     <li><a href="../whatsminer/M3X#m36s_1_1-vh30">M36S++ VH30</a></li>
+                    <li><a href="../whatsminer/M3X#m39-v10">M39 V10</a></li>
                     <li><a href="../whatsminer/M3X#m39-v20">M39 V20</a></li>
+                    <li><a href="../whatsminer/M3X#m39-v30">M39 V30</a></li>
                 </ul>
         </details>
         <details>
             <summary>M5X Series:</summary>
                 <ul>
+                    <li><a href="../whatsminer/M5X#m50-ve30">M50 VE30</a></li>
                     <li><a href="../whatsminer/M5X#m50-vg30">M50 VG30</a></li>
                     <li><a href="../whatsminer/M5X#m50-vh10">M50 VH10</a></li>
                     <li><a href="../whatsminer/M5X#m50-vh20">M50 VH20</a></li>
@@ -396,6 +406,7 @@ ul {
                     <li><a href="../antminer/X19#s19-pro-bos">S19 Pro (BOS)</a></li>
                     <li><a href="../antminer/X19#s19j-bos">S19j (BOS)</a></li>
                     <li><a href="../antminer/X19#s19j-no-pic-bos">S19j No PIC (BOS)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-bos">S19j Pro (BOS)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-bos">S19j Pro (BOS)</a></li>
                     <li><a href="../antminer/X19#t19-bos">T19 (BOS)</a></li>
                 </ul>
