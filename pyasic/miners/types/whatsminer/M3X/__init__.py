@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 
 from .M30 import M30V10, M30V20
+from .M30K import M30KV10
+from .M30L import M30LV10
 from .M30S import (
     M30SV10,
     M30SV20,
@@ -67,6 +69,7 @@ from .M30S_Plus import (
     M30SPlusVE100,
     M30SPlusVF20,
     M30SPlusVF30,
+    M30SPlusVG20,
     M30SPlusVG30,
     M30SPlusVG40,
     M30SPlusVG50,
@@ -77,7 +80,6 @@ from .M30S_Plus import (
     M30SPlusVH40,
     M30SPlusVH50,
     M30SPlusVH60,
-    M36SPlusVG30,
 )
 from .M30S_Plus_Plus import (
     M30SPlusPlusV10,
@@ -103,7 +105,8 @@ from .M30S_Plus_Plus import (
     M30SPlusPlusVJ30,
 )
 from .M31 import M31V10, M31V20
-from .M31H import M31HV40
+from .M31H import M31HV10, M31HV40
+from .M31L import M31LV10
 from .M31S import (
     M31SV10,
     M31SV20,
@@ -145,10 +148,10 @@ from .M32 import M32V10, M32V20
 from .M32S import M32S
 from .M33 import M33V10, M33V20, M33V30
 from .M33S import M33SVG30
-from .M33S_Plus import M33SPlusVH20, M33SPlusVH30
+from .M33S_Plus import M33SPlusVG20, M33SPlusVH20, M33SPlusVH30
 from .M33S_Plus_Plus import M33SPlusPlusVG40, M33SPlusPlusVH20, M33SPlusPlusVH30
 from .M34S_Plus import M34SPlusVE10
 from .M36S import M36SVE10
 from .M36S_Plus import M36SPlusVG30
 from .M36S_Plus_Plus import M36SPlusPlusVH30
-from .M39 import M39V20
+from .M39 import M39V10, M39V20, M39V30

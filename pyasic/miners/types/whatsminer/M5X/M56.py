@@ -24,8 +24,6 @@ class M56VH30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M56 VH30"
-        self.nominal_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M56 VH30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
+        self.ideal_hashboards = 4
+        self.nominal_chips = 108
         self.fan_count = 0
