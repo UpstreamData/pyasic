@@ -68,16 +68,17 @@ class MinerNetwork:
         Returns:
             The proper network to be able to scan.
         """
+
         # if we have a network cached already, use that
-        if self.network:
+        if self.network is not None:
             return self.network
 
             # if there is no IP address passed, default to 192.168.1.0
         if not self.ip_addr:
             self.ip_addr = "192.168.1.0"
-        if "-" in self.ip_addr:
-            self.network = MinerNetworkRange(self.ip_addr)
-        elif isinstance(self.ip_addr, list):
+        if isinstance(self.ip_addr, list):
+            self.network = MinerNetworkRange(",".join(self.ip_addr))
+        elif "-" in self.ip_addr:
             self.network = MinerNetworkRange(self.ip_addr)
         else:
             # if there is no subnet mask passed, default to /24
