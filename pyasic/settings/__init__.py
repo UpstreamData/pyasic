@@ -16,6 +16,8 @@
 
 from typing import Any
 
+import httpx
+
 _settings = {  # defaults
     "network_ping_retries": 1,
     "network_ping_timeout": 3,
@@ -39,3 +41,5 @@ def get(key: str, other: Any = None) -> Any:
 
 def update(key: str, val: Any) -> Any:
     _settings[key] = val
+
+ssl_cxt = httpx.create_ssl_context()

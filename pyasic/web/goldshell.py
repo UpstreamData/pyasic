@@ -31,7 +31,7 @@ class GoldshellWebAPI(BaseWebAPI):
         self.jwt = None
 
     async def auth(self):
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             try:
                 await client.get(f"http://{self.ip}/user/logout")
                 auth = (
@@ -71,7 +71,7 @@ class GoldshellWebAPI(BaseWebAPI):
             parameters.pop("pool_pwd")
         if not self.jwt:
             await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters:
@@ -102,7 +102,7 @@ class GoldshellWebAPI(BaseWebAPI):
         data = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             for command in commands:
                 try:
                     response = await client.get(

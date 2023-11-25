@@ -186,7 +186,7 @@ class BOSMinerGQLAPI:
         if command.get("query") is None:
             query = {"query": self.parse_command(command)}
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
                 await self.auth(client)
                 data = await client.post(url, json=query)
         except httpx.HTTPError:
@@ -239,7 +239,7 @@ class BOSMinerLuCIAPI:
 
     async def send_command(self, path: str, ignore_errors: bool = False) -> dict:
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
                 await self.auth(client)
                 data = await client.get(
                     f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}

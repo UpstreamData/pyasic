@@ -474,7 +474,7 @@ class MinerFactory:
 
     async def _get_miner_web(self, ip: str):
         urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with httpx.AsyncClient(verify=False) as session:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
             tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
 
             text, resp = await concurrent_get_first_result(
@@ -602,7 +602,7 @@ class MinerFactory:
         location: str,
         auth: Optional[httpx.DigestAuth] = None,
     ) -> Optional[dict]:
-        async with httpx.AsyncClient(verify=False) as session:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
             try:
                 data = await session.get(
                     f"http://{str(ip)}{location}",
@@ -798,7 +798,7 @@ class MinerFactory:
 
     async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
         try:
-            async with httpx.AsyncClient(verify=False) as session:
+            async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
                 auth_req = await session.post(
                     f"http://{ip}/api/auth",
                     data={"username": "admin", "password": "admin"},
@@ -828,7 +828,7 @@ class MinerFactory:
             pass
 
         try:
-            async with httpx.AsyncClient(verify=False) as session:
+            async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
                 d = await session.post(
                     f"http://{ip}/graphql",
                     json={"query": "{bosminer {info{modelName}}}"},

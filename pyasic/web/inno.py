@@ -32,7 +32,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         self.jwt = None
 
     async def auth(self):
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             try:
                 auth = await client.post(
                     f"http://{self.ip}/api/auth",
@@ -54,7 +54,7 @@ class InnosiliconWebAPI(BaseWebAPI):
     ) -> dict:
         if not self.jwt:
             await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     response = await client.post(
@@ -90,7 +90,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         data = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
             for command in commands:
                 try:
                     response = await client.post(
