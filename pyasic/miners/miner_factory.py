@@ -47,6 +47,7 @@ from pyasic.miners.whatsminer import *
 
 from pyasic import settings
 
+
 class MinerTypes(enum.Enum):
     ANTMINER = 0
     WHATSMINER = 1
@@ -420,7 +421,9 @@ class MinerFactory:
         for _ in range(settings.get("factory_get_retries", 1)):
             task = asyncio.create_task(self._get_miner_type(ip))
             try:
-                miner_type = await asyncio.wait_for(task, timeout=settings.get("factory_get_timeout", 3))
+                miner_type = await asyncio.wait_for(
+                    task, timeout=settings.get("factory_get_timeout", 3)
+                )
             except asyncio.TimeoutError:
                 task.cancel()
             else:
@@ -445,7 +448,9 @@ class MinerFactory:
             if fn is not None:
                 task = asyncio.create_task(fn(ip))
                 try:
-                    miner_model = await asyncio.wait_for(task, timeout=settings.get("factory_get_timeout", 3))
+                    miner_model = await asyncio.wait_for(
+                        task, timeout=settings.get("factory_get_timeout", 3)
+                    )
                 except asyncio.TimeoutError:
                     task.cancel()
 
@@ -467,18 +472,18 @@ class MinerFactory:
     async def _get_miner_type(self, ip: str):
         tasks = [
             asyncio.create_task(self._get_miner_web(ip)),
-            asyncio.create_task(self._get_miner_socket(ip)),
+            # asyncio.create_task(self._get_miner_socket(ip)),
         ]
 
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
 
     async def _get_miner_web(self, ip: str):
         urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
+        async with httpx.AsyncClient(verify=False) as session:
             tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
 
             text, resp = await concurrent_get_first_result(
-                tasks, lambda x: x[0] is not None
+                tasks, lambda x: x[0] is not None and self._parse_web_type(x[0], x[1]) is not None
             )
             if text is not None:
                 return self._parse_web_type(text, resp)
@@ -488,7 +493,7 @@ class MinerFactory:
         session: httpx.AsyncClient, url: str
     ) -> Tuple[Optional[str], Optional[httpx.Response]]:
         try:
-            resp = await session.get(url, follow_redirects=False)
+            resp = await session.get(url, follow_redirects=True)
             return resp.text, resp
         except (
             httpx.HTTPError,
@@ -505,10 +510,14 @@ class MinerFactory:
             "www-authenticate", ""
         ):
             return MinerTypes.ANTMINER
-        if web_resp.status_code == 307 and "https://" in web_resp.headers.get(
-            "location", ""
-        ):
-            return MinerTypes.WHATSMINER
+        if len(web_resp.history) > 0:
+            history_resp = web_resp.history[0]
+            if (
+                "/cgi-bin/luci" in web_text
+                and history_resp.status_code == 307
+                and "https://" in history_resp.headers.get("location", "")
+            ):
+                return MinerTypes.WHATSMINER
         if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
         if "cloud-box" in web_text:
@@ -536,7 +545,8 @@ class MinerFactory:
         data = b""
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(str(ip), 4028), timeout=settings.get("factory_get_timeout", 3)
+                asyncio.open_connection(str(ip), 4028),
+                timeout=settings.get("factory_get_timeout", 3),
             )
         except (ConnectionError, OSError, asyncio.TimeoutError):
             return
