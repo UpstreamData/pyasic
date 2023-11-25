@@ -194,8 +194,8 @@ async def ping_and_get_miner(
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
-        except ConnectionRefusedError:
-            raise
+        except OSError as e:
+            raise ConnectionRefusedError from e
         except Exception as e:
             logging.warning(f"{str(ip)}: Unhandled ping exception: {e}")
             return
