@@ -37,7 +37,7 @@ class MinerNetwork:
         return len(self.hosts)
 
     @classmethod
-    def from_list(cls, addresses: list):
+    def from_list(cls, addresses: list) -> "MinerNetwork":
         """Parse a list of address constructors into a MinerNetwork.
 
         Parameters:
@@ -46,10 +46,10 @@ class MinerNetwork:
         hosts = []
         for address in addresses:
             hosts = [*hosts, *cls.from_address(address)]
-        return sorted(list(set(hosts)))
+        return cls(sorted(list(set(hosts))))
 
     @classmethod
-    def from_address(cls, address: str):
+    def from_address(cls, address: str) -> "MinerNetwork":
         """Parse an address constructor into a MinerNetwork.
 
         Parameters:
@@ -63,7 +63,7 @@ class MinerNetwork:
         return cls.from_octets(*octets)
 
     @classmethod
-    def from_octets(cls, oct_1: str, oct_2: str, oct_3: str, oct_4: str):
+    def from_octets(cls, oct_1: str, oct_2: str, oct_3: str, oct_4: str) -> "MinerNetwork":
         """Parse 4 octet constructors into a MinerNetwork.
 
         Parameters:
@@ -96,16 +96,16 @@ class MinerNetwork:
                                 ".".join([oct_1_val, oct_2_val, oct_3_val, oct_4_val])
                             )
                         )
-        return sorted(hosts)
+        return cls(sorted(hosts))
 
     @classmethod
-    def from_subnet(cls, subnet: str):
+    def from_subnet(cls, subnet: str) -> "MinerNetwork":
         """Parse a subnet into a MinerNetwork.
 
         Parameters:
             subnet: A subnet string, such as `"10.0.0.1/24"`.
         """
-        return list(ipaddress.ip_network(subnet, strict=False).hosts())
+        return cls(list(ipaddress.ip_network(subnet, strict=False).hosts()))
 
     async def scan_network_for_miners(self) -> List[AnyMiner]:
         """Scan the network for miners, and return found miners as a list.

@@ -21,6 +21,7 @@ _settings = {  # defaults
     "network_ping_timeout": 3,
     "network_scan_threads": 300,
     "factory_get_retries": 1,
+    "factory_get_timeout": 3,
     "get_data_retries": 1,
     "default_whatsminer_password": "admin",
     "default_innosilicon_password": "admin",

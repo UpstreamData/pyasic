@@ -45,9 +45,7 @@ from pyasic.miners.innosilicon import *
 from pyasic.miners.unknown import UnknownMiner
 from pyasic.miners.whatsminer import *
 
-TIMEOUT = 20
-RETRIES = 3
-
+from pyasic import settings
 
 class MinerTypes(enum.Enum):
     ANTMINER = 0
@@ -419,10 +417,10 @@ class MinerFactory:
 
         miner_type = None
 
-        for _ in range(RETRIES):
+        for _ in range(settings.get("factory_get_retries", 1)):
             task = asyncio.create_task(self._get_miner_type(ip))
             try:
-                miner_type = await asyncio.wait_for(task, timeout=TIMEOUT)
+                miner_type = await asyncio.wait_for(task, timeout=settings.get("factory_get_timeout", 3))
             except asyncio.TimeoutError:
                 task.cancel()
             else:
@@ -447,7 +445,7 @@ class MinerFactory:
             if fn is not None:
                 task = asyncio.create_task(fn(ip))
                 try:
-                    miner_model = await asyncio.wait_for(task, timeout=TIMEOUT)
+                    miner_model = await asyncio.wait_for(task, timeout=settings.get("factory_get_timeout", 3))
                 except asyncio.TimeoutError:
                     task.cancel()
 
@@ -538,7 +536,7 @@ class MinerFactory:
         data = b""
         try:
             reader, writer = await asyncio.wait_for(
-                asyncio.open_connection(str(ip), 4028), timeout=30
+                asyncio.open_connection(str(ip), 4028), timeout=settings.get("factory_get_timeout", 3)
             )
         except (ConnectionError, OSError, asyncio.TimeoutError):
             return
@@ -609,7 +607,7 @@ class MinerFactory:
                 data = await session.get(
                     f"http://{str(ip)}{location}",
                     auth=auth,
-                    timeout=30,
+                    timeout=settings.get("factory_get_timeout", 3),
                 )
             except (httpx.HTTPError, asyncio.TimeoutError):
                 logger.info(f"{ip}: Web command timeout.")
