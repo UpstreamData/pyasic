@@ -262,7 +262,7 @@ def compute_oct_range(octet: str) -> tuple:
     except IndexError:
         pass
     if octet_end is None:
-        octet_end = int(octet_start) + 1
+        octet_end = int(octet_start)
 
     octet_val_start = min([octet_start, octet_end])
 
