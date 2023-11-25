@@ -41,7 +41,7 @@ class AntminerModernWebAPI(BaseWebAPI):
             async with httpx.AsyncClient() as client:
                 if parameters:
                     data = await client.post(
-                        url, data=json.dumps(parameters), auth=auth, timeout=15  # noqa
+                        url, data=json.dumps(parameters), auth=auth, timeout=settings.get("api_function_timeout", 3)  # noqa
                     )
                 else:
                     data = await client.get(url, auth=auth)
@@ -152,7 +152,7 @@ class AntminerOldWebAPI(BaseWebAPI):
             async with httpx.AsyncClient() as client:
                 if parameters:
                     data = await client.post(
-                        url, data=parameters, auth=auth, timeout=15
+                        url, data=parameters, auth=auth, timeout=settings.get("api_function_timeout", 3)
                     )
                 else:
                     data = await client.get(url, auth=auth)

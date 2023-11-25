@@ -78,14 +78,14 @@ class GoldshellWebAPI(BaseWebAPI):
                         response = await client.put(
                             f"http://{self.ip}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                         )
                     json_data = response.json()
                     return json_data
@@ -108,7 +108,7 @@ class GoldshellWebAPI(BaseWebAPI):
                     response = await client.get(
                         f"http://{self.ip}/mcb/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
-                        timeout=5,
+                        timeout=settings.get("api_function_timeout", 5),
                     )
                     json_data = response.json()
                     data[command] = json_data

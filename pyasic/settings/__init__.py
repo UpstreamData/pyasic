@@ -23,6 +23,7 @@ _settings = {  # defaults
     "factory_get_retries": 1,
     "factory_get_timeout": 3,
     "get_data_retries": 1,
+    "api_function_timeout": 5,
     "default_whatsminer_password": "admin",
     "default_innosilicon_password": "admin",
     "default_antminer_password": "root",

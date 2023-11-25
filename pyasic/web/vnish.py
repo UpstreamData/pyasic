@@ -70,21 +70,21 @@ class VNishWebAPI(BaseWebAPI):
                         response = await client.post(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     elif not parameters == {}:
                         response = await client.post(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                         )
                     if not response.status_code == 200:
                         # refresh the token, retry

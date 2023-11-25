@@ -60,7 +60,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                     response = await client.post(
                         f"http://{self.ip}/api/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
-                        timeout=5,
+                        timeout=settings.get("api_function_timeout", 5),
                         json=parameters,
                     )
                     json_data = response.json()
@@ -96,7 +96,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                     response = await client.post(
                         f"http://{self.ip}/api/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
-                        timeout=5,
+                        timeout=settings.get("api_function_timeout", 5),
                     )
                     json_data = response.json()
                     data[command] = json_data
