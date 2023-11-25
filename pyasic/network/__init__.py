@@ -164,9 +164,15 @@ class MinerNetwork:
         ip: ipaddress.ip_address, semaphore: asyncio.Semaphore
     ) -> Union[None, AnyMiner]:
         async with semaphore:
-            miner = await ping_and_get_miner(ip)
-            if miner:
-                return miner
+            try:
+                return await ping_and_get_miner(ip)
+            except ConnectionRefusedError:
+                tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
+                for miner in asyncio.as_completed(tasks):
+                    try:
+                        return await miner
+                    except ConnectionRefusedError:
+                        pass
 
 
 async def ping_and_get_miner(
@@ -188,8 +194,8 @@ async def ping_and_get_miner(
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
-        except OSError:
-            continue
+        except ConnectionRefusedError:
+            raise
         except Exception as e:
             logging.warning(f"{str(ip)}: Unhandled ping exception: {e}")
             return
