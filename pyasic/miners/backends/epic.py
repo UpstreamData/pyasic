@@ -22,6 +22,7 @@ from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.web.epic import ePICWebAPI
 from pyasic.data import Fan, HashBoard
 from typing import List, Optional, Tuple, Union
+from pyasic.data.error_codes import MinerErrorData, X19Error
 
 
 EPIC_DATA_LOC = {
@@ -40,11 +41,11 @@ EPIC_DATA_LOC = {
     "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
     "fans": {"cmd": "get_fans", "kwargs": {"web_summary": {"web": "summary"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "errors": {"cmd": "get_errors", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {"web_summary": {"web": "summary"}}},
     "pools": {"cmd": "get_pools", "kwargs": {"web_summary": {"web": "summary"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
+    "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
 }
 
 
@@ -144,10 +145,11 @@ class ePIC(BMMiner):
         if web_summary:
             try:
                 hashrate = 0
-                for hb in web_summary["HBs"]:
-                    hashrate += hb["Hashrate"][0]
-                return round(
-                    float(float(hashrate/ 1000000)), 2)
+                if web_summary["HBs"] != None:
+                    for hb in web_summary["HBs"]:
+                        hashrate += hb["Hashrate"][0]
+                    return round(
+                        float(float(hashrate/ 1000000)), 2)
             except (IndexError, KeyError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
@@ -163,10 +165,16 @@ class ePIC(BMMiner):
         if web_summary:
             try:
                 hashrate = 0
-                for hb in web_summary["HBs"]:
-                    hashrate += hb["Hashrate"][0]/(hb["Hashrate"][1]/100)
-                return round(
-                    float(float(hashrate/ 1000000)), 2)
+                if web_summary["HBs"] != None:
+                    for hb in web_summary["HBs"]:
+                        if hb["Hashrate"][1] == 0:
+                            ideal = 1.0
+                        else:
+                            ideal = hb["Hashrate"][1]/100
+                            
+                        hashrate += hb["Hashrate"][0]/ideal
+                    return round(
+                        float(float(hashrate/ 1000000)), 2)
             except (IndexError, KeyError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
@@ -261,3 +269,29 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
         return None
+    
+    async def get_fault_light(self, web_summary: dict = None) -> bool:
+        if not web_summary:
+            web_summary = await self.web.summary()
+        if web_summary:
+            try:
+                light = web_summary["Misc"]["Locate Miner State"]
+                return light
+            except KeyError:
+                pass
+        return False
+    
+    async def get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+        if not web_summary:
+            web_summary = await self.web.summary()
+        errors = []
+        if web_summary:
+            try:
+                error = web_summary["Status"]["Last Error"]
+                print(error)
+                if error != None:
+                    errors.append(X19Error(str(error)))
+                return errors
+            except KeyError:
+                pass
+        return errors
