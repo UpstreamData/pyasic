@@ -45,7 +45,7 @@ class ePICWebAPI(BaseWebAPI):
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
-                            json=parameters,
+                            json=parameters.get("parameters"),
                         )
                     elif not parameters == {}:
                         response = await client.post(
