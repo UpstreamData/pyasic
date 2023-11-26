@@ -38,6 +38,7 @@ from pyasic.miners.backends import (
     Hiveon,
     LUXMiner,
     VNish,
+    ePIC,
 )
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
@@ -59,6 +60,7 @@ class MinerTypes(enum.Enum):
     VNISH = 6
     HIVEON = 7
     LUX_OS = 8
+    EPIC = 9
 
 
 MINER_CLASSES = {
@@ -350,6 +352,14 @@ MINER_CLASSES = {
         "ANTMINER S19A PRO": VNishS19aPro,
         "ANTMINER T19": VNishT19,
     },
+    MinerTypes.EPIC: {
+        None: ePIC,
+        "ANTMINER S19": ePICS19,
+        "ANTMINER S19 PRO": ePICS19Pro,
+        "ANTMINER S19J": ePICS19j,
+        "ANTMINER S19J PRO": ePICS19jPro,
+        "ANTMINER S19 XP": ePICS19XP,
+    },
     MinerTypes.HIVEON: {
         None: Hiveon,
         "ANTMINER T9": HiveonT9,
@@ -439,6 +449,7 @@ class MinerFactory:
                 MinerTypes.GOLDSHELL: self.get_miner_model_goldshell,
                 MinerTypes.BRAIINS_OS: self.get_miner_model_braiins_os,
                 MinerTypes.VNISH: self.get_miner_model_vnish,
+                MinerTypes.EPIC: self.get_miner_model_epic,
                 MinerTypes.HIVEON: self.get_miner_model_hiveon,
                 MinerTypes.LUX_OS: self.get_miner_model_luxos,
             }
@@ -517,6 +528,8 @@ class MinerFactory:
             return MinerTypes.GOLDSHELL
         if "AnthillOS" in web_text:
             return MinerTypes.VNISH
+        if "Miner Web Dashboard" in web_text:
+            return MinerTypes.EPIC
         if "Avalon" in web_text:
             return MinerTypes.AVALONMINER
         if "DragonMint" in web_text:
@@ -865,6 +878,15 @@ class MinerFactory:
             if " AML" in miner_model:
                 miner_model = miner_model.replace(" AML", "")
 
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+    
+    async def get_miner_model_epic(self, ip: str) -> Optional[str]:
+        sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
+        try:
+            miner_model = sock_json_data["Model"]
+            print(miner_model)
             return miner_model
         except (TypeError, LookupError):
             pass

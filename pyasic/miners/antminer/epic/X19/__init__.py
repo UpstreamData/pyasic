@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import *
-from .bosminer import *
-from .cgminer import *
-from .hiveon import *
-from .luxos import *
-from .vnish import *
-from .epic import *
+from .S19 import (
+    ePICS19,
+    ePICS19Pro,
+    ePICS19j,
+    ePICS19jPro,
+    ePICS19XP,
+)
