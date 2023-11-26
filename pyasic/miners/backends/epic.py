@@ -288,7 +288,6 @@ class ePIC(BMMiner):
         if web_summary:
             try:
                 error = web_summary["Status"]["Last Error"]
-                print(error)
                 if error != None:
                     errors.append(X19Error(str(error)))
                 return errors
