@@ -30,19 +30,19 @@ EPIC_DATA_LOC = {
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_summary": {"web": "summary"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {"web_summary": {"web": "summary"}}},
     "nominal_hashrate": {
         "cmd": "get_nominal_hashrate",
-        "kwargs": {"api_stats": {"api": "stats"}},
+        "kwargs": {"web_summary": {"web": "summary"}},
     },
-    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {"web_summary": {"web": "summary"}, "web_hashrate": {"web": "hashrate"}}},
     "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
     "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
     "fans": {"cmd": "get_fans", "kwargs": {"web_summary": {"web": "summary"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
     "errors": {"cmd": "get_errors", "kwargs": {}},
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
-    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
+    "pools": {"cmd": "get_pools", "kwargs": {"web_summary": {"web": "summary"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
 }
@@ -133,19 +133,40 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def get_hashrate(self, web_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if not api_summary:
+        if not web_summary:
             try:
-                api_summary = await self.web.summary()
+                web_summary = await self.web.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if web_summary:
             try:
+                hashrate = 0
+                for hb in web_summary["HBs"]:
+                    hashrate += hb["Hashrate"][0]
                 return round(
-                    float(float(api_summary["Session"]["Average MHs"]) / 1000000), 2
-                )
+                    float(float(hashrate/ 1000000)), 2)
+            except (IndexError, KeyError, ValueError, TypeError) as e:
+                logger.error(e)
+                pass
+    
+    async def get_nominal_hashrate(self, web_summary: dict = None) -> Optional[float]:
+        # get hr from API
+        if not web_summary:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary:
+            try:
+                hashrate = 0
+                for hb in web_summary["HBs"]:
+                    hashrate += hb["Hashrate"][0]/(hb["Hashrate"][1]/100)
+                return round(
+                    float(float(hashrate/ 1000000)), 2)
             except (IndexError, KeyError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
@@ -179,9 +200,55 @@ class ePIC(BMMiner):
                 except (IndexError, KeyError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
+    
+    async def get_hashboards(self, web_summary: dict = None, web_hashrate: dict= None) -> List[HashBoard]:
+        if not web_summary:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+        if not web_hashrate:
+            try:
+                web_hashrate = await self.web.hashrate()
+            except APIError:
+                pass
+        hb_list = []
+        for hb in web_summary["HBs"]:
+            for hr in web_hashrate:
+                if hr["Index"] == hb["Index"]:
+                    num_of_chips = len(hr["Data"])
+                    hashrate = hb["Hashrate"][0]
+                    hb_list.append(HashBoard(slot=hb["Index"], expected_chips=num_of_chips, missing=False,hashrate=round(hashrate/1000000,2), chips=num_of_chips,temp=hb["Temperature"]))
+        return hb_list
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
+    
+    async def get_pools(self, web_summary: dict = None) -> List[dict]:
+       groups = []
+
+       if not web_summary:
+           try:
+               web_summary = await self.api.summary()
+           except APIError:
+               pass
+
+       if web_summary:
+           try:
+               pools = {}
+               for i, pool in enumerate(web_summary["StratumConfigs"]):
+                   pools[f"pool_{i + 1}_url"] = (
+                       pool["pool"]
+                       .replace("stratum+tcp://", "")
+                       .replace("stratum2+tcp://", "")
+                   )
+                   pools[f"pool_{i + 1}_user"] = pool["login"]
+                   pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
+
+               groups.append(pools)
+           except KeyError:
+               pass
+       return groups
 
     
     async def get_uptime(self, web_summary: dict = None) -> Optional[int]:

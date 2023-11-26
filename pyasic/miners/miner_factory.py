@@ -886,7 +886,6 @@ class MinerFactory:
         sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
         try:
             miner_model = sock_json_data["Model"]
-            print(miner_model)
             return miner_model
         except (TypeError, LookupError):
             pass

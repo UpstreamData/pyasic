@@ -101,6 +101,9 @@ class ePICWebAPI(BaseWebAPI):
     async def summary(self):
         return await self.send_command("summary")
     
+    async def hashrate(self):
+        return await self.send_command("hashrate")
+    
     async def network(self):
         return await self.send_command("network")
 
