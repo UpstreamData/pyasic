@@ -4,20 +4,20 @@
 All settings here are global settings for all of pyasic.  Set these settings with `update(key, value)`.
 
 Settings options:
-`network_ping_retries`
-`network_ping_timeout`
-`network_scan_threads`
-`factory_get_retries`
-`factory_get_timeout`
-`get_data_retries`
-`api_function_timeout`
-`default_whatsminer_password`
-`default_innosilicon_password`
-`default_antminer_password`
-`default_bosminer_password`
-`default_vnish_password`
-`default_goldshell_password`
-`socket_linger_time`
+- `network_ping_retries`
+- `network_ping_timeout`
+- `network_scan_threads`
+- `factory_get_retries`
+- `factory_get_timeout`
+- `get_data_retries`
+- `api_function_timeout`
+- `default_whatsminer_password`
+- `default_innosilicon_password`
+- `default_antminer_password`
+- `default_bosminer_password`
+- `default_vnish_password`
+- `default_goldshell_password`
+- `socket_linger_time`
 
 
 ### get
