@@ -19,7 +19,7 @@ Getting started with pyasic is easy.  First, find your miner (or miners) on the 
 
 ## Scanning for miners
 To scan for miners in pyasic, we use the class [`MinerNetwork`][pyasic.network.MinerNetwork], which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
-The command [`MinerNetwork().scan_network_for_miners()`][pyasic.network.MinerNetwork.scan_network_for_miners] returns a list that contains any miners found.
+The command [`MinerNetwork.scan()`][pyasic.network.MinerNetwork.scan] returns a list that contains any miners found.
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic.network import MinerNetwork  # miner network handles the scanning
@@ -28,7 +28,7 @@ from pyasic.network import MinerNetwork  # miner network handles the scanning
 async def scan_miners():  # define async scan function to allow awaiting
     # create a miner network
     # you can pass in any IP and it will use that in a subnet with a /24 mask (255 IPs).
-    network = MinerNetwork("192.168.1.50")  # this uses the 192.168.1.0-255 network
+    network = MinerNetwork.from_subnet("192.168.1.50/24")  # this uses the 192.168.1.0-255 network
 
     # scan for miners asynchronously
     # this will return the correct type of miners if they are supported with all functionality.
