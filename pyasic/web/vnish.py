@@ -31,7 +31,7 @@ class VNishWebAPI(BaseWebAPI):
         self.token = None
 
     async def auth(self):
-        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
                     f"http://{self.ip}/api/v1/unlock",
@@ -58,7 +58,7 @@ class VNishWebAPI(BaseWebAPI):
     ) -> dict:
         if not self.token:
             await self.auth()
-        async with httpx.AsyncClient(verify=settings.ssl_cxt) as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     auth = self.token

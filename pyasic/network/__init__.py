@@ -45,7 +45,7 @@ class MinerNetwork:
         """
         hosts = []
         for address in addresses:
-            hosts = [*hosts, *cls.from_address(address)]
+            hosts = [*hosts, *cls.from_address(address).hosts]
         return cls(sorted(list(set(hosts))))
 
     @classmethod
@@ -63,7 +63,9 @@ class MinerNetwork:
         return cls.from_octets(*octets)
 
     @classmethod
-    def from_octets(cls, oct_1: str, oct_2: str, oct_3: str, oct_4: str) -> "MinerNetwork":
+    def from_octets(
+        cls, oct_1: str, oct_2: str, oct_3: str, oct_4: str
+    ) -> "MinerNetwork":
         """Parse 4 octet constructors into a MinerNetwork.
 
         Parameters:
@@ -167,7 +169,9 @@ class MinerNetwork:
             try:
                 return await ping_and_get_miner(ip)
             except ConnectionRefusedError:
-                tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
+                tasks = [
+                    ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]
+                ]
                 for miner in asyncio.as_completed(tasks):
                     try:
                         return await miner

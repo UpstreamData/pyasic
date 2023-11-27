@@ -13,8 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-
 import asyncio
 import enum
 import ipaddress
@@ -25,6 +23,7 @@ from typing import AsyncGenerator, Callable, List, Optional, Tuple, Union
 import anyio
 import httpx
 
+from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
@@ -44,8 +43,6 @@ from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
 from pyasic.miners.unknown import UnknownMiner
 from pyasic.miners.whatsminer import *
-
-from pyasic import settings
 
 
 class MinerTypes(enum.Enum):
@@ -479,11 +476,15 @@ class MinerFactory:
 
     async def _get_miner_web(self, ip: str):
         urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with httpx.AsyncClient(verify=False) as session:
+        async with httpx.AsyncClient(
+            transport=settings.transport(verify=False)
+        ) as session:
             tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
 
             text, resp = await concurrent_get_first_result(
-                tasks, lambda x: x[0] is not None and self._parse_web_type(x[0], x[1]) is not None
+                tasks,
+                lambda x: x[0] is not None
+                and self._parse_web_type(x[0], x[1]) is not None,
             )
             if text is not None:
                 return self._parse_web_type(text, resp)
@@ -612,7 +613,7 @@ class MinerFactory:
         location: str,
         auth: Optional[httpx.DigestAuth] = None,
     ) -> Optional[dict]:
-        async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
+        async with httpx.AsyncClient(transport=settings.transport()) as session:
             try:
                 data = await session.get(
                     f"http://{str(ip)}{location}",
@@ -808,7 +809,7 @@ class MinerFactory:
 
     async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
         try:
-            async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
+            async with httpx.AsyncClient(transport=settings.transport()) as session:
                 auth_req = await session.post(
                     f"http://{ip}/api/auth",
                     data={"username": "admin", "password": "admin"},
@@ -838,7 +839,7 @@ class MinerFactory:
             pass
 
         try:
-            async with httpx.AsyncClient(verify=settings.ssl_cxt) as session:
+            async with httpx.AsyncClient(transport=settings.transport()) as session:
                 d = await session.post(
                     f"http://{ip}/graphql",
                     json={"query": "{bosminer {info{modelName}}}"},

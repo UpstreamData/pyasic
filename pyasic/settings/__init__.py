@@ -13,10 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-from typing import Any
+import socket
+import struct
+from ssl import SSLContext
+from typing import Any, Union
 
 import httpx
+from httpx import AsyncHTTPTransport
 
 _settings = {  # defaults
     "network_ping_retries": 1,
@@ -32,7 +35,20 @@ _settings = {  # defaults
     "default_bosminer_password": "root",
     "default_vnish_password": "admin",
     "default_goldshell_password": "123456789",
+    "so_linger_time": 1000,
 }
+
+
+ssl_cxt = httpx.create_ssl_context()
+
+
+def transport(verify: Union[str, bool, SSLContext] = ssl_cxt):
+    l_onoff = 1
+    l_linger = get("so_linger_time", 1000)
+
+    opts = [(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", l_onoff, l_linger))]
+
+    return AsyncHTTPTransport(socket_options=opts, verify=verify)
 
 
 def get(key: str, other: Any = None) -> Any:
@@ -41,5 +57,3 @@ def get(key: str, other: Any = None) -> Any:
 
 def update(key: str, val: Any) -> Any:
     _settings[key] = val
-
-ssl_cxt = httpx.create_ssl_context()
