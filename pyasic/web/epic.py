@@ -38,6 +38,7 @@ class ePICWebAPI(BaseWebAPI):
         **parameters: Union[str, int, bool],
     ) -> dict:
         async with httpx.AsyncClient() as client:
+            is_get = False;
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters.get("post"):
@@ -54,6 +55,7 @@ class ePICWebAPI(BaseWebAPI):
                             json=parameters,
                         )
                     else:
+                        is_get = True;
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
@@ -62,6 +64,9 @@ class ePICWebAPI(BaseWebAPI):
                         continue
                     json_data = response.json()
                     if json_data:
+                        # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
+                        if "result" in json_data and json_data["result"] is False and is_get:
+                            raise json.JSONDecodeError("The miner returned a fail status.", doc=json_data, pos=0)
                         return json_data
                     return {"success": True}
                 except httpx.HTTPError:
