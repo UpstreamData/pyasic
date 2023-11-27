@@ -38,7 +38,7 @@ class ePICWebAPI(BaseWebAPI):
         **parameters: Union[str, int, bool],
     ) -> dict:
         async with httpx.AsyncClient() as client:
-            is_get = False;
+            is_get = False
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters.get("post"):
@@ -55,7 +55,7 @@ class ePICWebAPI(BaseWebAPI):
                             json=parameters,
                         )
                     else:
-                        is_get = True;
+                        is_get = True
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
