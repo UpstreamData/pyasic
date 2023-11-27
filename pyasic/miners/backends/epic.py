@@ -221,12 +221,13 @@ class ePIC(BMMiner):
             except APIError:
                 pass
         hb_list = []
-        for hb in web_summary["HBs"]:
-            for hr in web_hashrate:
-                if hr["Index"] == hb["Index"]:
-                    num_of_chips = len(hr["Data"])
-                    hashrate = hb["Hashrate"][0]
-                    hb_list.append(HashBoard(slot=hb["Index"], expected_chips=num_of_chips, missing=False,hashrate=round(hashrate/1000000,2), chips=num_of_chips,temp=hb["Temperature"]))
+        if web_summary["HBs"] != None:
+            for hb in web_summary["HBs"]:
+                for hr in web_hashrate:
+                    if hr["Index"] == hb["Index"]:
+                        num_of_chips = len(hr["Data"])
+                        hashrate = hb["Hashrate"][0]
+                        hb_list.append(HashBoard(slot=hb["Index"], expected_chips=num_of_chips, missing=False,hashrate=round(hashrate/1000000,2), chips=num_of_chips,temp=hb["Temperature"]))
         return hb_list
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
