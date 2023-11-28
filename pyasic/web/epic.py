@@ -68,7 +68,7 @@ class ePICWebAPI(BaseWebAPI):
                     json_data = response.json()
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
-                        if "result" in json_data and json_data["result"] is False and is_get:
+                        if "result" in json_data and json_data["result"] is False and is_get and not ignore_errors:
                             raise APIError(json_data["error"])
                         return json_data
                     return {"success": True}
