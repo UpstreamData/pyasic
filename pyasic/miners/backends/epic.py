@@ -220,14 +220,19 @@ class ePIC(BMMiner):
                 web_hashrate = await self.web.hashrate()
             except APIError:
                 pass
-        hb_list = []
+        hb_list = [HashBoard(slot=i, expected_chips=self.nominal_chips) for i in range(self.ideal_hashboards)]
         if web_summary["HBs"] != None:
             for hb in web_summary["HBs"]:
                 for hr in web_hashrate:
                     if hr["Index"] == hb["Index"]:
                         num_of_chips = len(hr["Data"])
                         hashrate = hb["Hashrate"][0]
-                        hb_list.append(HashBoard(slot=hb["Index"], expected_chips=num_of_chips, missing=False,hashrate=round(hashrate/1000000,2), chips=num_of_chips,temp=hb["Temperature"]))
+                        #Update the Hashboard object
+                        hb_list[hr["Index"]].expected_chips = num_of_chips
+                        hb_list[hr["Index"]].missing = False
+                        hb_list[hr["Index"]].hashrate = round(hashrate/1000000,2)
+                        hb_list[hr["Index"]].chips = num_of_chips
+                        hb_list[hr["Index"]].temp = hb["Temperature"]
         return hb_list
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:

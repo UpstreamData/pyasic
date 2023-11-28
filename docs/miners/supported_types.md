@@ -445,6 +445,21 @@ details {
     </ul>
 </details>
 <details>
+<summary>ePIC Firmware Miners:</summary>
+    <ul>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19-epic">S19 (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-epic">S19 Pro (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19j-epic">S19j (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-epic">S19j Pro (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-epic">S19 XP (ePIC)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
 <summary>HiveOS Firmware Miners:</summary>
     <ul>
         <details>

@@ -31,6 +31,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware Avalonminers"
         case MinerTypes.VNISH:
             return "Vnish Firmware Miners"
+        case MinerTypes.EPIC:
+            return "ePIC Firmware Miners"
         case MinerTypes.BRAIINS_OS:
             return "BOS+ Firmware Miners"
         case MinerTypes.HIVEON:

@@ -21,6 +21,7 @@ import httpx
 
 from pyasic import settings
 from pyasic.web import BaseWebAPI
+from pyasic.errors import APIError, APIWarning
 
 
 class ePICWebAPI(BaseWebAPI):
@@ -60,6 +61,7 @@ class ePICWebAPI(BaseWebAPI):
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
+
                         )
                     if not response.status_code == 200:
                         continue
@@ -67,7 +69,7 @@ class ePICWebAPI(BaseWebAPI):
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
                         if "result" in json_data and json_data["result"] is False and is_get:
-                            raise json.JSONDecodeError("The miner returned a fail status.", doc=json_data, pos=0)
+                            raise APIError(json_data["error"])
                         return json_data
                     return {"success": True}
                 except httpx.HTTPError:

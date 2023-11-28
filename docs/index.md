@@ -310,5 +310,6 @@ Here are of all the settings, and their default values:
 "default_antminer_password": "root",
 "default_bosminer_password": "root",
 "default_vnish_password": "admin",
+"default_epic_password": "letmein",
 "default_goldshell_password": "123456789",
 ```
