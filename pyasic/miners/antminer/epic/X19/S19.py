@@ -14,10 +14,27 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import *
-from .bosminer import *
-from .cgminer import *
-from .hiveon import *
-from .luxos import *
-from .vnish import *
-from .epic import *
+from pyasic.miners.backends import ePIC
+from pyasic.miners.types import (
+    S19,
+    S19Pro,
+    S19j,
+    S19jPro,
+    S19XP,
+)
+
+
+class ePICS19(ePIC, S19):
+    pass
+
+class ePICS19Pro(ePIC, S19Pro):
+    pass
+
+class ePICS19j(ePIC, S19j):
+    pass
+
+class ePICS19jPro(ePIC, S19jPro):
+    pass
+
+class ePICS19XP(ePIC, S19XP):
+    pass

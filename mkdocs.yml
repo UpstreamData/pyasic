@@ -29,6 +29,7 @@ nav:
         - CGMiner: "miners/backends/cgminer.md"
         - LUXMiner: "miners/backends/luxminer.md"
         - VNish: "miners/backends/vnish.md"
+        - ePIC: "miners/backends/epic.md"
         - Hiveon: "miners/backends/hiveon.md"
     - Classes:
         - Antminer X3: "miners/antminer/X3.md"
