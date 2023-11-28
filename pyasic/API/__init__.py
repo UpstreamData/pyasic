@@ -257,6 +257,12 @@ If you are sure you want to use this command please use API.send_command("{comma
                             # this is an error
                             return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
         elif "id" not in data.keys():
+            if isinstance(data["STATUS"], list):
+                if data["STATUS"][0].get("STATUS", None) in ["S", "I"]:
+                    return True, None
+                else:
+                    return False, data["STATUS"][0]["Msg"]
+
             if data["STATUS"] not in ["S", "I"]:
                 return False, data["Msg"]
         else:

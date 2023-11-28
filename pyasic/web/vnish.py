@@ -31,7 +31,7 @@ class VNishWebAPI(BaseWebAPI):
         self.token = None
 
     async def auth(self):
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
                     f"http://{self.ip}/api/v1/unlock",
@@ -58,7 +58,7 @@ class VNishWebAPI(BaseWebAPI):
     ) -> dict:
         if not self.token:
             await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     auth = self.token
@@ -70,21 +70,21 @@ class VNishWebAPI(BaseWebAPI):
                         response = await client.post(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     elif not parameters == {}:
                         response = await client.post(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}/api/v1/{command}",
                             headers={"Authorization": auth},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                         )
                     if not response.status_code == 200:
                         # refresh the token, retry

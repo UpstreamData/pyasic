@@ -38,10 +38,13 @@ class AntminerModernWebAPI(BaseWebAPI):
         url = f"http://{self.ip}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(transport=settings.transport()) as client:
                 if parameters:
                     data = await client.post(
-                        url, data=json.dumps(parameters), auth=auth, timeout=15  # noqa
+                        url,
+                        data=json.dumps(parameters),
+                        auth=auth,
+                        timeout=settings.get("api_function_timeout", 3),  # noqa
                     )
                 else:
                     data = await client.get(url, auth=auth)
@@ -57,7 +60,7 @@ class AntminerModernWebAPI(BaseWebAPI):
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             tasks = [
                 asyncio.create_task(self._handle_multicommand(client, command))
                 for command in commands
@@ -149,10 +152,13 @@ class AntminerOldWebAPI(BaseWebAPI):
         url = f"http://{self.ip}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(transport=settings.transport()) as client:
                 if parameters:
                     data = await client.post(
-                        url, data=parameters, auth=auth, timeout=15
+                        url,
+                        data=parameters,
+                        auth=auth,
+                        timeout=settings.get("api_function_timeout", 3),
                     )
                 else:
                     data = await client.get(url, auth=auth)
@@ -170,7 +176,7 @@ class AntminerOldWebAPI(BaseWebAPI):
     ) -> dict:
         data = {k: None for k in commands}
         auth = httpx.DigestAuth(self.username, self.pwd)
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
                 try:
                     url = f"http://{self.ip}/cgi-bin/{command}.cgi"

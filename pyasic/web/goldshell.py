@@ -31,7 +31,7 @@ class GoldshellWebAPI(BaseWebAPI):
         self.jwt = None
 
     async def auth(self):
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 await client.get(f"http://{self.ip}/user/logout")
                 auth = (
@@ -71,21 +71,21 @@ class GoldshellWebAPI(BaseWebAPI):
             parameters.pop("pool_pwd")
         if not self.jwt:
             await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters:
                         response = await client.put(
                             f"http://{self.ip}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
-                            timeout=5,
+                            timeout=settings.get("api_function_timeout", 5),
                         )
                     json_data = response.json()
                     return json_data
@@ -102,13 +102,13 @@ class GoldshellWebAPI(BaseWebAPI):
         data = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
                 try:
                     response = await client.get(
                         f"http://{self.ip}/mcb/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
-                        timeout=5,
+                        timeout=settings.get("api_function_timeout", 5),
                     )
                     json_data = response.json()
                     data[command] = json_data

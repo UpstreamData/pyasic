@@ -7,7 +7,6 @@ nav:
     - Miner Factory: "miners/miner_factory.md"
 - Network:
     - Miner Network: "network/miner_network.md"
-    - Miner Network Range: "network/miner_network_range.md"
 - Dataclasses:
     - Miner Data: "data/miner_data.md"
     - Error Codes: "data/error_codes.md"

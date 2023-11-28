@@ -13,22 +13,42 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import socket
+import struct
+from ssl import SSLContext
+from typing import Any, Union
 
-from typing import Any
+import httpx
+from httpx import AsyncHTTPTransport
 
 _settings = {  # defaults
     "network_ping_retries": 1,
     "network_ping_timeout": 3,
     "network_scan_threads": 300,
     "factory_get_retries": 1,
+    "factory_get_timeout": 3,
     "get_data_retries": 1,
+    "api_function_timeout": 5,
     "default_whatsminer_password": "admin",
     "default_innosilicon_password": "admin",
     "default_antminer_password": "root",
     "default_bosminer_password": "root",
     "default_vnish_password": "admin",
     "default_goldshell_password": "123456789",
+    "socket_linger_time": 1000,
 }
+
+
+ssl_cxt = httpx.create_ssl_context()
+
+
+def transport(verify: Union[str, bool, SSLContext] = ssl_cxt):
+    l_onoff = 1
+    l_linger = get("so_linger_time", 1000)
+
+    opts = [(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", l_onoff, l_linger))]
+
+    return AsyncHTTPTransport(socket_options=opts, verify=verify)
 
 
 def get(key: str, other: Any = None) -> Any:
