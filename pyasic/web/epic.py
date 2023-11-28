@@ -23,7 +23,6 @@ from pyasic import settings
 from pyasic.web import BaseWebAPI
 from pyasic.errors import APIError, APIWarning
 
-
 class ePICWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
@@ -32,32 +31,28 @@ class ePICWebAPI(BaseWebAPI):
         self.token = None
 
     async def send_command(
-        self,
-        command: Union[str, bytes],
-        ignore_errors: bool = False,
-        allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+            self,
+            command: Union[str, bytes],
+            ignore_errors: bool = False,
+            allow_warning: bool = True,
+            post: bool = False,
+            **parameters: Union[str, int, bool],
     ) -> dict:
-        async with httpx.AsyncClient() as client:
-            is_get = False
-            for i in range(settings.get("get_data_retries", 1)):
+        if post or parameters != {}:
+            post = True
+        
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
+            for i in range(settings.get("get_data_retries", 1) + 1):
                 try:
-                    if parameters.get("post"):
-                        parameters.pop("post")
-                        epic_param = {"param": parameters.get("parameters"), "password": self.pwd}
+                    if post:
+                        epic_param = {"param": parameters.get("parameters"),
+                                      "password": self.pwd}
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
                             json=epic_param,
                         )
-                    elif not parameters == {}:
-                        response = await client.post(
-                            f"http://{self.ip}:4028/{command}",
-                            timeout=5,
-                            json=parameters,
-                        )
                     else:
-                        is_get = True
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
@@ -68,15 +63,14 @@ class ePICWebAPI(BaseWebAPI):
                     json_data = response.json()
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
-                        if "result" in json_data and json_data["result"] is False and is_get and not ignore_errors:
-                            raise APIError(json_data["error"])
+                        if "result" in json_data and json_data["result"] is False and not post:
+                            if not i > settings.get("get_data_retries", 1):
+                                continue
+                            if not ignore_errors:
+                                raise APIError(json_data["error"])
                         return json_data
                     return {"success": True}
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
-                    pass
-                except AttributeError:
+                except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
                     pass
 
     async def multicommand(
