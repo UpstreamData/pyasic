@@ -43,10 +43,11 @@ class ePICWebAPI(BaseWebAPI):
                 try:
                     if parameters.get("post"):
                         parameters.pop("post")
+                        epic_param = {"param": parameters.get("parameters"), "password": self.pwd}
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
-                            json=parameters.get("parameters"),
+                            json=epic_param,
                         )
                     elif not parameters == {}:
                         response = await client.post(
@@ -86,22 +87,22 @@ class ePICWebAPI(BaseWebAPI):
         return data
 
     async def restart_epic(self) -> dict:
-        return await self.send_command("softreboot", post=True, parameters={"param": None, "password": self.pwd})
+        return await self.send_command("softreboot", post=True, parameters=None)
 
     async def reboot(self) -> dict:
-        return await self.send_command("reboot", post=True, parameters={"param": None, "password": self.pwd})
+        return await self.send_command("reboot", post=True, parameters=None)
 
     async def pause_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters={"param": "Stop", "password": self.pwd})
+        return await self.send_command("miner", post=True, parameters="Stop")
 
     async def resume_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters={"param": "Autostart", "password": self.pwd})
+        return await self.send_command("miner", post=True, parameters="Autostart")
 
     async def stop_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters={"param": "Stop", "password": self.pwd})
+        return await self.send_command("miner", post=True, parameters="Stop")
 
     async def start_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters={"param": "Autostart", "password": self.pwd})
+        return await self.send_command("miner", post=True, parameters="Autostart")
 
     async def summary(self):
         return await self.send_command("summary")

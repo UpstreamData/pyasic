@@ -150,7 +150,7 @@ class ePIC(BMMiner):
                         hashrate += hb["Hashrate"][0]
                     return round(
                         float(float(hashrate/ 1000000)), 2)
-            except (IndexError, KeyError, ValueError, TypeError) as e:
+            except (LookupError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
     
@@ -205,7 +205,7 @@ class ePIC(BMMiner):
             for fan in web_summary["Fans Rpm"]:
                 try:
                     fans.append(Fan(web_summary["Fans Rpm"][fan]))
-                except (IndexError, KeyError, ValueError, TypeError):
+                except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
     
