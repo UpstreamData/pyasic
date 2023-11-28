@@ -24,6 +24,20 @@ from pyasic.web import BaseWebAPI
 from pyasic.errors import APIError, APIWarning
 
 
+class ePICerror(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        if self.message:
+            return f"{self.message}"
+        else:
+            return "Incorrect API parameters."
+
+
 class ePICWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
@@ -68,13 +82,15 @@ class ePICWebAPI(BaseWebAPI):
                     json_data = response.json()
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
-                        if "result" in json_data and json_data["result"] is False and is_get and not ignore_errors:
-                            raise APIError(json_data["error"])
+                        if "result" in json_data and json_data["result"] is False and is_get:
+                            raise ePICerror(json_data["error"])
                         return json_data
                     return {"success": True}
                 except httpx.HTTPError:
                     pass
                 except json.JSONDecodeError:
+                    pass
+                except ePICerror as e:
                     pass
                 except AttributeError:
                     pass
