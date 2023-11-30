@@ -480,7 +480,7 @@ class MinerFactory:
     async def _get_miner_type(self, ip: str):
         tasks = [
             asyncio.create_task(self._get_miner_web(ip)),
-            # asyncio.create_task(self._get_miner_socket(ip)),
+            asyncio.create_task(self._get_miner_socket(ip)),
         ]
 
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
