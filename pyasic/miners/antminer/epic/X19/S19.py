@@ -20,6 +20,8 @@ from pyasic.miners.types import (
     S19Pro,
     S19j,
     S19jPro,
+    S19jProPlus,
+    S19kPro,
     S19XP,
 )
 
@@ -34,6 +36,12 @@ class ePICS19j(ePIC, S19j):
     pass
 
 class ePICS19jPro(ePIC, S19jPro):
+    pass
+
+class ePICS19jProPlus(ePIC, S19jProPlus):
+    pass
+
+class ePICS19kPro(ePIC, S19kPro):
     pass
 
 class ePICS19XP(ePIC, S19XP):
