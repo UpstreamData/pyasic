@@ -137,7 +137,7 @@ class S19kPro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19k Pro"
-        self.nominal_chips = 76
+        self.nominal_chips = 77
         self.fan_count = 4
 
 
