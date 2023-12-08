@@ -62,6 +62,20 @@ class Pool(MinerConfigValue):
             f"_ant_pool{idx}pw": self.password,
         }
 
+    def as_goldshell(self, user_suffix: str = None):
+        if user_suffix is not None:
+            return {
+                "url": self.url,
+                "user": f"{self.user}{user_suffix}",
+                "pass": self.password,
+            }
+        return {"url": self.url, "user": self.user, "pass": self.password}
+
+    def as_avalon(self, user_suffix: str = None):
+        if user_suffix is not None:
+            return ",".join([self.url, f"{self.user}{user_suffix}", self.password])
+        return ",".join([self.url, self.user, self.password])
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -75,7 +89,7 @@ class PoolGroup(MinerConfigValue):
                 random.choice(string.ascii_uppercase + string.digits) for _ in range(6)
             )  # generate random pool group name in case it isn't set
 
-    def as_am_modern(self, user_suffix: str = None):
+    def as_am_modern(self, user_suffix: str = None) -> list:
         pools = []
         idx = 0
         while idx < 3:
@@ -86,7 +100,7 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_wm(self, user_suffix: str = None):
+    def as_wm(self, user_suffix: str = None) -> dict:
         pools = {}
         idx = 0
         while idx < 3:
@@ -99,7 +113,7 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_am_old(self, user_suffix: str = None):
+    def as_am_old(self, user_suffix: str = None) -> dict:
         pools = {}
         idx = 0
         while idx < 3:
@@ -111,6 +125,22 @@ class PoolGroup(MinerConfigValue):
                 pools.update(**Pool("", "", "").as_am_old(idx=idx + 1))
             idx += 1
         return pools
+
+    def as_goldshell(self, user_suffix: str = None) -> list:
+        pools = []
+        idx = 0
+        while idx < 3:
+            if len(self.pools) > idx:
+                pools.append(self.pools[idx].as_am_modern(user_suffix=user_suffix))
+            else:
+                pools.append(Pool("", "", "").as_am_modern())
+            idx += 1
+        return pools
+
+    def as_avalon(self, user_suffix: str = None) -> dict:
+        if len(self.pools) > 0:
+            return self.pools[0].as_avalon(user_suffix=user_suffix)
+        return Pool("", "", "").as_avalon()
 
 
 @dataclass
@@ -130,17 +160,27 @@ class PoolConfig(MinerConfigValue):
             group_pools.append(pool)
         return cls(groups=[PoolGroup(pools=group_pools)])
 
-    def as_am_modern(self, user_suffix: str = None):
+    def as_am_modern(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_am_modern(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_am_modern()}
 
-    def as_wm(self, user_suffix: str = None):
+    def as_wm(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_wm(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_wm()}
 
-    def as_am_old(self, user_suffix: str = None):
+    def as_am_old(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:
             return self.groups[0].as_am_old(user_suffix=user_suffix)
         return PoolGroup().as_am_old()
+
+    def as_goldshell(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": self.groups[0].as_goldshell(user_suffix=user_suffix)}
+        return {"pools": PoolGroup().as_goldshell()}
+
+    def as_avalon(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": self.groups[0].as_avalon(user_suffix=user_suffix)}
+        return {"pools": PoolGroup().as_avalon()}

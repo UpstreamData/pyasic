@@ -58,6 +58,24 @@ class MinerConfig:
             **self.power_scaling.as_am_old(),
         }
 
+    def as_goldshell(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_goldshell(),
+            **self.mining_mode.as_goldshell(),
+            **self.pools.as_goldshell(user_suffix=user_suffix),
+            **self.temperature.as_goldshell(),
+            **self.power_scaling.as_goldshell(),
+        }
+
+    def as_avalon(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_avalon(),
+            **self.mining_mode.as_avalon(),
+            **self.pools.as_avalon(user_suffix=user_suffix),
+            **self.temperature.as_avalon(),
+            **self.power_scaling.as_avalon(),
+        }
+
 
 if __name__ == "__main__":
     config = MinerConfig(
@@ -72,6 +90,8 @@ if __name__ == "__main__":
         ),
         mining_mode=MiningModeConfig.power_tuning(3000),
     )
-    print(config.as_wm())
-    print(config.as_am_modern())
-    print(config.as_am_old())
+    print("WM:", config.as_wm())
+    print("AM Modern:", config.as_am_modern())
+    print("AM Old:", config.as_am_old())
+    print("GS:", config.as_goldshell())
+    print("Avalon:", config.as_avalon())
