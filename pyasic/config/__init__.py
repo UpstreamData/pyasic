@@ -76,6 +76,15 @@ class MinerConfig:
             **self.power_scaling.as_avalon(),
         }
 
+    def as_inno(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_inno(),
+            **self.mining_mode.as_inno(),
+            **self.pools.as_inno(user_suffix=user_suffix),
+            **self.temperature.as_inno(),
+            **self.power_scaling.as_inno(),
+        }
+
 
 if __name__ == "__main__":
     config = MinerConfig(
@@ -95,3 +104,4 @@ if __name__ == "__main__":
     print("AM Old:", config.as_am_old())
     print("GS:", config.as_goldshell())
     print("Avalon:", config.as_avalon())
+    print("Inno:", config.as_inno())

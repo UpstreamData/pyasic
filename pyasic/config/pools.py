@@ -76,6 +76,19 @@ class Pool(MinerConfigValue):
             return ",".join([self.url, f"{self.user}{user_suffix}", self.password])
         return ",".join([self.url, self.user, self.password])
 
+    def as_inno(self, idx: int, user_suffix: str = None):
+        if user_suffix is not None:
+            return {
+                f"Pool{idx}": self.url,
+                f"UserName{idx}": f"{self.user}{user_suffix}",
+                f"Password{idx}": self.password,
+            }
+        return {
+            f"Pool{idx}": self.url,
+            f"UserName{idx}": self.user,
+            f"Password{idx}": self.password,
+        }
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -142,6 +155,19 @@ class PoolGroup(MinerConfigValue):
             return self.pools[0].as_avalon(user_suffix=user_suffix)
         return Pool("", "", "").as_avalon()
 
+    def as_inno(self, user_suffix: str = None) -> dict:
+        pools = {}
+        idx = 0
+        while idx < 3:
+            if len(self.pools) > idx:
+                pools.update(
+                    **self.pools[idx].as_inno(idx=idx + 1, user_suffix=user_suffix)
+                )
+            else:
+                pools.update(**Pool("", "", "").as_inno(idx=idx + 1))
+            idx += 1
+        return pools
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -184,3 +210,8 @@ class PoolConfig(MinerConfigValue):
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_avalon(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_avalon()}
+
+    def as_inno(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return self.groups[0].as_inno(user_suffix=user_suffix)
+        return PoolGroup().as_inno()
