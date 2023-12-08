@@ -13,23 +13,44 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import asdict, dataclass
-
-from pyasic.config.fans import FanModeConfig
-from pyasic.config.mining import MiningModeConfig
-from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig
-from pyasic.config.temperature import TemperatureConfig
+import random
+import string
+from dataclasses import dataclass, field
+from typing import Union
 
 
 @dataclass
-class MinerConfig:
-    pools: PoolConfig = PoolConfig.default()
-    mining_mode: MiningModeConfig = MiningModeConfig.default()
-    fan_mode: FanModeConfig = FanModeConfig.default()
-    temperature: TemperatureConfig = TemperatureConfig.default()
-    power_scaling: PowerScalingConfig = PowerScalingConfig.default()
+class Pool:
+    url: str
+    user: str
+    password: str
 
 
-if __name__ == "__main__":
-    print(asdict(MinerConfig()))
+@dataclass
+class PoolGroup:
+    pools: list[Pool] = field(default_factory=list)
+    quota: int = 1
+    name: str = None
+
+    def __post_init__(self):
+        if self.group_name is None:
+            self.group_name = "".join(
+                random.choice(string.ascii_uppercase + string.digits) for _ in range(6)
+            )  # generate random pool group name in case it isn't set
+
+
+@dataclass
+class PoolConfig:
+    groups: list[PoolGroup] = field(default_factory=list)
+
+    @classmethod
+    def default(cls):
+        return cls()
+
+    def simple(self, pools: list[Union[Pool, dict[str, str]]]):
+        group_pools = []
+        for pool in pools:
+            if isinstance(pool, dict):
+                pool = Pool(**pool)
+            group_pools.append(pool)
+        self.groups = [PoolGroup(pools=group_pools)]

@@ -13,23 +13,46 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import asdict, dataclass
-
-from pyasic.config.fans import FanModeConfig
-from pyasic.config.mining import MiningModeConfig
-from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig
-from pyasic.config.temperature import TemperatureConfig
+from dataclasses import dataclass, field
+from enum import Enum
 
 
 @dataclass
-class MinerConfig:
-    pools: PoolConfig = PoolConfig.default()
-    mining_mode: MiningModeConfig = MiningModeConfig.default()
-    fan_mode: FanModeConfig = FanModeConfig.default()
-    temperature: TemperatureConfig = TemperatureConfig.default()
-    power_scaling: PowerScalingConfig = PowerScalingConfig.default()
+class PowerScalingShutdownEnabled:
+    mode: str = field(init=False, default="enabled")
+    duration: int = None
 
 
-if __name__ == "__main__":
-    print(asdict(MinerConfig()))
+@dataclass
+class PowerScalingShutdownDisabled:
+    mode: str = field(init=False, default="disabled")
+
+
+class PowerScalingShutdown(Enum):
+    enabled = PowerScalingShutdownEnabled
+    disabled = PowerScalingShutdownDisabled
+
+
+@dataclass
+class PowerScalingEnabled:
+    mode: str = field(init=False, default="enabled")
+    power_step: int = None
+    minimum_power: int = None
+    shutdown_mode: PowerScalingShutdown = None
+
+
+@dataclass
+class PowerScalingDisabled:
+    mode: str = field(init=False, default="disabled")
+
+
+class PowerScalingConfig(Enum):
+    enabled = PowerScalingEnabled
+    disabled = PowerScalingDisabled
+
+    @classmethod
+    def default(cls):
+        return cls.disabled()
+
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)

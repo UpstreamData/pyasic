@@ -13,23 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import asdict, dataclass
-
-from pyasic.config.fans import FanModeConfig
-from pyasic.config.mining import MiningModeConfig
-from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig
-from pyasic.config.temperature import TemperatureConfig
+from dataclasses import dataclass
 
 
 @dataclass
-class MinerConfig:
-    pools: PoolConfig = PoolConfig.default()
-    mining_mode: MiningModeConfig = MiningModeConfig.default()
-    fan_mode: FanModeConfig = FanModeConfig.default()
-    temperature: TemperatureConfig = TemperatureConfig.default()
-    power_scaling: PowerScalingConfig = PowerScalingConfig.default()
+class TemperatureConfig:
+    target: int = None
+    hot: int = None
+    danger: int = None
 
-
-if __name__ == "__main__":
-    print(asdict(MinerConfig()))
+    @classmethod
+    def default(cls):
+        return cls()

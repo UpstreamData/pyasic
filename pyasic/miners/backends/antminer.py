@@ -18,7 +18,7 @@ import asyncio
 from typing import List, Optional, Union
 
 from pyasic.API import APIError
-from pyasic.config import MinerConfig, X19PowerMode
+from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners.backends.bmminer import BMMiner
