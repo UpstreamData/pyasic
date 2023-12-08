@@ -354,6 +354,8 @@ MINER_CLASSES = {
         "ANTMINER S19 PRO": ePICS19Pro,
         "ANTMINER S19J": ePICS19j,
         "ANTMINER S19J PRO": ePICS19jPro,
+        "ANTMINER S19J PRO+": ePICS19jProPlus,
+        "ANTMINER S19K PRO": ePICS19kPro,
         "ANTMINER S19 XP": ePICS19XP,
     },
     MinerTypes.HIVEON: {

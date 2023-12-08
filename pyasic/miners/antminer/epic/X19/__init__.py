@@ -19,5 +19,7 @@ from .S19 import (
     ePICS19Pro,
     ePICS19j,
     ePICS19jPro,
+    ePICS19jProPlus,
+    ePICS19kPro,
     ePICS19XP,
 )
