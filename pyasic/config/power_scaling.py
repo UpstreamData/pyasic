@@ -14,27 +14,28 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
-from enum import Enum
+
+from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 
 @dataclass
-class PowerScalingShutdownEnabled:
+class PowerScalingShutdownEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     duration: int = None
 
 
 @dataclass
-class PowerScalingShutdownDisabled:
+class PowerScalingShutdownDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
 
-class PowerScalingShutdown(Enum):
+class PowerScalingShutdown(MinerConfigOption):
     enabled = PowerScalingShutdownEnabled
     disabled = PowerScalingShutdownDisabled
 
 
 @dataclass
-class PowerScalingEnabled:
+class PowerScalingEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     power_step: int = None
     minimum_power: int = None
@@ -42,17 +43,14 @@ class PowerScalingEnabled:
 
 
 @dataclass
-class PowerScalingDisabled:
+class PowerScalingDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
 
-class PowerScalingConfig(Enum):
+class PowerScalingConfig(MinerConfigOption):
     enabled = PowerScalingEnabled
     disabled = PowerScalingDisabled
 
     @classmethod
     def default(cls):
         return cls.disabled()
-
-    def __call__(self, *args, **kwargs):
-        return self.value(*args, **kwargs)

@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
@@ -30,6 +30,48 @@ class MinerConfig:
     temperature: TemperatureConfig = TemperatureConfig.default()
     power_scaling: PowerScalingConfig = PowerScalingConfig.default()
 
+    def as_am_modern(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_am_modern(),
+            "freq-level": "100",
+            **self.mining_mode.as_am_modern(),
+            **self.pools.as_am_modern(user_suffix=user_suffix),
+            **self.temperature.as_am_modern(),
+            **self.power_scaling.as_am_modern(),
+        }
+
+    def as_wm(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_wm(),
+            **self.mining_mode.as_wm(),
+            **self.pools.as_wm(user_suffix=user_suffix),
+            **self.temperature.as_wm(),
+            **self.power_scaling.as_wm(),
+        }
+
+    def as_am_old(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_am_old(),
+            **self.mining_mode.as_am_old(),
+            **self.pools.as_am_old(user_suffix=user_suffix),
+            **self.temperature.as_am_old(),
+            **self.power_scaling.as_am_old(),
+        }
+
 
 if __name__ == "__main__":
-    print(asdict(MinerConfig()))
+    config = MinerConfig(
+        pools=PoolConfig.simple(
+            [
+                {
+                    "url": "stratum+tcp://stratum.test.io:3333",
+                    "user": "user.test",
+                    "password": "123",
+                }
+            ]
+        ),
+        mining_mode=MiningModeConfig.power_tuning(3000),
+    )
+    print(config.as_wm())
+    print(config.as_am_modern())
+    print(config.as_am_old())

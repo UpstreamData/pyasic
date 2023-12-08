@@ -14,69 +14,97 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
-from enum import Enum
+
+from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 
 @dataclass
-class MiningModeNormal:
+class MiningModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="normal")
 
-    @staticmethod
-    def as_am_modern():
+    def as_am_modern(self):
+        return {"miner-mode": "0"}
+
+    def as_wm(self):
+        return {"mode": self.mode}
+
+
+@dataclass
+class MiningModeSleep(MinerConfigValue):
+    mode: str = field(init=False, default="sleep")
+
+    def as_am_modern(self):
+        return {"miner-mode": "1"}
+
+    def as_wm(self):
+        return {"mode": self.mode}
+
+
+@dataclass
+class MiningModeLPM(MinerConfigValue):
+    mode: str = field(init=False, default="low")
+
+    def as_am_modern(self):
+        return {"miner-mode": "3"}
+
+    def as_wm(self):
+        return {"mode": self.mode}
+
+
+@dataclass
+class MiningModeHPM(MinerConfigValue):
+    mode: str = field(init=False, default="high")
+
+    def as_am_modern(self):
+        return {"miner-mode": "0"}
+
+    def as_wm(self):
+        return {"mode": self.mode}
+
+
+@dataclass
+class MiningModePowerTune(MinerConfigValue):
+    mode: str = field(init=False, default="power_tuning")
+    power: int
+
+    def as_am_modern(self):
+        return {"miner-mode": "0"}
+
+    def as_wm(self):
+        return {"mode": self.mode, self.mode: {"wattage": self.power}}
+
+
+@dataclass
+class MiningModeHashrateTune(MinerConfigValue):
+    mode: str = field(init=False, default="hashrate_tuning")
+    hashrate: int
+
+    def as_am_modern(self):
         return {"miner-mode": "0"}
 
 
 @dataclass
-class MiningModeSleep:
-    mode: str = field(init=False, default="sleep")
-
-    @staticmethod
-    def as_am_modern():
-        return {"miner-mode": "1"}
-
-
-@dataclass
-class MiningModeLPM:
-    mode: str = field(init=False, default="low")
-
-    @staticmethod
-    def as_am_modern():
-        return {"miner-mode": "3"}
-
-
-@dataclass
-class MiningModeHPM(MiningModeNormal):
-    mode: str = field(init=False, default="high")
-
-
-@dataclass
-class MiningModePowerTune(MiningModeNormal):
-    mode: str = field(init=False, default="power_tuning")
-    power: int
-
-
-@dataclass
-class MiningModeHashrateTune(MiningModeNormal):
-    mode: str = field(init=False, default="hashrate_tuning")
-    hashrate: int
-
-
-@dataclass
-class ManualBoardSettings:
+class ManualBoardSettings(MinerConfigValue):
     freq: float
     volt: float
 
+    def as_am_modern(self):
+        return {"miner-mode": "0"}
+
 
 @dataclass
-class MiningModeManual(MiningModeNormal):
+class MiningModeManual(MinerConfigValue):
     mode: str = field(init=False, default="manual")
 
     global_freq: float
     global_volt: float
     boards: dict[int, ManualBoardSettings] = field(default_factory=dict)
 
+    def as_am_modern(self):
+        return {"miner-mode": "0"}
 
-class MiningModeConfig(Enum):
+
+class MiningModeConfig(MinerConfigOption):
     normal = MiningModeNormal
     low = MiningModeLPM
     high = MiningModeHPM
@@ -88,6 +116,3 @@ class MiningModeConfig(Enum):
     @classmethod
     def default(cls):
         return cls.normal()
-
-    def __call__(self, *args, **kwargs):
-        return self.value(*args, **kwargs)

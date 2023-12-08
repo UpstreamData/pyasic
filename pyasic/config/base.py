@@ -13,17 +13,53 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import dataclass
-
-from pyasic.config.base import MinerConfigValue
+from enum import Enum
 
 
-@dataclass
-class TemperatureConfig(MinerConfigValue):
-    target: int = None
-    hot: int = None
-    danger: int = None
+class MinerConfigOption(Enum):
+    def as_am_modern(self) -> dict:
+        return self.value.as_am_modern()
 
-    @classmethod
-    def default(cls):
-        return cls()
+    def as_am_old(self) -> dict:
+        return self.value.as_am_old()
+
+    def as_wm(self) -> dict:
+        return self.value.as_wm()
+
+    def as_inno(self) -> dict:
+        return self.value.as_inno()
+
+    def as_goldshell(self) -> dict:
+        return self.value.as_goldshell()
+
+    def as_avalon(self) -> dict:
+        return self.value.as_avalon()
+
+    def as_bos(self) -> dict:
+        return self.value.as_bos()
+
+    def __call__(self, *args, **kwargs):
+        return self.value(*args, **kwargs)
+
+
+class MinerConfigValue:
+    def as_am_modern(self) -> dict:
+        return {}
+
+    def as_am_old(self) -> dict:
+        return {}
+
+    def as_wm(self) -> dict:
+        return {}
+
+    def as_inno(self) -> dict:
+        return {}
+
+    def as_goldshell(self) -> dict:
+        return {}
+
+    def as_avalon(self) -> dict:
+        return {}
+
+    def as_bos(self) -> dict:
+        return {}

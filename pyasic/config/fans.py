@@ -14,24 +14,23 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
-from enum import Enum
+
+from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 
 @dataclass
-class FanModeNormal:
+class FanModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="auto")
 
-    @staticmethod
-    def as_am_modern():
+    def as_am_modern(self):
         return {"bitmain-fan-ctrl": False, "bitmain-fan-pwn": "100"}
 
-    @staticmethod
-    def as_bos():
+    def as_bos(self):
         return {"temp_control": {"mode": "auto"}}
 
 
 @dataclass
-class FanModeManual:
+class FanModeManual(MinerConfigValue):
     mode: str = field(init=False, default="manual")
     minimum_fans: int = 1
     speed: int = 100
@@ -47,19 +46,17 @@ class FanModeManual:
 
 
 @dataclass
-class FanModeImmersion:
+class FanModeImmersion(MinerConfigValue):
     mode: str = field(init=False, default="immersion")
 
-    @staticmethod
-    def as_am_modern():
+    def as_am_modern(self):
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": "0"}
 
-    @staticmethod
-    def as_bos():
+    def as_bos(self):
         return {"temp_control": {"mode": "manual"}, "fan_control": {"min_fans": 0}}
 
 
-class FanModeConfig(Enum):
+class FanModeConfig(MinerConfigOption):
     normal = FanModeNormal
     manual = FanModeManual
     immersion = FanModeImmersion
@@ -67,6 +64,3 @@ class FanModeConfig(Enum):
     @classmethod
     def default(cls):
         return cls.normal()
-
-    def __call__(self, *args, **kwargs):
-        return self.value(*args, **kwargs)
