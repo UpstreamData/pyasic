@@ -27,3 +27,13 @@ class TemperatureConfig(MinerConfigValue):
     @classmethod
     def default(cls):
         return cls()
+
+    def as_bosminer(self) -> dict:
+        temp_cfg = {}
+        if self.target is not None:
+            temp_cfg["target_temp"] = self.target
+        if self.hot is not None:
+            temp_cfg["hot_temp"] = self.hot
+        if self.danger is not None:
+            temp_cfg["dangerous_temp"] = self.danger
+        return {"temp_control": temp_cfg}

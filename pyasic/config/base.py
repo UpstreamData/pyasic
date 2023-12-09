@@ -35,7 +35,7 @@ class MinerConfigOption(Enum):
     def as_avalon(self) -> dict:
         return self.value.as_avalon()
 
-    def as_bos(self) -> dict:
+    def as_bosminer(self) -> dict:
         return self.value.as_bos()
 
     def __call__(self, *args, **kwargs):
@@ -61,5 +61,5 @@ class MinerConfigValue:
     def as_avalon(self) -> dict:
         return {}
 
-    def as_bos(self) -> dict:
+    def as_bosminer(self) -> dict:
         return {}

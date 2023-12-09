@@ -25,7 +25,7 @@ class FanModeNormal(MinerConfigValue):
     def as_am_modern(self):
         return {"bitmain-fan-ctrl": False, "bitmain-fan-pwn": "100"}
 
-    def as_bos(self):
+    def as_bosminer(self):
         return {"temp_control": {"mode": "auto"}}
 
 
@@ -38,7 +38,7 @@ class FanModeManual(MinerConfigValue):
     def as_am_modern(self):
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": str(self.speed)}
 
-    def as_bos(self):
+    def as_bosminer(self):
         return {
             "temp_control": {"mode": "manual"},
             "fan_control": {"min_fans": self.minimum_fans, "speed": self.speed},
@@ -52,8 +52,8 @@ class FanModeImmersion(MinerConfigValue):
     def as_am_modern(self):
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": "0"}
 
-    def as_bos(self):
-        return {"temp_control": {"mode": "manual"}, "fan_control": {"min_fans": 0}}
+    def as_bosminer(self):
+        return {"temp_control": {"mode": "disabled"}}
 
 
 class FanModeConfig(MinerConfigOption):

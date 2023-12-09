@@ -73,6 +73,9 @@ class MiningModePowerTune(MinerConfigValue):
     def as_wm(self):
         return {"mode": self.mode, self.mode: {"wattage": self.power}}
 
+    def as_bosminer(self) -> dict:
+        return {"autotuning": {"enabled": True, "psu_power_limit": self.power}}
+
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):

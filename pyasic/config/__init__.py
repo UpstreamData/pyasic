@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass
 
+import toml
+
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig
@@ -85,9 +87,39 @@ class MinerConfig:
             **self.power_scaling.as_inno(),
         }
 
+    def as_bosminer(self, user_suffix: str = None):
+
+        return {
+            **merge(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
+            **self.mining_mode.as_bosminer(),
+            **self.pools.as_bosminer(user_suffix=user_suffix),
+            **self.power_scaling.as_bosminer(),
+        }
+
     @classmethod
     def from_api(cls, api_pools: dict):
         return cls(pools=PoolConfig.from_api(api_pools))
+
+
+
+def merge(a: dict, b: dict):
+    ret = {}
+    for k in a:
+        v = a[k]
+        if k in b.keys():
+            if isinstance(v, dict):
+                ret[k] = merge(a[k], b[k])
+            elif isinstance(v, list):
+                ret[k] = [*v, *b[k]]
+            else:
+                ret[k] = v
+        else:
+            ret[k] = v
+    for k in b:
+        v = b[k]
+        if k not in ret.keys():
+            ret[k] = v
+    return ret
 
 
 if __name__ == "__main__":
@@ -102,6 +134,8 @@ if __name__ == "__main__":
             ]
         ),
         mining_mode=MiningModeConfig.power_tuning(3000),
+        temperature=TemperatureConfig(hot=100),
+        fan_mode=FanModeConfig.manual(minimum_fans=2, speed=70),
     )
     print("WM:", config.as_wm())
     print("AM Modern:", config.as_am_modern())
@@ -109,3 +143,6 @@ if __name__ == "__main__":
     print("GS:", config.as_goldshell())
     print("Avalon:", config.as_avalon())
     print("Inno:", config.as_inno())
+    print("BOS+ .toml:", config.as_bosminer())
+    print("BOS+ .toml as toml:")
+    print(toml.dumps(config.as_bosminer()))
