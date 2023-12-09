@@ -89,9 +89,6 @@ class Pool(MinerConfigValue):
             f"Password{idx}": self.password,
         }
 
-    @classmethod
-    def from_api(cls, api_pool: dict):
-        return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
 
     def as_bosminer(self, user_suffix: str = None):
         if user_suffix is not None:
@@ -101,6 +98,14 @@ class Pool(MinerConfigValue):
                 "pass": self.password,
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
+
+    @classmethod
+    def from_api(cls, api_pool: dict):
+        return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
+
+    @classmethod
+    def from_am_modern(cls, web_pool: dict):
+        return cls(url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"])
 
 
 @dataclass
@@ -181,13 +186,6 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    @classmethod
-    def from_api(cls, api_pool_list: list):
-        pools = []
-        for pool in api_pool_list:
-            pools.append(Pool.from_api(pool))
-        return cls(pools=pools)
-
     def as_bosminer(self, user_suffix: str = None) -> dict:
         if len(self.pools) > 0:
             return {
@@ -198,6 +196,21 @@ class PoolGroup(MinerConfigValue):
                 ],
             }
         return {"name": "Group", "quota": 1, "pool": [Pool.as_bosminer()]}
+
+    @classmethod
+    def from_api(cls, api_pool_list: list):
+        pools = []
+        for pool in api_pool_list:
+            pools.append(Pool.from_api(pool))
+        return cls(pools=pools)
+
+    @classmethod
+    def from_am_modern(cls, web_pool_list: list):
+        pools = []
+        for pool in web_pool_list:
+            pools.append(Pool.from_am_modern(pool))
+        return cls(pools=pools)
+
 
 
 @dataclass
@@ -247,12 +260,6 @@ class PoolConfig(MinerConfigValue):
             return self.groups[0].as_inno(user_suffix=user_suffix)
         return PoolGroup().as_inno()
 
-    @classmethod
-    def from_api(cls, api_pools: dict):
-        pool_data = api_pools["POOLS"]
-        pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
-
-        return cls([PoolGroup.from_api(pool_data)])
 
     def as_bosminer(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:
@@ -260,3 +267,16 @@ class PoolConfig(MinerConfigValue):
                 "group": [g.as_bosminer(user_suffix=user_suffix) for g in self.groups]
             }
         return {"group": [PoolGroup().as_bosminer()]}
+
+    @classmethod
+    def from_api(cls, api_pools: dict):
+        pool_data = api_pools["POOLS"]
+        pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
+
+        return cls([PoolGroup.from_api(pool_data)])
+
+    @classmethod
+    def from_am_modern(cls, web_conf: dict):
+        pool_data = web_conf["pools"]
+
+        return cls([PoolGroup.from_am_modern(pool_data)])

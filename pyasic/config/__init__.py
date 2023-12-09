@@ -100,6 +100,14 @@ class MinerConfig:
     def from_api(cls, api_pools: dict):
         return cls(pools=PoolConfig.from_api(api_pools))
 
+    @classmethod
+    def from_am_modern(cls, web_conf: dict):
+        return cls(
+            pools=PoolConfig.from_am_modern(web_conf),
+            mining_mode=MiningModeConfig.from_am_modern(web_conf),
+            fan_mode=FanModeConfig.from_am_modern(web_conf)
+        )
+
 
 
 def merge(a: dict, b: dict):

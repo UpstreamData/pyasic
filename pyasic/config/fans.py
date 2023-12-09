@@ -64,3 +64,14 @@ class FanModeConfig(MinerConfigOption):
     @classmethod
     def default(cls):
         return cls.normal()
+
+    @classmethod
+    def from_am_modern(cls, web_conf: dict):
+        if web_conf.get("bitmain-fan-ctrl") is not None:
+            fan_manual = web_conf["bitmain-fan-ctrl"]
+            if fan_manual:
+                return cls.manual(speed=web_conf["bitmain-fan-pwm"])
+            else:
+                return cls.normal()
+        else:
+            return cls.default()
