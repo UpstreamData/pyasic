@@ -85,6 +85,10 @@ class MinerConfig:
             **self.power_scaling.as_inno(),
         }
 
+    @classmethod
+    def from_api(cls, api_pools: dict):
+        return cls(pools=PoolConfig.from_api(api_pools))
+
 
 if __name__ == "__main__":
     config = MinerConfig(

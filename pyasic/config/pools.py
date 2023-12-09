@@ -89,6 +89,9 @@ class Pool(MinerConfigValue):
             f"Password{idx}": self.password,
         }
 
+    @classmethod
+    def from_api(cls, api_pool: dict):
+        return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -168,6 +171,12 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
+    @classmethod
+    def from_api(cls, api_pool_list: list):
+        pools = []
+        for pool in api_pool_list:
+            pools.append(Pool.from_api(pool))
+        return cls(pools=pools)
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -215,3 +224,10 @@ class PoolConfig(MinerConfigValue):
         if len(self.groups) > 0:
             return self.groups[0].as_inno(user_suffix=user_suffix)
         return PoolGroup().as_inno()
+
+    @classmethod
+    def from_api(cls, api_pools: dict):
+        pool_data = api_pools["POOLS"]
+        pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
+
+        return cls([PoolGroup.from_api(pool_data)])
