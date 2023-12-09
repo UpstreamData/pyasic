@@ -188,7 +188,7 @@ class PoolGroup(MinerConfigValue):
             pools.append(Pool.from_api(pool))
         return cls(pools=pools)
 
-   def as_bosminer(self, user_suffix: str = None) -> dict:
+    def as_bosminer(self, user_suffix: str = None) -> dict:
         if len(self.pools) > 0:
             return {
                 "name": self.name,
