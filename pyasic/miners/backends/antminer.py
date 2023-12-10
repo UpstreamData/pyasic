@@ -80,12 +80,12 @@ class AntminerModern(BMMiner):
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
-            self.config = MinerConfig().from_raw(data)
+            self.config = MinerConfig.from_am_modern(data)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
-        conf = config.as_x19(user_suffix=user_suffix)
+        conf = config.as_am_modern(user_suffix=user_suffix)
         data = await self.web.set_miner_conf(conf)
 
         if data:
@@ -94,7 +94,7 @@ class AntminerModern(BMMiner):
 
         for i in range(7):
             data = await self.get_config()
-            if data.as_x19() == conf:
+            if data.as_am_modern() == conf:
                 break
             await asyncio.sleep(1)
 
