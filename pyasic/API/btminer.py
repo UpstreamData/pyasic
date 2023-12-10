@@ -487,6 +487,34 @@ class BTMinerAPI(BaseMinerAPI):
         """
         return await self.send_privileged_command("set_low_power")
 
+    async def set_high_power(self) -> dict:
+        """Set low power mode on the miner using the API.
+        <details>
+            <summary>Expand</summary>
+
+        Set low power mode on the miner using the API, only works after
+        changing the password of the miner using the Whatsminer tool.
+
+        Returns:
+            A reply informing of the status of setting low power mode.
+        </details>
+        """
+        return await self.send_privileged_command("set_high_power")
+
+    async def set_normal_power(self) -> dict:
+        """Set low power mode on the miner using the API.
+        <details>
+            <summary>Expand</summary>
+
+        Set low power mode on the miner using the API, only works after
+        changing the password of the miner using the Whatsminer tool.
+
+        Returns:
+            A reply informing of the status of setting low power mode.
+        </details>
+        """
+        return await self.send_privileged_command("set_normal_power")
+
     async def update_firmware(self):  # noqa - static
         """Not implemented."""
         # to be determined if this will be added later
