@@ -199,10 +199,18 @@ class BTMiner(BaseMiner):
             await self.api.update_pools(**pools_conf)
         except APIError:
             pass
+
         try:
-            await self.api.adjust_power_limit(conf["wattage"])
+            if conf["mode"] == "normal":
+                await self.api.set_normal_power()
+            elif conf["mode"] == "high":
+                await self.api.set_high_power()
+            elif conf["mode"] == "low":
+                await self.api.set_low_power()
+            elif conf["mode"] == "power_tuning":
+                await self.api.adjust_power_limit(conf["power_tuning"]["wattage"])
         except APIError:
-            # cannot set wattage
+            # cannot update, no API access usually
             pass
 
     async def get_config(self) -> MinerConfig:
@@ -252,7 +260,8 @@ class BTMiner(BaseMiner):
                 return cfg
 
             cfg.mining_mode = MiningModeConfig.power_tuning(power_lim)
-            return cfg
+            self.config = cfg
+            return self.config
 
 
 
