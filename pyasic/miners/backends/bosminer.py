@@ -316,7 +316,7 @@ class BOSMiner(BaseMiner):
                     (await conn.run("cat /etc/bosminer.toml")).stdout
                 )
             logging.debug(f"{self}: Converting config file.")
-            cfg = MinerConfig().from_raw(toml_data)
+            cfg = MinerConfig.from_raw(toml_data)
             self.config = cfg
         return self.config
 

@@ -18,7 +18,7 @@ import asyncio
 from typing import List, Optional, Union
 
 from pyasic.API import APIError
-from pyasic.config import MinerConfig
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners.backends.bmminer import BMMiner
@@ -120,13 +120,13 @@ class AntminerModern(BMMiner):
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Sleep
+        cfg.miner_mode = MiningModeConfig.sleep
         await self.send_config(cfg)
         return True
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Normal
+        cfg.miner_mode = MiningModeConfig.normal
         await self.send_config(cfg)
         return True
 

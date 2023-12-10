@@ -88,7 +88,6 @@ class MinerConfig:
         }
 
     def as_bosminer(self, user_suffix: str = None):
-
         return {
             **merge(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
             **self.mining_mode.as_bosminer(),
@@ -105,7 +104,7 @@ class MinerConfig:
         return cls(
             pools=PoolConfig.from_am_modern(web_conf),
             mining_mode=MiningModeConfig.from_am_modern(web_conf),
-            fan_mode=FanModeConfig.from_am_modern(web_conf)
+            fan_mode=FanModeConfig.from_am_modern(web_conf),
         )
 
     @classmethod
@@ -114,9 +113,11 @@ class MinerConfig:
 
     @classmethod
     def from_goldshell(cls, web_conf: dict):
-        return cls(
-            pools=PoolConfig.from_am_modern(web_conf),
-        )
+        return cls(pools=PoolConfig.from_am_modern(web_conf))
+
+    @classmethod
+    def from_inno(cls, web_pools: dict):
+        return cls(pools=PoolConfig.from_inno(web_pools))
 
 
 def merge(a: dict, b: dict):

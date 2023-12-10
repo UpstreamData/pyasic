@@ -196,15 +196,9 @@ class LUXMiner(BaseMiner):
         return False
 
     async def get_config(self) -> MinerConfig:
-        """Gets the config for the miner and sets it as `self.config`.
-
-        Returns:
-            The config from `self.config`.
-        """
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
         pass
 
     async def set_power_limit(self, wattage: int) -> bool:

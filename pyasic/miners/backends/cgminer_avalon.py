@@ -100,7 +100,6 @@ class CGMinerAvalon(CGMiner):
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
         self.config = config
         return None
         logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...

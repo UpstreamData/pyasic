@@ -143,10 +143,13 @@ class CGMiner(BaseMiner):
         return True
 
     async def get_config(self) -> MinerConfig:
-        api_pools = await self.api.pools()
+        # get pool data
+        try:
+            pools = await self.api.pools()
+        except APIError:
+            return self.config
 
-        if api_pools:
-            self.config = MinerConfig().from_api(api_pools["POOLS"])
+        self.config = MinerConfig.from_api(pools)
         return self.config
 
     async def fault_light_off(self) -> bool:

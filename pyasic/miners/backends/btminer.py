@@ -197,10 +197,7 @@ class BTMiner(BaseMiner):
 
         try:
             await self.api.update_pools(**pools_conf)
-        except APIError:
-            pass
 
-        try:
             if conf["mode"] == "normal":
                 await self.api.set_normal_power()
             elif conf["mode"] == "high":

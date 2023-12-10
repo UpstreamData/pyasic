@@ -104,7 +104,7 @@ class BMMiner(BaseMiner):
         except APIError:
             return self.config
 
-        self.config = MinerConfig().from_api(pools["POOLS"])
+        self.config = MinerConfig.from_api(pools)
         return self.config
 
     async def reboot(self) -> bool:

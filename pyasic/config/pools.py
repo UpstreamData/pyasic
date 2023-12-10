@@ -108,8 +108,16 @@ class Pool(MinerConfigValue):
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
+    # TODO: check if this is accurate, user/username, pass/password
     @classmethod
     def from_goldshell(cls, web_pool: dict):
+        return cls(
+            url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
+        )
+
+    # TODO: check if this is accurate, user/username, pass/password
+    @classmethod
+    def from_inno(cls, web_pool: dict):
         return cls(
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
@@ -194,7 +202,7 @@ class PoolGroup(MinerConfigValue):
                     pool.as_bosminer(user_suffix=user_suffix) for pool in self.pools
                 ],
             }
-        return {"name": "Group", "quota": 1, "pool": [Pool.as_bosminer()]}
+        return {"name": "Group", "quota": 1, "pool": []}
 
     @classmethod
     def from_api(cls, api_pool_list: list):
@@ -213,6 +221,10 @@ class PoolGroup(MinerConfigValue):
     @classmethod
     def from_goldshell(cls, web_pools: list):
         return cls([Pool.from_goldshell(p) for p in web_pools])
+
+    @classmethod
+    def from_inno(cls, web_pools: list):
+        return cls([Pool.from_inno(p) for p in web_pools])
 
 
 @dataclass
@@ -285,3 +297,9 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_goldshell(cls, web_pools: list):
         return cls([PoolGroup.from_goldshell(web_pools)])
+
+    @classmethod
+    def from_inno(cls, web_pools: list):
+        return cls([PoolGroup.from_inno(web_pools)])
+
+
