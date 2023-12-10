@@ -297,11 +297,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def get_config(self) -> MinerConfig:
-        """Gets the config for the miner and sets it as `self.config`.
-
-        Returns:
-            The config from `self.config`.
-        """
         logging.debug(f"{self}: Getting config.")
 
         try:
@@ -316,7 +311,7 @@ class BOSMiner(BaseMiner):
                     (await conn.run("cat /etc/bosminer.toml")).stdout
                 )
             logging.debug(f"{self}: Converting config file.")
-            cfg = MinerConfig.from_raw(toml_data)
+            cfg = MinerConfig.from_bosminer(toml_data)
             self.config = cfg
         return self.config
 

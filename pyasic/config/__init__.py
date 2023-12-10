@@ -119,6 +119,15 @@ class MinerConfig:
     def from_inno(cls, web_pools: dict):
         return cls(pools=PoolConfig.from_inno(web_pools))
 
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict):
+        return cls(
+            pools=PoolConfig.from_bosminer(toml_conf),
+            mining_mode=MiningModeConfig.from_bosminer(toml_conf),
+            fan_mode=FanModeConfig.from_bosminer(toml_conf),
+            temperature=TemperatureConfig.from_bosminer(toml_conf),
+            power_scaling=PowerScalingConfig.from_bosminer(toml_conf),
+        )
 
 def merge(a: dict, b: dict):
     ret = {}
@@ -152,9 +161,11 @@ if __name__ == "__main__":
             ]
         ),
         mining_mode=MiningModeConfig.power_tuning(3000),
-        temperature=TemperatureConfig(hot=100),
+        temperature=TemperatureConfig(hot=100, danger=110),
         fan_mode=FanModeConfig.manual(minimum_fans=2, speed=70),
+        power_scaling=PowerScalingConfig.enabled(power_step=100, minimum_power=2400)
     )
+    print(config)
     print("WM:", config.as_wm())
     print("AM Modern:", config.as_am_modern())
     print("AM Old:", config.as_am_old())
@@ -164,3 +175,7 @@ if __name__ == "__main__":
     print("BOS+ .toml:", config.as_bosminer())
     print("BOS+ .toml as toml:")
     print(toml.dumps(config.as_bosminer()))
+
+    bos_parsed = MinerConfig.from_bosminer(config.as_bosminer())
+    print(bos_parsed)
+    print(bos_parsed == config)

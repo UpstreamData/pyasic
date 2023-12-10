@@ -122,6 +122,15 @@ class Pool(MinerConfigValue):
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
+    @classmethod
+    def from_bosminer(cls, toml_pool_conf: dict):
+        return cls(
+            url=toml_pool_conf["url"],
+            user=toml_pool_conf["user"],
+            password=toml_pool_conf["pass"],
+        )
+
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -226,6 +235,16 @@ class PoolGroup(MinerConfigValue):
     def from_inno(cls, web_pools: list):
         return cls([Pool.from_inno(p) for p in web_pools])
 
+    @classmethod
+    def from_bosminer(cls, toml_group_conf: dict):
+        if toml_group_conf.get("pool") is not None:
+            return cls(
+                name=toml_group_conf["name"],
+                quota=toml_group_conf["quota"],
+                pools=[Pool.from_bosminer(p) for p in toml_group_conf["pool"]],
+            )
+        return cls()
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -301,5 +320,13 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_inno(cls, web_pools: list):
         return cls([PoolGroup.from_inno(web_pools)])
+
+
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict):
+        if toml_conf.get("group") is None:
+            return cls()
+
+        return cls([PoolGroup.from_bosminer(g) for g in toml_conf["group"]])
 
 

@@ -37,3 +37,13 @@ class TemperatureConfig(MinerConfigValue):
         if self.danger is not None:
             temp_cfg["dangerous_temp"] = self.danger
         return {"temp_control": temp_cfg}
+
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict):
+        temp_control = toml_conf.get("temp_control")
+        if temp_control is not None:
+            return cls(
+                target=temp_control.get("target_temp"),
+                hot=temp_control.get("hot_temp"),
+                danger=temp_control.get("dangerous_temp"),
+            )

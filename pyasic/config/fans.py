@@ -35,6 +35,17 @@ class FanModeManual(MinerConfigValue):
     minimum_fans: int = 1
     speed: int = 100
 
+    @classmethod
+    def from_bosminer(cls, toml_fan_conf: dict):
+        cls_conf = {}
+        if toml_fan_conf.get("min_fans") is not None:
+            cls_conf["minimum_fans"] = toml_fan_conf["min_fans"]
+        if toml_fan_conf.get("speed") is not None:
+            cls_conf["speed"] = toml_fan_conf["speed"]
+        return cls(**cls_conf)
+
+
+
     def as_am_modern(self):
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": str(self.speed)}
 
@@ -75,3 +86,20 @@ class FanModeConfig(MinerConfigOption):
                 return cls.normal()
         else:
             return cls.default()
+
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict):
+        if toml_conf.get("temp_control") is None:
+            return cls.default()
+        if toml_conf["temp_control"].get("mode") is None:
+            return cls.default()
+
+        mode = toml_conf["temp_control"]["mode"]
+        if mode == "auto":
+            return cls.normal()
+        elif mode == "manual":
+            if toml_conf.get("fan_control"):
+                return cls.manual().from_bosminer(toml_conf["fan_control"])
+            return cls.manual()
+        elif mode == "disabled":
+            return cls.immersion()

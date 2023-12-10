@@ -65,13 +65,15 @@ class MiningModeHPM(MinerConfigValue):
 @dataclass
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
-    power: int
+    power: int = None
 
     def as_am_modern(self):
         return {"miner-mode": "0"}
 
     def as_wm(self):
-        return {"mode": self.mode, self.mode: {"wattage": self.power}}
+        if self.power is not None:
+            return {"mode": self.mode, self.mode: {"wattage": self.power}}
+        return {}
 
     def as_bosminer(self) -> dict:
         return {"autotuning": {"enabled": True, "psu_power_limit": self.power}}
@@ -80,7 +82,7 @@ class MiningModePowerTune(MinerConfigValue):
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
-    hashrate: int
+    hashrate: int = None
 
     def as_am_modern(self):
         return {"miner-mode": "0"}
@@ -131,3 +133,30 @@ class MiningModeConfig(MinerConfigOption):
             elif int(work_mode) == 3:
                 return cls.low()
         return cls.default()
+
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict):
+        if toml_conf.get("autotuning") is None:
+            return cls.default()
+        autotuning_conf = toml_conf["autotuning"]
+
+        if autotuning_conf.get("enabled") is None:
+            return cls.default()
+        if not autotuning_conf["enabled"]:
+            return cls.default()
+
+        if autotuning_conf.get("psu_power_limit") is not None:
+            # old autotuning conf
+            return cls.power_tuning(autotuning_conf["psu_power_limit"])
+        if autotuning_conf.get("mode") is not None:
+            # new autotuning conf
+            mode = autotuning_conf["mode"]
+            if mode == "power_target":
+                if autotuning_conf.get("power_target") is not None:
+                    return cls.power_tuning(autotuning_conf["power_target"])
+                return cls.power_tuning()
+            if mode == "hashrate_target":
+                if autotuning_conf.get("hashrate_target") is not None:
+                    return cls.hashrate_tuning(autotuning_conf["hashrate_target"])
+                return cls.hashrate_tuning()
+
