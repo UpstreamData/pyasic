@@ -349,11 +349,11 @@ class AntminerOld(CGMiner):
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
-            self.config = MinerConfig().from_raw(data)
+            self.config = MinerConfig.from_am_old(data)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        await self.web.set_miner_conf(config.as_x17(user_suffix=user_suffix))
+        await self.web.set_miner_conf(config.as_am_old(user_suffix=user_suffix))
 
     async def get_mac(self) -> Union[str, None]:
         try:

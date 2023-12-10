@@ -108,6 +108,15 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_am_modern(web_conf)
         )
 
+    @classmethod
+    def from_am_old(cls, web_conf: dict):
+        return cls.from_am_modern(web_conf)
+
+    @classmethod
+    def from_goldshell(cls, web_conf: dict):
+        return cls(
+            pools=PoolConfig.from_am_modern(web_conf),
+        )
 
 
 def merge(a: dict, b: dict):

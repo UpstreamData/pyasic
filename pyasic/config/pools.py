@@ -89,7 +89,6 @@ class Pool(MinerConfigValue):
             f"Password{idx}": self.password,
         }
 
-
     def as_bosminer(self, user_suffix: str = None):
         if user_suffix is not None:
             return {
@@ -105,7 +104,15 @@ class Pool(MinerConfigValue):
 
     @classmethod
     def from_am_modern(cls, web_pool: dict):
-        return cls(url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"])
+        return cls(
+            url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
+        )
+
+    @classmethod
+    def from_goldshell(cls, web_pool: dict):
+        return cls(
+            url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
+        )
 
 
 @dataclass
@@ -158,15 +165,7 @@ class PoolGroup(MinerConfigValue):
         return pools
 
     def as_goldshell(self, user_suffix: str = None) -> list:
-        pools = []
-        idx = 0
-        while idx < 3:
-            if len(self.pools) > idx:
-                pools.append(self.pools[idx].as_am_modern(user_suffix=user_suffix))
-            else:
-                pools.append(Pool("", "", "").as_am_modern())
-            idx += 1
-        return pools
+        return [pool.as_goldshell(user_suffix) for pool in self.pools]
 
     def as_avalon(self, user_suffix: str = None) -> dict:
         if len(self.pools) > 0:
@@ -211,6 +210,9 @@ class PoolGroup(MinerConfigValue):
             pools.append(Pool.from_am_modern(pool))
         return cls(pools=pools)
 
+    @classmethod
+    def from_goldshell(cls, web_pools: list):
+        return cls([Pool.from_goldshell(p) for p in web_pools])
 
 
 @dataclass
@@ -260,7 +262,6 @@ class PoolConfig(MinerConfigValue):
             return self.groups[0].as_inno(user_suffix=user_suffix)
         return PoolGroup().as_inno()
 
-
     def as_bosminer(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:
             return {
@@ -280,3 +281,7 @@ class PoolConfig(MinerConfigValue):
         pool_data = web_conf["pools"]
 
         return cls([PoolGroup.from_am_modern(pool_data)])
+
+    @classmethod
+    def from_goldshell(cls, web_pools: list):
+        return cls([PoolGroup.from_goldshell(web_pools)])
