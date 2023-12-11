@@ -14,46 +14,17 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import json
-from datetime import datetime, timedelta
-from typing import List, Union
+from datetime import timedelta
+from typing import Union
 
-import grpc_requests
 import httpx
-from google.protobuf.message import Message
-from grpc import RpcError
+from grpclib.client import Channel
 
 from pyasic import APIError, settings
 from pyasic.web import BaseWebAPI
-from pyasic.web.bosminer.proto import (
-    get_auth_service_descriptors,
-    get_service_descriptors,
-)
-from pyasic.web.bosminer.proto.bos.v1.actions_pb2 import (  # noqa: this will be defined
-    SetLocateDeviceStatusRequest,
-)
-from pyasic.web.bosminer.proto.bos.v1.authentication_pb2 import (  # noqa: this will be defined
-    SetPasswordRequest,
-)
-from pyasic.web.bosminer.proto.bos.v1.common_pb2 import (  # noqa: this will be defined
-    SaveAction,
-)
-from pyasic.web.bosminer.proto.bos.v1.cooling_pb2 import (  # noqa: this will be defined
-    SetImmersionModeRequest,
-)
-from pyasic.web.bosminer.proto.bos.v1.miner_pb2 import (  # noqa: this will be defined
-    DisableHashboardsRequest,
-    EnableHashboardsRequest,
-)
-from pyasic.web.bosminer.proto.bos.v1.performance_pb2 import (  # noqa: this will be defined
-    DecrementHashrateTargetRequest,
-    DecrementPowerTargetRequest,
-    IncrementHashrateTargetRequest,
-    IncrementPowerTargetRequest,
-    SetDefaultHashrateTargetRequest,
-    SetDefaultPowerTargetRequest,
-    SetHashrateTargetRequest,
-    SetPowerTargetRequest,
-)
+from .proto.braiins.bos import *
+from .proto.braiins.bos.v1 import *
+from betterproto import Message
 
 
 class BOSMinerWebAPI(BaseWebAPI):
@@ -286,6 +257,20 @@ class BOSMinerLuCIAPI:
         return await self.send_command("/cgi-bin/luci/admin/miner/api_status")
 
 
+class BOSMinerGRPCStub(
+    ApiVersionServiceStub,
+    AuthenticationServiceStub,
+    CoolingServiceStub,
+    ConfigurationServiceStub,
+    MinerServiceStub,
+    PoolServiceStub,
+    LicenseServiceStub,
+    ActionsServiceStub,
+    PerformanceServiceStub,
+):
+    pass
+
+
 class BOSMinerGRPCAPI:
     def __init__(self, ip: str, pwd: str):
         self.ip = ip
@@ -321,25 +306,16 @@ class BOSMinerGRPCAPI:
         ignore_errors: bool = False,
         auth: bool = True,
     ) -> dict:
-        service, method = command.split("/")
         metadata = []
         if auth:
             metadata.append(("authorization", await self.auth()))
-        async with grpc_requests.StubAsyncClient(
-            f"{self.ip}:50051", service_descriptors=get_service_descriptors()
-        ) as client:
-            await client.register_all_service()
-            try:
-                return await client.request(
-                    service,
-                    method,
-                    request=message,
-                    metadata=metadata,
-                )
-            except RpcError as e:
-                if ignore_errors:
-                    return {}
-                raise APIError(e._details)
+        async with Channel(self.ip, 50051) as c:
+            endpoint = getattr(BOSMinerGRPCStub(c), command)
+            if endpoint is None:
+                if not ignore_errors:
+                    raise APIError(f"Command not found - {endpoint}")
+                return {}
+            return (await endpoint(message, metadata=metadata)).to_pydict()
 
     async def auth(self):
         if self._auth is not None and self._auth_time - datetime.now() < timedelta(
@@ -350,100 +326,85 @@ class BOSMinerGRPCAPI:
         return self._auth
 
     async def _get_auth(self):
-        async with grpc_requests.StubAsyncClient(
-            f"{self.ip}:50051", service_descriptors=get_auth_service_descriptors()
-        ) as client:
-            await client.register_all_service()
-            method_meta = client.get_method_meta(
-                "braiins.bos.v1.AuthenticationService", "Login"
-            )
-            _request = method_meta.method_type.request_parser(
-                {"username": self.username, "password": self.pwd},
-                method_meta.input_type,
-            )
-            metadata = await method_meta.handler(_request).initial_metadata()
-
-            for key, value in metadata:
-                if key == "authorization":
-                    self._auth = value
+        async with Channel(self.ip, 50051) as c:
+            req = LoginRequest(username=self.username, password=self.pwd)
+            async with c.request(
+                "/braiins.bos.v1.AuthenticationService/Login",
+                grpclib.const.Cardinality.UNARY_UNARY,
+                type(req),
+                LoginResponse,
+            ) as stream:
+                await stream.send_message(req, end=True)
+                await stream.recv_initial_metadata()
+                auth = stream.initial_metadata.get("authorization")
+                if auth is not None:
+                    self._auth = auth
                     self._auth_time = datetime.now()
                     return self._auth
 
     async def get_api_version(self):
         return await self.send_command(
-            "braiins.bos.ApiVersionService/GetApiVersion", auth=False
+            "get_api_version", ApiVersionRequest(), auth=False
         )
 
     async def start(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/Start")
+        return await self.send_command("start", StartRequest())
 
     async def stop(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/Stop")
+        return await self.send_command("stop", StopRequest())
 
     async def pause_mining(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/PauseMining")
+        return await self.send_command("pause_mining", PauseMiningRequest())
 
     async def resume_mining(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/ResumeMining")
+        return await self.send_command("resume_mining", ResumeMiningRequest())
 
     async def restart(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/Restart")
+        return await self.send_command("restart", RestartRequest())
 
     async def reboot(self):
-        return await self.send_command("braiins.bos.v1.ActionsService/Reboot")
+        return await self.send_command("reboot", RebootRequest())
 
     async def set_locate_device_status(self, enable: bool):
-        message = SetLocateDeviceStatusRequest()
-        message.enable = enable
         return await self.send_command(
-            "braiins.bos.v1.ActionsService/SetLocateDeviceStatus", message=message
+            "set_locate_device_status", SetLocateDeviceStatusRequest(enable=enable)
         )
 
     async def get_locate_device_status(self):
-        return await self.send_command(
-            "braiins.bos.v1.ActionsService/GetLocateDeviceStatus"
-        )
+        return await self.send_command("get_locate_device_status")
 
     async def set_password(self, password: str = None):
-        message = SetPasswordRequest()
-        if password:
-            message.password = password
         return await self.send_command(
-            "braiins.bos.v1.AuthenticationService/SetPassword", message=message
+            "set_password", SetPasswordRequest(password=password)
         )
 
     async def get_cooling_state(self):
-        return await self.send_command("braiins.bos.v1.CoolingService/GetCoolingState")
+        return await self.send_command("get_cooling_state", GetCoolingStateRequest())
 
     async def set_immersion_mode(
         self,
         enable: bool,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = SetImmersionModeRequest()
-        message.enable = enable
-        message.save_action = save_action
         return await self.send_command(
-            "braiins.bos.v1.CoolingService/SetImmersionMode", message=message
+            "set_immersion_mode",
+            SetImmersionModeRequest(
+                enable_immersion_mode=enable, save_action=save_action
+            ),
         )
 
     async def get_tuner_state(self):
-        return await self.send_command(
-            "braiins.bos.v1.PerformanceService/GetTunerState"
-        )
+        return await self.send_command("get_tuner_state")
 
     async def list_target_profiles(self):
-        return await self.send_command(
-            "braiins.bos.v1.PerformanceService/ListTargetProfiles"
-        )
+        return await self.send_command("list_target_profiles")
 
     async def set_default_power_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
     ):
-        message = SetDefaultPowerTargetRequest()
-        message.save_action = save_action
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetDefaultPowerTarget", message=message
+            "set_default_power_target",
+            message=SetDefaultPowerTargetRequest(save_action=save_action),
         )
 
     async def set_power_target(
@@ -451,11 +412,11 @@ class BOSMinerGRPCAPI:
         power_target: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = SetPowerTargetRequest()
-        message.power_target.watt = power_target
-        message.save_action = save_action
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetPowerTarget", message=message
+            "set_power_target",
+            SetPowerTargetRequest(
+                power_target=Power(watt=power_target), save_action=save_action
+            ),
         )
 
     async def increment_power_target(
@@ -463,12 +424,12 @@ class BOSMinerGRPCAPI:
         power_target_increment: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = IncrementPowerTargetRequest()
-        message.power_target_increment.watt = power_target_increment
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/IncrementPowerTarget", message=message
+            "increment_power_target",
+            message=IncrementPowerTargetRequest(
+                power_target_increment=Power(watt=power_target_increment),
+                save_action=save_action,
+            ),
         )
 
     async def decrement_power_target(
@@ -476,37 +437,33 @@ class BOSMinerGRPCAPI:
         power_target_decrement: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = DecrementPowerTargetRequest()
-        message.power_target_decrement.watt = power_target_decrement
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/DecrementPowerTarget",
-            message=message,
+            "decrement_power_target",
+            message=DecrementPowerTargetRequest(
+                power_target_decrement=Power(watt=power_target_decrement),
+                save_action=save_action,
+            ),
         )
 
     async def set_default_hashrate_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
     ):
-        message = SetDefaultHashrateTargetRequest()
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetDefaultHashrateTarget",
-            message=message,
+            "set_default_hashrate_target",
+            message=SetDefaultHashrateTargetRequest(save_action=save_action),
         )
 
     async def set_hashrate_target(
         self,
-        hashrate_target: int,
+        hashrate_target: float,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = SetHashrateTargetRequest()
-        message.hashrate_target.terahash_per_second = hashrate_target
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetHashrateTarget", message=message
+            "set_hashrate_target",
+            SetHashrateTargetRequest(
+                hashrate_target=TeraHashrate(terahash_per_second=hashrate_target),
+                save_action=save_action,
+            ),
         )
 
     async def increment_hashrate_target(
@@ -514,15 +471,14 @@ class BOSMinerGRPCAPI:
         hashrate_target_increment: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = IncrementHashrateTargetRequest()
-        message.hashrate_target_increment.terahash_per_second = (
-            hashrate_target_increment
-        )
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/IncrementHashrateTarget",
-            message=message,
+            "increment_hashrate_target",
+            IncrementHashrateTargetRequest(
+                hashrate_target_increment=TeraHashrate(
+                    terahash_per_second=hashrate_target_increment
+                ),
+                save_action=save_action,
+            ),
         )
 
     async def decrement_hashrate_target(
@@ -530,18 +486,19 @@ class BOSMinerGRPCAPI:
         hashrate_target_decrement: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = DecrementHashrateTargetRequest()
-        message.hashrate_target_decrement.terahash_per_second = (
-            hashrate_target_decrement
-        )
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/DecrementHashrateTarget",
-            message=message,
+            "decrement_hashrate_target",
+            DecrementHashrateTargetRequest(
+                hashrate_target_decrement=TeraHashrate(
+                    terahash_per_second=hashrate_target_decrement
+                ),
+                save_action=save_action,
+            ),
         )
 
-    async def set_dps(self):
+    async def set_dps(
+        self,
+    ):
         raise NotImplementedError
         return await self.send_command("braiins.bos.v1.PerformanceService/SetDPS")
 
@@ -553,11 +510,11 @@ class BOSMinerGRPCAPI:
 
     async def get_active_performance_mode(self):
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/GetActivePerformanceMode"
+            "get_active_performance_mode", GetPerformanceModeRequest()
         )
 
     async def get_pool_groups(self):
-        return await self.send_command("braiins.bos.v1.PoolService/GetPoolGroups")
+        return await self.send_command("get_pool_groups", GetPoolGroupsRequest())
 
     async def create_pool_group(self):
         raise NotImplementedError
@@ -573,43 +530,39 @@ class BOSMinerGRPCAPI:
 
     async def get_miner_configuration(self):
         return await self.send_command(
-            "braiins.bos.v1.ConfigurationService/GetMinerConfiguration"
+            "get_miner_configuration", GetMinerConfigurationRequest()
         )
 
     async def get_constraints(self):
         return await self.send_command(
-            "braiins.bos.v1.ConfigurationService/GetConstraints"
+            "get_constraints", GetConstraintsRequest()
         )
 
     async def get_license_state(self):
-        return await self.send_command("braiins.bos.v1.LicenseService/GetLicenseState")
+        return await self.send_command("get_license_state", GetLicenseStateRequest())
 
     async def get_miner_status(self):
-        return await self.send_command("braiins.bos.v1.MinerService/GetMinerStatus")
+        return await self.send_command("get_miner_status", GetMinerStatusRequest())
 
     async def get_miner_details(self):
-        return await self.send_command("braiins.bos.v1.MinerService/GetMinerDetails")
+        return await self.send_command("get_miner_details", GetMinerDetailsRequest())
 
     async def get_miner_stats(self):
-        return await self.send_command("braiins.bos.v1.MinerService/GetMinerStats")
+        return await self.send_command("get_miner_stats", GetMinerStatsRequest())
 
     async def get_hashboards(self):
-        return await self.send_command("braiins.bos.v1.MinerService/GetHashboards")
+        return await self.send_command("get_hashboards", GetHashboardsRequest())
 
     async def get_support_archive(self):
-        return await self.send_command("braiins.bos.v1.MinerService/GetSupportArchive")
+        return await self.send_command("get_support_archive", GetSupportArchiveRequest())
 
     async def enable_hashboards(
         self,
         hashboard_ids: List[str],
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = EnableHashboardsRequest()
-        message.hashboard_ids[:] = hashboard_ids
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.MinerService/EnableHashboards", message=message
+            "enable_hashboards", EnableHashboardsRequest(hashboard_ids=hashboard_ids, save_action=save_action)
         )
 
     async def disable_hashboards(
@@ -617,10 +570,6 @@ class BOSMinerGRPCAPI:
         hashboard_ids: List[str],
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
-        message = DisableHashboardsRequest()
-        message.hashboard_ids[:] = hashboard_ids
-        message.save_action = save_action
-
         return await self.send_command(
-            "braiins.bos.v1.MinerService/DisableHashboards", message=message
+            "disable_hashboards", DisableHashboardsRequest(hashboard_ids=hashboard_ids, save_action=save_action)
         )

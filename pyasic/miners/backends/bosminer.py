@@ -22,6 +22,7 @@ import toml
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
@@ -316,16 +317,25 @@ class BOSMiner(BaseMiner):
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
         self.config = config
-        toml_conf = config.as_bos(
-            model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
-        )
+
+        if self.web.grpc is not None:
+            await self._send_config_grpc(config, user_suffix)
+        else:
+            await self._send_config_bosminer(config, user_suffix)
+
+    async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
+        mining_mode = config.mining_mode
+
+        mining_mode
+
+    async def _send_config_bosminer(self, config: MinerConfig, user_suffix: str = None):
+        toml_conf = config.as_bosminer(user_suffix=user_suffix)
         try:
             conn = await self._get_ssh_connection()
-        except ConnectionError:
-            return None
+        except ConnectionError as e:
+            raise APIError("SSH connection failed when sending config.") from e
         async with conn:
             # BBB check because bitmain suxx
             bbb_check = await conn.run(
@@ -352,12 +362,13 @@ class BOSMiner(BaseMiner):
                 logging.debug(f"{self}: BBB restarting bosminer.")
                 await conn.run("/etc/init.d/S99bosminer start")
 
+
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             cfg = await self.get_config()
             if cfg is None:
                 return False
-            cfg.autotuning_wattage = wattage
+            cfg.mining_mode = MiningModePowerTune(wattage)
             await self.send_config(cfg)
         except Exception as e:
             logging.warning(f"{self} set_power_limit: {e}")
