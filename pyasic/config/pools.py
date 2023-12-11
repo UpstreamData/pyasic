@@ -127,7 +127,7 @@ class Pool(MinerConfigValue):
         return cls(
             url=toml_pool_conf["url"],
             user=toml_pool_conf["user"],
-            password=toml_pool_conf["pass"],
+            password=toml_pool_conf["password"],
         )
 
 
@@ -135,7 +135,7 @@ class Pool(MinerConfigValue):
 @dataclass
 class PoolGroup(MinerConfigValue):
     pools: list[Pool] = field(default_factory=list)
-    quota: int = 1
+    quota: int = None
     name: str = None
 
     def __post_init__(self):
@@ -204,14 +204,15 @@ class PoolGroup(MinerConfigValue):
 
     def as_bosminer(self, user_suffix: str = None) -> dict:
         if len(self.pools) > 0:
-            return {
+            conf = {
                 "name": self.name,
-                "quota": self.quota,
                 "pool": [
                     pool.as_bosminer(user_suffix=user_suffix) for pool in self.pools
                 ],
             }
-        return {"name": "Group", "quota": 1, "pool": []}
+            if self.quota is not None:
+                conf["quota"] = self.quota
+        return {"name": "Group", "pool": []}
 
     @classmethod
     def from_api(cls, api_pool_list: list):
@@ -240,7 +241,7 @@ class PoolGroup(MinerConfigValue):
         if toml_group_conf.get("pool") is not None:
             return cls(
                 name=toml_group_conf["name"],
-                quota=toml_group_conf["quota"],
+                quota=toml_group_conf.get("quota"),
                 pools=[Pool.from_bosminer(p) for p in toml_group_conf["pool"]],
             )
         return cls()

@@ -85,18 +85,16 @@ class AntminerModern(BMMiner):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
-        conf = config.as_am_modern(user_suffix=user_suffix)
-        data = await self.web.set_miner_conf(conf)
-
-        if data:
-            if data.get("code") == "M000":
-                return
-
-        for i in range(7):
-            data = await self.get_config()
-            if data.as_am_modern() == conf:
-                break
-            await asyncio.sleep(1)
+        await self.web.set_miner_conf(config.as_am_modern(user_suffix=user_suffix))
+        # if data:
+        #     if data.get("code") == "M000":
+        #         return
+        #
+        # for i in range(7):
+        #     data = await self.get_config()
+        #     if data == self.config:
+        #         break
+        #     await asyncio.sleep(1)
 
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
@@ -353,6 +351,7 @@ class AntminerOld(CGMiner):
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
         await self.web.set_miner_conf(config.as_am_old(user_suffix=user_suffix))
 
     async def get_mac(self) -> Union[str, None]:

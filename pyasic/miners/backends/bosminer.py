@@ -617,7 +617,7 @@ class BOSMiner(BaseMiner):
                 offset = 0
                 if 3 in b_names:
                     offset = 1
-                elif 6 in b_names:
+                elif 6 in b_names or 7 in b_names or 8 in b_names:
                     offset = 6
                 for hb in boards:
                     _id = int(hb["name"]) - offset
