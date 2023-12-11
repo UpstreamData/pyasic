@@ -131,7 +131,6 @@ class Pool(MinerConfigValue):
         )
 
 
-
 @dataclass
 class PoolGroup(MinerConfigValue):
     pools: list[Pool] = field(default_factory=list)
@@ -301,6 +300,9 @@ class PoolConfig(MinerConfigValue):
             }
         return {"group": [PoolGroup().as_bosminer()]}
 
+    def as_bos_grpc(self, user_suffix: str = None) -> dict:
+        return {}
+
     @classmethod
     def from_api(cls, api_pools: dict):
         pool_data = api_pools["POOLS"]
@@ -322,12 +324,9 @@ class PoolConfig(MinerConfigValue):
     def from_inno(cls, web_pools: list):
         return cls([PoolGroup.from_inno(web_pools)])
 
-
     @classmethod
     def from_bosminer(cls, toml_conf: dict):
         if toml_conf.get("group") is None:
             return cls()
 
         return cls([PoolGroup.from_bosminer(g) for g in toml_conf["group"]])
-
-

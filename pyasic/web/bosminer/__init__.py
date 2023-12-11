@@ -18,13 +18,15 @@ from datetime import timedelta
 from typing import Union
 
 import httpx
+from betterproto import Message
 from grpclib.client import Channel
 
-from pyasic import APIError, settings
+from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web import BaseWebAPI
+
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *
-from betterproto import Message
 
 
 class BOSMinerWebAPI(BaseWebAPI):
@@ -534,9 +536,7 @@ class BOSMinerGRPCAPI:
         )
 
     async def get_constraints(self):
-        return await self.send_command(
-            "get_constraints", GetConstraintsRequest()
-        )
+        return await self.send_command("get_constraints", GetConstraintsRequest())
 
     async def get_license_state(self):
         return await self.send_command("get_license_state", GetLicenseStateRequest())
@@ -554,7 +554,9 @@ class BOSMinerGRPCAPI:
         return await self.send_command("get_hashboards", GetHashboardsRequest())
 
     async def get_support_archive(self):
-        return await self.send_command("get_support_archive", GetSupportArchiveRequest())
+        return await self.send_command(
+            "get_support_archive", GetSupportArchiveRequest()
+        )
 
     async def enable_hashboards(
         self,
@@ -562,7 +564,10 @@ class BOSMinerGRPCAPI:
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
         return await self.send_command(
-            "enable_hashboards", EnableHashboardsRequest(hashboard_ids=hashboard_ids, save_action=save_action)
+            "enable_hashboards",
+            EnableHashboardsRequest(
+                hashboard_ids=hashboard_ids, save_action=save_action
+            ),
         )
 
     async def disable_hashboards(
@@ -571,5 +576,8 @@ class BOSMinerGRPCAPI:
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
     ):
         return await self.send_command(
-            "disable_hashboards", DisableHashboardsRequest(hashboard_ids=hashboard_ids, save_action=save_action)
+            "disable_hashboards",
+            DisableHashboardsRequest(
+                hashboard_ids=hashboard_ids, save_action=save_action
+            ),
         )

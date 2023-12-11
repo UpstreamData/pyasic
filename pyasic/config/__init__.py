@@ -95,6 +95,15 @@ class MinerConfig:
             **self.power_scaling.as_bosminer(),
         }
 
+    def as_bos_grpc(self, user_suffix: str = None):
+        return {
+            **self.fan_mode.as_bos_grpc(),
+            **self.temperature.as_bos_grpc(),
+            **self.mining_mode.as_bos_grpc(),
+            **self.pools.as_bos_grpc(user_suffix=user_suffix),
+            **self.power_scaling.as_bos_grpc(),
+        }
+
     @classmethod
     def from_api(cls, api_pools: dict):
         return cls(pools=PoolConfig.from_api(api_pools))
@@ -128,6 +137,7 @@ class MinerConfig:
             temperature=TemperatureConfig.from_bosminer(toml_conf),
             power_scaling=PowerScalingConfig.from_bosminer(toml_conf),
         )
+
 
 def merge(a: dict, b: dict):
     ret = {}
@@ -163,7 +173,7 @@ if __name__ == "__main__":
         mining_mode=MiningModeConfig.power_tuning(3000),
         temperature=TemperatureConfig(hot=100, danger=110),
         fan_mode=FanModeConfig.manual(minimum_fans=2, speed=70),
-        power_scaling=PowerScalingConfig.enabled(power_step=100, minimum_power=2400)
+        power_scaling=PowerScalingConfig.enabled(power_step=100, minimum_power=2400),
     )
     print(config)
     print("WM:", config.as_wm())
@@ -175,6 +185,7 @@ if __name__ == "__main__":
     print("BOS+ .toml:", config.as_bosminer())
     print("BOS+ .toml as toml:")
     print(toml.dumps(config.as_bosminer()))
+    print(config.as_bos_grpc())
 
     bos_parsed = MinerConfig.from_bosminer(config.as_bosminer())
     print(bos_parsed)
