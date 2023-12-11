@@ -21,7 +21,7 @@ from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 @dataclass
 class FanModeNormal(MinerConfigValue):
-    mode: str = field(init=False, default="auto")
+    mode: str = field(init=False, default="normal")
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeNormal":
