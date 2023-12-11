@@ -116,7 +116,7 @@ class MinerConfig:
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
-    def from_inno(cls, web_pools: dict):
+    def from_inno(cls, web_pools: list):
         return cls(pools=PoolConfig.from_inno(web_pools))
 
     @classmethod

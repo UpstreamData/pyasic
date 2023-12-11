@@ -29,6 +29,8 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
         if self.duration is not None:
             cfg["shutdown_duration"] = self.duration
 
+        return cfg
+
 
 @dataclass
 class PowerScalingShutdownDisabled(MinerConfigValue):
