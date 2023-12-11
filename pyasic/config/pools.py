@@ -140,7 +140,7 @@ class Pool(MinerConfigValue):
 @dataclass
 class PoolGroup(MinerConfigValue):
     pools: list[Pool] = field(default_factory=list)
-    quota: int = None
+    quota: int = 1
     name: str = None
 
     def __post_init__(self):
