@@ -25,9 +25,9 @@ from pyasic.config.temperature import TemperatureConfig
 @dataclass
 class MinerConfig:
     pools: PoolConfig = PoolConfig.default()
-    mining_mode: MiningModeConfig = MiningModeConfig.default()
     fan_mode: FanModeConfig = FanModeConfig.default()
     temperature: TemperatureConfig = TemperatureConfig.default()
+    mining_mode: MiningModeConfig = MiningModeConfig.default()
     power_scaling: PowerScalingConfig = PowerScalingConfig.default()
 
     def as_dict(self) -> dict:
