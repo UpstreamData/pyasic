@@ -94,7 +94,9 @@ class PowerScalingEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     power_step: int = None
     minimum_power: int = None
-    shutdown_enabled: PowerScalingShutdown = None
+    shutdown_enabled: Union[
+        PowerScalingShutdownEnabled, PowerScalingShutdownDisabled
+    ] = None
 
     @classmethod
     def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScalingEnabled":
