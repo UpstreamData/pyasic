@@ -176,6 +176,8 @@ class MiningModeConfig(MinerConfigOption):
     def from_am_modern(cls, web_conf: dict):
         if web_conf.get("bitmain-work-mode") is not None:
             work_mode = web_conf["bitmain-work-mode"]
+            if work_mode == "":
+                return cls.default()
             if int(work_mode) == 0:
                 return cls.normal()
             elif int(work_mode) == 1:
