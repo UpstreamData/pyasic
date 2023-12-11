@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
+from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
@@ -22,10 +23,14 @@ from pyasic.config.base import MinerConfigOption, MinerConfigValue
 class MiningModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="normal")
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeNormal":
+        return cls()
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
-    def as_wm(self):
+    def as_wm(self) -> dict:
         return {"mode": self.mode}
 
 
@@ -33,10 +38,14 @@ class MiningModeNormal(MinerConfigValue):
 class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeSleep":
+        return cls()
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "1"}
 
-    def as_wm(self):
+    def as_wm(self) -> dict:
         return {"mode": self.mode}
 
 
@@ -44,10 +53,14 @@ class MiningModeSleep(MinerConfigValue):
 class MiningModeLPM(MinerConfigValue):
     mode: str = field(init=False, default="low")
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeLPM":
+        return cls()
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "3"}
 
-    def as_wm(self):
+    def as_wm(self) -> dict:
         return {"mode": self.mode}
 
 
@@ -55,10 +68,14 @@ class MiningModeLPM(MinerConfigValue):
 class MiningModeHPM(MinerConfigValue):
     mode: str = field(init=False, default="high")
 
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeHPM":
+        return cls()
+
     def as_am_modern(self):
         return {"miner-mode": "0"}
 
-    def as_wm(self):
+    def as_wm(self) -> dict:
         return {"mode": self.mode}
 
 
@@ -67,10 +84,14 @@ class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModePowerTune":
+        return cls(dict_conf.get("power"))
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
-    def as_wm(self):
+    def as_wm(self) -> dict:
         if self.power is not None:
             return {"mode": self.mode, self.mode: {"wattage": self.power}}
         return {}
@@ -84,7 +105,11 @@ class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeHashrateTune":
+        return cls(dict_conf.get("hashrate"))
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
 
@@ -93,7 +118,11 @@ class ManualBoardSettings(MinerConfigValue):
     freq: float
     volt: float
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "ManualBoardSettings":
+        return cls(freq=dict_conf["freq"], volt=dict_conf["volt"])
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
 
@@ -105,7 +134,15 @@ class MiningModeManual(MinerConfigValue):
     global_volt: float
     boards: dict[int, ManualBoardSettings] = field(default_factory=dict)
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeManual":
+        return cls(
+            global_freq=dict_conf["global_freq"],
+            global_volt=dict_conf["global_volt"],
+            boards={i: ManualBoardSettings.from_dict(dict_conf[i]) for i in dict_conf},
+        )
+
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
 
@@ -121,6 +158,19 @@ class MiningModeConfig(MinerConfigOption):
     @classmethod
     def default(cls):
         return cls.normal()
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        if dict_conf is None:
+            return cls.default()
+
+        mode = dict_conf.get("mode")
+        if mode is None:
+            return cls.default()
+
+        clsattr = getattr(cls, mode)
+        if clsattr is not None:
+            return clsattr().from_dict(dict_conf)
 
     @classmethod
     def from_am_modern(cls, web_conf: dict):
@@ -159,4 +209,3 @@ class MiningModeConfig(MinerConfigOption):
                 if autotuning_conf.get("hashrate_target") is not None:
                     return cls.hashrate_tuning(autotuning_conf["hashrate_target"])
                 return cls.hashrate_tuning()
-

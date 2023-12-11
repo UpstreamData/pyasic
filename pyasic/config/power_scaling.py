@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
+from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.bosminer.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, Hours
@@ -23,6 +24,10 @@ from pyasic.web.bosminer.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, 
 class PowerScalingShutdownEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     duration: int = None
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingShutdownEnabled":
+        return cls(duration=dict_conf.get("duration"))
 
     def as_bosminer(self) -> dict:
         cfg = {"shutdown_enabled": True}
@@ -45,6 +50,10 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
 class PowerScalingShutdownDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingShutdownDisabled":
+        return cls()
+
     def as_bosminer(self) -> dict:
         return {"shutdown_enabled": False}
 
@@ -55,6 +64,19 @@ class PowerScalingShutdownDisabled(MinerConfigValue):
 class PowerScalingShutdown(MinerConfigOption):
     enabled = PowerScalingShutdownEnabled
     disabled = PowerScalingShutdownDisabled
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        if dict_conf is None:
+            return cls.default()
+
+        mode = dict_conf.get("mode")
+        if mode is None:
+            return cls.default()
+
+        clsattr = getattr(cls, mode)
+        if clsattr is not None:
+            return clsattr().from_dict(dict_conf)
 
     @classmethod
     def from_bosminer(cls, power_scaling_conf: dict):
@@ -75,7 +97,7 @@ class PowerScalingEnabled(MinerConfigValue):
     shutdown_enabled: PowerScalingShutdown = None
 
     @classmethod
-    def from_bosminer(cls, power_scaling_conf: dict):
+    def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScalingEnabled":
         power_step = power_scaling_conf.get("power_step")
         min_power = power_scaling_conf.get("min_psu_power_limit")
         sd_mode = PowerScalingShutdown.from_bosminer(power_scaling_conf)
@@ -83,6 +105,19 @@ class PowerScalingEnabled(MinerConfigValue):
         return cls(
             power_step=power_step, minimum_power=min_power, shutdown_enabled=sd_mode
         )
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingEnabled":
+        cls_conf = {
+            "power_step": dict_conf.get("power_step"),
+            "minimum_power": dict_conf.get("minimum_power"),
+        }
+        shutdown_enabled = dict_conf.get("shutdown_enabled")
+        if shutdown_enabled is not None:
+            cls_conf["shutdown_enabled"] = PowerScalingShutdown.from_dict(
+                shutdown_enabled
+            )
+        return cls(**cls_conf)
 
     def as_bosminer(self) -> dict:
         cfg = {"enabled": True}
@@ -96,7 +131,7 @@ class PowerScalingEnabled(MinerConfigValue):
 
         return {"power_scaling": cfg}
 
-    def as_bos_grpc(self):
+    def as_bos_grpc(self) -> dict:
         cfg = {"enable": True}
         target_conf = {}
         if self.power_step is not None:
@@ -124,6 +159,19 @@ class PowerScalingConfig(MinerConfigOption):
     @classmethod
     def default(cls):
         return cls.disabled()
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        if dict_conf is None:
+            return cls.default()
+
+        mode = dict_conf.get("mode")
+        if mode is None:
+            return cls.default()
+
+        clsattr = getattr(cls, mode)
+        if clsattr is not None:
+            return clsattr().from_dict(dict_conf)
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict):

@@ -94,36 +94,42 @@ class Pool(MinerConfigValue):
             return {
                 "url": self.url,
                 "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
+                "password": self.password,
             }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+        return {"url": self.url, "user": self.user, "password": self.password}
 
     @classmethod
-    def from_api(cls, api_pool: dict):
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "Pool":
+        return cls(
+            url=dict_conf["url"], user=dict_conf["user"], password=dict_conf["password"]
+        )
+
+    @classmethod
+    def from_api(cls, api_pool: dict) -> "Pool":
         return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
 
     @classmethod
-    def from_am_modern(cls, web_pool: dict):
+    def from_am_modern(cls, web_pool: dict) -> "Pool":
         return cls(
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
     # TODO: check if this is accurate, user/username, pass/password
     @classmethod
-    def from_goldshell(cls, web_pool: dict):
+    def from_goldshell(cls, web_pool: dict) -> "Pool":
         return cls(
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
     # TODO: check if this is accurate, user/username, pass/password
     @classmethod
-    def from_inno(cls, web_pool: dict):
+    def from_inno(cls, web_pool: dict) -> "Pool":
         return cls(
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
     @classmethod
-    def from_bosminer(cls, toml_pool_conf: dict):
+    def from_bosminer(cls, toml_pool_conf: dict) -> "Pool":
         return cls(
             url=toml_pool_conf["url"],
             user=toml_pool_conf["user"],
@@ -211,32 +217,44 @@ class PoolGroup(MinerConfigValue):
             }
             if self.quota is not None:
                 conf["quota"] = self.quota
+            return conf
         return {"name": "Group", "pool": []}
 
     @classmethod
-    def from_api(cls, api_pool_list: list):
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolGroup":
+        cls_conf = {}
+
+        if dict_conf.get("quota") is not None:
+            cls_conf["quota"] = dict_conf["quota"]
+        if dict_conf.get("name") is not None:
+            cls_conf["name"] = dict_conf["name"]
+        cls_conf["pools"] = [Pool.from_dict(p) for p in dict_conf["pools"]]
+        return cls(**cls_conf)
+
+    @classmethod
+    def from_api(cls, api_pool_list: list) -> "PoolGroup":
         pools = []
         for pool in api_pool_list:
             pools.append(Pool.from_api(pool))
         return cls(pools=pools)
 
     @classmethod
-    def from_am_modern(cls, web_pool_list: list):
+    def from_am_modern(cls, web_pool_list: list) -> "PoolGroup":
         pools = []
         for pool in web_pool_list:
             pools.append(Pool.from_am_modern(pool))
         return cls(pools=pools)
 
     @classmethod
-    def from_goldshell(cls, web_pools: list):
+    def from_goldshell(cls, web_pools: list) -> "PoolGroup":
         return cls([Pool.from_goldshell(p) for p in web_pools])
 
     @classmethod
-    def from_inno(cls, web_pools: list):
+    def from_inno(cls, web_pools: list) -> "PoolGroup":
         return cls([Pool.from_inno(p) for p in web_pools])
 
     @classmethod
-    def from_bosminer(cls, toml_group_conf: dict):
+    def from_bosminer(cls, toml_group_conf: dict) -> "PoolGroup":
         if toml_group_conf.get("pool") is not None:
             return cls(
                 name=toml_group_conf["name"],
@@ -251,11 +269,18 @@ class PoolConfig(MinerConfigValue):
     groups: list[PoolGroup] = field(default_factory=list)
 
     @classmethod
-    def default(cls):
+    def default(cls) -> "PoolConfig":
         return cls()
 
     @classmethod
-    def simple(cls, pools: list[Union[Pool, dict[str, str]]]):
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolConfig":
+        if dict_conf is None:
+            return cls.default()
+
+        return cls(groups=[PoolGroup.from_dict(g) for g in dict_conf["groups"]])
+
+    @classmethod
+    def simple(cls, pools: list[Union[Pool, dict[str, str]]]) -> "PoolConfig":
         group_pools = []
         for pool in pools:
             if isinstance(pool, dict):
@@ -304,28 +329,28 @@ class PoolConfig(MinerConfigValue):
         return {}
 
     @classmethod
-    def from_api(cls, api_pools: dict):
+    def from_api(cls, api_pools: dict) -> "PoolConfig":
         pool_data = api_pools["POOLS"]
         pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
 
         return cls([PoolGroup.from_api(pool_data)])
 
     @classmethod
-    def from_am_modern(cls, web_conf: dict):
+    def from_am_modern(cls, web_conf: dict) -> "PoolConfig":
         pool_data = web_conf["pools"]
 
         return cls([PoolGroup.from_am_modern(pool_data)])
 
     @classmethod
-    def from_goldshell(cls, web_pools: list):
+    def from_goldshell(cls, web_pools: list) -> "PoolConfig":
         return cls([PoolGroup.from_goldshell(web_pools)])
 
     @classmethod
-    def from_inno(cls, web_pools: list):
+    def from_inno(cls, web_pools: list) -> "PoolConfig":
         return cls([PoolGroup.from_inno(web_pools)])
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict):
+    def from_bosminer(cls, toml_conf: dict) -> "PoolConfig":
         if toml_conf.get("group") is None:
             return cls()
 

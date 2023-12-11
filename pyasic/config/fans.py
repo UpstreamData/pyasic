@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
+from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
@@ -22,10 +23,14 @@ from pyasic.config.base import MinerConfigOption, MinerConfigValue
 class FanModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="auto")
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeNormal":
+        return cls()
+
+    def as_am_modern(self) -> dict:
         return {"bitmain-fan-ctrl": False, "bitmain-fan-pwn": "100"}
 
-    def as_bosminer(self):
+    def as_bosminer(self) -> dict:
         return {"temp_control": {"mode": "auto"}}
 
 
@@ -36,7 +41,16 @@ class FanModeManual(MinerConfigValue):
     speed: int = 100
 
     @classmethod
-    def from_bosminer(cls, toml_fan_conf: dict):
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeManual":
+        cls_conf = {}
+        if dict_conf.get("min_fans") is not None:
+            cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
+        if dict_conf.get("speed") is not None:
+            cls_conf["speed"] = dict_conf["speed"]
+        return cls(**cls_conf)
+
+    @classmethod
+    def from_bosminer(cls, toml_fan_conf: dict) -> "FanModeManual":
         cls_conf = {}
         if toml_fan_conf.get("min_fans") is not None:
             cls_conf["minimum_fans"] = toml_fan_conf["min_fans"]
@@ -44,12 +58,10 @@ class FanModeManual(MinerConfigValue):
             cls_conf["speed"] = toml_fan_conf["speed"]
         return cls(**cls_conf)
 
-
-
-    def as_am_modern(self):
+    def as_am_modern(self) -> dict:
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": str(self.speed)}
 
-    def as_bosminer(self):
+    def as_bosminer(self) -> dict:
         return {
             "temp_control": {"mode": "manual"},
             "fan_control": {"min_fans": self.minimum_fans, "speed": self.speed},
@@ -60,10 +72,14 @@ class FanModeManual(MinerConfigValue):
 class FanModeImmersion(MinerConfigValue):
     mode: str = field(init=False, default="immersion")
 
-    def as_am_modern(self):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeImmersion":
+        return cls()
+
+    def as_am_modern(self) -> dict:
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": "0"}
 
-    def as_bosminer(self):
+    def as_bosminer(self) -> dict:
         return {"temp_control": {"mode": "disabled"}}
 
 
@@ -75,6 +91,19 @@ class FanModeConfig(MinerConfigOption):
     @classmethod
     def default(cls):
         return cls.normal()
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        if dict_conf is None:
+            return cls.default()
+
+        mode = dict_conf.get("mode")
+        if mode is None:
+            return cls.default()
+
+        clsattr = getattr(cls, mode)
+        if clsattr is not None:
+            return clsattr().from_dict(dict_conf)
 
     @classmethod
     def from_am_modern(cls, web_conf: dict):

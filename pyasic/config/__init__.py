@@ -13,14 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 import toml
 
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig
+from pyasic.config.power_scaling import PowerScalingConfig, PowerScalingShutdown
 from pyasic.config.temperature import TemperatureConfig
 
 
@@ -32,7 +32,10 @@ class MinerConfig:
     temperature: TemperatureConfig = TemperatureConfig.default()
     power_scaling: PowerScalingConfig = PowerScalingConfig.default()
 
-    def as_am_modern(self, user_suffix: str = None):
+    def as_dict(self) -> dict:
+        return asdict(self)
+
+    def as_am_modern(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_am_modern(),
             "freq-level": "100",
@@ -42,7 +45,7 @@ class MinerConfig:
             **self.power_scaling.as_am_modern(),
         }
 
-    def as_wm(self, user_suffix: str = None):
+    def as_wm(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_wm(),
             **self.mining_mode.as_wm(),
@@ -51,7 +54,7 @@ class MinerConfig:
             **self.power_scaling.as_wm(),
         }
 
-    def as_am_old(self, user_suffix: str = None):
+    def as_am_old(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_am_old(),
             **self.mining_mode.as_am_old(),
@@ -60,7 +63,7 @@ class MinerConfig:
             **self.power_scaling.as_am_old(),
         }
 
-    def as_goldshell(self, user_suffix: str = None):
+    def as_goldshell(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_goldshell(),
             **self.mining_mode.as_goldshell(),
@@ -69,7 +72,7 @@ class MinerConfig:
             **self.power_scaling.as_goldshell(),
         }
 
-    def as_avalon(self, user_suffix: str = None):
+    def as_avalon(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_avalon(),
             **self.mining_mode.as_avalon(),
@@ -78,7 +81,7 @@ class MinerConfig:
             **self.power_scaling.as_avalon(),
         }
 
-    def as_inno(self, user_suffix: str = None):
+    def as_inno(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_inno(),
             **self.mining_mode.as_inno(),
@@ -87,7 +90,7 @@ class MinerConfig:
             **self.power_scaling.as_inno(),
         }
 
-    def as_bosminer(self, user_suffix: str = None):
+    def as_bosminer(self, user_suffix: str = None) -> dict:
         return {
             **merge(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
             **self.mining_mode.as_bosminer(),
@@ -95,7 +98,7 @@ class MinerConfig:
             **self.power_scaling.as_bosminer(),
         }
 
-    def as_bos_grpc(self, user_suffix: str = None):
+    def as_bos_grpc(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_bos_grpc(),
             **self.temperature.as_bos_grpc(),
@@ -105,11 +108,21 @@ class MinerConfig:
         }
 
     @classmethod
-    def from_api(cls, api_pools: dict):
+    def from_dict(cls, dict_conf: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_dict(dict_conf.get("pools")),
+            mining_mode=MiningModeConfig.from_dict(dict_conf.get("mining_mode")),
+            fan_mode=FanModeConfig.from_dict(dict_conf.get("fan_mode")),
+            temperature=TemperatureConfig.from_dict(dict_conf.get("temperature")),
+            power_scaling=PowerScalingConfig.from_dict(dict_conf.get("power_scaling")),
+        )
+
+    @classmethod
+    def from_api(cls, api_pools: dict) -> "MinerConfig":
         return cls(pools=PoolConfig.from_api(api_pools))
 
     @classmethod
-    def from_am_modern(cls, web_conf: dict):
+    def from_am_modern(cls, web_conf: dict) -> "MinerConfig":
         return cls(
             pools=PoolConfig.from_am_modern(web_conf),
             mining_mode=MiningModeConfig.from_am_modern(web_conf),
@@ -117,19 +130,19 @@ class MinerConfig:
         )
 
     @classmethod
-    def from_am_old(cls, web_conf: dict):
+    def from_am_old(cls, web_conf: dict) -> "MinerConfig":
         return cls.from_am_modern(web_conf)
 
     @classmethod
-    def from_goldshell(cls, web_conf: dict):
+    def from_goldshell(cls, web_conf: dict) -> "MinerConfig":
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
-    def from_inno(cls, web_pools: list):
+    def from_inno(cls, web_pools: list) -> "MinerConfig":
         return cls(pools=PoolConfig.from_inno(web_pools))
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict):
+    def from_bosminer(cls, toml_conf: dict) -> "MinerConfig":
         return cls(
             pools=PoolConfig.from_bosminer(toml_conf),
             mining_mode=MiningModeConfig.from_bosminer(toml_conf),
@@ -139,7 +152,7 @@ class MinerConfig:
         )
 
 
-def merge(a: dict, b: dict):
+def merge(a: dict, b: dict) -> dict:
     ret = {}
     for k in a:
         v = a[k]
@@ -173,20 +186,26 @@ if __name__ == "__main__":
         mining_mode=MiningModeConfig.power_tuning(3000),
         temperature=TemperatureConfig(hot=100, danger=110),
         fan_mode=FanModeConfig.manual(minimum_fans=2, speed=70),
-        power_scaling=PowerScalingConfig.enabled(power_step=100, minimum_power=2400),
+        power_scaling=PowerScalingConfig.enabled(
+            power_step=100,
+            minimum_power=2400,
+            shutdown_enabled=PowerScalingShutdown.enabled(duration=3),
+        ),
     )
     print(config)
-    print("WM:", config.as_wm())
-    print("AM Modern:", config.as_am_modern())
-    print("AM Old:", config.as_am_old())
-    print("GS:", config.as_goldshell())
-    print("Avalon:", config.as_avalon())
-    print("Inno:", config.as_inno())
-    print("BOS+ .toml:", config.as_bosminer())
-    print("BOS+ .toml as toml:")
-    print(toml.dumps(config.as_bosminer()))
-    print(config.as_bos_grpc())
-
-    bos_parsed = MinerConfig.from_bosminer(config.as_bosminer())
-    print(bos_parsed)
-    print(bos_parsed == config)
+    # print("WM:", config.as_wm())
+    # print("AM Modern:", config.as_am_modern())
+    # print("AM Old:", config.as_am_old())
+    # print("GS:", config.as_goldshell())
+    # print("Avalon:", config.as_avalon())
+    # print("Inno:", config.as_inno())
+    # print("BOS+ .toml:", config.as_bosminer())
+    # print("BOS+ .toml as toml:")
+    # print(toml.dumps(config.as_bosminer()))
+    # print(config.as_bos_grpc())
+    dict_config = config.as_dict()
+    parsed_conf = MinerConfig.from_dict(dict_config)
+    print(parsed_conf)
+    # bos_parsed = MinerConfig.from_bosminer(config.as_bosminer())
+    # print(bos_parsed)
+    # print(bos_parsed == config)

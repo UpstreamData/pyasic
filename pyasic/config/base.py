@@ -13,10 +13,17 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
 from enum import Enum
+from typing import Union
 
 
 class MinerConfigOption(Enum):
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        return cls.default()
+
     def as_am_modern(self) -> dict:
         return self.value.as_am_modern()
 
@@ -44,8 +51,20 @@ class MinerConfigOption(Enum):
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
+    @classmethod
+    def default(cls):
+        pass
 
+
+@dataclass
 class MinerConfigValue:
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]):
+        return cls()
+
+    def as_dict(self):
+        return asdict(self)
+
     def as_am_modern(self) -> dict:
         return {}
 

@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass
+from typing import Union
 
 from pyasic.config.base import MinerConfigValue
 
@@ -39,7 +40,15 @@ class TemperatureConfig(MinerConfigValue):
         return {"temp_control": temp_cfg}
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict):
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "TemperatureConfig":
+        return cls(
+            target=dict_conf.get("target"),
+            hot=dict_conf.get("hot"),
+            danger=dict_conf.get("danger"),
+        )
+
+    @classmethod
+    def from_bosminer(cls, toml_conf: dict) -> "TemperatureConfig":
         temp_control = toml_conf.get("temp_control")
         if temp_control is not None:
             return cls(
