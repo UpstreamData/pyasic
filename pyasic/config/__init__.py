@@ -16,8 +16,6 @@
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 
-import toml
-
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig

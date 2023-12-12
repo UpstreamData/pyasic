@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 import asyncio
 import logging
+import time
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
@@ -326,12 +327,20 @@ class BOSMiner(BaseMiner):
             await self._send_config_bosminer(config, user_suffix)
 
     async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
+        raise NotImplementedError
         mining_mode = config.mining_mode
 
-        mining_mode
-
     async def _send_config_bosminer(self, config: MinerConfig, user_suffix: str = None):
-        toml_conf = config.as_bosminer(user_suffix=user_suffix)
+        toml_conf = toml.dumps(
+            {
+                "format": {
+                    "version": "1.2+",
+                    "generator": "pyasic",
+                    "timestamp": int(time.time()),
+                },
+                **config.as_bosminer(user_suffix=user_suffix),
+            }
+        )
         try:
             conn = await self._get_ssh_connection()
         except ConnectionError as e:
@@ -361,7 +370,6 @@ class BOSMiner(BaseMiner):
                 await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
                 logging.debug(f"{self}: BBB restarting bosminer.")
                 await conn.run("/etc/init.d/S99bosminer start")
-
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
