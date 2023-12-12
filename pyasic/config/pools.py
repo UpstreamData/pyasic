@@ -121,7 +121,6 @@ class Pool(MinerConfigValue):
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
         )
 
-    # TODO: check if this is accurate, user/username, pass/password
     @classmethod
     def from_inno(cls, web_pool: dict) -> "Pool":
         return cls(
