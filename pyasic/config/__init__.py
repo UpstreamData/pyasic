@@ -13,7 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from copy import deepcopy
 from dataclasses import asdict, dataclass
+
+import toml
 
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
@@ -151,20 +154,11 @@ class MinerConfig:
 
 
 def merge(a: dict, b: dict) -> dict:
-    ret = {}
-    for k in a:
-        v = a[k]
-        if k in b.keys():
-            if isinstance(v, dict):
-                ret[k] = merge(a[k], b[k])
-            elif isinstance(v, list):
-                ret[k] = [*v, *b[k]]
-            else:
-                ret[k] = v
+    result = deepcopy(a)
+    for b_key, b_val in b.items():
+        a_val = result.get(b_key)
+        if isinstance(a_val, dict) and isinstance(b_val, dict):
+            result[b_key] = merge(a_val, b_val)
         else:
-            ret[k] = v
-    for k in b:
-        v = b[k]
-        if k not in ret.keys():
-            ret[k] = v
-    return ret
+            result[b_key] = deepcopy(b_val)
+    return result
