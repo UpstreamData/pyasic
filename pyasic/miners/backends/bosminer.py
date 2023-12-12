@@ -322,9 +322,12 @@ class BOSMiner(BaseMiner):
         self.config = config
 
         if self.web.grpc is not None:
-            await self._send_config_grpc(config, user_suffix)
-        else:
-            await self._send_config_bosminer(config, user_suffix)
+            try:
+                await self._send_config_grpc(config, user_suffix)
+                return
+            except:
+                pass
+        await self._send_config_bosminer(config, user_suffix)
 
     async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
         raise NotImplementedError
@@ -336,6 +339,7 @@ class BOSMiner(BaseMiner):
                 "format": {
                     "version": "1.2+",
                     "generator": "pyasic",
+                    "model": f"{self.make.replace('Miner', 'miner')} {self.model.replace(' (BOS)', '').replace('j', 'J')}",
                     "timestamp": int(time.time()),
                 },
                 **config.as_bosminer(user_suffix=user_suffix),
