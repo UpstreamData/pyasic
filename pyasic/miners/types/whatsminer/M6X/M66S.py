@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2023 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,26 +13,41 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.backends.btminer import BTMiner
+
+import warnings
+
+from pyasic.miners.makes import WhatsMiner
 
 
-class M6X(BTMiner):
+class M66SVK20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+        self.ip = ip
+        self.model = "M66S VK20"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M66S VK20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 0
 
 
-class M5X(BTMiner):
+class M66SVK30(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+        self.ip = ip
+        self.model = "M66S VK30"
+        self.nominal_chips = 96
+        self.ideal_hashboards = 4
+        self.fan_count = 0
 
 
-class M3X(BTMiner):
+class M66SVK40(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
-        self.supports_autotuning = True
-
-
-class M2X(BTMiner):
-    pass
+        self.ip = ip
+        self.model = "M66S VK40"
+        self.nominal_chips = 0
+        warnings.warn(
+            "Unknown chip count for miner type M66 VK30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+        )
+        self.fan_count = 0
