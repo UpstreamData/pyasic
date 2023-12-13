@@ -27,7 +27,7 @@ class M63VK10(WhatsMiner):  # noqa - ignore ABC method implementation
         warnings.warn(
             "Unknown chip count for miner type M63 VK10, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )
-        self.fan_count = 2
+        self.fan_count = 0
 
 
 class M63VK20(WhatsMiner):  # noqa - ignore ABC method implementation
@@ -39,7 +39,7 @@ class M63VK20(WhatsMiner):  # noqa - ignore ABC method implementation
         warnings.warn(
             "Unknown chip count for miner type M63 VK20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )
-        self.fan_count = 2
+        self.fan_count = 0
 
 
 class M63VK30(WhatsMiner):  # noqa - ignore ABC method implementation
@@ -47,6 +47,6 @@ class M63VK30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M63 VK30"
-        self.nominal_chips = 272
+        self.nominal_chips = 68
         self.ideal_hashboards = 4
-        self.fan_count = 2
+        self.fan_count = 0
