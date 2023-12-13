@@ -306,7 +306,7 @@ MINER_CLASSES = {
         "M66VK30": BTMinerM66VK30,
         "M66SVK20": BTMinerM66SVK20,
         "M66SVK30": BTMinerM66SVK30,
-        "M66SVK40": BTMinerM66SVK40,        
+        "M66SVK40": BTMinerM66SVK40,
     },
     MinerTypes.AVALONMINER: {
         None: CGMinerAvalon,
@@ -389,24 +389,18 @@ MINER_CLASSES = {
 
 
 async def concurrent_get_first_result(tasks: list, verification_func: Callable):
-    while True:
-        await asyncio.sleep(0)
-        if len(tasks) == 0:
-            return
-        for task in tasks:
-            if task.done():
-                try:
-                    result = await task
-                except asyncio.CancelledError:
-                    for t in tasks:
-                        t.cancel()
-                    raise
-                else:
-                    if not verification_func(result):
-                        continue
-                    for t in tasks:
-                        t.cancel()
-                    return result
+    res = None
+    for fut in asyncio.as_completed(tasks):
+        res = await fut
+        if verification_func(res):
+            break
+    for t in tasks:
+        t.cancel()
+        try:
+            await t
+        except asyncio.CancelledError:
+            pass
+    return res
 
 
 class MinerFactory:
@@ -453,7 +447,7 @@ class MinerFactory:
                     task, timeout=settings.get("factory_get_timeout", 3)
                 )
             except asyncio.TimeoutError:
-                task.cancel()
+                continue
             else:
                 if miner_type is not None:
                     break
@@ -481,7 +475,7 @@ class MinerFactory:
                         task, timeout=settings.get("factory_get_timeout", 3)
                     )
                 except asyncio.TimeoutError:
-                    task.cancel()
+                    pass
 
             boser_enabled = None
             if miner_type == MinerTypes.BRAIINS_OS:
@@ -507,19 +501,30 @@ class MinerFactory:
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
 
     async def _get_miner_web(self, ip: str):
-        urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with httpx.AsyncClient(
-            transport=settings.transport(verify=False)
-        ) as session:
-            tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
+        tasks = []
+        try:
+            urls = [f"http://{ip}/", f"https://{ip}/"]
+            async with httpx.AsyncClient(
+                transport=settings.transport(verify=False)
+            ) as session:
+                tasks = [
+                    asyncio.create_task(self._web_ping(session, url)) for url in urls
+                ]
 
-            text, resp = await concurrent_get_first_result(
-                tasks,
-                lambda x: x[0] is not None
-                and self._parse_web_type(x[0], x[1]) is not None,
-            )
-            if text is not None:
-                return self._parse_web_type(text, resp)
+                text, resp = await concurrent_get_first_result(
+                    tasks,
+                    lambda x: x[0] is not None
+                    and self._parse_web_type(x[0], x[1]) is not None,
+                )
+                if text is not None:
+                    return self._parse_web_type(text, resp)
+        except asyncio.CancelledError:
+            for t in tasks:
+                t.cancel()
+                try:
+                    await t
+                except asyncio.CancelledError:
+                    pass
 
     @staticmethod
     async def _web_ping(
@@ -565,15 +570,27 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
 
     async def _get_miner_socket(self, ip: str):
-        commands = ["version", "devdetails"]
-        tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
+        tasks = []
+        try:
+            commands = ["version", "devdetails"]
+            tasks = [
+                asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands
+            ]
 
-        data = await concurrent_get_first_result(
-            tasks, lambda x: x is not None and self._parse_socket_type(x) is not None
-        )
-        if data is not None:
-            d = self._parse_socket_type(data)
-            return d
+            data = await concurrent_get_first_result(
+                tasks,
+                lambda x: x is not None and self._parse_socket_type(x) is not None,
+            )
+            if data is not None:
+                d = self._parse_socket_type(data)
+                return d
+        except asyncio.CancelledError:
+            for t in tasks:
+                t.cancel()
+                try:
+                    await t
+                except asyncio.CancelledError:
+                    pass
 
     @staticmethod
     async def _socket_ping(ip: str, cmd: str) -> Optional[str]:
@@ -911,7 +928,7 @@ class MinerFactory:
             return miner_model
         except (TypeError, LookupError):
             pass
-    
+
     async def get_miner_model_epic(self, ip: str) -> Optional[str]:
         sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
         try:
