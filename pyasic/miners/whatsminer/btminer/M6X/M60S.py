@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2023 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,26 +13,27 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.backends.btminer import BTMiner
+
+from pyasic.miners.backends import M6X
+from pyasic.miners.types import (
+    M60SVK10,
+    M60SVK20,
+    M60SVK30,
+    M60SVK40,   
+)
 
 
-class M6X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+class BTMinerM60SVK10(M6X, M60SVK10):
+    pass
 
 
-class M5X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+class BTMinerM60SVK20(M6X, M60SVK20):
+    pass
 
 
-class M3X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+class BTMinerM60SVK30(M6X, M60SVK30):
+    pass
 
 
-class M2X(BTMiner):
+class BTMinerM60SVK40(M6X, M60SVK40):
     pass
