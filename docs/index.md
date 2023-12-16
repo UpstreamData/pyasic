@@ -8,17 +8,20 @@
 [![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
 
+---
 ## Intro
-Welcome to pyasic!  Pyasic uses an asynchronous method of communicating with asic miners on your network, which makes it super fast.
+---
+Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with ASIC miners on your network, which makes it super fast.
 
-[Supported Miner Types](miners/supported_types.md)
+[Click here to view supported miner types](miners/supported_types.md)
 
-Getting started with pyasic is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
+---
+## Getting started
+---
+Getting started with `pyasic` is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
 
-<br>
-
-## Scanning for miners
-To scan for miners in pyasic, we use the class [`MinerNetwork`][pyasic.network.MinerNetwork], which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
+##### Scanning for miners
+To scan for miners in `pyasic`, we use the class [`MinerNetwork`][pyasic.network.MinerNetwork], which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
 The command [`MinerNetwork.scan()`][pyasic.network.MinerNetwork.scan] returns a list that contains any miners found.
 ```python
 import asyncio  # asyncio for handling the async part
@@ -32,16 +35,15 @@ async def scan_miners():  # define async scan function to allow awaiting
 
     # scan for miners asynchronously
     # this will return the correct type of miners if they are supported with all functionality.
-    miners = await network.scan_network_for_miners()
+    miners = await network.scan()
     print(miners)
 
 if __name__ == "__main__":
     asyncio.run(scan_miners())  # run the scan asynchronously with asyncio.run()
 ```
 
-<br>
-
-## Creating miners based on IP
+---
+##### Creating miners based on IP
 If you already know the IP address of your miner or miners, you can use the [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory] to communicate and identify the miners, or an abstraction of its functionality, [`get_miner()`][pyasic.miners.get_miner].
 The function [`get_miner()`][pyasic.miners.get_miner] will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
 ```python
@@ -58,6 +60,8 @@ async def get_miners():  # define async scan function to allow awaiting
     print(miner_1, miner_2)
 
     # can also gather these, since they are async
+    # gathering them will get them both at the same time
+    # this makes it much faster to get a lot of miners at a time
     tasks = [get_miner("192.168.1.75"), get_miner("192.168.1.76")]
     miners = await asyncio.gather(*tasks)
     print(miners)
@@ -67,13 +71,14 @@ if __name__ == "__main__":
     asyncio.run(get_miners())  # get the miners asynchronously with asyncio.run()
 ```
 
-<br>
-
-## Getting data from miners
-
-Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built in function in each miner called `get_data()`.
+---
+## Data gathering
+---
+Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built-in function in each miner called `get_data()`.
 This function will return an instance of the dataclass [`MinerData`][pyasic.data.MinerData] with all data it can gather from the miner.
 Each piece of data in a [`MinerData`][pyasic.data.MinerData] instance can be referenced by getting it as an attribute, such as [`MinerData().hashrate`][pyasic.data.MinerData].
+
+##### One miner
 ```python
 import asyncio
 from pyasic import get_miner
@@ -88,7 +93,8 @@ async def gather_miner_data():
 if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
-
+---
+##### Multiple miners
 You can do something similar with multiple miners, with only needing to make a small change to get all the data at once.
 ```python
 import asyncio  # asyncio for handling the async part
@@ -96,8 +102,8 @@ from pyasic.network import MinerNetwork  # miner network handles the scanning
 
 
 async def gather_miner_data():  # define async scan function to allow awaiting
-    network = MinerNetwork("192.168.1.50")
-    miners = await network.scan_network_for_miners()
+    network = MinerNetwork.from_subnet("192.168.1.50/24")
+    miners = await network.scan()
 
     # we need to asyncio.gather() all the miners get_data() functions to make them run together
     all_miner_data = await asyncio.gather(*[miner.get_data() for miner in miners])
@@ -109,157 +115,56 @@ if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
 
-<br>
-
-## Controlling miners via pyasic
-Every miner class in pyasic must implement all the control functions defined in [`BaseMiner`][pyasic.miners.BaseMiner].
+---
+## Miner control
+---
+`pyasic` exposes a standard interface for each miner using control functions.
+Every miner class in `pyasic` must implement all the control functions defined in [`BaseMiner`][pyasic.miners.BaseMiner].
 
 These functions are
-[`check_light`](#check-light),
-[`fault_light_off`](#fault-light-off),
-[`fault_light_on`](#fault-light-on),
-[`get_config`](#get-config),
-[`get_data`](#get-data),
-[`get_errors`](#get-errors),
-[`get_hostname`](#get-hostname),
-[`get_model`](#get-model),
-[`reboot`](#reboot),
-[`restart_backend`](#restart-backend),
-[`stop_mining`](#stop-mining),
-[`resume_mining`](#resume-mining),
-[`is_mining`](#is-mining),
-[`send_config`](#send-config), and
-[`set_power_limit`](#set-power-limit).
+[`check_light`][pyasic.miners.BaseMiner.check_light],
+[`fault_light_off`][pyasic.miners.BaseMiner.fault_light_off],
+[`fault_light_on`][pyasic.miners.BaseMiner.fault_light_on],
+[`get_config`][pyasic.miners.BaseMiner.get_config],
+[`get_data`][pyasic.miners.BaseMiner.get_data],
+[`get_errors`][pyasic.miners.BaseMiner.get_errors],
+[`get_hostname`][pyasic.miners.BaseMiner.get_hostname],
+[`get_model`][pyasic.miners.BaseMiner.get_model],
+[`reboot`][pyasic.miners.BaseMiner.reboot],
+[`restart_backend`][pyasic.miners.BaseMiner.restart_backend],
+[`stop_mining`][pyasic.miners.BaseMiner.stop_mining],
+[`resume_mining`][pyasic.miners.BaseMiner.resume_mining],
+[`is_mining`][pyasic.miners.BaseMiner.is_mining],
+[`send_config`][pyasic.miners.BaseMiner.send_config], and
+[`set_power_limit`][pyasic.miners.BaseMiner.set_power_limit].
 
-<br>
+##### Usage
+```python
+import asyncio
+from pyasic import get_miner
 
-### Check Light
-::: pyasic.miners.BaseMiner.check_light
-    handler: python
-    options:
-        heading_level: 4
 
-<br>
+async def set_fault_light():
+    miner = await get_miner("192.168.1.20")
 
-### Fault Light Off
-::: pyasic.miners.BaseMiner.fault_light_off
-    handler: python
-    options:
-        heading_level: 4
+    # call control function
+    await miner.fault_light_on()
 
-<br>
+if __name__ == "__main__":
+    asyncio.run(set_fault_light())
+```
 
-### Fault Light On
-::: pyasic.miners.BaseMiner.fault_light_on
-    handler: python
-    options:
-        heading_level: 4
+---
+## Helper dataclasses
+---
 
-<br>
+##### [`MinerConfig`][pyasic.config.MinerConfig] and [`MinerData`][pyasic.data.MinerData]
 
-### Get Config
-::: pyasic.miners.BaseMiner.get_config
-    handler: python
-    options:
-        heading_level: 4
+`pyasic` implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.  The different fields of these dataclasses can all be viewed with the classmethod `cls.fields()`.
 
-<br>
+---
 
-### Get Data
-::: pyasic.miners.BaseMiner.get_data
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Get Errors
-::: pyasic.miners.BaseMiner.get_errors
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Get Hostname
-::: pyasic.miners.BaseMiner.get_hostname
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Get Model
-::: pyasic.miners.BaseMiner.get_model
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Reboot
-::: pyasic.miners.BaseMiner.reboot
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Restart Backend
-::: pyasic.miners.BaseMiner.restart_backend
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Stop Mining
-::: pyasic.miners.BaseMiner.stop_mining
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Resume Mining
-::: pyasic.miners.BaseMiner.resume_mining
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Is Mining
-::: pyasic.miners.BaseMiner.is_mining
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Send Config
-::: pyasic.miners.BaseMiner.send_config
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-### Set Power Limit
-::: pyasic.miners.BaseMiner.set_power_limit
-    handler: python
-    options:
-        heading_level: 4
-
-<br>
-
-## [`MinerConfig`][pyasic.config.MinerConfig] and [`MinerData`][pyasic.data.MinerData]
-
-Pyasic implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.  The different fields of these dataclasses can all be viewed with the classmethod `cls.fields()`.
-
-<br>
-
-### [`MinerData`][pyasic.data.MinerData]
+##### [`MinerData`][pyasic.data.MinerData]
 
 [`MinerData`][pyasic.data.MinerData] is a return from the [`get_data()`](#get-data) function, and is used to have a consistent dataset across all returns.
 
@@ -278,19 +183,40 @@ list_of_miner_data = [d1, d2]
 average_data = sum(list_of_miner_data, start=MinerData("0.0.0.0"))/len(list_of_miner_data)
 ```
 
+---
 
-<br>
+##### [`MinerConfig`][pyasic.config.MinerConfig]
 
-### [`MinerConfig`][pyasic.config.MinerConfig]
-
-[`MinerConfig`][pyasic.config.MinerConfig] is pyasic's way to represent a configuration file from a miner.
-It is the return from [`get_config()`](#get-config).
+[`MinerConfig`][pyasic.config.MinerConfig] is `pyasic`'s way to represent a configuration file from a miner.
+It is designed to unionize the configuration of all supported miner types, and is the return from [`get_config()`](#get-config).
 
 Each miner has a unique way to convert the [`MinerConfig`][pyasic.config.MinerConfig] to their specific type, there are helper functions in the class.
 In most cases these helper functions should not be used, as [`send_config()`](#send-config) takes a [`MinerConfig`][pyasic.config.MinerConfig] and will do the conversion to the right type for you.
 
+You can use the [`MinerConfig`][pyasic.config.MinerConfig] as follows:
+```python
+import asyncio
+from pyasic import get_miner
+
+
+async def set_fault_light():
+    miner = await get_miner("192.168.1.20")
+
+    # get config
+    cfg = await miner.get_config()
+
+    # send config
+    await miner.send_config(cfg)
+
+if __name__ == "__main__":
+    asyncio.run(set_fault_light())
+
+```
+
+---
 ## Settings
-`pyasic` has settings designed to make using large groups of miners easier.  You can set the default password for all types of miners using the [`pyasic.settings`][pyasic.settings] module, used as follows:
+---
+`pyasic` has settings designed to make using large groups of miners easier.  You can set the default password for all types of miners using the `pyasic.settings` module, used as follows:
 
 ```python
 from pyasic import settings
@@ -298,18 +224,23 @@ from pyasic import settings
 settings.update("default_antminer_password", "my_pwd")
 ```
 
-Here are of all the settings, and their default values:
+##### Default values:
 ```
 "network_ping_retries": 1,
 "network_ping_timeout": 3,
 "network_scan_threads": 300,
 "factory_get_retries": 1,
+"factory_get_timeout": 3,
 "get_data_retries": 1,
+"api_function_timeout": 5,
 "default_whatsminer_password": "admin",
 "default_innosilicon_password": "admin",
 "default_antminer_password": "root",
 "default_bosminer_password": "root",
 "default_vnish_password": "admin",
-"default_epic_password": "letmein",
 "default_goldshell_password": "123456789",
+
+# ADVANCED
+# Only use this if you know what you are doing
+"socket_linger_time": 1000,
 ```

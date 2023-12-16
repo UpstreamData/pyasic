@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 import asyncio
 import logging
+import time
 from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
@@ -22,6 +23,7 @@ import toml
 
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
@@ -297,11 +299,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def get_config(self) -> MinerConfig:
-        """Gets the config for the miner and sets it as `self.config`.
-
-        Returns:
-            The config from `self.config`.
-        """
         logging.debug(f"{self}: Getting config.")
 
         try:
@@ -316,21 +313,42 @@ class BOSMiner(BaseMiner):
                     (await conn.run("cat /etc/bosminer.toml")).stdout
                 )
             logging.debug(f"{self}: Converting config file.")
-            cfg = MinerConfig().from_raw(toml_data)
+            cfg = MinerConfig.from_bosminer(toml_data)
             self.config = cfg
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
         logging.debug(f"{self}: Sending config.")
         self.config = config
-        toml_conf = config.as_bos(
-            model=self.model.replace(" (BOS)", ""), user_suffix=user_suffix
+
+        if self.web.grpc is not None:
+            try:
+                await self._send_config_grpc(config, user_suffix)
+                return
+            except:
+                pass
+        await self._send_config_bosminer(config, user_suffix)
+
+    async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
+        raise NotImplementedError
+        mining_mode = config.mining_mode
+
+    async def _send_config_bosminer(self, config: MinerConfig, user_suffix: str = None):
+        toml_conf = toml.dumps(
+            {
+                "format": {
+                    "version": "1.2+",
+                    "generator": "pyasic",
+                    "model": f"{self.make.replace('Miner', 'miner')} {self.model.replace(' (BOS)', '').replace('j', 'J')}",
+                    "timestamp": int(time.time()),
+                },
+                **config.as_bosminer(user_suffix=user_suffix),
+            }
         )
         try:
             conn = await self._get_ssh_connection()
-        except ConnectionError:
-            return None
+        except ConnectionError as e:
+            raise APIError("SSH connection failed when sending config.") from e
         async with conn:
             # BBB check because bitmain suxx
             bbb_check = await conn.run(
@@ -362,7 +380,7 @@ class BOSMiner(BaseMiner):
             cfg = await self.get_config()
             if cfg is None:
                 return False
-            cfg.autotuning_wattage = wattage
+            cfg.mining_mode = MiningModePowerTune(wattage)
             await self.send_config(cfg)
         except Exception as e:
             logging.warning(f"{self} set_power_limit: {e}")
@@ -539,7 +557,6 @@ class BOSMiner(BaseMiner):
     async def get_hashrate(
         self, api_summary: dict = None, graphql_hashrate: dict = None
     ) -> Optional[float]:
-
         # get hr from graphql
         if not graphql_hashrate:
             try:
@@ -622,7 +639,7 @@ class BOSMiner(BaseMiner):
                 offset = 0
                 if 3 in b_names:
                     offset = 1
-                elif 6 in b_names:
+                elif 6 in b_names or 7 in b_names or 8 in b_names:
                     offset = 6
                 for hb in boards:
                     _id = int(hb["name"]) - offset

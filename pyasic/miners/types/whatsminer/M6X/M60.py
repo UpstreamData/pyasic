@@ -13,10 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
- 
+
 import warnings
 
 from pyasic.miners.makes import WhatsMiner
+
 
 class M60VK10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):

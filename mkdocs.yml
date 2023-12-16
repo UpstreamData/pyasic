@@ -4,6 +4,7 @@ nav:
 - Introduction: "index.md"
 - Miners:
     - Supported Miners: "miners/supported_types.md"
+    - Standard Functionality: "miners/functions.md"
     - Miner Factory: "miners/miner_factory.md"
 - Network:
     - Miner Network: "network/miner_network.md"

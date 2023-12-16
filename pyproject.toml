@@ -15,6 +15,7 @@ grpc-requests = "^0.1.12"
 passlib = "^1.7.4"
 pyaml = "^23.9.7"
 toml = "^0.10.2"
+betterproto = "2.0.0b6"
 
 [tool.poetry.group.dev]
 optional = true

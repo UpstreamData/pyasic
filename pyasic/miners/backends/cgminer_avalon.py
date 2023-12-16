@@ -100,17 +100,17 @@ class CGMinerAvalon(CGMiner):
         return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        """Configures miner with yaml config."""
-        self.config = config
-        return None
-        logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
-        conf = config.as_avalon(user_suffix=user_suffix)
-        try:
-            data = await self.api.ascset(  # noqa
-                0, "setpool", f"root,root,{conf}"
-            )  # this should work but doesn't
-        except APIError:
-            pass
+        pass
+        # self.config = config
+        # return None
+        # logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
+        # conf = config.as_avalon(user_suffix=user_suffix)
+        # try:
+        #     data = await self.api.ascset(  # noqa
+        #         0, "setpool", f"root,root,{conf}"
+        #     )  # this should work but doesn't
+        # except APIError:
+        #     pass
         # return data
 
     @staticmethod

@@ -72,7 +72,7 @@ class BFGMiner(BaseMiner):
         except APIError:
             return self.config
 
-        self.config = MinerConfig().from_api(pools["POOLS"])
+        self.config = MinerConfig.from_api(pools)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:

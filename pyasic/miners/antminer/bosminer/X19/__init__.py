@@ -19,6 +19,7 @@ from .S19 import (
     BOSMinerS19j,
     BOSMinerS19jNoPIC,
     BOSMinerS19jPro,
+    BOSMinerS19kProNoPIC,
     BOSMinerS19Pro,
 )
 from .T19 import BOSMinerT19

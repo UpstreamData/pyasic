@@ -14,16 +14,14 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import Optional
+from typing import List, Optional, Tuple, Union
 
+from pyasic.data import Fan, HashBoard
+from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.web.epic import ePICWebAPI
-from pyasic.data import Fan, HashBoard
-from typing import List, Optional, Tuple, Union
-from pyasic.data.error_codes import MinerErrorData, X19Error
-
 
 EPIC_DATA_LOC = {
     "mac": {"cmd": "get_mac", "kwargs": {"web_summary": {"web": "network"}}},
@@ -36,12 +34,21 @@ EPIC_DATA_LOC = {
         "cmd": "get_nominal_hashrate",
         "kwargs": {"web_summary": {"web": "summary"}},
     },
-    "hashboards": {"cmd": "get_hashboards", "kwargs": {"web_summary": {"web": "summary"}, "web_hashrate": {"web": "hashrate"}}},
+    "hashboards": {
+        "cmd": "get_hashboards",
+        "kwargs": {
+            "web_summary": {"web": "summary"},
+            "web_hashrate": {"web": "hashrate"},
+        },
+    },
     "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
     "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
     "fans": {"cmd": "get_fans", "kwargs": {"web_summary": {"web": "summary"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {"web_summary": {"web": "summary"}}},
+    "fault_light": {
+        "cmd": "get_fault_light",
+        "kwargs": {"web_summary": {"web": "summary"}},
+    },
     "pools": {"cmd": "get_pools", "kwargs": {"web_summary": {"web": "summary"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
@@ -148,12 +155,11 @@ class ePIC(BMMiner):
                 if web_summary["HBs"] != None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
-                    return round(
-                        float(float(hashrate/ 1000000)), 2)
+                    return round(float(float(hashrate / 1000000)), 2)
             except (LookupError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
-    
+
     async def get_nominal_hashrate(self, web_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not web_summary:
@@ -170,15 +176,13 @@ class ePIC(BMMiner):
                         if hb["Hashrate"][1] == 0:
                             ideal = 1.0
                         else:
-                            ideal = hb["Hashrate"][1]/100
-                            
-                        hashrate += hb["Hashrate"][0]/ideal
-                    return round(
-                        float(float(hashrate/ 1000000)), 2)
+                            ideal = hb["Hashrate"][1] / 100
+
+                        hashrate += hb["Hashrate"][0] / ideal
+                    return round(float(float(hashrate / 1000000)), 2)
             except (IndexError, KeyError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
-
 
     async def get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
         if not web_summary:
@@ -208,8 +212,10 @@ class ePIC(BMMiner):
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
-    
-    async def get_hashboards(self, web_summary: dict = None, web_hashrate: dict= None) -> List[HashBoard]:
+
+    async def get_hashboards(
+        self, web_summary: dict = None, web_hashrate: dict = None
+    ) -> List[HashBoard]:
         if not web_summary:
             try:
                 web_summary = await self.web.summary()
@@ -220,51 +226,53 @@ class ePIC(BMMiner):
                 web_hashrate = await self.web.hashrate()
             except APIError:
                 pass
-        hb_list = [HashBoard(slot=i, expected_chips=self.nominal_chips) for i in range(self.ideal_hashboards)]
+        hb_list = [
+            HashBoard(slot=i, expected_chips=self.nominal_chips)
+            for i in range(self.ideal_hashboards)
+        ]
         if web_summary["HBs"] != None:
             for hb in web_summary["HBs"]:
                 for hr in web_hashrate:
                     if hr["Index"] == hb["Index"]:
                         num_of_chips = len(hr["Data"])
                         hashrate = hb["Hashrate"][0]
-                        #Update the Hashboard object
+                        # Update the Hashboard object
                         hb_list[hr["Index"]].expected_chips = num_of_chips
                         hb_list[hr["Index"]].missing = False
-                        hb_list[hr["Index"]].hashrate = round(hashrate/1000000,2)
+                        hb_list[hr["Index"]].hashrate = round(hashrate / 1000000, 2)
                         hb_list[hr["Index"]].chips = num_of_chips
                         hb_list[hr["Index"]].temp = hb["Temperature"]
         return hb_list
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
-    
+
     async def get_pools(self, web_summary: dict = None) -> List[dict]:
-       groups = []
+        groups = []
 
-       if not web_summary:
-           try:
-               web_summary = await self.api.summary()
-           except APIError:
-               pass
+        if not web_summary:
+            try:
+                web_summary = await self.api.summary()
+            except APIError:
+                pass
 
-       if web_summary:
-           try:
-               pools = {}
-               for i, pool in enumerate(web_summary["StratumConfigs"]):
-                   pools[f"pool_{i + 1}_url"] = (
-                       pool["pool"]
-                       .replace("stratum+tcp://", "")
-                       .replace("stratum2+tcp://", "")
-                   )
-                   pools[f"pool_{i + 1}_user"] = pool["login"]
-                   pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
+        if web_summary:
+            try:
+                pools = {}
+                for i, pool in enumerate(web_summary["StratumConfigs"]):
+                    pools[f"pool_{i + 1}_url"] = (
+                        pool["pool"]
+                        .replace("stratum+tcp://", "")
+                        .replace("stratum2+tcp://", "")
+                    )
+                    pools[f"pool_{i + 1}_user"] = pool["login"]
+                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
 
-               groups.append(pools)
-           except KeyError:
-               pass
-       return groups
+                groups.append(pools)
+            except KeyError:
+                pass
+        return groups
 
-    
     async def get_uptime(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
             web_summary = await self.web.summary()
@@ -275,7 +283,7 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
         return None
-    
+
     async def get_fault_light(self, web_summary: dict = None) -> bool:
         if not web_summary:
             web_summary = await self.web.summary()
@@ -286,7 +294,7 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
         return False
-    
+
     async def get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
         if not web_summary:
             web_summary = await self.web.summary()

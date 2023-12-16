@@ -64,7 +64,14 @@ class BFGMinerGoldshell(BFGMiner):
         self.data_locations = GOLDSHELL_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
-        return MinerConfig().from_raw(await self.web.pools())
+        # get pool data
+        try:
+            pools = await self.web.pools()
+        except APIError:
+            return self.config
+
+        self.config = MinerConfig.from_goldshell(pools)
+        return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         pools_data = await self.web.pools()
@@ -80,7 +87,7 @@ class BFGMinerGoldshell(BFGMiner):
         self.config = config
 
         # send them back 1 at a time
-        for pool in config.as_goldshell(user_suffix=user_suffix):
+        for pool in config.as_goldshell(user_suffix=user_suffix)["pools"]:
             await self.web.newpool(
                 url=pool["url"], user=pool["user"], password=pool["pass"]
             )

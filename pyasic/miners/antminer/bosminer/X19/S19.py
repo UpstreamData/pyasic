@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSMiner
-from pyasic.miners.types import S19, S19j, S19jNoPIC, S19jPro, S19Pro
+from pyasic.miners.types import S19, S19j, S19jNoPIC, S19jPro, S19kProNoPIC, S19Pro
 
 
 class BOSMinerS19(BOSMiner, S19):
@@ -35,4 +35,8 @@ class BOSMinerS19jNoPIC(BOSMiner, S19jNoPIC):
 
 
 class BOSMinerS19jPro(BOSMiner, S19jPro):
+    pass
+
+
+class BOSMinerS19kProNoPIC(BOSMiner, S19kProNoPIC):
     pass

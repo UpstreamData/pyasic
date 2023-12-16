@@ -18,7 +18,7 @@ import asyncio
 from typing import List, Optional, Union
 
 from pyasic.API import APIError
-from pyasic.config import MinerConfig, X19PowerMode
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners.backends.bmminer import BMMiner
@@ -80,23 +80,21 @@ class AntminerModern(BMMiner):
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
-            self.config = MinerConfig().from_raw(data)
+            self.config = MinerConfig.from_am_modern(data)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
-        conf = config.as_x19(user_suffix=user_suffix)
-        data = await self.web.set_miner_conf(conf)
-
-        if data:
-            if data.get("code") == "M000":
-                return
-
-        for i in range(7):
-            data = await self.get_config()
-            if data.as_x19() == conf:
-                break
-            await asyncio.sleep(1)
+        await self.web.set_miner_conf(config.as_am_modern(user_suffix=user_suffix))
+        # if data:
+        #     if data.get("code") == "M000":
+        #         return
+        #
+        # for i in range(7):
+        #     data = await self.get_config()
+        #     if data == self.config:
+        #         break
+        #     await asyncio.sleep(1)
 
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
@@ -120,13 +118,13 @@ class AntminerModern(BMMiner):
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Sleep
+        cfg.miner_mode = MiningModeConfig.sleep
         await self.send_config(cfg)
         return True
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = X19PowerMode.Normal
+        cfg.miner_mode = MiningModeConfig.normal
         await self.send_config(cfg)
         return True
 
@@ -349,11 +347,12 @@ class AntminerOld(CGMiner):
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
         if data:
-            self.config = MinerConfig().from_raw(data)
+            self.config = MinerConfig.from_am_old(data)
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        await self.web.set_miner_conf(config.as_x17(user_suffix=user_suffix))
+        self.config = config
+        await self.web.set_miner_conf(config.as_am_old(user_suffix=user_suffix))
 
     async def get_mac(self) -> Union[str, None]:
         try:

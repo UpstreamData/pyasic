@@ -38,16 +38,13 @@ class CGMinerT3HPlus(CGMiner, T3HPlus):
         return False
 
     async def get_config(self, api_pools: dict = None) -> MinerConfig:
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError as e:
-                logging.warning(e)
+        # get pool data
+        try:
+            pools = await self.api.pools()
+        except APIError:
+            return self.config
 
-        if api_pools:
-            if "POOLS" in api_pools.keys():
-                cfg = MinerConfig().from_api(api_pools["POOLS"])
-                self.config = cfg
+        self.config = MinerConfig.from_api(pools)
         return self.config
 
     async def reboot(self) -> bool:

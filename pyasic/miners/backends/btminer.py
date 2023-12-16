@@ -15,12 +15,11 @@
 # ------------------------------------------------------------------------------
 
 import logging
-import warnings
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
 from pyasic.API.btminer import BTMinerAPI
-from pyasic.config import MinerConfig
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
@@ -198,44 +197,68 @@ class BTMiner(BaseMiner):
 
         try:
             await self.api.update_pools(**pools_conf)
+
+            if conf["mode"] == "normal":
+                await self.api.set_normal_power()
+            elif conf["mode"] == "high":
+                await self.api.set_high_power()
+            elif conf["mode"] == "low":
+                await self.api.set_low_power()
+            elif conf["mode"] == "power_tuning":
+                await self.api.adjust_power_limit(conf["power_tuning"]["wattage"])
         except APIError:
-            pass
-        try:
-            await self.api.adjust_power_limit(conf["wattage"])
-        except APIError:
-            # cannot set wattage
+            # cannot update, no API access usually
             pass
 
     async def get_config(self) -> MinerConfig:
         pools = None
         summary = None
-        cfg = MinerConfig()
-
+        status = None
         try:
-            data = await self.api.multicommand("pools", "summary")
+            data = await self.api.multicommand("pools", "summary", "status")
             pools = data["pools"][0]
             summary = data["summary"][0]
+            status = data["status"][0]
         except APIError as e:
             logging.warning(e)
         except LookupError:
             pass
 
-        if pools:
-            if "POOLS" in pools:
-                cfg = cfg.from_api(pools["POOLS"])
+        if pools is not None:
+            cfg = MinerConfig.from_api(pools)
         else:
-            # somethings wrong with the miner
-            warnings.warn(
-                f"Failed to gather pool config for miner: {self}, miner did not return pool information."
-            )
-        if summary:
-            if "SUMMARY" in summary:
-                if wattage := summary["SUMMARY"][0].get("Power Limit"):
-                    cfg.autotuning_wattage = wattage
+            cfg = MinerConfig()
 
-        self.config = cfg
+        is_mining = await self.is_mining(status)
+        if not is_mining:
+            cfg.mining_mode = MiningModeConfig.sleep()
+            return cfg
 
-        return self.config
+        if summary is not None:
+            mining_mode = None
+            try:
+                mining_mode = summary["SUMMARY"][0]["Power Mode"]
+            except LookupError:
+                pass
+
+            if mining_mode == "High":
+                cfg.mining_mode = MiningModeConfig.high()
+                return cfg
+            elif mining_mode == "Low":
+                cfg.mining_mode = MiningModeConfig.low()
+                return cfg
+            try:
+                power_lim = summary["SUMMARY"][0]["Power Limit"]
+            except LookupError:
+                power_lim = None
+
+            if power_lim is None:
+                cfg.mining_mode = MiningModeConfig.normal()
+                return cfg
+
+            cfg.mining_mode = MiningModeConfig.power_tuning(power_lim)
+            self.config = cfg
+            return self.config
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -386,7 +409,6 @@ class BTMiner(BaseMiner):
                 pass
 
     async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
-
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)
