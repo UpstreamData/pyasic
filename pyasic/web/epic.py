@@ -20,8 +20,9 @@ from typing import Union
 import httpx
 
 from pyasic import settings
-from pyasic.web import BaseWebAPI
 from pyasic.errors import APIError, APIWarning
+from pyasic.web import BaseWebAPI
+
 
 class ePICWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
@@ -31,22 +32,24 @@ class ePICWebAPI(BaseWebAPI):
         self.token = None
 
     async def send_command(
-            self,
-            command: Union[str, bytes],
-            ignore_errors: bool = False,
-            allow_warning: bool = True,
-            post: bool = False,
-            **parameters: Union[str, int, bool],
+        self,
+        command: Union[str, bytes],
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        post: bool = False,
+        **parameters: Union[str, int, bool],
     ) -> dict:
         if post or parameters != {}:
             post = True
-        
+
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1) + 1):
                 try:
                     if post:
-                        epic_param = {"param": parameters.get("parameters"),
-                                      "password": self.pwd}
+                        epic_param = {
+                            "param": parameters.get("parameters"),
+                            "password": self.pwd,
+                        }
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
@@ -56,14 +59,17 @@ class ePICWebAPI(BaseWebAPI):
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
-
                         )
                     if not response.status_code == 200:
                         continue
                     json_data = response.json()
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
-                        if "result" in json_data and json_data["result"] is False and not post:
+                        if (
+                            "result" in json_data
+                            and json_data["result"] is False
+                            and not post
+                        ):
                             if not i > settings.get("get_data_retries", 1):
                                 continue
                             if not ignore_errors:
@@ -102,13 +108,12 @@ class ePICWebAPI(BaseWebAPI):
 
     async def summary(self):
         return await self.send_command("summary")
-    
+
     async def hashrate(self):
         return await self.send_command("hashrate")
-    
+
     async def network(self):
         return await self.send_command("network")
 
     async def capabilities(self):
         return await self.send_command("capabilities")
-

@@ -260,8 +260,6 @@ class BTMiner(BaseMiner):
             self.config = cfg
             return self.config
 
-
-
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             await self.api.adjust_power_limit(wattage)
@@ -411,7 +409,6 @@ class BTMiner(BaseMiner):
                 pass
 
     async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
-
         hashboards = [
             HashBoard(slot=i, expected_chips=self.nominal_chips)
             for i in range(self.ideal_hashboards)

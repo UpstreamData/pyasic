@@ -18,6 +18,7 @@ import warnings
 
 from pyasic.miners.makes import WhatsMiner
 
+
 class M33SPlusVG20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
@@ -44,7 +45,7 @@ class M33SPlusVH30(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M33S+ VH30"
         self.ideal_hashboards = 4
-        self.nominal_chips = 0 # slot1 116, slot2 106, slot3 116, slot4 106
+        self.nominal_chips = 0  # slot1 116, slot2 106, slot3 116, slot4 106
         warnings.warn(
             "Unknown chip count for miner type M30S+ VH30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )

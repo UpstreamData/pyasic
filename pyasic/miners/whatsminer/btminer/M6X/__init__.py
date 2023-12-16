@@ -14,39 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .M60 import (
-    BTMinerM60VK10,
-    BTMinerM60VK20,
-    BTMinerM60VK30,
-    BTMinerM60VK40,
-)
-
-from .M60S import (
-    BTMinerM60SVK10,
-    BTMinerM60SVK20,
-    BTMinerM60SVK30,
-    BTMinerM60SVK40,
-)
-
-from .M63 import (
-    BTMinerM63VK10,
-    BTMinerM63VK20,
-    BTMinerM63VK30,
-)
-
-from .M63S import (
-    BTMinerM63SVK10,
-    BTMinerM63SVK20,
-    BTMinerM63SVK30,
-)
-
-from .M66 import (
-    BTMinerM66VK20,
-    BTMinerM66VK30,
-)
-
-from .M66S import (
-    BTMinerM66SVK20,
-    BTMinerM66SVK30,
-    BTMinerM66SVK40,
-)
+from .M60 import BTMinerM60VK10, BTMinerM60VK20, BTMinerM60VK30, BTMinerM60VK40
+from .M60S import BTMinerM60SVK10, BTMinerM60SVK20, BTMinerM60SVK30, BTMinerM60SVK40
+from .M63 import BTMinerM63VK10, BTMinerM63VK20, BTMinerM63VK30
+from .M63S import BTMinerM63SVK10, BTMinerM63SVK20, BTMinerM63SVK30
+from .M66 import BTMinerM66VK20, BTMinerM66VK30
+from .M66S import BTMinerM66SVK20, BTMinerM66SVK30, BTMinerM66SVK40

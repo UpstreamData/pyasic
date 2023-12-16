@@ -14,39 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .M60 import (
-    M60VK10,
-    M60VK20,
-    M60VK30,
-    M60VK40,
-)
-
-from .M60S import (
-    M60SVK10,
-    M60SVK20,
-    M60SVK30,
-    M60SVK40,
-)
-
-from .M63 import (
-    M63VK10,
-    M63VK20,
-    M63VK30,
-)
-
-from .M63S import (
-    M63SVK10,
-    M63SVK20,
-    M63SVK30,
-)
-
-from .M66 import (
-    M66VK20,
-    M66VK30,
-)
-
-from .M66S import (
-    M66SVK20,
-    M66SVK30,
-    M66SVK40,
-)
+from .M60 import M60VK10, M60VK20, M60VK30, M60VK40
+from .M60S import M60SVK10, M60SVK20, M60SVK30, M60SVK40
+from .M63 import M63VK10, M63VK20, M63VK30
+from .M63S import M63SVK10, M63SVK20, M63SVK30
+from .M66 import M66VK20, M66VK30
+from .M66S import M66SVK20, M66SVK30, M66SVK40

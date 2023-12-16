@@ -213,11 +213,11 @@ If you are sure you want to use this command please use API.send_command("{comma
             # append that data if there is more, and then onto the main loop.
             # the password timeout might need to be longer than 1, but it seems to work for now.
             ret_data = await asyncio.wait_for(reader.read(1), timeout=1)
-        except (asyncio.TimeoutError):
+        except asyncio.TimeoutError:
             return b"{}"
         try:
             ret_data += await asyncio.wait_for(reader.read(4096), timeout=timeout)
-        except (ConnectionAbortedError):
+        except ConnectionAbortedError:
             return b"{}"
 
         # loop to receive all the data

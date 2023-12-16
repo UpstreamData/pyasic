@@ -557,7 +557,6 @@ class BOSMiner(BaseMiner):
     async def get_hashrate(
         self, api_summary: dict = None, graphql_hashrate: dict = None
     ) -> Optional[float]:
-
         # get hr from graphql
         if not graphql_hashrate:
             try:
