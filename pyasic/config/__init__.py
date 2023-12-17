@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from copy import deepcopy
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
@@ -25,11 +25,13 @@ from pyasic.config.temperature import TemperatureConfig
 
 @dataclass
 class MinerConfig:
-    pools: PoolConfig = PoolConfig.default()
-    fan_mode: FanModeConfig = FanModeConfig.default()
-    temperature: TemperatureConfig = TemperatureConfig.default()
-    mining_mode: MiningModeConfig = MiningModeConfig.default()
-    power_scaling: PowerScalingConfig = PowerScalingConfig.default()
+    pools: PoolConfig = field(default_factory=PoolConfig.default)
+    fan_mode: FanModeConfig = field(default_factory=FanModeConfig.default)
+    temperature: TemperatureConfig = field(default_factory=TemperatureConfig.default)
+    mining_mode: MiningModeConfig = field(default_factory=MiningModeConfig.default)
+    power_scaling: PowerScalingConfig = field(
+        default_factory=PowerScalingConfig.default
+    )
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -104,6 +106,15 @@ class MinerConfig:
             **self.mining_mode.as_bos_grpc(),
             **self.pools.as_bos_grpc(user_suffix=user_suffix),
             **self.power_scaling.as_bos_grpc(),
+        }
+
+    def as_epic(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_epic(),
+            **self.temperature.as_epic(),
+            **self.mining_mode.as_epic(),
+            **self.pools.as_epic(user_suffix=user_suffix),
+            **self.power_scaling.as_epic(),
         }
 
     @classmethod
