@@ -1,12 +1,16 @@
 # pyasic
 *A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
 
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![pypi](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
-[![python](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
-[![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
-[![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
-[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/pyasic)](https://pypi.org/project/pyasic/)
+
+[![Python - Supported Versions](https://img.shields.io/pypi/pyversions/pyasic.svg)](https://pypi.org/project/pyasic/)
+[![CodeFactor - Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
+[![Commit Activity - master](https://img.shields.io/github/commit-activity/y/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/commits/master/)
+
+[![Code Style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Read The Docs - Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
+[![License - Apache 2.0](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 
 ---
 ## Intro
