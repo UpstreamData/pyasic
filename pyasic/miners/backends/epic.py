@@ -43,6 +43,7 @@ EPIC_DATA_LOC = {
     },
     "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
     "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
     "fans": {"cmd": "get_fans", "kwargs": {"web_summary": {"web": "summary"}}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
     "fault_light": {
