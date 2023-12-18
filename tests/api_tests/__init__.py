@@ -96,7 +96,10 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
         commands = self.api.commands
 
         for command in commands:
-            with self.subTest(msg=f"{self.api_str} {command}"):
+            with self.subTest(
+                msg=f"Test of command success on {self.api_str} API with command={command}",
+                command=command,
+            ):
                 api_func = getattr(self.api, command)
                 mock_send_bytes.return_value = self.get_success_value(command)
                 try:
