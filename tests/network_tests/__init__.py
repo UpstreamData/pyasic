@@ -44,8 +44,8 @@ class NetworkTest(unittest.TestCase):
             ipaddress.IPv4Address("192.168.1.60"),
         ]
 
-        self.assertTrue(net_1 == correct_net)
-        self.assertTrue(net_2 == correct_net)
+        self.assertEqual(net_1, correct_net)
+        self.assertEqual(net_2, correct_net)
 
     def test_net(self):
         net_1_str = "192.168.1.0"
@@ -64,8 +64,8 @@ class NetworkTest(unittest.TestCase):
             ipaddress.IPv4Address("192.168.1.6"),
         ]
 
-        self.assertTrue(net_1 == correct_net)
-        self.assertTrue(net_2 == correct_net)
+        self.assertEqual(net_1, correct_net)
+        self.assertEqual(net_2, correct_net)
 
     def test_net_defaults(self):
         net = MinerNetwork.from_subnet("192.168.1.1/24")

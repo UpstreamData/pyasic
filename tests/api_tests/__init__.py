@@ -13,198 +13,136 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
+import json
+import time
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
+from pyasic import APIError
+from pyasic.API.bfgminer import BFGMinerAPI
 from pyasic.API.bmminer import BMMinerAPI
 from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.API.cgminer import CGMinerAPI
+from pyasic.API.luxminer import LUXMinerAPI
 
 
-class TestBMMinerAPI(unittest.IsolatedAsyncioTestCase):
-    async def create_mock_connection(self, reader_data: bytes = b""):
-        mock_reader = Mock(asyncio.StreamReader)
-        mock_reader.read.side_effect = [reader_data, None]
-        mock_writer = Mock(asyncio.StreamWriter)
-        mock_writer.write.return_value = None
-        mock_writer.drain.return_value = None
-        mock_writer.get_extra_info.return_value = (self.ip, self.port)
-        mock_connection = MagicMock()
-        mock_connection.__aenter__.return_value = (mock_reader, mock_writer)
-        mock_connection.__aexit__.return_value = None
-        return mock_connection
-
+class TestAPIBase(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.ip = "192.168.0.1"
+        self.ip = "10.0.0.50"
         self.port = 4028
+        self.api_str = ""
+        self.api = None
+        self.setUpData()
+
+    def setUpData(self):
+        pass
+
+    def get_error_value(self):
+        return json.dumps(
+            {
+                "STATUS": [
+                    {"STATUS": "E", "When": time.time(), "Code": 7, "Msg": self.api_str}
+                ],
+                "id": 1,
+            }
+        ).encode("utf-8")
+
+    def get_success_value(self, command: str):
+        return json.dumps(
+            {
+                "STATUS": [
+                    {
+                        "STATUS": "S",
+                        "When": time.time(),
+                        "Code": 69,
+                        "Msg": f"{self.api_str} {command}",
+                    }
+                ],
+                command.upper(): [{command: "test"}],
+                "id": 1,
+            }
+        ).encode("utf-8")
 
     @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_send_command(self, mock_send_bytes):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        mock_send_bytes.return_value = b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BMMiner"}], "SUMMARY":[{}], "id": 1}'
-        response = await miner_api.send_command("summary")
-        self.assertIsInstance(response, dict)
-        self.assertEqual(response["STATUS"][0]["STATUS"], "S")
+    async def test_command_error_raises_api_error(self, mock_send_bytes):
+        if self.api is None:
+            return
+
+        mock_send_bytes.return_value = self.get_error_value()
+        with self.assertRaises(APIError):
+            await self.api.send_command("summary")
 
     @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_all_commands(self, mock_send_bytes):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        for command in miner_api.commands:
-            mock_send_bytes.return_value = (
-                b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BMMiner"}], "'
-                + command.upper().encode("utf-8")
-                + b'":[{}], "id": 1}'
+    async def test_command_error_ignored_by_flag(self, mock_send_bytes):
+        if self.api is None:
+            return
+
+        mock_send_bytes.return_value = self.get_error_value()
+        try:
+            await self.api.send_command(
+                "summary", ignore_errors=True, allow_warning=False
             )
-            try:
-                command_func = getattr(miner_api, command)
-            except AttributeError:
-                pass
-            else:
-                try:
-                    response = await command_func()
-                except TypeError:
-                    # probably addpool or something
-                    pass
-                else:
-                    self.assertIsInstance(response, dict)
-                    self.assertEqual(response["STATUS"][0]["STATUS"], "S")
-
-    async def test_init(self):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        self.assertEqual(str(miner_api.ip), self.ip)
-        self.assertEqual(miner_api.port, self.port)
-        self.assertEqual(str(miner_api), "BMMinerAPI: 192.168.0.1")
-
-
-class TestBTMinerAPI(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.ip = "192.168.0.1"
-        self.port = 4028
-
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_send_command(self, mock_send_bytes):
-        mock_send_bytes.return_value = b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BTMiner"}], "SUMMARY":[{"sumamry": 1}], "id": 1}'
-        miner_api = BTMinerAPI(ip=self.ip, port=self.port)
-        response = await miner_api.send_command("summary")
-        self.assertIsInstance(response, dict)
-        self.assertEqual(response["STATUS"][0]["STATUS"], "S")
-
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_all_commands(self, mock_send_bytes):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        for command in miner_api.commands:
-            mock_send_bytes.return_value = (
-                b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BTMiner"}], "'
-                + command.upper().encode("utf-8")
-                + b'":[{}], "id": 1}'
+        except APIError:
+            self.fail(
+                f"Expected ignore_errors flag to ignore error in {self.api_str} API"
             )
-            try:
-                command_func = getattr(miner_api, command)
-            except AttributeError:
-                pass
-            else:
+
+    @patch("pyasic.API.BaseMinerAPI._send_bytes")
+    async def test_all_read_command_success(self, mock_send_bytes):
+        if self.api is None:
+            return
+
+        commands = self.api.commands
+
+        for command in commands:
+            with self.subTest(msg=f"{self.api_str} {command}"):
+                api_func = getattr(self.api, command)
+                mock_send_bytes.return_value = self.get_success_value(command)
                 try:
-                    response = await command_func()
+                    await api_func()
+                except APIError:
+                    self.fail(f"Expected successful return from API function {command}")
                 except TypeError:
-                    # probably addpool or something
-                    pass
-                else:
-                    self.assertIsInstance(response, dict)
-                    self.assertEqual(response["STATUS"][0]["STATUS"], "S")
-
-    async def test_init(self):
-        miner_api = BTMinerAPI(ip=self.ip, port=self.port)
-        self.assertEqual(str(miner_api.ip), self.ip)
-        self.assertEqual(miner_api.port, self.port)
-        self.assertEqual(str(miner_api), "BTMinerAPI: 192.168.0.1")
+                    continue
+                except KeyError:
+                    continue
 
 
-class TestCGMinerAPI(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.ip = "192.168.0.1"
-        self.port = 4028
-
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_send_command(self, mock_send_bytes):
-        mock_send_bytes.return_value = b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"CGMiner"}], "SUMMARY":[{"sumamry": 1}], "id": 1}'
-        miner_api = CGMinerAPI(ip=self.ip, port=self.port)
-        response = await miner_api.send_command("summary")
-        self.assertIsInstance(response, dict)
-        self.assertEqual(response["STATUS"][0]["STATUS"], "S")
-
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_all_commands(self, mock_send_bytes):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        for command in miner_api.commands:
-            mock_send_bytes.return_value = (
-                b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"CGMiner"}], "'
-                + command.upper().encode("utf-8")
-                + b'":[{}], "id": 1}'
-            )
-            try:
-                command_func = getattr(miner_api, command)
-            except AttributeError:
-                pass
-            else:
-                try:
-                    response = await command_func()
-                except TypeError:
-                    # probably addpool or something
-                    pass
-                else:
-                    self.assertIsInstance(response, dict)
-                    self.assertEqual(response["STATUS"][0]["STATUS"], "S")
-
-    async def test_init(self):
-        miner_api = CGMinerAPI(ip=self.ip, port=self.port)
-        self.assertEqual(str(miner_api.ip), self.ip)
-        self.assertEqual(miner_api.port, self.port)
-        self.assertEqual(str(miner_api), "CGMinerAPI: 192.168.0.1")
+class TestBFGMinerAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = BFGMinerAPI(self.ip)
+        self.api_str = "BFGMiner"
 
 
-class TestBOSMinerAPI(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
-        self.ip = "192.168.0.1"
-        self.port = 4028
+class TestBMMinerAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = BMMinerAPI(self.ip)
+        self.api_str = "BMMiner"
 
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_send_command(self, mock_send_bytes):
-        mock_send_bytes.return_value = b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BOSMiner"}], "SUMMARY":[{"sumamry": 1}], "id": 1}'
-        miner_api = BOSMinerAPI(ip=self.ip, port=self.port)
-        response = await miner_api.send_command("summary")
-        self.assertIsInstance(response, dict)
-        self.assertEqual(response["STATUS"][0]["STATUS"], "S")
 
-    @patch("pyasic.API.BaseMinerAPI._send_bytes")
-    async def test_all_commands(self, mock_send_bytes):
-        miner_api = BMMinerAPI(ip=self.ip, port=self.port)
-        for command in miner_api.commands:
-            mock_send_bytes.return_value = (
-                b'{"STATUS":[{"STATUS":"S","When":1618486231,"Code":7,"Msg":"BOSMiner"}], "'
-                + command.upper().encode("utf-8")
-                + b'":[{}], "id": 1}'
-            )
-            try:
-                command_func = getattr(miner_api, command)
-            except AttributeError:
-                pass
-            else:
-                try:
-                    response = await command_func()
-                except TypeError:
-                    # probably addpool or something
-                    pass
-                else:
-                    self.assertIsInstance(response, dict)
-                    self.assertEqual(response["STATUS"][0]["STATUS"], "S")
+class TestBOSMinerAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = BOSMinerAPI(self.ip)
+        self.api_str = "BOSMiner"
 
-    async def test_init(self):
-        miner_api = BOSMinerAPI(ip=self.ip, port=self.port)
-        self.assertEqual(str(miner_api.ip), self.ip)
-        self.assertEqual(miner_api.port, self.port)
-        self.assertEqual(str(miner_api), "BOSMinerAPI: 192.168.0.1")
+
+class TestBTMinerAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = BTMinerAPI(self.ip)
+        self.api_str = "BTMiner"
+
+
+class TestCGMinerAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = CGMinerAPI(self.ip)
+        self.api_str = "CGMiner"
+
+
+class TestLuxOSAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = LUXMinerAPI(self.ip)
+        self.api_str = "LuxOS"
 
 
 if __name__ == "__main__":
