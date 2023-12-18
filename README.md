@@ -15,7 +15,6 @@
 ---
 ## Intro
 
----
 Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with ASIC miners on your network, which makes it super fast.
 
 [Click here to view supported miner types](miners/supported_types.md)
@@ -23,7 +22,6 @@ Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with
 ---
 ## Getting started
 
----
 Getting started with `pyasic` is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
 
 ##### Scanning for miners
@@ -80,7 +78,6 @@ if __name__ == "__main__":
 ---
 ## Data gathering
 
----
 Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built-in function in each miner called `get_data()`.
 This function will return an instance of the dataclass `MinerData` with all data it can gather from the miner.
 Each piece of data in a `MinerData` instance can be referenced by getting it as an attribute, such as `MinerData().hashrate`.
@@ -125,7 +122,6 @@ if __name__ == "__main__":
 ---
 ## Miner control
 
----
 `pyasic` exposes a standard interface for each miner using control functions.
 Every miner class in `pyasic` must implement all the control functions defined in `BaseMiner`.
 
@@ -164,8 +160,6 @@ if __name__ == "__main__":
 
 ---
 ## Helper dataclasses
-
----
 
 ##### `MinerConfig` and `MinerData`
 
@@ -225,7 +219,6 @@ if __name__ == "__main__":
 ---
 ## Settings
 
----
 `pyasic` has settings designed to make using large groups of miners easier.  You can set the default password for all types of miners using the `pyasic.settings` module, used as follows:
 
 ```python
