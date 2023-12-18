@@ -37,16 +37,16 @@ class FanModeNormal(MinerConfigValue):
 @dataclass
 class FanModeManual(MinerConfigValue):
     mode: str = field(init=False, default="manual")
-    minimum_fans: int = 1
     speed: int = 100
+    minimum_fans: int = 1
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeManual":
         cls_conf = {}
-        if dict_conf.get("min_fans") is not None:
-            cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
         if dict_conf.get("speed") is not None:
             cls_conf["speed"] = dict_conf["speed"]
+        if dict_conf.get("minimum_fans") is not None:
+            cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
         return cls(**cls_conf)
 
     @classmethod
