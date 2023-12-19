@@ -1,5 +1,5 @@
 # pyasic
-*A set of modules for interfacing with many common types of ASIC bitcoin miners, using both their API and SSH.*
+*A simplified and standardized interface for Bitcoin ASICs.*
 
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
