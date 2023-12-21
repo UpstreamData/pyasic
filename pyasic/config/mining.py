@@ -194,7 +194,7 @@ class MiningModeConfig(MinerConfigOption):
                 if web_conf["PerpetualTune"]["Algorithm"].get("VoltageOptimizer") is not None:
                     return cls.hashrate_tuning(web_conf["PerpetualTune"]["Algorithm"]["VoltageOptimizer"].get("Target"))
                 else:
-                    return cls.hashrate_tuning()
+                    return cls.hashrate_tuning(web_conf["PerpetualTune"]["Algorithm"]["ChipTune"].get("Target"))
             else:
                 return cls.normal()
         return cls.default()
