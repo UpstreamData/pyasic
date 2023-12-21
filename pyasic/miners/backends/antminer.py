@@ -62,6 +62,10 @@ ANTMINER_MODERN_DATA_LOC = {
         "cmd": "get_uptime",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
+    "config": {
+        "cmd": "get_config",
+        "kwargs": {},
+    },
 }
 
 
@@ -296,10 +300,7 @@ class AntminerModern(BMMiner):
 
 ANTMINER_OLD_DATA_LOC = {
     "mac": {"cmd": "get_mac", "kwargs": {}},
-    "model": {
-        "cmd": "get_model",
-        "kwargs": {},
-    },
+    "model": {"cmd": "get_model", "kwargs": {}},
     "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
     "hostname": {
@@ -327,10 +328,8 @@ ANTMINER_OLD_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
     },
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_stats": {"api": "stats"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 

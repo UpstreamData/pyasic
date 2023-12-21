@@ -54,6 +54,7 @@ EPIC_DATA_LOC = {
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
     "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 

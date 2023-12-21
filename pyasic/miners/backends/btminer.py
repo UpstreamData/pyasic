@@ -88,10 +88,8 @@ BTMINER_DATA_LOC = {
     },
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {"api_status": {"api": "status"}}},
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_summary": {"api": "summary"}},
-    },
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_summary": {"api": "summary"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 

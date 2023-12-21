@@ -30,69 +30,25 @@ from pyasic.miners.base import BaseMiner
 from pyasic.web.bosminer import BOSMinerWebAPI
 
 LUXMINER_DATA_LOC = {
-    "mac": {
-        "cmd": "get_mac",
-        "kwargs": {"api_config": {"api": "config"}},
-    },
+    "mac": {"cmd": "get_mac", "kwargs": {"api_config": {"api": "config"}}},
     "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {
-        "cmd": "get_api_ver",
-        "kwargs": {},
-    },
-    "fw_ver": {
-        "cmd": "get_fw_ver",
-        "kwargs": {},
-    },
-    "hostname": {
-        "cmd": "get_hostname",
-        "kwargs": {},
-    },
-    "hashrate": {
-        "cmd": "get_hashrate",
-        "kwargs": {},
-    },
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
-        "kwargs": {},
-    },
-    "hashboards": {
-        "cmd": "get_hashboards",
-        "kwargs": {},
-    },
-    "wattage": {
-        "cmd": "get_wattage",
-        "kwargs": {},
-    },
-    "wattage_limit": {
-        "cmd": "get_wattage_limit",
-        "kwargs": {},
-    },
-    "fans": {
-        "cmd": "get_fans",
-        "kwargs": {},
-    },
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {}},
+    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {}},
+    "hostname": {"cmd": "get_hostname", "kwargs": {}},
+    "hashrate": {"cmd": "get_hashrate", "kwargs": {}},
+    "nominal_hashrate": {"cmd": "get_nominal_hashrate", "kwargs": {}},
+    "hashboards": {"cmd": "get_hashboards", "kwargs": {}},
+    "wattage": {"cmd": "get_wattage", "kwargs": {}},
+    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
+    "fans": {"cmd": "get_fans", "kwargs": {}},
     "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
     "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "errors": {
-        "cmd": "get_errors",
-        "kwargs": {},
-    },
-    "fault_light": {
-        "cmd": "get_fault_light",
-        "kwargs": {},
-    },
-    "pools": {
-        "cmd": "get_pools",
-        "kwargs": {},
-    },
-    "is_mining": {
-        "cmd": "is_mining",
-        "kwargs": {},
-    },
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
+    "errors": {"cmd": "get_errors", "kwargs": {}},
+    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
+    "pools": {"cmd": "get_pools", "kwargs": {}},
+    "is_mining": {"cmd": "is_mining", "kwargs": {}},
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_stats": {"api": "stats"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 

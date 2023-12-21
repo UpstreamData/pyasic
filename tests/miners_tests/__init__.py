@@ -40,26 +40,29 @@ class MinersTest(unittest.TestCase):
                     )
 
     def test_miner_data_map_keys(self):
-        keys = [
-            "api_ver",
-            "env_temp",
-            "errors",
-            "fan_psu",
-            "fans",
-            "fault_light",
-            "fw_ver",
-            "hashboards",
-            "hashrate",
-            "hostname",
-            "is_mining",
-            "mac",
-            "model",
-            "nominal_hashrate",
-            "pools",
-            "uptime",
-            "wattage",
-            "wattage_limit",
-        ]
+        keys = sorted(
+            [
+                "api_ver",
+                "config",
+                "env_temp",
+                "errors",
+                "fan_psu",
+                "fans",
+                "fault_light",
+                "fw_ver",
+                "hashboards",
+                "hashrate",
+                "hostname",
+                "is_mining",
+                "mac",
+                "model",
+                "nominal_hashrate",
+                "pools",
+                "uptime",
+                "wattage",
+                "wattage_limit",
+            ]
+        )
         warnings.filterwarnings("ignore")
         for miner_model in MINER_CLASSES.keys():
             for miner_api in MINER_CLASSES[miner_model].keys():

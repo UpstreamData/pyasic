@@ -22,6 +22,9 @@ from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from typing import Any, List, Union
 
+from .. import MinerConfig
+from ..config import MiningModeConfig
+from ..config.mining import MiningModePowerTune
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
 
@@ -140,14 +143,15 @@ class MinerData:
     fw_ver: str = None
     hostname: str = None
     hashrate: float = field(init=False)
-    _hashrate: float = None
+    _hashrate: float = field(repr=False, default=None)
     nominal_hashrate: float = None
     hashboards: List[HashBoard] = field(default_factory=list)
     ideal_hashboards: int = None
     temperature_avg: int = field(init=False)
     env_temp: float = None
     wattage: int = None
-    wattage_limit: int = None
+    wattage_limit: int = field(init=False)
+    _wattage_limit: int = field(repr=False, default=None)
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None
     total_chips: int = field(init=False)
@@ -156,11 +160,7 @@ class MinerData:
     percent_ideal_hashrate: float = field(init=False)
     percent_ideal_wattage: float = field(init=False)
     nominal: bool = field(init=False)
-    pool_split: str = "0"
-    pool_1_url: str = "Unknown"
-    pool_1_user: str = "Unknown"
-    pool_2_url: str = ""
-    pool_2_user: str = ""
+    config: MinerConfig = None
     errors: List[
         Union[WhatsminerError, BraiinsOSError, X19Error, InnosiliconError]
     ] = field(default_factory=list)
@@ -170,7 +170,11 @@ class MinerData:
 
     @classmethod
     def fields(cls):
-        return [f.name for f in fields(cls)]
+        return [f.name for f in fields(cls) if not f.name.startswith("_")]
+
+    @staticmethod
+    def dict_factory(x):
+        return {k: v for (k, v) in x if not k.startswith("_")}
 
     def __post_init__(self):
         self.datetime = datetime.now(timezone.utc).astimezone()
@@ -247,6 +251,17 @@ class MinerData:
     @hashrate.setter
     def hashrate(self, val):
         self._hashrate = val
+
+    @property
+    def wattage_limit(self):  # noqa - Skip PyCharm inspection
+        if self.config is not None:
+            if isinstance(self.config.mining_mode, MiningModePowerTune):
+                return self.config.mining_mode.power
+        return self._wattage_limit
+
+    @wattage_limit.setter
+    def wattage_limit(self, val: int):
+        self._wattage_limit = val
 
     @property
     def total_chips(self):  # noqa - Skip PyCharm inspection
@@ -339,7 +354,7 @@ class MinerData:
 
     def asdict(self) -> dict:
         logging.debug(f"MinerData - (To Dict) - Dumping Dict data")
-        return asdict(self)
+        return asdict(self, dict_factory=self.dict_factory)
 
     def as_dict(self) -> dict:
         """Get this dataclass as a dictionary.

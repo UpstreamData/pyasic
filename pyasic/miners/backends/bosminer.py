@@ -38,10 +38,7 @@ BOSMINER_DATA_LOC = {
         },
     },
     "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {
-        "cmd": "get_api_ver",
-        "kwargs": {"api_version": {"api": "version"}},
-    },
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {
         "cmd": "get_fw_ver",
         "kwargs": {
@@ -178,10 +175,8 @@ BOSMINER_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {"api_devdetails": {"api": "devdetails"}},
     },
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_summary": {"api": "summary"}},
-    },
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_summary": {"api": "summary"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 
