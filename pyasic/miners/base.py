@@ -42,8 +42,8 @@ class BaseMiner(ABC):
         self.make = None
         self.model = None
         # physical attributes
-        self.ideal_hashboards = 3
-        self.nominal_chips = 0
+        self.expected_hashboards = 3
+        self.expected_chips = 0
         self.fan_count = 2
         # data gathering locations
         self.data_locations = None
@@ -173,7 +173,7 @@ class BaseMiner(ABC):
 
     @abstractmethod
     async def get_config(self) -> MinerConfig:
-        # Not a data gathering function, since this is used for configuration and not MinerData
+        # Not a data gathering function, since this is used for configuration
         """Get the mining configuration of the miner and return it as a [`MinerConfig`][pyasic.config.MinerConfig].
 
         Returns:
@@ -387,7 +387,7 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_nominal_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
         """Get the nominal hashrate from factory if available.
 
         Returns:
@@ -491,29 +491,7 @@ class BaseMiner(ABC):
                 continue
 
             function = getattr(self, self.data_locations[data_name]["cmd"])
-            if not data_name == "pools":
-                miner_data[data_name] = await function(**args_to_send)
-            else:
-                pools_data = await function(**args_to_send)
-                if pools_data:
-                    try:
-                        miner_data["pool_1_url"] = pools_data[0]["pool_1_url"]
-                        miner_data["pool_1_user"] = pools_data[0]["pool_1_user"]
-                    except KeyError:
-                        pass
-                    if len(pools_data) > 1:
-                        miner_data["pool_2_url"] = pools_data[1]["pool_1_url"]
-                        miner_data["pool_2_user"] = pools_data[1]["pool_1_user"]
-                        miner_data[
-                            "pool_split"
-                        ] = f"{pools_data[0]['quota']}/{pools_data[1]['quota']}"
-                    else:
-                        try:
-                            miner_data["pool_2_url"] = pools_data[0]["pool_2_url"]
-                            miner_data["pool_2_user"] = pools_data[0]["pool_2_user"]
-                            miner_data["quota"] = "0"
-                        except KeyError:
-                            pass
+            miner_data[data_name] = await function(**args_to_send)
         return miner_data
 
     async def get_data(
@@ -532,11 +510,11 @@ class BaseMiner(ABC):
         data = MinerData(
             ip=str(self.ip),
             make=self.make,
-            ideal_chips=self.nominal_chips * self.ideal_hashboards,
-            ideal_hashboards=self.ideal_hashboards,
+            expected_chips=self.expected_chips * self.expected_hashboards,
+            expected_hashboards=self.expected_hashboards,
             hashboards=[
-                HashBoard(slot=i, expected_chips=self.nominal_chips)
-                for i in range(self.ideal_hashboards)
+                HashBoard(slot=i, expected_chips=self.expected_chips)
+                for i in range(self.expected_hashboards)
             ],
         )
 

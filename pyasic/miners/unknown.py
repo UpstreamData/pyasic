@@ -145,7 +145,7 @@ class UnknownMiner(BaseMiner):
     async def get_fault_light(self) -> bool:
         return False
 
-    async def get_nominal_hashrate(self) -> Optional[float]:
+    async def get_expected_hashrate(self) -> Optional[float]:
         return None
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:

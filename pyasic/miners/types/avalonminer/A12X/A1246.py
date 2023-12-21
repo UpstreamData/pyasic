@@ -23,5 +23,5 @@ class Avalon1246(AvalonMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "Avalon 1246"
-        self.nominal_chips = 120
+        self.expected_chips = 120
         self.fan_count = 4

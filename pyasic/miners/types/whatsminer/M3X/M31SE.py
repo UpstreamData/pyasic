@@ -24,7 +24,7 @@ class M31SEV10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31SE V10"
-        self.nominal_chips = 82
+        self.expected_chips = 82
         self.fan_count = 2
 
 
@@ -33,7 +33,7 @@ class M31SEV20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31SE V20"
-        self.nominal_chips = 78
+        self.expected_chips = 78
         self.fan_count = 2
 
 
@@ -42,5 +42,5 @@ class M31SEV30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M31SE V30"
-        self.nominal_chips = 78
+        self.expected_chips = 78
         self.fan_count = 2

@@ -31,8 +31,8 @@ AVALON_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {"mac": {"api": "version"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_devs": {"api": "devs"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
@@ -52,6 +52,7 @@ AVALON_DATA_LOC = {
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 
@@ -201,8 +202,8 @@ class CGMinerAvalon(CGMiner):
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
 
         if not api_stats:
@@ -218,7 +219,7 @@ class CGMinerAvalon(CGMiner):
             except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
 
-            for board in range(self.ideal_hashboards):
+            for board in range(self.expected_hashboards):
                 try:
                     hashboards[board].chip_temp = int(parsed_stats["MTmax"][board])
                 except LookupError:
@@ -247,7 +248,7 @@ class CGMinerAvalon(CGMiner):
 
         return hashboards
 
-    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()

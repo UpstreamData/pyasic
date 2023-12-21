@@ -24,7 +24,7 @@ class M30SV10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S V10"
-        self.nominal_chips = 148
+        self.expected_chips = 148
         self.fan_count = 2
 
 
@@ -51,7 +51,7 @@ class M30SV40(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S V40"
-        self.nominal_chips = 172
+        self.expected_chips = 172
         self.fan_count = 2
 
 
@@ -99,7 +99,7 @@ class M30SVE10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S VE10"
-        self.nominal_chips = 105
+        self.expected_chips = 105
         self.fan_count = 2
 
 
@@ -177,7 +177,7 @@ class M30SVF20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S VF20"
-        self.nominal_chips = 74
+        self.expected_chips = 74
         self.fan_count = 2
 
 
@@ -204,7 +204,7 @@ class M30SVG20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S VG20"
-        self.nominal_chips = 70
+        self.expected_chips = 70
         self.fan_count = 2
 
 
@@ -231,7 +231,7 @@ class M30SVH10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S VH10"
-        self.nominal_chips = 64
+        self.expected_chips = 64
         self.fan_count = 2
 
 
@@ -279,7 +279,7 @@ class M30SVH60(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M30S VH60"
-        self.nominal_chips = 0
+        self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M30SVH60, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )

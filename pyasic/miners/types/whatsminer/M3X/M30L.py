@@ -25,5 +25,5 @@ class M30LV10(WhatsMiner):  # noqa - ignore ABC method implementation
         self.ip = ip
         self.model = "M30L V10"
         self.board_num = 4
-        self.nominal_chips = 144
+        self.expected_chips = 144
         self.fan_count = 2

@@ -22,7 +22,7 @@ class S17(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S17"
-        self.nominal_chips = 48
+        self.expected_chips = 48
         self.fan_count = 4
 
 
@@ -30,7 +30,7 @@ class S17Plus(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.model = "S17+"
-        self.nominal_chips = 65
+        self.expected_chips = 65
         self.fan_count = 4
 
 
@@ -39,7 +39,7 @@ class S17Pro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S17 Pro"
-        self.nominal_chips = 48
+        self.expected_chips = 48
         self.fan_count = 4
 
 
@@ -48,5 +48,5 @@ class S17e(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S17e"
-        self.nominal_chips = 135
+        self.expected_chips = 135
         self.fan_count = 4

@@ -30,7 +30,7 @@ EPIC_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_summary": {"web": "summary"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"web_summary": {"web": "summary"}}},
-    "nominal_hashrate": {
+    "expected_hashrate": {
         "cmd": "get_nominal_hashrate",
         "kwargs": {"web_summary": {"web": "summary"}},
     },
@@ -54,6 +54,7 @@ EPIC_DATA_LOC = {
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
     "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
     "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 
@@ -161,7 +162,7 @@ class ePIC(BMMiner):
                 logger.error(e)
                 pass
 
-    async def get_nominal_hashrate(self, web_summary: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not web_summary:
             try:
@@ -228,8 +229,8 @@ class ePIC(BMMiner):
             except APIError:
                 pass
         hb_list = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
         if web_summary["HBs"] != None:
             for hb in web_summary["HBs"]:

@@ -24,8 +24,8 @@ class M50VE30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M50 VE30"
-        self.ideal_hashboards = 4
-        self.nominal_chips = 255
+        self.expected_hashboards = 4
+        self.expected_chips = 255
         self.fan_count = 2
 
 
@@ -34,7 +34,7 @@ class M50VG30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M50 VG30"
-        self.nominal_chips = 156
+        self.expected_chips = 156
         self.fan_count = 2
 
 
@@ -43,7 +43,7 @@ class M50VH10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M50 VH10"
-        self.nominal_chips = 86
+        self.expected_chips = 86
         self.fan_count = 2
 
 
@@ -52,7 +52,7 @@ class M50VH20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M50 VH20"
-        self.nominal_chips = 111
+        self.expected_chips = 111
         self.fan_count = 2
 
 
@@ -142,7 +142,7 @@ class M50VJ30(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M50 VJ30"
-        self.nominal_chips = 0
+        self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M50 VJ30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )

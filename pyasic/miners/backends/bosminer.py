@@ -38,10 +38,7 @@ BOSMINER_DATA_LOC = {
         },
     },
     "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {
-        "cmd": "get_api_ver",
-        "kwargs": {"api_version": {"api": "version"}},
-    },
+    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
     "fw_ver": {
         "cmd": "get_fw_ver",
         "kwargs": {
@@ -65,8 +62,8 @@ BOSMINER_DATA_LOC = {
             },
         },
     },
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_devs": {"api": "devs"}},
     },
     "hashboards": {
@@ -178,10 +175,8 @@ BOSMINER_DATA_LOC = {
         "cmd": "is_mining",
         "kwargs": {"api_devdetails": {"api": "devdetails"}},
     },
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_summary": {"api": "summary"}},
-    },
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_summary": {"api": "summary"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 
@@ -601,8 +596,8 @@ class BOSMiner(BaseMiner):
         graphql_boards: dict = None,
     ):
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
 
         if not graphql_boards and not (api_devs or api_temps or api_devdetails):
@@ -1063,7 +1058,7 @@ class BOSMiner(BaseMiner):
         except (TypeError, AttributeError):
             return self.light
 
-    async def get_nominal_hashrate(self, api_devs: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if not api_devs:
             try:
                 api_devs = await self.api.devs()
@@ -1077,14 +1072,14 @@ class BOSMiner(BaseMiner):
 
                 for board in api_devs["DEVS"]:
                     _id = board["ID"] - offset
-                    nominal_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
-                    if nominal_hashrate:
-                        hr_list.append(nominal_hashrate)
+                    expected_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
+                    if expected_hashrate:
+                        hr_list.append(expected_hashrate)
                 if len(hr_list) == 0:
                     return 0
                 else:
                     return round(
-                        (sum(hr_list) / len(hr_list)) * self.ideal_hashboards, 2
+                        (sum(hr_list) / len(hr_list)) * self.expected_hashboards, 2
                     )
             except (IndexError, KeyError):
                 pass

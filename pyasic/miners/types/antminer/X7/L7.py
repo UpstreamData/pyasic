@@ -21,5 +21,5 @@ class L7(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "L7"
-        self.nominal_chips = 120
+        self.expected_chips = 120
         self.fan_count = 4

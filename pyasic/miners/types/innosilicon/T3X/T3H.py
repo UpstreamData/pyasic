@@ -22,5 +22,5 @@ class T3HPlus(InnosiliconMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T3H+"
-        self.nominal_chips = 114
+        self.expected_chips = 114
         self.fan_count = 4

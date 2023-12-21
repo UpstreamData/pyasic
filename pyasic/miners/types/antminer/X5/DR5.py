@@ -22,6 +22,6 @@ class DR5(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "DR5"
-        self.nominal_chips = 72
-        self.ideal_hashboards = 3
+        self.expected_chips = 72
+        self.expected_hashboards = 3
         self.fan_count = 2

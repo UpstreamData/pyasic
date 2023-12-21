@@ -21,8 +21,8 @@ from .bosminer import BOSMiner
 from .btminer import BTMiner
 from .cgminer import CGMiner
 from .cgminer_avalon import CGMinerAvalon
+from .epic import ePIC
 from .hiveon import Hiveon
 from .luxminer import LUXMiner
 from .vnish import VNish
-from .epic import ePIC
 from .whatsminer import M2X, M3X, M5X, M6X

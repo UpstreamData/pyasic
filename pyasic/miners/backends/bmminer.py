@@ -32,8 +32,8 @@ BMMINER_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
@@ -46,10 +46,8 @@ BMMINER_DATA_LOC = {
     "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
     "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
     "is_mining": {"cmd": "is_mining", "kwargs": {}},
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
+    "uptime": {"cmd": "get_uptime", "kwargs": {"api_stats": {"api": "stats"}}},
+    "config": {"cmd": "get_config", "kwargs": {}},
 }
 
 
@@ -247,12 +245,12 @@ class BMMiner(BaseMiner):
 
                     if len(real_slots) < 3:
                         real_slots = list(
-                            range(board_offset, board_offset + self.ideal_hashboards)
+                            range(board_offset, board_offset + self.expected_hashboards)
                         )
 
                     for i in real_slots:
                         hashboard = HashBoard(
-                            slot=i - board_offset, expected_chips=self.nominal_chips
+                            slot=i - board_offset, expected_chips=self.expected_chips
                         )
 
                         chip_temp = boards[1].get(f"temp{i}")
@@ -349,7 +347,7 @@ class BMMiner(BaseMiner):
     async def get_fault_light(self) -> bool:
         return False
 
-    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
         if not api_stats:
             try:
@@ -359,17 +357,17 @@ class BMMiner(BaseMiner):
 
         if api_stats:
             try:
-                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
                     rate_unit = api_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
-                    return round(ideal_rate / 1000, 2)
+                    return round(expected_rate / 1000, 2)
                 if rate_unit == "MH":
-                    return round(ideal_rate / 1000000, 2)
+                    return round(expected_rate / 1000000, 2)
                 else:
-                    return round(ideal_rate, 2)
+                    return round(expected_rate, 2)
             except (KeyError, IndexError):
                 pass
 
