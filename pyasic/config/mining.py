@@ -185,6 +185,19 @@ class MiningModeConfig(MinerConfigOption):
             elif int(work_mode) == 3:
                 return cls.low()
         return cls.default()
+    
+    @classmethod
+    def from_epic(cls, web_conf: dict):
+        if web_conf.get("PerpetualTune") is not None:
+            work_mode = web_conf["PerpetualTune"]
+            if work_mode["Running"] == True:
+                if web_conf["PerpetualTune"]["Algorithm"].get("VoltageOptimizer") is not None:
+                    return cls.hashrate_tuning(web_conf["PerpetualTune"]["Algorithm"]["VoltageOptimizer"].get("Target"))
+                else:
+                    return cls.hashrate_tuning()
+            else:
+                return cls.normal()
+        return cls.default()
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict):

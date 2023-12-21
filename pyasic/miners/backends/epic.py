@@ -18,6 +18,7 @@ from typing import List, Optional, Tuple, Union
 
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends.bmminer import BMMiner
@@ -73,7 +74,24 @@ class ePIC(BMMiner):
         if self.model is not None:
             return self.model + " (ePIC)"
         return "? (ePIC)"
+    
+    async def get_config(self) -> MinerConfig:
+        summary = None
+        try:
+            summary = await self.web.summary()
+        except APIError as e: 
+            logger.warning(e)
+        except LookupError:
+            pass
 
+        if summary is not None:
+            cfg = MinerConfig.from_epic(summary)
+        else:
+            cfg = MinerConfig()
+
+        self.config = cfg
+        return self.config
+    
     async def restart_backend(self) -> bool:
         data = await self.web.restart_epic()
         if data:

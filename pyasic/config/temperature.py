@@ -56,3 +56,21 @@ class TemperatureConfig(MinerConfigValue):
                 hot=temp_control.get("hot_temp"),
                 danger=temp_control.get("dangerous_temp"),
             )
+    @classmethod
+    def from_epic(cls, web_conf: dict) -> "TemperatureConfig":
+        ## we only have a target temp if we are in auto-fan mode, so 
+        ## we need to check for that
+        if web_conf.get("Misc") is not None:
+            target_temp = web_conf["Misc"]["Shutdown Temp"]
+            hot_temp = web_conf["Misc"]["Shutdown Temp"]
+            dangerous_temp = web_conf["Misc"]["Shutdown Temp"]
+
+        if web_conf["Fans"]["Fan Mode"].get("Auto") is not None:
+            target_temp = web_conf["Fans"]["Fan Mode"]["Auto"]["Target Temperature"]
+
+        if web_conf.get("Misc") is not None:
+            return cls(
+                target=target_temp,
+                hot=hot_temp,
+                danger=dangerous_temp
+            )
