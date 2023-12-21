@@ -56,7 +56,7 @@ class MinersTest(unittest.TestCase):
                 "is_mining",
                 "mac",
                 "model",
-                "nominal_hashrate",
+                "expected_hashrate",
                 "pools",
                 "uptime",
                 "wattage",

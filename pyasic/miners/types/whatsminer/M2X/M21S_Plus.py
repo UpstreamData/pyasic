@@ -24,7 +24,7 @@ class M21SPlusV20(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M21S+ V20"
-        self.nominal_chips = 0
+        self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M21S+ V20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
         )

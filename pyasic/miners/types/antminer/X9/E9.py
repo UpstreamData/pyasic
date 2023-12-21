@@ -22,6 +22,6 @@ class E9Pro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "E9Pro"
-        self.nominal_chips = 8
-        self.ideal_hashboards = 2
+        self.expected_chips = 8
+        self.expected_hashboards = 2
         self.fan_count = 4

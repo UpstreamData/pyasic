@@ -22,5 +22,5 @@ class T9(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T9"
-        self.nominal_chips = 54
+        self.expected_chips = 54
         self.fan_count = 2

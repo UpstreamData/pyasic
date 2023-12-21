@@ -133,8 +133,8 @@ class CGMinerT3HPlus(CGMiner, T3HPlus):
             web_get_all = web_get_all["all"]
 
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
 
         if not api_stats:

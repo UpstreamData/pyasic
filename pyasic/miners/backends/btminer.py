@@ -50,8 +50,8 @@ BTMINER_DATA_LOC = {
         "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
     },
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_summary": {"api": "summary"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_devs": {"api": "devs"}}},
@@ -408,8 +408,8 @@ class BTMiner(BaseMiner):
 
     async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
 
         if not api_devs:
@@ -424,10 +424,10 @@ class BTMiner(BaseMiner):
                     if len(hashboards) < board["ASC"] + 1:
                         hashboards.append(
                             HashBoard(
-                                slot=board["ASC"], expected_chips=self.nominal_chips
+                                slot=board["ASC"], expected_chips=self.expected_chips
                             )
                         )
-                        self.ideal_hashboards += 1
+                        self.expected_hashboards += 1
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
                     hashboards[board["ASC"]].hashrate = round(
@@ -590,7 +590,7 @@ class BTMiner(BaseMiner):
 
         return errors
 
-    async def get_nominal_hashrate(self, api_summary: dict = None):
+    async def get_expected_hashrate(self, api_summary: dict = None):
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -599,7 +599,7 @@ class BTMiner(BaseMiner):
 
         if api_summary:
             try:
-                nominal_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
+                expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
                 if nominal_hashrate:
                     return round(nominal_hashrate / 1000, 2)
             except (KeyError, IndexError):

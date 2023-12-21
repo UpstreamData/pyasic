@@ -54,7 +54,7 @@ class HiveonT9(Hiveon, T9):
         hashboards = []
 
         for board in board_map:
-            hashboard = HashBoard(slot=board, expected_chips=self.nominal_chips)
+            hashboard = HashBoard(slot=board, expected_chips=self.expected_chips)
             hashrate = 0
             chips = 0
             for chipset in board_map[board]:

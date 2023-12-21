@@ -137,10 +137,10 @@ class _MinerPhaseBalancer:
                 for miner in self.miners
             ]
         )
-        pct_ideal_list = [d.percent_ideal for d in data]
+        pct_expected_list = [d.percent_ideal for d in data]
         pct_ideal = 0
-        if len(pct_ideal_list) > 0:
-            pct_ideal = sum(pct_ideal_list) / len(pct_ideal_list)
+        if len(pct_expected_list) > 0:
+            pct_ideal = sum(pct_expected_list) / len(pct_expected_list)
 
         wattage = round(wattage * 1 / (pct_ideal / 100))
 

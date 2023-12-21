@@ -152,8 +152,8 @@ class CGMinerA10X(CGMiner, A10X):
         self, api_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
         if web_get_all:
             web_get_all = web_get_all["all"]

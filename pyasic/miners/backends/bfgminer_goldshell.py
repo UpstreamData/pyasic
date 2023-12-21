@@ -29,8 +29,8 @@ GOLDSHELL_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_status": {"web": "status"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {
@@ -132,8 +132,8 @@ class BFGMinerGoldshell(BFGMiner):
                 pass
 
         hashboards = [
-            HashBoard(slot=i, expected_chips=self.nominal_chips)
-            for i in range(self.ideal_hashboards)
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
         ]
 
         if api_devs:

@@ -28,7 +28,7 @@ VNISH_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_summary": {"web": "summary"}}},
     "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
+    "expected_hashrate": {
         "cmd": "get_nominal_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },

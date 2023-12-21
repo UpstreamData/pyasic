@@ -21,5 +21,5 @@ class L3Plus(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "L3+"
-        self.nominal_chips = 72
+        self.expected_chips = 72
         self.fan_count = 2

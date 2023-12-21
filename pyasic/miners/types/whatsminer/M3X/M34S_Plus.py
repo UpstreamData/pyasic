@@ -22,6 +22,6 @@ class M34SPlusVE10(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M34S+ VE10"
-        self.ideal_hashboards = 4
-        self.nominal_chips = 116
+        self.expected_hashboards = 4
+        self.expected_chips = 116
         self.fan_count = 0

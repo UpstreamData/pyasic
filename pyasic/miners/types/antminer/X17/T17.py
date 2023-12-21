@@ -22,7 +22,7 @@ class T17(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T17"
-        self.nominal_chips = 30
+        self.expected_chips = 30
         self.fan_count = 4
 
 
@@ -31,7 +31,7 @@ class T17Plus(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T17+"
-        self.nominal_chips = 44
+        self.expected_chips = 44
         self.fan_count = 4
 
 
@@ -40,5 +40,5 @@ class T17e(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "T17e"
-        self.nominal_chips = 78
+        self.expected_chips = 78
         self.fan_count = 4

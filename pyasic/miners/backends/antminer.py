@@ -38,8 +38,8 @@ ANTMINER_MODERN_DATA_LOC = {
         "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
     },
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
@@ -202,7 +202,7 @@ class AntminerModern(BMMiner):
                 pass
         return self.light
 
-    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -211,17 +211,17 @@ class AntminerModern(BMMiner):
 
         if api_stats:
             try:
-                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
                     rate_unit = api_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
-                    return round(ideal_rate / 1000, 2)
+                    return round(expected_rate / 1000, 2)
                 if rate_unit == "MH":
-                    return round(ideal_rate / 1000000, 2)
+                    return round(expected_rate / 1000000, 2)
                 else:
-                    return round(ideal_rate, 2)
+                    return round(expected_rate, 2)
             except (KeyError, IndexError):
                 pass
 
@@ -308,8 +308,8 @@ ANTMINER_OLD_DATA_LOC = {
         "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
     },
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "nominal_hashrate": {
-        "cmd": "get_nominal_hashrate",
+    "expected_hashrate": {
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
@@ -471,9 +471,11 @@ class AntminerOld(CGMiner):
                     if board_offset == -1:
                         board_offset = 1
 
-                    for i in range(board_offset, board_offset + self.ideal_hashboards):
+                    for i in range(
+                        board_offset, board_offset + self.expected_hashboards
+                    ):
                         hashboard = HashBoard(
-                            slot=i - board_offset, expected_chips=self.nominal_chips
+                            slot=i - board_offset, expected_chips=self.expected_chips
                         )
 
                         chip_temp = boards[1].get(f"temp{i}")

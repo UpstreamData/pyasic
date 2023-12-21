@@ -22,5 +22,5 @@ class M32S(WhatsMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "M32S"
-        self.nominal_chips = 78
+        self.expected_chips = 78
         self.fan_count = 2

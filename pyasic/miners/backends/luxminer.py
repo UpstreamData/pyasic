@@ -36,7 +36,7 @@ LUXMINER_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {}},
     "hostname": {"cmd": "get_hostname", "kwargs": {}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {}},
-    "nominal_hashrate": {"cmd": "get_nominal_hashrate", "kwargs": {}},
+    "expected_hashrate": {"cmd": "get_nominal_hashrate", "kwargs": {}},
     "hashboards": {"cmd": "get_hashboards", "kwargs": {}},
     "wattage": {"cmd": "get_wattage", "kwargs": {}},
     "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
@@ -233,9 +233,11 @@ class LUXMiner(BaseMiner):
                     if board_offset == -1:
                         board_offset = 1
 
-                    for i in range(board_offset, board_offset + self.ideal_hashboards):
+                    for i in range(
+                        board_offset, board_offset + self.expected_hashboards
+                    ):
                         hashboard = HashBoard(
-                            slot=i - board_offset, expected_chips=self.nominal_chips
+                            slot=i - board_offset, expected_chips=self.expected_chips
                         )
 
                         chip_temp = boards[1].get(f"temp{i}")
@@ -357,7 +359,7 @@ class LUXMiner(BaseMiner):
     async def get_fault_light(self) -> bool:
         pass
 
-    async def get_nominal_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -366,17 +368,17 @@ class LUXMiner(BaseMiner):
 
         if api_stats:
             try:
-                ideal_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
                     rate_unit = api_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
-                    return round(ideal_rate / 1000, 2)
+                    return round(expected_rate / 1000, 2)
                 if rate_unit == "MH":
-                    return round(ideal_rate / 1000000, 2)
+                    return round(expected_rate / 1000000, 2)
                 else:
-                    return round(ideal_rate, 2)
+                    return round(expected_rate, 2)
             except (KeyError, IndexError):
                 pass
 

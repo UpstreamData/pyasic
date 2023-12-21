@@ -145,7 +145,7 @@ class BOSMinerOld(BOSMiner):
     async def get_fault_light(self, *args, **kwargs) -> bool:
         return False
 
-    async def get_nominal_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
         return None
 
     async def get_data(self, allow_warning: bool = False, **kwargs) -> MinerData:

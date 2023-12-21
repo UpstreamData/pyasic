@@ -108,7 +108,7 @@ class MinerData:
         hostname: The network hostname of the miner as a str.
         hashrate: The hashrate of the miner in TH/s as a float.  Calculated automatically.
         _hashrate: Backup for hashrate found via API instead of hashboards.
-        nominal_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
+        expected_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
         hashboards: A list of hashboards on the miner with their statistics.
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
@@ -117,10 +117,10 @@ class MinerData:
         fans: A list of fans on the miner with their speeds.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
         total_chips: The total number of chips on all boards.  Calculated automatically.
-        ideal_chips: The ideal number of chips in the miner as an int.
-        percent_ideal_chips: The percent of total chips out of the ideal count.  Calculated automatically.
-        percent_ideal_hashrate: The percent of total hashrate out of the ideal hashrate.  Calculated automatically.
-        percent_ideal_wattage: The percent of total wattage out of the ideal wattage.  Calculated automatically.
+        expected_chips: The ideal number of chips in the miner as an int.
+        percent_expected_chips: The percent of total chips out of the ideal count.  Calculated automatically.
+        percent_expected_hashrate: The percent of total hashrate out of the ideal hashrate.  Calculated automatically.
+        percent_expected_wattage: The percent of total wattage out of the ideal wattage.  Calculated automatically.
         nominal: Whether the number of chips in the miner is nominal.  Calculated automatically.
         pool_split: The pool split as a str.
         pool_1_url: The first pool url on the miner as a str.
@@ -144,9 +144,9 @@ class MinerData:
     hostname: str = None
     hashrate: float = field(init=False)
     _hashrate: float = field(repr=False, default=None)
-    nominal_hashrate: float = None
+    expected_hashrate: float = None
     hashboards: List[HashBoard] = field(default_factory=list)
-    ideal_hashboards: int = None
+    expected_hashboards: int = None
     temperature_avg: int = field(init=False)
     env_temp: float = None
     wattage: int = None
@@ -155,10 +155,10 @@ class MinerData:
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None
     total_chips: int = field(init=False)
-    ideal_chips: int = None
-    percent_ideal_chips: float = field(init=False)
-    percent_ideal_hashrate: float = field(init=False)
-    percent_ideal_wattage: float = field(init=False)
+    expected_chips: int = None
+    percent_expected_chips: float = field(init=False)
+    percent_expected_hashrate: float = field(init=False)
+    percent_expected_wattage: float = field(init=False)
     nominal: bool = field(init=False)
     config: MinerConfig = None
     errors: List[
@@ -280,48 +280,48 @@ class MinerData:
 
     @property
     def nominal(self):  # noqa - Skip PyCharm inspection
-        if self.total_chips is None or self.ideal_chips is None:
+        if self.total_chips is None or self.expected_chips is None:
             return None
-        return self.ideal_chips == self.total_chips
+        return self.expected_chips == self.total_chips
 
     @nominal.setter
     def nominal(self, val):
         pass
 
     @property
-    def percent_ideal_chips(self):  # noqa - Skip PyCharm inspection
-        if self.total_chips is None or self.ideal_chips is None:
+    def percent_expected_chips(self):  # noqa - Skip PyCharm inspection
+        if self.total_chips is None or self.expected_chips is None:
             return None
-        if self.total_chips == 0 or self.ideal_chips == 0:
+        if self.total_chips == 0 or self.expected_chips == 0:
             return 0
-        return round((self.total_chips / self.ideal_chips) * 100)
+        return round((self.total_chips / self.expected_chips) * 100)
 
-    @percent_ideal_chips.setter
-    def percent_ideal_chips(self, val):
+    @percent_expected_chips.setter
+    def percent_expected_chips(self, val):
         pass
 
     @property
-    def percent_ideal_hashrate(self):  # noqa - Skip PyCharm inspection
-        if self.hashrate is None or self.nominal_hashrate is None:
+    def percent_expected_hashrate(self):  # noqa - Skip PyCharm inspection
+        if self.hashrate is None or self.expected_hashrate is None:
             return None
-        if self.hashrate == 0 or self.nominal_hashrate == 0:
+        if self.hashrate == 0 or self.expected_hashrate == 0:
             return 0
-        return round((self.hashrate / self.nominal_hashrate) * 100)
+        return round((self.hashrate / self.expected_hashrate) * 100)
 
-    @percent_ideal_hashrate.setter
-    def percent_ideal_hashrate(self, val):
+    @percent_expected_hashrate.setter
+    def percent_expected_hashrate(self, val):
         pass
 
     @property
-    def percent_ideal_wattage(self):  # noqa - Skip PyCharm inspection
+    def percent_expected_wattage(self):  # noqa - Skip PyCharm inspection
         if self.wattage_limit is None or self.wattage is None:
             return None
         if self.wattage_limit == 0 or self.wattage == 0:
             return 0
         return round((self.wattage / self.wattage_limit) * 100)
 
-    @percent_ideal_wattage.setter
-    def percent_ideal_wattage(self, val):
+    @percent_expected_wattage.setter
+    def percent_expected_wattage(self, val):
         pass
 
     @property
