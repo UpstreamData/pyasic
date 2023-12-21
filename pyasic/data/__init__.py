@@ -22,9 +22,9 @@ from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from typing import Any, List, Union
 
-from .. import MinerConfig
-from ..config import MiningModeConfig
-from ..config.mining import MiningModePowerTune
+from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModePowerTune
+
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
 
@@ -38,7 +38,7 @@ class HashBoard:
         temp: The temperature of the PCB as an int.
         chip_temp: The temperature of the chips as an int.
         chips: The chip count of the board as an int.
-        expected_chips: The ideal chip count of the board as an int.
+        expected_chips: The expected chip count of the board as an int.
         missing: Whether the board is returned from the miners data as a bool.
     """
 
@@ -117,10 +117,10 @@ class MinerData:
         fans: A list of fans on the miner with their speeds.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
         total_chips: The total number of chips on all boards.  Calculated automatically.
-        expected_chips: The ideal number of chips in the miner as an int.
-        percent_expected_chips: The percent of total chips out of the ideal count.  Calculated automatically.
-        percent_expected_hashrate: The percent of total hashrate out of the ideal hashrate.  Calculated automatically.
-        percent_expected_wattage: The percent of total wattage out of the ideal wattage.  Calculated automatically.
+        expected_chips: The expected number of chips in the miner as an int.
+        percent_expected_chips: The percent of total chips out of the expected count.  Calculated automatically.
+        percent_expected_hashrate: The percent of total hashrate out of the expected hashrate.  Calculated automatically.
+        percent_expected_wattage: The percent of total wattage out of the expected wattage.  Calculated automatically.
         nominal: Whether the number of chips in the miner is nominal.  Calculated automatically.
         pool_split: The pool split as a str.
         pool_1_url: The first pool url on the miner as a str.
