@@ -600,8 +600,8 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
-                if nominal_hashrate:
-                    return round(nominal_hashrate / 1000, 2)
+                if expected_hashrate:
+                    return round(expected_hashrate / 1000, 2)
             except (KeyError, IndexError):
                 pass
 

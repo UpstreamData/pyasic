@@ -36,7 +36,7 @@ LUXMINER_DATA_LOC = {
     "fw_ver": {"cmd": "get_fw_ver", "kwargs": {}},
     "hostname": {"cmd": "get_hostname", "kwargs": {}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {}},
-    "expected_hashrate": {"cmd": "get_nominal_hashrate", "kwargs": {}},
+    "expected_hashrate": {"cmd": "get_expected_hashrate", "kwargs": {}},
     "hashboards": {"cmd": "get_hashboards", "kwargs": {}},
     "wattage": {"cmd": "get_wattage", "kwargs": {}},
     "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},

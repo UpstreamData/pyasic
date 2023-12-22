@@ -29,7 +29,7 @@ VNISH_DATA_LOC = {
     "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
     "expected_hashrate": {
-        "cmd": "get_nominal_hashrate",
+        "cmd": "get_expected_hashrate",
         "kwargs": {"api_stats": {"api": "stats"}},
     },
     "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},

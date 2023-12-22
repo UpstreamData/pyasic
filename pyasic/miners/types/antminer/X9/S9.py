@@ -40,5 +40,5 @@ class S9j(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S9j"
-        self.nominal_chips = 63
+        self.expected_chips = 63
         self.fan_count = 2

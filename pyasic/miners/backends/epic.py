@@ -31,7 +31,7 @@ EPIC_DATA_LOC = {
     "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
     "hashrate": {"cmd": "get_hashrate", "kwargs": {"web_summary": {"web": "summary"}}},
     "expected_hashrate": {
-        "cmd": "get_nominal_hashrate",
+        "cmd": "get_expected_hashrate",
         "kwargs": {"web_summary": {"web": "summary"}},
     },
     "hashboards": {

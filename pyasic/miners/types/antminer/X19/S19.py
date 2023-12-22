@@ -31,7 +31,7 @@ class S19NoPIC(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19 No PIC"
-        self.nominal_chips = 88
+        self.expected_chips = 88
         self.fan_count = 4
 
 
@@ -49,7 +49,7 @@ class S19i(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19i"
-        self.nominal_chips = 80
+        self.expected_chips = 80
         self.fan_count = 4
 
 
@@ -58,7 +58,7 @@ class S19Plus(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19+"
-        self.nominal_chips = 80
+        self.expected_chips = 80
         self.fan_count = 4
 
 
@@ -76,7 +76,7 @@ class S19XP(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19 XP"
-        self.nominal_chips = 110
+        self.expected_chips = 110
         self.fan_count = 4
 
 
@@ -94,7 +94,7 @@ class S19aPro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19a Pro"
-        self.nominal_chips = 100
+        self.expected_chips = 100
         self.fan_count = 4
 
 
@@ -103,7 +103,7 @@ class S19j(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19j"
-        self.nominal_chips = 114
+        self.expected_chips = 114
         self.fan_count = 4
 
 
@@ -112,7 +112,7 @@ class S19jNoPIC(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19j No PIC"
-        self.nominal_chips = 88
+        self.expected_chips = 88
         self.fan_count = 4
 
 
@@ -121,7 +121,7 @@ class S19jPro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19j Pro"
-        self.nominal_chips = 126
+        self.expected_chips = 126
         self.fan_count = 4
 
 
@@ -130,7 +130,7 @@ class S19jProPlus(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19j Pro+"
-        self.nominal_chips = 120
+        self.expected_chips = 120
         self.fan_count = 4
 
 
@@ -139,7 +139,7 @@ class S19kPro(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19k Pro"
-        self.nominal_chips = 77
+        self.expected_chips = 77
         self.fan_count = 4
 
 
@@ -157,5 +157,5 @@ class S19kProNoPIC(AntMiner):  # noqa - ignore ABC method implementation
         super().__init__(ip, api_ver)
         self.ip = ip
         self.model = "S19k Pro No PIC"
-        self.nominal_chips = 77
+        self.expected_chips = 77
         self.fan_count = 4
