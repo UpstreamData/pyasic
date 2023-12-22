@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import asyncio
 from typing import List, Optional, Union
 
 from pyasic.API import APIError
@@ -23,50 +22,62 @@ from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
+from pyasic.miners.base import (
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
-ANTMINER_MODERN_DATA_LOC = {
-    "mac": {
-        "cmd": "get_mac",
-        "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
-    },
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {
-        "cmd": "get_hostname",
-        "kwargs": {"web_get_system_info": {"web": "get_system_info"}},
-    },
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
-    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "wattage": {"cmd": "get_wattage", "kwargs": {}},
-    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
-    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
-    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
-    "fault_light": {
-        "cmd": "get_fault_light",
-        "kwargs": {"web_get_blink_status": {"web": "get_blink_status"}},
-    },
-    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
-    "is_mining": {
-        "cmd": "is_mining",
-        "kwargs": {"web_get_conf": {"web": "get_miner_conf"}},
-    },
-    "uptime": {
-        "cmd": "get_uptime",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
-    "config": {
-        "cmd": "get_config",
-        "kwargs": {},
-    },
-}
+ANTMINER_MODERN_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "get_mac", [WebAPICommand("web_get_system_info", "get_system_info")]
+        ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction(
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver", [RPCAPICommand("fw_version", "version")]
+        ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "get_hostname", [WebAPICommand("web_get_system_info", "get_system_info")]
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction(
+            "get_errors", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "get_fault_light",
+            [WebAPICommand("web_get_blink_status", "get_blink_status")],
+        ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "get_is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
+        ),
+        str(DataOptions.UPTIME): DataFunction(
+            "get_uptime", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
 class AntminerModern(BMMiner):
