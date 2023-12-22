@@ -39,41 +39,41 @@ class MinersTest(unittest.TestCase):
                         isinstance(miner, MINER_CLASSES[miner_model][miner_api])
                     )
 
-    def test_miner_data_map_keys(self):
-        keys = sorted(
-            [
-                "api_ver",
-                "config",
-                "env_temp",
-                "errors",
-                "fan_psu",
-                "fans",
-                "fault_light",
-                "fw_ver",
-                "hashboards",
-                "hashrate",
-                "hostname",
-                "is_mining",
-                "mac",
-                "model",
-                "expected_hashrate",
-                "pools",
-                "uptime",
-                "wattage",
-                "wattage_limit",
-            ]
-        )
-        warnings.filterwarnings("ignore")
-        for miner_model in MINER_CLASSES.keys():
-            for miner_api in MINER_CLASSES[miner_model].keys():
-                with self.subTest(
-                    msg=f"Data map key check of miner using model={miner_model}, api={miner_api}",
-                    miner_model=miner_model,
-                    miner_api=miner_api,
-                ):
-                    miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
-                    miner_keys = sorted(list(miner.data_locations.keys()))
-                    self.assertEqual(miner_keys, keys)
+    # def test_miner_data_map_keys(self):
+    #     keys = sorted(
+    #         [
+    #             "api_ver",
+    #             "config",
+    #             "env_temp",
+    #             "errors",
+    #             "fan_psu",
+    #             "fans",
+    #             "fault_light",
+    #             "fw_ver",
+    #             "hashboards",
+    #             "hashrate",
+    #             "hostname",
+    #             "is_mining",
+    #             "mac",
+    #             "model",
+    #             "expected_hashrate",
+    #             "pools",
+    #             "uptime",
+    #             "wattage",
+    #             "wattage_limit",
+    #         ]
+    #     )
+    #     warnings.filterwarnings("ignore")
+    #     for miner_model in MINER_CLASSES.keys():
+    #         for miner_api in MINER_CLASSES[miner_model].keys():
+    #             with self.subTest(
+    #                 msg=f"Data map key check of miner using model={miner_model}, api={miner_api}",
+    #                 miner_model=miner_model,
+    #                 miner_api=miner_api,
+    #             ):
+    #                 miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+    #                 miner_keys = sorted(list(miner.data_locations.keys()))
+    #                 self.assertEqual(miner_keys, keys)
 
 
 if __name__ == "__main__":

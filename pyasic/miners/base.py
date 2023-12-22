@@ -17,7 +17,9 @@ import asyncio
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, TypeVar
+from dataclasses import dataclass, field, make_dataclass
+from enum import Enum
+from typing import List, Optional, Tuple, TypeVar, Union
 
 import asyncssh
 
@@ -529,3 +531,67 @@ class BaseMiner(ABC):
 
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
+
+
+class DataOptions(Enum):
+    MAC = "mac"
+    MODEL = "model"
+    API_VERSION = "api_ver"
+    FW_VERSION = "fw_ver"
+    HOSTNAME = "hostname"
+    HASHRATE = "hashrate"
+    EXPECTED_HASHRATE = "expected_hashrate"
+    HASHBOARDS = "hashboards"
+    ENVIRONMENT_TEMP = "env_temp"
+    WATTAGE = "wattage"
+    WATTAGE_LIMIT = "wattage_limit"
+    FANS = "fans"
+    FAN_PSU = "fan_psu"
+    ERRORS = "errors"
+    FAULT_LIGHT = "fault_light"
+    IS_MINING = "is_mining"
+    UPTIME = "uptime"
+    CONFIG = "config"
+
+    def __str__(self):
+        return self.value
+
+
+@dataclass
+class RPCAPICommand:
+    name: str
+    cmd: str
+
+
+@dataclass
+class WebAPICommand:
+    name: str
+    cmd: str
+
+
+@dataclass
+class GRPCCommand:
+    name: str
+    cmd: str
+
+
+@dataclass
+class GraphQLCommand:
+    name: str
+    cmd: dict
+
+
+@dataclass
+class DataFunction:
+    cmd: str
+    kwargs: list[
+        Union[RPCAPICommand, WebAPICommand, GRPCCommand, GraphQLCommand]
+    ] = field(default_factory=list)
+
+
+DataLocations = make_dataclass(
+    "DataLocations",
+    [(enum_value.value, str) for enum_value in DataOptions],
+)
+# add default value with
+# [(enum_value.value, str, , DataFunction(enum_value.value)) for enum_value in DataOptions],
