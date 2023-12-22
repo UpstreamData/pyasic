@@ -27,6 +27,7 @@ from pyasic.miners.types import (
     S19jPro,
     S19Plus,
     S19Pro,
+    S19ProHydro,
     S19ProPlus,
 )
 
@@ -76,4 +77,8 @@ class BMMinerS19jPro(AntminerModern, S19jPro):
 
 
 class BMMinerS19L(AntminerModern, S19L):
+    pass
+
+
+class BMMinerS19ProHydro(AntminerModern, S19ProHydro):
     pass

@@ -25,6 +25,7 @@ from .S19 import (
     BMMinerS19L,
     BMMinerS19Plus,
     BMMinerS19Pro,
+    BMMinerS19ProHydro,
     BMMinerS19ProPlus,
     BMMinerS19XP,
 )

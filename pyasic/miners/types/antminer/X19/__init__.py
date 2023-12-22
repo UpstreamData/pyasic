@@ -30,6 +30,7 @@ from .S19 import (
     S19NoPIC,
     S19Plus,
     S19Pro,
+    S19ProHydro,
     S19ProPlus,
 )
 from .T19 import T19

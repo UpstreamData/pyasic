@@ -159,3 +159,13 @@ class S19kProNoPIC(AntMiner):  # noqa - ignore ABC method implementation
         self.model = "S19k Pro No PIC"
         self.expected_chips = 77
         self.fan_count = 4
+
+
+class S19ProHydro(AntMiner):  # noqa - ignore ABC method implementation
+    def __init__(self, ip: str, api_ver: str = "0.0.0"):
+        super().__init__(ip, api_ver)
+        self.ip = ip
+        self.model = "S19 Pro Hydro"
+        self.expected_chips = 180
+        self.expected_hashboards = 4
+        self.fan_count = 0
