@@ -20,41 +20,55 @@ from pyasic.data import HashBoard
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import BFGMiner
+from pyasic.miners.base import (
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.web.goldshell import GoldshellWebAPI
 
-GOLDSHELL_DATA_LOC = {
-    "mac": {"cmd": "get_mac", "kwargs": {"web_setting": {"web": "setting"}}},
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_status": {"web": "status"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {}},
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
-    "hashboards": {
-        "cmd": "get_hashboards",
-        "kwargs": {
-            "api_devs": {"api": "devs"},
-            "api_devdetails": {"api": "devdetails"},
-        },
-    },
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "wattage": {"cmd": "get_wattage", "kwargs": {}},
-    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
-    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
-    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "errors": {"cmd": "get_errors", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
-    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
-    "is_mining": {"cmd": "is_mining", "kwargs": {}},
-    "uptime": {"cmd": "get_uptime", "kwargs": {}},
-    "config": {
-        "cmd": "get_config",
-        "kwargs": {},
-    },
-}
+GOLDSHELL_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "get_mac", [WebAPICommand("web_setting", "setting")]
+        ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction(
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver", [WebAPICommand("web_status", "status")]
+        ),
+        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards",
+            [
+                RPCAPICommand("api_devs", "devs"),
+                RPCAPICommand("api_devdetails", "devdetails"),
+            ],
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("get_is_mining"),
+        str(DataOptions.UPTIME): DataFunction("get_uptime"),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
 class BFGMinerGoldshell(BFGMiner):

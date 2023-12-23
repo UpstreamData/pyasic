@@ -113,32 +113,6 @@ class UnknownMiner(BaseMiner):
     async def get_fw_ver(self) -> Optional[str]:
         return None
 
-    async def get_pools(self, api_pools: dict = None) -> List[dict]:
-        groups = []
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            try:
-                pools = {}
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["User"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
-
     async def get_errors(self) -> List[MinerErrorData]:
         return []
 
@@ -155,6 +129,6 @@ class UnknownMiner(BaseMiner):
         return None
 
     async def get_data(
-        self, allow_warning: bool = False, data_to_get: list = None
+        self, allow_warning: bool = False, data_to_get: list = None, **kwargs
     ) -> MinerData:
         return MinerData(ip=str(self.ip))

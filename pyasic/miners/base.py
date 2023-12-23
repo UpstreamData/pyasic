@@ -362,15 +362,6 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_pools(self, *args, **kwargs) -> List[dict]:
-        """Get pool information from the miner.
-
-        Returns:
-            Pool groups and quotas in a list of dicts.
-        """
-        pass
-
-    @abstractmethod
     async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
         """Get a list of the errors the miner is experiencing.
 
