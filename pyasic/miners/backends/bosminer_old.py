@@ -136,9 +136,6 @@ class BOSMinerOld(BOSMiner):
     async def get_fw_ver(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_pools(self, *args, **kwargs) -> List[dict]:
-        return []
-
     async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
         return []
 
