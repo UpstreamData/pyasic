@@ -14,14 +14,20 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
+from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
-from pyasic.miners.backends.bmminer import BMMiner
-from pyasic.miners.base import DataFunction, DataLocations, DataOptions, WebAPICommand
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    WebAPICommand,
+)
 from pyasic.web.epic import ePICWebAPI
 
 EPIC_DATA_LOC = DataLocations(
@@ -74,7 +80,7 @@ EPIC_DATA_LOC = DataLocations(
 )
 
 
-class ePIC(BMMiner):
+class ePIC(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
         # interfaces
@@ -300,3 +306,33 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
         return errors
+
+    def fault_light_off(self) -> bool:
+        return False
+
+    def fault_light_on(self) -> bool:
+        return False
+
+    def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    def get_config(self) -> MinerConfig:
+        return self.config
+
+    def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+        pass
+
+    def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
+        pass
+
+    def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        pass
+
+    def set_power_limit(self, wattage: int) -> bool:
+        return False
