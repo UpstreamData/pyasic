@@ -115,16 +115,16 @@ class FanModeConfig(MinerConfigOption):
                 return cls.normal()
         else:
             return cls.default()
-    
+
     @classmethod
     def from_epic(cls, web_conf: dict):
-        if web_conf.get("Fans") is not None:
+        try:
             fan_mode = web_conf["Fans"]["Fan Mode"]
             if fan_mode.get("Manual") is not None:
                 return cls.manual(speed=fan_mode.get("Manual"))
             else:
                 return cls.normal()
-        else:
+        except KeyError:
             return cls.default()
 
     @classmethod

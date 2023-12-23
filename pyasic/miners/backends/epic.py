@@ -74,12 +74,12 @@ class ePIC(BMMiner):
         if self.model is not None:
             return self.model + " (ePIC)"
         return "? (ePIC)"
-    
+
     async def get_config(self) -> MinerConfig:
         summary = None
         try:
             summary = await self.web.summary()
-        except APIError as e: 
+        except APIError as e:
             logger.warning(e)
         except LookupError:
             pass
@@ -91,7 +91,7 @@ class ePIC(BMMiner):
 
         self.config = cfg
         return self.config
-    
+
     async def restart_backend(self) -> bool:
         data = await self.web.restart_epic()
         if data:

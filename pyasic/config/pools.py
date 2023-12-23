@@ -107,10 +107,12 @@ class Pool(MinerConfigValue):
     @classmethod
     def from_api(cls, api_pool: dict) -> "Pool":
         return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
-    
+
     @classmethod
     def from_epic(cls, api_pool: dict) -> "Pool":
-        return cls(url=api_pool["pool"].replace("stratum+tcp://", ""), user=api_pool["login"], password=api_pool["password"])
+        return cls(
+            url=api_pool["pool"], user=api_pool["login"], password=api_pool["password"]
+        )
 
     @classmethod
     def from_am_modern(cls, web_pool: dict) -> "Pool":
@@ -240,7 +242,7 @@ class PoolGroup(MinerConfigValue):
         for pool in api_pool_list:
             pools.append(Pool.from_api(pool))
         return cls(pools=pools)
-    
+
     @classmethod
     def from_epic(cls, api_pool_list: list) -> "PoolGroup":
         pools = []
@@ -344,7 +346,7 @@ class PoolConfig(MinerConfigValue):
         pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
 
         return cls([PoolGroup.from_api(pool_data)])
-    
+
     @classmethod
     def from_epic(cls, web_conf: dict) -> "PoolConfig":
         pool_data = web_conf["StratumConfigs"]
