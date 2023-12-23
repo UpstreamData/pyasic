@@ -65,7 +65,7 @@ EPIC_DATA_LOC = DataLocations(
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "get_fault_light", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.IS_MINING): DataFunction("get_is_mining"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [WebAPICommand("web_summary", "summary")]
         ),

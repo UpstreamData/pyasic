@@ -171,7 +171,7 @@ BOSMINER_DATA_LOC = DataLocations(
             [GraphQLCommand("graphql_fault_light", {"bos": {"faultLight": None}})],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "get_is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
+            "is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
         ),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [RPCAPICommand("api_summary", "summary")]

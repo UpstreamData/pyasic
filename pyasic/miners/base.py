@@ -48,7 +48,7 @@ class BaseMiner(ABC):
         self.expected_chips = 0
         self.fan_count = 2
         # data gathering locations
-        self.data_locations = None
+        self.data_locations: DataLocations = None
         # autotuning/shutdown support
         self.supports_autotuning = False
         self.supports_shutdown = False
@@ -411,7 +411,7 @@ class BaseMiner(ABC):
     ) -> dict:
         if include is None:
             # everything
-            include = list(self.data_locations.keys())
+            include = [enum_value.value for enum_value in DataOptions]
 
         if exclude is not None:
             for item in exclude:
@@ -422,13 +422,13 @@ class BaseMiner(ABC):
         web_multicommand = []
         for data_name in include:
             try:
-                fn_args = self.data_locations[data_name]["kwargs"]
-                for arg_name in fn_args:
-                    if fn_args[arg_name].get("api"):
-                        api_multicommand.add(fn_args[arg_name]["api"])
-                    if fn_args[arg_name].get("web"):
-                        if not fn_args[arg_name]["web"] in web_multicommand:
-                            web_multicommand.append(fn_args[arg_name]["web"])
+                fn_args = getattr(self.data_locations, data_name).kwargs
+                for arg in fn_args:
+                    if isinstance(arg, RPCAPICommand):
+                        api_multicommand.add(arg.cmd)
+                    if isinstance(arg, WebAPICommand):
+                        if arg.cmd not in web_multicommand:
+                            web_multicommand.append(arg.cmd)
             except KeyError as e:
                 logger.error(e, data_name)
                 continue
@@ -458,32 +458,28 @@ class BaseMiner(ABC):
 
         for data_name in include:
             try:
-                fn_args = self.data_locations[data_name]["kwargs"]
-                args_to_send = {k: None for k in fn_args}
-                for arg_name in fn_args:
+                fn_args = getattr(self.data_locations, data_name).kwargs
+                args_to_send = {k.name: None for k in fn_args}
+                for arg in fn_args:
                     try:
-                        if fn_args[arg_name].get("api"):
+                        if isinstance(arg, RPCAPICommand):
                             if api_command_data.get("multicommand"):
-                                args_to_send[arg_name] = api_command_data[
-                                    fn_args[arg_name]["api"]
-                                ][0]
+                                args_to_send[arg.name] = api_command_data[arg.cmd][0]
                             else:
-                                args_to_send[arg_name] = api_command_data
-                        if fn_args[arg_name].get("web"):
+                                args_to_send[arg.name] = api_command_data
+                        if isinstance(arg, WebAPICommand):
                             if web_command_data is not None:
                                 if web_command_data.get("multicommand"):
-                                    args_to_send[arg_name] = web_command_data[
-                                        fn_args[arg_name]["web"]
-                                    ]
+                                    args_to_send[arg.name] = web_command_data[arg.cmd]
                                 else:
                                     if not web_command_data == {"multicommand": False}:
-                                        args_to_send[arg_name] = web_command_data
+                                        args_to_send[arg.name] = web_command_data
                     except LookupError:
-                        args_to_send[arg_name] = None
+                        args_to_send[arg.name] = None
             except LookupError:
                 continue
 
-            function = getattr(self, self.data_locations[data_name]["cmd"])
+            function = getattr(self, getattr(self.data_locations, data_name).cmd)
             miner_data[data_name] = await function(**args_to_send)
         return miner_data
 
@@ -561,13 +557,13 @@ class WebAPICommand:
 
 
 @dataclass
-class GRPCCommand:
+class GRPCCommand(WebAPICommand):
     name: str
     cmd: str
 
 
 @dataclass
-class GraphQLCommand:
+class GraphQLCommand(WebAPICommand):
     name: str
     cmd: dict
 

@@ -95,7 +95,7 @@ BTMINER_DATA_LOC = DataLocations(
             [RPCAPICommand("api_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "get_is_mining", [RPCAPICommand("api_status", "status")]
+            "is_mining", [RPCAPICommand("api_status", "status")]
         ),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [RPCAPICommand("api_summary", "summary")]

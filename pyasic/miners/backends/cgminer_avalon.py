@@ -64,7 +64,7 @@ AVALON_DATA_LOC = DataLocations(
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "get_fault_light", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.IS_MINING): DataFunction("get_is_mining"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
         str(DataOptions.UPTIME): DataFunction("get_uptime"),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -131,7 +131,7 @@ class CGMinerAvalon(CGMiner):
 
     @staticmethod
     def parse_stats(stats):
-        _stats_items = re.findall(".+?\[*?]", stats)
+        _stats_items = re.findall(".+?\\[*?]", stats)
         stats_items = []
         stats_dict = {}
         for item in _stats_items:

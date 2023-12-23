@@ -41,7 +41,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
             "get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [RPCAPICommand("fw_version", "version")]
+            "get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.HOSTNAME): DataFunction(
             "get_hostname", [WebAPICommand("web_get_system_info", "get_system_info")]
@@ -70,7 +70,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
             [WebAPICommand("web_get_blink_status", "get_blink_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "get_is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
+            "is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
         ),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [RPCAPICommand("api_stats", "stats")]
@@ -344,7 +344,7 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
             [WebAPICommand("web_get_blink_status", "get_blink_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "get_is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
+            "is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
         ),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [RPCAPICommand("api_stats", "stats")]

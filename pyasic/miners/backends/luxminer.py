@@ -65,7 +65,7 @@ LUXMINER_DATA_LOC = DataLocations(
         str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction("get_errors"),
         str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("get_is_mining"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
         str(DataOptions.UPTIME): DataFunction(
             "get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),
