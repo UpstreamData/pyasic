@@ -232,7 +232,6 @@ class BOSMiner(BaseMiner):
         return result
 
     async def fault_light_on(self) -> bool:
-        """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
         ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
@@ -242,7 +241,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def fault_light_off(self) -> bool:
-        """Sends command to turn off fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light off command.")
         self.light = False
         ret = await self.send_ssh_command("miner fault_light off")
@@ -253,11 +251,9 @@ class BOSMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
-        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners.backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
-        """Restart bosminer hashing process."""
         logging.debug(f"{self}: Sending bosminer restart command.")
         ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
         logging.debug(f"{self}: bosminer restart command completed.")
@@ -286,7 +282,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
         ret = await self.send_ssh_command("/sbin/reboot")
         logging.debug(f"{self}: Reboot command completed.")

@@ -112,11 +112,9 @@ class CGMiner(BaseMiner):
         return result
 
     async def restart_backend(self) -> bool:
-        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners.backends.cgminer.CGMiner.restart_cgminer] to standardize."""
         return await self.restart_cgminer()
 
     async def restart_cgminer(self) -> bool:
-        """Restart cgminer hashing process."""
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
         ret = await self.send_ssh_command(commands)
@@ -125,7 +123,6 @@ class CGMiner(BaseMiner):
         return True
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
         ret = await self.send_ssh_command("reboot")
         if ret is None:
