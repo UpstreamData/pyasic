@@ -537,7 +537,7 @@ class BOSMiner(BaseMiner):
                 pass
 
         try:
-            async with (await self._get_ssh_connection()) as conn:
+            async with await self._get_ssh_connection() as conn:
                 if conn is not None:
                     data = await conn.run("cat /proc/sys/kernel/hostname")
                     host = data.stdout.strip()

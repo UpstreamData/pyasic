@@ -161,6 +161,15 @@ class MinerConfig:
             power_scaling=PowerScalingConfig.from_bosminer(toml_conf),
         )
 
+    @classmethod
+    def from_epic(cls, web_conf: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_epic(web_conf),
+            fan_mode=FanModeConfig.from_epic(web_conf),
+            temperature=TemperatureConfig.from_epic(web_conf),
+            mining_mode=MiningModeConfig.from_epic(web_conf),
+        )
+
 
 def merge(a: dict, b: dict) -> dict:
     result = deepcopy(a)

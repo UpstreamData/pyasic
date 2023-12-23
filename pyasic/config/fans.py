@@ -117,6 +117,17 @@ class FanModeConfig(MinerConfigOption):
             return cls.default()
 
     @classmethod
+    def from_epic(cls, web_conf: dict):
+        try:
+            fan_mode = web_conf["Fans"]["Fan Mode"]
+            if fan_mode.get("Manual") is not None:
+                return cls.manual(speed=fan_mode.get("Manual"))
+            else:
+                return cls.normal()
+        except KeyError:
+            return cls.default()
+
+    @classmethod
     def from_bosminer(cls, toml_conf: dict):
         if toml_conf.get("temp_control") is None:
             return cls.default()

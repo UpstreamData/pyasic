@@ -2357,17 +2357,21 @@ class ActionsServiceBase(ServiceBase):
                 RebootRequest,
                 RebootResponse,
             ),
-            "/braiins.bos.v1.ActionsService/SetLocateDeviceStatus": grpclib.const.Handler(
-                self.__rpc_set_locate_device_status,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                SetLocateDeviceStatusRequest,
-                LocateDeviceStatusResponse,
+            "/braiins.bos.v1.ActionsService/SetLocateDeviceStatus": (
+                grpclib.const.Handler(
+                    self.__rpc_set_locate_device_status,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    SetLocateDeviceStatusRequest,
+                    LocateDeviceStatusResponse,
+                )
             ),
-            "/braiins.bos.v1.ActionsService/GetLocateDeviceStatus": grpclib.const.Handler(
-                self.__rpc_get_locate_device_status,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                GetLocateDeviceStatusRequest,
-                LocateDeviceStatusResponse,
+            "/braiins.bos.v1.ActionsService/GetLocateDeviceStatus": (
+                grpclib.const.Handler(
+                    self.__rpc_get_locate_device_status,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    GetLocateDeviceStatusRequest,
+                    LocateDeviceStatusResponse,
+                )
             ),
         }
 
@@ -2644,17 +2648,21 @@ class PerformanceServiceBase(ServiceBase):
                 GetTunerStateRequest,
                 GetTunerStateResponse,
             ),
-            "/braiins.bos.v1.PerformanceService/ListTargetProfiles": grpclib.const.Handler(
-                self.__rpc_list_target_profiles,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                ListTargetProfilesRequest,
-                ListTargetProfilesResponse,
+            "/braiins.bos.v1.PerformanceService/ListTargetProfiles": (
+                grpclib.const.Handler(
+                    self.__rpc_list_target_profiles,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    ListTargetProfilesRequest,
+                    ListTargetProfilesResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/SetDefaultPowerTarget": grpclib.const.Handler(
-                self.__rpc_set_default_power_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                SetDefaultPowerTargetRequest,
-                SetPowerTargetResponse,
+            "/braiins.bos.v1.PerformanceService/SetDefaultPowerTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_set_default_power_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    SetDefaultPowerTargetRequest,
+                    SetPowerTargetResponse,
+                )
             ),
             "/braiins.bos.v1.PerformanceService/SetPowerTarget": grpclib.const.Handler(
                 self.__rpc_set_power_target,
@@ -2662,41 +2670,53 @@ class PerformanceServiceBase(ServiceBase):
                 SetPowerTargetRequest,
                 SetPowerTargetResponse,
             ),
-            "/braiins.bos.v1.PerformanceService/IncrementPowerTarget": grpclib.const.Handler(
-                self.__rpc_increment_power_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                IncrementPowerTargetRequest,
-                SetPowerTargetResponse,
+            "/braiins.bos.v1.PerformanceService/IncrementPowerTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_increment_power_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    IncrementPowerTargetRequest,
+                    SetPowerTargetResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/DecrementPowerTarget": grpclib.const.Handler(
-                self.__rpc_decrement_power_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                DecrementPowerTargetRequest,
-                SetPowerTargetResponse,
+            "/braiins.bos.v1.PerformanceService/DecrementPowerTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_decrement_power_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    DecrementPowerTargetRequest,
+                    SetPowerTargetResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/SetDefaultHashrateTarget": grpclib.const.Handler(
-                self.__rpc_set_default_hashrate_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                SetDefaultHashrateTargetRequest,
-                SetHashrateTargetResponse,
+            "/braiins.bos.v1.PerformanceService/SetDefaultHashrateTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_set_default_hashrate_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    SetDefaultHashrateTargetRequest,
+                    SetHashrateTargetResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/SetHashrateTarget": grpclib.const.Handler(
-                self.__rpc_set_hashrate_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                SetHashrateTargetRequest,
-                SetHashrateTargetResponse,
+            "/braiins.bos.v1.PerformanceService/SetHashrateTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_set_hashrate_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    SetHashrateTargetRequest,
+                    SetHashrateTargetResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/IncrementHashrateTarget": grpclib.const.Handler(
-                self.__rpc_increment_hashrate_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                IncrementHashrateTargetRequest,
-                SetHashrateTargetResponse,
+            "/braiins.bos.v1.PerformanceService/IncrementHashrateTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_increment_hashrate_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    IncrementHashrateTargetRequest,
+                    SetHashrateTargetResponse,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/DecrementHashrateTarget": grpclib.const.Handler(
-                self.__rpc_decrement_hashrate_target,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                DecrementHashrateTargetRequest,
-                SetHashrateTargetResponse,
+            "/braiins.bos.v1.PerformanceService/DecrementHashrateTarget": (
+                grpclib.const.Handler(
+                    self.__rpc_decrement_hashrate_target,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    DecrementHashrateTargetRequest,
+                    SetHashrateTargetResponse,
+                )
             ),
             "/braiins.bos.v1.PerformanceService/SetDPS": grpclib.const.Handler(
                 self.__rpc_set_dps,
@@ -2704,23 +2724,29 @@ class PerformanceServiceBase(ServiceBase):
                 SetDpsRequest,
                 SetDpsResponse,
             ),
-            "/braiins.bos.v1.PerformanceService/SetPerformanceMode": grpclib.const.Handler(
-                self.__rpc_set_performance_mode,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                SetPerformanceModeRequest,
-                PerformanceMode,
+            "/braiins.bos.v1.PerformanceService/SetPerformanceMode": (
+                grpclib.const.Handler(
+                    self.__rpc_set_performance_mode,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    SetPerformanceModeRequest,
+                    PerformanceMode,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/GetActivePerformanceMode": grpclib.const.Handler(
-                self.__rpc_get_active_performance_mode,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                GetPerformanceModeRequest,
-                PerformanceMode,
+            "/braiins.bos.v1.PerformanceService/GetActivePerformanceMode": (
+                grpclib.const.Handler(
+                    self.__rpc_get_active_performance_mode,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    GetPerformanceModeRequest,
+                    PerformanceMode,
+                )
             ),
-            "/braiins.bos.v1.PerformanceService/RemoveTunedProfiles": grpclib.const.Handler(
-                self.__rpc_remove_tuned_profiles,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                RemoveTunedProfilesRequest,
-                RemoveTunedProfilesResponse,
+            "/braiins.bos.v1.PerformanceService/RemoveTunedProfiles": (
+                grpclib.const.Handler(
+                    self.__rpc_remove_tuned_profiles,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    RemoveTunedProfilesRequest,
+                    RemoveTunedProfilesResponse,
+                )
             ),
         }
 
@@ -2836,17 +2862,21 @@ class ConfigurationServiceBase(ServiceBase):
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
-            "/braiins.bos.v1.ConfigurationService/GetMinerConfiguration": grpclib.const.Handler(
-                self.__rpc_get_miner_configuration,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                GetMinerConfigurationRequest,
-                GetMinerConfigurationResponse,
+            "/braiins.bos.v1.ConfigurationService/GetMinerConfiguration": (
+                grpclib.const.Handler(
+                    self.__rpc_get_miner_configuration,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    GetMinerConfigurationRequest,
+                    GetMinerConfigurationResponse,
+                )
             ),
-            "/braiins.bos.v1.ConfigurationService/GetConstraints": grpclib.const.Handler(
-                self.__rpc_get_constraints,
-                grpclib.const.Cardinality.UNARY_UNARY,
-                GetConstraintsRequest,
-                GetConstraintsResponse,
+            "/braiins.bos.v1.ConfigurationService/GetConstraints": (
+                grpclib.const.Handler(
+                    self.__rpc_get_constraints,
+                    grpclib.const.Cardinality.UNARY_UNARY,
+                    GetConstraintsRequest,
+                    GetConstraintsResponse,
+                )
             ),
         }
 
