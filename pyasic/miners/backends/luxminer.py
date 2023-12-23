@@ -107,7 +107,6 @@ class LUXMiner(BaseMiner):
             return
 
     async def fault_light_on(self) -> bool:
-        """Sends command to turn on fault light on the miner."""
         try:
             session_id = await self._get_session()
             if session_id:
@@ -118,7 +117,6 @@ class LUXMiner(BaseMiner):
         return False
 
     async def fault_light_off(self) -> bool:
-        """Sends command to turn off fault light on the miner."""
         try:
             session_id = await self._get_session()
             if session_id:
@@ -129,11 +127,9 @@ class LUXMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
-        """Restart luxminer hashing process.  Wraps [`restart_luxminer`][pyasic.miners.backends.luxminer.LUXMiner.restart_luxminer] to standardize."""
         return await self.restart_luxminer()
 
     async def restart_luxminer(self) -> bool:
-        """Restart luxminer hashing process."""
         try:
             session_id = await self._get_session()
             if session_id:
@@ -163,7 +159,6 @@ class LUXMiner(BaseMiner):
             pass
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         try:
             session_id = await self._get_session()
             if session_id:
