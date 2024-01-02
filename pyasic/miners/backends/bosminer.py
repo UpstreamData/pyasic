@@ -84,7 +84,6 @@ BOSMINER_DATA_LOC = DataLocations(
         str(DataOptions.HASHBOARDS): DataFunction(
             "get_hashboards",
             [
-                RPCAPICommand("api_stats", "stats"),
                 RPCAPICommand("api_temps", "temps"),
                 RPCAPICommand("api_devdetails", "devdetails"),
                 RPCAPICommand("api_devs", "devs"),
