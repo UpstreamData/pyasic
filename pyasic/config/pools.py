@@ -16,7 +16,7 @@
 import random
 import string
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Dict, List, Union
 
 from pyasic.config.base import MinerConfigValue
 
@@ -138,7 +138,7 @@ class Pool(MinerConfigValue):
 
 @dataclass
 class PoolGroup(MinerConfigValue):
-    pools: list[Pool] = field(default_factory=list)
+    pools: List[Pool] = field(default_factory=list)
     quota: int = 1
     name: str = None
 
@@ -265,7 +265,7 @@ class PoolGroup(MinerConfigValue):
 
 @dataclass
 class PoolConfig(MinerConfigValue):
-    groups: list[PoolGroup] = field(default_factory=list)
+    groups: List[PoolGroup] = field(default_factory=list)
 
     @classmethod
     def default(cls) -> "PoolConfig":
@@ -279,7 +279,7 @@ class PoolConfig(MinerConfigValue):
         return cls(groups=[PoolGroup.from_dict(g) for g in dict_conf["groups"]])
 
     @classmethod
-    def simple(cls, pools: list[Union[Pool, dict[str, str]]]) -> "PoolConfig":
+    def simple(cls, pools: List[Union[Pool, Dict[str, str]]]) -> "PoolConfig":
         group_pools = []
         for pool in pools:
             if isinstance(pool, dict):

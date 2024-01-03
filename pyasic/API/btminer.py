@@ -48,10 +48,10 @@ PrePowerOnMessage = Union[
 
 
 def _crypt(word: str, salt: str) -> str:
-    """Encrypts a word with a salt, using a standard salt format.
+    r"""Encrypts a word with a salt, using a standard salt format.
 
     Encrypts a word using a salt with the format
-    '\s*\$(\d+)\$([\w\./]*)\$'.  If this format is not used, a
+    \s*\$(\d+)\$([\w\./]*)\$.  If this format is not used, a
     ValueError is raised.
 
     Parameters:
@@ -62,7 +62,7 @@ def _crypt(word: str, salt: str) -> str:
         An MD5 hash of the word with the salt.
     """
     # compile a standard format for the salt
-    standard_salt = re.compile("\s*\$(\d+)\$([\w\./]*)\$")
+    standard_salt = re.compile(r"\s*\$(\d+)\$([\w\./]*)\$")
     # check if the salt matches
     match = standard_salt.match(salt)
     # if the matching fails, the salt is incorrect

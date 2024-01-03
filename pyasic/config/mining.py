@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from dataclasses import dataclass, field
-from typing import Union
+from typing import Dict, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
@@ -132,7 +132,7 @@ class MiningModeManual(MinerConfigValue):
 
     global_freq: float
     global_volt: float
-    boards: dict[int, ManualBoardSettings] = field(default_factory=dict)
+    boards: Dict[int, ManualBoardSettings] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeManual":
