@@ -329,7 +329,10 @@ class PoolConfig(MinerConfigValue):
 
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":
-        pool_data = api_pools["POOLS"]
+        try:
+            pool_data = api_pools["POOLS"]
+        except KeyError:
+            return PoolConfig.default()
         pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
 
         return cls([PoolGroup.from_api(pool_data)])
