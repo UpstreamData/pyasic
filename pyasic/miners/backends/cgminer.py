@@ -23,32 +23,50 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+)
 
-CGMINER_DATA_LOC = {
-    "mac": {"cmd": "get_mac", "kwargs": {}},
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {}},
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"api_stats": {"api": "stats"}},
-    },
-    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_stats": {"api": "stats"}}},
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "wattage": {"cmd": "get_wattage", "kwargs": {}},
-    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
-    "fans": {"cmd": "get_fans", "kwargs": {"api_stats": {"api": "stats"}}},
-    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "errors": {"cmd": "get_errors", "kwargs": {}},
-    "fault_light": {"cmd": "get_fault_light", "kwargs": {}},
-    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
-    "is_mining": {"cmd": "is_mining", "kwargs": {}},
-    "uptime": {"cmd": "get_uptime", "kwargs": {"api_stats": {"api": "stats"}}},
-    "config": {"cmd": "get_config", "kwargs": {}},
-}
+CGMINER_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction("get_mac"),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction(
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver", [RPCAPICommand("api_version", "version")]
+        ),
+        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.UPTIME): DataFunction(
+            "get_uptime", [RPCAPICommand("api_stats", "stats")]
+        ),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
 class CGMiner(BaseMiner):
@@ -94,11 +112,9 @@ class CGMiner(BaseMiner):
         return result
 
     async def restart_backend(self) -> bool:
-        """Restart cgminer hashing process.  Wraps [`restart_cgminer`][pyasic.miners.backends.cgminer.CGMiner.restart_cgminer] to standardize."""
         return await self.restart_cgminer()
 
     async def restart_cgminer(self) -> bool:
-        """Restart cgminer hashing process."""
         commands = ["cgminer-api restart", "/usr/bin/cgminer-monitor >/dev/null 2>&1"]
         commands = ";".join(commands)
         ret = await self.send_ssh_command(commands)
@@ -107,7 +123,6 @@ class CGMiner(BaseMiner):
         return True
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
         ret = await self.send_ssh_command("reboot")
         if ret is None:
@@ -327,32 +342,6 @@ class CGMiner(BaseMiner):
 
     async def get_fan_psu(self) -> Optional[int]:
         return None
-
-    async def get_pools(self, api_pools: dict = None) -> List[dict]:
-        groups = []
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            try:
-                pools = {}
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["User"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
 
     async def get_errors(self) -> List[MinerErrorData]:
         return []

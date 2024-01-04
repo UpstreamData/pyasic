@@ -17,7 +17,9 @@ import asyncio
 import ipaddress
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, TypeVar
+from dataclasses import dataclass, field, make_dataclass
+from enum import Enum
+from typing import List, Optional, Tuple, TypeVar, Union
 
 import asyncssh
 
@@ -25,6 +27,70 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.logger import logger
+
+
+class DataOptions(Enum):
+    MAC = "mac"
+    MODEL = "model"
+    API_VERSION = "api_ver"
+    FW_VERSION = "fw_ver"
+    HOSTNAME = "hostname"
+    HASHRATE = "hashrate"
+    EXPECTED_HASHRATE = "expected_hashrate"
+    HASHBOARDS = "hashboards"
+    ENVIRONMENT_TEMP = "env_temp"
+    WATTAGE = "wattage"
+    WATTAGE_LIMIT = "wattage_limit"
+    FANS = "fans"
+    FAN_PSU = "fan_psu"
+    ERRORS = "errors"
+    FAULT_LIGHT = "fault_light"
+    IS_MINING = "is_mining"
+    UPTIME = "uptime"
+    CONFIG = "config"
+
+    def __str__(self):
+        return self.value
+
+
+@dataclass
+class RPCAPICommand:
+    name: str
+    cmd: str
+
+
+@dataclass
+class WebAPICommand:
+    name: str
+    cmd: str
+
+
+@dataclass
+class GRPCCommand(WebAPICommand):
+    name: str
+    cmd: str
+
+
+@dataclass
+class GraphQLCommand(WebAPICommand):
+    name: str
+    cmd: dict
+
+
+@dataclass
+class DataFunction:
+    cmd: str
+    kwargs: list[
+        Union[RPCAPICommand, WebAPICommand, GRPCCommand, GraphQLCommand]
+    ] = field(default_factory=list)
+
+
+DataLocations = make_dataclass(
+    "DataLocations",
+    [(enum_value.value, str) for enum_value in DataOptions],
+)
+# add default value with
+# [(enum_value.value, str, , DataFunction(enum_value.value)) for enum_value in DataOptions],
 
 
 class BaseMiner(ABC):
@@ -46,7 +112,7 @@ class BaseMiner(ABC):
         self.expected_chips = 0
         self.fan_count = 2
         # data gathering locations
-        self.data_locations = None
+        self.data_locations: DataLocations = None
         # autotuning/shutdown support
         self.supports_autotuning = False
         self.supports_shutdown = False
@@ -360,15 +426,6 @@ class BaseMiner(ABC):
         pass
 
     @abstractmethod
-    async def get_pools(self, *args, **kwargs) -> List[dict]:
-        """Get pool information from the miner.
-
-        Returns:
-            Pool groups and quotas in a list of dicts.
-        """
-        pass
-
-    @abstractmethod
     async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
         """Get a list of the errors the miner is experiencing.
 
@@ -414,28 +471,33 @@ class BaseMiner(ABC):
         pass
 
     async def _get_data(
-        self, allow_warning: bool, include: list = None, exclude: list = None
+        self,
+        allow_warning: bool,
+        include: List[Union[str, DataOptions]] = None,
+        exclude: List[Union[str, DataOptions]] = None,
     ) -> dict:
-        if include is None:
+        if include is not None:
+            include = [str(i) for i in include]
+        else:
             # everything
-            include = list(self.data_locations.keys())
+            include = [str(enum_value.value) for enum_value in DataOptions]
 
         if exclude is not None:
             for item in exclude:
-                if item in include:
-                    include.remove(item)
+                if str(item) in include:
+                    include.remove(str(item))
 
         api_multicommand = set()
         web_multicommand = []
         for data_name in include:
             try:
-                fn_args = self.data_locations[data_name]["kwargs"]
-                for arg_name in fn_args:
-                    if fn_args[arg_name].get("api"):
-                        api_multicommand.add(fn_args[arg_name]["api"])
-                    if fn_args[arg_name].get("web"):
-                        if not fn_args[arg_name]["web"] in web_multicommand:
-                            web_multicommand.append(fn_args[arg_name]["web"])
+                fn_args = getattr(self.data_locations, data_name).kwargs
+                for arg in fn_args:
+                    if isinstance(arg, RPCAPICommand):
+                        api_multicommand.add(arg.cmd)
+                    if isinstance(arg, WebAPICommand):
+                        if arg.cmd not in web_multicommand:
+                            web_multicommand.append(arg.cmd)
             except KeyError as e:
                 logger.error(e, data_name)
                 continue
@@ -465,37 +527,36 @@ class BaseMiner(ABC):
 
         for data_name in include:
             try:
-                fn_args = self.data_locations[data_name]["kwargs"]
-                args_to_send = {k: None for k in fn_args}
-                for arg_name in fn_args:
+                fn_args = getattr(self.data_locations, data_name).kwargs
+                args_to_send = {k.name: None for k in fn_args}
+                for arg in fn_args:
                     try:
-                        if fn_args[arg_name].get("api"):
+                        if isinstance(arg, RPCAPICommand):
                             if api_command_data.get("multicommand"):
-                                args_to_send[arg_name] = api_command_data[
-                                    fn_args[arg_name]["api"]
-                                ][0]
+                                args_to_send[arg.name] = api_command_data[arg.cmd][0]
                             else:
-                                args_to_send[arg_name] = api_command_data
-                        if fn_args[arg_name].get("web"):
+                                args_to_send[arg.name] = api_command_data
+                        if isinstance(arg, WebAPICommand):
                             if web_command_data is not None:
                                 if web_command_data.get("multicommand"):
-                                    args_to_send[arg_name] = web_command_data[
-                                        fn_args[arg_name]["web"]
-                                    ]
+                                    args_to_send[arg.name] = web_command_data[arg.cmd]
                                 else:
                                     if not web_command_data == {"multicommand": False}:
-                                        args_to_send[arg_name] = web_command_data
+                                        args_to_send[arg.name] = web_command_data
                     except LookupError:
-                        args_to_send[arg_name] = None
+                        args_to_send[arg.name] = None
             except LookupError:
                 continue
 
-            function = getattr(self, self.data_locations[data_name]["cmd"])
+            function = getattr(self, getattr(self.data_locations, data_name).cmd)
             miner_data[data_name] = await function(**args_to_send)
         return miner_data
 
     async def get_data(
-        self, allow_warning: bool = False, include: list = None, exclude: list = None
+        self,
+        allow_warning: bool = False,
+        include: List[Union[str, DataOptions]] = None,
+        exclude: List[Union[str, DataOptions]] = None,
     ) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 

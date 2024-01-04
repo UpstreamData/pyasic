@@ -23,74 +23,86 @@ from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 
-BTMINER_DATA_LOC = {
-    "mac": {
-        "cmd": "get_mac",
-        "kwargs": {
-            "api_summary": {"api": "summary"},
-            "api_get_miner_info": {"api": "get_miner_info"},
-        },
-    },
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {
-        "cmd": "get_api_ver",
-        "kwargs": {"api_get_version": {"api": "get_version"}},
-    },
-    "fw_ver": {
-        "cmd": "get_fw_ver",
-        "kwargs": {
-            "api_get_version": {"api": "get_version"},
-            "api_summary": {"api": "summary"},
-        },
-    },
-    "hostname": {
-        "cmd": "get_hostname",
-        "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
-    },
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"api_summary": {"api": "summary"}}},
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"api_summary": {"api": "summary"}},
-    },
-    "hashboards": {"cmd": "get_hashboards", "kwargs": {"api_devs": {"api": "devs"}}},
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {"api_summary": {"api": "summary"}}},
-    "wattage": {"cmd": "get_wattage", "kwargs": {"api_summary": {"api": "summary"}}},
-    "wattage_limit": {
-        "cmd": "get_wattage_limit",
-        "kwargs": {"api_summary": {"api": "summary"}},
-    },
-    "fans": {
-        "cmd": "get_fans",
-        "kwargs": {
-            "api_summary": {"api": "summary"},
-            "api_get_psu": {"api": "get_psu"},
-        },
-    },
-    "fan_psu": {
-        "cmd": "get_fan_psu",
-        "kwargs": {
-            "api_summary": {"api": "summary"},
-            "api_get_psu": {"api": "get_psu"},
-        },
-    },
-    "errors": {
-        "cmd": "get_errors",
-        "kwargs": {
-            "api_summary": {"api": "summary"},
-            "api_get_error_code": {"api": "get_error_code"},
-        },
-    },
-    "fault_light": {
-        "cmd": "get_fault_light",
-        "kwargs": {"api_get_miner_info": {"api": "get_miner_info"}},
-    },
-    "pools": {"cmd": "get_pools", "kwargs": {"api_pools": {"api": "pools"}}},
-    "is_mining": {"cmd": "is_mining", "kwargs": {"api_status": {"api": "status"}}},
-    "uptime": {"cmd": "get_uptime", "kwargs": {"api_summary": {"api": "summary"}}},
-    "config": {"cmd": "get_config", "kwargs": {}},
-}
+BTMINER_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "get_mac",
+            [
+                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("api_get_miner_info", "get_miner_info"),
+            ],
+        ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction(
+            "get_api_ver", [RPCAPICommand("api_get_version", "get_version")]
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver",
+            [
+                RPCAPICommand("api_get_version", "get_version"),
+                RPCAPICommand("api_summary", "summary"),
+            ],
+        ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "get_hostname", [RPCAPICommand("api_get_miner_info", "get_miner_info")]
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards", [RPCAPICommand("api_devs", "devs")]
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
+            "get_env_temp", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "get_wattage", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "get_wattage_limit", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans",
+            [
+                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("api_get_psu", "get_psu"),
+            ],
+        ),
+        str(DataOptions.FAN_PSU): DataFunction(
+            "get_fan_psu",
+            [
+                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("api_get_psu", "get_psu"),
+            ],
+        ),
+        str(DataOptions.ERRORS): DataFunction(
+            "get_errors", [RPCAPICommand("api_get_error_code", "get_error_code")]
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "get_fault_light",
+            [RPCAPICommand("api_get_miner_info", "get_miner_info")],
+        ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "is_mining", [RPCAPICommand("api_status", "status")]
+        ),
+        str(DataOptions.UPTIME): DataFunction(
+            "get_uptime", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
 class BTMiner(BaseMiner):
@@ -528,32 +540,6 @@ class BTMiner(BaseMiner):
                 return int(api_get_psu["Msg"]["fan_speed"])
             except (KeyError, TypeError):
                 pass
-
-    async def get_pools(self, api_pools: dict = None) -> List[dict]:
-        groups = []
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            try:
-                pools = {}
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["URL"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["User"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
 
     async def get_errors(
         self, api_summary: dict = None, api_get_error_code: dict = None

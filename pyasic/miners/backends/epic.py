@@ -14,52 +14,74 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
+from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.errors import APIError
 from pyasic.logger import logger
-from pyasic.miners.backends.bmminer import BMMiner
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    WebAPICommand,
+)
 from pyasic.web.epic import ePICWebAPI
 
-EPIC_DATA_LOC = {
-    "mac": {"cmd": "get_mac", "kwargs": {"web_summary": {"web": "network"}}},
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {"cmd": "get_fw_ver", "kwargs": {"web_summary": {"web": "summary"}}},
-    "hostname": {"cmd": "get_hostname", "kwargs": {"web_summary": {"web": "summary"}}},
-    "hashrate": {"cmd": "get_hashrate", "kwargs": {"web_summary": {"web": "summary"}}},
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"web_summary": {"web": "summary"}},
-    },
-    "hashboards": {
-        "cmd": "get_hashboards",
-        "kwargs": {
-            "web_summary": {"web": "summary"},
-            "web_hashrate": {"web": "hashrate"},
-        },
-    },
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "wattage": {"cmd": "get_wattage", "kwargs": {"web_summary": {"web": "summary"}}},
-    "wattage_limit": {"cmd": "get_wattage_limit", "kwargs": {}},
-    "fans": {"cmd": "get_fans", "kwargs": {"web_summary": {"web": "summary"}}},
-    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "fault_light": {
-        "cmd": "get_fault_light",
-        "kwargs": {"web_summary": {"web": "summary"}},
-    },
-    "pools": {"cmd": "get_pools", "kwargs": {"web_summary": {"web": "summary"}}},
-    "is_mining": {"cmd": "is_mining", "kwargs": {}},
-    "uptime": {"cmd": "get_uptime", "kwargs": {"web_summary": {"web": "summary"}}},
-    "errors": {"cmd": "get_errors", "kwargs": {"web_summary": {"web": "summary"}}},
-    "config": {"cmd": "get_config", "kwargs": {}},
-}
+EPIC_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "get_mac", [WebAPICommand("web_network", "network")]
+        ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction("get_api_ver"),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "get_hostname", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards",
+            [
+                WebAPICommand("web_summary", "summary"),
+                WebAPICommand("web_hashrate", "hashrate"),
+            ],
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction(
+            "get_wattage", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction(
+            "get_errors", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "get_fault_light", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.UPTIME): DataFunction(
+            "get_uptime", [WebAPICommand("web_summary", "summary")]
+        ),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
-class ePIC(BMMiner):
+class ePIC(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
         # interfaces
@@ -128,13 +150,13 @@ class ePIC(BMMiner):
                 pass
         return False
 
-    async def get_mac(self, web_summary: dict = None) -> str:
-        if not web_summary:
-            web_summary = await self.web.network()
-        if web_summary:
+    async def get_mac(self, web_network: dict = None) -> str:
+        if not web_network:
+            web_network = await self.web.network()
+        if web_network:
             try:
-                for network in web_summary:
-                    mac = web_summary[network]["mac_address"]
+                for network in web_network:
+                    mac = web_network[network]["mac_address"]
                 return mac
             except KeyError:
                 pass
@@ -267,32 +289,6 @@ class ePIC(BMMiner):
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_pools(self, web_summary: dict = None) -> List[dict]:
-        groups = []
-
-        if not web_summary:
-            try:
-                web_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if web_summary:
-            try:
-                pools = {}
-                for i, pool in enumerate(web_summary["StratumConfigs"]):
-                    pools[f"pool_{i + 1}_url"] = (
-                        pool["pool"]
-                        .replace("stratum+tcp://", "")
-                        .replace("stratum2+tcp://", "")
-                    )
-                    pools[f"pool_{i + 1}_user"] = pool["login"]
-                    pools["quota"] = pool["Quota"] if pool.get("Quota") else "0"
-
-                groups.append(pools)
-            except KeyError:
-                pass
-        return groups
-
     async def get_uptime(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
             web_summary = await self.web.summary()
@@ -328,3 +324,33 @@ class ePIC(BMMiner):
             except KeyError:
                 pass
         return errors
+
+    def fault_light_off(self) -> bool:
+        return False
+
+    def fault_light_on(self) -> bool:
+        return False
+
+    def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    def get_config(self) -> MinerConfig:
+        return self.config
+
+    def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+        pass
+
+    def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
+        pass
+
+    def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        pass
+
+    def set_power_limit(self, wattage: int) -> bool:
+        return False

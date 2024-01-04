@@ -27,157 +27,157 @@ from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    GraphQLCommand,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.web.bosminer import BOSMinerWebAPI
 
-BOSMINER_DATA_LOC = {
-    "mac": {
-        "cmd": "get_mac",
-        "kwargs": {
-            "web_net_conf": {"web": "/cgi-bin/luci/admin/network/iface_status/lan"}
-        },
-    },
-    "model": {"cmd": "get_model", "kwargs": {}},
-    "api_ver": {"cmd": "get_api_ver", "kwargs": {"api_version": {"api": "version"}}},
-    "fw_ver": {
-        "cmd": "get_fw_ver",
-        "kwargs": {
-            "graphql_version": {"web": {"bos": {"info": {"version": {"full": None}}}}}
-        },
-    },
-    "hostname": {
-        "cmd": "get_hostname",
-        "kwargs": {"graphql_hostname": {"web": {"bos": {"hostname": None}}}},
-    },
-    "hashrate": {
-        "cmd": "get_hashrate",
-        "kwargs": {
-            "api_summary": {"api": "summary"},
-            "graphql_hashrate": {
-                "web": {
-                    "bosminer": {
-                        "info": {"workSolver": {"realHashrate": {"mhs1M": None}}}
-                    }
-                },
-            },
-        },
-    },
-    "expected_hashrate": {
-        "cmd": "get_expected_hashrate",
-        "kwargs": {"api_devs": {"api": "devs"}},
-    },
-    "hashboards": {
-        "cmd": "get_hashboards",
-        "kwargs": {
-            "api_temps": {"api": "temps"},
-            "api_devdetails": {"api": "devdetails"},
-            "api_devs": {"api": "devs"},
-            "graphql_boards": {
-                "web": {
-                    "bosminer": {
-                        "info": {
-                            "workSolver": {
-                                "childSolvers": {
-                                    "name": None,
-                                    "realHashrate": {"mhs1M": None},
-                                    "hwDetails": {"chips": None},
-                                    "temperatures": {"degreesC": None},
+BOSMINER_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "get_mac",
+            [
+                WebAPICommand(
+                    "web_net_conf", "/cgi-bin/luci/admin/network/iface_status/lan"
+                )
+            ],
+        ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.API_VERSION): DataFunction(
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver",
+            [
+                GraphQLCommand(
+                    "graphql_version", {"bos": {"info": {"version": {"full": None}}}}
+                )
+            ],
+        ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "get_hostname",
+            [GraphQLCommand("graphql_hostname", {"bos": {"hostname": None}})],
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "get_hashrate",
+            [
+                RPCAPICommand("api_summary", "summary"),
+                GraphQLCommand(
+                    "graphql_hashrate",
+                    {
+                        "bosminer": {
+                            "info": {"workSolver": {"realHashrate": {"mhs1M": None}}}
+                        }
+                    },
+                ),
+            ],
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "get_expected_hashrate", [RPCAPICommand("api_devs", "devs")]
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "get_hashboards",
+            [
+                RPCAPICommand("api_temps", "temps"),
+                RPCAPICommand("api_devdetails", "devdetails"),
+                RPCAPICommand("api_devs", "devs"),
+                GraphQLCommand(
+                    "graphql_boards",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "realHashrate": {"mhs1M": None},
+                                        "hwDetails": {"chips": None},
+                                        "temperatures": {"degreesC": None},
+                                    }
                                 }
                             }
                         }
-                    }
-                },
-            },
-        },
-    },
-    "wattage": {
-        "cmd": "get_wattage",
-        "kwargs": {
-            "api_tunerstatus": {"api": "tunerstatus"},
-            "graphql_wattage": {
-                "web": {
-                    "bosminer": {
-                        "info": {"workSolver": {"power": {"approxConsumptionW": None}}}
-                    }
-                }
-            },
-        },
-    },
-    "wattage_limit": {
-        "cmd": "get_wattage_limit",
-        "kwargs": {
-            "api_tunerstatus": {"api": "tunerstatus"},
-            "graphql_wattage_limit": {
-                "web": {
-                    "bosminer": {"info": {"workSolver": {"power": {"limitW": None}}}}
-                }
-            },
-        },
-    },
-    "fans": {
-        "cmd": "get_fans",
-        "kwargs": {
-            "api_fans": {"api": "fans"},
-            "graphql_fans": {
-                "web": {"bosminer": {"info": {"fans": {"name": None, "rpm": None}}}}
-            },
-        },
-    },
-    "fan_psu": {"cmd": "get_fan_psu", "kwargs": {}},
-    "env_temp": {"cmd": "get_env_temp", "kwargs": {}},
-    "errors": {
-        "cmd": "get_errors",
-        "kwargs": {
-            "api_tunerstatus": {"api": "tunerstatus"},
-            "graphql_errors": {
-                "web": {
-                    "bosminer": {
-                        "info": {
-                            "workSolver": {
-                                "childSolvers": {
-                                    "name": None,
-                                    "tuner": {"statusMessages": None},
+                    },
+                ),
+            ],
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction(
+            "get_wattage",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_wattage",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {"power": {"approxConsumptionW": None}}
+                            }
+                        }
+                    },
+                ),
+            ],
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "get_wattage_limit",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_wattage_limit",
+                    {"bosminer": {"info": {"workSolver": {"power": {"limitW": None}}}}},
+                ),
+            ],
+        ),
+        str(DataOptions.FANS): DataFunction(
+            "get_fans",
+            [
+                RPCAPICommand("api_fans", "fans"),
+                GraphQLCommand(
+                    "graphql_fans",
+                    {"bosminer": {"info": {"fans": {"name": None, "rpm": None}}}},
+                ),
+            ],
+        ),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction(
+            "get_errors",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_errors",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "tuner": {"statusMessages": None},
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            },
-        },
-    },
-    "fault_light": {
-        "cmd": "get_fault_light",
-        "kwargs": {"graphql_fault_light": {"web": {"bos": {"faultLight": None}}}},
-    },
-    "pools": {
-        "cmd": "get_pools",
-        "kwargs": {
-            "api_pools": {"api": "pools"},
-            "graphql_pools": {
-                "web": {
-                    "bosminer": {
-                        "config": {
-                            "... on BosminerConfig": {
-                                "groups": {
-                                    "pools": {"url": None, "user": None},
-                                    "strategy": {
-                                        "... on QuotaStrategy": {"quota": None}
-                                    },
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-        },
-    },
-    "is_mining": {
-        "cmd": "is_mining",
-        "kwargs": {"api_devdetails": {"api": "devdetails"}},
-    },
-    "uptime": {"cmd": "get_uptime", "kwargs": {"api_summary": {"api": "summary"}}},
-    "config": {"cmd": "get_config", "kwargs": {}},
-}
+                    },
+                ),
+            ],
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "get_fault_light",
+            [GraphQLCommand("graphql_fault_light", {"bos": {"faultLight": None}})],
+        ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
+        ),
+        str(DataOptions.UPTIME): DataFunction(
+            "get_uptime", [RPCAPICommand("api_summary", "summary")]
+        ),
+        str(DataOptions.CONFIG): DataFunction("get_config"),
+    }
+)
 
 
 class BOSMiner(BaseMiner):
@@ -231,7 +231,6 @@ class BOSMiner(BaseMiner):
         return result
 
     async def fault_light_on(self) -> bool:
-        """Sends command to turn on fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light on command.")
         ret = await self.send_ssh_command("miner fault_light on")
         logging.debug(f"{self}: fault_light on command completed.")
@@ -241,7 +240,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def fault_light_off(self) -> bool:
-        """Sends command to turn off fault light on the miner."""
         logging.debug(f"{self}: Sending fault_light off command.")
         self.light = False
         ret = await self.send_ssh_command("miner fault_light off")
@@ -252,11 +250,9 @@ class BOSMiner(BaseMiner):
         return False
 
     async def restart_backend(self) -> bool:
-        """Restart bosminer hashing process.  Wraps [`restart_bosminer`][pyasic.miners.backends.bosminer.BOSMiner.restart_bosminer] to standardize."""
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
-        """Restart bosminer hashing process."""
         logging.debug(f"{self}: Sending bosminer restart command.")
         ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
         logging.debug(f"{self}: bosminer restart command completed.")
@@ -285,7 +281,6 @@ class BOSMiner(BaseMiner):
         return False
 
     async def reboot(self) -> bool:
-        """Reboots power to the physical miner."""
         logging.debug(f"{self}: Sending reboot command.")
         ret = await self.send_ssh_command("/sbin/reboot")
         logging.debug(f"{self}: Reboot command completed.")
@@ -832,95 +827,6 @@ class BOSMiner(BaseMiner):
 
     async def get_fan_psu(self) -> Optional[int]:
         return None
-
-    async def get_pools(
-        self, api_pools: dict = None, graphql_pools: dict = None
-    ) -> List[dict]:
-        if not graphql_pools and not api_pools:
-            try:
-                graphql_pools = await self.web.send_command(
-                    {
-                        "bosminer": {
-                            "config": {
-                                "... on BosminerConfig": {
-                                    "groups": {
-                                        "pools": {"urluser"},
-                                        "strategy": {"... on QuotaStrategy": {"quota"}},
-                                    }
-                                }
-                            }
-                        }
-                    }
-                )
-            except APIError:
-                pass
-
-        if graphql_pools:
-            groups = []
-            try:
-                g = graphql_pools["data"]["bosminer"]["config"]["groups"]
-                for group in g:
-                    pools = {"quota": group["strategy"]["quota"]}
-                    for i, pool in enumerate(group["pools"]):
-                        pools[f"pool_{i + 1}_url"] = (
-                            pool["url"]
-                            .replace("stratum+tcp://", "")
-                            .replace("stratum2+tcp://", "")
-                        )
-                        pools[f"pool_{i + 1}_user"] = pool["user"]
-                    groups.append(pools)
-                return groups
-            except (KeyError, TypeError):
-                pass
-
-        if not api_pools:
-            try:
-                api_pools = await self.api.pools()
-            except APIError:
-                pass
-
-        if api_pools:
-            seen = []
-            groups = [{"quota": "0"}]
-            if api_pools.get("POOLS"):
-                for i, pool in enumerate(api_pools["POOLS"]):
-                    if len(seen) == 0:
-                        seen.append(pool["User"])
-                    if not pool["User"] in seen:
-                        # need to use get_config, as this will never read perfectly as there are some bad edge cases
-                        groups = []
-                        cfg = await self.get_config()
-                        if cfg:
-                            for group in cfg.pool_groups:
-                                pools = {"quota": group.quota}
-                                for _i, _pool in enumerate(group.pools):
-                                    pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
-                                        "stratum+tcp://", ""
-                                    ).replace("stratum2+tcp://", "")
-                                    pools[f"pool_{_i + 1}_user"] = _pool.username
-                                groups.append(pools)
-                        return groups
-                    else:
-                        groups[0][f"pool_{i + 1}_url"] = (
-                            pool["URL"]
-                            .replace("stratum+tcp://", "")
-                            .replace("stratum2+tcp://", "")
-                        )
-                        groups[0][f"pool_{i + 1}_user"] = pool["User"]
-            else:
-                groups = []
-                cfg = await self.get_config()
-                if cfg:
-                    for group in cfg.pool_groups:
-                        pools = {"quota": group.quota}
-                        for _i, _pool in enumerate(group.pools):
-                            pools[f"pool_{_i + 1}_url"] = _pool.url.replace(
-                                "stratum+tcp://", ""
-                            ).replace("stratum2+tcp://", "")
-                            pools[f"pool_{_i + 1}_user"] = _pool.username
-                        groups.append(pools)
-                return groups
-            return groups
 
     async def get_errors(
         self, api_tunerstatus: dict = None, graphql_errors: dict = None

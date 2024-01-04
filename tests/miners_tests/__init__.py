@@ -18,6 +18,7 @@ import inspect
 import sys
 import unittest
 import warnings
+from dataclasses import asdict
 
 from pyasic.miners.backends import CGMiner  # noqa
 from pyasic.miners.base import BaseMiner
@@ -57,7 +58,6 @@ class MinersTest(unittest.TestCase):
                 "mac",
                 "model",
                 "expected_hashrate",
-                "pools",
                 "uptime",
                 "wattage",
                 "wattage_limit",
@@ -72,7 +72,9 @@ class MinersTest(unittest.TestCase):
                     miner_api=miner_api,
                 ):
                     miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
-                    miner_keys = sorted(list(miner.data_locations.keys()))
+                    miner_keys = sorted(
+                        [str(k) for k in asdict(miner.data_locations).keys()]
+                    )
                     self.assertEqual(miner_keys, keys)
 
 

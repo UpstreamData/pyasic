@@ -123,9 +123,8 @@ class MinerNetwork:
         # clear cached miners
         miner_factory.clear_cached_miners()
 
-        limit = asyncio.Semaphore(settings.get("network_scan_threads", 300))
         miners = await asyncio.gather(
-            *[self.ping_and_get_miner(host, limit) for host in self.hosts]
+            *[self.ping_and_get_miner(host) for host in self.hosts]
         )
 
         # remove all None from the miner list
@@ -148,12 +147,8 @@ class MinerNetwork:
         loop = asyncio.get_event_loop()
 
         # create a list of scan tasks
-        limit = asyncio.Semaphore(settings.get("network_scan_threads", 300))
         miners = asyncio.as_completed(
-            [
-                loop.create_task(self.ping_and_get_miner(host, limit))
-                for host in self.hosts
-            ]
+            [loop.create_task(self.ping_and_get_miner(host)) for host in self.hosts]
         )
         for miner in miners:
             try:
@@ -162,21 +157,16 @@ class MinerNetwork:
                 yield None
 
     @staticmethod
-    async def ping_and_get_miner(
-        ip: ipaddress.ip_address, semaphore: asyncio.Semaphore
-    ) -> Union[None, AnyMiner]:
-        async with semaphore:
-            try:
-                return await ping_and_get_miner(ip)
-            except ConnectionRefusedError:
-                tasks = [
-                    ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]
-                ]
-                for miner in asyncio.as_completed(tasks):
-                    try:
-                        return await miner
-                    except ConnectionRefusedError:
-                        pass
+    async def ping_and_get_miner(ip: ipaddress.ip_address) -> Union[None, AnyMiner]:
+        try:
+            return await ping_and_get_miner(ip)
+        except ConnectionRefusedError:
+            tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
+            for miner in asyncio.as_completed(tasks):
+                try:
+                    return await miner
+                except ConnectionRefusedError:
+                    pass
 
 
 async def ping_and_get_miner(
