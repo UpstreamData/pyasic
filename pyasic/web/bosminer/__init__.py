@@ -156,6 +156,8 @@ class BOSMinerGQLAPI:
     ) -> dict:
         url = f"http://{self.ip}/graphql"
         query = command
+        if command is None:
+            return {}
         if command.get("query") is None:
             query = {"query": self.parse_command(command)}
         try:
