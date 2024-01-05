@@ -52,9 +52,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
-        ),
+        str(DataOptions.HASHBOARDS): DataFunction("get_hashboards", []),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction("get_wattage"),
         str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
@@ -195,6 +193,42 @@ class AntminerModern(BMMiner):
             except (KeyError, IndexError):
                 pass
         return errors
+
+    async def get_hashboards(self) -> List[HashBoard]:
+        hashboards = [
+            HashBoard(idx, expected_chips=self.expected_chips)
+            for idx in range(self.expected_hashboards)
+        ]
+
+        try:
+            api_stats = await self.api.send_command("stats", new_api=True)
+        except APIError:
+            return hashboards
+
+        if api_stats:
+            try:
+                for board in api_stats["STATS"][0]["chain"]:
+                    hashboards[board["index"]].hashrate = round(
+                        board["rate_real"] / 1000, 2
+                    )
+                    hashboards[board["index"]].chips = board["asic_num"]
+                    board_temp_data = list(
+                        filter(lambda x: not x == 0, board["temp_pcb"])
+                    )
+                    hashboards[board["index"]].temp = sum(board_temp_data) / len(
+                        board_temp_data
+                    )
+                    chip_temp_data = list(
+                        filter(lambda x: not x == 0, board["temp_chip"])
+                    )
+                    hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
+                        chip_temp_data
+                    )
+                    hashboards[board["index"]].serial_number = board["sn"]
+                    hashboards[board["index"]].missing = False
+            except LookupError:
+                pass
+        return hashboards
 
     async def get_fault_light(self, web_get_blink_status: dict = None) -> bool:
         if self.light:

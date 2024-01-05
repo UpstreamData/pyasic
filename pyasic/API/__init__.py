@@ -263,6 +263,12 @@ If you are sure you want to use this command please use API.send_command("{comma
                 else:
                     return False, data["STATUS"][0]["Msg"]
 
+            elif isinstance(data["STATUS"], dict):
+                # new style X19 command
+                if data["STATUS"]["STATUS"] not in ["S", "I"]:
+                    return False, data["STATUS"]["Msg"]
+                return True, None
+
             if data["STATUS"] not in ["S", "I"]:
                 return False, data["Msg"]
         else:

@@ -48,6 +48,7 @@ class HashBoard:
     chip_temp: int = None
     chips: int = None
     expected_chips: int = None
+    serial_number: str = None
     missing: bool = True
 
     def get(self, __key: str, default: Any = None):
