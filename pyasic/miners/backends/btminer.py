@@ -446,6 +446,7 @@ class BTMiner(BaseMiner):
                         float(board["MHS 1m"] / 1000000), 2
                     )
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
+                    hashboards[board["ASC"]].serial_number = board["PCB SN"]
                     hashboards[board["ASC"]].missing = False
             except (KeyError, IndexError):
                 pass
