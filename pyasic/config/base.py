@@ -50,6 +50,9 @@ class MinerConfigOption(Enum):
     def as_epic(self) -> dict:
         return self.value.as_epic()
 
+    def as_vnish(self) -> dict:
+        return self.value.as_vnish()
+
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
@@ -92,4 +95,7 @@ class MinerConfigValue:
         return {}
 
     def as_epic(self) -> dict:
+        return {}
+
+    def as_vnish(self) -> dict:
         return {}

@@ -71,3 +71,12 @@ class TemperatureConfig(MinerConfigValue):
             target_temp = None
 
         return cls(target=target_temp, hot=hot_temp, danger=dangerous_temp)
+
+    @classmethod
+    def from_vnish(cls, web_settings: dict):
+        try:
+            if web_settings["miner"]["cooling"]["mode"]["name"] == "auto":
+                return cls(target=web_settings["miner"]["cooling"]["mode"]["param"])
+        except KeyError:
+            pass
+        return cls()

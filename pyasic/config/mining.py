@@ -145,6 +145,20 @@ class MiningModeManual(MinerConfigValue):
     def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
+    @classmethod
+    def from_vnish(cls, web_overclock_settings: dict) -> "MiningModeManual":
+        # will raise KeyError if it cant find the settings, values cannot be empty
+        voltage = web_overclock_settings["globals"]["volt"]
+        freq = web_overclock_settings["globals"]["freq"]
+        boards = {
+            idx: ManualBoardSettings(
+                freq=board["freq"],
+                volt=voltage if not board["freq"] == 0 else 0,
+            )
+            for idx, board in enumerate(web_overclock_settings["chains"])
+        }
+        return cls(global_freq=freq, global_volt=voltage, boards=boards)
+
 
 class MiningModeConfig(MinerConfigOption):
     normal = MiningModeNormal
@@ -234,3 +248,15 @@ class MiningModeConfig(MinerConfigOption):
                 if autotuning_conf.get("hashrate_target") is not None:
                     return cls.hashrate_tuning(autotuning_conf["hashrate_target"])
                 return cls.hashrate_tuning()
+
+    @classmethod
+    def from_vnish(cls, web_settings: dict):
+        try:
+            mode_settings = web_settings["miner"]["overclock"]
+        except KeyError:
+            return cls.default()
+
+        if mode_settings["preset"] == "disabled":
+            return MiningModeManual.from_vnish(mode_settings)
+        else:
+            return cls.power_tuning(int(mode_settings["preset"]))

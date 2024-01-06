@@ -16,6 +16,7 @@
 
 from typing import Optional
 
+from pyasic import MinerConfig
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends.bmminer import BMMiner
@@ -219,3 +220,11 @@ class VNish(BMMiner):
 
     async def get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None
+
+    async def get_config(self) -> MinerConfig:
+        try:
+            web_settings = await self.web.settings()
+        except APIError:
+            return self.config
+        self.config = MinerConfig.from_vnish(web_settings)
+        return self.config
