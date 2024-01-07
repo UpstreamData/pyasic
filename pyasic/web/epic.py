@@ -50,11 +50,13 @@ class ePICWebAPI(BaseWebAPI):
                             "param": parameters.get("parameters"),
                             "password": self.pwd,
                         }
+                        print(epic_param)
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
                             json=epic_param,
                         )
+                        print(response.text)
                     else:
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
@@ -105,6 +107,23 @@ class ePICWebAPI(BaseWebAPI):
 
     async def start_mining(self) -> dict:
         return await self.send_command("miner", post=True, parameters="Autostart")
+
+    async def set_shutdown_temp(self, params: int) -> dict:
+        return await self.send_command("shutdowntemp", post=True, parameters=params)
+
+    async def set_fan(self, params: dict) -> dict:
+        return await self.send_command("fanspeed", post=True, parameters=params)
+
+    async def set_ptune_enable(self, params: bool) -> dict:
+        return await self.send_command("perpetualtune", post=True, parameters=params)
+
+    async def set_ptune_algo(self, params: dict) -> dict:
+        return await self.send_command(
+            "perpetualtune/algo", post=True, parameters=params
+        )
+
+    async def set_pools(self, params: dict) -> dict:
+        return await self.send_command("coin", post=True, parameters=params)
 
     async def summary(self):
         return await self.send_command("summary")

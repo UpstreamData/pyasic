@@ -16,6 +16,7 @@
 
 from typing import List, Optional, Tuple
 
+
 from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
@@ -113,6 +114,52 @@ class ePIC(BaseMiner):
 
         self.config = cfg
         return self.config
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
+        conf = self.config.as_epic(user_suffix=user_suffix)
+
+        try:
+            # Temps
+            data = await self.web.set_shutdown_temp(conf["temp_control"]["hot_temp"])
+            # Fans
+            if conf["fan_control"]["mode"] == "Manual":
+                data = await self.web.set_fan(
+                    {"Manual": int(conf["fan_control"]["speed"])}
+                )
+            if conf["fan_control"]["mode"] == "Auto":
+                data = await self.web.set_fan(
+                    {
+                        "Auto": {
+                            "Idle Speed": int(conf["fan_control"]["speed"]),
+                            "Target Temperature": int(
+                                conf["temp_control"]["target_temp"]
+                            ),
+                        }
+                    }
+                )
+
+            ## Mining Mode -- Need to handle that you may not be able to change while miner is tuning
+            if conf["ptune"]["enabled"] == True:
+                data = await self.web.set_ptune_enable(True)
+                data = await self.web.set_ptune_algo(
+                    {"algo": conf["ptune"]["algo"], "target": conf["ptune"]["target"]}
+                )
+
+            ## Pools
+            update_pool_configs = []
+            for group in conf["pools"]:
+                for pool_config in group["pool"]:
+                    update_pool_configs.append(pool_config)
+            data = await self.web.set_pools(
+                {
+                    "coin": "Btc",
+                    "stratum_configs": update_pool_configs,
+                    "unique_id": True,
+                }
+            )
+        except APIError:
+            pass
 
     async def restart_backend(self) -> bool:
         data = await self.web.restart_epic()
@@ -334,9 +381,6 @@ class ePIC(BaseMiner):
     def get_api_ver(self, *args, **kwargs) -> Optional[str]:
         pass
 
-    def get_config(self) -> MinerConfig:
-        return self.config
-
     def get_env_temp(self, *args, **kwargs) -> Optional[float]:
         pass
 
@@ -347,9 +391,6 @@ class ePIC(BaseMiner):
         pass
 
     def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
-        pass
-
-    def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         pass
 
     def set_power_limit(self, wattage: int) -> bool:

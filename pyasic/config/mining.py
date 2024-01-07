@@ -33,6 +33,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_epic(self) -> dict:
+        return {"ptune": {"enabled": False}}
+
 
 @dataclass
 class MiningModeSleep(MinerConfigValue):
@@ -47,6 +50,9 @@ class MiningModeSleep(MinerConfigValue):
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
+
+    def as_epic(self) -> dict:
+        return {"ptune": False, "algo": "Sleep", "target": 0}
 
 
 @dataclass
@@ -112,6 +118,28 @@ class MiningModeHashrateTune(MinerConfigValue):
     def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
+    def as_epic(self) -> dict:
+        return {"ptune": {"enabled": True, "algo": "ChipTune", "target": self.hashrate}}
+
+
+@dataclass
+class MiningModeVoltageTune(MinerConfigValue):
+    mode: str = field(init=False, default="voltage_tuning")
+    hashrate: int = None
+
+    @classmethod
+    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeVoltageTune":
+        return cls(dict_conf.get("hashrate"))
+
+    def as_epic(self) -> dict:
+        return {
+            "ptune": {
+                "enabled": True,
+                "algo": "VoltageOptimizer",
+                "target": self.hashrate,
+            }
+        }
+
 
 @dataclass
 class ManualBoardSettings(MinerConfigValue):
@@ -153,6 +181,7 @@ class MiningModeConfig(MinerConfigOption):
     sleep = MiningModeSleep
     power_tuning = MiningModePowerTune
     hashrate_tuning = MiningModeHashrateTune
+    voltage_tuning = MiningModeVoltageTune
     manual = MiningModeManual
 
     @classmethod
@@ -195,7 +224,7 @@ class MiningModeConfig(MinerConfigOption):
                     web_conf["PerpetualTune"]["Algorithm"].get("VoltageOptimizer")
                     is not None
                 ):
-                    return cls.hashrate_tuning(
+                    return cls.voltage_tuning(
                         web_conf["PerpetualTune"]["Algorithm"]["VoltageOptimizer"][
                             "Target"
                         ]

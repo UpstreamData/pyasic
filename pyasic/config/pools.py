@@ -98,6 +98,15 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "password": self.password}
 
+    def as_epic(self, user_suffix: str = None):
+        if user_suffix is not None:
+            return {
+                "pool": self.url,
+                "login": f"{self.user}-{user_suffix}",
+                "password": self.password,
+            }
+        return {"pool": self.url, "login": self.user, "password": self.password}
+
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "Pool":
         return cls(
@@ -225,6 +234,17 @@ class PoolGroup(MinerConfigValue):
             return conf
         return {"name": "Group", "pool": []}
 
+    def as_epic(self, user_suffix: str = None) -> dict:
+        if len(self.pools) > 0:
+            conf = {
+                "name": self.name,
+                "pool": [pool.as_epic(user_suffix=user_suffix) for pool in self.pools],
+            }
+            if self.quota is not None:
+                conf["quota"] = self.quota
+            return conf
+        return {"name": "Group", "pool": []}
+
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolGroup":
         cls_conf = {}
@@ -336,6 +356,11 @@ class PoolConfig(MinerConfigValue):
                 "group": [g.as_bosminer(user_suffix=user_suffix) for g in self.groups]
             }
         return {"group": [PoolGroup().as_bosminer()]}
+
+    def as_epic(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": [g.as_epic(user_suffix=user_suffix) for g in self.groups]}
+        return {"pools": [PoolGroup().as_epic()]}
 
     def as_bos_grpc(self, user_suffix: str = None) -> dict:
         return {}
