@@ -45,9 +45,9 @@ class TemperatureConfig(MinerConfigValue):
             temp_cfg["target_temp"] = self.target
         else:
             ## If no target_temp set, autoset to -15 of shutdown
-            temp_cfg["target_temp"] = self.hot - 15.0
+            temp_cfg["target_temp"] = self.dangerous_temp - 15.0
         if self.hot is not None:
-            temp_cfg["hot_temp"] = self.hot
+            temp_cfg["dangerous_temp"] = self.dangerous_temp
         return {"temp_control": temp_cfg}
 
     @classmethod
@@ -70,11 +70,11 @@ class TemperatureConfig(MinerConfigValue):
 
     @classmethod
     def from_epic(cls, web_conf: dict) -> "TemperatureConfig":
-        dangerous_temp = None
+        hot_temp = None
         try:
-            hot_temp = web_conf["Misc"]["Shutdown Temp"]
+            dangerous_temp = web_conf["Misc"]["Shutdown Temp"]
         except KeyError:
-            hot_temp = None
+            dangerous_temp = None
         # Need to do this in two blocks to avoid KeyError if one is missing
         try:
             target_temp = web_conf["Fans"]["Fan Mode"]["Auto"]["Target Temperature"]

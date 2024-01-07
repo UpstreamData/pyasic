@@ -121,7 +121,9 @@ class ePIC(BaseMiner):
 
         try:
             # Temps
-            data = await self.web.set_shutdown_temp(conf["temp_control"]["hot_temp"])
+            data = await self.web.set_shutdown_temp(
+                conf["temp_control"]["dangerous_temp"]
+            )
             # Fans
             if conf["fan_control"]["mode"] == "Manual":
                 data = await self.web.set_fan(

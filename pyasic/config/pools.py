@@ -102,7 +102,7 @@ class Pool(MinerConfigValue):
         if user_suffix is not None:
             return {
                 "pool": self.url,
-                "login": f"{self.user}-{user_suffix}",
+                "login": f"{self.user}{user_suffix}",
                 "password": self.password,
             }
         return {"pool": self.url, "login": self.user, "password": self.password}
@@ -251,7 +251,7 @@ class PoolGroup(MinerConfigValue):
             if self.quota is not None:
                 conf["quota"] = self.quota
             return conf
-        return {"name": "Group", "pool": []}
+        return {"name": self.name, "pool": []}
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolGroup":
