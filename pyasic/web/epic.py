@@ -50,13 +50,11 @@ class ePICWebAPI(BaseWebAPI):
                             "param": parameters.get("parameters"),
                             "password": self.pwd,
                         }
-                        print(epic_param)
                         response = await client.post(
                             f"http://{self.ip}:4028/{command}",
                             timeout=5,
                             json=epic_param,
                         )
-                        print(response.text)
                     else:
                         response = await client.get(
                             f"http://{self.ip}:4028/{command}",
