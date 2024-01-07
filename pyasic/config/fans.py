@@ -50,7 +50,7 @@ class FanModeNormal(MinerConfigValue):
         return {"temp_control": {"mode": "auto"}}
 
     def as_epic(self) -> dict:
-        return {"fan_control": {"mode": "Auto", "speed": self.speed}}
+        return {"fan_control": {"mode": "Auto", "speed": 100}}
 
 
 @dataclass
