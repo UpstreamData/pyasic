@@ -44,7 +44,7 @@ class TemperatureConfig(MinerConfigValue):
         if self.target is not None:
             temp_cfg["target_temp"] = self.target
         else:
-            ## If no target_temp setm, auto set to -15 of shutdown
+            ## If no target_temp set, autoset to -15 of shutdown
             temp_cfg["target_temp"] = self.hot - 15.0
         if self.hot is not None:
             temp_cfg["hot_temp"] = self.hot
