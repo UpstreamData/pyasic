@@ -170,6 +170,15 @@ class MinerConfig:
             mining_mode=MiningModeConfig.from_epic(web_conf),
         )
 
+    @classmethod
+    def from_vnish(cls, web_settings: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_vnish(web_settings),
+            fan_mode=FanModeConfig.from_vnish(web_settings),
+            temperature=TemperatureConfig.from_vnish(web_settings),
+            mining_mode=MiningModeConfig.from_vnish(web_settings),
+        )
+
 
 def merge(a: dict, b: dict) -> dict:
     result = deepcopy(a)

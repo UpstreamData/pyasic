@@ -150,6 +150,14 @@ class Pool(MinerConfigValue):
             password=toml_pool_conf["password"],
         )
 
+    @classmethod
+    def from_vnish(cls, web_pool: dict) -> "Pool":
+        return cls(
+            url=web_pool["url"],
+            user=web_pool["user"],
+            password=web_pool["pass"],
+        )
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -295,6 +303,10 @@ class PoolGroup(MinerConfigValue):
             )
         return cls()
 
+    @classmethod
+    def from_vnish(cls, web_settings_pools: dict) -> "PoolGroup":
+        return cls([Pool.from_vnish(p) for p in web_settings_pools])
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -400,3 +412,10 @@ class PoolConfig(MinerConfigValue):
             return cls()
 
         return cls([PoolGroup.from_bosminer(g) for g in toml_conf["group"]])
+
+    @classmethod
+    def from_vnish(cls, web_settings: dict) -> "PoolConfig":
+        try:
+            return cls([PoolGroup.from_vnish(web_settings["miner"]["pools"])])
+        except LookupError:
+            return cls()

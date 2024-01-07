@@ -22,10 +22,26 @@ from pyasic.config.base import MinerConfigOption, MinerConfigValue
 @dataclass
 class FanModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="normal")
+    minimum_fans: int = 1
+    minimum_speed: int = 0
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeNormal":
-        return cls()
+        cls_conf = {}
+        if dict_conf.get("minimum_fans") is not None:
+            cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
+        if dict_conf.get("minimum_speed") is not None:
+            cls_conf["minimum_speed"] = dict_conf["minimum_speed"]
+        return cls(**cls_conf)
+
+    @classmethod
+    def from_vnish(cls, web_cooling_settings: dict):
+        cls_conf = {}
+        if web_cooling_settings.get("fan_min_count") is not None:
+            cls_conf["minimum_fans"] = web_cooling_settings["fan_min_count"]
+        if web_cooling_settings.get("fan_min_duty") is not None:
+            cls_conf["minimum_speed"] = web_cooling_settings["fan_min_duty"]
+        return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
         return {"bitmain-fan-ctrl": False, "bitmain-fan-pwn": "100"}
@@ -59,6 +75,15 @@ class FanModeManual(MinerConfigValue):
             cls_conf["minimum_fans"] = toml_fan_conf["min_fans"]
         if toml_fan_conf.get("speed") is not None:
             cls_conf["speed"] = toml_fan_conf["speed"]
+        return cls(**cls_conf)
+
+    @classmethod
+    def from_vnish(cls, web_cooling_settings: dict) -> "FanModeManual":
+        cls_conf = {}
+        if web_cooling_settings.get("fan_min_count") is not None:
+            cls_conf["minimum_fans"] = web_cooling_settings["fan_min_count"]
+        if web_cooling_settings["mode"].get("param") is not None:
+            cls_conf["speed"] = web_cooling_settings["mode"]["param"]
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
@@ -148,4 +173,18 @@ class FanModeConfig(MinerConfigOption):
                 return cls.manual().from_bosminer(toml_conf["fan_control"])
             return cls.manual()
         elif mode == "disabled":
+            return cls.immersion()
+
+    @classmethod
+    def from_vnish(cls, web_settings: dict):
+        try:
+            mode = web_settings["miner"]["cooling"]["mode"]["name"]
+        except LookupError:
+            return cls.default()
+
+        if mode == "auto":
+            return cls.normal().from_vnish(web_settings["miner"]["cooling"])
+        elif mode == "manual":
+            return cls.manual().from_vnish(web_settings["miner"]["cooling"])
+        elif mode == "immers":
             return cls.immersion()
