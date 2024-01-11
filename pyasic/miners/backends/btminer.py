@@ -394,7 +394,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
@@ -442,7 +442,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return api_summary["SUMMARY"][0]["Env Temp"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_wattage(self, api_summary: dict = None) -> Optional[int]:
@@ -469,7 +469,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return api_summary["SUMMARY"][0]["Power Limit"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_fans(
@@ -506,7 +506,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return int(api_summary["SUMMARY"][0]["Power Fanspeed"])
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         if not api_get_psu:
@@ -537,7 +537,7 @@ class BTMiner(BaseMiner):
                     err = api_summary["SUMMARY"][0].get(f"Error Code {i}")
                     if err:
                         errors.append(WhatsminerError(error_code=err))
-            except (KeyError, IndexError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         if not api_get_error_code:

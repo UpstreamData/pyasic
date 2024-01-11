@@ -210,7 +210,7 @@ class CGMinerAvalon(CGMiner):
         if api_devs:
             try:
                 return round(float(api_devs["DEVS"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
@@ -229,7 +229,7 @@ class CGMinerAvalon(CGMiner):
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 return hashboards
 
             for board in range(self.expected_hashboards):
@@ -273,7 +273,7 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return round(float(parsed_stats["GHSmm"]) / 1000, 2)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
@@ -288,7 +288,7 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return float(parsed_stats["Temp"])
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_wattage(self) -> Optional[int]:
@@ -306,7 +306,7 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return int(parsed_stats["MPO"])
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
@@ -327,7 +327,7 @@ class CGMinerAvalon(CGMiner):
             for fan in range(self.expected_fans):
                 try:
                     fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
-                except (IndexError, KeyError, ValueError, TypeError):
+                except (LookupError, ValueError, TypeError):
                     pass
         return fans_data
 
@@ -349,7 +349,7 @@ class CGMinerAvalon(CGMiner):
                 parsed_stats = self.parse_stats(unparsed_stats)
                 led = int(parsed_stats["Led"])
                 return True if led == 1 else False
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         try:

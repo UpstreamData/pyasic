@@ -181,7 +181,7 @@ class VNish(BMMiner):
                 return round(
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
-            except (IndexError, KeyError, ValueError, TypeError) as e:
+            except (LookupError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
 
