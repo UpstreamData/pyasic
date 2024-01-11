@@ -68,13 +68,9 @@ class Hiveon(BMMiner):
         self.pwd = "admin"
         # static data
         self.api_type = "Hiveon"
+        self.fw_str = "Hive"
         # data gathering locations
         self.data_locations = HIVEON_DATA_LOC
-
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (Hiveon)"
-        return "? (Hiveon)"
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         pass
