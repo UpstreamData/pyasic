@@ -20,7 +20,7 @@ class CK5(GoldshellMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "CK5"
+        self.raw_model = "CK5"
         self.expected_hashboards = 4
         self.expected_chips = 46
         self.fan_count = 4

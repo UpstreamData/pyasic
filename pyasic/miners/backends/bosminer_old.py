@@ -93,7 +93,7 @@ class BOSMinerOld(BOSMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self, *args, **kwargs) -> Optional[str]:
+    async def _get_mac(self, *args, **kwargs) -> Optional[str]:
         return None
 
     async def get_model(self, *args, **kwargs) -> str:
@@ -102,54 +102,54 @@ class BOSMinerOld(BOSMiner):
     async def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         return None, None
 
-    async def get_hostname(self, *args, **kwargs) -> Optional[str]:
+    async def _get_hostname(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def _get_hashrate(self, *args, **kwargs) -> Optional[float]:
         return None
 
-    async def get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
+    async def _get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
         return []
 
-    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    async def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
         return None
 
-    async def get_wattage(self, *args, **kwargs) -> Optional[int]:
+    async def _get_wattage(self, *args, **kwargs) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+    async def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
         return None
 
-    async def get_fans(
+    async def _get_fans(
         self,
         *args,
         **kwargs,
     ) -> List[Fan]:
         return [Fan(), Fan(), Fan(), Fan()]
 
-    async def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+    async def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
         return None
 
-    async def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+    async def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_fw_ver(self, *args, **kwargs) -> Optional[str]:
+    async def _get_fw_ver(self, *args, **kwargs) -> Optional[str]:
         return None
 
-    async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
+    async def _get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
         return []
 
-    async def get_fault_light(self, *args, **kwargs) -> bool:
+    async def _get_fault_light(self, *args, **kwargs) -> bool:
         return False
 
-    async def get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def _get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
         return None
 
     async def get_data(self, allow_warning: bool = False, **kwargs) -> MinerData:
         return MinerData(ip=str(self.ip))
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None

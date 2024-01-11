@@ -24,8 +24,4 @@ class Hiveon(BMMiner):
         super().__init__(ip, api_ver)
         # static data
         self.api_type = "Hiveon"
-
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (Hiveon)"
-        return "? (Hiveon)"
+        self.fw_str = "Hive"

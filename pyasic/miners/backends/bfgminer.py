@@ -32,35 +32,34 @@ from pyasic.miners.base import (
 
 BFGMINER_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("get_mac"),
-        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.MAC): DataFunction("_get_mac"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
-        str(DataOptions.UPTIME): DataFunction("get_uptime"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
+        str(DataOptions.UPTIME): DataFunction("_get_uptime"),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
@@ -117,14 +116,10 @@ class BFGMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> str:
-        return "00:00:00:00:00:00"
+    async def _get_mac(self) -> Optional[str]:
+        return None
 
-    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        # Check to see if the version info is already cached
-        if self.api_ver:
-            return self.api_ver
-
+    async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -139,11 +134,7 @@ class BFGMiner(BaseMiner):
 
         return self.api_ver
 
-    async def get_fw_ver(self, api_version: dict = None) -> Optional[str]:
-        # Check to see if the version info is already cached
-        if self.fw_ver:
-            return self.fw_ver
-
+    async def _get_fw_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -158,26 +149,16 @@ class BFGMiner(BaseMiner):
 
         return self.fw_ver
 
-    async def get_version(
-        self, api_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        # check if version is cached
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        return miner_version(
-            api_ver=await self.get_api_ver(api_version),
-            fw_ver=await self.get_fw_ver(api_version=api_version),
-        )
-
     async def reboot(self) -> bool:
         return False
 
-    async def get_fan_psu(self):
+    async def _get_fan_psu(self):
         return None
 
-    async def get_hostname(self) -> Optional[str]:
+    async def _get_hostname(self) -> Optional[str]:
         return None
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
             try:
@@ -191,7 +172,7 @@ class BFGMiner(BaseMiner):
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
         if not api_stats:
@@ -245,16 +226,16 @@ class BFGMiner(BaseMiner):
 
         return hashboards
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> Optional[float]:
         return None
 
-    async def get_wattage(self) -> Optional[int]:
+    async def _get_wattage(self) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def _get_wattage_limit(self) -> Optional[int]:
         return None
 
-    async def get_fans(self, api_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -274,7 +255,7 @@ class BFGMiner(BaseMiner):
                 if fan_offset == -1:
                     fan_offset = 1
 
-                for fan in range(self.fan_count):
+                for fan in range(self.expected_fans):
                     fans_data[fan] = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
@@ -284,13 +265,13 @@ class BFGMiner(BaseMiner):
 
         return fans
 
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> List[MinerErrorData]:
         return []
 
-    async def get_fault_light(self) -> bool:
+    async def _get_fault_light(self) -> bool:
         return False
 
-    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
         if not api_stats:
             try:
@@ -314,8 +295,8 @@ class BFGMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None

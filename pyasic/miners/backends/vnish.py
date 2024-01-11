@@ -32,42 +32,41 @@ from pyasic.web.vnish import VNishWebAPI
 VNISH_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac", [WebAPICommand("web_summary", "summary")]
+            "_get_mac", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [WebAPICommand("web_summary", "summary")]
+            "_get_fw_ver", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "get_hostname", [WebAPICommand("web_summary", "summary")]
+            "_get_hostname", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [WebAPICommand("web_summary", "summary")]
+            "_get_hashrate", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage", [WebAPICommand("web_summary", "summary")]
+            "_get_wattage", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "get_wattage_limit", [WebAPICommand("web_settings", "settings")]
+            "_get_wattage_limit", [WebAPICommand("web_settings", "settings")]
         ),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [WebAPICommand("web_summary", "summary")]
+            "_get_fans", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
-        str(DataOptions.UPTIME): DataFunction("get_uptime"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
+        str(DataOptions.UPTIME): DataFunction("_get_uptime"),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
@@ -81,13 +80,9 @@ class VNish(BMMiner):
 
         # static data
         self.api_type = "VNish"
+        self.fw_str = "VNish"
         # data gathering locations
         self.data_locations = VNISH_DATA_LOC
-
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (VNish)"
-        return "? (VNish)"
 
     async def restart_backend(self) -> bool:
         data = await self.web.restart_vnish()
@@ -125,7 +120,7 @@ class VNish(BMMiner):
                 pass
         return False
 
-    async def get_mac(self, web_summary: dict = None) -> str:
+    async def _get_mac(self, web_summary: dict = None) -> str:
         if not web_summary:
             web_info = await self.web.info()
 
@@ -143,7 +138,7 @@ class VNish(BMMiner):
             except KeyError:
                 pass
 
-    async def get_hostname(self, web_summary: dict = None) -> str:
+    async def _get_hostname(self, web_summary: dict = None) -> str:
         if not web_summary:
             web_info = await self.web.info()
 
@@ -161,7 +156,7 @@ class VNish(BMMiner):
             except KeyError:
                 pass
 
-    async def get_wattage(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
             web_summary = await self.web.summary()
 
@@ -173,7 +168,7 @@ class VNish(BMMiner):
             except KeyError:
                 pass
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
             try:
@@ -190,7 +185,7 @@ class VNish(BMMiner):
                 logger.error(e)
                 pass
 
-    async def get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
         if not web_settings:
             web_settings = await self.web.summary()
 
@@ -203,7 +198,7 @@ class VNish(BMMiner):
             except (KeyError, TypeError):
                 pass
 
-    async def get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
         if not web_summary:
             web_summary = await self.web.summary()
 
@@ -215,10 +210,10 @@ class VNish(BMMiner):
             except KeyError:
                 pass
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None
 
     async def get_config(self) -> MinerConfig:

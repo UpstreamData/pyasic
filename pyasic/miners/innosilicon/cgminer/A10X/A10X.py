@@ -254,7 +254,7 @@ class CGMinerA10X(CGMiner, A10X):
             else:
                 web_get_all = web_get_all["all"]
 
-        fans = [Fan() for _ in range(self.fan_count)]
+        fans = [Fan() for _ in range(self.expected_fans)]
         if web_get_all:
             try:
                 spd = web_get_all["fansSpeed"]
@@ -262,7 +262,7 @@ class CGMinerA10X(CGMiner, A10X):
                 pass
             else:
                 round((int(spd) * 6000) / 100)
-                for i in range(self.fan_count):
+                for i in range(self.expected_fans):
                     fans[i].speed = spd
 
         return fans
