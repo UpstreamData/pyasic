@@ -17,13 +17,7 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
-from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
-    DpsPowerTarget,
-    DpsTarget,
-    Hours,
-    Power,
-    SetDpsRequest,
-)
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, Hours
 
 
 @dataclass
@@ -43,8 +37,13 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
 
         return cfg
 
-    def as_boser(self) -> dict:
-        return {"enable_shutdown": True, "shutdown_duration": self.duration}
+    def as_bos_grpc(self) -> dict:
+        cfg = {"enable_shutdown ": True}
+
+        if self.duration is not None:
+            cfg["shutdown_duration"] = Hours(self.duration)
+
+        return cfg
 
 
 @dataclass
@@ -58,7 +57,7 @@ class PowerScalingShutdownDisabled(MinerConfigValue):
     def as_bosminer(self) -> dict:
         return {"shutdown_enabled": False}
 
-    def as_boser(self) -> dict:
+    def as_bos_grpc(self) -> dict:
         return {"enable_shutdown ": False}
 
 
@@ -85,19 +84,6 @@ class PowerScalingShutdown(MinerConfigOption):
         if sd_enabled is not None:
             if sd_enabled:
                 return cls.enabled(power_scaling_conf.get("shutdown_duration"))
-            else:
-                return cls.disabled()
-        return None
-
-    @classmethod
-    def from_boser(cls, power_scaling_conf: dict):
-        sd_enabled = power_scaling_conf.get("shutdownEnabled")
-        if sd_enabled is not None:
-            if sd_enabled:
-                try:
-                    return cls.enabled(power_scaling_conf["shutdownDuration"]["hours"])
-                except KeyError:
-                    return cls.enabled()
             else:
                 return cls.disabled()
         return None
@@ -147,19 +133,20 @@ class PowerScalingEnabled(MinerConfigValue):
 
         return {"power_scaling": cfg}
 
-    def as_boser(self) -> dict:
-        return {
-            "set_dps": SetDpsRequest(
-                enable=True,
-                **self.shutdown_enabled.as_boser(),
-                target=DpsTarget(
-                    power_target=DpsPowerTarget(
-                        power_step=Power(self.power_step),
-                        min_power_target=Power(self.minimum_power),
-                    )
-                ),
-            ),
-        }
+    def as_bos_grpc(self) -> dict:
+        cfg = {"enable": True}
+        target_conf = {}
+        if self.power_step is not None:
+            target_conf["power_step"] = self.power_step
+        if self.minimum_power is not None:
+            target_conf["min_power_target"] = self.minimum_power
+
+        cfg["target"] = DpsTarget(power_target=DpsPowerTarget(**target_conf))
+
+        if self.shutdown_enabled is not None:
+            cfg = {**cfg, **self.shutdown_enabled.as_bos_grpc()}
+
+        return {"dps": cfg}
 
 
 @dataclass
@@ -200,21 +187,3 @@ class PowerScalingConfig(MinerConfigOption):
                     return cls.disabled()
 
         return cls.default()
-
-    @classmethod
-    def from_boser(cls, grpc_miner_conf: dict):
-        try:
-            dps_conf = grpc_miner_conf["dps"]
-            if not dps_conf.get("enabled", False):
-                return cls.disabled()
-        except LookupError:
-            return cls.default()
-
-        conf = {}
-
-        conf["shutdown_enabled"] = PowerScalingShutdown.from_boser(dps_conf)
-        if dps_conf.get("minPowerTarget") is not None:
-            conf["minimum_power"] = dps_conf["minPowerTarget"]["watt"]
-        if dps_conf.get("powerStep") is not None:
-            conf["power_step"] = dps_conf["powerStep"]["watt"]
-        return cls.enabled(**conf)

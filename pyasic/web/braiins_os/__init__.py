@@ -84,29 +84,31 @@ class BOSerWebAPI(BOSMinerWebAPI):
         **parameters: Union[str, int, bool],
     ) -> dict:
         command_type = self.select_command_type(command)
-        if command_type == "gql":
+        if command_type is "gql":
             return await self.gql.send_command(command)
-        elif command_type == "grpc":
+        elif command_type is "grpc":
             try:
                 return await (getattr(self.grpc, command.replace("grpc_", "")))()
             except AttributeError:
                 raise APIError(f"No gRPC command found for command: {command}")
-        elif command_type == "luci":
+        elif command_type is "luci":
             return await self.luci.send_command(command)
 
     @staticmethod
     def select_command_type(command: Union[str, dict]) -> str:
         if isinstance(command, dict):
             return "gql"
-        else:
+        elif command.startswith("grpc_"):
             return "grpc"
+        else:
+            return "luci"
 
     async def multicommand(
         self, *commands: Union[dict, str], allow_warning: bool = True
     ) -> dict:
-        cmd_types = {"grpc": [], "gql": []}
+        cmd_types = {"grpc": [], "gql": [], "luci": []}
         for cmd in commands:
-            cmd_types[self.select_command_type(cmd)].append(cmd)
+            cmd_types[self.select_command_type(cmd)] = cmd
 
         async def no_op():
             return {}
@@ -116,13 +118,21 @@ class BOSerWebAPI(BOSMinerWebAPI):
                 self.grpc.multicommand(*cmd_types["grpc"])
             )
         else:
-            grpc_data_t = asyncio.create_task(no_op())
+            grpc_data_t = no_op()
         if len(cmd_types["gql"]) > 0:
             gql_data_t = asyncio.create_task(self.gql.multicommand(*cmd_types["gql"]))
         else:
-            gql_data_t = asyncio.create_task(no_op())
+            gql_data_t = no_op()
+        if len(cmd_types["luci"]) > 0:
+            luci_data_t = asyncio.create_task(
+                self.luci.multicommand(*cmd_types["luci"])
+            )
+        else:
+            luci_data_t = no_op()
 
-        await asyncio.gather(grpc_data_t, gql_data_t)
+        await asyncio.gather(grpc_data_t, gql_data_t, luci_data_t)
 
-        data = dict(**grpc_data_t.result(), **gql_data_t.result())
+        data = dict(
+            **luci_data_t.result(), **gql_data_t.result(), **luci_data_t.result()
+        )
         return data
