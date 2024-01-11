@@ -33,65 +33,146 @@ from pyasic.miners.base import (
     DataLocations,
     DataOptions,
     GraphQLCommand,
-    GRPCCommand,
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
+from pyasic.web.bosminer import BOSMinerWebAPI
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac",
-            [WebAPICommand("web_net_conf", "admin/network/iface_status/lan")],
+            "_get_mac",
+            [
+                WebAPICommand(
+                    "web_net_conf", "/cgi-bin/luci/admin/network/iface_status/lan"
+                )
+            ],
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [WebAPICommand("web_bos_info", "bos/info")]
+            "_get_fw_ver",
+            [
+                GraphQLCommand(
+                    "graphql_version", {"bos": {"info": {"version": {"full": None}}}}
+                )
+            ],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "_get_hostname",
+            [GraphQLCommand("graphql_hostname", {"bos": {"hostname": None}})],
+        ),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            "_get_hashrate",
+            [
+                RPCAPICommand("api_summary", "summary"),
+                GraphQLCommand(
+                    "graphql_hashrate",
+                    {
+                        "bosminer": {
+                            "info": {"workSolver": {"realHashrate": {"mhs1M": None}}}
+                        }
+                    },
+                ),
+            ],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_devs", "devs")]
+            "_get_expected_hashrate", [RPCAPICommand("api_devs", "devs")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards",
+            "_get_hashboards",
             [
                 RPCAPICommand("api_temps", "temps"),
                 RPCAPICommand("api_devdetails", "devdetails"),
                 RPCAPICommand("api_devs", "devs"),
+                GraphQLCommand(
+                    "graphql_boards",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "realHashrate": {"mhs1M": None},
+                                        "hwDetails": {"chips": None},
+                                        "temperatures": {"degreesC": None},
+                                    }
+                                }
+                            }
+                        }
+                    },
+                ),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage",
-            [RPCAPICommand("api_tunerstatus", "tunerstatus")],
+            "_get_wattage",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_wattage",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {"power": {"approxConsumptionW": None}}
+                            }
+                        }
+                    },
+                ),
+            ],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "get_wattage_limit",
-            [RPCAPICommand("api_tunerstatus", "tunerstatus")],
+            "_get_wattage_limit",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_wattage_limit",
+                    {"bosminer": {"info": {"workSolver": {"power": {"limitW": None}}}}},
+                ),
+            ],
         ),
         str(DataOptions.FANS): DataFunction(
-            "get_fans",
-            [RPCAPICommand("api_fans", "fans")],
+            "_get_fans",
+            [
+                RPCAPICommand("api_fans", "fans"),
+                GraphQLCommand(
+                    "graphql_fans",
+                    {"bosminer": {"info": {"fans": {"name": None, "rpm": None}}}},
+                ),
+            ],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
-            "get_errors",
-            [RPCAPICommand("api_tunerstatus", "tunerstatus")],
+            "_get_errors",
+            [
+                RPCAPICommand("api_tunerstatus", "tunerstatus"),
+                GraphQLCommand(
+                    "graphql_errors",
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "tuner": {"statusMessages": None},
+                                    }
+                                }
+                            }
+                        }
+                    },
+                ),
+            ],
         ),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "_get_fault_light",
+            [GraphQLCommand("graphql_fault_light", {"bos": {"faultLight": None}})],
+        ),
         str(DataOptions.IS_MINING): DataFunction(
-            "is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
+            "_is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_summary", "summary")]
+            "_get_uptime", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -99,14 +180,15 @@ BOSMINER_DATA_LOC = DataLocations(
 
 
 class BOSMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
+    def __init__(self, ip: str, api_ver: str = "0.0.0", boser: bool = None) -> None:
         super().__init__(ip)
         # interfaces
         self.api = BOSMinerAPI(ip, api_ver)
-        self.web = BOSMinerWebAPI(ip)
+        self.web = BOSMinerWebAPI(ip, boser=boser)
 
         # static data
         self.api_type = "BOSMiner"
+        self.fw_str = "BOS"
         # data gathering locations
         self.data_locations = BOSMINER_DATA_LOC
         # autotuning/shutdown support
@@ -229,12 +311,25 @@ class BOSMiner(BaseMiner):
         logging.debug(f"{self}: Sending config.")
         self.config = config
 
+        if self.web.grpc is not None:
+            try:
+                await self._send_config_grpc(config, user_suffix)
+                return
+            except:
+                pass
+        await self._send_config_bosminer(config, user_suffix)
+
+    async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
+        raise NotImplementedError
+        mining_mode = config.mining_mode
+
+    async def _send_config_bosminer(self, config: MinerConfig, user_suffix: str = None):
         toml_conf = toml.dumps(
             {
                 "format": {
                     "version": "1.2+",
                     "generator": "pyasic",
-                    "model": f"{self.make.replace('Miner', 'miner')} {self.model.replace(' (BOS)', '').replace('j', 'J')}",
+                    "raw_model": f"{self.make.replace('Miner', 'miner')} {self.raw_model}",
                     "timestamp": int(time.time()),
                 },
                 **config.as_bosminer(user_suffix=user_suffix),
@@ -290,17 +385,16 @@ class BOSMiner(BaseMiner):
         gateway: str,
         subnet_mask: str = "255.255.255.0",
     ):
-        cfg_data_lan = "\n\t".join(
-            [
-                "config interface 'lan'",
-                "option type 'bridge'",
-                "option ifname 'eth0'",
-                "option proto 'static'",
-                f"option ipaddr '{ip}'",
-                f"option netmask '{subnet_mask}'",
-                f"option gateway '{gateway}'",
-                f"option dns '{dns}'",
-            ]
+        cfg_data_lan = (
+            "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'static'\n\toption ipaddr '"
+            + ip
+            + "'\n\toption netmask '"
+            + subnet_mask
+            + "'\n\toption gateway '"
+            + gateway
+            + "'\n\toption dns '"
+            + dns
+            + "'"
         )
         data = await self.send_ssh_command("cat /etc/config/network")
 
@@ -316,14 +410,7 @@ class BOSMiner(BaseMiner):
             await conn.run("echo '" + config + "' > /etc/config/network")
 
     async def set_dhcp(self):
-        cfg_data_lan = "\n\t".join(
-            [
-                "config interface 'lan'",
-                "option type 'bridge'",
-                "option ifname 'eth0'",
-                "option proto 'dhcp'",
-            ]
-        )
+        cfg_data_lan = "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'dhcp'"
         data = await self.send_ssh_command("cat /etc/config/network")
 
         split_data = data.split("\n\n")
@@ -341,16 +428,20 @@ class BOSMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
+    async def _get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
         if not web_net_conf:
             try:
-                web_net_conf = await self.web.luci.get_net_conf()
+                web_net_conf = await self.web.send_command(
+                    "/cgi-bin/luci/admin/network/iface_status/lan"
+                )
             except APIError:
                 pass
 
         if isinstance(web_net_conf, dict):
-            if "admin/network/iface_status/lan" in web_net_conf.keys():
-                web_net_conf = web_net_conf["admin/network/iface_status/lan"]
+            if "/cgi-bin/luci/admin/network/iface_status/lan" in web_net_conf.keys():
+                web_net_conf = web_net_conf[
+                    "/cgi-bin/luci/admin/network/iface_status/lan"
+                ]
 
         if web_net_conf:
             try:
@@ -363,20 +454,20 @@ class BOSMiner(BaseMiner):
         #     return result.upper().strip()
 
     async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (BOS)"
+        if self.raw_model is not None:
+            return self.raw_model + " (BOS)"
         return "? (BOS)"
 
     async def get_version(
-        self, api_version: dict = None, web_bos_info: dict = None
+        self, api_version: dict = None, graphql_version: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
+        # check if version is cached
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        api_ver_t = asyncio.create_task(self.get_api_ver(api_version))
-        fw_ver_t = asyncio.create_task(self.get_fw_ver(web_bos_info))
-        await asyncio.gather(api_ver_t, fw_ver_t)
-        return miner_version(api_ver=api_ver_t.result(), fw_ver=fw_ver_t.result())
+        api_ver = await self.get_api_ver(api_version)
+        fw_ver = await self.get_fw_ver(graphql_version)
+        return miner_version(api_ver, fw_ver)
 
-    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -387,45 +478,98 @@ class BOSMiner(BaseMiner):
         if api_version:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_ver = None
             self.api_ver = api_ver
             self.api.api_ver = self.api_ver
 
         return self.api_ver
 
-    async def get_fw_ver(self, web_bos_info: dict) -> Optional[str]:
-        if web_bos_info is None:
+    async def _get_fw_ver(self, graphql_version: dict = None) -> Optional[str]:
+        if not graphql_version:
             try:
-                web_bos_info = await self.web.luci.get_bos_info()
+                graphql_version = await self.web.send_command(
+                    {"bos": {"info": {"version": {"full"}}}}
+                )
             except APIError:
-                return None
+                pass
 
-        if isinstance(web_bos_info, dict):
-            if "bos/info" in web_bos_info.keys():
-                web_bos_info = web_bos_info["bos/info"]
+        fw_ver = None
 
-        try:
-            ver = web_bos_info["version"].split("-")[5]
+        if graphql_version:
+            try:
+                fw_ver = graphql_version["data"]["bos"]["info"]["version"]["full"]
+            except (KeyError, TypeError):
+                pass
+
+        if not fw_ver:
+            # try version data file
+            fw_ver = await self.send_ssh_command("cat /etc/bos_version")
+
+        # if we get the version data, parse it
+        if fw_ver is not None:
+            ver = fw_ver.split("-")[5]
             if "." in ver:
                 self.fw_ver = ver
                 logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-        except (LookupError, AttributeError):
-            return None
 
         return self.fw_ver
 
-    async def get_hostname(self) -> Union[str, None]:
+    async def _get_hostname(self, graphql_hostname: dict = None) -> Union[str, None]:
+        hostname = None
+
+        if not graphql_hostname:
+            try:
+                graphql_hostname = await self.web.send_command({"bos": {"hostname"}})
+            except APIError:
+                pass
+
+        if graphql_hostname:
+            try:
+                hostname = graphql_hostname["data"]["bos"]["hostname"]
+                return hostname
+            except (TypeError, KeyError):
+                pass
+
         try:
-            hostname = (
-                await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-            ).strip()
+            async with await self._get_ssh_connection() as conn:
+                if conn is not None:
+                    data = await conn.run("cat /proc/sys/kernel/hostname")
+                    host = data.stdout.strip()
+                    logging.debug(f"Found hostname for {self.ip}: {host}")
+                    hostname = host
+                else:
+                    logging.warning(f"Failed to get hostname for miner: {self}")
         except Exception as e:
-            logging.error(f"BOSMiner get_hostname failed with error: {e}")
-            return None
+            logging.warning(f"Failed to get hostname for miner: {self}, {e}")
         return hostname
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(
+        self, api_summary: dict = None, graphql_hashrate: dict = None
+    ) -> Optional[float]:
+        # get hr from graphql
+        if not graphql_hashrate:
+            try:
+                graphql_hashrate = await self.web.send_command(
+                    {"bosminer": {"info": {"workSolver": {"realHashrate": {"mhs1M"}}}}}
+                )
+            except APIError:
+                pass
+
+        if graphql_hashrate:
+            try:
+                return round(
+                    float(
+                        graphql_hashrate["data"]["bosminer"]["info"]["workSolver"][
+                            "realHashrate"
+                        ]["mhs1M"]
+                        / 1000000
+                    ),
+                    2,
+                )
+            except (LookupError, ValueError, TypeError):
+                pass
+
         # get hr from API
         if not api_summary:
             try:
@@ -439,16 +583,74 @@ class BOSMiner(BaseMiner):
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
-    async def get_hashboards(
+    async def _get_hashboards(
         self,
         api_temps: dict = None,
         api_devdetails: dict = None,
         api_devs: dict = None,
+        graphql_boards: dict = None,
     ):
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
+
+        if not graphql_boards and not (api_devs or api_temps or api_devdetails):
+            try:
+                graphql_boards = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "realHashrate": {"mhs1M"},
+                                        "hwDetails": {"chips"},
+                                        "temperatures": {"degreesC"},
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )
+            except APIError:
+                pass
+
+        if graphql_boards:
+            try:
+                boards = graphql_boards["data"]["bosminer"]["info"]["workSolver"][
+                    "childSolvers"
+                ]
+            except (TypeError, LookupError):
+                boards = None
+
+            if boards:
+                b_names = [int(b["name"]) for b in boards]
+                offset = 0
+                if 3 in b_names:
+                    offset = 1
+                elif 6 in b_names or 7 in b_names or 8 in b_names:
+                    offset = 6
+                for hb in boards:
+                    _id = int(hb["name"]) - offset
+                    board = hashboards[_id]
+
+                    board.hashrate = round(hb["realHashrate"]["mhs1M"] / 1000000, 2)
+                    temps = hb["temperatures"]
+                    try:
+                        if len(temps) > 0:
+                            board.temp = round(hb["temperatures"][0]["degreesC"])
+                        if len(temps) > 1:
+                            board.chip_temp = round(hb["temperatures"][1]["degreesC"])
+                    except (TypeError, KeyError, ValueError, IndexError):
+                        pass
+                    details = hb.get("hwDetails")
+                    if details:
+                        if chips := details["chips"]:
+                            board.chips = chips
+                    board.missing = False
+
+                return hashboards
 
         cmds = []
         if not api_temps:
@@ -464,7 +666,7 @@ class BOSMiner(BaseMiner):
                 d = {}
             try:
                 api_temps = d["temps"][0]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_temps = None
             try:
                 api_devdetails = d["devdetails"][0]
@@ -472,7 +674,7 @@ class BOSMiner(BaseMiner):
                 api_devdetails = None
             try:
                 api_devs = d["devs"][0]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_devs = None
         if api_temps:
             try:
@@ -512,10 +714,31 @@ class BOSMiner(BaseMiner):
 
         return hashboards
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> Optional[float]:
         return None
 
-    async def get_wattage(self, api_tunerstatus: dict = None) -> Optional[int]:
+    async def _get_wattage(
+        self, api_tunerstatus: dict = None, graphql_wattage: dict = None
+    ) -> Optional[int]:
+        if not graphql_wattage and not api_tunerstatus:
+            try:
+                graphql_wattage = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {"workSolver": {"power": {"approxConsumptionW"}}}
+                        }
+                    }
+                )
+            except APIError:
+                pass
+        if graphql_wattage is not None:
+            try:
+                return graphql_wattage["data"]["bosminer"]["info"]["workSolver"][
+                    "power"
+                ]["approxConsumptionW"]
+            except (LookupError, TypeError):
+                pass
+
         if not api_tunerstatus:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
@@ -527,10 +750,28 @@ class BOSMiner(BaseMiner):
                 return api_tunerstatus["TUNERSTATUS"][0][
                     "ApproximateMinerPowerConsumption"
                 ]
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
-    async def get_wattage_limit(self, api_tunerstatus: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(
+        self, api_tunerstatus: dict = None, graphql_wattage_limit: dict = None
+    ) -> Optional[int]:
+        if not graphql_wattage_limit and not api_tunerstatus:
+            try:
+                graphql_wattage_limit = await self.web.send_command(
+                    {"bosminer": {"info": {"workSolver": {"power": {"limitW"}}}}}
+                )
+            except APIError:
+                pass
+
+        if graphql_wattage_limit:
+            try:
+                return graphql_wattage_limit["data"]["bosminer"]["info"]["workSolver"][
+                    "power"
+                ]["limitW"]
+            except (LookupError, TypeError):
+                pass
+
         if not api_tunerstatus:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
@@ -540,10 +781,34 @@ class BOSMiner(BaseMiner):
         if api_tunerstatus:
             try:
                 return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
-    async def get_fans(self, api_fans: dict = None) -> List[Fan]:
+    async def _get_fans(
+        self, api_fans: dict = None, graphql_fans: dict = None
+    ) -> List[Fan]:
+        if not graphql_fans and not api_fans:
+            try:
+                graphql_fans = await self.web.send_command(
+                    {"bosminer": {"info": {"fans": {"name", "rpm"}}}}
+                )
+            except APIError:
+                pass
+        if graphql_fans.get("data"):
+            fans = []
+            for n in range(self.expected_fans):
+                try:
+                    fans.append(
+                        Fan(
+                            speed=graphql_fans["data"]["bosminer"]["info"]["fans"][n][
+                                "rpm"
+                            ]
+                        )
+                    )
+                except (LookupError, TypeError):
+                    pass
+            return fans
+
         if not api_fans:
             try:
                 api_fans = await self.api.fans()
@@ -552,18 +817,67 @@ class BOSMiner(BaseMiner):
 
         if api_fans:
             fans = []
-            for n in range(self.fan_count):
+            for n in range(self.expected_fans):
                 try:
                     fans.append(Fan(api_fans["FANS"][n]["RPM"]))
                 except (IndexError, KeyError):
                     pass
             return fans
-        return [Fan() for _ in range(self.fan_count)]
+        return [Fan() for _ in range(self.expected_fans)]
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def _get_fan_psu(self) -> Optional[int]:
         return None
 
-    async def get_errors(self, api_tunerstatus: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(
+        self, api_tunerstatus: dict = None, graphql_errors: dict = None
+    ) -> List[MinerErrorData]:
+        if not graphql_errors and not api_tunerstatus:
+            try:
+                graphql_errors = await self.web.send_command(
+                    {
+                        "bosminer": {
+                            "info": {
+                                "workSolver": {
+                                    "childSolvers": {
+                                        "name": None,
+                                        "tuner": {"statusMessages"},
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            except APIError:
+                pass
+
+        if graphql_errors:
+            errors = []
+            try:
+                boards = graphql_errors["data"]["bosminer"]["info"]["workSolver"][
+                    "childSolvers"
+                ]
+            except (LookupError, TypeError):
+                boards = None
+
+            if boards:
+                offset = 6 if int(boards[0]["name"]) in [6, 7, 8] else 0
+                for hb in boards:
+                    _id = int(hb["name"]) - offset
+                    tuner = hb["tuner"]
+                    if tuner:
+                        if msg := tuner.get("statusMessages"):
+                            if len(msg) > 0:
+                                if hb["tuner"]["statusMessages"][0] not in [
+                                    "Stable",
+                                    "Testing performance profile",
+                                    "Tuning individual chips",
+                                ]:
+                                    errors.append(
+                                        BraiinsOSError(
+                                            f"Slot {_id} {hb['tuner']['statusMessages'][0]}"
+                                        )
+                                    )
+
         if not api_tunerstatus:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
@@ -593,9 +907,52 @@ class BOSMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_fault_light(self, graphql_fault_light: dict = None) -> bool:
+    async def _get_fault_light(self, graphql_fault_light: dict = None) -> bool:
         if self.light:
             return self.light
+
+        if not graphql_fault_light:
+            if self.fw_ver:
+                # fw version has to be greater than 21.09 and not 21.09
+                if (
+                    int(self.fw_ver.split(".")[0]) == 21
+                    and int(self.fw_ver.split(".")[1]) > 9
+                ) or int(self.fw_ver.split(".")[0]) > 21:
+                    try:
+                        graphql_fault_light = await self.web.send_command(
+                            {"bos": {"faultLight"}}
+                        )
+                    except APIError:
+                        pass
+                else:
+                    logging.info(
+                        f"FW version {self.fw_ver} is too low for fault light info in graphql."
+                    )
+            else:
+                # worth trying
+                try:
+                    graphql_fault_light = await self.web.send_command(
+                        {"bos": {"faultLight"}}
+                    )
+                except APIError:
+                    logging.debug(
+                        "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
+                    )
+                if not graphql_fault_light:
+                    # also a failure
+                    logging.debug(
+                        "GraphQL fault light failed, likely due to version being too low (<=21.0.9)"
+                    )
+
+        # get light through GraphQL
+        if graphql_fault_light:
+            try:
+                self.light = graphql_fault_light["data"]["bos"]["faultLight"]
+                return self.light
+            except (TypeError, ValueError, LookupError):
+                pass
+
+        # get light via ssh if that fails (10x slower)
         try:
             data = (
                 await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
@@ -607,7 +964,7 @@ class BOSMiner(BaseMiner):
         except (TypeError, AttributeError):
             return self.light
 
-    async def get_expected_hashrate(self, api_devs: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if not api_devs:
             try:
                 api_devs = await self.api.devs()
@@ -633,7 +990,7 @@ class BOSMiner(BaseMiner):
             except (IndexError, KeyError):
                 pass
 
-    async def is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
+    async def _is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
         if not api_devdetails:
             try:
                 api_devdetails = await self.api.send_command(
@@ -648,438 +1005,7 @@ class BOSMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return int(api_summary["SUMMARY"][0]["Elapsed"])
-            except LookupError:
-                pass
-
-
-BOSER_DATA_LOC = DataLocations(
-    **{
-        str(DataOptions.MAC): DataFunction(
-            "get_mac",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
-        ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
-        str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [GRPCCommand("api_version", "get_api_version")]
-        ),
-        str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
-        ),
-        str(DataOptions.HOSTNAME): DataFunction(
-            "get_hostname",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
-        ),
-        str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
-        ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
-        ),
-        str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards",
-            [GRPCCommand("grpc_hashboards", "get_hashboards")],
-        ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage",
-            [GRPCCommand("grpc_miner_stats", "get_miner_stats")],
-        ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "get_wattage_limit",
-            [
-                GRPCCommand(
-                    "grpc_active_performance_mode", "get_active_performance_mode"
-                )
-            ],
-        ),
-        str(DataOptions.FANS): DataFunction(
-            "get_fans",
-            [GRPCCommand("grpc_cooling_state", "get_cooling_state")],
-        ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction(
-            "get_errors",
-            [RPCAPICommand("api_tunerstatus", "tunerstatus")],
-        ),
-        str(DataOptions.FAULT_LIGHT): DataFunction(
-            "get_fault_light",
-            [GRPCCommand("grpc_locate_device_status", "get_locate_device_status")],
-        ),
-        str(DataOptions.IS_MINING): DataFunction(
-            "is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
-        ),
-        str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_summary", "summary")]
-        ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
-    }
-)
-
-
-class BOSer(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        # interfaces
-        self.api = BOSMinerAPI(ip, api_ver)
-        self.web = BOSerWebAPI(ip)
-
-        # static data
-        self.api_type = "BOSMiner"
-        # data gathering locations
-        self.data_locations = BOSER_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_autotuning = True
-        self.supports_shutdown = True
-
-        # data storage
-        self.api_ver = api_ver
-
-    async def fault_light_on(self) -> bool:
-        resp = await self.web.grpc.set_locate_device_status(True)
-        if resp.get("enabled", False):
-            return True
-        return False
-
-    async def fault_light_off(self) -> bool:
-        resp = await self.web.grpc.set_locate_device_status(False)
-        if resp == {}:
-            return True
-        return False
-
-    async def restart_backend(self) -> bool:
-        return await self.restart_boser()
-
-    async def restart_boser(self) -> bool:
-        ret = await self.web.grpc.restart()
-        return True
-
-    async def stop_mining(self) -> bool:
-        try:
-            await self.web.grpc.pause_mining()
-        except APIError:
-            return False
-        return True
-
-    async def resume_mining(self) -> bool:
-        try:
-            await self.web.grpc.resume_mining()
-        except APIError:
-            return False
-        return True
-
-    async def reboot(self) -> bool:
-        ret = await self.web.grpc.reboot()
-        if ret == {}:
-            return True
-        return False
-
-    async def get_config(self) -> MinerConfig:
-        grpc_conf = await self.web.grpc.get_miner_configuration()
-
-        return MinerConfig.from_boser(grpc_conf)
-
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        raise NotImplementedError
-        logging.debug(f"{self}: Sending config.")
-        self.config = config
-
-    async def set_power_limit(self, wattage: int) -> bool:
-        try:
-            result = await self.web.grpc.set_power_target(wattage)
-        except APIError:
-            return False
-
-        try:
-            if result["powerTarget"]["watt"] == wattage:
-                return True
-        except KeyError:
-            pass
-        return False
-
-    ##################################################
-    ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
-    ##################################################
-
-    async def get_mac(self, grpc_miner_details: dict = None) -> Optional[str]:
-        if not grpc_miner_details:
-            try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
-            except APIError:
-                pass
-
-        if grpc_miner_details:
-            try:
-                return grpc_miner_details["macAddress"].upper()
-            except (LookupError, TypeError):
-                pass
-
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (BOS)"
-        return "? (BOS)"
-
-    async def get_version(
-        self, api_version: dict = None, graphql_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        # check if version is cached
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        api_ver = await self.get_api_ver(api_version)
-        fw_ver = await self.get_fw_ver(graphql_version)
-        return miner_version(api_ver, fw_ver)
-
-    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
-            try:
-                api_version = await self.api.version()
-            except APIError:
-                pass
-
-        # Now get the API version
-        if api_version:
-            try:
-                api_ver = api_version["VERSION"][0]["API"]
-            except LookupError:
-                api_ver = None
-            self.api_ver = api_ver
-            self.api.api_ver = self.api_ver
-
-        return self.api_ver
-
-    async def get_fw_ver(self, grpc_miner_details: dict = None) -> Optional[str]:
-        if not grpc_miner_details:
-            try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
-            except APIError:
-                pass
-
-        fw_ver = None
-
-        if grpc_miner_details:
-            try:
-                fw_ver = grpc_miner_details["bosVersion"]["current"]
-            except (KeyError, TypeError):
-                pass
-
-        # if we get the version data, parse it
-        if fw_ver is not None:
-            ver = fw_ver.split("-")[5]
-            if "." in ver:
-                self.fw_ver = ver
-                logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
-
-        return self.fw_ver
-
-    async def get_hostname(self, grpc_miner_details: dict = None) -> Union[str, None]:
-        if not grpc_miner_details:
-            try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
-            except APIError:
-                pass
-
-        if grpc_miner_details:
-            try:
-                return grpc_miner_details["hostname"]
-            except LookupError:
-                pass
-
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
-            try:
-                api_summary = await self.api.summary()
-            except APIError:
-                pass
-
-        if api_summary:
-            try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError, ValueError, TypeError):
-                pass
-
-    async def get_expected_hashrate(
-        self, grpc_miner_details: dict = None
-    ) -> Optional[float]:
-        if not grpc_miner_details:
-            try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
-            except APIError:
-                pass
-
-        if grpc_miner_details:
-            try:
-                return grpc_miner_details["stickerHashrate"]["gigahashPerSecond"] / 1000
-            except LookupError:
-                pass
-
-    async def get_hashboards(self, grpc_hashboards: dict = None):
-        hashboards = [
-            HashBoard(slot=i, expected_chips=self.expected_chips)
-            for i in range(self.expected_hashboards)
-        ]
-
-        if grpc_hashboards is None:
-            try:
-                grpc_hashboards = await self.web.grpc.get_hashboards()
-            except APIError:
-                pass
-
-        if grpc_hashboards is not None:
-            for board in grpc_hashboards["hashboards"]:
-                idx = int(board["id"]) - 1
-                if board.get("chipsCount") is not None:
-                    hashboards[idx].chips = board["chipsCount"]
-                if board.get("boardTemp") is not None:
-                    hashboards[idx].temp = board["boardTemp"]["degreeC"]
-                if board.get("highestChipTemp") is not None:
-                    hashboards[idx].chip_temp = board["highestChipTemp"]["temperature"][
-                        "degreeC"
-                    ]
-                if board.get("stats") is not None:
-                    if not board["stats"]["realHashrate"]["last5S"] == {}:
-                        hashboards[idx].hashrate = round(
-                            board["stats"]["realHashrate"]["last5S"][
-                                "gigahashPerSecond"
-                            ]
-                            / 1000,
-                            2,
-                        )
-                hashboards[idx].missing = False
-
-        return hashboards
-
-    async def get_env_temp(self) -> Optional[float]:
-        return None
-
-    async def get_wattage(self, grpc_miner_stats: dict = None) -> Optional[int]:
-        if grpc_miner_stats is None:
-            try:
-                grpc_miner_stats = self.web.grpc.get_miner_stats()
-            except APIError:
-                pass
-
-        if grpc_miner_stats:
-            try:
-                return grpc_miner_stats["powerStats"]["approximatedConsumption"]["watt"]
-            except KeyError:
-                pass
-
-    async def get_wattage_limit(
-        self, grpc_active_performance_mode: dict = None
-    ) -> Optional[int]:
-        if grpc_active_performance_mode is None:
-            try:
-                grpc_active_performance_mode = (
-                    self.web.grpc.get_active_performance_mode()
-                )
-            except APIError:
-                pass
-
-        if grpc_active_performance_mode:
-            try:
-                return grpc_active_performance_mode["tunerMode"]["powerTarget"][
-                    "powerTarget"
-                ]["watt"]
-            except KeyError:
-                pass
-
-    async def get_fans(self, grpc_cooling_state: dict = None) -> List[Fan]:
-        if grpc_cooling_state is None:
-            try:
-                grpc_cooling_state = self.web.grpc.get_cooling_state()
-            except APIError:
-                pass
-
-        if grpc_cooling_state:
-            fans = []
-            for n in range(self.fan_count):
-                try:
-                    fans.append(Fan(grpc_cooling_state["fans"][n]["rpm"]))
-                except (IndexError, KeyError):
-                    pass
-            return fans
-        return [Fan() for _ in range(self.fan_count)]
-
-    async def get_fan_psu(self) -> Optional[int]:
-        return None
-
-    async def get_errors(self, api_tunerstatus: dict = None) -> List[MinerErrorData]:
-        if not api_tunerstatus:
-            try:
-                api_tunerstatus = await self.api.tunerstatus()
-            except APIError:
-                pass
-
-        if api_tunerstatus:
-            errors = []
-            try:
-                chain_status = api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
-                if chain_status and len(chain_status) > 0:
-                    offset = (
-                        6 if int(chain_status[0]["HashchainIndex"]) in [6, 7, 8] else 0
-                    )
-
-                    for board in chain_status:
-                        _id = board["HashchainIndex"] - offset
-                        if board["Status"] not in [
-                            "Stable",
-                            "Testing performance profile",
-                            "Tuning individual chips",
-                        ]:
-                            _error = board["Status"].split(" {")[0]
-                            _error = _error[0].lower() + _error[1:]
-                            errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
-                return errors
-            except LookupError:
-                pass
-
-    async def get_fault_light(self, grpc_locate_device_status: dict = None) -> bool:
-        if self.light is not None:
-            return self.light
-
-        if not grpc_locate_device_status:
-            try:
-                grpc_locate_device_status = (
-                    await self.web.grpc.get_locate_device_status()
-                )
-            except APIError:
-                pass
-
-        if grpc_locate_device_status:
-            if grpc_locate_device_status == {}:
-                return False
-            try:
-                return grpc_locate_device_status["enabled"]
-            except LookupError:
-                pass
-
-    async def is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
-        if not api_devdetails:
-            try:
-                api_devdetails = await self.api.send_command(
-                    "devdetails", ignore_errors=True, allow_warning=False
-                )
-            except APIError:
-                pass
-
-        if api_devdetails:
-            try:
-                return not api_devdetails["STATUS"][0]["Msg"] == "Unavailable"
-            except LookupError:
-                pass
-
-    async def get_uptime(self, api_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()

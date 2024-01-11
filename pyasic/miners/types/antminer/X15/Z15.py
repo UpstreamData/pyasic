@@ -21,6 +21,6 @@ class Z15(AntMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "Z15"
+        self.raw_model = "Z15"
         self.expected_chips = 3
         self.fan_count = 2

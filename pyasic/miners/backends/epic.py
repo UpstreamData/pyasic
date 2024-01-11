@@ -17,9 +17,9 @@
 from typing import List, Optional, Tuple
 
 from pyasic import MinerConfig
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
-from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.base import (
@@ -34,47 +34,46 @@ from pyasic.web.epic import ePICWebAPI
 EPIC_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac", [WebAPICommand("web_network", "network")]
+            "_get_mac", [WebAPICommand("web_network", "network")]
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
-        str(DataOptions.API_VERSION): DataFunction("get_api_ver"),
+        str(DataOptions.API_VERSION): DataFunction("_get_api_ver"),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [WebAPICommand("web_summary", "summary")]
+            "_get_fw_ver", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "get_hostname", [WebAPICommand("web_summary", "summary")]
+            "_get_hostname", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [WebAPICommand("web_summary", "summary")]
+            "_get_hashrate", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [WebAPICommand("web_summary", "summary")]
+            "_get_expected_hashrate", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards",
+            "_get_hashboards",
             [
                 WebAPICommand("web_summary", "summary"),
                 WebAPICommand("web_hashrate", "hashrate"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage", [WebAPICommand("web_summary", "summary")]
+            "_get_wattage", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [WebAPICommand("web_summary", "summary")]
+            "_get_fans", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
-            "get_errors", [WebAPICommand("web_summary", "summary")]
+            "_get_errors", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
-            "get_fault_light", [WebAPICommand("web_summary", "summary")]
+            "_get_fault_light", [WebAPICommand("web_summary", "summary")]
         ),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [WebAPICommand("web_summary", "summary")]
+            "_get_uptime", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -89,13 +88,9 @@ class ePIC(BaseMiner):
 
         # static data
         self.api_type = "ePIC"
+        self.fw_str = "ePIC"
         # data gathering locations
         self.data_locations = EPIC_DATA_LOC
-
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (ePIC)"
-        return "? (ePIC)"
 
     async def get_config(self) -> MinerConfig:
         summary = None
@@ -150,7 +145,7 @@ class ePIC(BaseMiner):
                 pass
         return False
 
-    async def get_mac(self, web_network: dict = None) -> str:
+    async def _get_mac(self, web_network: dict = None) -> str:
         if not web_network:
             web_network = await self.web.network()
         if web_network:
@@ -161,7 +156,7 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
 
-    async def get_hostname(self, web_summary: dict = None) -> str:
+    async def _get_hostname(self, web_summary: dict = None) -> str:
         if not web_summary:
             web_summary = await self.web.summary()
         if web_summary:
@@ -171,7 +166,7 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
 
-    async def get_wattage(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
             web_summary = await self.web.summary()
 
@@ -183,7 +178,7 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
 
-    async def get_hashrate(self, web_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, web_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not web_summary:
             try:
@@ -202,7 +197,7 @@ class ePIC(BaseMiner):
                 logger.error(e)
                 pass
 
-    async def get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not web_summary:
             try:
@@ -226,7 +221,7 @@ class ePIC(BaseMiner):
                 logger.error(e)
                 pass
 
-    async def get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
         if not web_summary:
             web_summary = await self.web.summary()
 
@@ -238,7 +233,7 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
 
-    async def get_fans(self, web_summary: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
         if not web_summary:
             try:
                 web_summary = await self.web.summary()
@@ -255,7 +250,7 @@ class ePIC(BaseMiner):
                     fans.append(Fan())
         return fans
 
-    async def get_hashboards(
+    async def _get_hashboards(
         self, web_summary: dict = None, web_hashrate: dict = None
     ) -> List[HashBoard]:
         if not web_summary:
@@ -286,10 +281,10 @@ class ePIC(BaseMiner):
                         hb_list[hr["Index"]].temp = hb["Temperature"]
         return hb_list
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
         if not web_summary:
             web_summary = await self.web.summary()
         if web_summary:
@@ -300,7 +295,7 @@ class ePIC(BaseMiner):
                 pass
         return None
 
-    async def get_fault_light(self, web_summary: dict = None) -> bool:
+    async def _get_fault_light(self, web_summary: dict = None) -> bool:
         if not web_summary:
             web_summary = await self.web.summary()
         if web_summary:
@@ -311,7 +306,7 @@ class ePIC(BaseMiner):
                 pass
         return False
 
-    async def get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
         if not web_summary:
             web_summary = await self.web.summary()
         errors = []
@@ -331,22 +326,19 @@ class ePIC(BaseMiner):
     def fault_light_on(self) -> bool:
         return False
 
-    def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+    def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
         pass
 
     def get_config(self) -> MinerConfig:
         return self.config
 
-    def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
         pass
 
-    def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+    def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
         pass
 
-    def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
-        pass
-
-    def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+    def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
         pass
 
     def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:

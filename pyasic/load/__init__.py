@@ -66,14 +66,14 @@ class _MinerPhaseBalancer:
             str(miner.ip): {
                 "miner": miner,
                 "set": 0,
-                "min": miner.fan_count * FAN_USAGE,
+                "min": miner.expected_fans * FAN_USAGE,
             }
             for miner in miners
         }
         for miner in miners:
             if (
                 isinstance(miner, BTMiner)
-                and not (miner.model.startswith("M2") if miner.model else True)
+                and not (miner.raw_model.startswith("M2") if miner.raw_model else True)
             ) or isinstance(miner, BOSMiner):
                 if isinstance(miner, S9):
                     self.miners[str(miner.ip)]["tune"] = True
@@ -98,8 +98,8 @@ class _MinerPhaseBalancer:
                 self.miners[str(miner.ip)]["tune"] = False
                 self.miners[str(miner.ip)]["shutdown"] = True
                 self.miners[str(miner.ip)]["max"] = 3600
-                if miner.model:
-                    if miner.model.startswith("M2"):
+                if miner.raw_model:
+                    if miner.raw_model.startswith("M2"):
                         self.miners[str(miner.ip)]["tune"] = False
                         self.miners[str(miner.ip)]["shutdown"] = True
                         self.miners[str(miner.ip)]["max"] = 2400

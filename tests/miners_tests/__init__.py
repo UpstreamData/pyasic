@@ -56,7 +56,6 @@ class MinersTest(unittest.TestCase):
                 "hostname",
                 "is_mining",
                 "mac",
-                "model",
                 "expected_hashrate",
                 "uptime",
                 "wattage",

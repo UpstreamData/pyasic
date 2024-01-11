@@ -31,7 +31,6 @@ from pyasic.logger import logger
 
 class DataOptions(Enum):
     MAC = "mac"
-    MODEL = "model"
     API_VERSION = "api_ver"
     FW_VERSION = "fw_ver"
     HOSTNAME = "hostname"
@@ -106,11 +105,12 @@ class BaseMiner(ABC):
         self.api_type = None
         # type
         self.make = None
-        self.model = None
+        self.raw_model = None
+        self.fw_str = None
         # physical attributes
         self.expected_hashboards = 3
         self.expected_chips = 0
-        self.fan_count = 2
+        self.expected_fans = 2
         # data gathering locations
         self.data_locations: DataLocations = None
         # autotuning/shutdown support
@@ -139,6 +139,13 @@ class BaseMiner(ABC):
 
     def __eq__(self, other):
         return ipaddress.ip_address(self.ip) == ipaddress.ip_address(other.ip)
+
+    @property
+    def model(self):
+        model_data = [self.raw_model]
+        if self.fw_str is not None:
+            model_data.append(f"({self.fw_str})")
+        return " ".join(model_data)
 
     @property
     def pwd(self):  # noqa - Skip PyCharm inspection
@@ -309,14 +316,13 @@ class BaseMiner(ABC):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    @abstractmethod
-    async def get_mac(self, *args, **kwargs) -> Optional[str]:
+    async def get_mac(self) -> Optional[str]:
         """Get the MAC address of the miner and return it as a string.
 
         Returns:
             A string representing the MAC address of the miner.
         """
-        pass
+        return await self._get_mac()
 
     async def get_model(self) -> Optional[str]:
         """Get the model of the miner and return it as a string.
@@ -326,148 +332,198 @@ class BaseMiner(ABC):
         """
         return self.model
 
-    @abstractmethod
-    async def get_api_ver(self, *args, **kwargs) -> Optional[str]:
+    async def get_api_ver(self) -> Optional[str]:
         """Get the API version of the miner and is as a string.
 
         Returns:
             API version as a string.
         """
-        pass
+        return await self._get_api_ver()
 
-    @abstractmethod
-    async def get_fw_ver(self, *args, **kwargs) -> Optional[str]:
+    async def get_fw_ver(self) -> Optional[str]:
         """Get the firmware version of the miner and is as a string.
 
         Returns:
             Firmware version as a string.
         """
-        pass
+        return await self._get_fw_ver()
 
-    @abstractmethod
-    async def get_version(self, *args, **kwargs) -> Tuple[Optional[str], Optional[str]]:
+    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
         """Get the API version and firmware version of the miner and return them as strings.
 
         Returns:
             A tuple of (API version, firmware version) as strings.
         """
-        pass
+        api_ver = await self.get_api_ver()
+        fw_ver = await self.get_fw_ver()
+        return api_ver, fw_ver
 
-    @abstractmethod
-    async def get_hostname(self, *args, **kwargs) -> Optional[str]:
+    async def get_hostname(self) -> Optional[str]:
         """Get the hostname of the miner and return it as a string.
 
         Returns:
             A string representing the hostname of the miner.
         """
-        pass
+        return await self._get_hostname()
 
-    @abstractmethod
-    async def get_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def get_hashrate(self) -> Optional[float]:
         """Get the hashrate of the miner and return it as a float in TH/s.
 
         Returns:
             Hashrate of the miner in TH/s as a float.
         """
-        pass
+        return await self._get_hashrate()
 
-    @abstractmethod
-    async def get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
+    async def get_hashboards(self) -> List[HashBoard]:
         """Get hashboard data from the miner in the form of [`HashBoard`][pyasic.data.HashBoard].
 
         Returns:
             A [`HashBoard`][pyasic.data.HashBoard] instance containing hashboard data from the miner.
         """
-        pass
+        return await self._get_hashboards()
 
-    @abstractmethod
-    async def get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    async def get_env_temp(self) -> Optional[float]:
         """Get environment temp from the miner as a float.
 
         Returns:
             Environment temp of the miner as a float.
         """
-        pass
+        return await self._get_env_temp()
 
-    @abstractmethod
-    async def get_wattage(self, *args, **kwargs) -> Optional[int]:
+    async def get_wattage(self) -> Optional[int]:
         """Get wattage from the miner as an int.
 
         Returns:
             Wattage of the miner as an int.
         """
-        pass
+        return await self._get_wattage()
 
-    @abstractmethod
-    async def get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+    async def get_wattage_limit(self) -> Optional[int]:
         """Get wattage limit from the miner as an int.
 
         Returns:
             Wattage limit of the miner as an int.
         """
-        pass
+        return await self._get_wattage_limit()
 
-    @abstractmethod
-    async def get_fans(self, *args, **kwargs) -> List[Fan]:
+    async def get_fans(self) -> List[Fan]:
         """Get fan data from the miner in the form [fan_1, fan_2, fan_3, fan_4].
 
         Returns:
             A list of fan data.
         """
-        pass
+        return await self._get_fans()
 
-    @abstractmethod
-    async def get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+    async def get_fan_psu(self) -> Optional[int]:
         """Get PSU fan speed from the miner.
 
         Returns:
             PSU fan speed.
         """
-        pass
+        return await self._get_fan_psu()
 
-    @abstractmethod
-    async def get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
+    async def get_errors(self) -> List[MinerErrorData]:
         """Get a list of the errors the miner is experiencing.
 
         Returns:
             A list of error classes representing different errors.
         """
-        pass
+        return await self._get_errors()
 
-    @abstractmethod
-    async def get_fault_light(self, *args, **kwargs) -> bool:
+    async def get_fault_light(self) -> bool:
         """Check the status of the fault light and return on or off as a boolean.
 
         Returns:
             A boolean value where `True` represents on and `False` represents off.
         """
-        pass
+        return await self._get_fault_light()
 
-    @abstractmethod
-    async def get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def get_expected_hashrate(self) -> Optional[float]:
         """Get the nominal hashrate from factory if available.
 
         Returns:
             A float value of nominal hashrate in TH/s.
         """
-        pass
+        return await self._get_expected_hashrate()
 
-    @abstractmethod
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def is_mining(self) -> Optional[bool]:
         """Check whether the miner is mining.
 
         Returns:
             A boolean value representing if the miner is mining.
         """
-        pass
+        return await self._is_mining()
 
-    @abstractmethod
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def get_uptime(self) -> Optional[int]:
         """Get the uptime of the miner in seconds.
 
         Returns:
             The uptime of the miner in seconds.
         """
+        return await self._get_uptime()
+
+    @abstractmethod
+    async def _get_mac(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    @abstractmethod
+    async def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    @abstractmethod
+    async def _get_fw_ver(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    @abstractmethod
+    async def _get_hostname(self, *args, **kwargs) -> Optional[str]:
+        pass
+
+    @abstractmethod
+    async def _get_hashrate(self, *args, **kwargs) -> Optional[float]:
+        pass
+
+    @abstractmethod
+    async def _get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
+        pass
+
+    @abstractmethod
+    async def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
+        pass
+
+    @abstractmethod
+    async def _get_wattage(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    async def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    async def _get_fans(self, *args, **kwargs) -> List[Fan]:
+        pass
+
+    @abstractmethod
+    async def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    async def _get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
+        pass
+
+    @abstractmethod
+    async def _get_fault_light(self, *args, **kwargs) -> bool:
+        pass
+
+    @abstractmethod
+    async def _get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
+        pass
+
+    @abstractmethod
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
+        pass
+
+    @abstractmethod
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         pass
 
     async def _get_data(
@@ -571,6 +627,7 @@ class BaseMiner(ABC):
         data = MinerData(
             ip=str(self.ip),
             make=self.make,
+            model=self.model,
             expected_chips=self.expected_chips * self.expected_hashboards,
             expected_hashboards=self.expected_hashboards,
             hashboards=[

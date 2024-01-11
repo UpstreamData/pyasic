@@ -35,70 +35,69 @@ from pyasic.miners.base import (
 BTMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac",
+            "_get_mac",
             [
                 RPCAPICommand("api_summary", "summary"),
                 RPCAPICommand("api_get_miner_info", "get_miner_info"),
             ],
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_get_version", "get_version")]
+            "_get_api_ver", [RPCAPICommand("api_get_version", "get_version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver",
+            "_get_fw_ver",
             [
                 RPCAPICommand("api_get_version", "get_version"),
                 RPCAPICommand("api_summary", "summary"),
             ],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "get_hostname", [RPCAPICommand("api_get_miner_info", "get_miner_info")]
+            "_get_hostname", [RPCAPICommand("api_get_miner_info", "get_miner_info")]
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_expected_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_devs", "devs")]
+            "_get_hashboards", [RPCAPICommand("api_devs", "devs")]
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
-            "get_env_temp", [RPCAPICommand("api_summary", "summary")]
+            "_get_env_temp", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage", [RPCAPICommand("api_summary", "summary")]
+            "_get_wattage", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "get_wattage_limit", [RPCAPICommand("api_summary", "summary")]
+            "_get_wattage_limit", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.FANS): DataFunction(
-            "get_fans",
+            "_get_fans",
             [
                 RPCAPICommand("api_summary", "summary"),
                 RPCAPICommand("api_get_psu", "get_psu"),
             ],
         ),
         str(DataOptions.FAN_PSU): DataFunction(
-            "get_fan_psu",
+            "_get_fan_psu",
             [
                 RPCAPICommand("api_summary", "summary"),
                 RPCAPICommand("api_get_psu", "get_psu"),
             ],
         ),
         str(DataOptions.ERRORS): DataFunction(
-            "get_errors", [RPCAPICommand("api_get_error_code", "get_error_code")]
+            "_get_errors", [RPCAPICommand("api_get_error_code", "get_error_code")]
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
-            "get_fault_light",
+            "_get_fault_light",
             [RPCAPICommand("api_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "is_mining", [RPCAPICommand("api_status", "status")]
+            "_is_mining", [RPCAPICommand("api_status", "status")]
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_summary", "summary")]
+            "_get_uptime", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -239,7 +238,7 @@ class BTMiner(BaseMiner):
         else:
             cfg = MinerConfig()
 
-        is_mining = await self.is_mining(status)
+        is_mining = await self._is_mining(status)
         if not is_mining:
             cfg.mining_mode = MiningModeConfig.sleep()
             return cfg
@@ -283,7 +282,7 @@ class BTMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(
+    async def _get_mac(
         self, api_summary: dict = None, api_get_miner_info: dict = None
     ) -> Optional[str]:
         if not api_get_miner_info:
@@ -312,21 +311,7 @@ class BTMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def get_version(
-        self, api_get_version: dict = None, api_summary: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        api_ver = await self.get_api_ver(api_get_version=api_get_version)
-        fw_ver = await self.get_fw_ver(
-            api_get_version=api_get_version, api_summary=api_summary
-        )
-        return miner_version(api_ver, fw_ver)
-
-    async def get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
-        # Check to see if the version info is already cached
-        if self.api_ver:
-            return self.api_ver
-
+    async def _get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
         if not api_get_version:
             try:
                 api_get_version = await self.api.get_version()
@@ -349,13 +334,9 @@ class BTMiner(BaseMiner):
 
         return self.api_ver
 
-    async def get_fw_ver(
+    async def _get_fw_ver(
         self, api_get_version: dict = None, api_summary: dict = None
     ) -> Optional[str]:
-        # Check to see if the version info is already cached
-        if self.fw_ver:
-            return self.fw_ver
-
         if not api_get_version:
             try:
                 api_get_version = await self.api.get_version()
@@ -388,7 +369,7 @@ class BTMiner(BaseMiner):
 
         return self.fw_ver
 
-    async def get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
+    async def _get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
         hostname = None
         if not api_get_miner_info:
             try:
@@ -404,7 +385,7 @@ class BTMiner(BaseMiner):
 
         return hostname
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
             try:
@@ -418,7 +399,7 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -453,7 +434,7 @@ class BTMiner(BaseMiner):
 
         return hashboards
 
-    async def get_env_temp(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_env_temp(self, api_summary: dict = None) -> Optional[float]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -466,7 +447,7 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_wattage(self, api_summary: dict = None) -> Optional[int]:
+    async def _get_wattage(self, api_summary: dict = None) -> Optional[int]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -480,7 +461,7 @@ class BTMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -493,7 +474,7 @@ class BTMiner(BaseMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_fans(
+    async def _get_fans(
         self, api_summary: dict = None, api_get_psu: dict = None
     ) -> List[Fan]:
         if not api_summary:
@@ -502,10 +483,10 @@ class BTMiner(BaseMiner):
             except APIError:
                 pass
 
-        fans = [Fan() for _ in range(self.fan_count)]
+        fans = [Fan() for _ in range(self.expected_fans)]
         if api_summary:
             try:
-                if self.fan_count > 0:
+                if self.expected_fans > 0:
                     fans = [
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed In", 0)),
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
@@ -515,7 +496,7 @@ class BTMiner(BaseMiner):
 
         return fans
 
-    async def get_fan_psu(
+    async def _get_fan_psu(
         self, api_summary: dict = None, api_get_psu: dict = None
     ) -> Optional[int]:
         if not api_summary:
@@ -542,7 +523,7 @@ class BTMiner(BaseMiner):
             except (KeyError, TypeError):
                 pass
 
-    async def get_errors(
+    async def _get_errors(
         self, api_summary: dict = None, api_get_error_code: dict = None
     ) -> List[MinerErrorData]:
         errors = []
@@ -577,7 +558,7 @@ class BTMiner(BaseMiner):
 
         return errors
 
-    async def get_expected_hashrate(self, api_summary: dict = None):
+    async def _get_expected_hashrate(self, api_summary: dict = None):
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -592,7 +573,7 @@ class BTMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def get_fault_light(self, api_get_miner_info: dict = None) -> bool:
+    async def _get_fault_light(self, api_get_miner_info: dict = None) -> bool:
         if not api_get_miner_info:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
@@ -630,7 +611,7 @@ class BTMiner(BaseMiner):
     async def set_hostname(self, hostname: str):
         await self.api.set_hostname(hostname)
 
-    async def is_mining(self, api_status: dict = None) -> Optional[bool]:
+    async def _is_mining(self, api_status: dict = None) -> Optional[bool]:
         if not api_status:
             try:
                 api_status = await self.api.status()
@@ -649,7 +630,7 @@ class BTMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def get_uptime(self, api_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
