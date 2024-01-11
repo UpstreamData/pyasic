@@ -23,7 +23,6 @@ from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPIC
 HIVEON_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction("get_mac"),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
             "get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
