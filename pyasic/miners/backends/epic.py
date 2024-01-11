@@ -216,7 +216,7 @@ class ePIC(BaseMiner):
 
                         hashrate += hb["Hashrate"][0] / ideal
                     return round(float(float(hashrate / 1000000)), 2)
-            except (IndexError, KeyError, ValueError, TypeError) as e:
+            except (LookupError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
 
