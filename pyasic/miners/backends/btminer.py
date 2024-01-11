@@ -309,7 +309,7 @@ class BTMiner(BaseMiner):
             try:
                 mac = api_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_version(
@@ -383,7 +383,7 @@ class BTMiner(BaseMiner):
                 self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace(
                     "'", ""
                 )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
@@ -448,7 +448,7 @@ class BTMiner(BaseMiner):
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
                     hashboards[board["ASC"]].missing = False
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return hashboards
@@ -477,7 +477,7 @@ class BTMiner(BaseMiner):
             try:
                 wattage = api_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
@@ -510,7 +510,7 @@ class BTMiner(BaseMiner):
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed In", 0)),
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
                     ]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return fans
@@ -589,7 +589,7 @@ class BTMiner(BaseMiner):
                 expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return round(expected_hashrate / 1000, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_fault_light(self, api_get_miner_info: dict = None) -> bool:

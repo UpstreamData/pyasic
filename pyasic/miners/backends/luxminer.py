@@ -346,7 +346,7 @@ class LUXMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def is_mining(self) -> Optional[bool]:

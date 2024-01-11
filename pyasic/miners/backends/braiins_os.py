@@ -386,7 +386,7 @@ class BOSMiner(BaseMiner):
         if api_version:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 api_ver = None
             self.api_ver = api_ver
             self.api.api_ver = self.api_ver
@@ -459,7 +459,7 @@ class BOSMiner(BaseMiner):
                 d = {}
             try:
                 api_temps = d["temps"][0]
-            except (KeyError, IndexError):
+            except LookupError:
                 api_temps = None
             try:
                 api_devdetails = d["devdetails"][0]
@@ -467,7 +467,7 @@ class BOSMiner(BaseMiner):
                 api_devdetails = None
             try:
                 api_devs = d["devs"][0]
-            except (KeyError, IndexError):
+            except LookupError:
                 api_devs = None
         if api_temps:
             try:
@@ -522,7 +522,7 @@ class BOSMiner(BaseMiner):
                 return api_tunerstatus["TUNERSTATUS"][0][
                     "ApproximateMinerPowerConsumption"
                 ]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_wattage_limit(self, api_tunerstatus: dict = None) -> Optional[int]:
@@ -535,7 +535,7 @@ class BOSMiner(BaseMiner):
         if api_tunerstatus:
             try:
                 return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_fans(self, api_fans: dict = None) -> List[Fan]:
@@ -1091,7 +1091,7 @@ class BOSer(BaseMiner):
         if api_version:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 api_ver = None
             self.api_ver = api_ver
             self.api.api_ver = self.api_ver
@@ -1283,7 +1283,7 @@ class BOSer(BaseMiner):
                 api_temps = None
             try:
                 api_devdetails = d["devdetails"][0]
-            except (KeyError, IndexError):
+            except LookupError:
                 api_devdetails = None
             try:
                 api_devs = d["devs"][0]
@@ -1363,7 +1363,7 @@ class BOSer(BaseMiner):
                 return api_tunerstatus["TUNERSTATUS"][0][
                     "ApproximateMinerPowerConsumption"
                 ]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_wattage_limit(
@@ -1517,7 +1517,7 @@ class BOSer(BaseMiner):
                             _error = _error[0].lower() + _error[1:]
                             errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
                 return errors
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_fault_light(self, graphql_fault_light: dict = None) -> bool:

@@ -62,14 +62,14 @@ class HiveonT9(Hiveon, T9):
                     try:
                         hashboard.board_temp = api_stats["STATS"][1][f"temp{chipset}"]
                         hashboard.chip_temp = api_stats["STATS"][1][f"temp2_{chipset}"]
-                    except (KeyError, IndexError):
+                    except LookupError:
                         pass
                     else:
                         hashboard.missing = False
                 try:
                     hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
                     chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
-                except (KeyError, IndexError):
+                except LookupError:
                     pass
             hashboard.hashrate = round(hashrate / 1000, 2)
             hashboard.chips = chips
@@ -88,7 +88,7 @@ class HiveonT9(Hiveon, T9):
             boards = api_stats.get("STATS")
             try:
                 wattage_raw = boards[1]["chain_power"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
             else:
                 # parse wattage position out of raw data
@@ -113,7 +113,7 @@ class HiveonT9(Hiveon, T9):
                         env_temp = api_stats["STATS"][1][f"temp3_{chipset}"]
                         if not env_temp == 0:
                             env_temp_list.append(int(env_temp))
-                    except (KeyError, IndexError):
+                    except LookupError:
                         pass
 
             if not env_temp_list == []:

@@ -145,7 +145,7 @@ class CGMinerA10X(CGMiner, A10X):
                 return round(
                     float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000000000), 5
                 )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_hashboards(
@@ -303,7 +303,7 @@ class CGMinerA10X(CGMiner, A10X):
         if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CGMiner"].split("-")[-1:][0]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver

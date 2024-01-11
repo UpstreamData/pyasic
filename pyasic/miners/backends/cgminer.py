@@ -206,7 +206,7 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.api_ver
@@ -224,7 +224,7 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CGMiner"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
@@ -336,7 +336,7 @@ class CGMiner(BaseMiner):
                     fans[fan].speed = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         return fans
 
@@ -370,7 +370,7 @@ class CGMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:

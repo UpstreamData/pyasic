@@ -190,7 +190,7 @@ class AntminerModern(BMMiner):
                             errors.append(X19Error(item["msg"]))
                     except KeyError:
                         continue
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         return errors
 
@@ -267,7 +267,7 @@ class AntminerModern(BMMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def set_static_ip(
@@ -499,7 +499,7 @@ class AntminerOld(CGMiner):
                     fans_data[fan].speed = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         return fans_data
 
