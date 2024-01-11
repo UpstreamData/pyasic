@@ -14,9 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
-from pyasic.config import MinerConfig
+from pyasic import MinerConfig
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
@@ -216,7 +217,7 @@ class ePIC(BaseMiner):
 
                         hashrate += hb["Hashrate"][0] / ideal
                     return round(float(float(hashrate / 1000000)), 2)
-            except (LookupError, ValueError, TypeError) as e:
+            except (IndexError, KeyError, ValueError, TypeError) as e:
                 logger.error(e)
                 pass
 
