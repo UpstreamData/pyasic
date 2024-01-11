@@ -458,15 +458,6 @@ class BOSMiner(BaseMiner):
             return self.raw_model + " (BOS)"
         return "? (BOS)"
 
-    async def get_version(
-        self, api_version: dict = None, graphql_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        # check if version is cached
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        api_ver = await self.get_api_ver(api_version)
-        fw_ver = await self.get_fw_ver(graphql_version)
-        return miner_version(api_ver, fw_ver)
-
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
