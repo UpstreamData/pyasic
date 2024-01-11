@@ -48,7 +48,9 @@ BOSMINER_DATA_LOC = DataLocations(
         str(DataOptions.API_VERSION): DataFunction(
             "get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.FW_VERSION): DataFunction("get_fw_ver"),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "get_fw_ver", [WebAPICommand("web_bos_info", "bos/info")]
+        ),
         str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
             "get_hashrate",
@@ -385,15 +387,20 @@ class BOSMiner(BaseMiner):
 
         return self.api_ver
 
-    async def get_fw_ver(self) -> Optional[str]:
-        fw_ver = await self.send_ssh_command("cat /etc/bos_version")
+    async def get_fw_ver(self, web_bos_info: dict) -> Optional[str]:
+        if web_bos_info is None:
+            try:
+                web_bos_info = await self.web.luci.send_command("bos/info")
+            except APIError:
+                return None
 
-        # if we get the version data, parse it
-        if fw_ver is not None:
-            ver = fw_ver.split("-")[5]
+        try:
+            ver = web_bos_info["version"].split("-")[5]
             if "." in ver:
                 self.fw_ver = ver
                 logging.debug(f"Found version for {self.ip}: {self.fw_ver}")
+        except (LookupError, AttributeError):
+            return None
 
         return self.fw_ver
 
