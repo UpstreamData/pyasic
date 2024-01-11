@@ -289,16 +289,17 @@ class BOSMiner(BaseMiner):
         gateway: str,
         subnet_mask: str = "255.255.255.0",
     ):
-        cfg_data_lan = (
-            "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'static'\n\toption ipaddr '"
-            + ip
-            + "'\n\toption netmask '"
-            + subnet_mask
-            + "'\n\toption gateway '"
-            + gateway
-            + "'\n\toption dns '"
-            + dns
-            + "'"
+        cfg_data_lan = "\n\t".join(
+            [
+                "config interface 'lan'",
+                "option type 'bridge'",
+                "option ifname 'eth0'",
+                "option proto 'static'",
+                f"option ipaddr '{ip}'",
+                f"option netmask '{subnet_mask}'",
+                f"option gateway '{gateway}'",
+                f"option dns '{dns}'",
+            ]
         )
         data = await self.send_ssh_command("cat /etc/config/network")
 
@@ -314,7 +315,14 @@ class BOSMiner(BaseMiner):
             await conn.run("echo '" + config + "' > /etc/config/network")
 
     async def set_dhcp(self):
-        cfg_data_lan = "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'dhcp'"
+        cfg_data_lan = "\n\t".join(
+            [
+                "config interface 'lan'",
+                "option type 'bridge'",
+                "option ifname 'eth0'",
+                "option proto 'dhcp'",
+            ]
+        )
         data = await self.send_ssh_command("cat /etc/config/network")
 
         split_data = data.split("\n\n")
@@ -335,9 +343,7 @@ class BOSMiner(BaseMiner):
     async def get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
         if not web_net_conf:
             try:
-                web_net_conf = await self.web.luci.send_command(
-                    "admin/network/iface_status/lan"
-                )
+                web_net_conf = await self.web.luci.get_net_conf()
             except APIError:
                 pass
 
@@ -361,11 +367,11 @@ class BOSMiner(BaseMiner):
         return "? (BOS)"
 
     async def get_version(
-        self, api_version: dict = None, graphql_version: dict = None
+        self, api_version: dict = None, web_bos_info: dict = None
     ) -> Tuple[Optional[str], Optional[str]]:
         miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
         api_ver_t = asyncio.create_task(self.get_api_ver(api_version))
-        fw_ver_t = asyncio.create_task(self.get_fw_ver())
+        fw_ver_t = asyncio.create_task(self.get_fw_ver(web_bos_info))
         await asyncio.gather(api_ver_t, fw_ver_t)
         return miner_version(api_ver=api_ver_t.result(), fw_ver=fw_ver_t.result())
 
