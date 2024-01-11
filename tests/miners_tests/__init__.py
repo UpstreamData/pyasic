@@ -13,16 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
-import inspect
-import sys
 import unittest
 import warnings
 from dataclasses import asdict
 
 from pyasic.miners.backends import CGMiner  # noqa
-from pyasic.miners.base import BaseMiner
-from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
+from pyasic.miners.miner_factory import MINER_CLASSES
 
 
 class MinersTest(unittest.TestCase):

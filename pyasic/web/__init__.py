@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import ipaddress
 import warnings
 from abc import ABC, abstractmethod
 from typing import Union

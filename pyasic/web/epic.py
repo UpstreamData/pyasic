@@ -14,13 +14,12 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import json
-import warnings
 from typing import Union
 
 import httpx
 
 from pyasic import settings
-from pyasic.errors import APIError, APIWarning
+from pyasic.errors import APIError
 from pyasic.web import BaseWebAPI
 
 
