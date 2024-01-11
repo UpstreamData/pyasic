@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
-from pyasic.web.bosminer.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, Hours
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, Hours
 
 
 @dataclass

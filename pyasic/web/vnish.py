@@ -145,3 +145,6 @@ class VNishWebAPI(BaseWebAPI):
 
     async def settings(self):
         return await self.send_command("settings")
+
+    async def autotune_presets(self):
+        return await self.send_command("autotune/presets")

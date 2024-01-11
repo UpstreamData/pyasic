@@ -34,7 +34,7 @@ from pyasic.miners.base import (
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.web.bosminer import BOSMinerWebAPI
+from pyasic.web.braiins_os import BOSMinerWebAPI
 
 LUXMINER_DATA_LOC = DataLocations(
     **{

@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import BOSMiner
+from pyasic.miners.backends import BOSer
 from pyasic.miners.types import (
     S19,
     S19XP,
@@ -30,45 +30,45 @@ from pyasic.miners.types import (
 )
 
 
-class BOSMinerS19(BOSMiner, S19):
+class BOSMinerS19(BOSer, S19):
     pass
 
 
-class BOSMinerS19Plus(BOSMiner, S19Plus):
+class BOSMinerS19Plus(BOSer, S19Plus):
     pass
 
 
-class BOSMinerS19Pro(BOSMiner, S19Pro):
+class BOSMinerS19Pro(BOSer, S19Pro):
     pass
 
 
-class BOSMinerS19a(BOSMiner, S19a):
+class BOSMinerS19a(BOSer, S19a):
     pass
 
 
-class BOSMinerS19j(BOSMiner, S19j):
+class BOSMinerS19j(BOSer, S19j):
     pass
 
 
-class BOSMinerS19jNoPIC(BOSMiner, S19jNoPIC):
+class BOSMinerS19jNoPIC(BOSer, S19jNoPIC):
     pass
 
 
-class BOSMinerS19jPro(BOSMiner, S19jPro):
+class BOSMinerS19jPro(BOSer, S19jPro):
     pass
 
 
-class BOSMinerS19kProNoPIC(BOSMiner, S19kProNoPIC):
+class BOSMinerS19kProNoPIC(BOSer, S19kProNoPIC):
     pass
 
 
-class BOSMinerS19aPro(BOSMiner, S19aPro):
+class BOSMinerS19aPro(BOSer, S19aPro):
     pass
 
 
-class BOSMinerS19jProPlus(BOSMiner, S19jProPlus):
+class BOSMinerS19jProPlus(BOSer, S19jProPlus):
     pass
 
 
-class BOSMinerS19XP(BOSMiner, S19XP):
+class BOSMinerS19XP(BOSer, S19XP):
     pass
