@@ -138,7 +138,9 @@ class BOSerGRPCAPI:
         )
 
     async def get_locate_device_status(self):
-        return await self.send_command("get_locate_device_status")
+        return await self.send_command(
+            "get_locate_device_status", GetLocateDeviceStatusRequest()
+        )
 
     async def set_password(self, password: str = None):
         return await self.send_command(
