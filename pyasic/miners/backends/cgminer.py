@@ -192,7 +192,7 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.api_ver
@@ -207,7 +207,7 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CGMiner"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
@@ -229,7 +229,7 @@ class CGMiner(BaseMiner):
                 return round(
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
@@ -281,7 +281,7 @@ class CGMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
@@ -319,7 +319,7 @@ class CGMiner(BaseMiner):
                     fans[fan].speed = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         return fans
 
@@ -353,7 +353,7 @@ class CGMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _is_mining(self, *args, **kwargs) -> Optional[bool]:

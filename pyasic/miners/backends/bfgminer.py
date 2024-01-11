@@ -128,7 +128,7 @@ class BFGMiner(BaseMiner):
         if api_version:
             try:
                 self.api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.api_ver
@@ -143,7 +143,7 @@ class BFGMiner(BaseMiner):
         if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CompileTime"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
@@ -168,7 +168,7 @@ class BFGMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 20s"] / 1000000), 2)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
@@ -220,7 +220,7 @@ class BFGMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
@@ -258,7 +258,7 @@ class BFGMiner(BaseMiner):
                     fans_data[fan] = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         fans = [Fan(speed=d) if d else Fan() for d in fans_data]
 
@@ -291,7 +291,7 @@ class BFGMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _is_mining(self, *args, **kwargs) -> Optional[bool]:

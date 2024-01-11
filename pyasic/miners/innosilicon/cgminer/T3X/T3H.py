@@ -122,7 +122,7 @@ class CGMinerT3HPlus(CGMiner, T3HPlus):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def get_hashboards(

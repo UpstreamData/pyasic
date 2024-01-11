@@ -211,7 +211,7 @@ class LUXMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
@@ -263,7 +263,7 @@ class LUXMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
@@ -281,7 +281,7 @@ class LUXMiner(BaseMiner):
         if api_power:
             try:
                 return api_power["POWER"][0]["Watts"]
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_wattage_limit(self) -> Optional[int]:
@@ -299,8 +299,8 @@ class LUXMiner(BaseMiner):
         if api_fans:
             for fan in range(self.expected_fans):
                 try:
-                    fans.append(Fan(api_fans["FANS"][0]["RPM"]))
-                except (IndexError, KeyError, ValueError, TypeError):
+                    fans.append(Fan(api_fans["FANS"][fan]["RPM"]))
+                except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
 
@@ -333,7 +333,7 @@ class LUXMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _is_mining(self) -> Optional[bool]:

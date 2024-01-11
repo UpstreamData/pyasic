@@ -306,7 +306,7 @@ class BTMiner(BaseMiner):
             try:
                 mac = api_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
@@ -362,7 +362,7 @@ class BTMiner(BaseMiner):
                 self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace(
                     "'", ""
                 )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
@@ -394,7 +394,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
@@ -427,7 +427,7 @@ class BTMiner(BaseMiner):
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
                     hashboards[board["ASC"]].missing = False
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return hashboards
@@ -442,7 +442,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return api_summary["SUMMARY"][0]["Env Temp"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_wattage(self, api_summary: dict = None) -> Optional[int]:
@@ -456,7 +456,7 @@ class BTMiner(BaseMiner):
             try:
                 wattage = api_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
@@ -469,7 +469,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return api_summary["SUMMARY"][0]["Power Limit"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_fans(
@@ -489,7 +489,7 @@ class BTMiner(BaseMiner):
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed In", 0)),
                         Fan(api_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
                     ]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return fans
@@ -506,7 +506,7 @@ class BTMiner(BaseMiner):
         if api_summary:
             try:
                 return int(api_summary["SUMMARY"][0]["Power Fanspeed"])
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         if not api_get_psu:
@@ -537,7 +537,7 @@ class BTMiner(BaseMiner):
                     err = api_summary["SUMMARY"][0].get(f"Error Code {i}")
                     if err:
                         errors.append(WhatsminerError(error_code=err))
-            except (KeyError, IndexError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         if not api_get_error_code:
@@ -568,7 +568,7 @@ class BTMiner(BaseMiner):
                 expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return round(expected_hashrate / 1000, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
     async def _get_fault_light(self, api_get_miner_info: dict = None) -> bool:
