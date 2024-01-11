@@ -396,9 +396,13 @@ class BOSMiner(BaseMiner):
     async def get_fw_ver(self, web_bos_info: dict) -> Optional[str]:
         if web_bos_info is None:
             try:
-                web_bos_info = await self.web.luci.send_command("bos/info")
+                web_bos_info = await self.web.luci.get_bos_info()
             except APIError:
                 return None
+
+        if isinstance(web_bos_info, dict):
+            if "bos/info" in web_bos_info.keys():
+                web_bos_info = web_bos_info["bos/info"]
 
         try:
             ver = web_bos_info["version"].split("-")[5]
