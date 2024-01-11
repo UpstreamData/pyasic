@@ -14,10 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-from pyasic import MinerConfig
-from pyasic.config import MinerConfig, MiningModeConfig
+from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError

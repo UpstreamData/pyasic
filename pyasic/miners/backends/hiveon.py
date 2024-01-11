@@ -14,8 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import Optional
-
 from pyasic.miners.backends import BMMiner
 
 

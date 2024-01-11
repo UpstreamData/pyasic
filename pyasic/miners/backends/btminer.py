@@ -15,8 +15,7 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from collections import namedtuple
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from pyasic.API.btminer import BTMinerAPI
 from pyasic.config import MinerConfig, MiningModeConfig
@@ -29,7 +28,6 @@ from pyasic.miners.base import (
     DataLocations,
     DataOptions,
     RPCAPICommand,
-    WebAPICommand,
 )
 
 BTMINER_DATA_LOC = DataLocations(

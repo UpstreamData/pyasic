@@ -14,8 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from collections import namedtuple
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from pyasic.API.bfgminer import BFGMinerAPI
 from pyasic.config import MinerConfig

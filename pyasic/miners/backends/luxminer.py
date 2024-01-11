@@ -13,18 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
-import logging
-from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
-import toml
-
-from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API.luxminer import LUXMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
+from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import (
     BaseMiner,
@@ -32,9 +26,7 @@ from pyasic.miners.base import (
     DataLocations,
     DataOptions,
     RPCAPICommand,
-    WebAPICommand,
 )
-from pyasic.web.braiins_os import BOSMinerWebAPI
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
@@ -341,7 +333,7 @@ class LUXMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
     async def _is_mining(self) -> Optional[bool]:

@@ -20,7 +20,6 @@ from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
-from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 
 

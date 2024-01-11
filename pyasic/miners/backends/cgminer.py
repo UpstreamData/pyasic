@@ -15,8 +15,7 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from collections import namedtuple
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
