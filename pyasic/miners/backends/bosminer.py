@@ -458,6 +458,15 @@ class BOSMiner(BaseMiner):
             return self.raw_model + " (BOS)"
         return "? (BOS)"
 
+    async def get_version(
+        self, api_version: dict = None, graphql_version: dict = None
+    ) -> Tuple[Optional[str], Optional[str]]:
+        # check if version is cached
+        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
+        api_ver = await self.get_api_ver(api_version)
+        fw_ver = await self.get_fw_ver(graphql_version)
+        return miner_version(api_ver, fw_ver)
+
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
@@ -469,7 +478,7 @@ class BOSMiner(BaseMiner):
         if api_version:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_ver = None
             self.api_ver = api_ver
             self.api.api_ver = self.api_ver
@@ -571,7 +580,7 @@ class BOSMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
-            except (LookupError, ValueError, TypeError):
+            except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(
@@ -633,7 +642,7 @@ class BOSMiner(BaseMiner):
                             board.temp = round(hb["temperatures"][0]["degreesC"])
                         if len(temps) > 1:
                             board.chip_temp = round(hb["temperatures"][1]["degreesC"])
-                    except (LookupError, TypeError, ValueError):
+                    except (TypeError, KeyError, ValueError, IndexError):
                         pass
                     details = hb.get("hwDetails")
                     if details:
@@ -657,15 +666,15 @@ class BOSMiner(BaseMiner):
                 d = {}
             try:
                 api_temps = d["temps"][0]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_temps = None
             try:
                 api_devdetails = d["devdetails"][0]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_devdetails = None
             try:
                 api_devs = d["devs"][0]
-            except LookupError:
+            except (KeyError, IndexError):
                 api_devs = None
         if api_temps:
             try:
@@ -677,7 +686,7 @@ class BOSMiner(BaseMiner):
                     board_temp = round(board["Board"])
                     hashboards[_id].chip_temp = chip_temp
                     hashboards[_id].temp = board_temp
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
         if api_devdetails:
@@ -689,7 +698,7 @@ class BOSMiner(BaseMiner):
                     chips = board["Chips"]
                     hashboards[_id].chips = chips
                     hashboards[_id].missing = False
-            except LookupError:
+            except (IndexError, KeyError):
                 pass
 
         if api_devs:
@@ -700,7 +709,7 @@ class BOSMiner(BaseMiner):
                     _id = board["ID"] - offset
                     hashrate = round(float(board["MHS 1m"] / 1000000), 2)
                     hashboards[_id].hashrate = hashrate
-            except LookupError:
+            except (IndexError, KeyError):
                 pass
 
         return hashboards
@@ -741,7 +750,7 @@ class BOSMiner(BaseMiner):
                 return api_tunerstatus["TUNERSTATUS"][0][
                     "ApproximateMinerPowerConsumption"
                 ]
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
     async def _get_wattage_limit(
@@ -772,7 +781,7 @@ class BOSMiner(BaseMiner):
         if api_tunerstatus:
             try:
                 return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
     async def _get_fans(
@@ -811,7 +820,7 @@ class BOSMiner(BaseMiner):
             for n in range(self.expected_fans):
                 try:
                     fans.append(Fan(api_fans["FANS"][n]["RPM"]))
-                except LookupError:
+                except (IndexError, KeyError):
                     pass
             return fans
         return [Fan() for _ in range(self.expected_fans)]
@@ -895,7 +904,7 @@ class BOSMiner(BaseMiner):
                             _error = _error[0].lower() + _error[1:]
                             errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
                 return errors
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
 
     async def _get_fault_light(self, graphql_fault_light: dict = None) -> bool:
@@ -978,7 +987,7 @@ class BOSMiner(BaseMiner):
                     return round(
                         (sum(hr_list) / len(hr_list)) * self.expected_hashboards, 2
                     )
-            except LookupError:
+            except (IndexError, KeyError):
                 pass
 
     async def _is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
