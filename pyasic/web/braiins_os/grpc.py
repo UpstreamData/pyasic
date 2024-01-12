@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import asyncio
 from datetime import timedelta
 
 from betterproto import Message
@@ -64,7 +65,20 @@ class BOSerGRPCAPI:
         ]
 
     async def multicommand(self, *commands: str) -> dict:
-        pass
+        result = {"multicommand": True}
+        tasks = {}
+        for command in commands:
+            try:
+                tasks[command] = asyncio.create_task(getattr(self, command)())
+            except AttributeError:
+                result["command"] = {}
+
+        await asyncio.gather(*list(tasks.values()))
+
+        for cmd in tasks:
+            result[cmd] = tasks[cmd].result()
+
+        return result
 
     async def send_command(
         self,
@@ -161,10 +175,12 @@ class BOSerGRPCAPI:
         )
 
     async def get_tuner_state(self):
-        return await self.send_command("get_tuner_state")
+        return await self.send_command("get_tuner_state", GetTunerStateRequest())
 
     async def list_target_profiles(self):
-        return await self.send_command("list_target_profiles")
+        return await self.send_command(
+            "list_target_profiles", ListTargetProfilesRequest()
+        )
 
     async def set_default_power_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
