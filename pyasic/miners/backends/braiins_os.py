@@ -800,54 +800,15 @@ class BOSer(BaseMiner):
         # data storage
         self.api_ver = api_ver
 
-    async def send_ssh_command(self, cmd: str) -> Optional[str]:
-        result = None
-
-        try:
-            conn = await asyncio.wait_for(self._get_ssh_connection(), timeout=10)
-        except (ConnectionError, asyncio.TimeoutError):
-            return None
-
-        # open an ssh connection
-        async with conn:
-            # 3 retries
-            for i in range(3):
-                try:
-                    # run the command and get the result
-                    result = await conn.run(cmd)
-                    stderr = result.stderr
-                    result = result.stdout
-
-                    if len(stderr) > len(result):
-                        result = stderr
-
-                except Exception as e:
-                    # if the command fails, log it
-                    logging.warning(f"{self} command {cmd} error: {e}")
-
-                    # on the 3rd retry, return None
-                    if i == 3:
-                        return
-                    continue
-        # return the result, either command output or None
-        return result
-
     async def fault_light_on(self) -> bool:
-        logging.debug(f"{self}: Sending fault_light on command.")
-        ret = await self.send_ssh_command("miner fault_light on")
-        logging.debug(f"{self}: fault_light on command completed.")
-        if isinstance(ret, str):
-            self.light = True
-            return self.light
+        resp = await self.web.grpc.set_locate_device_status(True)
+        if resp.get("enabled", False):
+            return True
         return False
 
     async def fault_light_off(self) -> bool:
-        logging.debug(f"{self}: Sending fault_light off command.")
-        self.light = False
-        ret = await self.send_ssh_command("miner fault_light off")
-        logging.debug(f"{self}: fault_light off command completed.")
-        if isinstance(ret, str):
-            self.light = False
+        resp = await self.web.grpc.set_locate_device_status(False)
+        if resp == {}:
             return True
         return False
 
@@ -912,60 +873,7 @@ class BOSer(BaseMiner):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         logging.debug(f"{self}: Sending config.")
         self.config = config
-
-        if self.web.grpc is not None:
-            try:
-                await self._send_config_grpc(config, user_suffix)
-                return
-            except:
-                pass
-        await self._send_config_bosminer(config, user_suffix)
-
-    async def _send_config_grpc(self, config: MinerConfig, user_suffix: str = None):
         raise NotImplementedError
-        mining_mode = config.mining_mode
-
-    async def _send_config_bosminer(self, config: MinerConfig, user_suffix: str = None):
-        toml_conf = toml.dumps(
-            {
-                "format": {
-                    "version": "1.2+",
-                    "generator": "pyasic",
-                    "raw_model": f"{self.make.replace('Miner', 'miner')} {self.raw_model}",
-                    "timestamp": int(time.time()),
-                },
-                **config.as_bosminer(user_suffix=user_suffix),
-            }
-        )
-        try:
-            conn = await self._get_ssh_connection()
-        except ConnectionError as e:
-            raise APIError("SSH connection failed when sending config.") from e
-        async with conn:
-            # BBB check because bitmain suxx
-            bbb_check = await conn.run(
-                "if [ ! -f /etc/init.d/bosminer ]; then echo '1'; else echo '0'; fi;"
-            )
-
-            bbb = bbb_check.stdout.strip() == "1"
-
-            if not bbb:
-                await conn.run("/etc/init.d/bosminer stop")
-                logging.debug(f"{self}: Opening SFTP connection.")
-                async with conn.start_sftp_client() as sftp:
-                    logging.debug(f"{self}: Opening config file.")
-                    async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                        await file.write(toml_conf)
-                logging.debug(f"{self}: Restarting BOSMiner")
-                await conn.run("/etc/init.d/bosminer start")
-
-            # I really hate BBB, please get rid of it if you have it
-            else:
-                await conn.run("/etc/init.d/S99bosminer stop")
-                logging.debug(f"{self}: BBB sending config")
-                await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
-                logging.debug(f"{self}: BBB restarting bosminer.")
-                await conn.run("/etc/init.d/S99bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -979,52 +887,6 @@ class BOSer(BaseMiner):
             return False
         else:
             return True
-
-    async def set_static_ip(
-        self,
-        ip: str,
-        dns: str,
-        gateway: str,
-        subnet_mask: str = "255.255.255.0",
-    ):
-        cfg_data_lan = (
-            "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'static'\n\toption ipaddr '"
-            + ip
-            + "'\n\toption netmask '"
-            + subnet_mask
-            + "'\n\toption gateway '"
-            + gateway
-            + "'\n\toption dns '"
-            + dns
-            + "'"
-        )
-        data = await self.send_ssh_command("cat /etc/config/network")
-
-        split_data = data.split("\n\n")
-        for idx in range(len(split_data)):
-            if "config interface 'lan'" in split_data[idx]:
-                split_data[idx] = cfg_data_lan
-        config = "\n\n".join(split_data)
-
-        conn = await self._get_ssh_connection()
-
-        async with conn:
-            await conn.run("echo '" + config + "' > /etc/config/network")
-
-    async def set_dhcp(self):
-        cfg_data_lan = "config interface 'lan'\n\toption type 'bridge'\n\toption ifname 'eth0'\n\toption proto 'dhcp'"
-        data = await self.send_ssh_command("cat /etc/config/network")
-
-        split_data = data.split("\n\n")
-        for idx in range(len(split_data)):
-            if "config interface 'lan'" in split_data[idx]:
-                split_data[idx] = cfg_data_lan
-        config = "\n\n".join(split_data)
-
-        conn = await self._get_ssh_connection()
-
-        async with conn:
-            await conn.run("echo '" + config + "' > /etc/config/network")
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
