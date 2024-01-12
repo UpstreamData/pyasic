@@ -17,6 +17,16 @@ from dataclasses import dataclass, field
 from typing import Dict, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    HashrateTargetMode,
+    PerformanceMode,
+    Power,
+    PowerTargetMode,
+    SaveAction,
+    SetPerformanceModeRequest,
+    TeraHashrate,
+    TunerPerformanceMode,
+)
 
 
 @dataclass
@@ -99,6 +109,20 @@ class MiningModePowerTune(MinerConfigValue):
     def as_bosminer(self) -> dict:
         return {"autotuning": {"enabled": True, "psu_power_limit": self.power}}
 
+    def as_boser(self) -> dict:
+        return {
+            "set_performance_mode": SetPerformanceModeRequest(
+                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                mode=PerformanceMode(
+                    tuner_mode=TunerPerformanceMode(
+                        power_target=PowerTargetMode(
+                            power_target=Power(watt=self.power)
+                        )
+                    )
+                ),
+            ),
+        }
+
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
@@ -111,6 +135,22 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
+
+    def as_boser(self) -> dict:
+        return {
+            "set_performance_mode": SetPerformanceModeRequest(
+                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                mode=PerformanceMode(
+                    tuner_mode=TunerPerformanceMode(
+                        hashrate_target=HashrateTargetMode(
+                            hashrate_target=TeraHashrate(
+                                terahash_per_second=self.hashrate
+                            )
+                        )
+                    )
+                ),
+            )
+        }
 
 
 @dataclass

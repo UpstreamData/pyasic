@@ -792,22 +792,22 @@ class BOSer(BaseMiner):
         return MinerConfig.from_boser(grpc_conf)
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        raise NotImplementedError
         logging.debug(f"{self}: Sending config.")
         self.config = config
-        raise NotImplementedError
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
-            cfg = await self.get_config()
-            if cfg is None:
-                return False
-            cfg.mining_mode = MiningModePowerTune(wattage)
-            await self.send_config(cfg)
-        except Exception as e:
-            logging.warning(f"{self} set_power_limit: {e}")
+            result = await self.web.grpc.set_power_target(wattage)
+        except APIError:
             return False
-        else:
-            return True
+
+        try:
+            if result["powerTarget"]["watt"] == wattage:
+                return True
+        except KeyError:
+            pass
+        return False
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###

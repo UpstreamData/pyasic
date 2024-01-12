@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import asyncio
+import logging
 from datetime import timedelta
 
 from betterproto import Message
@@ -284,15 +285,71 @@ class BOSerGRPCAPI:
 
     async def set_dps(
         self,
+        enable: bool,
+        power_step: int,
+        min_power_target: int,
+        enable_shutdown: bool = None,
+        shutdown_duration: int = None,
     ):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PerformanceService/SetDPS")
-
-    async def set_performance_mode(self):
-        raise NotImplementedError
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetPerformanceMode"
+            "set_dps",
+            message=SetDpsRequest(
+                enable=enable,
+                enable_shutdown=enable_shutdown,
+                shutdown_duration=shutdown_duration,
+                target=DpsTarget(
+                    power_target=DpsPowerTarget(
+                        power_step=Power(power_step),
+                        min_power_target=Power(min_power_target),
+                    )
+                ),
+            ),
         )
+
+    async def set_performance_mode(
+        self,
+        wattage_target: int = None,
+        hashrate_target: int = None,
+        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+    ):
+        if wattage_target is not None and hashrate_target is not None:
+            logging.error(
+                "Cannot use both wattage_target and hashrate_target, using wattage_target."
+            )
+        elif wattage_target is None and hashrate_target is None:
+            raise APIError(
+                "No target supplied, please supply either wattage_target or hashrate_target."
+            )
+        if wattage_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            power_target=PowerTargetMode(
+                                power_target=Power(watt=wattage_target)
+                            )
+                        )
+                    ),
+                ),
+            )
+        if hashrate_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            hashrate_target=HashrateTargetMode(
+                                hashrate_target=TeraHashrate(
+                                    terahash_per_second=hashrate_target
+                                )
+                            )
+                        )
+                    ),
+                ),
+            )
 
     async def get_active_performance_mode(self):
         return await self.send_command(

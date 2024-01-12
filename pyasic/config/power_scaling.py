@@ -17,7 +17,13 @@ from dataclasses import dataclass, field
 from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
-from pyasic.web.braiins_os.proto.braiins.bos.v1 import DpsPowerTarget, DpsTarget, Hours
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    DpsPowerTarget,
+    DpsTarget,
+    Hours,
+    Power,
+    SetDpsRequest,
+)
 
 
 @dataclass
@@ -38,12 +44,7 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
         return cfg
 
     def as_boser(self) -> dict:
-        cfg = {"enable_shutdown ": True}
-
-        if self.duration is not None:
-            cfg["shutdown_duration"] = Hours(self.duration)
-
-        return cfg
+        return {"enable_shutdown": True, "shutdown_duration": self.duration}
 
 
 @dataclass
@@ -147,19 +148,18 @@ class PowerScalingEnabled(MinerConfigValue):
         return {"power_scaling": cfg}
 
     def as_boser(self) -> dict:
-        cfg = {"enable": True}
-        target_conf = {}
-        if self.power_step is not None:
-            target_conf["power_step"] = self.power_step
-        if self.minimum_power is not None:
-            target_conf["min_power_target"] = self.minimum_power
-
-        cfg["target"] = DpsTarget(power_target=DpsPowerTarget(**target_conf))
-
-        if self.shutdown_enabled is not None:
-            cfg = {**cfg, **self.shutdown_enabled.as_boser()}
-
-        return {"dps": cfg}
+        return {
+            "set_dps": SetDpsRequest(
+                enable=True,
+                **self.shutdown_enabled.as_boser(),
+                target=DpsTarget(
+                    power_target=DpsPowerTarget(
+                        power_step=Power(self.power_step),
+                        min_power_target=Power(self.minimum_power),
+                    )
+                ),
+            ),
+        }
 
 
 @dataclass
