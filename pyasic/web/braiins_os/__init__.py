@@ -98,17 +98,15 @@ class BOSerWebAPI(BOSMinerWebAPI):
     def select_command_type(command: Union[str, dict]) -> str:
         if isinstance(command, dict):
             return "gql"
-        elif command.startswith("grpc_"):
-            return "grpc"
         else:
-            return "luci"
+            return "grpc"
 
     async def multicommand(
         self, *commands: Union[dict, str], allow_warning: bool = True
     ) -> dict:
-        cmd_types = {"grpc": [], "gql": [], "luci": []}
+        cmd_types = {"grpc": [], "gql": []}
         for cmd in commands:
-            cmd_types[self.select_command_type(cmd)] = cmd
+            cmd_types[self.select_command_type(cmd)].append(cmd)
 
         async def no_op():
             return {}
@@ -118,21 +116,13 @@ class BOSerWebAPI(BOSMinerWebAPI):
                 self.grpc.multicommand(*cmd_types["grpc"])
             )
         else:
-            grpc_data_t = no_op()
+            grpc_data_t = asyncio.create_task(no_op())
         if len(cmd_types["gql"]) > 0:
             gql_data_t = asyncio.create_task(self.gql.multicommand(*cmd_types["gql"]))
         else:
-            gql_data_t = no_op()
-        if len(cmd_types["luci"]) > 0:
-            luci_data_t = asyncio.create_task(
-                self.luci.multicommand(*cmd_types["luci"])
-            )
-        else:
-            luci_data_t = no_op()
+            gql_data_t = asyncio.create_task(no_op())
 
-        await asyncio.gather(grpc_data_t, gql_data_t, luci_data_t)
+        await asyncio.gather(grpc_data_t, gql_data_t)
 
-        data = dict(
-            **luci_data_t.result(), **gql_data_t.result(), **luci_data_t.result()
-        )
+        data = dict(**grpc_data_t.result(), **gql_data_t.result())
         return data
