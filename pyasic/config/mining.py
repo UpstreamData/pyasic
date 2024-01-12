@@ -260,3 +260,33 @@ class MiningModeConfig(MinerConfigOption):
             return MiningModeManual.from_vnish(mode_settings)
         else:
             return cls.power_tuning(int(mode_settings["preset"]))
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict):
+        try:
+            tuner_conf = grpc_miner_conf["tuner"]
+            if not tuner_conf.get("enabled", False):
+                return cls.default()
+        except LookupError:
+            return cls.default()
+
+        if tuner_conf.get("tunerMode") is not None:
+            if tuner_conf["tunerMode"] == 1:
+                if tuner_conf.get("powerTarget") is not None:
+                    return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
+                return cls.power_tuning()
+
+            if tuner_conf["tunerMode"] == 2:
+                if tuner_conf.get("hashrateTarget") is not None:
+                    return cls.hashrate_tuning(
+                        int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+                    )
+                return cls.hashrate_tuning()
+
+        if tuner_conf.get("powerTarget") is not None:
+            return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
+
+        if tuner_conf.get("hashrateTarget") is not None:
+            return cls.hashrate_tuning(
+                int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+            )

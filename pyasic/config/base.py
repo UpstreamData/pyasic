@@ -44,8 +44,8 @@ class MinerConfigOption(Enum):
     def as_bosminer(self) -> dict:
         return self.value.as_bosminer()
 
-    def as_bos_grpc(self) -> dict:
-        return self.value.as_bos_grpc()
+    def as_boser(self) -> dict:
+        return self.value.as_boser()
 
     def as_epic(self) -> dict:
         return self.value.as_epic()
@@ -91,7 +91,7 @@ class MinerConfigValue:
     def as_bosminer(self) -> dict:
         return {}
 
-    def as_bos_grpc(self) -> dict:
+    def as_boser(self) -> dict:
         return {}
 
     def as_epic(self) -> dict:

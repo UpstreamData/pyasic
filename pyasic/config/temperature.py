@@ -80,3 +80,34 @@ class TemperatureConfig(MinerConfigValue):
         except KeyError:
             pass
         return cls()
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict):
+        try:
+            temperature_conf = grpc_miner_conf["temperature"]
+        except KeyError:
+            return cls.default()
+
+        root_key = None
+        for key in ["auto", "manual", "disabled"]:
+            if key in temperature_conf.keys():
+                root_key = key
+                break
+        if root_key is None:
+            return cls.default()
+
+        conf = {}
+        keys = temperature_conf[root_key].keys()
+        if "targetTemperature" in keys:
+            conf["target"] = int(
+                temperature_conf[root_key]["targetTemperature"]["degreeC"]
+            )
+        if "hotTemperature" in keys:
+            conf["hot"] = int(temperature_conf[root_key]["hotTemperature"]["degreeC"])
+        if "dangerousTemperature" in keys:
+            conf["danger"] = int(
+                temperature_conf[root_key]["dangerousTemperature"]["degreeC"]
+            )
+
+            return cls(**conf)
+        return cls.default()

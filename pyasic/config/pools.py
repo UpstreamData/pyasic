@@ -149,6 +149,14 @@ class Pool(MinerConfigValue):
             password=web_pool["pass"],
         )
 
+    @classmethod
+    def from_boser(cls, grpc_pool: dict) -> "Pool":
+        return cls(
+            url=grpc_pool["url"],
+            user=grpc_pool["user"],
+            password=grpc_pool["password"],
+        )
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -287,6 +295,19 @@ class PoolGroup(MinerConfigValue):
     def from_vnish(cls, web_settings_pools: dict) -> "PoolGroup":
         return cls([Pool.from_vnish(p) for p in web_settings_pools])
 
+    @classmethod
+    def from_boser(cls, grpc_pool_group: dict):
+        try:
+            return cls(
+                pools=[Pool.from_boser(p) for p in grpc_pool_group["pools"]],
+                name=grpc_pool_group["name"],
+                quota=grpc_pool_group["quota"]["value"]
+                if grpc_pool_group.get("quota") is not None
+                else 1,
+            )
+        except LookupError:
+            return cls()
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -349,7 +370,7 @@ class PoolConfig(MinerConfigValue):
             }
         return {"group": [PoolGroup().as_bosminer()]}
 
-    def as_bos_grpc(self, user_suffix: str = None) -> dict:
+    def as_boser(self, user_suffix: str = None) -> dict:
         return {}
 
     @classmethod
@@ -392,5 +413,17 @@ class PoolConfig(MinerConfigValue):
     def from_vnish(cls, web_settings: dict) -> "PoolConfig":
         try:
             return cls([PoolGroup.from_vnish(web_settings["miner"]["pools"])])
+        except LookupError:
+            return cls()
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict):
+        try:
+            return cls(
+                groups=[
+                    PoolGroup.from_boser(group)
+                    for group in grpc_miner_conf["poolGroups"]
+                ]
+            )
         except LookupError:
             return cls()

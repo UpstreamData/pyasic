@@ -43,6 +43,7 @@ class BOSerGRPCAPI:
         self.ip = ip
         self.username = "root"
         self.pwd = pwd
+        self.port = 50051
         self._auth = None
         self._auth_time = datetime.now()
 
@@ -76,7 +77,7 @@ class BOSerGRPCAPI:
         metadata = []
         if auth:
             metadata.append(("authorization", await self.auth()))
-        async with Channel(self.ip, 50051) as c:
+        async with Channel(self.ip, self.port) as c:
             endpoint = getattr(BOSMinerGRPCStub(c), command)
             if endpoint is None:
                 if not ignore_errors:
@@ -93,7 +94,7 @@ class BOSerGRPCAPI:
         return self._auth
 
     async def _get_auth(self):
-        async with Channel(self.ip, 50051) as c:
+        async with Channel(self.ip, self.port) as c:
             req = LoginRequest(username=self.username, password=self.pwd)
             async with c.request(
                 "/braiins.bos.v1.AuthenticationService/Login",

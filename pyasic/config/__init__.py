@@ -99,13 +99,13 @@ class MinerConfig:
             **self.power_scaling.as_bosminer(),
         }
 
-    def as_bos_grpc(self, user_suffix: str = None) -> dict:
+    def as_boser(self, user_suffix: str = None) -> dict:
         return {
-            **self.fan_mode.as_bos_grpc(),
-            **self.temperature.as_bos_grpc(),
-            **self.mining_mode.as_bos_grpc(),
-            **self.pools.as_bos_grpc(user_suffix=user_suffix),
-            **self.power_scaling.as_bos_grpc(),
+            **self.fan_mode.as_boser(),
+            **self.temperature.as_boser(),
+            **self.mining_mode.as_boser(),
+            **self.pools.as_boser(user_suffix=user_suffix),
+            **self.power_scaling.as_boser(),
         }
 
     def as_epic(self, user_suffix: str = None) -> dict:
@@ -159,6 +159,16 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_bosminer(toml_conf),
             temperature=TemperatureConfig.from_bosminer(toml_conf),
             power_scaling=PowerScalingConfig.from_bosminer(toml_conf),
+        )
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_boser(grpc_miner_conf),
+            mining_mode=MiningModeConfig.from_boser(grpc_miner_conf),
+            fan_mode=FanModeConfig.from_boser(grpc_miner_conf),
+            temperature=TemperatureConfig.from_boser(grpc_miner_conf),
+            power_scaling=PowerScalingConfig.from_boser(grpc_miner_conf),
         )
 
     @classmethod

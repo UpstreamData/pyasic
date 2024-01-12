@@ -182,3 +182,23 @@ class FanModeConfig(MinerConfigOption):
             return cls.manual().from_vnish(web_settings["miner"]["cooling"])
         elif mode == "immers":
             return cls.immersion()
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict):
+        try:
+            temperature_conf = grpc_miner_conf["temperature"]
+        except LookupError:
+            return cls.default()
+
+        keys = temperature_conf.keys()
+        if "auto" in keys:
+            if "minimumRequiredFans" in keys:
+                return cls.normal(temperature_conf["minimumRequiredFans"])
+            return cls.normal()
+        if "manual" in keys:
+            conf = {}
+            if "fanSpeedRatio" in temperature_conf["manual"].keys():
+                conf["speed"] = int(temperature_conf["manual"]["fanSpeedRatio"])
+            if "minimumRequiredFans" in keys:
+                conf["minimum_fans"] = int(temperature_conf["minimumRequiredFans"])
+            return cls.manual(**conf)

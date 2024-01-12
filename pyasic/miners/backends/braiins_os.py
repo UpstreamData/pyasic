@@ -908,23 +908,9 @@ class BOSer(BaseMiner):
         return False
 
     async def get_config(self) -> MinerConfig:
-        logging.debug(f"{self}: Getting config.")
+        grpc_conf = await self.web.grpc.get_miner_configuration()
 
-        try:
-            conn = await self._get_ssh_connection()
-        except ConnectionError:
-            conn = None
-
-        if conn:
-            async with conn:
-                # good ol' BBB compatibility :/
-                toml_data = toml.loads(
-                    (await conn.run("cat /etc/bosminer.toml")).stdout
-                )
-            logging.debug(f"{self}: Converting config file.")
-            cfg = MinerConfig.from_bosminer(toml_data)
-            self.config = cfg
-        return self.config
+        return MinerConfig.from_boser(grpc_conf)
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         logging.debug(f"{self}: Sending config.")
