@@ -18,6 +18,7 @@ import logging
 from datetime import timedelta
 
 from betterproto import Message
+from grpclib import GRPCError, Status
 from grpclib.client import Channel
 
 from pyasic.errors import APIError
@@ -92,13 +93,23 @@ class BOSerGRPCAPI:
         metadata = []
         if auth:
             metadata.append(("authorization", await self.auth()))
-        async with Channel(self.ip, self.port) as c:
-            endpoint = getattr(BOSMinerGRPCStub(c), command)
-            if endpoint is None:
-                if not ignore_errors:
-                    raise APIError(f"Command not found - {endpoint}")
-                return {}
-            return (await endpoint(message, metadata=metadata)).to_pydict()
+        try:
+            async with Channel(self.ip, self.port) as c:
+                endpoint = getattr(BOSMinerGRPCStub(c), command)
+                if endpoint is None:
+                    if not ignore_errors:
+                        raise APIError(f"Command not found - {endpoint}")
+                    return {}
+                try:
+                    return (await endpoint(message, metadata=metadata)).to_pydict()
+                except GRPCError as e:
+                    if e.status == Status.UNAUTHENTICATED:
+                        await self._get_auth()
+                        metadata = [("authorization", await self.auth())]
+                        return (await endpoint(message, metadata=metadata)).to_pydict()
+                    raise e
+        except GRPCError as e:
+            raise APIError(f"gRPC command failed - {endpoint}") from e
 
     async def auth(self):
         if self._auth is not None and self._auth_time - datetime.now() < timedelta(
