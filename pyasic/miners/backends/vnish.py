@@ -45,7 +45,7 @@ VNISH_DATA_LOC = DataLocations(
             "get_hostname", [WebAPICommand("web_summary", "summary")]
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [WebAPICommand("web_summary", "summary")]
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
@@ -61,7 +61,7 @@ VNISH_DATA_LOC = DataLocations(
             "get_wattage_limit", [WebAPICommand("web_settings", "settings")]
         ),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [WebAPICommand("web_summary", "summary")]
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction("get_errors"),
