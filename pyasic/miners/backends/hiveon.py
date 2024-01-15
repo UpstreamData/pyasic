@@ -22,39 +22,40 @@ from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPIC
 
 HIVEON_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("_get_mac"),
+        str(DataOptions.MAC): DataFunction("get_mac"),
+        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
-            "_get_env_temp", [RPCAPICommand("api_stats", "stats")]
+            "get_env_temp", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.WATTAGE): DataFunction(
-            "_get_wattage", [RPCAPICommand("api_stats", "stats")]
+            "get_wattage", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("_get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -67,15 +68,19 @@ class Hiveon(BMMiner):
         self.pwd = "admin"
         # static data
         self.api_type = "Hiveon"
-        self.fw_str = "Hive"
         # data gathering locations
         self.data_locations = HIVEON_DATA_LOC
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def get_model(self) -> Optional[str]:
+        if self.model is not None:
+            return self.model + " (Hiveon)"
+        return "? (Hiveon)"
+
+    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         pass
 
-    async def _get_wattage(self, api_stats: dict = None) -> Optional[int]:
+    async def get_wattage(self, api_stats: dict = None) -> Optional[int]:
         pass
 
-    async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+    async def get_env_temp(self, api_stats: dict = None) -> Optional[float]:
         pass
