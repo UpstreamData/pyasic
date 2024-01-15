@@ -1031,7 +1031,7 @@ class BOSer(BaseMiner):
             except APIError:
                 pass
 
-        if grpc_locate_device_status:
+        if grpc_locate_device_status is not None:
             if grpc_locate_device_status == {}:
                 return False
             try:
