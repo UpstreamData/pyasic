@@ -364,5 +364,5 @@ class CGMinerAvalon(CGMiner):
     async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self) -> Optional[int]:
+    async def _get_uptime(self) -> Optional[int]:
         return None

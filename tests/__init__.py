@@ -17,6 +17,8 @@
 import unittest
 
 from tests.api_tests import *
+from tests.config_tests import TestConfig
+from tests.miners_tests import MinersTest
 from tests.network_tests import NetworkTest
 
 if __name__ == "__main__":
