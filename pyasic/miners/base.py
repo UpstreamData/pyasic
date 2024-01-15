@@ -231,7 +231,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of turning the light on.
         """
-        pass
 
     @abstractmethod
     async def fault_light_off(self) -> bool:
@@ -240,7 +239,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of turning the light off.
         """
-        pass
 
     @abstractmethod
     async def get_config(self) -> MinerConfig:
@@ -250,7 +248,6 @@ class BaseMiner(ABC):
         Returns:
             A [`MinerConfig`][pyasic.config.MinerConfig] containing the pool information and mining configuration.
         """
-        pass
 
     @abstractmethod
     async def reboot(self) -> bool:
@@ -259,7 +256,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of rebooting the miner.
         """
-        pass
 
     @abstractmethod
     async def restart_backend(self) -> bool:
@@ -268,7 +264,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of restarting the mining process.
         """
-        pass
 
     @abstractmethod
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
@@ -278,7 +273,6 @@ class BaseMiner(ABC):
             config: A [`MinerConfig`][pyasic.config.MinerConfig] containing the mining config you want to switch the miner to.
             user_suffix: A suffix to append to the username when sending to the miner.
         """
-        return None
 
     @abstractmethod
     async def stop_mining(self) -> bool:
@@ -287,7 +281,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of stopping the mining process.
         """
-        pass
 
     @abstractmethod
     async def resume_mining(self) -> bool:
@@ -296,7 +289,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of resuming the mining process.
         """
-        pass
 
     @abstractmethod
     async def set_power_limit(self, wattage: int) -> bool:
@@ -308,7 +300,6 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of setting the power limit.
         """
-        pass
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###

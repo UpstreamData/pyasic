@@ -744,7 +744,7 @@ class BOSer(BaseMiner):
         return await self.restart_boser()
 
     async def restart_boser(self) -> bool:
-        ret = await self.web.grpc.restart()
+        await self.web.grpc.restart()
         return True
 
     async def stop_mining(self) -> bool:

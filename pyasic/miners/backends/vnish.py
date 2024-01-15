@@ -181,8 +181,7 @@ class VNish(BMMiner):
                 return round(
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
-            except (LookupError, ValueError, TypeError) as e:
-                logger.error(e)
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
