@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+import logging
 import re
 from typing import List, Optional
 
@@ -27,43 +28,42 @@ from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPIC
 AVALON_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "_get_mac", [RPCAPICommand("api_version", "version")]
+            "get_mac", [RPCAPICommand("api_version", "version")]
         ),
+        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction(
-            "_get_hostname", [RPCAPICommand("api_version", "version")]
-        ),
+        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_devs", "devs")]
+            "get_hashrate", [RPCAPICommand("api_devs", "devs")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
-            "_get_env_temp", [RPCAPICommand("api_stats", "stats")]
+            "get_env_temp", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
+        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "_get_wattage_limit", [RPCAPICommand("api_stats", "stats")]
+            "get_wattage_limit", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("get_errors"),
         str(DataOptions.FAULT_LIGHT): DataFunction(
-            "_get_fault_light", [RPCAPICommand("api_stats", "stats")]
+            "get_fault_light", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
-        str(DataOptions.UPTIME): DataFunction("_get_uptime"),
+        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.UPTIME): DataFunction("get_uptime"),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
@@ -174,7 +174,7 @@ class CGMinerAvalon(CGMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, api_version: dict = None) -> Optional[str]:
+    async def get_mac(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -192,7 +192,7 @@ class CGMinerAvalon(CGMiner):
             except (KeyError, ValueError):
                 pass
 
-    async def _get_hostname(self, mac: str = None) -> Optional[str]:
+    async def get_hostname(self) -> Optional[str]:
         return None
         # if not mac:
         #     mac = await self.get_mac()
@@ -200,7 +200,7 @@ class CGMinerAvalon(CGMiner):
         # if mac:
         #     return f"Avalon{mac.replace(':', '')[-6:]}"
 
-    async def _get_hashrate(self, api_devs: dict = None) -> Optional[float]:
+    async def get_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if not api_devs:
             try:
                 api_devs = await self.api.devs()
@@ -210,10 +210,10 @@ class CGMinerAvalon(CGMiner):
         if api_devs:
             try:
                 return round(float(api_devs["DEVS"][0]["MHS 1m"] / 1000000), 2)
-            except (LookupError, ValueError, TypeError):
+            except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -229,7 +229,7 @@ class CGMinerAvalon(CGMiner):
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
 
             for board in range(self.expected_hashboards):
@@ -261,7 +261,7 @@ class CGMinerAvalon(CGMiner):
 
         return hashboards
 
-    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -273,10 +273,10 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return round(float(parsed_stats["GHSmm"]) / 1000, 2)
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+    async def get_env_temp(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -288,13 +288,13 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return float(parsed_stats["Temp"])
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage(self) -> Optional[int]:
+    async def get_wattage(self) -> Optional[int]:
         return None
 
-    async def _get_wattage_limit(self, api_stats: dict = None) -> Optional[int]:
+    async def get_wattage_limit(self, api_stats: dict = None) -> Optional[int]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -306,17 +306,17 @@ class CGMinerAvalon(CGMiner):
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return int(parsed_stats["MPO"])
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
+    async def get_fans(self, api_stats: dict = None) -> List[Fan]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        fans_data = [Fan() for _ in range(self.expected_fans)]
+        fans_data = [Fan() for _ in range(self.fan_count)]
         if api_stats:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
@@ -324,17 +324,17 @@ class CGMinerAvalon(CGMiner):
             except LookupError:
                 return fans_data
 
-            for fan in range(self.expected_fans):
+            for fan in range(self.fan_count):
                 try:
                     fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
-                except (LookupError, ValueError, TypeError):
+                except (IndexError, KeyError, ValueError, TypeError):
                     pass
         return fans_data
 
-    async def _get_errors(self) -> List[MinerErrorData]:
+    async def get_errors(self) -> List[MinerErrorData]:
         return []
 
-    async def _get_fault_light(self, api_stats: dict = None) -> bool:  # noqa
+    async def get_fault_light(self, api_stats: dict = None) -> bool:  # noqa
         if self.light:
             return self.light
         if not api_stats:
@@ -349,7 +349,7 @@ class CGMinerAvalon(CGMiner):
                 parsed_stats = self.parse_stats(unparsed_stats)
                 led = int(parsed_stats["Led"])
                 return True if led == 1 else False
-            except (LookupError, ValueError, TypeError):
+            except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
         try:
@@ -363,5 +363,8 @@ class CGMinerAvalon(CGMiner):
             pass
         return False
 
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None
+
+    async def get_uptime(self) -> Optional[int]:
         return None

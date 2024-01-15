@@ -14,4 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A10X import CGMinerA10X
+from .A10X import InnosiliconA10X

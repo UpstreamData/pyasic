@@ -72,6 +72,31 @@ class MinersTest(unittest.TestCase):
                     )
                     self.assertEqual(miner_keys, keys)
 
+    def test_data_locations_match_signatures_command(self):
+        warnings.filterwarnings("ignore")
+        for miner_model in MINER_CLASSES.keys():
+            for miner_api in MINER_CLASSES[miner_model].keys():
+                miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+                for data_point in asdict(miner.data_locations).values():
+                    with self.subTest(
+                        msg=f"Test {data_point['cmd']} signature matches with model={miner_model}, api={miner_api}",
+                        miner_model=miner_model,
+                        miner_api=miner_api,
+                    ):
+                        func = getattr(miner, data_point["cmd"])
+                        signature = inspect.signature(func)
+                        parameters = signature.parameters
+                        param_names = list(parameters.keys())
+                        for arg in ["kwargs", "args"]:
+                            try:
+                                param_names.remove(arg)
+                            except ValueError:
+                                pass
+                        self.assertEqual(
+                            set(param_names),
+                            set([k["name"] for k in data_point["kwargs"]]),
+                        )
+
 
 if __name__ == "__main__":
     unittest.main()
