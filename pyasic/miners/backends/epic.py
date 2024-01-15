@@ -192,8 +192,7 @@ class ePIC(BaseMiner):
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
                     return round(float(float(hashrate / 1000000)), 2)
-            except (LookupError, ValueError, TypeError) as e:
-                logger.error(e)
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
@@ -207,7 +206,7 @@ class ePIC(BaseMiner):
         if web_summary:
             try:
                 hashrate = 0
-                if web_summary["HBs"] is not None:
+                if web_summary.get("HBs") is not None:
                     for hb in web_summary["HBs"]:
                         if hb["Hashrate"][1] == 0:
                             ideal = 1.0
@@ -216,8 +215,7 @@ class ePIC(BaseMiner):
 
                         hashrate += hb["Hashrate"][0] / ideal
                     return round(float(float(hashrate / 1000000)), 2)
-            except (LookupError, ValueError, TypeError) as e:
-                logger.error(e)
+            except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
@@ -266,7 +264,8 @@ class ePIC(BaseMiner):
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
-        if web_summary["HBs"] is not None:
+
+        if web_summary.get("HBs") is not None:
             for hb in web_summary["HBs"]:
                 for hr in web_hashrate:
                     if hr["Index"] == hb["Index"]:
@@ -319,26 +318,26 @@ class ePIC(BaseMiner):
                 pass
         return errors
 
-    def fault_light_off(self) -> bool:
+    async def fault_light_off(self) -> bool:
         return False
 
-    def fault_light_on(self) -> bool:
+    async def fault_light_on(self) -> bool:
         return False
 
-    def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
+    async def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
         pass
 
-    def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    async def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
         pass
 
-    def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+    async def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
         pass
 
-    def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+    async def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
         pass
 
-    def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         pass
 
-    def set_power_limit(self, wattage: int) -> bool:
+    async def set_power_limit(self, wattage: int) -> bool:
         return False

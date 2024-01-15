@@ -808,11 +808,6 @@ class BOSer(BaseMiner):
             except (LookupError, TypeError):
                 pass
 
-    async def _get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (BOS)"
-        return "? (BOS)"
-
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
