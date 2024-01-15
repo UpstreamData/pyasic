@@ -91,7 +91,7 @@ INNOSILICON_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),

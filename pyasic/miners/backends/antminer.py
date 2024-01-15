@@ -58,7 +58,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         str(DataOptions.FANS): DataFunction(
             "_get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors", [WebAPICommand("web_summary", "summary")]
         ),
