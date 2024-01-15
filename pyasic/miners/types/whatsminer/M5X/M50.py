@@ -23,7 +23,7 @@ class M50VE30(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VE30"
+        self.raw_model = "M50 VE30"
         self.expected_hashboards = 4
         self.expected_chips = 255
         self.fan_count = 2
@@ -33,7 +33,7 @@ class M50VG30(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VG30"
+        self.raw_model = "M50 VG30"
         self.expected_chips = 156
         self.fan_count = 2
 
@@ -42,7 +42,7 @@ class M50VH10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH10"
+        self.raw_model = "M50 VH10"
         self.expected_chips = 86
         self.fan_count = 2
 
@@ -51,7 +51,7 @@ class M50VH20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH20"
+        self.raw_model = "M50 VH20"
         self.expected_chips = 111
         self.fan_count = 2
 
@@ -60,7 +60,7 @@ class M50VH30(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH30"
+        self.raw_model = "M50 VH30"
         self.expected_chips = 117
         self.fan_count = 2
 
@@ -69,7 +69,7 @@ class M50VH40(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH40"
+        self.raw_model = "M50 VH40"
         self.expected_chips = 84
         self.fan_count = 2
 
@@ -78,7 +78,7 @@ class M50VH50(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH50"
+        self.raw_model = "M50 VH50"
         self.expected_chips = 105
         self.fan_count = 2
 
@@ -87,7 +87,7 @@ class M50VH60(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH60"
+        self.raw_model = "M50 VH60"
         self.expected_chips = 84
         self.fan_count = 2
 
@@ -96,7 +96,7 @@ class M50VH70(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH70"
+        self.raw_model = "M50 VH70"
         self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M50 VH70, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
@@ -108,7 +108,7 @@ class M50VH80(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VH80"
+        self.raw_model = "M50 VH80"
         self.expected_chips = 111
         self.fan_count = 2
 
@@ -117,7 +117,7 @@ class M50VJ10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VJ10"
+        self.raw_model = "M50 VJ10"
         self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M50 VJ10, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
@@ -129,7 +129,7 @@ class M50VJ20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VJ20"
+        self.raw_model = "M50 VJ20"
         self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M50 VJ20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
@@ -141,7 +141,7 @@ class M50VJ30(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M50 VJ30"
+        self.raw_model = "M50 VJ30"
         self.expected_chips = 0
         warnings.warn(
             "Unknown chip count for miner type M50 VJ30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."

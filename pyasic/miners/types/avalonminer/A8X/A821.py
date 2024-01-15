@@ -21,7 +21,7 @@ class Avalon821(AvalonMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "Avalon 821"
+        self.raw_model = "Avalon 821"
         self.expected_hashboards = 4
         self.expected_chips = 26
         self.fan_count = 1

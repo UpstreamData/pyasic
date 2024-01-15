@@ -15,8 +15,7 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from collections import namedtuple
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
@@ -33,36 +32,35 @@ from pyasic.miners.base import (
 
 CGMINER_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("get_mac"),
-        str(DataOptions.MODEL): DataFunction("get_model"),
+        str(DataOptions.MAC): DataFunction("_get_mac"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -181,22 +179,10 @@ class CGMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> Optional[str]:
+    async def _get_mac(self) -> Optional[str]:
         return None
 
-    async def get_version(
-        self, api_version: dict = None
-    ) -> Tuple[Optional[str], Optional[str]]:
-        miner_version = namedtuple("MinerVersion", "api_ver fw_ver")
-        return miner_version(
-            api_ver=await self.get_api_ver(api_version=api_version),
-            fw_ver=await self.get_fw_ver(api_version=api_version),
-        )
-
-    async def get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if self.api_ver:
-            return self.api_ver
-
+    async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -206,15 +192,12 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.api_ver = api_version["VERSION"][0]["API"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.api_ver
 
-    async def get_fw_ver(self, api_version: dict = None) -> Optional[str]:
-        if self.fw_ver:
-            return self.fw_ver
-
+    async def _get_fw_ver(self, api_version: dict = None) -> Optional[str]:
         if not api_version:
             try:
                 api_version = await self.api.version()
@@ -224,16 +207,16 @@ class CGMiner(BaseMiner):
         if api_version:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CGMiner"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
         return self.fw_ver
 
-    async def get_hostname(self) -> Optional[str]:
+    async def _get_hostname(self) -> Optional[str]:
         hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
         return hn
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
         if not api_summary:
             try:
@@ -246,10 +229,10 @@ class CGMiner(BaseMiner):
                 return round(
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
-    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
         if not api_stats:
@@ -298,28 +281,28 @@ class CGMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> Optional[float]:
         return None
 
-    async def get_wattage(self) -> Optional[int]:
+    async def _get_wattage(self) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def _get_wattage_limit(self) -> Optional[int]:
         return None
 
-    async def get_fans(self, api_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        fans = [Fan() for _ in range(self.fan_count)]
+        fans = [Fan() for _ in range(self.expected_fans)]
         if api_stats:
             try:
                 fan_offset = -1
@@ -332,24 +315,24 @@ class CGMiner(BaseMiner):
                 if fan_offset == -1:
                     fan_offset = 1
 
-                for fan in range(self.fan_count):
+                for fan in range(self.expected_fans):
                     fans[fan].speed = api_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
         return fans
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def _get_fan_psu(self) -> Optional[int]:
         return None
 
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> List[MinerErrorData]:
         return []
 
-    async def get_fault_light(self) -> bool:
+    async def _get_fault_light(self) -> bool:
         return False
 
-    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
         if not api_stats:
             try:
@@ -370,13 +353,13 @@ class CGMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()

@@ -30,7 +30,7 @@ class HiveonT9(Hiveon, T9):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self):
+    async def _get_mac(self):
         try:
             mac = (
                 (await self.send_ssh_command("cat /sys/class/net/eth0/address"))
@@ -41,7 +41,8 @@ class HiveonT9(Hiveon, T9):
         except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
 
-    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+
+    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
             for board in range(self.expected_hashboards)
@@ -69,21 +70,21 @@ class HiveonT9(Hiveon, T9):
                         hashboards[board].chip_temp = api_stats["STATS"][1][
                             f"temp2_{chipset}"
                         ]
-                    except (KeyError, IndexError):
+                    except LookupError:
                         pass
                     else:
                         hashboards[board].missing = False
                 try:
                     hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
                     chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
-                except (KeyError, IndexError):
+                except LookupError:
                     pass
             hashboards[board].hashrate = round(hashrate / 1000, 2)
             hashboards[board].chips = chips
 
         return hashboards
 
-    async def get_wattage(self, api_stats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, api_stats: dict = None) -> Optional[int]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -94,13 +95,13 @@ class HiveonT9(Hiveon, T9):
             boards = api_stats.get("STATS")
             try:
                 wattage_raw = boards[1]["chain_power"]
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
             else:
                 # parse wattage position out of raw data
                 return round(float(wattage_raw.split(" ")[0]))
 
-    async def get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
         env_temp_list = []
         board_map = {
             0: [2, 9, 10],
@@ -119,7 +120,7 @@ class HiveonT9(Hiveon, T9):
                         env_temp = api_stats["STATS"][1][f"temp3_{chipset}"]
                         if not env_temp == 0:
                             env_temp_list.append(int(env_temp))
-                    except (KeyError, IndexError):
+                    except LookupError:
                         pass
 
             if not env_temp_list == []:

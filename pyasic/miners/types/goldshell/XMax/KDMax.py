@@ -20,7 +20,7 @@ class KDMax(GoldshellMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "KD Max"
+        self.raw_model = "KD Max"
         self.expected_hashboards = 3
         self.expected_chips = 84
         self.fan_count = 4

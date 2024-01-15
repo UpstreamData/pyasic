@@ -13,16 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
 import inspect
-import sys
 import unittest
 import warnings
 from dataclasses import asdict
 
 from pyasic.miners.backends import CGMiner  # noqa
-from pyasic.miners.base import BaseMiner
-from pyasic.miners.miner_factory import MINER_CLASSES, MinerFactory
+from pyasic.miners.miner_factory import MINER_CLASSES
 
 
 class MinersTest(unittest.TestCase):
@@ -31,7 +28,7 @@ class MinersTest(unittest.TestCase):
         for miner_model in MINER_CLASSES.keys():
             for miner_api in MINER_CLASSES[miner_model].keys():
                 with self.subTest(
-                    msg=f"Creation of miner using model={miner_model}, api={miner_api}",
+                    msg=f"Test creation of miner",
                     miner_model=miner_model,
                     miner_api=miner_api,
                 ):
@@ -56,7 +53,6 @@ class MinersTest(unittest.TestCase):
                 "hostname",
                 "is_mining",
                 "mac",
-                "model",
                 "expected_hashrate",
                 "uptime",
                 "wattage",
@@ -67,7 +63,7 @@ class MinersTest(unittest.TestCase):
         for miner_model in MINER_CLASSES.keys():
             for miner_api in MINER_CLASSES[miner_model].keys():
                 with self.subTest(
-                    msg=f"Data map key check of miner using model={miner_model}, api={miner_api}",
+                    msg=f"Data map key check",
                     miner_model=miner_model,
                     miner_api=miner_api,
                 ):
@@ -84,7 +80,7 @@ class MinersTest(unittest.TestCase):
                 miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
                 for data_point in asdict(miner.data_locations).values():
                     with self.subTest(
-                        msg=f"Test {data_point['cmd']} signature matches with model={miner_model}, api={miner_api}",
+                        msg=f"Test {data_point['cmd']} signature matches",
                         miner_model=miner_model,
                         miner_api=miner_api,
                     ):
@@ -101,6 +97,23 @@ class MinersTest(unittest.TestCase):
                             set(param_names),
                             set([k["name"] for k in data_point["kwargs"]]),
                         )
+
+    def test_data_locations_use_private_funcs(self):
+        warnings.filterwarnings("ignore")
+        for miner_model in MINER_CLASSES.keys():
+            for miner_api in MINER_CLASSES[miner_model].keys():
+                miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+                for data_point in asdict(miner.data_locations).values():
+                    with self.subTest(
+                        msg=f"Test {data_point['cmd']} is private",
+                        miner_model=miner_model,
+                        miner_api=miner_api,
+                    ):
+                        self.assertTrue(
+                            data_point["cmd"].startswith("_")
+                            or data_point["cmd"] == "get_config"
+                        )
+
 
 
 if __name__ == "__main__":

@@ -14,8 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
 from pyasic.miners.makes import WhatsMiner
 
 
@@ -23,7 +21,7 @@ class M31V10(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M31 V10"
+        self.raw_model = "M31 V10"
         self.expected_chips = 70
         self.fan_count = 2
 
@@ -32,6 +30,6 @@ class M31V20(WhatsMiner):  # noqa - ignore ABC method implementation
     def __init__(self, ip: str, api_ver: str = "0.0.0"):
         super().__init__(ip, api_ver)
         self.ip = ip
-        self.model = "M31 V20"
+        self.raw_model = "M31 V20"
         self.expected_chips = 74
         self.fan_count = 2

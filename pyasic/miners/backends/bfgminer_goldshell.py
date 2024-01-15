@@ -32,40 +32,39 @@ from pyasic.web.goldshell import GoldshellWebAPI
 GOLDSHELL_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac", [WebAPICommand("web_setting", "setting")]
+            "_get_mac", [WebAPICommand("web_setting", "setting")]
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [WebAPICommand("web_status", "status")]
+            "_get_fw_ver", [WebAPICommand("web_status", "status")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards",
+            "_get_hashboards",
             [
                 RPCAPICommand("api_devs", "devs"),
                 RPCAPICommand("api_devdetails", "devdetails"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
+        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
-        str(DataOptions.UPTIME): DataFunction("get_uptime"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
+        str(DataOptions.UPTIME): DataFunction("_get_uptime"),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
@@ -110,7 +109,7 @@ class BFGMinerGoldshell(BFGMiner):
                 url=pool["url"], user=pool["user"], password=pool["pass"]
             )
 
-    async def get_mac(self, web_setting: dict = None) -> str:
+    async def _get_mac(self, web_setting: dict = None) -> str:
         if not web_setting:
             try:
                 web_setting = await self.web.setting()
@@ -123,7 +122,7 @@ class BFGMinerGoldshell(BFGMiner):
             except KeyError:
                 pass
 
-    async def get_fw_ver(self, web_status: dict = None) -> str:
+    async def _get_fw_ver(self, web_status: dict = None) -> str:
         if not web_status:
             try:
                 web_status = await self.web.setting()
@@ -136,7 +135,7 @@ class BFGMinerGoldshell(BFGMiner):
             except KeyError:
                 pass
 
-    async def get_hashboards(
+    async def _get_hashboards(
         self, api_devs: dict = None, api_devdetails: dict = None
     ) -> List[HashBoard]:
         if not api_devs:
@@ -186,8 +185,8 @@ class BFGMinerGoldshell(BFGMiner):
 
         return hashboards
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None

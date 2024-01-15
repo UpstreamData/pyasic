@@ -13,18 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
-import logging
-from collections import namedtuple
 from typing import List, Optional, Tuple, Union
 
-import toml
-
-from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.API.luxminer import LUXMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
+from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import (
     BaseMiner,
@@ -32,42 +26,39 @@ from pyasic.miners.base import (
     DataLocations,
     DataOptions,
     RPCAPICommand,
-    WebAPICommand,
 )
-from pyasic.web.bosminer import BOSMinerWebAPI
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac", [RPCAPICommand("api_config", "config")]
+            "_get_mac", [RPCAPICommand("api_config", "config")]
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
-        str(DataOptions.API_VERSION): DataFunction("get_api_ver"),
-        str(DataOptions.FW_VERSION): DataFunction("get_fw_ver"),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.API_VERSION): DataFunction("_get_api_ver"),
+        str(DataOptions.FW_VERSION): DataFunction("_get_fw_ver"),
+        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage", [RPCAPICommand("api_power", "power")]
+            "_get_wattage", [RPCAPICommand("api_power", "power")]
         ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "get_fans", [RPCAPICommand("api_fans", "fans")]
+            "_get_fans", [RPCAPICommand("api_fans", "fans")]
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("is_mining"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
+        str(DataOptions.ERRORS): DataFunction("_get_errors"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
+        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -83,6 +74,7 @@ class LUXMiner(BaseMiner):
 
         # static data
         self.api_type = "LUXMiner"
+        self.fw_str = "LuxOS"
         # data gathering locations
         self.data_locations = LUXMINER_DATA_LOC
         # autotuning/shutdown support
@@ -181,7 +173,7 @@ class LUXMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self, api_config: dict = None) -> Optional[str]:
+    async def _get_mac(self, api_config: dict = None) -> Optional[str]:
         mac = None
         if not api_config:
             try:
@@ -197,24 +189,19 @@ class LUXMiner(BaseMiner):
 
         return mac
 
-    async def get_model(self) -> Optional[str]:
-        if self.model is not None:
-            return self.model + " (LuxOS)"
-        return "? (LuxOS)"
-
     async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
         pass
 
-    async def get_api_ver(self) -> Optional[str]:
+    async def _get_api_ver(self) -> Optional[str]:
         pass
 
-    async def get_fw_ver(self) -> Optional[str]:
+    async def _get_fw_ver(self) -> Optional[str]:
         pass
 
-    async def get_hostname(self) -> Union[str, None]:
+    async def _get_hostname(self) -> Union[str, None]:
         pass
 
-    async def get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         if not api_summary:
             try:
                 api_summary = await self.api.summary()
@@ -224,10 +211,10 @@ class LUXMiner(BaseMiner):
         if api_summary:
             try:
                 return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
-    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
         if not api_stats:
@@ -276,15 +263,15 @@ class LUXMiner(BaseMiner):
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
         return hashboards
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> Optional[float]:
         return None
 
-    async def get_wattage(self, api_power: dict) -> Optional[int]:
+    async def _get_wattage(self, api_power: dict) -> Optional[int]:
         if not api_power:
             try:
                 api_power = await self.api.power()
@@ -294,13 +281,13 @@ class LUXMiner(BaseMiner):
         if api_power:
             try:
                 return api_power["POWER"][0]["Watts"]
-            except (IndexError, KeyError, ValueError, TypeError):
+            except (LookupError, ValueError, TypeError):
                 pass
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def _get_wattage_limit(self) -> Optional[int]:
         return None
 
-    async def get_fans(self, api_fans: dict = None) -> List[Fan]:
+    async def _get_fans(self, api_fans: dict = None) -> List[Fan]:
         if not api_fans:
             try:
                 api_fans = await self.api.fans()
@@ -310,23 +297,23 @@ class LUXMiner(BaseMiner):
         fans = []
 
         if api_fans:
-            for fan in range(self.fan_count):
+            for fan in range(self.expected_fans):
                 try:
-                    fans.append(Fan(api_fans["FANS"][0]["RPM"]))
-                except (IndexError, KeyError, ValueError, TypeError):
+                    fans.append(Fan(api_fans["FANS"][fan]["RPM"]))
+                except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def _get_fan_psu(self) -> Optional[int]:
         return None
 
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> List[MinerErrorData]:
         pass
 
-    async def get_fault_light(self) -> bool:
+    async def _get_fault_light(self) -> bool:
         pass
 
-    async def get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -346,13 +333,13 @@ class LUXMiner(BaseMiner):
                     return round(expected_rate / 1000000, 2)
                 else:
                     return round(expected_rate, 2)
-            except (KeyError, IndexError):
+            except LookupError:
                 pass
 
-    async def is_mining(self) -> Optional[bool]:
+    async def _is_mining(self) -> Optional[bool]:
         pass
 
-    async def get_uptime(self, api_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
