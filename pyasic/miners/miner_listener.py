@@ -55,10 +55,10 @@ class MinerListener(metaclass=Singleton):
 
         loop = asyncio.get_running_loop()
 
-        transport_14235, protocol_14235 = await loop.create_datagram_endpoint(
+        transport_14235, _ = await loop.create_datagram_endpoint(
             lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)  # noqa
         )
-        transport_8888, protocol_8888 = await loop.create_datagram_endpoint(
+        transport_8888, _ = await loop.create_datagram_endpoint(
             lambda: _MinerListener(), local_addr=("0.0.0.0", 8888)  # noqa
         )
 
