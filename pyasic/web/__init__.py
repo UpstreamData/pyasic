@@ -26,6 +26,7 @@ class BaseWebAPI(ABC):
         self.ip = ip  # ipaddress.ip_address(ip)
         self.username = "root"
         self.pwd = "root"
+        self.port = 80
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseWebAPI:

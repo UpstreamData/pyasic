@@ -14,8 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import unittest
-
 from tests.api_tests import *
 from tests.config_tests import TestConfig
 from tests.miners_tests import MinersTest

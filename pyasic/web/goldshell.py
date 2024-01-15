@@ -33,10 +33,10 @@ class GoldshellWebAPI(BaseWebAPI):
     async def auth(self):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
-                await client.get(f"http://{self.ip}/user/logout")
+                await client.get(f"http://{self.ip}:{self.port}/user/logout")
                 auth = (
                     await client.get(
-                        f"http://{self.ip}/user/login?username={self.username}&password={self.pwd}&cipher=false"
+                        f"http://{self.ip}:{self.port}/user/login?username={self.username}&password={self.pwd}&cipher=false"
                     )
                 ).json()
             except httpx.HTTPError:
@@ -46,7 +46,7 @@ class GoldshellWebAPI(BaseWebAPI):
                 try:
                     auth = (
                         await client.get(
-                            f"http://{self.ip}/user/login?username=admin&password=bbad7537f4c8b6ea31eea0b3d760e257&cipher=true"
+                            f"http://{self.ip}:{self.port}/user/login?username=admin&password=bbad7537f4c8b6ea31eea0b3d760e257&cipher=true"
                         )
                     ).json()
                 except (httpx.HTTPError, json.JSONDecodeError):
@@ -76,14 +76,14 @@ class GoldshellWebAPI(BaseWebAPI):
                 try:
                     if parameters:
                         response = await client.put(
-                            f"http://{self.ip}/mcb/{command}",
+                            f"http://{self.ip}:{self.port}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
                             timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
-                            f"http://{self.ip}/mcb/{command}",
+                            f"http://{self.ip}:{self.port}/mcb/{command}",
                             headers={"Authorization": "Bearer " + self.jwt},
                             timeout=settings.get("api_function_timeout", 5),
                         )
@@ -106,7 +106,7 @@ class GoldshellWebAPI(BaseWebAPI):
             for command in commands:
                 try:
                     response = await client.get(
-                        f"http://{self.ip}/mcb/{command}",
+                        f"http://{self.ip}:{self.port}/mcb/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
                         timeout=settings.get("api_function_timeout", 5),
                     )

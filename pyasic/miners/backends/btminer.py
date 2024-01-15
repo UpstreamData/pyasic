@@ -557,7 +557,6 @@ class BTMiner(BaseMiner):
                         errors.append(WhatsminerError(error_code=err))
             except (LookupError, ValueError, TypeError):
                 pass
-
         return errors
 
     async def _get_expected_hashrate(self, api_summary: dict = None):

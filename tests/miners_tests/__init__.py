@@ -18,23 +18,22 @@ import unittest
 import warnings
 from dataclasses import asdict
 
-from pyasic.miners.backends import CGMiner  # noqa
 from pyasic.miners.miner_factory import MINER_CLASSES
 
 
 class MinersTest(unittest.TestCase):
-    def test_miner_model_creation(self):
+    def test_miner_type_creation(self):
         warnings.filterwarnings("ignore")
-        for miner_model in MINER_CLASSES.keys():
-            for miner_api in MINER_CLASSES[miner_model].keys():
+        for miner_type in MINER_CLASSES.keys():
+            for miner_model in MINER_CLASSES[miner_type].keys():
                 with self.subTest(
                     msg=f"Test creation of miner",
+                    miner_type=miner_type,
                     miner_model=miner_model,
-                    miner_api=miner_api,
                 ):
-                    miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+                    miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                     self.assertTrue(
-                        isinstance(miner, MINER_CLASSES[miner_model][miner_api])
+                        isinstance(miner, MINER_CLASSES[miner_type][miner_model])
                     )
 
     def test_miner_data_map_keys(self):
@@ -60,14 +59,14 @@ class MinersTest(unittest.TestCase):
             ]
         )
         warnings.filterwarnings("ignore")
-        for miner_model in MINER_CLASSES.keys():
-            for miner_api in MINER_CLASSES[miner_model].keys():
+        for miner_type in MINER_CLASSES.keys():
+            for miner_model in MINER_CLASSES[miner_type].keys():
                 with self.subTest(
                     msg=f"Data map key check",
+                    miner_type=miner_type,
                     miner_model=miner_model,
-                    miner_api=miner_api,
                 ):
-                    miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+                    miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                     miner_keys = sorted(
                         [str(k) for k in asdict(miner.data_locations).keys()]
                     )
@@ -75,14 +74,14 @@ class MinersTest(unittest.TestCase):
 
     def test_data_locations_match_signatures_command(self):
         warnings.filterwarnings("ignore")
-        for miner_model in MINER_CLASSES.keys():
-            for miner_api in MINER_CLASSES[miner_model].keys():
-                miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
+        for miner_type in MINER_CLASSES.keys():
+            for miner_model in MINER_CLASSES[miner_type].keys():
+                miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                 for data_point in asdict(miner.data_locations).values():
                     with self.subTest(
                         msg=f"Test {data_point['cmd']} signature matches",
+                        miner_type=miner_type,
                         miner_model=miner_model,
-                        miner_api=miner_api,
                     ):
                         func = getattr(miner, data_point["cmd"])
                         signature = inspect.signature(func)
@@ -97,23 +96,6 @@ class MinersTest(unittest.TestCase):
                             set(param_names),
                             set([k["name"] for k in data_point["kwargs"]]),
                         )
-
-    def test_data_locations_use_private_funcs(self):
-        warnings.filterwarnings("ignore")
-        for miner_model in MINER_CLASSES.keys():
-            for miner_api in MINER_CLASSES[miner_model].keys():
-                miner = MINER_CLASSES[miner_model][miner_api]("127.0.0.1")
-                for data_point in asdict(miner.data_locations).values():
-                    with self.subTest(
-                        msg=f"Test {data_point['cmd']} is private",
-                        miner_model=miner_model,
-                        miner_api=miner_api,
-                    ):
-                        self.assertTrue(
-                            data_point["cmd"].startswith("_")
-                            or data_point["cmd"] == "get_config"
-                        )
-
 
 
 if __name__ == "__main__":

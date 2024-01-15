@@ -17,7 +17,7 @@ from .antminer import AntminerModern, AntminerOld
 from .bfgminer import BFGMiner
 from .bfgminer_goldshell import BFGMinerGoldshell
 from .bmminer import BMMiner
-from .bosminer import BOSMiner
+from .braiins_os import BOSer, BOSMiner
 from .btminer import BTMiner
 from .cgminer import CGMiner
 from .cgminer_avalon import CGMinerAvalon

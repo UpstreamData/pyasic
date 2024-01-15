@@ -22,7 +22,7 @@ from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPIC
 
 HIVEON_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("_get_mac"),
+        str(DataOptions.MAC): DataFunction("get_mac"),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
@@ -45,7 +45,7 @@ HIVEON_DATA_LOC = DataLocations(
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage", [RPCAPICommand("api_stats", "stats")]
         ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction("get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
             "_get_fans", [RPCAPICommand("api_stats", "stats")]
         ),
@@ -67,7 +67,6 @@ class Hiveon(BMMiner):
         self.pwd = "admin"
         # static data
         self.api_type = "Hiveon"
-        self.fw_str = "Hive"
         # data gathering locations
         self.data_locations = HIVEON_DATA_LOC
 

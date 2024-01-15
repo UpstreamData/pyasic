@@ -142,7 +142,7 @@ class BaseMiner(ABC):
 
     @property
     def model(self):
-        model_data = [self.raw_model]
+        model_data = [self.raw_model if self.raw_model is not None else "Unknown"]
         if self.fw_str is not None:
             model_data.append(f"({self.fw_str})")
         return " ".join(model_data)

@@ -30,7 +30,7 @@ class HiveonT9(Hiveon, T9):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self):
+    async def get_mac(self):
         try:
             mac = (
                 (await self.send_ssh_command("cat /sys/class/net/eth0/address"))
@@ -40,7 +40,6 @@ class HiveonT9(Hiveon, T9):
             return mac
         except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
-
 
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
@@ -70,14 +69,14 @@ class HiveonT9(Hiveon, T9):
                         hashboards[board].chip_temp = api_stats["STATS"][1][
                             f"temp2_{chipset}"
                         ]
-                    except LookupError:
+                    except (KeyError, IndexError):
                         pass
                     else:
                         hashboards[board].missing = False
                 try:
                     hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
                     chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
-                except LookupError:
+                except (KeyError, IndexError):
                     pass
             hashboards[board].hashrate = round(hashrate / 1000, 2)
             hashboards[board].chips = chips
@@ -95,7 +94,7 @@ class HiveonT9(Hiveon, T9):
             boards = api_stats.get("STATS")
             try:
                 wattage_raw = boards[1]["chain_power"]
-            except LookupError:
+            except (KeyError, IndexError):
                 pass
             else:
                 # parse wattage position out of raw data
@@ -120,7 +119,7 @@ class HiveonT9(Hiveon, T9):
                         env_temp = api_stats["STATS"][1][f"temp3_{chipset}"]
                         if not env_temp == 0:
                             env_temp_list.append(int(env_temp))
-                    except LookupError:
+                    except (KeyError, IndexError):
                         pass
 
             if not env_temp_list == []:

@@ -29,6 +29,7 @@ class ePICWebAPI(BaseWebAPI):
         self.username = "root"
         self.pwd = settings.get("default_epic_password", "letmein")
         self.token = None
+        self.port = 4028
 
     async def send_command(
         self,
@@ -50,13 +51,13 @@ class ePICWebAPI(BaseWebAPI):
                             "password": self.pwd,
                         }
                         response = await client.post(
-                            f"http://{self.ip}:4028/{command}",
+                            f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
                             json=epic_param,
                         )
                     else:
                         response = await client.get(
-                            f"http://{self.ip}:4028/{command}",
+                            f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
                         )
                     if not response.status_code == 200:
@@ -88,10 +89,10 @@ class ePICWebAPI(BaseWebAPI):
         return data
 
     async def restart_epic(self) -> dict:
-        return await self.send_command("softreboot", post=True, parameters=None)
+        return await self.send_command("softreboot", post=True)
 
     async def reboot(self) -> dict:
-        return await self.send_command("reboot", post=True, parameters=None)
+        return await self.send_command("reboot", post=True)
 
     async def pause_mining(self) -> dict:
         return await self.send_command("miner", post=True, parameters="Stop")

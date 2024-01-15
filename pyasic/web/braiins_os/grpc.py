@@ -13,256 +13,18 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import json
+import asyncio
+import logging
 from datetime import timedelta
-from typing import Union
 
-import httpx
 from betterproto import Message
+from grpclib import GRPCError, Status
 from grpclib.client import Channel
 
-from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.web import BaseWebAPI
 
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *
-
-
-class BOSMinerWebAPI(BaseWebAPI):
-    def __init__(self, ip: str, boser: bool = None) -> None:
-        if boser is None:
-            boser = True
-
-        if boser:
-            self.gql = BOSMinerGQLAPI(
-                ip, settings.get("default_bosminer_password", "root")
-            )
-            self.grpc = BOSMinerGRPCAPI(
-                ip, settings.get("default_bosminer_password", "root")
-            )
-        else:
-            self.gql = None
-            self.grpc = None
-        self.luci = BOSMinerLuCIAPI(
-            ip, settings.get("default_bosminer_password", "root")
-        )
-
-        self._pwd = settings.get("default_bosminer_password", "root")
-        super().__init__(ip)
-
-    @property
-    def pwd(self):
-        return self._pwd
-
-    @pwd.setter
-    def pwd(self, other: str):
-        self._pwd = other
-        self.luci.pwd = other
-        if self.gql is not None:
-            self.gql.pwd = other
-        if self.grpc is not None:
-            self.grpc.pwd = other
-
-    async def send_command(
-        self,
-        command: Union[str, dict],
-        ignore_errors: bool = False,
-        allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
-    ) -> dict:
-        if isinstance(command, dict):
-            if self.gql is not None:
-                return await self.gql.send_command(command)
-        elif command.startswith("/cgi-bin/luci"):
-            return await self.gql.send_command(command)
-        else:
-            if self.grpc is not None:
-                return await self.grpc.send_command(command)
-
-    async def multicommand(
-        self, *commands: Union[dict, str], allow_warning: bool = True
-    ) -> dict:
-        luci_commands = []
-        gql_commands = []
-        grpc_commands = []
-        for cmd in commands:
-            if isinstance(cmd, dict):
-                gql_commands.append(cmd)
-            elif cmd.startswith("/cgi-bin/luci"):
-                luci_commands.append(cmd)
-            else:
-                grpc_commands.append(cmd)
-
-        luci_data = await self.luci.multicommand(*luci_commands)
-        if self.gql is not None:
-            gql_data = await self.gql.multicommand(*gql_commands)
-        else:
-            gql_data = None
-        if self.grpc is not None:
-            grpc_data = await self.grpc.multicommand(*grpc_commands)
-        else:
-            grpc_data = None
-
-        if gql_data is None:
-            gql_data = {}
-        if luci_data is None:
-            luci_data = {}
-        if grpc_data is None:
-            grpc_data = {}
-
-        data = dict(**luci_data, **gql_data, **grpc_data)
-        return data
-
-
-class BOSMinerGQLAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
-        self.username = "root"
-        self.pwd = pwd
-
-    async def multicommand(self, *commands: dict) -> dict:
-        def merge(*d: dict):
-            ret = {}
-            for i in d:
-                if i:
-                    for k in i:
-                        if not k in ret:
-                            ret[k] = i[k]
-                        else:
-                            ret[k] = merge(ret[k], i[k])
-            return None if ret == {} else ret
-
-        command = merge(*commands)
-        data = await self.send_command(command)
-        if data is not None:
-            if data.get("data") is None:
-                try:
-                    commands = list(commands)
-                    # noinspection PyTypeChecker
-                    commands.remove({"bos": {"faultLight": None}})
-                    command = merge(*commands)
-                    data = await self.send_command(command)
-                except (LookupError, ValueError):
-                    pass
-            if not data:
-                data = {}
-            data["multicommand"] = False
-            return data
-
-    async def send_command(
-        self,
-        command: dict,
-    ) -> dict:
-        url = f"http://{self.ip}/graphql"
-        query = command
-        if command is None:
-            return {}
-        if command.get("query") is None:
-            query = {"query": self.parse_command(command)}
-        try:
-            async with httpx.AsyncClient(transport=settings.transport()) as client:
-                await self.auth(client)
-                data = await client.post(url, json=query)
-        except httpx.HTTPError:
-            pass
-        else:
-            if data.status_code == 200:
-                try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
-
-    def parse_command(self, graphql_command: Union[dict, set]) -> str:
-        if isinstance(graphql_command, dict):
-            data = []
-            for key in graphql_command:
-                if graphql_command[key] is not None:
-                    parsed = self.parse_command(graphql_command[key])
-                    data.append(key + parsed)
-                else:
-                    data.append(key)
-        else:
-            data = graphql_command
-        return "{" + ",".join(data) + "}"
-
-    async def auth(self, client: httpx.AsyncClient) -> None:
-        url = f"http://{self.ip}/graphql"
-        await client.post(
-            url,
-            json={
-                "query": (
-                    'mutation{auth{login(username:"'
-                    + "root"
-                    + '", password:"'
-                    + self.pwd
-                    + '"){__typename}}}'
-                )
-            },
-        )
-
-
-class BOSMinerLuCIAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
-        self.username = "root"
-        self.pwd = pwd
-
-    async def multicommand(self, *commands: str) -> dict:
-        data = {}
-        for command in commands:
-            data[command] = await self.send_command(command, ignore_errors=True)
-        return data
-
-    async def send_command(self, path: str, ignore_errors: bool = False) -> dict:
-        try:
-            async with httpx.AsyncClient(transport=settings.transport()) as client:
-                await self.auth(client)
-                data = await client.get(
-                    f"http://{self.ip}{path}", headers={"User-Agent": "BTC Tools v0.1"}
-                )
-                if data.status_code == 200:
-                    return data.json()
-                if ignore_errors:
-                    return {}
-                raise APIError(
-                    f"Web command failed: path={path}, code={data.status_code}"
-                )
-        except (httpx.HTTPError, json.JSONDecodeError):
-            if ignore_errors:
-                return {}
-            raise APIError(f"Web command failed: path={path}")
-
-    async def auth(self, session: httpx.AsyncClient):
-        login = {"luci_username": self.username, "luci_password": self.pwd}
-        url = f"http://{self.ip}/cgi-bin/luci"
-        headers = {
-            "User-Agent": (
-                "BTC Tools v0.1"
-            ),  # only seems to respond if this user-agent is set
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-        await session.post(url, headers=headers, data=login)
-
-    async def get_net_conf(self):
-        return await self.send_command("/cgi-bin/luci/admin/network/iface_status/lan")
-
-    async def get_cfg_metadata(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_metadata")
-
-    async def get_cfg_data(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/cfg_data")
-
-    async def get_bos_info(self):
-        return await self.send_command("/cgi-bin/luci/bos/info")
-
-    async def get_overview(self):
-        return await self.send_command(
-            "/cgi-bin/luci/admin/status/overview?status=1"
-        )  # needs status=1 or it fails
-
-    async def get_api_status(self):
-        return await self.send_command("/cgi-bin/luci/admin/miner/api_status")
 
 
 class BOSMinerGRPCStub(
@@ -279,11 +41,12 @@ class BOSMinerGRPCStub(
     pass
 
 
-class BOSMinerGRPCAPI:
+class BOSerGRPCAPI:
     def __init__(self, ip: str, pwd: str):
         self.ip = ip
         self.username = "root"
         self.pwd = pwd
+        self.port = 50051
         self._auth = None
         self._auth_time = datetime.now()
 
@@ -305,7 +68,20 @@ class BOSMinerGRPCAPI:
         ]
 
     async def multicommand(self, *commands: str) -> dict:
-        pass
+        result = {"multicommand": True}
+        tasks = {}
+        for command in commands:
+            try:
+                tasks[command] = asyncio.create_task(getattr(self, command)())
+            except AttributeError:
+                result["command"] = {}
+
+        await asyncio.gather(*list(tasks.values()))
+
+        for cmd in tasks:
+            result[cmd] = tasks[cmd].result()
+
+        return result
 
     async def send_command(
         self,
@@ -317,13 +93,23 @@ class BOSMinerGRPCAPI:
         metadata = []
         if auth:
             metadata.append(("authorization", await self.auth()))
-        async with Channel(self.ip, 50051) as c:
-            endpoint = getattr(BOSMinerGRPCStub(c), command)
-            if endpoint is None:
-                if not ignore_errors:
-                    raise APIError(f"Command not found - {endpoint}")
-                return {}
-            return (await endpoint(message, metadata=metadata)).to_pydict()
+        try:
+            async with Channel(self.ip, self.port) as c:
+                endpoint = getattr(BOSMinerGRPCStub(c), command)
+                if endpoint is None:
+                    if not ignore_errors:
+                        raise APIError(f"Command not found - {endpoint}")
+                    return {}
+                try:
+                    return (await endpoint(message, metadata=metadata)).to_pydict()
+                except GRPCError as e:
+                    if e.status == Status.UNAUTHENTICATED:
+                        await self._get_auth()
+                        metadata = [("authorization", await self.auth())]
+                        return (await endpoint(message, metadata=metadata)).to_pydict()
+                    raise e
+        except GRPCError as e:
+            raise APIError(f"gRPC command failed - {endpoint}") from e
 
     async def auth(self):
         if self._auth is not None and self._auth_time - datetime.now() < timedelta(
@@ -334,7 +120,7 @@ class BOSMinerGRPCAPI:
         return self._auth
 
     async def _get_auth(self):
-        async with Channel(self.ip, 50051) as c:
+        async with Channel(self.ip, self.port) as c:
             req = LoginRequest(username=self.username, password=self.pwd)
             async with c.request(
                 "/braiins.bos.v1.AuthenticationService/Login",
@@ -379,7 +165,9 @@ class BOSMinerGRPCAPI:
         )
 
     async def get_locate_device_status(self):
-        return await self.send_command("get_locate_device_status")
+        return await self.send_command(
+            "get_locate_device_status", GetLocateDeviceStatusRequest()
+        )
 
     async def set_password(self, password: str = None):
         return await self.send_command(
@@ -402,10 +190,12 @@ class BOSMinerGRPCAPI:
         )
 
     async def get_tuner_state(self):
-        return await self.send_command("get_tuner_state")
+        return await self.send_command("get_tuner_state", GetTunerStateRequest())
 
     async def list_target_profiles(self):
-        return await self.send_command("list_target_profiles")
+        return await self.send_command(
+            "list_target_profiles", ListTargetProfilesRequest()
+        )
 
     async def set_default_power_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
@@ -506,15 +296,71 @@ class BOSMinerGRPCAPI:
 
     async def set_dps(
         self,
+        enable: bool,
+        power_step: int,
+        min_power_target: int,
+        enable_shutdown: bool = None,
+        shutdown_duration: int = None,
     ):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PerformanceService/SetDPS")
-
-    async def set_performance_mode(self):
-        raise NotImplementedError
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetPerformanceMode"
+            "set_dps",
+            message=SetDpsRequest(
+                enable=enable,
+                enable_shutdown=enable_shutdown,
+                shutdown_duration=shutdown_duration,
+                target=DpsTarget(
+                    power_target=DpsPowerTarget(
+                        power_step=Power(power_step),
+                        min_power_target=Power(min_power_target),
+                    )
+                ),
+            ),
         )
+
+    async def set_performance_mode(
+        self,
+        wattage_target: int = None,
+        hashrate_target: int = None,
+        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+    ):
+        if wattage_target is not None and hashrate_target is not None:
+            logging.error(
+                "Cannot use both wattage_target and hashrate_target, using wattage_target."
+            )
+        elif wattage_target is None and hashrate_target is None:
+            raise APIError(
+                "No target supplied, please supply either wattage_target or hashrate_target."
+            )
+        if wattage_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            power_target=PowerTargetMode(
+                                power_target=Power(watt=wattage_target)
+                            )
+                        )
+                    ),
+                ),
+            )
+        if hashrate_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            hashrate_target=HashrateTargetMode(
+                                hashrate_target=TeraHashrate(
+                                    terahash_per_second=hashrate_target
+                                )
+                            )
+                        )
+                    ),
+                ),
+            )
 
     async def get_active_performance_mode(self):
         return await self.send_command(

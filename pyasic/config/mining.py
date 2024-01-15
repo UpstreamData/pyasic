@@ -17,6 +17,16 @@ from dataclasses import dataclass, field
 from typing import Dict, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    HashrateTargetMode,
+    PerformanceMode,
+    Power,
+    PowerTargetMode,
+    SaveAction,
+    SetPerformanceModeRequest,
+    TeraHashrate,
+    TunerPerformanceMode,
+)
 
 
 @dataclass
@@ -99,6 +109,20 @@ class MiningModePowerTune(MinerConfigValue):
     def as_bosminer(self) -> dict:
         return {"autotuning": {"enabled": True, "psu_power_limit": self.power}}
 
+    def as_boser(self) -> dict:
+        return {
+            "set_performance_mode": SetPerformanceModeRequest(
+                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                mode=PerformanceMode(
+                    tuner_mode=TunerPerformanceMode(
+                        power_target=PowerTargetMode(
+                            power_target=Power(watt=self.power)
+                        )
+                    )
+                ),
+            ),
+        }
+
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
@@ -111,6 +135,22 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
+
+    def as_boser(self) -> dict:
+        return {
+            "set_performance_mode": SetPerformanceModeRequest(
+                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                mode=PerformanceMode(
+                    tuner_mode=TunerPerformanceMode(
+                        hashrate_target=HashrateTargetMode(
+                            hashrate_target=TeraHashrate(
+                                terahash_per_second=self.hashrate
+                            )
+                        )
+                    )
+                ),
+            )
+        }
 
 
 @dataclass
@@ -260,3 +300,33 @@ class MiningModeConfig(MinerConfigOption):
             return MiningModeManual.from_vnish(mode_settings)
         else:
             return cls.power_tuning(int(mode_settings["preset"]))
+
+    @classmethod
+    def from_boser(cls, grpc_miner_conf: dict):
+        try:
+            tuner_conf = grpc_miner_conf["tuner"]
+            if not tuner_conf.get("enabled", False):
+                return cls.default()
+        except LookupError:
+            return cls.default()
+
+        if tuner_conf.get("tunerMode") is not None:
+            if tuner_conf["tunerMode"] == 1:
+                if tuner_conf.get("powerTarget") is not None:
+                    return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
+                return cls.power_tuning()
+
+            if tuner_conf["tunerMode"] == 2:
+                if tuner_conf.get("hashrateTarget") is not None:
+                    return cls.hashrate_tuning(
+                        int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+                    )
+                return cls.hashrate_tuning()
+
+        if tuner_conf.get("powerTarget") is not None:
+            return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
+
+        if tuner_conf.get("hashrateTarget") is not None:
+            return cls.hashrate_tuning(
+                int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+            )

@@ -34,7 +34,7 @@ class VNishWebAPI(BaseWebAPI):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
-                    f"http://{self.ip}/api/v1/unlock",
+                    f"http://{self.ip}:{self.port}/api/v1/unlock",
                     json={"pw": self.pwd},
                 )
             except httpx.HTTPError:
@@ -68,21 +68,21 @@ class VNishWebAPI(BaseWebAPI):
                     if parameters.get("post"):
                         parameters.pop("post")
                         response = await client.post(
-                            f"http://{self.ip}/api/v1/{command}",
+                            f"http://{self.ip}:{self.port}/api/v1/{command}",
                             headers={"Authorization": auth},
                             timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     elif not parameters == {}:
                         response = await client.post(
-                            f"http://{self.ip}/api/v1/{command}",
+                            f"http://{self.ip}:{self.port}/api/v1/{command}",
                             headers={"Authorization": auth},
                             timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
-                            f"http://{self.ip}/api/v1/{command}",
+                            f"http://{self.ip}:{self.port}/api/v1/{command}",
                             headers={"Authorization": auth},
                             timeout=settings.get("api_function_timeout", 5),
                         )
@@ -145,3 +145,6 @@ class VNishWebAPI(BaseWebAPI):
 
     async def settings(self):
         return await self.send_command("settings")
+
+    async def autotune_presets(self):
+        return await self.send_command("autotune/presets")
