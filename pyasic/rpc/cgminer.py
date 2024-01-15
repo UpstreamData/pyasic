@@ -16,17 +16,17 @@
 import asyncio
 import logging
 
-from pyasic.API import APIError, BaseMinerAPI
+from pyasic.rpc import APIError, BaseMinerRPCAPI
 
 
-class BFGMinerAPI(BaseMinerAPI):
-    """An abstraction of the BFGMiner API.
+class CGMinerRPCAPI(BaseMinerRPCAPI):
+    """An abstraction of the CGMiner API.
 
-    Each method corresponds to an API command in BFGMiner.
+    Each method corresponds to an API command in GGMiner.
 
-    [BFGMiner API documentation](https://github.com/luke-jr/bfgminer/blob/bfgminer/README.RPC)
+    [CGMiner API documentation](https://github.com/ckolivas/cgminer/blob/master/API-README)
 
-    This class abstracts use of the BFGMiner API, as well as the
+    This class abstracts use of the CGMiner API, as well as the
     methods for sending commands to it.  The self.send_command()
     function handles sending a command to the miner asynchronously, and
     as such is the base for many of the functions in this class, which
@@ -137,30 +137,22 @@ class BFGMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("devs")
 
-    async def procs(self) -> dict:
-        """Get data on each processor with their details.
-        <details>
-            <summary>Expand</summary>
-
-        Returns:
-            Data on each processor with their details.
-        </details>
-        """
-        return await self.send_command("procs")
-
-    async def devscan(self, info: str = "") -> dict:
-        """Get data on each processor with their details.
+    async def edevs(self, old: bool = False) -> dict:
+        """Get data on each PGA/ASC with their details, ignoring blacklisted and zombie devices.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            info: Info to scan for device by.
+            old: Include zombie devices that became zombies less than 'old' seconds ago
 
         Returns:
-            Data on each processor with their details.
+            Data on each PGA/ASC with their details.
         </details>
         """
-        return await self.send_command("devscan", parameters=info)
+        if old:
+            return await self.send_command("edevs", parameters=old)
+        else:
+            return await self.send_command("edevs")
 
     async def pga(self, n: int) -> dict:
         """Get data from PGA n.
@@ -176,20 +168,6 @@ class BFGMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("pga", parameters=n)
 
-    async def proc(self, n: int = 0) -> dict:
-        """Get data processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The processor to get data on.
-
-        Returns:
-            Data on processor n.
-        </details>
-        """
-        return await self.send_command("proc", parameters=n)
-
     async def pgacount(self) -> dict:
         """Get data fon all PGAs.
         <details>
@@ -200,17 +178,6 @@ class BFGMinerAPI(BaseMinerAPI):
         </details>
         """
         return await self.send_command("pgacount")
-
-    async def proccount(self) -> dict:
-        """Get data fon all processors.
-        <details>
-            <summary>Expand</summary>
-
-        Returns:
-            Data on the processors connected.
-        </details>
-        """
-        return await self.send_command("proccount")
 
     async def switchpool(self, n: int) -> dict:
         """Switch pools to pool n.
@@ -394,20 +361,6 @@ class BFGMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("pgadisable", parameters=n)
 
-    async def pgarestart(self, n: int) -> dict:
-        """Restart PGA n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The PGA to restart.
-
-        Returns:
-            A confirmation of restarting PGA n.
-        </details>
-        """
-        return await self.send_command("pgadisable", parameters=n)
-
     async def pgaidentify(self, n: int) -> dict:
         """Identify PGA n.
         <details>
@@ -421,62 +374,6 @@ class BFGMinerAPI(BaseMinerAPI):
         </details>
         """
         return await self.send_command("pgaidentify", parameters=n)
-
-    async def procenable(self, n: int) -> dict:
-        """Enable processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The processor to enable.
-
-        Returns:
-            A confirmation of enabling processor n.
-        </details>
-        """
-        return await self.send_command("procenable", parameters=n)
-
-    async def procdisable(self, n: int) -> dict:
-        """Disable processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The processor to disable.
-
-        Returns:
-            A confirmation of disabling processor n.
-        </details>
-        """
-        return await self.send_command("procdisable", parameters=n)
-
-    async def procrestart(self, n: int) -> dict:
-        """Restart processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The processor to restart.
-
-        Returns:
-            A confirmation of restarting processor n.
-        </details>
-        """
-        return await self.send_command("procdisable", parameters=n)
-
-    async def procidentify(self, n: int) -> dict:
-        """Identify processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            n: The processor to identify.
-
-        Returns:
-            A confirmation of identifying processor n.
-        </details>
-        """
-        return await self.send_command("procidentify", parameters=n)
 
     async def devdetails(self) -> dict:
         """Get data on all devices with their static details.
@@ -510,6 +407,23 @@ class BFGMinerAPI(BaseMinerAPI):
         </details>
         """
         return await self.send_command("stats")
+
+    async def estats(self, old: bool = False) -> dict:
+        """Get stats of each device/pool with more than 1 getwork, ignoring zombie devices.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            old: Include zombie devices that became zombies less than 'old' seconds ago.
+
+        Returns:
+            Stats of each device/pool with more than 1 getwork, ignoring zombie devices.
+        </details>
+        """
+        if old:
+            return await self.send_command("estats", parameters=old)
+        else:
+            return await self.send_command("estats")
 
     async def check(self, command: str) -> dict:
         """Check if the command command exists in CGMiner.
@@ -599,6 +513,17 @@ class BFGMinerAPI(BaseMinerAPI):
         """
         return await self.send_command("setconfig", parameters=f"{name},{n}")
 
+    async def usbstats(self) -> dict:
+        """Get stats of all USB devices except ztex.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            The stats of all USB devices except ztex.
+        </details>
+        """
+        return await self.send_command("usbstats")
+
     async def pgaset(self, n: int, opt: str, val: int = None) -> dict:
         """Set PGA option opt to val on PGA n.
         <details>
@@ -608,39 +533,10 @@ class BFGMinerAPI(BaseMinerAPI):
         ```
             MMQ -
                 opt: clock
-                val: 2 - 250 (multiple of 2)
-            XBS -
+                val: 160 - 230 (multiple of 2)
+            CMR -
                 opt: clock
-                val: 2 - 250 (multiple of 2)
-        ```
-
-        Parameters:
-            n: The PGA to set the options on.
-            opt: The option to set. Setting this to 'help' returns a help message.
-            val: The value to set the option to.
-
-        Returns:
-            Confirmation of setting PGA n with opt[,val].
-        </details>
-        """
-        if val:
-            return await self.send_command("pgaset", parameters=f"{n},{opt},{val}")
-        else:
-            return await self.send_command("pgaset", parameters=f"{n},{opt}")
-
-    async def pprocset(self, n: int, opt: str, val: int = None) -> dict:
-        """Set processor option opt to val on processor n.
-        <details>
-            <summary>Expand</summary>
-
-        Options:
-        ```
-            MMQ -
-                opt: clock
-                val: 2 - 250 (multiple of 2)
-            XBS -
-                opt: clock
-                val: 2 - 250 (multiple of 2)
+                val: 100 - 220
         ```
 
         Parameters:
@@ -672,3 +568,162 @@ class BFGMinerAPI(BaseMinerAPI):
         </details>
         """
         return await self.send_command("zero", parameters=f"{which},{summary}")
+
+    async def hotplug(self, n: int) -> dict:
+        """Enable hotplug.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            n: The device number to set hotplug on.
+
+        Returns:
+            Information on hotplug status.
+        </details>
+        """
+        return await self.send_command("hotplug", parameters=n)
+
+    async def asc(self, n: int) -> dict:
+        """Get data for ASC device n.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            n: The device to get data for.
+
+        Returns:
+            The data for ASC device n.
+        </details>
+        """
+        return await self.send_command("asc", parameters=n)
+
+    async def ascenable(self, n: int) -> dict:
+        """Enable ASC device n.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            n: The device to enable.
+
+        Returns:
+            Confirmation of enabling ASC device n.
+        </details>
+        """
+        return await self.send_command("ascenable", parameters=n)
+
+    async def ascdisable(self, n: int) -> dict:
+        """Disable ASC device n.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            n: The device to disable.
+
+        Returns:
+            Confirmation of disabling ASC device n.
+        </details>
+        """
+        return await self.send_command("ascdisable", parameters=n)
+
+    async def ascidentify(self, n: int) -> dict:
+        """Identify ASC device n.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            n: The device to identify.
+
+        Returns:
+            Confirmation of identifying ASC device n.
+        </details>
+        """
+        return await self.send_command("ascidentify", parameters=n)
+
+    async def asccount(self) -> dict:
+        """Get data on the number of ASC devices and their info.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            Data on all ASC devices.
+        </details>
+        """
+        return await self.send_command("asccount")
+
+    async def ascset(self, n: int, opt: str, val: int = None) -> dict:
+        """Set ASC n option opt to value val.
+        <details>
+            <summary>Expand</summary>
+
+        Sets an option on the ASC n to a value.  Allowed options are:
+        ```
+            AVA+BTB -
+                opt: freq
+                val: 256 - 1024 (chip frequency)
+            BTB -
+                opt: millivolts
+                val: 1000 - 1400 (core voltage)
+            MBA -
+                opt: reset
+                val: 0 - # of chips (reset a chip)
+
+                opt: freq
+                val: 0 - # of chips, 100 - 1400 (chip frequency)
+
+                opt: ledcount
+                val: 0 - 100 (chip count for LED)
+
+                opt: ledlimit
+                val: 0 - 200 (LED off below GH/s)
+
+                opt: spidelay
+                val: 0 - 9999 (SPI per I/O delay)
+
+                opt: spireset
+                val: i or s, 0 - 9999 (SPI regular reset)
+
+                opt: spisleep
+                val: 0 - 9999 (SPI reset sleep in ms)
+            BMA -
+                opt: volt
+                val: 0 - 9
+
+                opt: clock
+                val: 0 - 15
+        ```
+
+        Parameters:
+            n: The ASC to set the options on.
+            opt: The option to set. Setting this to 'help' returns a help message.
+            val: The value to set the option to.
+
+        Returns:
+            Confirmation of setting option opt to value val.
+        </details>
+        """
+        if val:
+            return await self.send_command("ascset", parameters=f"{n},{opt},{val}")
+        else:
+            return await self.send_command("ascset", parameters=f"{n},{opt}")
+
+    async def lcd(self) -> dict:
+        """Get a general all-in-one status summary of the miner.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            An all-in-one status summary of the miner.
+        </details>
+        """
+        return await self.send_command("lcd")
+
+    async def lockstats(self) -> dict:
+        """Write lockstats to STDERR.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            The result of writing the lock stats to STDERR.
+        </details>
+        """
+        return await self.send_command("lockstats")

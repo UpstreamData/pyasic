@@ -25,7 +25,7 @@ from typing import Union
 from pyasic.errors import APIError, APIWarning
 
 
-class BaseMinerAPI:
+class BaseMinerRPCAPI:
     def __init__(self, ip: str, port: int = 4028) -> None:
         # api port, should be 4028
         self.port = port
@@ -35,7 +35,7 @@ class BaseMinerAPI:
         self.pwd = "admin"
 
     def __new__(cls, *args, **kwargs):
-        if cls is BaseMinerAPI:
+        if cls is BaseMinerRPCAPI:
             raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
         return object.__new__(cls)
 
@@ -164,8 +164,8 @@ class BaseMinerAPI:
             func
             not in [
                 func
-                for func in dir(BaseMinerAPI)
-                if callable(getattr(BaseMinerAPI, func))
+                for func in dir(BaseMinerRPCAPI)
+                if callable(getattr(BaseMinerRPCAPI, func))
             ]
         ]
 

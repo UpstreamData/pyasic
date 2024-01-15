@@ -1,6 +1,6 @@
 # pyasic
-## LUXMinerAPI
-::: pyasic.API.luxminer.LUXMinerAPI
+## LUXMinerRPCAPI
+::: pyasic.API.luxminer.LUXMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

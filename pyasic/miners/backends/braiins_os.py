@@ -20,7 +20,6 @@ from typing import List, Optional, Union
 
 import toml
 
-from pyasic.API.bosminer import BOSMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
@@ -35,6 +34,7 @@ from pyasic.miners.base import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 
 BOSMINER_DATA_LOC = DataLocations(
@@ -99,7 +99,7 @@ class BOSMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = BOSMinerAPI(ip, api_ver)
+        self.api = BOSMinerRPCAPI(ip, api_ver)
         self.web = BOSMinerWebAPI(ip)
 
         # static data
@@ -715,7 +715,7 @@ class BOSer(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = BOSMinerAPI(ip, api_ver)
+        self.api = BOSMinerRPCAPI(ip, api_ver)
         self.web = BOSerWebAPI(ip)
 
         # static data

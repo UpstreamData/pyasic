@@ -1,6 +1,6 @@
 # pyasic
-## UnknownAPI
-::: pyasic.API.unknown.UnknownAPI
+## UnknownRPCAPI
+::: pyasic.API.unknown.UnknownRPCAPI
     handler: python
     options:
         show_root_heading: false

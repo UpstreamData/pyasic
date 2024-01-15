@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.API import BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class UnknownAPI(BaseMinerAPI):
+class UnknownRPCAPI(BaseMinerRPCAPI):
     """An abstraction of an API for a miner which is unknown.
 
     This class is designed to try to be an intersection of as many miner APIs

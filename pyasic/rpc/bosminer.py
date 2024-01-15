@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.API import BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class BOSMinerAPI(BaseMinerAPI):
+class BOSMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the BOSMiner API.
 
     Each method corresponds to an API command in BOSMiner.

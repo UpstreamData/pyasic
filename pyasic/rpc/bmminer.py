@@ -16,10 +16,10 @@
 import asyncio
 import logging
 
-from pyasic.API import APIError, BaseMinerAPI
+from pyasic.rpc import APIError, BaseMinerRPCAPI
 
 
-class BMMinerAPI(BaseMinerAPI):
+class BMMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the BMMiner API.
 
     Each method corresponds to an API command in BMMiner.

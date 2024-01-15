@@ -15,10 +15,10 @@
 # ------------------------------------------------------------------------------
 from typing import Literal
 
-from pyasic.API import BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class LUXMinerAPI(BaseMinerAPI):
+class LUXMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the LUXMiner API.
 
     Each method corresponds to an API command in LUXMiner.

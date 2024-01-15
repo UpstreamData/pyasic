@@ -16,11 +16,11 @@
 
 from typing import List, Optional, Tuple
 
-from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.miners.base import BaseMiner
+from pyasic.rpc.unknown import UnknownRPCAPI
 
 
 class UnknownMiner(BaseMiner):
@@ -32,7 +32,7 @@ class UnknownMiner(BaseMiner):
     ) -> None:
         super().__init__(ip)
         self.ip = ip
-        self.api = UnknownAPI(ip)
+        self.api = UnknownRPCAPI(ip)
 
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"

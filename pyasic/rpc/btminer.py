@@ -28,9 +28,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
 
 from pyasic import settings
-from pyasic.API import BaseMinerAPI
 from pyasic.errors import APIError
 from pyasic.misc import api_min_version
+from pyasic.rpc import BaseMinerRPCAPI
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer
@@ -159,7 +159,7 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     return api_packet_str.encode("utf-8")
 
 
-class BTMinerAPI(BaseMinerAPI):
+class BTMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the API for MicroBT Whatsminers, BTMiner.
 
     Each method corresponds to an API command in BMMiner.

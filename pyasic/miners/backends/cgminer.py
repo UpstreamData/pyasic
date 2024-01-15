@@ -17,7 +17,6 @@
 import logging
 from typing import List, Optional
 
-from pyasic.API.cgminer import CGMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
@@ -29,6 +28,7 @@ from pyasic.miners.base import (
     DataOptions,
     RPCAPICommand,
 )
+from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 CGMINER_DATA_LOC = DataLocations(
     **{
@@ -71,7 +71,7 @@ class CGMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = CGMinerAPI(ip, api_ver)
+        self.api = CGMinerRPCAPI(ip, api_ver)
 
         # static data
         self.api_type = "CGMiner"

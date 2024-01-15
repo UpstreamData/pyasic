@@ -14,11 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic import settings
-from pyasic.API.bmminer import BMMinerAPI
-from pyasic.API.bosminer import BOSMinerAPI
-from pyasic.API.btminer import BTMinerAPI
-from pyasic.API.cgminer import CGMinerAPI
-from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
 from pyasic.data import (
     BraiinsOSError,
@@ -33,13 +28,18 @@ from pyasic.miners.base import AnyMiner, DataOptions
 from pyasic.miners.miner_factory import MinerFactory, miner_factory
 from pyasic.miners.miner_listener import MinerListener
 from pyasic.network import MinerNetwork
+from pyasic.rpc.bmminer import BMMinerRPCAPI
+from pyasic.rpc.bosminer import BOSMinerRPCAPI
+from pyasic.rpc.btminer import BTMinerRPCAPI
+from pyasic.rpc.cgminer import CGMinerRPCAPI
+from pyasic.rpc.unknown import UnknownRPCAPI
 
 __all__ = [
-    "BMMinerAPI",
-    "BOSMinerAPI",
-    "BTMinerAPI",
-    "CGMinerAPI",
-    "UnknownAPI",
+    "BMMinerRPCAPI",
+    "BOSMinerRPCAPI",
+    "BTMinerRPCAPI",
+    "CGMinerRPCAPI",
+    "UnknownRPCAPI",
     "MinerConfig",
     "MinerData",
     "BraiinsOSError",

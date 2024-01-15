@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.API import APIError
+from pyasic.rpc import APIError
 
 
 class Singleton(type):

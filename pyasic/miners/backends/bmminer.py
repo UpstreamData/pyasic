@@ -17,7 +17,6 @@
 import logging
 from typing import List, Optional
 
-from pyasic.API.bmminer import BMMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
@@ -29,6 +28,7 @@ from pyasic.miners.base import (
     DataOptions,
     RPCAPICommand,
 )
+from pyasic.rpc.bmminer import BMMinerRPCAPI
 
 BMMINER_DATA_LOC = DataLocations(
     **{
@@ -73,7 +73,7 @@ class BMMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = BMMinerAPI(ip, api_ver)
+        self.api = BMMinerRPCAPI(ip, api_ver)
 
         # static data
         self.api_type = "BMMiner"

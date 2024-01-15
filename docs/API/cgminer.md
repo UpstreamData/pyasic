@@ -1,6 +1,6 @@
 # pyasic
-## CGMinerAPI
-::: pyasic.API.cgminer.CGMinerAPI
+## CGMinerRPCAPI
+::: pyasic.API.cgminer.CGMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

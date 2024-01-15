@@ -15,7 +15,6 @@
 # ------------------------------------------------------------------------------
 from typing import List, Optional, Tuple, Union
 
-from pyasic.API.luxminer import LUXMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
@@ -27,6 +26,7 @@ from pyasic.miners.base import (
     DataOptions,
     RPCAPICommand,
 )
+from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
@@ -69,7 +69,7 @@ class LUXMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = LUXMinerAPI(ip, api_ver)
+        self.api = LUXMinerRPCAPI(ip, api_ver)
         # self.web = BOSMinerWebAPI(ip)
 
         # static data

@@ -1,6 +1,6 @@
 # pyasic
-## BOSMinerAPI
-::: pyasic.API.bosminer.BOSMinerAPI
+## BOSMinerRPCAPI
+::: pyasic.API.bosminer.BOSMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

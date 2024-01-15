@@ -16,7 +16,6 @@
 
 from typing import List, Optional, Union
 
-from pyasic.API import APIError
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
@@ -29,6 +28,7 @@ from pyasic.miners.base import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.rpc import APIError
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(

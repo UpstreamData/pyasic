@@ -1,6 +1,6 @@
 # pyasic
-## BFGMinerAPI
-::: pyasic.API.bfgminer.BFGMinerAPI
+## BFGMinerRPCAPI
+::: pyasic.API.bfgminer.BFGMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

@@ -16,7 +16,6 @@
 
 from typing import List, Optional
 
-from pyasic.API.bfgminer import BFGMinerAPI
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
@@ -28,6 +27,7 @@ from pyasic.miners.base import (
     DataOptions,
     RPCAPICommand,
 )
+from pyasic.rpc.bfgminer import BFGMinerRPCAPI
 
 BFGMINER_DATA_LOC = DataLocations(
     **{
@@ -70,7 +70,7 @@ class BFGMiner(BaseMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip)
         # interfaces
-        self.api = BFGMinerAPI(ip, api_ver)
+        self.api = BFGMinerRPCAPI(ip, api_ver)
 
         # static data
         self.api_type = "BFGMiner"
