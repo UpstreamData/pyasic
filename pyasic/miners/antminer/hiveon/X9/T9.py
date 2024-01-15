@@ -41,6 +41,7 @@ class HiveonT9(Hiveon, T9):
         except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
 
+
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
