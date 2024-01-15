@@ -175,13 +175,13 @@ class LUXMiner(BaseMiner):
 
     async def _get_mac(self, api_config: dict = None) -> Optional[str]:
         mac = None
-        if not api_config:
+        if api_config is None:
             try:
                 api_config = await self.api.config()
             except APIError:
                 return None
 
-        if api_config:
+        if api_config is not None:
             try:
                 mac = api_config["CONFIG"][0]["MACAddr"]
             except KeyError:
@@ -202,13 +202,13 @@ class LUXMiner(BaseMiner):
         pass
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
             except (LookupError, ValueError, TypeError):
@@ -217,13 +217,13 @@ class LUXMiner(BaseMiner):
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 board_offset = -1
                 boards = api_stats["STATS"]
@@ -272,13 +272,13 @@ class LUXMiner(BaseMiner):
         return None
 
     async def _get_wattage(self, api_power: dict) -> Optional[int]:
-        if not api_power:
+        if api_power is None:
             try:
                 api_power = await self.api.power()
             except APIError:
                 pass
 
-        if api_power:
+        if api_power is not None:
             try:
                 return api_power["POWER"][0]["Watts"]
             except (LookupError, ValueError, TypeError):
@@ -288,7 +288,7 @@ class LUXMiner(BaseMiner):
         return None
 
     async def _get_fans(self, api_fans: dict = None) -> List[Fan]:
-        if not api_fans:
+        if api_fans is None:
             try:
                 api_fans = await self.api.fans()
             except APIError:
@@ -296,7 +296,7 @@ class LUXMiner(BaseMiner):
 
         fans = []
 
-        if api_fans:
+        if api_fans is not None:
             for fan in range(self.expected_fans):
                 try:
                     fans.append(Fan(api_fans["FANS"][fan]["RPM"]))
@@ -314,13 +314,13 @@ class LUXMiner(BaseMiner):
         pass
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
@@ -340,13 +340,13 @@ class LUXMiner(BaseMiner):
         pass
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:

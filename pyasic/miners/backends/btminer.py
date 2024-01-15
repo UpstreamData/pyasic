@@ -287,26 +287,26 @@ class BTMiner(BaseMiner):
     async def _get_mac(
         self, api_summary: dict = None, api_get_miner_info: dict = None
     ) -> Optional[str]:
-        if not api_get_miner_info:
+        if api_get_miner_info is None:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 pass
 
-        if api_get_miner_info:
+        if api_get_miner_info is not None:
             try:
                 mac = api_get_miner_info["Msg"]["mac"]
                 return str(mac).upper()
             except KeyError:
                 pass
 
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 mac = api_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
@@ -314,13 +314,13 @@ class BTMiner(BaseMiner):
                 pass
 
     async def _get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
-        if not api_get_version:
+        if api_get_version is None:
             try:
                 api_get_version = await self.api.get_version()
             except APIError:
                 pass
 
-        if api_get_version:
+        if api_get_version is not None:
             if "Code" in api_get_version.keys():
                 if api_get_version["Code"] == 131:
                     try:
@@ -339,13 +339,13 @@ class BTMiner(BaseMiner):
     async def _get_fw_ver(
         self, api_get_version: dict = None, api_summary: dict = None
     ) -> Optional[str]:
-        if not api_get_version:
+        if api_get_version is None:
             try:
                 api_get_version = await self.api.get_version()
             except APIError:
                 pass
 
-        if api_get_version:
+        if api_get_version is not None:
             if "Code" in api_get_version.keys():
                 if api_get_version["Code"] == 131:
                     try:
@@ -355,7 +355,7 @@ class BTMiner(BaseMiner):
                     else:
                         return self.fw_ver
 
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
@@ -373,13 +373,13 @@ class BTMiner(BaseMiner):
 
     async def _get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
         hostname = None
-        if not api_get_miner_info:
+        if api_get_miner_info is None:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 return None  # only one way to get this
 
-        if api_get_miner_info:
+        if api_get_miner_info is not None:
             try:
                 hostname = api_get_miner_info["Msg"]["hostname"]
             except KeyError:
@@ -389,13 +389,13 @@ class BTMiner(BaseMiner):
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except LookupError:
@@ -407,13 +407,13 @@ class BTMiner(BaseMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if not api_devs:
+        if api_devs is None:
             try:
                 api_devs = await self.api.devs()
             except APIError:
                 pass
 
-        if api_devs:
+        if api_devs is not None:
             try:
                 for board in api_devs["DEVS"]:
                     if len(hashboards) < board["ASC"] + 1:
@@ -437,26 +437,26 @@ class BTMiner(BaseMiner):
         return hashboards
 
     async def _get_env_temp(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return api_summary["SUMMARY"][0]["Env Temp"]
             except LookupError:
                 pass
 
     async def _get_wattage(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 wattage = api_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
@@ -464,13 +464,13 @@ class BTMiner(BaseMiner):
                 pass
 
     async def _get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return api_summary["SUMMARY"][0]["Power Limit"]
             except LookupError:
@@ -479,14 +479,14 @@ class BTMiner(BaseMiner):
     async def _get_fans(
         self, api_summary: dict = None, api_get_psu: dict = None
     ) -> List[Fan]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
         fans = [Fan() for _ in range(self.expected_fans)]
-        if api_summary:
+        if api_summary is not None:
             try:
                 if self.expected_fans > 0:
                     fans = [
@@ -501,25 +501,25 @@ class BTMiner(BaseMiner):
     async def _get_fan_psu(
         self, api_summary: dict = None, api_get_psu: dict = None
     ) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return int(api_summary["SUMMARY"][0]["Power Fanspeed"])
             except LookupError:
                 pass
 
-        if not api_get_psu:
+        if api_get_psu is None:
             try:
                 api_get_psu = await self.api.get_psu()
             except APIError:
                 pass
 
-        if api_get_psu:
+        if api_get_psu is not None:
             try:
                 return int(api_get_psu["Msg"]["fan_speed"])
             except (KeyError, TypeError):
@@ -529,13 +529,13 @@ class BTMiner(BaseMiner):
         self, api_summary: dict = None, api_get_error_code: dict = None
     ) -> List[MinerErrorData]:
         errors = []
-        if not api_get_error_code and not api_summary:
+        if api_get_error_code is None and api_summary is None:
             try:
                 api_get_error_code = await self.api.get_error_code()
             except APIError:
                 pass
 
-        if api_get_error_code:
+        if api_get_error_code is not None:
             for err in api_get_error_code["Msg"]["error_code"]:
                 if isinstance(err, dict):
                     for code in err:
@@ -543,13 +543,13 @@ class BTMiner(BaseMiner):
                 else:
                     errors.append(WhatsminerError(error_code=int(err)))
 
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 for i in range(api_summary["SUMMARY"][0]["Error Code Count"]):
                     err = api_summary["SUMMARY"][0].get(f"Error Code {i}")
@@ -560,13 +560,13 @@ class BTMiner(BaseMiner):
         return errors
 
     async def _get_expected_hashrate(self, api_summary: dict = None):
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
@@ -575,14 +575,14 @@ class BTMiner(BaseMiner):
                 pass
 
     async def _get_fault_light(self, api_get_miner_info: dict = None) -> bool:
-        if not api_get_miner_info:
+        if api_get_miner_info is None:
             try:
                 api_get_miner_info = await self.api.get_miner_info()
             except APIError:
                 if not self.light:
                     self.light = False
 
-        if api_get_miner_info:
+        if api_get_miner_info is not None:
             try:
                 self.light = not (api_get_miner_info["Msg"]["ledstat"] == "auto")
             except KeyError:
@@ -613,13 +613,13 @@ class BTMiner(BaseMiner):
         await self.api.set_hostname(hostname)
 
     async def _is_mining(self, api_status: dict = None) -> Optional[bool]:
-        if not api_status:
+        if api_status is None:
             try:
                 api_status = await self.api.status()
             except APIError:
                 pass
 
-        if api_status:
+        if api_status is not None:
             try:
                 if api_status["Msg"].get("btmineroff"):
                     try:
@@ -632,13 +632,13 @@ class BTMiner(BaseMiner):
                 pass
 
     async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return int(api_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:

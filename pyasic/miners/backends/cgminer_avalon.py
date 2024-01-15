@@ -173,13 +173,13 @@ class CGMinerAvalon(CGMiner):
     ##################################################
 
     async def _get_mac(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
+        if api_version is None:
             try:
                 api_version = await self.api.version()
             except APIError:
                 pass
 
-        if api_version:
+        if api_version is not None:
             try:
                 base_mac = api_version["VERSION"][0]["MAC"]
                 base_mac = base_mac.upper()
@@ -199,13 +199,13 @@ class CGMinerAvalon(CGMiner):
         #     return f"Avalon{mac.replace(':', '')[-6:]}"
 
     async def _get_hashrate(self, api_devs: dict = None) -> Optional[float]:
-        if not api_devs:
+        if api_devs is None:
             try:
                 api_devs = await self.api.devs()
             except APIError:
                 pass
 
-        if api_devs:
+        if api_devs is not None:
             try:
                 return round(float(api_devs["DEVS"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError, ValueError, TypeError):
@@ -217,13 +217,13 @@ class CGMinerAvalon(CGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
@@ -260,13 +260,13 @@ class CGMinerAvalon(CGMiner):
         return hashboards
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
@@ -275,13 +275,13 @@ class CGMinerAvalon(CGMiner):
                 pass
 
     async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
@@ -293,13 +293,13 @@ class CGMinerAvalon(CGMiner):
         return None
 
     async def _get_wattage_limit(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
@@ -308,14 +308,14 @@ class CGMinerAvalon(CGMiner):
                 pass
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
         fans_data = [Fan() for _ in range(self.expected_fans)]
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
@@ -335,13 +335,13 @@ class CGMinerAvalon(CGMiner):
     async def _get_fault_light(self, api_stats: dict = None) -> bool:  # noqa
         if self.light:
             return self.light
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)

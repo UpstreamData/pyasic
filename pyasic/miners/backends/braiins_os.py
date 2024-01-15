@@ -339,7 +339,7 @@ class BOSMiner(BaseMiner):
     ##################################################
 
     async def _get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
-        if not web_net_conf:
+        if web_net_conf is None:
             try:
                 web_net_conf = await self.web.luci.get_net_conf()
             except APIError:
@@ -349,7 +349,7 @@ class BOSMiner(BaseMiner):
             if "admin/network/iface_status/lan" in web_net_conf.keys():
                 web_net_conf = web_net_conf["admin/network/iface_status/lan"]
 
-        if web_net_conf:
+        if web_net_conf is not None:
             try:
                 return web_net_conf[0]["macaddr"]
             except LookupError:
@@ -360,14 +360,14 @@ class BOSMiner(BaseMiner):
         #     return result.upper().strip()
 
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
+        if api_version is None:
             try:
                 api_version = await self.api.version()
             except APIError:
                 pass
 
         # Now get the API version
-        if api_version:
+        if api_version is not None:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
             except LookupError:
@@ -409,14 +409,13 @@ class BOSMiner(BaseMiner):
         return hostname
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        # get hr from API
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError, ValueError, TypeError):
@@ -434,11 +433,11 @@ class BOSMiner(BaseMiner):
         ]
 
         cmds = []
-        if not api_temps:
+        if api_temps is None:
             cmds.append("temps")
-        if not api_devdetails:
+        if api_devdetails is None:
             cmds.append("devdetails")
-        if not api_devs:
+        if api_devs is None:
             cmds.append("devs")
         if len(cmds) > 0:
             try:
@@ -457,7 +456,7 @@ class BOSMiner(BaseMiner):
                 api_devs = d["devs"][0]
             except LookupError:
                 api_devs = None
-        if api_temps:
+        if api_temps is not None:
             try:
                 offset = 6 if api_temps["TEMPS"][0]["ID"] in [6, 7, 8] else 1
 
@@ -470,7 +469,7 @@ class BOSMiner(BaseMiner):
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-        if api_devdetails:
+        if api_devdetails is not None:
             try:
                 offset = 6 if api_devdetails["DEVDETAILS"][0]["ID"] in [6, 7, 8] else 1
 
@@ -482,7 +481,7 @@ class BOSMiner(BaseMiner):
             except (IndexError, KeyError):
                 pass
 
-        if api_devs:
+        if api_devs is not None:
             try:
                 offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 1
 
@@ -499,13 +498,13 @@ class BOSMiner(BaseMiner):
         return None
 
     async def _get_wattage(self, api_tunerstatus: dict = None) -> Optional[int]:
-        if not api_tunerstatus:
+        if api_tunerstatus is None:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
             except APIError:
                 pass
 
-        if api_tunerstatus:
+        if api_tunerstatus is not None:
             try:
                 return api_tunerstatus["TUNERSTATUS"][0][
                     "ApproximateMinerPowerConsumption"
@@ -514,26 +513,26 @@ class BOSMiner(BaseMiner):
                 pass
 
     async def _get_wattage_limit(self, api_tunerstatus: dict = None) -> Optional[int]:
-        if not api_tunerstatus:
+        if api_tunerstatus is None:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
             except APIError:
                 pass
 
-        if api_tunerstatus:
+        if api_tunerstatus is not None:
             try:
                 return api_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
             except LookupError:
                 pass
 
     async def _get_fans(self, api_fans: dict = None) -> List[Fan]:
-        if not api_fans:
+        if api_fans is None:
             try:
                 api_fans = await self.api.fans()
             except APIError:
                 pass
 
-        if api_fans:
+        if api_fans is not None:
             fans = []
             for n in range(self.expected_fans):
                 try:
@@ -547,13 +546,13 @@ class BOSMiner(BaseMiner):
         return None
 
     async def _get_errors(self, api_tunerstatus: dict = None) -> List[MinerErrorData]:
-        if not api_tunerstatus:
+        if api_tunerstatus is None:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
             except APIError:
                 pass
 
-        if api_tunerstatus:
+        if api_tunerstatus is not None:
             errors = []
             try:
                 chain_status = api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
@@ -591,13 +590,13 @@ class BOSMiner(BaseMiner):
             return self.light
 
     async def _get_expected_hashrate(self, api_devs: dict = None) -> Optional[float]:
-        if not api_devs:
+        if api_devs is None:
             try:
                 api_devs = await self.api.devs()
             except APIError:
                 pass
 
-        if api_devs:
+        if api_devs is not None:
             try:
                 offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 0
                 hr_list = []
@@ -617,7 +616,7 @@ class BOSMiner(BaseMiner):
                 pass
 
     async def _is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
-        if not api_devdetails:
+        if api_devdetails is None:
             try:
                 api_devdetails = await self.api.send_command(
                     "devdetails", ignore_errors=True, allow_warning=False
@@ -625,20 +624,20 @@ class BOSMiner(BaseMiner):
             except APIError:
                 pass
 
-        if api_devdetails:
+        if api_devdetails is not None:
             try:
                 return not api_devdetails["STATUS"][0]["Msg"] == "Unavailable"
             except LookupError:
                 pass
 
     async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return int(api_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
@@ -796,27 +795,27 @@ class BOSer(BaseMiner):
     ##################################################
 
     async def _get_mac(self, grpc_miner_details: dict = None) -> Optional[str]:
-        if not grpc_miner_details:
+        if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.grpc.get_miner_details()
             except APIError:
                 pass
 
-        if grpc_miner_details:
+        if grpc_miner_details is not None:
             try:
                 return grpc_miner_details["macAddress"].upper()
             except (LookupError, TypeError):
                 pass
 
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
+        if api_version is None:
             try:
                 api_version = await self.api.version()
             except APIError:
                 pass
 
         # Now get the API version
-        if api_version:
+        if api_version is not None:
             try:
                 api_ver = api_version["VERSION"][0]["API"]
             except LookupError:
@@ -827,7 +826,7 @@ class BOSer(BaseMiner):
         return self.api_ver
 
     async def _get_fw_ver(self, grpc_miner_details: dict = None) -> Optional[str]:
-        if not grpc_miner_details:
+        if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.grpc.get_miner_details()
             except APIError:
@@ -835,7 +834,7 @@ class BOSer(BaseMiner):
 
         fw_ver = None
 
-        if grpc_miner_details:
+        if grpc_miner_details is not None:
             try:
                 fw_ver = grpc_miner_details["bosVersion"]["current"]
             except (KeyError, TypeError):
@@ -851,26 +850,26 @@ class BOSer(BaseMiner):
         return self.fw_ver
 
     async def _get_hostname(self, grpc_miner_details: dict = None) -> Union[str, None]:
-        if not grpc_miner_details:
+        if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.grpc.get_miner_details()
             except APIError:
                 pass
 
-        if grpc_miner_details:
+        if grpc_miner_details is not None:
             try:
                 return grpc_miner_details["hostname"]
             except LookupError:
                 pass
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError, ValueError, TypeError):
@@ -879,13 +878,13 @@ class BOSer(BaseMiner):
     async def _get_expected_hashrate(
         self, grpc_miner_details: dict = None
     ) -> Optional[float]:
-        if not grpc_miner_details:
+        if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.grpc.get_miner_details()
             except APIError:
                 pass
 
-        if grpc_miner_details:
+        if grpc_miner_details is not None:
             try:
                 return grpc_miner_details["stickerHashrate"]["gigahashPerSecond"] / 1000
             except LookupError:
@@ -937,7 +936,7 @@ class BOSer(BaseMiner):
             except APIError:
                 pass
 
-        if grpc_miner_stats:
+        if grpc_miner_stats is not None:
             try:
                 return grpc_miner_stats["powerStats"]["approximatedConsumption"]["watt"]
             except KeyError:
@@ -954,7 +953,7 @@ class BOSer(BaseMiner):
             except APIError:
                 pass
 
-        if grpc_active_performance_mode:
+        if grpc_active_performance_mode is not None:
             try:
                 return grpc_active_performance_mode["tunerMode"]["powerTarget"][
                     "powerTarget"
@@ -969,7 +968,7 @@ class BOSer(BaseMiner):
             except APIError:
                 pass
 
-        if grpc_cooling_state:
+        if grpc_cooling_state is not None:
             fans = []
             for n in range(self.expected_fans):
                 try:
@@ -983,13 +982,13 @@ class BOSer(BaseMiner):
         return None
 
     async def _get_errors(self, api_tunerstatus: dict = None) -> List[MinerErrorData]:
-        if not api_tunerstatus:
+        if api_tunerstatus is None:
             try:
                 api_tunerstatus = await self.api.tunerstatus()
             except APIError:
                 pass
 
-        if api_tunerstatus:
+        if api_tunerstatus is not None:
             errors = []
             try:
                 chain_status = api_tunerstatus["TUNERSTATUS"][0]["TunerChainStatus"]
@@ -1016,7 +1015,7 @@ class BOSer(BaseMiner):
         if self.light is not None:
             return self.light
 
-        if not grpc_locate_device_status:
+        if grpc_locate_device_status is None:
             try:
                 grpc_locate_device_status = (
                     await self.web.grpc.get_locate_device_status()
@@ -1033,7 +1032,7 @@ class BOSer(BaseMiner):
                 pass
 
     async def _is_mining(self, api_devdetails: dict = None) -> Optional[bool]:
-        if not api_devdetails:
+        if api_devdetails is None:
             try:
                 api_devdetails = await self.api.send_command(
                     "devdetails", ignore_errors=True, allow_warning=False
@@ -1041,20 +1040,20 @@ class BOSer(BaseMiner):
             except APIError:
                 pass
 
-        if api_devdetails:
+        if api_devdetails is not None:
             try:
                 return not api_devdetails["STATUS"][0]["Msg"] == "Unavailable"
             except LookupError:
                 pass
 
     async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return int(api_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:

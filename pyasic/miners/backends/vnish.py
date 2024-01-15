@@ -121,17 +121,17 @@ class VNish(BMMiner):
         return False
 
     async def _get_mac(self, web_summary: dict = None) -> str:
-        if not web_summary:
+        if web_summary is None:
             web_info = await self.web.info()
 
-            if web_info:
+            if web_info is not None:
                 try:
                     mac = web_info["system"]["network_status"]["mac"]
                     return mac
                 except KeyError:
                     pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 mac = web_summary["system"]["network_status"]["mac"]
                 return mac
@@ -139,17 +139,17 @@ class VNish(BMMiner):
                 pass
 
     async def _get_hostname(self, web_summary: dict = None) -> str:
-        if not web_summary:
+        if web_summary is None:
             web_info = await self.web.info()
 
-            if web_info:
+            if web_info is not None:
                 try:
                     hostname = web_info["system"]["network_status"]["hostname"]
                     return hostname
                 except KeyError:
                     pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 hostname = web_summary["system"]["network_status"]["hostname"]
                 return hostname
@@ -157,10 +157,10 @@ class VNish(BMMiner):
                 pass
 
     async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
-        if not web_summary:
+        if web_summary is None:
             web_summary = await self.web.summary()
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 wattage = web_summary["miner"]["power_usage"]
                 wattage = round(wattage * 1000)
@@ -170,13 +170,13 @@ class VNish(BMMiner):
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(
                     float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
@@ -186,10 +186,10 @@ class VNish(BMMiner):
                 pass
 
     async def _get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
-        if not web_settings:
+        if web_settings is None:
             web_settings = await self.web.summary()
 
-        if web_settings:
+        if web_settings is not None:
             try:
                 wattage_limit = web_settings["miner"]["overclock"]["preset"]
                 if wattage_limit == "disabled":
@@ -199,10 +199,10 @@ class VNish(BMMiner):
                 pass
 
     async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
-        if not web_summary:
+        if web_summary is None:
             web_summary = await self.web.summary()
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 fw_ver = web_summary["miner"]["miner_type"]
                 fw_ver = fw_ver.split("(Vnish ")[1].replace(")", "")

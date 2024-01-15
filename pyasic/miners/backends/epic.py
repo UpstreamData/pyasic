@@ -145,9 +145,13 @@ class ePIC(BaseMiner):
         return False
 
     async def _get_mac(self, web_network: dict = None) -> str:
-        if not web_network:
-            web_network = await self.web.network()
-        if web_network:
+        if web_network is None:
+            try:
+                web_network = await self.web.network()
+            except APIError:
+                pass
+
+        if web_network is not None:
             try:
                 for network in web_network:
                     mac = web_network[network]["mac_address"]
@@ -156,9 +160,13 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_hostname(self, web_summary: dict = None) -> str:
-        if not web_summary:
-            web_summary = await self.web.summary()
-        if web_summary:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary is not None:
             try:
                 hostname = web_summary["Hostname"]
                 return hostname
@@ -166,10 +174,13 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
-        if not web_summary:
-            web_summary = await self.web.summary()
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 wattage = web_summary["Power Supply Stats"]["Input Power"]
                 wattage = round(wattage)
@@ -178,14 +189,13 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_hashrate(self, web_summary: dict = None) -> Optional[float]:
-        # get hr from API
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
                 pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 hashrate = 0
                 if web_summary["HBs"] is not None:
@@ -196,14 +206,13 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
-        # get hr from API
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
                 pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 hashrate = 0
                 if web_summary.get("HBs") is not None:
@@ -219,10 +228,13 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
-        if not web_summary:
-            web_summary = await self.web.summary()
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
 
-        if web_summary:
+        if web_summary is not None:
             try:
                 fw_ver = web_summary["Software"]
                 fw_ver = fw_ver.split(" ")[1].replace("v", "")
@@ -231,7 +243,7 @@ class ePIC(BaseMiner):
                 pass
 
     async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
@@ -239,7 +251,7 @@ class ePIC(BaseMiner):
 
         fans = []
 
-        if web_summary:
+        if web_summary is not None:
             for fan in web_summary["Fans Rpm"]:
                 try:
                     fans.append(Fan(web_summary["Fans Rpm"][fan]))
@@ -250,12 +262,13 @@ class ePIC(BaseMiner):
     async def _get_hashboards(
         self, web_summary: dict = None, web_hashrate: dict = None
     ) -> List[HashBoard]:
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
                 pass
-        if not web_hashrate:
+
+        if not web_hashrate is not None:
             try:
                 web_hashrate = await self.web.hashrate()
             except APIError:
@@ -283,9 +296,13 @@ class ePIC(BaseMiner):
         return None
 
     async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
-        if not web_summary:
-            web_summary = await self.web.summary()
-        if web_summary:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary is not None:
             try:
                 uptime = web_summary["Session"]["Uptime"]
                 return uptime
@@ -294,9 +311,13 @@ class ePIC(BaseMiner):
         return None
 
     async def _get_fault_light(self, web_summary: dict = None) -> bool:
-        if not web_summary:
-            web_summary = await self.web.summary()
-        if web_summary:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary is not None:
             try:
                 light = web_summary["Misc"]["Locate Miner State"]
                 return light
@@ -306,9 +327,13 @@ class ePIC(BaseMiner):
 
     async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
         if not web_summary:
-            web_summary = await self.web.summary()
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
         errors = []
-        if web_summary:
+        if web_summary is not None:
             try:
                 error = web_summary["Status"]["Last Error"]
                 if error is not None:

@@ -141,26 +141,26 @@ class AntminerModern(BMMiner):
         return True
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Union[str, None]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
 
     async def _get_mac(self, web_get_system_info: dict = None) -> Union[str, None]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["macaddr"]
             except KeyError:
@@ -174,14 +174,14 @@ class AntminerModern(BMMiner):
             pass
 
     async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
                 pass
 
         errors = []
-        if web_summary:
+        if web_summary is not None:
             try:
                 for item in web_summary["SUMMARY"][0]["status"]:
                     try:
@@ -204,7 +204,7 @@ class AntminerModern(BMMiner):
         except APIError:
             return hashboards
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 for board in api_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = round(
@@ -233,13 +233,13 @@ class AntminerModern(BMMiner):
         if self.light:
             return self.light
 
-        if not web_get_blink_status:
+        if web_get_blink_status is None:
             try:
                 web_get_blink_status = await self.web.get_blink_status()
             except APIError:
                 pass
 
-        if web_get_blink_status:
+        if web_get_blink_status is not None:
             try:
                 self.light = web_get_blink_status["blink"]
             except KeyError:
@@ -247,13 +247,13 @@ class AntminerModern(BMMiner):
         return self.light
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
@@ -312,13 +312,13 @@ class AntminerModern(BMMiner):
         )
 
     async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
-        if not web_get_conf:
+        if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
             except APIError:
                 pass
 
-        if web_get_conf:
+        if web_get_conf is not None:
             try:
                 if web_get_conf["bitmain-work-mode"].isdigit():
                     return (
@@ -329,13 +329,13 @@ class AntminerModern(BMMiner):
                 pass
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:
@@ -447,13 +447,13 @@ class AntminerOld(CGMiner):
         if self.light:
             return self.light
 
-        if not web_get_blink_status:
+        if web_get_blink_status is None:
             try:
                 web_get_blink_status = await self.web.get_blink_status()
             except APIError:
                 pass
 
-        if web_get_blink_status:
+        if web_get_blink_status is not None:
             try:
                 self.light = web_get_blink_status["isBlinking"]
             except KeyError:
@@ -461,27 +461,27 @@ class AntminerOld(CGMiner):
         return self.light
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if not api_stats:
+        if not api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
         fans_data = [Fan() for _ in range(self.expected_fans)]
-        if api_stats:
+        if api_stats is not None:
             try:
                 fan_offset = -1
 
@@ -504,13 +504,13 @@ class AntminerOld(CGMiner):
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 board_offset = -1
                 boards = api_stats["STATS"]
@@ -556,13 +556,13 @@ class AntminerOld(CGMiner):
         return hashboards
 
     async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
-        if not web_get_conf:
+        if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
             except APIError:
                 pass
 
-        if web_get_conf:
+        if web_get_conf is not None:
             try:
                 return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
             except LookupError:
@@ -581,13 +581,13 @@ class AntminerOld(CGMiner):
                 return False
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:

@@ -110,26 +110,26 @@ class BFGMinerGoldshell(BFGMiner):
             )
 
     async def _get_mac(self, web_setting: dict = None) -> str:
-        if not web_setting:
+        if web_setting is None:
             try:
                 web_setting = await self.web.setting()
             except APIError:
                 pass
 
-        if web_setting:
+        if web_setting is not None:
             try:
                 return web_setting["name"]
             except KeyError:
                 pass
 
     async def _get_fw_ver(self, web_status: dict = None) -> str:
-        if not web_status:
+        if web_status is None:
             try:
                 web_status = await self.web.setting()
             except APIError:
                 pass
 
-        if web_status:
+        if web_status is not None:
             try:
                 return web_status["firmware"]
             except KeyError:
@@ -138,7 +138,7 @@ class BFGMinerGoldshell(BFGMiner):
     async def _get_hashboards(
         self, api_devs: dict = None, api_devdetails: dict = None
     ) -> List[HashBoard]:
-        if not api_devs:
+        if api_devs is None:
             try:
                 api_devs = await self.api.devs()
             except APIError:
@@ -149,7 +149,7 @@ class BFGMinerGoldshell(BFGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if api_devs:
+        if api_devs is not None:
             if api_devs.get("DEVS"):
                 for board in api_devs["DEVS"]:
                     if board.get("ID") is not None:
@@ -165,13 +165,13 @@ class BFGMinerGoldshell(BFGMiner):
             else:
                 logger.error(self, api_devs)
 
-        if not api_devdetails:
+        if api_devdetails is None:
             try:
                 api_devdetails = await self.api.devdetails()
             except APIError:
                 pass
 
-        if api_devdetails:
+        if api_devdetails is not None:
             if api_devdetails.get("DEVS"):
                 for board in api_devdetails["DEVS"]:
                     if board.get("ID") is not None:

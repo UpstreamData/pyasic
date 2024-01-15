@@ -158,13 +158,13 @@ class BMMiner(BaseMiner):
         return None
 
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
+        if api_version is None:
             try:
                 api_version = await self.api.version()
             except APIError:
                 pass
 
-        if api_version:
+        if api_version is not None:
             try:
                 self.api_ver = api_version["VERSION"][0]["API"]
             except LookupError:
@@ -173,13 +173,13 @@ class BMMiner(BaseMiner):
         return self.api_ver
 
     async def _get_fw_ver(self, api_version: dict = None) -> Optional[str]:
-        if not api_version:
+        if api_version is None:
             try:
                 api_version = await self.api.version()
             except APIError:
                 pass
 
-        if api_version:
+        if api_version is not None:
             try:
                 self.fw_ver = api_version["VERSION"][0]["CompileTime"]
             except LookupError:
@@ -196,13 +196,13 @@ class BMMiner(BaseMiner):
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if not api_summary:
+        if api_summary is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
             except (LookupError, ValueError, TypeError):
@@ -211,13 +211,13 @@ class BMMiner(BaseMiner):
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 board_offset = -1
                 boards = api_stats["STATS"]
@@ -285,14 +285,14 @@ class BMMiner(BaseMiner):
         return None
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
         fans = [Fan() for _ in range(self.expected_fans)]
-        if api_stats:
+        if api_stats is not None:
             try:
                 fan_offset = -1
 
@@ -321,13 +321,13 @@ class BMMiner(BaseMiner):
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
@@ -347,13 +347,13 @@ class BMMiner(BaseMiner):
         return None
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:
