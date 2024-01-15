@@ -26,6 +26,7 @@ import asyncssh
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.errors import APIError
 from pyasic.logger import logger
 
 
@@ -603,9 +604,13 @@ class BaseMiner(ABC):
                         args_to_send[arg.name] = None
             except LookupError:
                 continue
-
-            function = getattr(self, getattr(self.data_locations, data_name).cmd)
-            miner_data[data_name] = await function(**args_to_send)
+            try:
+                function = getattr(self, getattr(self.data_locations, data_name).cmd)
+                miner_data[data_name] = await function(**args_to_send)
+            except Exception as e:
+                raise APIError(
+                    f"Failed to call {data_name} on {self} while getting data."
+                ) from e
         return miner_data
 
     async def get_data(
