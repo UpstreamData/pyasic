@@ -326,8 +326,8 @@ MINER_CLASSES = {
     },
     MinerTypes.INNOSILICON: {
         None: CGMiner,
-        "T3H+": CGMinerT3HPlus,
-        "A10X": CGMinerA10X,
+        "T3H+": InnosiliconT3HPlus,
+        "A10X": InnosiliconA10X,
     },
     MinerTypes.GOLDSHELL: {
         None: BFGMiner,

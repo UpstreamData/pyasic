@@ -88,7 +88,11 @@ BTMINER_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.ERRORS): DataFunction(
-            "get_errors", [RPCAPICommand("api_get_error_code", "get_error_code")]
+            "get_errors",
+            [
+                RPCAPICommand("api_get_error_code", "get_error_code"),
+                RPCAPICommand("api_summary", "summary"),
+            ],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "get_fault_light",
@@ -546,7 +550,21 @@ class BTMiner(BaseMiner):
         self, api_summary: dict = None, api_get_error_code: dict = None
     ) -> List[MinerErrorData]:
         errors = []
-        if not api_summary and not api_get_error_code:
+        if not api_get_error_code and not api_summary:
+            try:
+                api_get_error_code = await self.api.get_error_code()
+            except APIError:
+                pass
+
+        if api_get_error_code:
+            for err in api_get_error_code["Msg"]["error_code"]:
+                if isinstance(err, dict):
+                    for code in err:
+                        errors.append(WhatsminerError(error_code=int(code)))
+                else:
+                    errors.append(WhatsminerError(error_code=int(err)))
+
+        if not api_summary:
             try:
                 api_summary = await self.api.summary()
             except APIError:
@@ -560,20 +578,6 @@ class BTMiner(BaseMiner):
                         errors.append(WhatsminerError(error_code=err))
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
-
-        if not api_get_error_code:
-            try:
-                api_get_error_code = await self.api.get_error_code()
-            except APIError:
-                pass
-
-        if api_get_error_code:
-            for err in api_get_error_code["Msg"]["error_code"]:
-                if isinstance(err, dict):
-                    for code in err:
-                        errors.append(WhatsminerError(error_code=int(code)))
-                else:
-                    errors.append(WhatsminerError(error_code=int(err)))
 
         return errors
 

@@ -37,9 +37,7 @@ AVALON_DATA_LOC = DataLocations(
         str(DataOptions.FW_VERSION): DataFunction(
             "get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction(
-            "get_hostname", [RPCAPICommand("api_version", "version")]
-        ),
+        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
             "get_hashrate", [RPCAPICommand("api_devs", "devs")]
         ),
@@ -194,7 +192,7 @@ class CGMinerAvalon(CGMiner):
             except (KeyError, ValueError):
                 pass
 
-    async def get_hostname(self, mac: str = None) -> Optional[str]:
+    async def get_hostname(self) -> Optional[str]:
         return None
         # if not mac:
         #     mac = await self.get_mac()
@@ -366,4 +364,7 @@ class CGMinerAvalon(CGMiner):
         return False
 
     async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+        return None
+
+    async def get_uptime(self) -> Optional[int]:
         return None

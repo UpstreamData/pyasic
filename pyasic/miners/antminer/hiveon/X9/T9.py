@@ -25,10 +25,6 @@ from pyasic.miners.types import T9
 
 
 class HiveonT9(Hiveon, T9):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        self.ip = ip
-        self.pwd = "admin"
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
@@ -46,34 +42,44 @@ class HiveonT9(Hiveon, T9):
             pass
 
     async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+        hashboards = [
+            HashBoard(slot=board, expected_chips=self.expected_chips)
+            for board in range(self.expected_hashboards)
+        ]
+
+        if api_stats is None:
+            try:
+                api_stats = self.api.stats()
+            except APIError:
+                return []
+
         board_map = {
             0: [2, 9, 10],
             1: [3, 11, 12],
             2: [4, 13, 14],
         }
-        hashboards = []
 
         for board in board_map:
-            hashboard = HashBoard(slot=board, expected_chips=self.expected_chips)
             hashrate = 0
             chips = 0
             for chipset in board_map[board]:
-                if hashboard.chip_temp == None:
+                if hashboards[board].chip_temp is None:
                     try:
-                        hashboard.board_temp = api_stats["STATS"][1][f"temp{chipset}"]
-                        hashboard.chip_temp = api_stats["STATS"][1][f"temp2_{chipset}"]
+                        hashboards[board].temp = api_stats["STATS"][1][f"temp{chipset}"]
+                        hashboards[board].chip_temp = api_stats["STATS"][1][
+                            f"temp2_{chipset}"
+                        ]
                     except (KeyError, IndexError):
                         pass
                     else:
-                        hashboard.missing = False
+                        hashboards[board].missing = False
                 try:
                     hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
                     chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
                 except (KeyError, IndexError):
                     pass
-            hashboard.hashrate = round(hashrate / 1000, 2)
-            hashboard.chips = chips
-            hashboards.append(hashboard)
+            hashboards[board].hashrate = round(hashrate / 1000, 2)
+            hashboards[board].chips = chips
 
         return hashboards
 
