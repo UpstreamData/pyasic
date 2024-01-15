@@ -16,6 +16,7 @@
 
 from typing import List, Optional
 
+from pyasic import settings
 from pyasic.data import HashBoard
 from pyasic.miners.backends import BMMiner
 from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -64,7 +65,7 @@ HIVEON_DATA_LOC = DataLocations(
 class Hiveon(BMMiner):
     def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, api_ver)
-        self.pwd = "admin"
+        self.pwd = settings.get("default_hive_password", "admin")
         # static data
         self.api_type = "Hiveon"
         # data gathering locations

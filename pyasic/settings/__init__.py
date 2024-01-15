@@ -34,6 +34,7 @@ _settings = {  # defaults
     "default_bosminer_password": "root",
     "default_vnish_password": "admin",
     "default_goldshell_password": "123456789",
+    "default_hive_password": "admin",
     "socket_linger_time": 1000,
 }
 

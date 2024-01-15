@@ -32,7 +32,7 @@ class BaseMinerRPCAPI:
         # ip address of the miner
         self.ip = ipaddress.ip_address(ip)
 
-        self.pwd = "admin"
+        self.pwd = None
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseMinerRPCAPI:

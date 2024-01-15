@@ -99,8 +99,6 @@ class BaseMiner(ABC):
         self.api = None
         self.web = None
 
-        self.ssh_pwd = "root"
-
         # static data
         self.ip = ip
         self.api_type = None
@@ -165,7 +163,6 @@ class BaseMiner(ABC):
 
     @pwd.setter
     def pwd(self, val):
-        self.ssh_pwd = val
         try:
             if self.web is not None:
                 self.web.pwd = val
@@ -202,7 +199,7 @@ class BaseMiner(ABC):
                 str(self.ip),
                 known_hosts=None,
                 username="root",
-                password=self.ssh_pwd,
+                password=self.pwd,
                 server_host_key_algs=["ssh-rsa"],
             )
             return conn
