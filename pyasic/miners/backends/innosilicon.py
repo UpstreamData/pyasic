@@ -33,68 +33,67 @@ from pyasic.web.innosilicon import InnosiliconWebAPI
 INNOSILICON_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "get_mac",
+            "_get_mac",
             [
                 WebAPICommand("web_get_all", "getAll"),
                 WebAPICommand("web_overview", "overview"),
             ],
         ),
-        str(DataOptions.MODEL): DataFunction("get_model"),
         str(DataOptions.API_VERSION): DataFunction(
-            "get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver", [RPCAPICommand("api_version", "version")]
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
         ),
-        str(DataOptions.HOSTNAME): DataFunction("get_hostname"),
+        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "get_hashrate",
+            "_get_hashrate",
             [
                 RPCAPICommand("api_summary", "summary"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "get_expected_hashrate",
+            "_get_expected_hashrate",
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "get_hashboards",
+            "_get_hashboards",
             [
                 RPCAPICommand("api_stats", "stats"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("get_env_temp"),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
-            "get_wattage",
+            "_get_wattage",
             [
                 WebAPICommand("web_get_all", "getAll"),
                 RPCAPICommand("api_stats", "stats"),
             ],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "get_wattage_limit",
+            "_get_wattage_limit",
             [
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
         str(DataOptions.FANS): DataFunction(
-            "get_fans",
+            "_get_fans",
             [
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("get_fan_psu"),
+        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
-            "get_errors",
+            "_get_errors",
             [
                 WebAPICommand("web_get_error_detail", "getErrorDetail"),
             ],
         ),
-        str(DataOptions.FAULT_LIGHT): DataFunction("get_fault_light"),
+        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
         str(DataOptions.IS_MINING): DataFunction("is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
         ),
         str(DataOptions.CONFIG): DataFunction("get_config"),
     }
@@ -176,7 +175,7 @@ class Innosilicon(CGMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(
+    async def _get_mac(
         self, web_get_all: dict = None, web_overview: dict = None
     ) -> Optional[str]:
         if web_get_all:
@@ -202,7 +201,7 @@ class Innosilicon(CGMiner):
             except KeyError:
                 pass
 
-    async def get_hashrate(
+    async def _get_hashrate(
         self, api_summary: dict = None, web_get_all: dict = None
     ) -> Optional[float]:
         if web_get_all:
@@ -234,7 +233,7 @@ class Innosilicon(CGMiner):
             except (KeyError, IndexError):
                 pass
 
-    async def get_hashboards(
+    async def _get_hashboards(
         self, api_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
         if web_get_all:
@@ -292,7 +291,7 @@ class Innosilicon(CGMiner):
 
         return hashboards
 
-    async def get_wattage(
+    async def _get_wattage(
         self, web_get_all: dict = None, api_stats: dict = None
     ) -> Optional[int]:
         if web_get_all:
@@ -329,7 +328,7 @@ class Innosilicon(CGMiner):
                         wattage = int(wattage)
                         return wattage
 
-    async def get_fans(self, web_get_all: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_get_all: dict = None) -> List[Fan]:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -354,7 +353,7 @@ class Innosilicon(CGMiner):
 
         return fans
 
-    async def get_errors(
+    async def _get_errors(
         self, web_get_error_detail: dict = None
     ) -> List[MinerErrorData]:
         errors = []
@@ -377,7 +376,7 @@ class Innosilicon(CGMiner):
                     errors.append(InnosiliconError(error_code=err))
         return errors
 
-    async def get_wattage_limit(self, web_get_all: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(self, web_get_all: dict = None) -> Optional[int]:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -400,5 +399,5 @@ class Innosilicon(CGMiner):
                 limit = 1250 + (250 * level)
                 return limit
 
-    async def get_expected_hashrate(self) -> Optional[float]:
+    async def _get_expected_hashrate(self) -> Optional[float]:
         pass
