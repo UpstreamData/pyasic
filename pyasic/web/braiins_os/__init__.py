@@ -31,6 +31,7 @@ class BOSMinerWebAPI(BaseWebAPI):
             ip, settings.get("default_bosminer_password", "root")
         )
         self._pwd = settings.get("default_bosminer_password", "root")
+        self._port = 80
         super().__init__(ip)
 
     @property
@@ -41,6 +42,15 @@ class BOSMinerWebAPI(BaseWebAPI):
     def pwd(self, other: str):
         self._pwd = other
         self.luci.pwd = other
+
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, other: str):
+        self._port = other
+        self.luci.port = other
 
     async def send_command(
         self,
@@ -63,6 +73,7 @@ class BOSerWebAPI(BOSMinerWebAPI):
             ip, settings.get("default_bosminer_password", "root")
         )
         self.grpc = BOSerGRPCAPI(ip, settings.get("default_bosminer_password", "root"))
+        self._port = 80
         super().__init__(ip)
 
     @property
@@ -76,6 +87,16 @@ class BOSerWebAPI(BOSMinerWebAPI):
         self.gql.pwd = other
         self.grpc.pwd = other
 
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, other: str):
+        self._port = other
+        self.luci.port = other
+        self.gql.port = other
+
     async def send_command(
         self,
         command: Union[str, dict],
@@ -84,14 +105,14 @@ class BOSerWebAPI(BOSMinerWebAPI):
         **parameters: Union[str, int, bool],
     ) -> dict:
         command_type = self.select_command_type(command)
-        if command_type is "gql":
+        if command_type == "gql":
             return await self.gql.send_command(command)
-        elif command_type is "grpc":
+        elif command_type == "grpc":
             try:
                 return await (getattr(self.grpc, command.replace("grpc_", "")))()
             except AttributeError:
                 raise APIError(f"No gRPC command found for command: {command}")
-        elif command_type is "luci":
+        elif command_type == "luci":
             return await self.luci.send_command(command)
 
     @staticmethod

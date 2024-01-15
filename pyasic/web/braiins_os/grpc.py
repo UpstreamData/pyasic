@@ -14,9 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import asyncio
+import logging
 from datetime import timedelta
 
 from betterproto import Message
+from grpclib import GRPCError, Status
 from grpclib.client import Channel
 
 from pyasic.errors import APIError
@@ -44,6 +46,7 @@ class BOSerGRPCAPI:
         self.ip = ip
         self.username = "root"
         self.pwd = pwd
+        self.port = 50051
         self._auth = None
         self._auth_time = datetime.now()
 
@@ -90,13 +93,23 @@ class BOSerGRPCAPI:
         metadata = []
         if auth:
             metadata.append(("authorization", await self.auth()))
-        async with Channel(self.ip, 50051) as c:
-            endpoint = getattr(BOSMinerGRPCStub(c), command)
-            if endpoint is None:
-                if not ignore_errors:
-                    raise APIError(f"Command not found - {endpoint}")
-                return {}
-            return (await endpoint(message, metadata=metadata)).to_pydict()
+        try:
+            async with Channel(self.ip, self.port) as c:
+                endpoint = getattr(BOSMinerGRPCStub(c), command)
+                if endpoint is None:
+                    if not ignore_errors:
+                        raise APIError(f"Command not found - {endpoint}")
+                    return {}
+                try:
+                    return (await endpoint(message, metadata=metadata)).to_pydict()
+                except GRPCError as e:
+                    if e.status == Status.UNAUTHENTICATED:
+                        await self._get_auth()
+                        metadata = [("authorization", await self.auth())]
+                        return (await endpoint(message, metadata=metadata)).to_pydict()
+                    raise e
+        except GRPCError as e:
+            raise APIError(f"gRPC command failed - {endpoint}") from e
 
     async def auth(self):
         if self._auth is not None and self._auth_time - datetime.now() < timedelta(
@@ -107,7 +120,7 @@ class BOSerGRPCAPI:
         return self._auth
 
     async def _get_auth(self):
-        async with Channel(self.ip, 50051) as c:
+        async with Channel(self.ip, self.port) as c:
             req = LoginRequest(username=self.username, password=self.pwd)
             async with c.request(
                 "/braiins.bos.v1.AuthenticationService/Login",
@@ -152,7 +165,9 @@ class BOSerGRPCAPI:
         )
 
     async def get_locate_device_status(self):
-        return await self.send_command("get_locate_device_status")
+        return await self.send_command(
+            "get_locate_device_status", GetLocateDeviceStatusRequest()
+        )
 
     async def set_password(self, password: str = None):
         return await self.send_command(
@@ -281,15 +296,71 @@ class BOSerGRPCAPI:
 
     async def set_dps(
         self,
+        enable: bool,
+        power_step: int,
+        min_power_target: int,
+        enable_shutdown: bool = None,
+        shutdown_duration: int = None,
     ):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PerformanceService/SetDPS")
-
-    async def set_performance_mode(self):
-        raise NotImplementedError
         return await self.send_command(
-            "braiins.bos.v1.PerformanceService/SetPerformanceMode"
+            "set_dps",
+            message=SetDpsRequest(
+                enable=enable,
+                enable_shutdown=enable_shutdown,
+                shutdown_duration=shutdown_duration,
+                target=DpsTarget(
+                    power_target=DpsPowerTarget(
+                        power_step=Power(power_step),
+                        min_power_target=Power(min_power_target),
+                    )
+                ),
+            ),
         )
+
+    async def set_performance_mode(
+        self,
+        wattage_target: int = None,
+        hashrate_target: int = None,
+        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+    ):
+        if wattage_target is not None and hashrate_target is not None:
+            logging.error(
+                "Cannot use both wattage_target and hashrate_target, using wattage_target."
+            )
+        elif wattage_target is None and hashrate_target is None:
+            raise APIError(
+                "No target supplied, please supply either wattage_target or hashrate_target."
+            )
+        if wattage_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            power_target=PowerTargetMode(
+                                power_target=Power(watt=wattage_target)
+                            )
+                        )
+                    ),
+                ),
+            )
+        if hashrate_target is not None:
+            return await self.send_command(
+                "set_performance_mode",
+                message=SetPerformanceModeRequest(
+                    save_action=save_action,
+                    mode=PerformanceMode(
+                        tuner_mode=TunerPerformanceMode(
+                            hashrate_target=HashrateTargetMode(
+                                hashrate_target=TeraHashrate(
+                                    terahash_per_second=hashrate_target
+                                )
+                            )
+                        )
+                    ),
+                ),
+            )
 
     async def get_active_performance_mode(self):
         return await self.send_command(

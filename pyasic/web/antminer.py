@@ -35,10 +35,12 @@ class AntminerModernWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+        url = f"http://{self.ip}:{self.port}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
-            async with httpx.AsyncClient(transport=settings.transport()) as client:
+            async with httpx.AsyncClient(
+                transport=settings.transport(),
+            ) as client:
                 if parameters:
                     data = await client.post(
                         url,
@@ -149,7 +151,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+        url = f"http://{self.ip}:{self.port}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:

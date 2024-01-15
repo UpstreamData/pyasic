@@ -26,6 +26,7 @@ class BOSMinerLuCIAPI:
         self.ip = ip
         self.username = "root"
         self.pwd = pwd
+        self.port = 80
 
     async def multicommand(self, *commands: str) -> dict:
         data = {}
@@ -38,7 +39,7 @@ class BOSMinerLuCIAPI:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
                 await self.auth(client)
                 data = await client.get(
-                    f"http://{self.ip}/cgi-bin/luci/{path}",
+                    f"http://{self.ip}:{self.port}/cgi-bin/luci/{path}",
                     headers={"User-Agent": "BTC Tools v0.1"},
                 )
                 if data.status_code == 200:
@@ -55,7 +56,7 @@ class BOSMinerLuCIAPI:
 
     async def auth(self, session: httpx.AsyncClient):
         login = {"luci_username": self.username, "luci_password": self.pwd}
-        url = f"http://{self.ip}/cgi-bin/luci"
+        url = f"http://{self.ip}:{self.port}/cgi-bin/luci"
         headers = {
             "User-Agent": "BTC Tools v0.1",  # only seems to respond if this user-agent is set
             "Content-Type": "application/x-www-form-urlencoded",

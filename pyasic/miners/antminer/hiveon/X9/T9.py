@@ -41,7 +41,7 @@ class HiveonT9(Hiveon, T9):
         except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
 
-    async def get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
             for board in range(self.expected_hashboards)
@@ -83,7 +83,7 @@ class HiveonT9(Hiveon, T9):
 
         return hashboards
 
-    async def get_wattage(self, api_stats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, api_stats: dict = None) -> Optional[int]:
         if not api_stats:
             try:
                 api_stats = await self.api.stats()
@@ -100,7 +100,7 @@ class HiveonT9(Hiveon, T9):
                 # parse wattage position out of raw data
                 return round(float(wattage_raw.split(" ")[0]))
 
-    async def get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
         env_temp_list = []
         board_map = {
             0: [2, 9, 10],

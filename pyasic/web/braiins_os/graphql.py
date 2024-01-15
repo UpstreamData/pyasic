@@ -26,6 +26,7 @@ class BOSerGraphQLAPI:
         self.ip = ip
         self.username = "root"
         self.pwd = pwd
+        self.port = 80
 
     async def multicommand(self, *commands: dict) -> dict:
         def merge(*d: dict):
@@ -60,7 +61,7 @@ class BOSerGraphQLAPI:
         self,
         command: dict,
     ) -> dict:
-        url = f"http://{self.ip}/graphql"
+        url = f"http://{self.ip}:{self.port}/graphql"
         query = command
         if command is None:
             return {}
@@ -93,7 +94,7 @@ class BOSerGraphQLAPI:
         return "{" + ",".join(data) + "}"
 
     async def auth(self, client: httpx.AsyncClient) -> None:
-        url = f"http://{self.ip}/graphql"
+        url = f"http://{self.ip}:{self.port}/graphql"
         await client.post(
             url,
             json={

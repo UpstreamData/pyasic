@@ -35,7 +35,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
-                    f"http://{self.ip}/api/auth",
+                    f"http://{self.ip}:{self.port}/api/auth",
                     data={"username": self.username, "password": self.pwd},
                 )
             except httpx.HTTPError:
@@ -58,7 +58,7 @@ class InnosiliconWebAPI(BaseWebAPI):
             for i in range(settings.get("get_data_retries", 1)):
                 try:
                     response = await client.post(
-                        f"http://{self.ip}/api/{command}",
+                        f"http://{self.ip}:{self.port}/api/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
                         timeout=settings.get("api_function_timeout", 5),
                         json=parameters,
@@ -94,7 +94,7 @@ class InnosiliconWebAPI(BaseWebAPI):
             for command in commands:
                 try:
                     response = await client.post(
-                        f"http://{self.ip}/api/{command}",
+                        f"http://{self.ip}:{self.port}/api/{command}",
                         headers={"Authorization": "Bearer " + self.jwt},
                         timeout=settings.get("api_function_timeout", 5),
                     )
