@@ -476,6 +476,7 @@ class MinerFactory:
             fn = miner_model_fns.get(miner_type)
 
             if fn is not None:
+                # noinspection PyArgumentList
                 task = asyncio.create_task(fn(ip))
                 try:
                     miner_model = await asyncio.wait_for(

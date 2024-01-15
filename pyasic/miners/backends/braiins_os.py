@@ -16,8 +16,7 @@
 import asyncio
 import logging
 import time
-from collections import namedtuple
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Union
 
 import toml
 
@@ -32,7 +31,6 @@ from pyasic.miners.base import (
     DataFunction,
     DataLocations,
     DataOptions,
-    GraphQLCommand,
     GRPCCommand,
     RPCAPICommand,
     WebAPICommand,
@@ -537,13 +535,13 @@ class BOSMiner(BaseMiner):
 
         if api_fans:
             fans = []
-            for n in range(self.fan_count):
+            for n in range(self.expected_fans):
                 try:
                     fans.append(Fan(api_fans["FANS"][n]["RPM"]))
                 except (IndexError, KeyError):
                     pass
             return fans
-        return [Fan() for _ in range(self.fan_count)]
+        return [Fan() for _ in range(self.expected_fans)]
 
     async def _get_fan_psu(self) -> Optional[int]:
         return None
@@ -978,13 +976,13 @@ class BOSer(BaseMiner):
 
         if grpc_cooling_state:
             fans = []
-            for n in range(self.fan_count):
+            for n in range(self.expected_fans):
                 try:
                     fans.append(Fan(grpc_cooling_state["fans"][n]["rpm"]))
                 except (IndexError, KeyError):
                     pass
             return fans
-        return [Fan() for _ in range(self.fan_count)]
+        return [Fan() for _ in range(self.expected_fans)]
 
     async def _get_fan_psu(self) -> Optional[int]:
         return None

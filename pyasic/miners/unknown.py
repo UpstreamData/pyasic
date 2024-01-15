@@ -33,7 +33,6 @@ class UnknownMiner(BaseMiner):
         super().__init__(ip)
         self.ip = ip
         self.api = UnknownAPI(ip)
-        self.model = "Unknown"
 
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"

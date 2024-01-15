@@ -20,7 +20,6 @@ from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
     DpsPowerTarget,
     DpsTarget,
-    Hours,
     Power,
     SetDpsRequest,
 )
@@ -210,9 +209,8 @@ class PowerScalingConfig(MinerConfigOption):
         except LookupError:
             return cls.default()
 
-        conf = {}
+        conf = {"shutdown_enabled": PowerScalingShutdown.from_boser(dps_conf)}
 
-        conf["shutdown_enabled"] = PowerScalingShutdown.from_boser(dps_conf)
         if dps_conf.get("minPowerTarget") is not None:
             conf["minimum_power"] = dps_conf["minPowerTarget"]["watt"]
         if dps_conf.get("powerStep") is not None:

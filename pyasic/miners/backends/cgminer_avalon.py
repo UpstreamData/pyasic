@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import logging
 import re
 from typing import List, Optional
 
@@ -315,7 +314,7 @@ class CGMinerAvalon(CGMiner):
             except APIError:
                 pass
 
-        fans_data = [Fan() for _ in range(self.fan_count)]
+        fans_data = [Fan() for _ in range(self.expected_fans)]
         if api_stats:
             try:
                 unparsed_stats = api_stats["STATS"][0]["MM ID0"]
@@ -323,7 +322,7 @@ class CGMinerAvalon(CGMiner):
             except LookupError:
                 return fans_data
 
-            for fan in range(self.fan_count):
+            for fan in range(self.expected_fans):
                 try:
                     fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
                 except (IndexError, KeyError, ValueError, TypeError):

@@ -151,7 +151,7 @@ class ePIC(BaseMiner):
             try:
                 for network in web_network:
                     mac = web_network[network]["mac_address"]
-                return mac
+                    return mac
             except KeyError:
                 pass
 
@@ -188,7 +188,7 @@ class ePIC(BaseMiner):
         if web_summary:
             try:
                 hashrate = 0
-                if web_summary["HBs"] != None:
+                if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
                     return round(float(float(hashrate / 1000000)), 2)
@@ -207,7 +207,7 @@ class ePIC(BaseMiner):
         if web_summary:
             try:
                 hashrate = 0
-                if web_summary["HBs"] != None:
+                if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         if hb["Hashrate"][1] == 0:
                             ideal = 1.0
@@ -266,7 +266,7 @@ class ePIC(BaseMiner):
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
-        if web_summary["HBs"] != None:
+        if web_summary["HBs"] is not None:
             for hb in web_summary["HBs"]:
                 for hr in web_hashrate:
                     if hr["Index"] == hb["Index"]:
@@ -312,7 +312,7 @@ class ePIC(BaseMiner):
         if web_summary:
             try:
                 error = web_summary["Status"]["Last Error"]
-                if error != None:
+                if error is not None:
                     errors.append(X19Error(str(error)))
                 return errors
             except KeyError:
@@ -327,9 +327,6 @@ class ePIC(BaseMiner):
 
     def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
         pass
-
-    def get_config(self) -> MinerConfig:
-        return self.config
 
     def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
         pass

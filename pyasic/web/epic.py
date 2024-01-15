@@ -89,10 +89,10 @@ class ePICWebAPI(BaseWebAPI):
         return data
 
     async def restart_epic(self) -> dict:
-        return await self.send_command("softreboot", post=True, parameters=None)
+        return await self.send_command("softreboot", post=True)
 
     async def reboot(self) -> dict:
-        return await self.send_command("reboot", post=True, parameters=None)
+        return await self.send_command("reboot", post=True)
 
     async def pause_mining(self) -> dict:
         return await self.send_command("miner", post=True, parameters="Stop")
