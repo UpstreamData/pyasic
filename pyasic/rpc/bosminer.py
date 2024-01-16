@@ -32,7 +32,6 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
     """
 
     async def asccount(self) -> dict:

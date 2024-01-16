@@ -19,5 +19,4 @@ from pyasic.miners.types import L3Plus
 
 
 class VnishL3Plus(VNish, L3Plus):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
+    pass

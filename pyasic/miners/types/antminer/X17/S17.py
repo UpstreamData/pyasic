@@ -14,39 +14,28 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class S17(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S17"
-        self.expected_chips = 48
-        self.fan_count = 4
+class S17(AntMinerMake):
+    raw_model = "S17"
+    expected_chips = 48
+    expected_fans = 4
 
 
-class S17Plus(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.raw_model = "S17+"
-        self.expected_chips = 65
-        self.fan_count = 4
+class S17Plus(AntMinerMake):
+    raw_model = "S17+"
+    expected_chips = 65
+    expected_fans = 4
 
 
-class S17Pro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S17 Pro"
-        self.expected_chips = 48
-        self.fan_count = 4
+class S17Pro(AntMinerMake):
+    raw_model = "S17 Pro"
+    expected_chips = 48
+    expected_fans = 4
 
 
-class S17e(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S17e"
-        self.expected_chips = 135
-        self.fan_count = 4
+class S17e(AntMinerMake):
+    raw_model = "S17e"
+    expected_chips = 135
+    expected_fans = 4

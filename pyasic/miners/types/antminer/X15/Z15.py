@@ -14,13 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class Z15(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "Z15"
-        self.expected_chips = 3
-        self.fan_count = 2
+class Z15(AntMinerMake):
+    raw_model = "Z15"
+    expected_chips = 3
+    expected_fans = 2

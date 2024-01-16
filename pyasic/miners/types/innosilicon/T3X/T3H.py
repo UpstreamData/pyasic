@@ -14,13 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import InnosiliconMiner
+from pyasic.miners.makes import InnosiliconMake
 
 
-class T3HPlus(InnosiliconMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "T3H+"
-        self.expected_chips = 114
-        self.fan_count = 4
+class T3HPlus(InnosiliconMake):
+    raw_model = "T3H+"
+    expected_chips = 114
+    expected_fans = 4

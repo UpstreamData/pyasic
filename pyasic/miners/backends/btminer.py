@@ -116,20 +116,11 @@ BTMINER_DATA_LOC = DataLocations(
 
 
 class BTMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        # interfaces
-        self.api = BTMinerRPCAPI(ip, api_ver)
+    _api_cls = BTMinerRPCAPI
 
-        # static data
-        self.api_type = "BTMiner"
-        # data gathering locations
-        self.data_locations = BTMINER_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_shutdown = True
+    data_locations = BTMINER_DATA_LOC
 
-        # data storage
-        self.api_ver = api_ver
+    supports_shutdown = True
 
     async def _reset_api_pwd_to_admin(self, pwd: str):
         try:
@@ -397,7 +388,6 @@ class BTMiner(BaseMiner):
         return hostname
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        # get hr from API
         if api_summary is None:
             try:
                 api_summary = await self.api.summary()
@@ -545,12 +535,15 @@ class BTMiner(BaseMiner):
                 pass
 
         if api_get_error_code is not None:
-            for err in api_get_error_code["Msg"]["error_code"]:
-                if isinstance(err, dict):
-                    for code in err:
-                        errors.append(WhatsminerError(error_code=int(code)))
-                else:
-                    errors.append(WhatsminerError(error_code=int(err)))
+            try:
+                for err in api_get_error_code["Msg"]["error_code"]:
+                    if isinstance(err, dict):
+                        for code in err:
+                            errors.append(WhatsminerError(error_code=int(code)))
+                    else:
+                        errors.append(WhatsminerError(error_code=int(err)))
+            except KeyError:
+                pass
 
         if api_summary is None:
             try:
@@ -568,7 +561,7 @@ class BTMiner(BaseMiner):
                 pass
         return errors
 
-    async def _get_expected_hashrate(self, api_summary: dict = None):
+    async def _get_expected_hashrate(self, api_summary: dict = None) -> Optional[float]:
         if api_summary is None:
             try:
                 api_summary = await self.api.summary()
@@ -583,7 +576,7 @@ class BTMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def _get_fault_light(self, api_get_miner_info: dict = None) -> bool:
+    async def _get_fault_light(self, api_get_miner_info: dict = None) -> Optional[bool]:
         if api_get_miner_info is None:
             try:
                 api_get_miner_info = await self.api.get_miner_info()

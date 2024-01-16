@@ -22,19 +22,13 @@ from pyasic.miners.types.whatsminer.M5X.M50S_Plus_Plus import (  # noqa - ignore
 )
 
 
-class BTMinerM50SPlusPlusVK10(  # noqa - ignore ABC method implementation
-    M50SPlusPlusVK10, M5X
-):
+class BTMinerM50SPlusPlusVK10(M50SPlusPlusVK10, M5X):
     pass
 
 
-class BTMinerM50SPlusPlusVK20(  # noqa - ignore ABC method implementation
-    M50SPlusPlusVK20, M5X
-):
+class BTMinerM50SPlusPlusVK20(M50SPlusPlusVK20, M5X):
     pass
 
 
-class BTMinerM50SPlusPlusVK30(  # noqa - ignore ABC method implementation
-    M50SPlusPlusVK30, M5X
-):
+class BTMinerM50SPlusPlusVK30(M50SPlusPlusVK30, M5X):
     pass

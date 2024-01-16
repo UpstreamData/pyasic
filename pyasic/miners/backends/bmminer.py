@@ -19,7 +19,6 @@ from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import (
     BaseMiner,
@@ -67,46 +66,9 @@ BMMINER_DATA_LOC = DataLocations(
 class BMMiner(BaseMiner):
     """Base handler for BMMiner based miners."""
 
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        # interfaces
-        self.api = BMMinerRPCAPI(ip, api_ver)
+    _api_cls = BMMinerRPCAPI
 
-        # static data
-        self.api_type = "BMMiner"
-        # data gathering locations
-        self.data_locations = BMMINER_DATA_LOC
-
-        # data storage
-        self.api_ver = api_ver
-
-    async def send_ssh_command(self, cmd: str) -> Optional[str]:
-        result = None
-
-        try:
-            conn = await self._get_ssh_connection()
-        except ConnectionError:
-            return None
-
-        # open an ssh connection
-        async with conn:
-            # 3 retries
-            for i in range(3):
-                try:
-                    # run the command and get the result
-                    result = await conn.run(cmd)
-                    result = result.stdout
-
-                except Exception as e:
-                    # if the command fails, log it
-                    logging.warning(f"{self} command {cmd} error: {e}")
-
-                    # on the 3rd retry, return None
-                    if i == 3:
-                        return
-                    continue
-        # return the result, either command output or None
-        return result
+    data_locations = BMMINER_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -126,33 +88,9 @@ class BMMiner(BaseMiner):
             return False
         return True
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        return None
-
-    async def fault_light_off(self) -> bool:
-        return False
-
-    async def fault_light_on(self) -> bool:
-        return False
-
-    async def restart_backend(self) -> bool:
-        return False
-
-    async def stop_mining(self) -> bool:
-        return False
-
-    async def resume_mining(self) -> bool:
-        return False
-
-    async def set_power_limit(self, wattage: int) -> bool:
-        return False
-
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
-
-    async def _get_mac(self) -> Optional[str]:
-        return None
 
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if api_version is None:
@@ -183,9 +121,6 @@ class BMMiner(BaseMiner):
                 pass
 
         return self.fw_ver
-
-    async def _get_fan_psu(self):
-        return None
 
     async def _get_hostname(self) -> Optional[str]:
         hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
@@ -272,15 +207,6 @@ class BMMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_env_temp(self) -> Optional[float]:
-        return None
-
-    async def _get_wattage(self) -> Optional[int]:
-        return None
-
-    async def _get_wattage_limit(self) -> Optional[int]:
-        return None
-
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
         if api_stats is None:
             try:
@@ -310,12 +236,6 @@ class BMMiner(BaseMiner):
 
         return fans
 
-    async def _get_errors(self) -> List[MinerErrorData]:
-        return []
-
-    async def _get_fault_light(self) -> bool:
-        return False
-
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
         if api_stats is None:
@@ -339,9 +259,6 @@ class BMMiner(BaseMiner):
                     return round(expected_rate, 2)
             except LookupError:
                 pass
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
         if api_stats is None:

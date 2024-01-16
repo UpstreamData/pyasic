@@ -80,7 +80,6 @@ INNOSILICON_DATA_LOC = DataLocations(
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
             [
@@ -96,25 +95,13 @@ INNOSILICON_DATA_LOC = DataLocations(
 
 
 class Innosilicon(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        # interfaces
-        self.web = InnosiliconWebAPI(ip)
+    """Base handler for Innosilicon miners"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = INNOSILICON_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_shutdown = True
+    _web_cls = InnosiliconWebAPI
 
-        # data storage
-        self.api_ver = api_ver
+    data_locations = INNOSILICON_DATA_LOC
 
-    async def fault_light_on(self) -> bool:
-        return False
-
-    async def fault_light_off(self) -> bool:
-        return False
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -144,23 +131,6 @@ class Innosilicon(CGMiner):
 
     async def restart_backend(self) -> bool:
         return await self.restart_cgminer()
-
-    async def stop_mining(self) -> bool:
-        return False
-        # data = await self.web.poweroff()
-        # try:
-        #     return data["success"]
-        # except KeyError:
-        #     return False
-
-    async def resume_mining(self) -> bool:
-        return False
-        # data = await self.web.restart_cgminer()
-        # print(data)
-        # try:
-        #     return data["success"]
-        # except KeyError:
-        #     return False
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
@@ -393,6 +363,3 @@ class Innosilicon(CGMiner):
                 level = int(level)
                 limit = 1250 + (250 * level)
                 return limit
-
-    async def _get_expected_hashrate(self) -> Optional[float]:
-        pass

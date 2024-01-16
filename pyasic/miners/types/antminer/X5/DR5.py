@@ -14,14 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class DR5(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "DR5"
-        self.expected_chips = 72
-        self.expected_hashboards = 3
-        self.fan_count = 2
+class DR5(AntMinerMake):
+    raw_model = "DR5"
+    expected_chips = 72
+    expected_hashboards = 3
+    expected_fans = 2

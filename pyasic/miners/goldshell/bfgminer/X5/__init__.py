@@ -13,6 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .CK5 import BFGMinerCK5
-from .HS5 import BFGMinerHS5
-from .KD5 import BFGMinerKD5
+from .CK5 import GoldshellCK5
+from .HS5 import GoldshellHS5
+from .KD5 import GoldshellKD5

@@ -36,7 +36,7 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
 
-    def as_wm(self, idx: int, user_suffix: str = None):
+    def as_wm(self, idx: int = 1, user_suffix: str = None):
         if user_suffix is not None:
             return {
                 f"pool_{idx}": self.url,
@@ -49,7 +49,7 @@ class Pool(MinerConfigValue):
             f"passwd_{idx}": self.password,
         }
 
-    def as_am_old(self, idx: int, user_suffix: str = None):
+    def as_am_old(self, idx: int = 1, user_suffix: str = None):
         if user_suffix is not None:
             return {
                 f"_ant_pool{idx}url": self.url,
@@ -76,7 +76,7 @@ class Pool(MinerConfigValue):
             return ",".join([self.url, f"{self.user}{user_suffix}", self.password])
         return ",".join([self.url, self.user, self.password])
 
-    def as_inno(self, idx: int, user_suffix: str = None):
+    def as_inno(self, idx: int = 1, user_suffix: str = None):
         if user_suffix is not None:
             return {
                 f"Pool{idx}": self.url,

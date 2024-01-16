@@ -16,10 +16,10 @@
 import asyncio
 import ipaddress
 import logging
-from abc import ABC, abstractmethod
+import warnings
 from dataclasses import dataclass, field, make_dataclass
 from enum import Enum
-from typing import List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 import asyncssh
 
@@ -88,7 +88,7 @@ class GraphQLCommand(WebAPICommand):
 @dataclass
 class DataFunction:
     cmd: str
-    kwargs: list[
+    kwargs: List[
         Union[RPCAPICommand, WebAPICommand, GRPCCommand, GraphQLCommand]
     ] = field(default_factory=list)
 
@@ -106,39 +106,30 @@ DataLocations = make_dataclass(
 )
 
 
-class BaseMiner(ABC):
-    def __init__(self, ip: str, *args, **kwargs) -> None:
-        # interfaces
-        self.api = None
-        self.web = None
+class MinerProtocol(Protocol):
+    _api_cls: Type = None
+    _web_cls: Type = None
 
-        # static data
-        self.ip = ip
-        self.api_type = None
-        # type
-        self.make = None
-        self.raw_model = None
-        self.fw_str = None
-        # physical attributes
-        self.expected_hashboards = 3
-        self.expected_chips = 0
-        self.expected_fans = 2
-        # data gathering locations
-        self.data_locations: DataLocations = None
-        # autotuning/shutdown support
-        self.supports_autotuning = False
-        self.supports_shutdown = False
+    api = None
+    web = None
 
-        # data storage
-        self.api_ver = None
-        self.fw_ver = None
-        self.light = None
-        self.config = None
+    make: str = None
+    raw_model: str = None
+    firmware: str = None
 
-    def __new__(cls, *args, **kwargs):
-        if cls is BaseMiner:
-            raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
-        return object.__new__(cls)
+    expected_hashboards: int = 3
+    expected_chips: int = None
+    expected_fans: int = 2
+
+    data_locations: DataLocations = None
+
+    supports_shutdown: bool = False
+    supports_autotuning: bool = False
+
+    api_ver: str = None
+    fw_ver: str = None
+    light: bool = None
+    config: MinerConfig = None
 
     def __repr__(self):
         return f"{self.model}: {str(self.ip)}"
@@ -153,57 +144,41 @@ class BaseMiner(ABC):
         return ipaddress.ip_address(self.ip) == ipaddress.ip_address(other.ip)
 
     @property
-    def model(self):
+    def model(self) -> str:
         model_data = [self.raw_model if self.raw_model is not None else "Unknown"]
-        if self.fw_str is not None:
-            model_data.append(f"({self.fw_str})")
+        if self.firmware is not None:
+            model_data.append(f"({self.firmware})")
         return " ".join(model_data)
 
     @property
-    def pwd(self):  # noqa - Skip PyCharm inspection
-        data = []
-        try:
-            if self.web is not None:
-                data.append(f"web={self.web.pwd}")
-        except TypeError:
-            pass
-        try:
-            if self.api is not None:
-                data.append(f"api={self.api.pwd}")
-        except TypeError:
-            pass
-        return ",".join(data)
+    def pwd(self) -> Dict[str, str]:
+        data = {}
+        if self.web is not None:
+            data["web"] = self.web.pwd
+        if self.api is not None:
+            data["api"] = self.api.pwd
+        return data
 
     @pwd.setter
-    def pwd(self, val):
-        try:
-            if self.web is not None:
-                self.web.pwd = val
-        except TypeError:
-            pass
-        try:
-            if self.api is not None:
-                self.api.pwd = val
-        except TypeError:
-            pass
+    def pwd(self, val: str) -> None:
+        if self.web is not None:
+            self.web.pwd = val
+        if self.api is not None:
+            self.api.pwd = val
 
     @property
-    def username(self):  # noqa - Skip PyCharm inspection
-        data = []
-        try:
-            if self.web is not None:
-                data.append(f"web={self.web.username}")
-        except TypeError:
-            pass
-        return ",".join(data)
+    def username(self) -> Dict[str, str]:
+        data = {}
+        if self.web is not None:
+            data["web"] = self.web.pwd
+        if self.api is not None:
+            data["api"] = self.api.pwd
+        return data
 
     @username.setter
-    def username(self, val):
-        try:
-            if self.web is not None:
-                self.web.username = val
-        except TypeError:
-            pass
+    def username(self, val) -> None:
+        if self.web is not None:
+            self.web.username = val
 
     async def _get_ssh_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
@@ -216,44 +191,47 @@ class BaseMiner(ABC):
                 server_host_key_algs=["ssh-rsa"],
             )
             return conn
-        except asyncssh.misc.PermissionDenied:
-            try:
-                conn = await asyncssh.connect(
-                    str(self.ip),
-                    known_hosts=None,
-                    username="root",
-                    password="admin",
-                    server_host_key_algs=["ssh-rsa"],
-                )
-                return conn
-            except Exception as e:
-                raise ConnectionError from e
-        except OSError as e:
-            logging.warning(f"Connection refused: {self}")
-            raise ConnectionError from e
+        except asyncssh.misc.PermissionDenied as e:
+            raise ConnectionRefusedError from e
         except Exception as e:
             raise ConnectionError from e
+
+    async def send_ssh_command(self, cmd: str) -> Optional[str]:
+        """Send an ssh command to the miner"""
+        try:
+            conn = await asyncio.wait_for(self._get_ssh_connection(), timeout=10)
+        except (ConnectionError, asyncio.TimeoutError):
+            return None
+
+        try:
+            async with conn:
+                resp = await conn.run(cmd)
+                result = max(resp.stdout, resp.stderr, key=lambda x: len(x))
+
+                return result
+        except Exception as e:
+            logging.error(f"{self} command {cmd} error: {e}")
+            return None
 
     async def check_light(self) -> bool:
         return await self.get_fault_light()
 
-    @abstractmethod
     async def fault_light_on(self) -> bool:
         """Turn the fault light of the miner on and return success as a boolean.
 
         Returns:
             A boolean value of the success of turning the light on.
         """
+        return False
 
-    @abstractmethod
     async def fault_light_off(self) -> bool:
         """Turn the fault light of the miner off and return success as a boolean.
 
         Returns:
             A boolean value of the success of turning the light off.
         """
+        return False
 
-    @abstractmethod
     async def get_config(self) -> MinerConfig:
         # Not a data gathering function, since this is used for configuration
         """Get the mining configuration of the miner and return it as a [`MinerConfig`][pyasic.config.MinerConfig].
@@ -261,24 +239,24 @@ class BaseMiner(ABC):
         Returns:
             A [`MinerConfig`][pyasic.config.MinerConfig] containing the pool information and mining configuration.
         """
+        return MinerConfig()
 
-    @abstractmethod
     async def reboot(self) -> bool:
         """Reboot the miner and return success as a boolean.
 
         Returns:
             A boolean value of the success of rebooting the miner.
         """
+        return False
 
-    @abstractmethod
     async def restart_backend(self) -> bool:
         """Restart the mining process of the miner (bosminer, bmminer, cgminer, etc) and return success as a boolean.
 
         Returns:
             A boolean value of the success of restarting the mining process.
         """
+        return False
 
-    @abstractmethod
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         """Set the mining configuration of the miner.
 
@@ -286,24 +264,24 @@ class BaseMiner(ABC):
             config: A [`MinerConfig`][pyasic.config.MinerConfig] containing the mining config you want to switch the miner to.
             user_suffix: A suffix to append to the username when sending to the miner.
         """
+        pass
 
-    @abstractmethod
     async def stop_mining(self) -> bool:
         """Stop the mining process of the miner.
 
         Returns:
             A boolean value of the success of stopping the mining process.
         """
+        return False
 
-    @abstractmethod
     async def resume_mining(self) -> bool:
         """Resume the mining process of the miner.
 
         Returns:
             A boolean value of the success of resuming the mining process.
         """
+        return False
 
-    @abstractmethod
     async def set_power_limit(self, wattage: int) -> bool:
         """Set the power limit to be used by the miner.
 
@@ -313,6 +291,7 @@ class BaseMiner(ABC):
         Returns:
             A boolean value of the success of setting the power limit.
         """
+        return False
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
@@ -464,68 +443,52 @@ class BaseMiner(ABC):
         """
         return await self._get_uptime()
 
-    @abstractmethod
-    async def _get_mac(self, *args, **kwargs) -> Optional[str]:
+    async def _get_mac(self) -> Optional[str]:
         pass
 
-    @abstractmethod
-    async def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
+    async def _get_api_ver(self) -> Optional[str]:
         pass
 
-    @abstractmethod
-    async def _get_fw_ver(self, *args, **kwargs) -> Optional[str]:
+    async def _get_fw_ver(self) -> Optional[str]:
         pass
 
-    @abstractmethod
-    async def _get_hostname(self, *args, **kwargs) -> Optional[str]:
+    async def _get_hostname(self) -> Optional[str]:
         pass
 
-    @abstractmethod
-    async def _get_hashrate(self, *args, **kwargs) -> Optional[float]:
+    async def _get_hashrate(self) -> Optional[float]:
         pass
 
-    @abstractmethod
-    async def _get_hashboards(self, *args, **kwargs) -> List[HashBoard]:
+    async def _get_hashboards(self) -> List[HashBoard]:
+        return []
+
+    async def _get_env_temp(self) -> Optional[float]:
         pass
 
-    @abstractmethod
-    async def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
+    async def _get_wattage(self) -> Optional[int]:
         pass
 
-    @abstractmethod
-    async def _get_wattage(self, *args, **kwargs) -> Optional[int]:
+    async def _get_wattage_limit(self) -> Optional[int]:
         pass
 
-    @abstractmethod
-    async def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
+    async def _get_fans(self) -> List[Fan]:
+        return []
+
+    async def _get_fan_psu(self) -> Optional[int]:
         pass
 
-    @abstractmethod
-    async def _get_fans(self, *args, **kwargs) -> List[Fan]:
+    async def _get_errors(self) -> List[MinerErrorData]:
+        return []
+
+    async def _get_fault_light(self) -> Optional[bool]:
         pass
 
-    @abstractmethod
-    async def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
+    async def _get_expected_hashrate(self) -> Optional[float]:
         pass
 
-    @abstractmethod
-    async def _get_errors(self, *args, **kwargs) -> List[MinerErrorData]:
+    async def _is_mining(self) -> Optional[bool]:
         pass
 
-    @abstractmethod
-    async def _get_fault_light(self, *args, **kwargs) -> bool:
-        pass
-
-    @abstractmethod
-    async def _get_expected_hashrate(self, *args, **kwargs) -> Optional[float]:
-        pass
-
-    @abstractmethod
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        pass
-
-    @abstractmethod
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self) -> Optional[int]:
         pass
 
     async def _get_data(
@@ -650,6 +613,23 @@ class BaseMiner(ABC):
                 setattr(data, item, gathered_data[item])
 
         return data
+
+
+class BaseMiner(MinerProtocol):
+    def __init__(self, ip: str) -> None:
+        self.ip = ip
+
+        if self.expected_chips is None:
+            warnings.warn(
+                f"Unknown chip count for miner type {self.raw_model}, "
+                f"please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
+            )
+
+        # interfaces
+        if self._api_cls is not None:
+            self.api = self._api_cls(ip)
+        if self._web_cls is not None:
+            self.web = self._web_cls(ip)
 
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)

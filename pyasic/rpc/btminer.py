@@ -183,8 +183,6 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
-        pwd: The admin password of the miner.  Default is admin.
     """
 
     def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0"):

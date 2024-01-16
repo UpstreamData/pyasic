@@ -13,11 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import InnosiliconMiner
+from pyasic.miners.makes import InnosiliconMake
 
 
-class A10X(InnosiliconMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "A10X"
+class A10X(InnosiliconMake):
+    raw_model = "A10X"

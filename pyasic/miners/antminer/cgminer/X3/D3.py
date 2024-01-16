@@ -18,6 +18,4 @@ from pyasic.miners.types import D3
 
 
 class CGMinerD3(AntminerOld, D3):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_shutdown = False
+    supports_shutdown = False

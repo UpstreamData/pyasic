@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
+from typing import List
 
 from pyasic.config import MinerConfig
 from pyasic.data import HashBoard
@@ -66,15 +66,10 @@ GOLDSHELL_DATA_LOC = DataLocations(
 )
 
 
-class BFGMinerGoldshell(BFGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = GoldshellWebAPI(ip)
+class GoldshellMiner(BFGMiner):
+    _web_cls = GoldshellWebAPI
 
-        # static data
-        # data gathering locations
-        self.data_locations = GOLDSHELL_DATA_LOC
+    data_locations = GOLDSHELL_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -180,9 +175,3 @@ class BFGMinerGoldshell(BFGMiner):
                 logger.error(self, api_devdetails)
 
         return hashboards
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
-
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
-        return None

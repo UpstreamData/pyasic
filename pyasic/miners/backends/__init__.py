@@ -14,14 +14,14 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .antminer import AntminerModern, AntminerOld
+from .avalonminer import AvalonMiner
 from .bfgminer import BFGMiner
-from .bfgminer_goldshell import BFGMinerGoldshell
 from .bmminer import BMMiner
 from .braiins_os import BOSer, BOSMiner
 from .btminer import BTMiner
 from .cgminer import CGMiner
-from .cgminer_avalon import CGMinerAvalon
 from .epic import ePIC
+from .goldshell import GoldshellMiner
 from .hiveon import Hiveon
 from .luxminer import LUXMiner
 from .vnish import VNish

@@ -17,21 +17,15 @@ from pyasic.miners.backends.btminer import BTMiner
 
 
 class M6X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+    supports_autotuning = True
 
 
 class M5X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+    supports_autotuning = True
 
 
 class M3X(BTMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_autotuning = True
+    supports_autotuning = True
 
 
 class M2X(BTMiner):

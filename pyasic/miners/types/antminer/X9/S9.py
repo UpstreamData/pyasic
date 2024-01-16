@@ -14,31 +14,22 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class S9(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S9"
-        self.expected_chips = 63
-        self.fan_count = 2
+class S9(AntMinerMake):
+    raw_model = "S9"
+    expected_chips = 63
+    expected_fans = 2
 
 
-class S9i(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S9i"
-        self.expected_chips = 63
-        self.fan_count = 2
+class S9i(AntMinerMake):
+    raw_model = "S9i"
+    expected_chips = 63
+    expected_fans = 2
 
 
-class S9j(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S9j"
-        self.expected_chips = 63
-        self.fan_count = 2
+class S9j(AntMinerMake):
+    raw_model = "S9j"
+    expected_chips = 63
+    expected_fans = 2

@@ -28,17 +28,17 @@ from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
-    BFGMiner,
+    AvalonMiner,
     BMMiner,
     BOSMiner,
     BTMiner,
-    CGMiner,
-    CGMinerAvalon,
+    GoldshellMiner,
     Hiveon,
     LUXMiner,
     VNish,
     ePIC,
 )
+from pyasic.miners.backends.innosilicon import Innosilicon
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
@@ -310,7 +310,7 @@ MINER_CLASSES = {
         "M66SVK40": BTMinerM66SVK40,
     },
     MinerTypes.AVALONMINER: {
-        None: CGMinerAvalon,
+        None: AvalonMiner,
         "AVALONMINER 721": CGMinerAvalon721,
         "AVALONMINER 741": CGMinerAvalon741,
         "AVALONMINER 761": CGMinerAvalon761,
@@ -325,16 +325,16 @@ MINER_CLASSES = {
         "AVALONMINER 1246": CGMinerAvalon1246,
     },
     MinerTypes.INNOSILICON: {
-        None: CGMiner,
+        None: Innosilicon,
         "T3H+": InnosiliconT3HPlus,
         "A10X": InnosiliconA10X,
     },
     MinerTypes.GOLDSHELL: {
-        None: BFGMiner,
-        "GOLDSHELL CK5": BFGMinerCK5,
-        "GOLDSHELL HS5": BFGMinerHS5,
-        "GOLDSHELL KD5": BFGMinerKD5,
-        "GOLDSHELL KDMAX": BFGMinerKDMax,
+        None: GoldshellMiner,
+        "GOLDSHELL CK5": GoldshellCK5,
+        "GOLDSHELL HS5": GoldshellHS5,
+        "GOLDSHELL KD5": GoldshellKD5,
+        "GOLDSHELL KDMAX": BFGMinerGoldshellKDMax,
     },
     MinerTypes.BRAIINS_OS: {
         None: BOSMiner,
@@ -761,7 +761,7 @@ class MinerFactory:
             str_data = ",".join(str_data.split(",")[:-1]) + "}"
 
         # fix a really nasty bug with whatsminer API v2.0.4 where they return a list structured like a dict
-        if re.search(r"\"error_code\":\[\".+\"\]", str_data):
+        if re.search(r"\"error_code\":\[\".+\"]", str_data):
             str_data = str_data.replace("[", "{").replace("]", "}")
 
         return str_data

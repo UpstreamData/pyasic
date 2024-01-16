@@ -77,6 +77,10 @@ class MinersTest(unittest.TestCase):
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
                 miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
+                if miner.data_locations is None:
+                    raise TypeError(
+                        f"model={miner_model} type={miner_type} has no data locations"
+                    )
                 for data_point in asdict(miner.data_locations).values():
                     with self.subTest(
                         msg=f"Test {data_point['cmd']} signature matches",

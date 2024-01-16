@@ -17,11 +17,9 @@
 import re
 from typing import List, Optional
 
-from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.backends import CGMiner
+from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPICommand
 
 AVALON_DATA_LOC = DataLocations(
@@ -70,12 +68,10 @@ AVALON_DATA_LOC = DataLocations(
 )
 
 
-class CGMinerAvalon(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
+class AvalonMiner(CGMiner):
+    """Handler for Avalon Miners"""
 
-        # data gathering locations
-        self.data_locations = AVALON_DATA_LOC
+    data_locations = AVALON_DATA_LOC
 
     async def fault_light_on(self) -> bool:
         try:
@@ -107,26 +103,6 @@ class CGMinerAvalon(CGMiner):
         except KeyError:
             return False
         return False
-
-    async def stop_mining(self) -> bool:
-        return False
-
-    async def resume_mining(self) -> bool:
-        return False
-
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        pass
-        # self.config = config
-        # return None
-        # logging.debug(f"{self}: Sending config.")  # noqa - This doesnt work...
-        # conf = config.as_avalon(user_suffix=user_suffix)
-        # try:
-        #     data = await self.api.ascset(  # noqa
-        #         0, "setpool", f"root,root,{conf}"
-        #     )  # this should work but doesn't
-        # except APIError:
-        #     pass
-        # return data
 
     @staticmethod
     def parse_stats(stats):
@@ -192,14 +168,6 @@ class CGMinerAvalon(CGMiner):
                 return mac
             except (KeyError, ValueError):
                 pass
-
-    async def _get_hostname(self) -> Optional[str]:
-        return None
-        # if not mac:
-        #     mac = await self.get_mac()
-        #
-        # if mac:
-        #     return f"Avalon{mac.replace(':', '')[-6:]}"
 
     async def _get_hashrate(self, api_devs: dict = None) -> Optional[float]:
         if api_devs is None:
@@ -292,9 +260,6 @@ class CGMinerAvalon(CGMiner):
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage(self) -> Optional[int]:
-        return None
-
     async def _get_wattage_limit(self, api_stats: dict = None) -> Optional[int]:
         if api_stats is None:
             try:
@@ -332,10 +297,7 @@ class CGMinerAvalon(CGMiner):
                     pass
         return fans_data
 
-    async def _get_errors(self) -> List[MinerErrorData]:
-        return []
-
-    async def _get_fault_light(self, api_stats: dict = None) -> bool:  # noqa
+    async def _get_fault_light(self, api_stats: dict = None) -> Optional[bool]:
         if self.light:
             return self.light
         if api_stats is None:
@@ -363,9 +325,3 @@ class CGMinerAvalon(CGMiner):
         except LookupError:
             pass
         return False
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
-
-    async def _get_uptime(self) -> Optional[int]:
-        return None

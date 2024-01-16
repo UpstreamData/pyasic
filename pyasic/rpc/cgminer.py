@@ -34,8 +34,6 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
-        api_ver: The version of the API if known.
     """
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:

@@ -13,11 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import (
     BaseMiner,
@@ -62,23 +61,11 @@ LUXMINER_DATA_LOC = DataLocations(
 
 
 class LUXMiner(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        # interfaces
-        self.api = LUXMinerRPCAPI(ip, api_ver)
-        # self.web = BOSMinerWebAPI(ip)
+    _api_cls = LUXMinerRPCAPI
 
-        # static data
-        self.api_type = "LUXMiner"
-        self.fw_str = "LuxOS"
-        # data gathering locations
-        self.data_locations = LUXMINER_DATA_LOC
-        # autotuning/shutdown support
-        # self.supports_autotuning = True
-        # self.supports_shutdown = True
+    firmware = "LuxOS"
 
-        # data storage
-        self.api_ver = api_ver
+    data_locations = LUXMINER_DATA_LOC
 
     async def _get_session(self) -> Optional[str]:
         try:
@@ -159,12 +146,6 @@ class LUXMiner(BaseMiner):
     async def get_config(self) -> MinerConfig:
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        pass
-
-    async def set_power_limit(self, wattage: int) -> bool:
-        return False
-
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
@@ -184,18 +165,6 @@ class LUXMiner(BaseMiner):
                 return None
 
         return mac
-
-    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
-        pass
-
-    async def _get_api_ver(self) -> Optional[str]:
-        pass
-
-    async def _get_fw_ver(self) -> Optional[str]:
-        pass
-
-    async def _get_hostname(self) -> Union[str, None]:
-        pass
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         if api_summary is None:
@@ -264,10 +233,7 @@ class LUXMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_env_temp(self) -> Optional[float]:
-        return None
-
-    async def _get_wattage(self, api_power: dict) -> Optional[int]:
+    async def _get_wattage(self, api_power: dict = None) -> Optional[int]:
         if api_power is None:
             try:
                 api_power = await self.api.power()
@@ -279,9 +245,6 @@ class LUXMiner(BaseMiner):
                 return api_power["POWER"][0]["Watts"]
             except (LookupError, ValueError, TypeError):
                 pass
-
-    async def _get_wattage_limit(self) -> Optional[int]:
-        return None
 
     async def _get_fans(self, api_fans: dict = None) -> List[Fan]:
         if api_fans is None:
@@ -299,15 +262,6 @@ class LUXMiner(BaseMiner):
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
-
-    async def _get_fan_psu(self) -> Optional[int]:
-        return None
-
-    async def _get_errors(self) -> List[MinerErrorData]:
-        pass
-
-    async def _get_fault_light(self) -> bool:
-        pass
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         if api_stats is None:
@@ -331,9 +285,6 @@ class LUXMiner(BaseMiner):
                     return round(expected_rate, 2)
             except LookupError:
                 pass
-
-    async def _is_mining(self) -> Optional[bool]:
-        pass
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
         if api_stats is None:

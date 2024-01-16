@@ -82,16 +82,13 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
 
 
 class AntminerModern(BMMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = AntminerModernWebAPI(ip)
+    """Handler for AntMiners with the modern web interface, such as S19"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = ANTMINER_MODERN_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_shutdown = True
+    _web_cls = AntminerModernWebAPI
+
+    data_locations = ANTMINER_MODERN_DATA_LOC
+
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
@@ -233,7 +230,9 @@ class AntminerModern(BMMiner):
                 pass
         return hashboards
 
-    async def _get_fault_light(self, web_get_blink_status: dict = None) -> bool:
+    async def _get_fault_light(
+        self, web_get_blink_status: dict = None
+    ) -> Optional[bool]:
         if self.light:
             return self.light
 
@@ -364,10 +363,6 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
             "_get_hashrate",
             [RPCAPICommand("api_summary", "summary")],
         ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
-        ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [RPCAPICommand("api_stats", "stats")],
@@ -393,14 +388,11 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
 
 
 class AntminerOld(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = AntminerOldWebAPI(ip)
+    """Handler for AntMiners with the old web interface, such as S17"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = ANTMINER_OLD_DATA_LOC
+    _web_cls = AntminerOldWebAPI
+
+    data_locations = ANTMINER_OLD_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
@@ -449,7 +441,9 @@ class AntminerOld(CGMiner):
             return True
         return False
 
-    async def _get_fault_light(self, web_get_blink_status: dict = None) -> bool:
+    async def _get_fault_light(
+        self, web_get_blink_status: dict = None
+    ) -> Optional[bool]:
         if self.light:
             return self.light
 

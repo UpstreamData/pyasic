@@ -75,16 +75,11 @@ VNISH_DATA_LOC = DataLocations(
 
 
 class VNish(BMMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = VNishWebAPI(ip)
+    _web_cls = VNishWebAPI
 
-        # static data
-        self.api_type = "VNish"
-        self.fw_str = "VNish"
-        # data gathering locations
-        self.data_locations = VNISH_DATA_LOC
+    firmware = "VNish"
+
+    data_locations = VNISH_DATA_LOC
 
     async def restart_backend(self) -> bool:
         data = await self.web.restart_vnish()
@@ -210,12 +205,6 @@ class VNish(BMMiner):
                 return fw_ver
             except KeyError:
                 pass
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
-
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
-        return None
 
     async def get_config(self) -> MinerConfig:
         try:

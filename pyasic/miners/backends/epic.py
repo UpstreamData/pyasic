@@ -84,16 +84,13 @@ EPIC_DATA_LOC = DataLocations(
 
 
 class ePIC(BaseMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = ePICWebAPI(ip)
+    _web_cls = ePICWebAPI
 
-        # static data
-        self.api_type = "ePIC"
-        self.fw_str = "ePIC"
-        # data gathering locations
-        self.data_locations = EPIC_DATA_LOC
+    firmware = "ePIC"
+
+    data_locations = EPIC_DATA_LOC
+
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         summary = None
@@ -148,7 +145,7 @@ class ePIC(BaseMiner):
                 pass
         return False
 
-    async def _get_mac(self, web_network: dict = None) -> str:
+    async def _get_mac(self, web_network: dict = None) -> Optional[str]:
         if web_network is None:
             try:
                 web_network = await self.web.network()
@@ -163,7 +160,7 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
 
-    async def _get_hostname(self, web_summary: dict = None) -> str:
+    async def _get_hostname(self, web_summary: dict = None) -> Optional[str]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -314,7 +311,7 @@ class ePIC(BaseMiner):
                 pass
         return None
 
-    async def _get_fault_light(self, web_summary: dict = None) -> bool:
+    async def _get_fault_light(self, web_summary: dict = None) -> Optional[bool]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -346,27 +343,3 @@ class ePIC(BaseMiner):
             except KeyError:
                 pass
         return errors
-
-    async def fault_light_off(self) -> bool:
-        return False
-
-    async def fault_light_on(self) -> bool:
-        return False
-
-    async def _get_api_ver(self, *args, **kwargs) -> Optional[str]:
-        pass
-
-    async def _get_env_temp(self, *args, **kwargs) -> Optional[float]:
-        pass
-
-    async def _get_fan_psu(self, *args, **kwargs) -> Optional[int]:
-        pass
-
-    async def _get_wattage_limit(self, *args, **kwargs) -> Optional[int]:
-        pass
-
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        pass
-
-    async def set_power_limit(self, wattage: int) -> bool:
-        return False

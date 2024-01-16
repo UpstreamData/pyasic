@@ -18,7 +18,6 @@ from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.miners.base import (
     BaseMiner,
@@ -62,18 +61,9 @@ BFGMINER_DATA_LOC = DataLocations(
 class BFGMiner(BaseMiner):
     """Base handler for BFGMiner based miners."""
 
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip)
-        # interfaces
-        self.api = BFGMinerRPCAPI(ip, api_ver)
+    _api_cls = BFGMinerRPCAPI
 
-        # static data
-        self.api_type = "BFGMiner"
-        # data gathering locations
-        self.data_locations = BFGMINER_DATA_LOC
-
-        # data storage
-        self.api_ver = api_ver
+    data_locations = BFGMINER_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -85,33 +75,9 @@ class BFGMiner(BaseMiner):
         self.config = MinerConfig.from_api(pools)
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        return None
-
-    async def fault_light_off(self) -> bool:
-        return False
-
-    async def fault_light_on(self) -> bool:
-        return False
-
-    async def restart_backend(self) -> bool:
-        return False
-
-    async def stop_mining(self) -> bool:
-        return False
-
-    async def resume_mining(self) -> bool:
-        return False
-
-    async def set_power_limit(self, wattage: int) -> bool:
-        return False
-
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
-
-    async def _get_mac(self) -> Optional[str]:
-        return None
 
     async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
         if api_version is None:
@@ -142,15 +108,6 @@ class BFGMiner(BaseMiner):
                 pass
 
         return self.fw_ver
-
-    async def reboot(self) -> bool:
-        return False
-
-    async def _get_fan_psu(self):
-        return None
-
-    async def _get_hostname(self) -> Optional[str]:
-        return None
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
@@ -220,15 +177,6 @@ class BFGMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_env_temp(self) -> Optional[float]:
-        return None
-
-    async def _get_wattage(self) -> Optional[int]:
-        return None
-
-    async def _get_wattage_limit(self) -> Optional[int]:
-        return None
-
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
         if api_stats is None:
             try:
@@ -259,12 +207,6 @@ class BFGMiner(BaseMiner):
 
         return fans
 
-    async def _get_errors(self) -> List[MinerErrorData]:
-        return []
-
-    async def _get_fault_light(self) -> bool:
-        return False
-
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
         if api_stats is None:
@@ -288,9 +230,3 @@ class BFGMiner(BaseMiner):
                     return round(expected_rate, 2)
             except LookupError:
                 pass
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
-
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
-        return None

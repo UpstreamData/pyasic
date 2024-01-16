@@ -17,8 +17,6 @@
 from pyasic.miners.backends import AntminerModern
 from pyasic.miners.types import T19
 
-# noqa - Ignore access to _module
-
 
 class BMMinerT19(AntminerModern, T19):
     pass

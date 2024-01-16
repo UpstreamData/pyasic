@@ -14,9 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import CGMinerAvalon
+from pyasic.miners.backends import AvalonMiner
 from pyasic.miners.types import Avalon741
 
 
-class CGMinerAvalon741(CGMinerAvalon, Avalon741):
+class CGMinerAvalon741(AvalonMiner, Avalon741):
     pass
