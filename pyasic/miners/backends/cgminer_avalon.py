@@ -142,9 +142,9 @@ class CGMinerAvalon(CGMiner):
                     # --avalon args
                     for arg_item in data_list:
                         item_data = arg_item[0].split(" ")
-                        for idx in range(len(item_data)):
+                        for idx, val in enumerate(item_data):
                             if idx % 2 == 0 or idx == 0:
-                                data_dict[item_data[idx]] = item_data[idx + 1]
+                                data_dict[val] = item_data[idx + 1]
 
                 raw_data = [data[0].strip(), data_dict]
             else:

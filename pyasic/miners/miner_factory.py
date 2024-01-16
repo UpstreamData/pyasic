@@ -654,7 +654,7 @@ class MinerFactory:
             return MinerTypes.HIVEON
         if "LUXMINER" in upper_data:
             return MinerTypes.LUX_OS
-        if "ANTMINER" in upper_data and not "DEVDETAILS" in upper_data:
+        if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
         if "INTCHAINS_QOMO" in upper_data:
             return MinerTypes.GOLDSHELL

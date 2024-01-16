@@ -474,7 +474,7 @@ class AntminerOld(CGMiner):
                 pass
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if not api_stats is None:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:

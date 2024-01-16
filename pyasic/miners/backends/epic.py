@@ -268,7 +268,7 @@ class ePIC(BaseMiner):
             except APIError:
                 pass
 
-        if not web_hashrate is not None:
+        if web_hashrate is not None:
             try:
                 web_hashrate = await self.web.hashrate()
             except APIError:

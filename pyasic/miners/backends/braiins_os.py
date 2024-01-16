@@ -302,8 +302,8 @@ class BOSMiner(BaseMiner):
         data = await self.send_ssh_command("cat /etc/config/network")
 
         split_data = data.split("\n\n")
-        for idx in range(len(split_data)):
-            if "config interface 'lan'" in split_data[idx]:
+        for idx, val in enumerate(split_data):
+            if "config interface 'lan'" in val:
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 
@@ -324,8 +324,8 @@ class BOSMiner(BaseMiner):
         data = await self.send_ssh_command("cat /etc/config/network")
 
         split_data = data.split("\n\n")
-        for idx in range(len(split_data)):
-            if "config interface 'lan'" in split_data[idx]:
+        for idx, val in enumerate(split_data):
+            if "config interface 'lan'" in val:
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 

@@ -149,10 +149,10 @@ class _MinerPhaseBalancer:
                 not self.miners[data_point.ip]["shutdown"]
             ):
                 # cant do anything with it so need to find a semi-accurate power limit
-                if not data_point.wattage_limit == None:
+                if not data_point.wattage_limit is None:
                     self.miners[data_point.ip]["max"] = int(data_point.wattage_limit)
                     self.miners[data_point.ip]["min"] = int(data_point.wattage_limit)
-                elif not data_point.wattage == None:
+                elif not data_point.wattage is None:
                     self.miners[data_point.ip]["max"] = int(data_point.wattage)
                     self.miners[data_point.ip]["min"] = int(data_point.wattage)
 
@@ -183,13 +183,19 @@ class _MinerPhaseBalancer:
                 if (not miner["tune"]) and (miner["shutdown"])
             ]
         )
-        # min_other_wattage = sum([miner["min"] for miner in self.miners.values() if (not miner["tune"]) and (not miner["shutdown"])])
+        # min_other_wattage = sum(
+        #     [
+        #         miner["min"]
+        #         for miner in self.miners.values()
+        #         if (not miner["tune"]) and (not miner["shutdown"])
+        #     ]
+        # )
 
         # make sure wattage isnt set too high
         if wattage > (max_tune_wattage + max_shutdown_wattage + max_other_wattage):
             raise APIError(
                 f"Wattage setpoint is too high, setpoint: {wattage}W, max: {max_tune_wattage + max_shutdown_wattage + max_other_wattage}W"
-            )  # PhaseBalancingError(f"Wattage setpoint is too high, setpoint: {wattage}W, max: {max_tune_wattage + max_shutdown_wattage + max_other_wattage}W")
+            )
 
         # should now know wattage limits and which can be tuned/shutdown
         # check if 1/2 max of the miners which can be tuned is low enough

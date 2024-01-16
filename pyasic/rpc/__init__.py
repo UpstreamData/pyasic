@@ -132,7 +132,7 @@ class BaseMinerRPCAPI:
     async def _handle_multicommand(self, command: str, allow_warning: bool = True):
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
-            if not "+" in command:
+            if "+" not in command:
                 return {command: [data]}
             return data
 

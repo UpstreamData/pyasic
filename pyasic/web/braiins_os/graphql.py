@@ -34,7 +34,7 @@ class BOSerGraphQLAPI:
             for i in d:
                 if i:
                     for k in i:
-                        if not k in ret:
+                        if k not in ret:
                             ret[k] = i[k]
                         else:
                             ret[k] = merge(ret[k], i[k])
