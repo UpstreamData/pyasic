@@ -56,10 +56,10 @@ class MinerListener(metaclass=Singleton):
         loop = asyncio.get_running_loop()
 
         transport_14235, _ = await loop.create_datagram_endpoint(
-            lambda: _MinerListener(), local_addr=("0.0.0.0", 14235)  # noqa
+            _MinerListener, local_addr=("0.0.0.0", 14235)
         )
         transport_8888, _ = await loop.create_datagram_endpoint(
-            lambda: _MinerListener(), local_addr=("0.0.0.0", 8888)  # noqa
+            _MinerListener, local_addr=("0.0.0.0", 8888)
         )
 
         while True:
