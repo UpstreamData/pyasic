@@ -26,11 +26,13 @@ from pyasic.errors import APIError, APIWarning
 
 
 class BaseMinerRPCAPI:
-    def __init__(self, ip: str, port: int = 4028) -> None:
+    def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0") -> None:
         # api port, should be 4028
         self.port = port
         # ip address of the miner
         self.ip = ipaddress.ip_address(ip)
+        # api version if known
+        self.api_ver = api_ver
 
         self.pwd = None
 

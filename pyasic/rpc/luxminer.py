@@ -36,10 +36,6 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         port: The port to reference the API on.  Default is 4028.
     """
 
-    def __init__(self, ip: str, api_ver: str = "0.0.0", port: int = 4028) -> None:
-        super().__init__(ip, port=port)
-        self.api_ver = api_ver
-
     async def addgroup(self, name: str, quota: int) -> dict:
         """Add a pool group.
         <details>

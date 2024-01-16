@@ -187,17 +187,10 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         pwd: The admin password of the miner.  Default is admin.
     """
 
-    def __init__(
-        self,
-        ip: str,
-        api_ver: str = "0.0.0",
-        port: int = 4028,
-        pwd: str = settings.get("default_whatsminer_password", "admin"),
-    ):
-        super().__init__(ip, port)
-        self.pwd = pwd
+    def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0"):
+        super().__init__(ip, port, api_ver)
+        self.pwd = settings.get("default_whatsminer_password", "admin")
         self.current_token = None
-        self.api_ver = api_ver
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
