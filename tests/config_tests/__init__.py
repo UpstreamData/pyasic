@@ -21,9 +21,9 @@ from pyasic.config import (
     MiningModeConfig,
     PoolConfig,
     PowerScalingConfig,
-    PowerScalingShutdown,
     TemperatureConfig,
 )
+from pyasic.config.power_scaling import PowerScalingShutdown
 
 
 class TestConfig(unittest.TestCase):

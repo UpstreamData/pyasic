@@ -19,7 +19,7 @@ from dataclasses import asdict, dataclass, field
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig, PowerScalingShutdown
+from pyasic.config.power_scaling import PowerScalingConfig
 from pyasic.config.temperature import TemperatureConfig
 
 
