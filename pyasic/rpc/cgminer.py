@@ -13,10 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
-import logging
 
-from pyasic.rpc import APIError, BaseMinerRPCAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
 class CGMinerRPCAPI(BaseMinerRPCAPI):
