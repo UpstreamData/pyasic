@@ -597,7 +597,9 @@ class MinerProtocol(Protocol):
             ip=str(self.ip),
             make=self.make,
             model=self.model,
-            expected_chips=self.expected_chips * self.expected_hashboards,
+            expected_chips=self.expected_chips
+            if self.expected_chips is not None
+            else 0 * self.expected_hashboards,
             expected_hashboards=self.expected_hashboards,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.expected_chips)
@@ -619,7 +621,7 @@ class BaseMiner(MinerProtocol):
     def __init__(self, ip: str) -> None:
         self.ip = ip
 
-        if self.expected_chips is None:
+        if self.expected_chips is None and self.raw_model is not None:
             warnings.warn(
                 f"Unknown chip count for miner type {self.raw_model}, "
                 f"please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."

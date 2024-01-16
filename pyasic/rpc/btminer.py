@@ -202,28 +202,33 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         # standard multicommand format is "command1+command2"
         # commands starting with "get_" and the "status" command aren't supported, but we can fake that
 
-        tasks = []
+        split_commands = []
 
         for command in list(commands):
             if command.startswith("get_") or command == "status":
                 commands.remove(command)
                 # send seperately and append later
-                tasks.append(
-                    asyncio.create_task(
-                        self._handle_multicommand(command, allow_warning=allow_warning)
-                    )
-                )
+                split_commands.append(command)
 
         command = "+".join(commands)
-        tasks.append(
-            asyncio.create_task(
-                self._handle_multicommand(command, allow_warning=allow_warning)
+
+        tasks = []
+        if len(split_commands) > 0:
+            tasks.append(
+                asyncio.create_task(
+                    self._send_split_multicommand(
+                        *split_commands, allow_warning=allow_warning
+                    )
+                )
             )
+        tasks.append(
+            asyncio.create_task(self.send_command(command, allow_warning=allow_warning))
         )
 
-        all_data = await asyncio.gather(*tasks)
-
-        logging.debug(f"{self} - (Multicommand) - Received data")
+        try:
+            all_data = await asyncio.gather(*tasks)
+        except APIError:
+            return {}
 
         data = {}
         for item in all_data:

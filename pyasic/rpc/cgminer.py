@@ -36,36 +36,6 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         ip: The IP of the miner to reference the API on.
     """
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
-        # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
-        # standard multicommand format is "command1+command2"
-        # doesn't work for S19 which uses the backup _x19_multicommand
-        command = "+".join(commands)
-        try:
-            data = await self.send_command(command, allow_warning=allow_warning)
-        except APIError:
-            logging.debug(f"{self} - (Multicommand) - Handling X19 multicommand.")
-            data = await self._x19_multicommand(*command.split("+"))
-        data["multicommand"] = True
-        return data
-
-    async def _x19_multicommand(self, *commands) -> dict:
-        tasks = []
-        # send all commands individually
-        for cmd in commands:
-            tasks.append(
-                asyncio.create_task(self._handle_multicommand(cmd, allow_warning=True))
-            )
-
-        all_data = await asyncio.gather(*tasks)
-
-        data = {}
-        for item in all_data:
-            data.update(item)
-
-        return data
-
     async def version(self) -> dict:
         """Get miner version info.
         <details>

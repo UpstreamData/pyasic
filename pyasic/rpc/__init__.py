@@ -110,38 +110,41 @@ class BaseMinerRPCAPI:
             allow_warning: A boolean to supress APIWarnings.
 
         """
-        while True:
-            # make sure we can actually run each command, otherwise they will fail
-            commands = self._check_commands(*commands)
-            # standard multicommand format is "command1+command2"
-            # standard format doesn't work for X19
-            command = "+".join(commands)
-            try:
-                data = await self.send_command(command, allow_warning=allow_warning)
-            except APIError as e:
-                # try to identify the error
-                if e.message is not None:
-                    if ":" in e.message:
-                        err_command = e.message.split(":")[0]
-                        if err_command in commands:
-                            commands.remove(err_command)
-                            continue
-                return {command: [{}] for command in commands}
-            logging.debug(f"{self} - (Multicommand) - Received data")
-            data["multicommand"] = True
-            return data
-
-    async def _handle_multicommand(self, command: str, allow_warning: bool = True):
+        # make sure we can actually run each command, otherwise they will fail
+        commands = self._check_commands(*commands)
+        # standard multicommand format is "command1+command2"
+        # doesn't work for S19 which uses the backup _send_split_multicommand
+        command = "+".join(commands)
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
-            if "+" not in command:
-                return {command: [data]}
-            return data
-
         except APIError:
-            if "+" in command:
-                return {command: [{}] for command in command.split("+")}
-            return {command: [{}]}
+            data = await self._send_split_multicommand(*commands)
+        data["multicommand"] = True
+        return data
+
+    async def _send_split_multicommand(
+        self, *commands, allow_warning: bool = True
+    ) -> dict:
+        tasks = {}
+        # send all commands individually
+        for cmd in commands:
+            tasks[cmd] = asyncio.create_task(
+                self.send_command(cmd, allow_warning=allow_warning)
+            )
+
+        await asyncio.gather(*[tasks[cmd] for cmd in tasks], return_exceptions=True)
+
+        data = {}
+        for cmd in tasks:
+            try:
+                result = tasks[cmd].result()
+                if result is None or result == {}:
+                    result = {}
+                data[cmd] = [result]
+            except APIError:
+                pass
+
+        return data
 
     @property
     def commands(self) -> list:
