@@ -598,11 +598,9 @@ class BOSMiner(BaseMiner):
 
         if api_devs is not None:
             try:
-                offset = 6 if api_devs["DEVS"][0]["ID"] in [6, 7, 8] else 0
                 hr_list = []
 
                 for board in api_devs["DEVS"]:
-                    _id = board["ID"] - offset
                     expected_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
                     if expected_hashrate:
                         hr_list.append(expected_hashrate)
