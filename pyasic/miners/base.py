@@ -206,7 +206,7 @@ class MinerProtocol(Protocol):
         try:
             async with conn:
                 resp = await conn.run(cmd)
-                result = max(resp.stdout, resp.stderr, key=lambda x: len(x))
+                result = str(max(resp.stdout, resp.stderr, key=len))
 
                 return result
         except Exception as e:
@@ -264,7 +264,7 @@ class MinerProtocol(Protocol):
             config: A [`MinerConfig`][pyasic.config.MinerConfig] containing the mining config you want to switch the miner to.
             user_suffix: A suffix to append to the username when sending to the miner.
         """
-        pass
+        return None
 
     async def stop_mining(self) -> bool:
         """Stop the mining process of the miner.
