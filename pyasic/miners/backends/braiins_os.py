@@ -44,18 +44,20 @@ BOSMINER_DATA_LOC = DataLocations(
             [WebAPICommand("web_net_conf", "admin/network/iface_status/lan")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [WebAPICommand("web_bos_info", "bos/info")]
+            "_get_fw_ver",
+            [WebAPICommand("web_bos_info", "bos/info")],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
             [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_devs", "devs")]
+            "_get_expected_hashrate",
+            [RPCAPICommand("api_devs", "devs")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
@@ -65,7 +67,6 @@ BOSMINER_DATA_LOC = DataLocations(
                 RPCAPICommand("api_devs", "devs"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
             [RPCAPICommand("api_tunerstatus", "tunerstatus")],
@@ -78,19 +79,18 @@ BOSMINER_DATA_LOC = DataLocations(
             "_get_fans",
             [RPCAPICommand("api_fans", "fans")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
             [RPCAPICommand("api_tunerstatus", "tunerstatus")],
         ),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
         str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
+            "_is_mining",
+            [RPCAPICommand("api_devdetails", "devdetails")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_summary", "summary")]
+            "_get_uptime",
+            [RPCAPICommand("api_summary", "summary")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 
@@ -649,7 +649,8 @@ BOSER_DATA_LOC = DataLocations(
             [GRPCCommand("grpc_miner_details", "get_miner_details")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [GRPCCommand("api_version", "get_api_version")]
+            "_get_api_ver",
+            [GRPCCommand("api_version", "get_api_version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
@@ -671,7 +672,6 @@ BOSER_DATA_LOC = DataLocations(
             "_get_hashboards",
             [GRPCCommand("grpc_hashboards", "get_hashboards")],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
             [GRPCCommand("grpc_miner_stats", "get_miner_stats")],
@@ -688,7 +688,6 @@ BOSER_DATA_LOC = DataLocations(
             "_get_fans",
             [GRPCCommand("grpc_cooling_state", "get_cooling_state")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
             [RPCAPICommand("api_tunerstatus", "tunerstatus")],
@@ -698,12 +697,13 @@ BOSER_DATA_LOC = DataLocations(
             [GRPCCommand("grpc_locate_device_status", "get_locate_device_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining", [RPCAPICommand("api_devdetails", "devdetails")]
+            "_is_mining",
+            [RPCAPICommand("api_devdetails", "devdetails")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_summary", "summary")]
+            "_get_uptime",
+            [RPCAPICommand("api_summary", "summary")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 

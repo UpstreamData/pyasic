@@ -40,21 +40,19 @@ INNOSILICON_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
             [
                 RPCAPICommand("api_summary", "summary"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
-        ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate",
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
@@ -63,7 +61,6 @@ INNOSILICON_DATA_LOC = DataLocations(
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
             [
@@ -90,12 +87,10 @@ INNOSILICON_DATA_LOC = DataLocations(
                 WebAPICommand("web_get_error_detail", "getErrorDetail"),
             ],
         ),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 

@@ -32,37 +32,34 @@ from pyasic.rpc.bmminer import BMMinerRPCAPI
 
 BMMINER_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("_get_mac"),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate",
+            [RPCAPICommand("api_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("_get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 

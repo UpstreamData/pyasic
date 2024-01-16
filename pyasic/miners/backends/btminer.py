@@ -40,7 +40,8 @@ BTMINER_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_get_version", "get_version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_get_version", "get_version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
@@ -50,25 +51,32 @@ BTMINER_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "_get_hostname", [RPCAPICommand("api_get_miner_info", "get_miner_info")]
+            "_get_hostname",
+            [RPCAPICommand("api_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_expected_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards", [RPCAPICommand("api_devs", "devs")]
+            "_get_hashboards",
+            [RPCAPICommand("api_devs", "devs")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
-            "_get_env_temp", [RPCAPICommand("api_summary", "summary")]
+            "_get_env_temp",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
-            "_get_wattage", [RPCAPICommand("api_summary", "summary")]
+            "_get_wattage",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "_get_wattage_limit", [RPCAPICommand("api_summary", "summary")]
+            "_get_wattage_limit",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
@@ -96,12 +104,13 @@ BTMINER_DATA_LOC = DataLocations(
             [RPCAPICommand("api_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining", [RPCAPICommand("api_status", "status")]
+            "_is_mining",
+            [RPCAPICommand("api_status", "status")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_summary", "summary")]
+            "_get_uptime",
+            [RPCAPICommand("api_summary", "summary")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 

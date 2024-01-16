@@ -52,6 +52,14 @@ class DataOptions(Enum):
     def __str__(self):
         return self.value
 
+    def default_command(self):
+        if str(self.value) == "config":
+            return "get_config"
+        elif str(self.value) == "is_mining":
+            return "_is_mining"
+        else:
+            return f"_get_{str(self.value)}"
+
 
 @dataclass
 class RPCAPICommand:
@@ -87,10 +95,15 @@ class DataFunction:
 
 DataLocations = make_dataclass(
     "DataLocations",
-    [(enum_value.value, str) for enum_value in DataOptions],
+    [
+        (
+            enum_value.value,
+            DataFunction,
+            field(default_factory=lambda: DataFunction(enum_value.default_command())),
+        )
+        for enum_value in DataOptions
+    ],
 )
-# add default value with
-# [(enum_value.value, str, , DataFunction(enum_value.value)) for enum_value in DataOptions],
 
 
 class BaseMiner(ABC):
