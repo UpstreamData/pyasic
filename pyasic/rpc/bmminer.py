@@ -561,7 +561,8 @@ class BMMinerRPCAPI(BaseMinerRPCAPI):
             <summary>Expand</summary>
 
         Parameters:
-            which: Which device to zero. Setting this to 'all' zeros all devices. Setting this to 'bestshare' zeros only the bestshare values for each pool and global.
+            which: Which device to zero. Setting this to 'all' zeros all devices.
+                   Setting this to 'bestshare' zeros only the bestshare values for each pool and global.
             summary: Whether or not to show a full summary.
 
 

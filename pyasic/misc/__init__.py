@@ -50,14 +50,16 @@ def api_min_version(version: str):
 
                 if not api_major_ver >= allowed_major_ver:
                     raise APIError(
-                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver}"
+                        f" is too low for {func.__name__}, required version is at least v{version}"
                     )
                 if not (
                     api_minor_ver >= allowed_minor_ver
                     and api_major_ver == allowed_major_ver
                 ):
                     raise APIError(
-                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver}"
+                        f" is too low for {func.__name__}, required version is at least v{version}"
                     )
                 if not (
                     api_patch_ver >= allowed_patch_ver
@@ -65,7 +67,8 @@ def api_min_version(version: str):
                     and api_major_ver == allowed_major_ver
                 ):
                     raise APIError(
-                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} is too low for {func.__name__}, required version is at least v{version}"
+                        f"Miner API version v{api_major_ver}.{api_minor_ver}.{api_patch_ver} "
+                        f"is too low for {func.__name__}, required version is at least v{version}"
                     )
 
             return await func(*args, **kwargs)
