@@ -17,5 +17,5 @@ from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.types import KDMax
 
 
-class BFGMinerGoldshellKDMax(GoldshellMiner, KDMax):
+class GoldshellKDMax(GoldshellMiner, KDMax):
     pass

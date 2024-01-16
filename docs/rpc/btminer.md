@@ -1,6 +1,6 @@
 # pyasic
-## UnknownRPCAPI
-::: pyasic.API.unknown.UnknownRPCAPI
+## BTMinerRPCAPI
+::: pyasic.rpc.btminer.BTMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

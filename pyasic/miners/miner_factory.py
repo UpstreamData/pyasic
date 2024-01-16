@@ -334,7 +334,7 @@ MINER_CLASSES = {
         "GOLDSHELL CK5": GoldshellCK5,
         "GOLDSHELL HS5": GoldshellHS5,
         "GOLDSHELL KD5": GoldshellKD5,
-        "GOLDSHELL KDMAX": BFGMinerGoldshellKDMax,
+        "GOLDSHELL KDMAX": GoldshellKDMax,
     },
     MinerTypes.BRAIINS_OS: {
         None: BOSMiner,

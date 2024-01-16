@@ -4,6 +4,7 @@
 All settings here are global settings for all of pyasic.  Set these settings with `update(key, value)`.
 
 Settings options:
+
 - `network_ping_retries`
 - `network_ping_timeout`
 - `network_scan_threads`
