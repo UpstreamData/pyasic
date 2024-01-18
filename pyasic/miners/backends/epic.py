@@ -84,7 +84,10 @@ EPIC_DATA_LOC = DataLocations(
 
 
 class ePIC(BaseMiner):
+    """Handler for miners with the ePIC board"""
+
     _web_cls = ePICWebAPI
+    web: ePICWebAPI
 
     firmware = "ePIC"
 

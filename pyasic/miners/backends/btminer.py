@@ -116,7 +116,10 @@ BTMINER_DATA_LOC = DataLocations(
 
 
 class BTMiner(BaseMiner):
+    """Base handler for BTMiner based miners."""
+
     _api_cls = BTMinerRPCAPI
+    api: BTMinerRPCAPI
 
     data_locations = BTMINER_DATA_LOC
 

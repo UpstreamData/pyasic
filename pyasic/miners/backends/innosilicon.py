@@ -98,6 +98,7 @@ class Innosilicon(CGMiner):
     """Base handler for Innosilicon miners"""
 
     _web_cls = InnosiliconWebAPI
+    web: InnosiliconWebAPI
 
     data_locations = INNOSILICON_DATA_LOC
 

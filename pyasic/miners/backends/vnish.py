@@ -75,7 +75,10 @@ VNISH_DATA_LOC = DataLocations(
 
 
 class VNish(BMMiner):
+    """Handler for VNish miners"""
+
     _web_cls = VNishWebAPI
+    web: VNishWebAPI
 
     firmware = "VNish"
 

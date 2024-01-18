@@ -67,7 +67,10 @@ GOLDSHELL_DATA_LOC = DataLocations(
 
 
 class GoldshellMiner(BFGMiner):
+    """Handler for goldshell miners"""
+
     _web_cls = GoldshellWebAPI
+    web: GoldshellWebAPI
 
     data_locations = GOLDSHELL_DATA_LOC
 

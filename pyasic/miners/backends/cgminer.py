@@ -65,14 +65,9 @@ class CGMiner(BaseMiner):
     """Base handler for CGMiner based miners"""
 
     _api_cls = CGMinerRPCAPI
+    api: CGMinerRPCAPI
 
     data_locations = CGMINER_DATA_LOC
-
-    async def reboot(self) -> bool:
-        ret = await self.send_ssh_command("reboot")
-        if ret is None:
-            return False
-        return True
 
     async def get_config(self) -> MinerConfig:
         # get pool data

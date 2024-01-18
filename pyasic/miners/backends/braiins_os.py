@@ -34,6 +34,7 @@ from pyasic.miners.base import (
     WebAPICommand,
 )
 from pyasic.rpc.bosminer import BOSMinerRPCAPI
+from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 
 BOSMINER_DATA_LOC = DataLocations(
@@ -98,7 +99,11 @@ class BOSMiner(BaseMiner):
     """Handler for old versions of BraiinsOS+ (pre-gRPC)"""
 
     _api_cls = BOSMinerRPCAPI
+    api: BOSMinerRPCAPI
     _web_cls = BOSMinerWebAPI
+    web: BOSMinerWebAPI
+    _ssh_cls = BOSMinerSSH
+    ssh: BOSMinerSSH
 
     firmware = "BOS+"
 
@@ -108,7 +113,7 @@ class BOSMiner(BaseMiner):
     supports_autotuning = True
 
     async def fault_light_on(self) -> bool:
-        ret = await self.send_ssh_command("miner fault_light on")
+        ret = await self.ssh.fault_light_on()
 
         if isinstance(ret, str):
             self.light = True
@@ -116,7 +121,7 @@ class BOSMiner(BaseMiner):
         return False
 
     async def fault_light_off(self) -> bool:
-        ret = await self.send_ssh_command("miner fault_light off")
+        ret = await self.ssh.fault_light_off()
 
         if isinstance(ret, str):
             self.light = False
@@ -127,7 +132,7 @@ class BOSMiner(BaseMiner):
         return await self.restart_bosminer()
 
     async def restart_bosminer(self) -> bool:
-        ret = await self.send_ssh_command("/etc/init.d/bosminer restart")
+        ret = await self.ssh.restart_bosminer()
 
         if isinstance(ret, str):
             return True
@@ -156,14 +161,14 @@ class BOSMiner(BaseMiner):
         return False
 
     async def reboot(self) -> bool:
-        ret = await self.send_ssh_command("/sbin/reboot")
+        ret = await self.ssh.reboot()
 
         if isinstance(ret, str):
             return True
         return False
 
     async def get_config(self) -> MinerConfig:
-        raw_data = await self.send_ssh_command("cat /etc/bosminer.toml")
+        raw_data = await self.ssh.get_config_file()
 
         try:
             toml_data = toml.loads(raw_data)
@@ -189,7 +194,7 @@ class BOSMiner(BaseMiner):
             }
         )
         try:
-            conn = await self._get_ssh_connection()
+            conn = await self.ssh._get_connection()
         except ConnectionError as e:
             raise APIError("SSH connection failed when sending config.") from e
 
@@ -246,7 +251,7 @@ class BOSMiner(BaseMiner):
                 f"option dns '{dns}'",
             ]
         )
-        data = await self.send_ssh_command("cat /etc/config/network")
+        data = await self.ssh.get_network_config()
 
         split_data = data.split("\n\n")
         for idx, val in enumerate(split_data):
@@ -254,7 +259,7 @@ class BOSMiner(BaseMiner):
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 
-        conn = await self._get_ssh_connection()
+        conn = await self.ssh._get_connection()
 
         async with conn:
             await conn.run("echo '" + config + "' > /etc/config/network")
@@ -268,7 +273,7 @@ class BOSMiner(BaseMiner):
                 "option proto 'dhcp'",
             ]
         )
-        data = await self.send_ssh_command("cat /etc/config/network")
+        data = await self.ssh.get_network_config()
 
         split_data = data.split("\n\n")
         for idx, val in enumerate(split_data):
@@ -276,7 +281,7 @@ class BOSMiner(BaseMiner):
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 
-        conn = await self._get_ssh_connection()
+        conn = await self.ssh._get_connection()
 
         async with conn:
             await conn.run("echo '" + config + "' > /etc/config/network")
@@ -346,9 +351,7 @@ class BOSMiner(BaseMiner):
 
     async def _get_hostname(self) -> Union[str, None]:
         try:
-            hostname = (
-                await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-            ).strip()
+            hostname = (await self.ssh.get_hostname()).strip()
         except Exception as e:
             logging.error(f"{self} - Getting hostname failed: {e}")
             return None
@@ -520,7 +523,7 @@ class BOSMiner(BaseMiner):
             return self.light
         try:
             data = (
-                await self.send_ssh_command("cat /sys/class/leds/'Red LED'/delay_off")
+                await self.ssh.get_led_status()
             ).strip()
             self.light = False
             if data == "50":
@@ -652,7 +655,9 @@ class BOSer(BaseMiner):
     """Handler for new versions of BraiinsOS+ (post-gRPC)"""
 
     _api_cls = BOSMinerRPCAPI
+    web: BOSMinerRPCAPI
     _web_cls = BOSerWebAPI
+    web: BOSerWebAPI
 
     data_locations = BOSER_DATA_LOC
 

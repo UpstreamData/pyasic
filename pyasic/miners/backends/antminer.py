@@ -29,6 +29,7 @@ from pyasic.miners.base import (
     WebAPICommand,
 )
 from pyasic.rpc import APIError
+from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(
@@ -85,6 +86,10 @@ class AntminerModern(BMMiner):
     """Handler for AntMiners with the modern web interface, such as S19"""
 
     _web_cls = AntminerModernWebAPI
+    web: AntminerModernWebAPI
+
+    _ssh_cls = AntminerModernSSH
+    ssh: AntminerModernSSH
 
     data_locations = ANTMINER_MODERN_DATA_LOC
 
@@ -391,6 +396,7 @@ class AntminerOld(CGMiner):
     """Handler for AntMiners with the old web interface, such as S17"""
 
     _web_cls = AntminerOldWebAPI
+    web: AntminerOldWebAPI
 
     data_locations = ANTMINER_OLD_DATA_LOC
 

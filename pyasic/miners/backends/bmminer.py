@@ -67,6 +67,7 @@ class BMMiner(BaseMiner):
     """Base handler for BMMiner based miners."""
 
     _api_cls = BMMinerRPCAPI
+    api: BMMinerRPCAPI
 
     data_locations = BMMINER_DATA_LOC
 
@@ -79,14 +80,6 @@ class BMMiner(BaseMiner):
 
         self.config = MinerConfig.from_api(pools)
         return self.config
-
-    async def reboot(self) -> bool:
-        logging.debug(f"{self}: Sending reboot command.")
-        ret = await self.send_ssh_command("reboot")
-        logging.debug(f"{self}: Reboot command completed.")
-        if ret is None:
-            return False
-        return True
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
@@ -122,9 +115,6 @@ class BMMiner(BaseMiner):
 
         return self.fw_ver
 
-    async def _get_hostname(self) -> Optional[str]:
-        hn = await self.send_ssh_command("cat /proc/sys/kernel/hostname")
-        return hn
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API

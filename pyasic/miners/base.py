@@ -15,13 +15,10 @@
 # ------------------------------------------------------------------------------
 import asyncio
 import ipaddress
-import logging
 import warnings
 from dataclasses import dataclass, field, make_dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Protocol, Tuple, Type, TypeVar, Union
-
-import asyncssh
+from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
@@ -109,9 +106,12 @@ DataLocations = make_dataclass(
 class MinerProtocol(Protocol):
     _api_cls: Type = None
     _web_cls: Type = None
+    _ssh_cls: Type = None
 
-    api = None
-    web = None
+    ip: str = None
+    api: _api_cls = None
+    web: _web_cls = None
+    ssh: _ssh_cls = None
 
     make: str = None
     raw_model: str = None
@@ -149,69 +149,6 @@ class MinerProtocol(Protocol):
         if self.firmware is not None:
             model_data.append(f"({self.firmware})")
         return " ".join(model_data)
-
-    @property
-    def pwd(self) -> Dict[str, str]:
-        data = {}
-        if self.web is not None:
-            data["web"] = self.web.pwd
-        if self.api is not None:
-            data["api"] = self.api.pwd
-        return data
-
-    @pwd.setter
-    def pwd(self, val: str) -> None:
-        if self.web is not None:
-            self.web.pwd = val
-        if self.api is not None:
-            self.api.pwd = val
-
-    @property
-    def username(self) -> Dict[str, str]:
-        data = {}
-        if self.web is not None:
-            data["web"] = self.web.pwd
-        if self.api is not None:
-            data["api"] = self.api.pwd
-        return data
-
-    @username.setter
-    def username(self, val) -> None:
-        if self.web is not None:
-            self.web.username = val
-
-    async def _get_ssh_connection(self) -> asyncssh.connect:
-        """Create a new asyncssh connection"""
-        try:
-            conn = await asyncssh.connect(
-                str(self.ip),
-                known_hosts=None,
-                username="root",
-                password=self.pwd,
-                server_host_key_algs=["ssh-rsa"],
-            )
-            return conn
-        except asyncssh.misc.PermissionDenied as e:
-            raise ConnectionRefusedError from e
-        except Exception as e:
-            raise ConnectionError from e
-
-    async def send_ssh_command(self, cmd: str) -> Optional[str]:
-        """Send an ssh command to the miner"""
-        try:
-            conn = await asyncio.wait_for(self._get_ssh_connection(), timeout=10)
-        except (ConnectionError, asyncio.TimeoutError):
-            return None
-
-        try:
-            async with conn:
-                resp = await conn.run(cmd)
-                result = str(max(resp.stdout, resp.stderr, key=len))
-
-                return result
-        except Exception as e:
-            logging.error(f"{self} command {cmd} error: {e}")
-            return None
 
     async def check_light(self) -> bool:
         return await self.get_fault_light()
@@ -597,9 +534,9 @@ class MinerProtocol(Protocol):
             ip=str(self.ip),
             make=self.make,
             model=self.model,
-            expected_chips=self.expected_chips
+            expected_chips=self.expected_chips * self.expected_hashboards
             if self.expected_chips is not None
-            else 0 * self.expected_hashboards,
+            else 0,
             expected_hashboards=self.expected_hashboards,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.expected_chips)
@@ -632,6 +569,8 @@ class BaseMiner(MinerProtocol):
             self.api = self._api_cls(ip)
         if self._web_cls is not None:
             self.web = self._web_cls(ip)
+        if self._ssh_cls is not None:
+            self.ssh = self._ssh_cls(ip)
 
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)

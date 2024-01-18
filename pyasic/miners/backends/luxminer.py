@@ -61,8 +61,11 @@ LUXMINER_DATA_LOC = DataLocations(
 
 
 class LUXMiner(BaseMiner):
-    _api_cls = LUXMinerRPCAPI
+    """Handler for LuxOS miners"""
 
+    _api_cls = LUXMinerRPCAPI
+    api: LUXMinerRPCAPI
+    
     firmware = "LuxOS"
 
     data_locations = LUXMINER_DATA_LOC

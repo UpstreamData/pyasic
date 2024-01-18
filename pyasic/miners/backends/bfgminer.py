@@ -62,6 +62,7 @@ class BFGMiner(BaseMiner):
     """Base handler for BFGMiner based miners."""
 
     _api_cls = BFGMinerRPCAPI
+    api: BFGMinerRPCAPI
 
     data_locations = BFGMINER_DATA_LOC
 
