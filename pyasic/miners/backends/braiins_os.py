@@ -522,9 +522,7 @@ class BOSMiner(BaseMiner):
         if self.light:
             return self.light
         try:
-            data = (
-                await self.ssh.get_led_status()
-            ).strip()
+            data = (await self.ssh.get_led_status()).strip()
             self.light = False
             if data == "50":
                 self.light = True

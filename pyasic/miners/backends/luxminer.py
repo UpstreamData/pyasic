@@ -65,7 +65,7 @@ class LUXMiner(BaseMiner):
 
     _api_cls = LUXMinerRPCAPI
     api: LUXMinerRPCAPI
-    
+
     firmware = "LuxOS"
 
     data_locations = LUXMINER_DATA_LOC

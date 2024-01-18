@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import logging
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
@@ -114,7 +113,6 @@ class BMMiner(BaseMiner):
                 pass
 
         return self.fw_ver
-
 
     async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
         # get hr from API
