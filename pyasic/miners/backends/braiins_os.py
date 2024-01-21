@@ -187,7 +187,7 @@ class BOSMiner(BaseMiner):
                 "format": {
                     "version": "1.2+",
                     "generator": "pyasic",
-                    "model": f"{self.make.replace('Miner', 'miner')} {self.model.replace(' (BOS)', '').replace('j', 'J')}",
+                    "model": f"{self.make.replace('Miner', 'miner')} {self.raw_model.replace('j', 'J')}",
                     "timestamp": int(time.time()),
                 },
                 **config.as_bosminer(user_suffix=user_suffix),
