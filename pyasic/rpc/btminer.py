@@ -28,9 +28,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
 
 from pyasic import settings
-from pyasic.API import BaseMinerAPI
 from pyasic.errors import APIError
 from pyasic.misc import api_min_version
+from pyasic.rpc import BaseMinerRPCAPI
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer
@@ -159,7 +159,7 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     return api_packet_str.encode("utf-8")
 
 
-class BTMinerAPI(BaseMinerAPI):
+class BTMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the API for MicroBT Whatsminers, BTMiner.
 
     Each method corresponds to an API command in BMMiner.
@@ -183,21 +183,12 @@ class BTMinerAPI(BaseMinerAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
-        pwd: The admin password of the miner.  Default is admin.
     """
 
-    def __init__(
-        self,
-        ip: str,
-        api_ver: str = "0.0.0",
-        port: int = 4028,
-        pwd: str = settings.get("default_whatsminer_password", "admin"),
-    ):
-        super().__init__(ip, port)
-        self.pwd = pwd
+    def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0"):
+        super().__init__(ip, port, api_ver)
+        self.pwd = settings.get("default_whatsminer_password", "admin")
         self.current_token = None
-        self.api_ver = api_ver
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -211,28 +202,33 @@ class BTMinerAPI(BaseMinerAPI):
         # standard multicommand format is "command1+command2"
         # commands starting with "get_" and the "status" command aren't supported, but we can fake that
 
-        tasks = []
+        split_commands = []
 
         for command in list(commands):
             if command.startswith("get_") or command == "status":
                 commands.remove(command)
                 # send seperately and append later
-                tasks.append(
-                    asyncio.create_task(
-                        self._handle_multicommand(command, allow_warning=allow_warning)
-                    )
-                )
+                split_commands.append(command)
 
         command = "+".join(commands)
-        tasks.append(
-            asyncio.create_task(
-                self._handle_multicommand(command, allow_warning=allow_warning)
+
+        tasks = []
+        if len(split_commands) > 0:
+            tasks.append(
+                asyncio.create_task(
+                    self._send_split_multicommand(
+                        *split_commands, allow_warning=allow_warning
+                    )
+                )
             )
+        tasks.append(
+            asyncio.create_task(self.send_command(command, allow_warning=allow_warning))
         )
 
-        all_data = await asyncio.gather(*tasks)
-
-        logging.debug(f"{self} - (Multicommand) - Received data")
+        try:
+            all_data = await asyncio.gather(*tasks)
+        except APIError:
+            return {}
 
         data = {}
         for item in all_data:

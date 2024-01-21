@@ -16,11 +16,11 @@
 
 from typing import List, Optional, Tuple
 
-from pyasic.API.unknown import UnknownAPI
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.miners.base import BaseMiner
+from pyasic.rpc.unknown import UnknownRPCAPI
 
 
 class UnknownMiner(BaseMiner):
@@ -32,7 +32,7 @@ class UnknownMiner(BaseMiner):
     ) -> None:
         super().__init__(ip)
         self.ip = ip
-        self.api = UnknownAPI(ip)
+        self.api = UnknownRPCAPI(ip)
 
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"
@@ -73,60 +73,53 @@ class UnknownMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self) -> Optional[str]:
+    async def _get_mac(self) -> Optional[str]:
         return None
 
-    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
+    async def _get_version(self) -> Tuple[Optional[str], Optional[str]]:
         return None, None
 
-    async def get_hostname(self) -> Optional[str]:
+    async def _get_hostname(self) -> Optional[str]:
         return None
 
-    async def get_hashrate(self) -> Optional[float]:
+    async def _get_hashrate(self) -> Optional[float]:
         return None
 
-    async def get_hashboards(self) -> List[HashBoard]:
+    async def _get_hashboards(self) -> List[HashBoard]:
         return []
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> Optional[float]:
         return None
 
-    async def get_wattage(self) -> Optional[int]:
+    async def _get_wattage(self) -> Optional[int]:
         return None
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def _get_wattage_limit(self) -> Optional[int]:
         return None
 
-    async def get_fans(
-        self,
-    ) -> List[Fan]:
+    async def _get_fans(self) -> List[Fan]:
         return [Fan(), Fan(), Fan(), Fan()]
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def _get_fan_psu(self) -> Optional[int]:
         return None
 
-    async def get_api_ver(self) -> Optional[str]:
+    async def _get_api_ver(self) -> Optional[str]:
         return None
 
-    async def get_fw_ver(self) -> Optional[str]:
+    async def _get_fw_ver(self) -> Optional[str]:
         return None
 
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> List[MinerErrorData]:
         return []
 
-    async def get_fault_light(self) -> bool:
+    async def _get_fault_light(self) -> bool:
         return False
 
-    async def get_expected_hashrate(self) -> Optional[float]:
+    async def _get_expected_hashrate(self) -> Optional[float]:
         return None
 
-    async def is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
         return None
 
-    async def get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
         return None
-
-    async def get_data(
-        self, allow_warning: bool = False, data_to_get: list = None, **kwargs
-    ) -> MinerData:
-        return MinerData(ip=str(self.ip))

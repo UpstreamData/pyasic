@@ -13,15 +13,15 @@ nav:
     - Error Codes: "data/error_codes.md"
     - Miner Config: "config/miner_config.md"
 - Advanced:
-    - Miner APIs:
-        - Intro: "API/api.md"
-        - BFGMiner: "API/bfgminer.md"
-        - BMMiner: "API/bmminer.md"
-        - BOSMiner: "API/bosminer.md"
-        - BTMiner: "API/btminer.md"
-        - CGMiner: "API/cgminer.md"
-        - LUXMiner: "API/luxminer.md"
-        - Unknown: "API/unknown.md"
+    - RPC APIs:
+        - Intro: "rpc/api.md"
+        - BFGMiner: "rpc/bfgminer.md"
+        - BMMiner: "rpc/bmminer.md"
+        - BOSMiner: "rpc/bosminer.md"
+        - BTMiner: "rpc/btminer.md"
+        - CGMiner: "rpc/cgminer.md"
+        - LUXMiner: "rpc/luxminer.md"
+        - Unknown: "rpc/unknown.md"
     - Backends:
         - BMMiner: "miners/backends/bmminer.md"
         - BOSMiner: "miners/backends/bosminer.md"

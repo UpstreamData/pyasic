@@ -13,13 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import asyncio
-import logging
 
-from pyasic.API import APIError, BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class CGMinerAPI(BaseMinerAPI):
+class CGMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the CGMiner API.
 
     Each method corresponds to an API command in GGMiner.
@@ -34,42 +32,7 @@ class CGMinerAPI(BaseMinerAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
     """
-
-    def __init__(self, ip: str, api_ver: str = "0.0.0", port: int = 4028):
-        super().__init__(ip, port)
-        self.api_ver = api_ver
-
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
-        # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
-        # standard multicommand format is "command1+command2"
-        # doesn't work for S19 which uses the backup _x19_multicommand
-        command = "+".join(commands)
-        try:
-            data = await self.send_command(command, allow_warning=allow_warning)
-        except APIError:
-            logging.debug(f"{self} - (Multicommand) - Handling X19 multicommand.")
-            data = await self._x19_multicommand(*command.split("+"))
-        data["multicommand"] = True
-        return data
-
-    async def _x19_multicommand(self, *commands) -> dict:
-        tasks = []
-        # send all commands individually
-        for cmd in commands:
-            tasks.append(
-                asyncio.create_task(self._handle_multicommand(cmd, allow_warning=True))
-            )
-
-        all_data = await asyncio.gather(*tasks)
-
-        data = {}
-        for item in all_data:
-            data.update(item)
-
-        return data
 
     async def version(self) -> dict:
         """Get miner version info.
@@ -559,7 +522,8 @@ class CGMinerAPI(BaseMinerAPI):
             <summary>Expand</summary>
 
         Parameters:
-            which: Which device to zero. Setting this to 'all' zeros all devices. Setting this to 'bestshare' zeros only the bestshare values for each pool and global.
+            which: Which device to zero. Setting this to 'all' zeros all devices.
+                   Setting this to 'bestshare' zeros only the bestshare values for each pool and global.
             summary: Whether or not to show a full summary.
 
 

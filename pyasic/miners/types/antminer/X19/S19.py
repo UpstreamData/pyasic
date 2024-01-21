@@ -14,158 +14,107 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class S19(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19"
-        self.expected_chips = 76
-        self.fan_count = 4
+class S19(AntMinerMake):
+    raw_model = "S19"
+    expected_chips = 76
+    expected_fans = 4
 
 
-class S19NoPIC(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19 No PIC"
-        self.expected_chips = 88
-        self.fan_count = 4
+class S19NoPIC(AntMinerMake):
+    raw_model = "S19 No PIC"
+    expected_chips = 88
+    expected_fans = 4
 
 
-class S19Pro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19 Pro"
-        self.expected_chips = 114
-        self.fan_count = 4
+class S19Pro(AntMinerMake):
+    raw_model = "S19 Pro"
+    expected_chips = 114
+    expected_fans = 4
 
 
-class S19i(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19i"
-        self.expected_chips = 80
-        self.fan_count = 4
+class S19i(AntMinerMake):
+    raw_model = "S19i"
+    expected_chips = 80
+    expected_fans = 4
 
 
-class S19Plus(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19+"
-        self.expected_chips = 80
-        self.fan_count = 4
+class S19Plus(AntMinerMake):
+    raw_model = "S19+"
+    expected_chips = 80
+    expected_fans = 4
 
 
-class S19ProPlus(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19 Pro+"
-        self.expected_chips = 120
-        self.fan_count = 4
+class S19ProPlus(AntMinerMake):
+    raw_model = "S19 Pro+"
+    expected_chips = 120
+    expected_fans = 4
 
 
-class S19XP(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19 XP"
-        self.expected_chips = 110
-        self.fan_count = 4
+class S19XP(AntMinerMake):
+    raw_model = "S19 XP"
+    expected_chips = 110
+    expected_fans = 4
 
 
-class S19a(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19a"
-        self.expected_chips = 72
-        self.fan_count = 4
+class S19a(AntMinerMake):
+    raw_model = "S19a"
+    expected_chips = 72
+    expected_fans = 4
 
 
-class S19aPro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19a Pro"
-        self.expected_chips = 100
-        self.fan_count = 4
+class S19aPro(AntMinerMake):
+    raw_model = "S19a Pro"
+    expected_chips = 100
+    expected_fans = 4
 
 
-class S19j(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19j"
-        self.expected_chips = 114
-        self.fan_count = 4
+class S19j(AntMinerMake):
+    raw_model = "S19j"
+    expected_chips = 114
+    expected_fans = 4
 
 
-class S19jNoPIC(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19j No PIC"
-        self.expected_chips = 88
-        self.fan_count = 4
+class S19jNoPIC(AntMinerMake):
+    raw_model = "S19j No PIC"
+    expected_chips = 88
+    expected_fans = 4
 
 
-class S19jPro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19j Pro"
-        self.expected_chips = 126
-        self.fan_count = 4
+class S19jPro(AntMinerMake):
+    raw_model = "S19j Pro"
+    expected_chips = 126
+    expected_fans = 4
 
 
-class S19jProPlus(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19j Pro+"
-        self.expected_chips = 120
-        self.fan_count = 4
+class S19jProPlus(AntMinerMake):
+    raw_model = "S19j Pro+"
+    expected_chips = 120
+    expected_fans = 4
 
 
-class S19kPro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19k Pro"
-        self.expected_chips = 77
-        self.fan_count = 4
+class S19kPro(AntMinerMake):
+    raw_model = "S19k Pro"
+    expected_chips = 77
+    expected_fans = 4
 
 
-class S19L(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19L"
-        self.expected_chips = 76
-        self.fan_count = 4
+class S19L(AntMinerMake):
+    raw_model = "S19L"
+    expected_chips = 76
+    expected_fans = 4
 
 
-class S19kProNoPIC(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19k Pro No PIC"
-        self.expected_chips = 77
-        self.fan_count = 4
+class S19kProNoPIC(AntMinerMake):
+    raw_model = "S19k Pro No PIC"
+    expected_chips = 77
+    expected_fans = 4
 
 
-class S19ProHydro(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "S19 Pro Hydro"
-        self.expected_chips = 180
-        self.expected_hashboards = 4
-        self.fan_count = 0
+class S19ProHydro(AntMinerMake):
+    raw_model = "S19 Pro Hydro"
+    expected_chips = 180
+    expected_hashboards = 4
+    expected_fans = 0

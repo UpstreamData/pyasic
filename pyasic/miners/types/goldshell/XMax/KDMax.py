@@ -13,14 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import GoldshellMiner
+from pyasic.miners.makes import GoldshellMake
 
 
-class KDMax(GoldshellMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "KD Max"
-        self.expected_hashboards = 3
-        self.expected_chips = 84
-        self.fan_count = 4
+class KDMax(GoldshellMake):
+    raw_model = "KD Max"
+    expected_hashboards = 3
+    expected_chips = 84
+    expected_fans = 4

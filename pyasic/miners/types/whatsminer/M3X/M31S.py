@@ -14,120 +14,74 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
-from pyasic.miners.makes import WhatsMiner
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class M31SV10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V10"
-        self.expected_chips = 105
-        self.fan_count = 2
+class M31SV10(WhatsMinerMake):
+    raw_model = "M31S V10"
+    expected_chips = 105
+    expected_fans = 2
 
 
-class M31SV20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V20"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M31SV20(WhatsMinerMake):
+    raw_model = "M31S V20"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M31SV30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V30"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M31SV30(WhatsMinerMake):
+    raw_model = "M31S V30"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M31SV40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V40"
-        self.expected_chips = 123
-        self.fan_count = 2
+class M31SV40(WhatsMinerMake):
+    raw_model = "M31S V40"
+    expected_chips = 123
+    expected_fans = 2
 
 
-class M31SV50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V50"
-        self.expected_chips = 78
-        self.fan_count = 2
+class M31SV50(WhatsMinerMake):
+    raw_model = "M31S V50"
+    expected_chips = 78
+    expected_fans = 2
 
 
-class M31SV60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V60"
-        self.expected_chips = 105
-        self.fan_count = 2
+class M31SV60(WhatsMinerMake):
+    raw_model = "M31S V60"
+    expected_chips = 105
+    expected_fans = 2
 
 
-class M31SV70(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V70"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M31SV70(WhatsMinerMake):
+    raw_model = "M31S V70"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M31SV80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V80"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SV80, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M31SV80(WhatsMinerMake):
+    raw_model = "M31S V80"
+    expected_fans = 2
 
 
-class M31SV90(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S V90"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M31SV90(WhatsMinerMake):
+    raw_model = "M31S V90"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M31SVE10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S VE10"
-        self.expected_chips = 70
-        self.fan_count = 2
+class M31SVE10(WhatsMinerMake):
+    raw_model = "M31S VE10"
+    expected_chips = 70
+    expected_fans = 2
 
 
-class M31SVE20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S VE20"
-        self.expected_chips = 74
-        self.fan_count = 2
+class M31SVE20(WhatsMinerMake):
+    raw_model = "M31S VE20"
+    expected_chips = 74
+    expected_fans = 2
 
 
-class M31SVE30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S VE30"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M31SVE30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M31SVE30(WhatsMinerMake):
+    raw_model = "M31S VE30"
+    expected_fans = 2

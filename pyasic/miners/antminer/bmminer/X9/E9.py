@@ -19,6 +19,4 @@ from pyasic.miners.types import E9Pro
 
 
 class BMMinerE9Pro(AntminerModern, E9Pro):
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.supports_shutdown = False
+    supports_shutdown = False

@@ -15,10 +15,10 @@
 # ------------------------------------------------------------------------------
 from typing import Literal
 
-from pyasic.API import BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class LUXMinerAPI(BaseMinerAPI):
+class LUXMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the LUXMiner API.
 
     Each method corresponds to an API command in LUXMiner.
@@ -33,12 +33,7 @@ class LUXMinerAPI(BaseMinerAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
     """
-
-    def __init__(self, ip: str, api_ver: str = "0.0.0", port: int = 4028) -> None:
-        super().__init__(ip, port=port)
-        self.api_ver = api_ver
 
     async def addgroup(self, name: str, quota: int) -> dict:
         """Add a pool group.

@@ -1,6 +1,6 @@
 # pyasic
-## BMMinerAPI
-::: pyasic.API.bmminer.BMMinerAPI
+## BMMinerRPCAPI
+::: pyasic.rpc.bmminer.BMMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

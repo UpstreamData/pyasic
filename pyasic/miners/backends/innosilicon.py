@@ -40,21 +40,19 @@ INNOSILICON_DATA_LOC = DataLocations(
             ],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
             [
                 RPCAPICommand("api_summary", "summary"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
-        ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate",
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
@@ -63,7 +61,6 @@ INNOSILICON_DATA_LOC = DataLocations(
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
             [
@@ -83,43 +80,29 @@ INNOSILICON_DATA_LOC = DataLocations(
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
             [
                 WebAPICommand("web_get_error_detail", "getErrorDetail"),
             ],
         ),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 
 
 class Innosilicon(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver=api_ver)
-        # interfaces
-        self.web = InnosiliconWebAPI(ip)
+    """Base handler for Innosilicon miners"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = INNOSILICON_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_shutdown = True
+    _web_cls = InnosiliconWebAPI
+    web: InnosiliconWebAPI
 
-        # data storage
-        self.api_ver = api_ver
+    data_locations = INNOSILICON_DATA_LOC
 
-    async def fault_light_on(self) -> bool:
-        return False
-
-    async def fault_light_off(self) -> bool:
-        return False
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -150,23 +133,6 @@ class Innosilicon(CGMiner):
     async def restart_backend(self) -> bool:
         return await self.restart_cgminer()
 
-    async def stop_mining(self) -> bool:
-        return False
-        # data = await self.web.poweroff()
-        # try:
-        #     return data["success"]
-        # except KeyError:
-        #     return False
-
-    async def resume_mining(self) -> bool:
-        return False
-        # data = await self.web.restart_cgminer()
-        # print(data)
-        # try:
-        #     return data["success"]
-        # except KeyError:
-        #     return False
-
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
         await self.web.update_pools(config.as_inno(user_suffix=user_suffix))
@@ -181,20 +147,20 @@ class Innosilicon(CGMiner):
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if not web_get_all and not web_overview:
+        if web_get_all is None and web_overview is None:
             try:
                 web_overview = await self.web.overview()
             except APIError:
                 pass
 
-        if web_get_all:
+        if web_get_all is not None:
             try:
                 mac = web_get_all["mac"]
                 return mac.upper()
             except KeyError:
                 pass
 
-        if web_overview:
+        if web_overview is not None:
             try:
                 mac = web_overview["version"]["ethaddr"]
                 return mac.upper()
@@ -207,13 +173,13 @@ class Innosilicon(CGMiner):
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if not api_summary and not web_get_all:
+        if api_summary is None and web_get_all is None:
             try:
                 api_summary = await self.api.summary()
             except APIError:
                 pass
 
-        if web_get_all:
+        if web_get_all is not None:
             try:
                 if "Hash Rate H" in web_get_all["total_hash"].keys():
                     return round(
@@ -227,7 +193,7 @@ class Innosilicon(CGMiner):
             except KeyError:
                 pass
 
-        if api_summary:
+        if api_summary is not None:
             try:
                 return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError):
@@ -244,13 +210,13 @@ class Innosilicon(CGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if not web_get_all:
+        if web_get_all is None:
             try:
                 web_get_all = await self.web.get_all()
             except APIError:
@@ -258,7 +224,7 @@ class Innosilicon(CGMiner):
             else:
                 web_get_all = web_get_all["all"]
 
-        if api_stats:
+        if api_stats is not None:
             if api_stats.get("STATS"):
                 for board in api_stats["STATS"]:
                     try:
@@ -270,7 +236,7 @@ class Innosilicon(CGMiner):
                         hashboards[idx].chips = chips
                         hashboards[idx].missing = False
 
-        if web_get_all:
+        if web_get_all is not None:
             if web_get_all.get("chain"):
                 for board in web_get_all["chain"]:
                     idx = board.get("ASC")
@@ -297,7 +263,7 @@ class Innosilicon(CGMiner):
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if not web_get_all:
+        if web_get_all is None:
             try:
                 web_get_all = await self.web.get_all()
             except APIError:
@@ -305,19 +271,19 @@ class Innosilicon(CGMiner):
             else:
                 web_get_all = web_get_all["all"]
 
-        if web_get_all:
+        if web_get_all is not None:
             try:
                 return web_get_all["power"]
             except KeyError:
                 pass
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             if api_stats.get("STATS"):
                 for board in api_stats["STATS"]:
                     try:
@@ -332,7 +298,7 @@ class Innosilicon(CGMiner):
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if not web_get_all:
+        if web_get_all is None:
             try:
                 web_get_all = await self.web.get_all()
             except APIError:
@@ -341,7 +307,7 @@ class Innosilicon(CGMiner):
                 web_get_all = web_get_all["all"]
 
         fans = [Fan() for _ in range(self.expected_fans)]
-        if web_get_all:
+        if web_get_all is not None:
             try:
                 spd = web_get_all["fansSpeed"]
             except KeyError:
@@ -357,13 +323,13 @@ class Innosilicon(CGMiner):
         self, web_get_error_detail: dict = None
     ) -> List[MinerErrorData]:
         errors = []
-        if not web_get_error_detail:
+        if web_get_error_detail is None:
             try:
                 web_get_error_detail = await self.web.get_error_detail()
             except APIError:
                 pass
 
-        if web_get_error_detail:
+        if web_get_error_detail is not None:
             try:
                 # only 1 error?
                 # TODO: check if this should be a loop, can't remember.
@@ -380,7 +346,7 @@ class Innosilicon(CGMiner):
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if not web_get_all:
+        if web_get_all is None:
             try:
                 web_get_all = await self.web.get_all()
             except APIError:
@@ -388,7 +354,7 @@ class Innosilicon(CGMiner):
             else:
                 web_get_all = web_get_all["all"]
 
-        if web_get_all:
+        if web_get_all is not None:
             try:
                 level = web_get_all["running_mode"]["level"]
             except KeyError:
@@ -398,6 +364,3 @@ class Innosilicon(CGMiner):
                 level = int(level)
                 limit = 1250 + (250 * level)
                 return limit
-
-    async def _get_expected_hashrate(self) -> Optional[float]:
-        pass

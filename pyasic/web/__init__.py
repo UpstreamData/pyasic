@@ -25,7 +25,7 @@ class BaseWebAPI(ABC):
         # ip address of the miner
         self.ip = ip  # ipaddress.ip_address(ip)
         self.username = "root"
-        self.pwd = "root"
+        self.pwd = None
         self.port = 80
 
     def __new__(cls, *args, **kwargs):

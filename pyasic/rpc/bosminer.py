@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.API import BaseMinerAPI
+from pyasic.rpc import BaseMinerRPCAPI
 
 
-class BOSMinerAPI(BaseMinerAPI):
+class BOSMinerRPCAPI(BaseMinerRPCAPI):
     """An abstraction of the BOSMiner API.
 
     Each method corresponds to an API command in BOSMiner.
@@ -32,12 +32,7 @@ class BOSMinerAPI(BaseMinerAPI):
 
     Parameters:
         ip: The IP of the miner to reference the API on.
-        port: The port to reference the API on.  Default is 4028.
     """
-
-    def __init__(self, ip: str, api_ver: str = "0.0.0", port: int = 4028) -> None:
-        super().__init__(ip, port=port)
-        self.api_ver = api_ver
 
     async def asccount(self) -> dict:
         """Get data on the number of ASC devices and their info.

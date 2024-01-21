@@ -55,7 +55,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         if not self.jwt:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for i in range(settings.get("get_data_retries", 1)):
+            for _ in range(settings.get("get_data_retries", 1)):
                 try:
                     response = await client.post(
                         f"http://{self.ip}:{self.port}/api/{command}",

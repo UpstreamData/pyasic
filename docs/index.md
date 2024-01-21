@@ -122,24 +122,24 @@ if __name__ == "__main__":
 ## Miner control
 ---
 `pyasic` exposes a standard interface for each miner using control functions.
-Every miner class in `pyasic` must implement all the control functions defined in [`BaseMiner`][pyasic.miners.BaseMiner].
+Every miner class in `pyasic` must implement all the control functions defined in [`MinerProtocol`][pyasic.miners.base.MinerProtocol].
 
 These functions are
-[`check_light`][pyasic.miners.BaseMiner.check_light],
-[`fault_light_off`][pyasic.miners.BaseMiner.fault_light_off],
-[`fault_light_on`][pyasic.miners.BaseMiner.fault_light_on],
-[`get_config`][pyasic.miners.BaseMiner.get_config],
-[`get_data`][pyasic.miners.BaseMiner.get_data],
-[`get_errors`][pyasic.miners.BaseMiner.get_errors],
-[`get_hostname`][pyasic.miners.BaseMiner.get_hostname],
-[`get_model`][pyasic.miners.BaseMiner.get_model],
-[`reboot`][pyasic.miners.BaseMiner.reboot],
-[`restart_backend`][pyasic.miners.BaseMiner.restart_backend],
-[`stop_mining`][pyasic.miners.BaseMiner.stop_mining],
-[`resume_mining`][pyasic.miners.BaseMiner.resume_mining],
-[`is_mining`][pyasic.miners.BaseMiner.is_mining],
-[`send_config`][pyasic.miners.BaseMiner.send_config], and
-[`set_power_limit`][pyasic.miners.BaseMiner.set_power_limit].
+[`check_light`][pyasic.miners.base.MinerProtocol.check_light],
+[`fault_light_off`][pyasic.miners.base.MinerProtocol.fault_light_off],
+[`fault_light_on`][pyasic.miners.base.MinerProtocol.fault_light_on],
+[`get_config`][pyasic.miners.base.MinerProtocol.get_config],
+[`get_data`][pyasic.miners.base.MinerProtocol.get_data],
+[`get_errors`][pyasic.miners.base.MinerProtocol.get_errors],
+[`get_hostname`][pyasic.miners.base.MinerProtocol.get_hostname],
+[`get_model`][pyasic.miners.base.MinerProtocol.get_model],
+[`reboot`][pyasic.miners.base.MinerProtocol.reboot],
+[`restart_backend`][pyasic.miners.base.MinerProtocol.restart_backend],
+[`stop_mining`][pyasic.miners.base.MinerProtocol.stop_mining],
+[`resume_mining`][pyasic.miners.base.MinerProtocol.resume_mining],
+[`is_mining`][pyasic.miners.base.MinerProtocol.is_mining],
+[`send_config`][pyasic.miners.base.MinerProtocol.send_config], and
+[`set_power_limit`][pyasic.miners.base.MinerProtocol.set_power_limit].
 
 ##### Usage
 ```python

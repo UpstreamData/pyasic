@@ -59,18 +59,17 @@ class TemperatureConfig(MinerConfigValue):
 
     @classmethod
     def from_epic(cls, web_conf: dict) -> "TemperatureConfig":
-        dangerous_temp = None
         try:
-            hot_temp = web_conf["Misc"]["Shutdown Temp"]
+            dangerous_temp = web_conf["Misc"]["Shutdown Temp"]
         except KeyError:
-            hot_temp = None
+            dangerous_temp = None
         # Need to do this in two blocks to avoid KeyError if one is missing
         try:
             target_temp = web_conf["Fans"]["Fan Mode"]["Auto"]["Target Temperature"]
         except KeyError:
             target_temp = None
 
-        return cls(target=target_temp, hot=hot_temp, danger=dangerous_temp)
+        return cls(target=target_temp, danger=dangerous_temp)
 
     @classmethod
     def from_vnish(cls, web_settings: dict):

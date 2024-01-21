@@ -16,7 +16,6 @@
 
 from typing import List, Optional, Union
 
-from pyasic.API import APIError
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
@@ -29,65 +28,72 @@ from pyasic.miners.base import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.rpc import APIError
+from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "_get_mac", [WebAPICommand("web_get_system_info", "get_system_info")]
+            "_get_mac",
+            [WebAPICommand("web_get_system_info", "get_system_info")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "_get_hostname", [WebAPICommand("web_get_system_info", "get_system_info")]
+            "_get_hostname",
+            [WebAPICommand("web_get_system_info", "get_system_info")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.HASHBOARDS): DataFunction("_get_hashboards"),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
         str(DataOptions.ERRORS): DataFunction(
-            "_get_errors", [WebAPICommand("web_summary", "summary")]
+            "_get_errors",
+            [WebAPICommand("web_summary", "summary")],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
             [WebAPICommand("web_get_blink_status", "get_blink_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
+            "_is_mining",
+            [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 
 
 class AntminerModern(BMMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = AntminerModernWebAPI(ip)
+    """Handler for AntMiners with the modern web interface, such as S19"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = ANTMINER_MODERN_DATA_LOC
-        # autotuning/shutdown support
-        self.supports_shutdown = True
+    _web_cls = AntminerModernWebAPI
+    web: AntminerModernWebAPI
+
+    _ssh_cls = AntminerModernSSH
+    ssh: AntminerModernSSH
+
+    data_locations = ANTMINER_MODERN_DATA_LOC
+
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
@@ -141,26 +147,26 @@ class AntminerModern(BMMiner):
         return True
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Union[str, None]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
 
     async def _get_mac(self, web_get_system_info: dict = None) -> Union[str, None]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["macaddr"]
             except KeyError:
@@ -174,14 +180,14 @@ class AntminerModern(BMMiner):
             pass
 
     async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
-        if not web_summary:
+        if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
                 pass
 
         errors = []
-        if web_summary:
+        if web_summary is not None:
             try:
                 for item in web_summary["SUMMARY"][0]["status"]:
                     try:
@@ -204,7 +210,7 @@ class AntminerModern(BMMiner):
         except APIError:
             return hashboards
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 for board in api_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = round(
@@ -229,17 +235,19 @@ class AntminerModern(BMMiner):
                 pass
         return hashboards
 
-    async def _get_fault_light(self, web_get_blink_status: dict = None) -> bool:
+    async def _get_fault_light(
+        self, web_get_blink_status: dict = None
+    ) -> Optional[bool]:
         if self.light:
             return self.light
 
-        if not web_get_blink_status:
+        if web_get_blink_status is None:
             try:
                 web_get_blink_status = await self.web.get_blink_status()
             except APIError:
                 pass
 
-        if web_get_blink_status:
+        if web_get_blink_status is not None:
             try:
                 self.light = web_get_blink_status["blink"]
             except KeyError:
@@ -247,13 +255,13 @@ class AntminerModern(BMMiner):
         return self.light
 
     async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 expected_rate = api_stats["STATS"][1]["total_rateideal"]
                 try:
@@ -312,13 +320,13 @@ class AntminerModern(BMMiner):
         )
 
     async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
-        if not web_get_conf:
+        if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
             except APIError:
                 pass
 
-        if web_get_conf:
+        if web_get_conf is not None:
             try:
                 if web_get_conf["bitmain-work-mode"].isdigit():
                     return (
@@ -329,13 +337,13 @@ class AntminerModern(BMMiner):
                 pass
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:
@@ -344,57 +352,53 @@ class AntminerModern(BMMiner):
 
 ANTMINER_OLD_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.MAC): DataFunction("_get_mac"),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [RPCAPICommand("api_version", "version")]
+            "_get_fw_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "_get_hostname", [WebAPICommand("web_get_system_info", "get_system_info")]
+            "_get_hostname",
+            [WebAPICommand("web_get_system_info", "get_system_info")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
-        ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards", [RPCAPICommand("api_stats", "stats")]
+            "_get_hashboards",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("_get_errors"),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
             [WebAPICommand("web_get_blink_status", "get_blink_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining", [WebAPICommand("web_get_conf", "get_miner_conf")]
+            "_is_mining",
+            [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 
 
 class AntminerOld(CGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = AntminerOldWebAPI(ip)
+    """Handler for AntMiners with the old web interface, such as S17"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = ANTMINER_OLD_DATA_LOC
+    _web_cls = AntminerOldWebAPI
+    web: AntminerOldWebAPI
+
+    data_locations = ANTMINER_OLD_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
@@ -443,17 +447,19 @@ class AntminerOld(CGMiner):
             return True
         return False
 
-    async def _get_fault_light(self, web_get_blink_status: dict = None) -> bool:
+    async def _get_fault_light(
+        self, web_get_blink_status: dict = None
+    ) -> Optional[bool]:
         if self.light:
             return self.light
 
-        if not web_get_blink_status:
+        if web_get_blink_status is None:
             try:
                 web_get_blink_status = await self.web.get_blink_status()
             except APIError:
                 pass
 
-        if web_get_blink_status:
+        if web_get_blink_status is not None:
             try:
                 self.light = web_get_blink_status["isBlinking"]
             except KeyError:
@@ -461,27 +467,27 @@ class AntminerOld(CGMiner):
         return self.light
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
-        if not web_get_system_info:
+        if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
             except APIError:
                 pass
 
-        if web_get_system_info:
+        if web_get_system_info is not None:
             try:
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
 
     async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
         fans_data = [Fan() for _ in range(self.expected_fans)]
-        if api_stats:
+        if api_stats is not None:
             try:
                 fan_offset = -1
 
@@ -504,13 +510,13 @@ class AntminerOld(CGMiner):
     async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 board_offset = -1
                 boards = api_stats["STATS"]
@@ -556,13 +562,13 @@ class AntminerOld(CGMiner):
         return hashboards
 
     async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
-        if not web_get_conf:
+        if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
             except APIError:
                 pass
 
-        if web_get_conf:
+        if web_get_conf is not None:
             try:
                 return False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
             except LookupError:
@@ -581,13 +587,13 @@ class AntminerOld(CGMiner):
                 return False
 
     async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+        if api_stats is None:
             try:
                 api_stats = await self.api.stats()
             except APIError:
                 pass
 
-        if api_stats:
+        if api_stats is not None:
             try:
                 return int(api_stats["STATS"][1]["Elapsed"])
             except LookupError:

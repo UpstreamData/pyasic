@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
+from typing import List
 
 from pyasic.config import MinerConfig
 from pyasic.data import HashBoard
@@ -32,20 +32,24 @@ from pyasic.web.goldshell import GoldshellWebAPI
 GOLDSHELL_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "_get_mac", [WebAPICommand("web_setting", "setting")]
+            "_get_mac",
+            [WebAPICommand("web_setting", "setting")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
-            "_get_api_ver", [RPCAPICommand("api_version", "version")]
+            "_get_api_ver",
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
-            "_get_fw_ver", [WebAPICommand("web_status", "status")]
+            "_get_fw_ver",
+            [WebAPICommand("web_status", "status")],
         ),
-        str(DataOptions.HOSTNAME): DataFunction("_get_hostname"),
         str(DataOptions.HASHRATE): DataFunction(
-            "_get_hashrate", [RPCAPICommand("api_summary", "summary")]
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate", [RPCAPICommand("api_stats", "stats")]
+            "_get_expected_hashrate",
+            [RPCAPICommand("api_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
@@ -54,31 +58,21 @@ GOLDSHELL_DATA_LOC = DataLocations(
                 RPCAPICommand("api_devdetails", "devdetails"),
             ],
         ),
-        str(DataOptions.ENVIRONMENT_TEMP): DataFunction("_get_env_temp"),
-        str(DataOptions.WATTAGE): DataFunction("_get_wattage"),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction("_get_wattage_limit"),
         str(DataOptions.FANS): DataFunction(
-            "_get_fans", [RPCAPICommand("api_stats", "stats")]
+            "_get_fans",
+            [RPCAPICommand("api_stats", "stats")],
         ),
-        str(DataOptions.FAN_PSU): DataFunction("_get_fan_psu"),
-        str(DataOptions.ERRORS): DataFunction("_get_errors"),
-        str(DataOptions.FAULT_LIGHT): DataFunction("_get_fault_light"),
-        str(DataOptions.IS_MINING): DataFunction("_is_mining"),
-        str(DataOptions.UPTIME): DataFunction("_get_uptime"),
-        str(DataOptions.CONFIG): DataFunction("get_config"),
     }
 )
 
 
-class BFGMinerGoldshell(BFGMiner):
-    def __init__(self, ip: str, api_ver: str = "0.0.0") -> None:
-        super().__init__(ip, api_ver)
-        # interfaces
-        self.web = GoldshellWebAPI(ip)
+class GoldshellMiner(BFGMiner):
+    """Handler for goldshell miners"""
 
-        # static data
-        # data gathering locations
-        self.data_locations = GOLDSHELL_DATA_LOC
+    _web_cls = GoldshellWebAPI
+    web: GoldshellWebAPI
+
+    data_locations = GOLDSHELL_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -110,26 +104,26 @@ class BFGMinerGoldshell(BFGMiner):
             )
 
     async def _get_mac(self, web_setting: dict = None) -> str:
-        if not web_setting:
+        if web_setting is None:
             try:
                 web_setting = await self.web.setting()
             except APIError:
                 pass
 
-        if web_setting:
+        if web_setting is not None:
             try:
                 return web_setting["name"]
             except KeyError:
                 pass
 
     async def _get_fw_ver(self, web_status: dict = None) -> str:
-        if not web_status:
+        if web_status is None:
             try:
                 web_status = await self.web.setting()
             except APIError:
                 pass
 
-        if web_status:
+        if web_status is not None:
             try:
                 return web_status["firmware"]
             except KeyError:
@@ -138,7 +132,7 @@ class BFGMinerGoldshell(BFGMiner):
     async def _get_hashboards(
         self, api_devs: dict = None, api_devdetails: dict = None
     ) -> List[HashBoard]:
-        if not api_devs:
+        if api_devs is None:
             try:
                 api_devs = await self.api.devs()
             except APIError:
@@ -149,7 +143,7 @@ class BFGMinerGoldshell(BFGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if api_devs:
+        if api_devs is not None:
             if api_devs.get("DEVS"):
                 for board in api_devs["DEVS"]:
                     if board.get("ID") is not None:
@@ -165,13 +159,13 @@ class BFGMinerGoldshell(BFGMiner):
             else:
                 logger.error(self, api_devs)
 
-        if not api_devdetails:
+        if api_devdetails is None:
             try:
                 api_devdetails = await self.api.devdetails()
             except APIError:
                 pass
 
-        if api_devdetails:
+        if api_devdetails is not None:
             if api_devdetails.get("DEVS"):
                 for board in api_devdetails["DEVS"]:
                     if board.get("ID") is not None:
@@ -184,9 +178,3 @@ class BFGMinerGoldshell(BFGMiner):
                 logger.error(self, api_devdetails)
 
         return hashboards
-
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
-
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
-        return None

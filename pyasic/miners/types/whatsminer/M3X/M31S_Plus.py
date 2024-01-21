@@ -14,213 +14,121 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
-from pyasic.miners.makes import WhatsMiner
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class M31SPlusV10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V10"
-        self.expected_chips = 105
-        self.fan_count = 2
+class M31SPlusV10(WhatsMinerMake):
+    raw_model = "M31S+ V10"
+    expected_chips = 105
+    expected_fans = 2
 
 
-class M31SPlusV20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V20"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M31SPlusV20(WhatsMinerMake):
+    raw_model = "M31S+ V20"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M31SPlusV30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V30"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M31SPlusV30(WhatsMinerMake):
+    raw_model = "M31S+ V30"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M31SPlusV40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V40"
-        self.expected_chips = 123
-        self.fan_count = 2
+class M31SPlusV40(WhatsMinerMake):
+    raw_model = "M31S+ V40"
+    expected_chips = 123
+    expected_fans = 2
 
 
-class M31SPlusV50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V50"
-        self.expected_chips = 148
-        self.fan_count = 2
+class M31SPlusV50(WhatsMinerMake):
+    raw_model = "M31S+ V50"
+    expected_chips = 148
+    expected_fans = 2
 
 
-class M31SPlusV60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V60"
-        self.expected_chips = 156
-        self.fan_count = 2
+class M31SPlusV60(WhatsMinerMake):
+    raw_model = "M31S+ V60"
+    expected_chips = 156
+    expected_fans = 2
 
 
-class M31SPlusV80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V80"
-        self.expected_chips = 129
-        self.fan_count = 2
+class M31SPlusV80(WhatsMinerMake):
+    raw_model = "M31S+ V80"
+    expected_chips = 129
+    expected_fans = 2
 
 
-class M31SPlusV90(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V90"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M31SPlusV90(WhatsMinerMake):
+    raw_model = "M31S+ V90"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M31SPlusV100(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V100"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M31SPlusV100(WhatsMinerMake):
+    raw_model = "M31S+ V100"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M31SPlusVE10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE10"
-        self.expected_chips = 82
-        self.fan_count = 2
+class M31SPlusVE10(WhatsMinerMake):
+    raw_model = "M31S+ VE10"
+    expected_chips = 82
+    expected_fans = 2
 
 
-class M31SPlusVE20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE20"
-        self.expected_chips = 78
-        self.fan_count = 2
+class M31SPlusVE20(WhatsMinerMake):
+    raw_model = "M31S+ VE20"
+    expected_chips = 78
+    expected_fans = 2
 
 
-class M31SPlusVE30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE30"
-        self.expected_chips = 105
-        self.fan_count = 2
+class M31SPlusVE30(WhatsMinerMake):
+    raw_model = "M31S+ VE30"
+    expected_chips = 105
+    expected_fans = 2
 
 
-class M31SPlusVE40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE40"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M31SPlusVE40(WhatsMinerMake):
+    raw_model = "M31S+ VE40"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M31SPlusVE50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE50"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M31SPlusVE50(WhatsMinerMake):
+    raw_model = "M31S+ VE50"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M31SPlusVE60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE60"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M30S+ VE60, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M31SPlusVE60(WhatsMinerMake):
+    raw_model = "M31S+ VE60"
+    expected_fans = 2
 
 
-class M31SPlusVE80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VE80"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M30S+ VE80, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M31SPlusVE80(WhatsMinerMake):
+    raw_model = "M31S+ VE80"
+    expected_fans = 2
 
 
-class M31SPlusVF20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VF20"
-        self.expected_chips = 66
-        self.fan_count = 2
+class M31SPlusVF20(WhatsMinerMake):
+    raw_model = "M31S+ VF20"
+    expected_chips = 66
+    expected_fans = 2
 
 
-class M31SPlusVF30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VF30"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M30S+ VF30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M31SPlusVF30(WhatsMinerMake):
+    raw_model = "M31S+ VF30"
+    expected_fans = 2
 
 
-class M31SPlusVG20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VG20"
-        self.expected_chips = 66
-        self.fan_count = 2
+class M31SPlusVG20(WhatsMinerMake):
+    raw_model = "M31S+ VG20"
+    expected_chips = 66
+    expected_fans = 2
 
 
-class M31SPlusVG30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ VG30"
-        self.expected_chips = 70
-        self.fan_count = 2
-
-
-class M31SPlusV30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V30"
-        self.expected_chips = 117
-        self.fan_count = 2
-
-
-class M31SPlusV40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M31S+ V40"
-        self.expected_chips = 123
-        self.fan_count = 2
+class M31SPlusVG30(WhatsMinerMake):
+    raw_model = "M31S+ VG30"
+    expected_chips = 70
+    expected_fans = 2

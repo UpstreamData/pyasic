@@ -77,19 +77,19 @@ class MinerNetwork:
 
         hosts = []
 
-        oct_1_val_start, oct_1_start, oct_1_end = compute_oct_range(oct_1)
+        oct_1_start, oct_1_end = compute_oct_range(oct_1)
         for oct_1_idx in range((abs(oct_1_end - oct_1_start)) + 1):
             oct_1_val = str(oct_1_idx + oct_1_start)
 
-            oct_2_val_start, oct_2_start, oct_2_end = compute_oct_range(oct_2)
+            oct_2_start, oct_2_end = compute_oct_range(oct_2)
             for oct_2_idx in range((abs(oct_2_end - oct_2_start)) + 1):
                 oct_2_val = str(oct_2_idx + oct_2_start)
 
-                oct_3_val_start, oct_3_start, oct_3_end = compute_oct_range(oct_3)
+                oct_3_start, oct_3_end = compute_oct_range(oct_3)
                 for oct_3_idx in range((abs(oct_3_end - oct_3_start)) + 1):
                     oct_3_val = str(oct_3_idx + oct_3_start)
 
-                    oct_4_val_start, oct_4_start, oct_4_end = compute_oct_range(oct_4)
+                    oct_4_start, oct_4_end = compute_oct_range(oct_4)
                     for oct_4_idx in range((abs(oct_4_end - oct_4_start)) + 1):
                         oct_4_val = str(oct_4_idx + oct_4_start)
 
@@ -172,11 +172,11 @@ class MinerNetwork:
 async def ping_and_get_miner(
     ip: ipaddress.ip_address, port=80
 ) -> Union[None, AnyMiner]:
-    for i in range(settings.get("network_ping_retries", 1)):
+    for _ in range(settings.get("network_ping_retries", 1)):
         try:
             connection_fut = asyncio.open_connection(str(ip), port)
             # get the read and write streams from the connection
-            reader, writer = await asyncio.wait_for(
+            _, writer = await asyncio.wait_for(
                 connection_fut, timeout=settings.get("network_ping_timeout", 3)
             )
             # immediately close connection, we know connection happened
@@ -207,6 +207,4 @@ def compute_oct_range(octet: str) -> tuple:
     if octet_end is None:
         octet_end = int(octet_start)
 
-    octet_val_start = min([octet_start, octet_end])
-
-    return octet_val_start, octet_start, octet_end
+    return octet_start, octet_end

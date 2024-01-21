@@ -14,136 +14,80 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
-from pyasic.miners.makes import WhatsMiner
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class M50VE30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VE30"
-        self.expected_hashboards = 4
-        self.expected_chips = 255
-        self.fan_count = 2
+class M50VE30(WhatsMinerMake):
+    raw_model = "M50 VE30"
+    expected_hashboards = 4
+    expected_chips = 255
+    expected_fans = 2
 
 
-class M50VG30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VG30"
-        self.expected_chips = 156
-        self.fan_count = 2
+class M50VG30(WhatsMinerMake):
+    raw_model = "M50 VG30"
+    expected_chips = 156
+    expected_fans = 2
 
 
-class M50VH10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH10"
-        self.expected_chips = 86
-        self.fan_count = 2
+class M50VH10(WhatsMinerMake):
+    raw_model = "M50 VH10"
+    expected_chips = 86
+    expected_fans = 2
 
 
-class M50VH20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH20"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M50VH20(WhatsMinerMake):
+    raw_model = "M50 VH20"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M50VH30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH30"
-        self.expected_chips = 117
-        self.fan_count = 2
+class M50VH30(WhatsMinerMake):
+    raw_model = "M50 VH30"
+    expected_chips = 117
+    expected_fans = 2
 
 
-class M50VH40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH40"
-        self.expected_chips = 84
-        self.fan_count = 2
+class M50VH40(WhatsMinerMake):
+    raw_model = "M50 VH40"
+    expected_chips = 84
+    expected_fans = 2
 
 
-class M50VH50(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH50"
-        self.expected_chips = 105
-        self.fan_count = 2
+class M50VH50(WhatsMinerMake):
+    raw_model = "M50 VH50"
+    expected_chips = 105
+    expected_fans = 2
 
 
-class M50VH60(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH60"
-        self.expected_chips = 84
-        self.fan_count = 2
+class M50VH60(WhatsMinerMake):
+    raw_model = "M50 VH60"
+    expected_chips = 84
+    expected_fans = 2
 
 
-class M50VH70(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH70"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VH70, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M50VH70(WhatsMinerMake):
+    raw_model = "M50 VH70"
+    expected_fans = 2
 
 
-class M50VH80(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VH80"
-        self.expected_chips = 111
-        self.fan_count = 2
+class M50VH80(WhatsMinerMake):
+    raw_model = "M50 VH80"
+    expected_chips = 111
+    expected_fans = 2
 
 
-class M50VJ10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VJ10"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VJ10, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M50VJ10(WhatsMinerMake):
+    raw_model = "M50 VJ10"
+    expected_chips = 0
+    expected_fans = 2
 
 
-class M50VJ20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VJ20"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VJ20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M50VJ20(WhatsMinerMake):
+    raw_model = "M50 VJ20"
+    expected_fans = 2
 
 
-class M50VJ30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M50 VJ30"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M50 VJ30, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M50VJ30(WhatsMinerMake):
+    raw_model = "M50 VJ30"
+    expected_fans = 2

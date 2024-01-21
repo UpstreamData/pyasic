@@ -13,14 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import GoldshellMiner
+from pyasic.miners.makes import GoldshellMake
 
 
-class HS5(GoldshellMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "HS5"
-        self.expected_hashboards = 4
-        self.expected_chips = 46
-        self.fan_count = 4
+class HS5(GoldshellMake):
+    raw_model = "HS5"
+    expected_hashboards = 4
+    expected_chips = 46
+    expected_fans = 4

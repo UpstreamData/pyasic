@@ -59,7 +59,7 @@ class VNishWebAPI(BaseWebAPI):
         if not self.token:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for i in range(settings.get("get_data_retries", 1)):
+            for _ in range(settings.get("get_data_retries", 1)):
                 try:
                     auth = self.token
                     if command.startswith("system"):

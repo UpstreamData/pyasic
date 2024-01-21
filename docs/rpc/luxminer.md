@@ -1,6 +1,6 @@
 # pyasic
-## CGMinerAPI
-::: pyasic.API.cgminer.CGMinerAPI
+## LUXMinerRPCAPI
+::: pyasic.rpc.luxminer.LUXMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

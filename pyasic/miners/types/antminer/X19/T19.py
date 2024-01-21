@@ -14,13 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMiner
+from pyasic.miners.makes import AntMinerMake
 
 
-class T19(AntMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "T19"
-        self.expected_chips = 76
-        self.fan_count = 4
+class T19(AntMinerMake):
+    raw_model = "T19"
+    expected_chips = 76
+    expected_fans = 4

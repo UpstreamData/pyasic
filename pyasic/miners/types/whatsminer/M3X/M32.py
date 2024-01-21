@@ -14,22 +14,16 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import WhatsMiner
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class M32V10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M32 V10"
-        self.expected_chips = 78
-        self.fan_count = 2
+class M32V10(WhatsMinerMake):
+    raw_model = "M32 V10"
+    expected_chips = 78
+    expected_fans = 2
 
 
-class M32V20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M32 V20"
-        self.expected_chips = 74
-        self.fan_count = 2
+class M32V20(WhatsMinerMake):
+    raw_model = "M32 V20"
+    expected_chips = 74
+    expected_fans = 2

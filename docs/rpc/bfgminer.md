@@ -1,6 +1,6 @@
 # pyasic
-## LUXMinerAPI
-::: pyasic.API.luxminer.LUXMinerAPI
+## BFGMinerRPCAPI
+::: pyasic.rpc.bfgminer.BFGMinerRPCAPI
     handler: python
     options:
         show_root_heading: false

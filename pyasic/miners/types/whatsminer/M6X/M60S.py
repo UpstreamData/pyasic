@@ -14,52 +14,26 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import warnings
-
-from pyasic.miners.makes import WhatsMiner
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class M60SVK10(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M60S VK10"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M60S VK10, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M60SVK10(WhatsMinerMake):
+    raw_model = "M60S VK10"
+    expected_fans = 2
 
 
-class M60SVK20(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M60S VK20"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M60S VK20, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M60SVK20(WhatsMinerMake):
+    raw_model = "M60S VK20"
+    expected_fans = 2
 
 
-class M60SVK30(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M60S VK30"
-        self.expected_hashboards = 3
-        self.expected_chips = 78
-        self.fan_count = 2
+class M60SVK30(WhatsMinerMake):
+    raw_model = "M60S VK30"
+    expected_hashboards = 3
+    expected_chips = 78
+    expected_fans = 2
 
 
-class M60SVK40(WhatsMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "M60S VK40"
-        self.expected_chips = 0
-        warnings.warn(
-            "Unknown chip count for miner type M60S VK40, please open an issue on GitHub (https://github.com/UpstreamData/pyasic)."
-        )
-        self.fan_count = 2
+class M60SVK40(WhatsMinerMake):
+    raw_model = "M60S VK40"
+    expected_fans = 2

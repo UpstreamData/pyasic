@@ -14,13 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AvalonMiner
+from pyasic.miners.makes import AvalonMinerMake
 
 
-class Avalon1026(AvalonMiner):  # noqa - ignore ABC method implementation
-    def __init__(self, ip: str, api_ver: str = "0.0.0"):
-        super().__init__(ip, api_ver)
-        self.ip = ip
-        self.raw_model = "Avalon 1026"
-        self.expected_chips = 80
-        self.fan_count = 2
+class Avalon1026(AvalonMinerMake):
+    raw_model = "Avalon 1026"
+    expected_chips = 80
+    expected_fans = 2

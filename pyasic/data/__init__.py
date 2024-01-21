@@ -16,7 +16,6 @@
 
 import copy
 import json
-import logging
 import time
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
@@ -351,7 +350,6 @@ class MinerData:
         pass
 
     def asdict(self) -> dict:
-        logging.debug(f"MinerData - (To Dict) - Dumping Dict data")
         return asdict(self, dict_factory=self.dict_factory)
 
     def as_dict(self) -> dict:
@@ -368,7 +366,6 @@ class MinerData:
         Returns:
             A JSON version of this class.
         """
-        logging.debug(f"MinerData - (To JSON) - Dumping JSON data")
         data = self.asdict()
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         return json.dumps(data)
@@ -379,7 +376,6 @@ class MinerData:
         Returns:
             A CSV version of this class with no headers.
         """
-        logging.debug(f"MinerData - (To CSV) - Dumping CSV data")
         data = self.asdict()
         data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         errs = []
@@ -398,7 +394,6 @@ class MinerData:
         Returns:
             A influxdb line protocol version of this class.
         """
-        logging.debug(f"MinerData - (To InfluxDB) - Dumping InfluxDB data")
         tag_data = [measurement_name]
         field_data = []
 

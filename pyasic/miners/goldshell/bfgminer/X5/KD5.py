@@ -13,9 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.backends import BFGMinerGoldshell
+from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.types import KD5
 
 
-class BFGMinerKD5(BFGMinerGoldshell, KD5):
+class GoldshellKD5(GoldshellMiner, KD5):
     pass
