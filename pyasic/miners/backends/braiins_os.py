@@ -199,23 +199,11 @@ class BOSMiner(BaseMiner):
             raise APIError("SSH connection failed when sending config.") from e
 
         async with conn:
-            # BBB check because bitmain suxx
-            bbb_check = await conn.run(
-                "if [ ! -f /etc/init.d/bosminer ]; then echo '1'; else echo '0'; fi;"
-            )
-
-            bbb = bbb_check.stdout.strip() == "1"
-
-            if not bbb:
-                await conn.run("/etc/init.d/bosminer stop")
-                async with conn.start_sftp_client() as sftp:
-                    async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                        await file.write(toml_conf)
-                await conn.run("/etc/init.d/bosminer start")
-            else:
-                await conn.run("/etc/init.d/S99bosminer stop")
-                await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
-                await conn.run("/etc/init.d/S99bosminer start")
+            await conn.run("/etc/init.d/bosminer stop")
+            async with conn.start_sftp_client() as sftp:
+                async with sftp.open("/etc/bosminer.toml", "w+") as file:
+                    await file.write(toml_conf)
+            await conn.run("/etc/init.d/bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -259,10 +247,7 @@ class BOSMiner(BaseMiner):
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 
-        conn = await self.ssh._get_connection()
-
-        async with conn:
-            await conn.run("echo '" + config + "' > /etc/config/network")
+        await self.ssh.send_command("echo '" + config + "' > /etc/config/network")
 
     async def set_dhcp(self):
         cfg_data_lan = "\n\t".join(
@@ -281,10 +266,7 @@ class BOSMiner(BaseMiner):
                 split_data[idx] = cfg_data_lan
         config = "\n\n".join(split_data)
 
-        conn = await self.ssh._get_connection()
-
-        async with conn:
-            await conn.run("echo '" + config + "' > /etc/config/network")
+        await self.ssh.send_command("echo '" + config + "' > /etc/config/network")
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
