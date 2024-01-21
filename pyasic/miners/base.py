@@ -104,7 +104,6 @@ DataLocations = make_dataclass(
         for enum_value in DataOptions
     ],
 )
-print(DataLocations())
 
 
 class MinerProtocol(Protocol):
