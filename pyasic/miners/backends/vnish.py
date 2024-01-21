@@ -70,6 +70,10 @@ VNISH_DATA_LOC = DataLocations(
             "_get_fans",
             [RPCAPICommand("api_stats", "stats")],
         ),
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [RPCAPICommand("api_stats", "stats")],
+        ),
     }
 )
 

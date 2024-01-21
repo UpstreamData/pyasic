@@ -89,6 +89,9 @@ class DataFunction:
         Union[RPCAPICommand, WebAPICommand, GRPCCommand, GraphQLCommand]
     ] = field(default_factory=list)
 
+    def __call__(self, *args, **kwargs):
+        return self
+
 
 DataLocations = make_dataclass(
     "DataLocations",
@@ -96,11 +99,12 @@ DataLocations = make_dataclass(
         (
             enum_value.value,
             DataFunction,
-            field(default_factory=lambda: DataFunction(enum_value.default_command())),
+            field(default_factory=DataFunction(enum_value.default_command())),
         )
         for enum_value in DataOptions
     ],
 )
+print(DataLocations())
 
 
 class MinerProtocol(Protocol):
