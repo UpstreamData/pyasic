@@ -167,7 +167,7 @@ class VNish(BMMiner):
         if web_summary is not None:
             try:
                 wattage = web_summary["miner"]["power_usage"]
-                wattage = round(wattage * 1000)
+                wattage = round(wattage)
                 return wattage
             except KeyError:
                 pass
