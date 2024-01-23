@@ -26,20 +26,21 @@ import httpx
 from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
+from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
+    Auradine,
     AvalonMiner,
     BMMiner,
     BOSMiner,
     BTMiner,
     GoldshellMiner,
     Hiveon,
+    Innosilicon,
     LUXMiner,
     VNish,
     ePIC,
 )
-from pyasic.miners.backends.auradine import Auradine
-from pyasic.miners.backends.innosilicon import Innosilicon
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
@@ -396,13 +397,13 @@ MINER_CLASSES = {
     },
     MinerTypes.AURADINE: {
         None: Auradine,
-        # "AT1500": None,
-        # "AT2860": None,
-        # "AT2880": None,
-        # "AI2500": None,
-        # "AI3680": None,
-        # "AD2500": None,
-        # "AD3500": None,
+        "AT1500": AuradineFluxAT1500,
+        "AT2860": AuradineFluxAT2860,
+        "AT2880": AuradineFluxAT2880,
+        "AI2500": AuradineFluxAI2500,
+        "AI3680": AuradineFluxAI3680,
+        "AD2500": AuradineFluxAD2500,
+        "AD3500": AuradineFluxAD3500,
     },
 }
 

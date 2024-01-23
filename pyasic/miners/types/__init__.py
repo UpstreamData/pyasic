@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from .antminer import *
+from .auradine import *
 from .avalonminer import *
 from .goldshell import *
 from .innosilicon import *
