@@ -15,13 +15,72 @@
 # ------------------------------------------------------------------------------
 import logging
 from enum import Enum
+from typing import List, Optional
 
 from pyasic import APIError, MinerConfig
-from pyasic.miners.base import BaseMiner, DataLocations
+from pyasic.data import Fan, HashBoard
+from pyasic.miners.base import (
+    BaseMiner,
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.rpc.gcminer import GCMinerRPCAPI
 from pyasic.web.auradine import FluxWebAPI
 
-AURADINE_DATA_LOC = DataLocations(**{})
+AURADINE_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "_get_mac",
+            [WebAPICommand("web_ipreport", "ipreport")],
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver",
+            [WebAPICommand("web_ipreport", "ipreport")],
+        ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "_get_hostname",
+            [WebAPICommand("web_ipreport", "ipreport")],
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "_get_hashrate",
+            [RPCAPICommand("api_summary", "summary")],
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [
+                RPCAPICommand("api_devs", "devs"),
+                WebAPICommand("web_ipreport", "ipreport"),
+            ],
+        ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_wattage",
+            [WebAPICommand("web_psu", "psu")],
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "_get_wattage_limit",
+            [WebAPICommand("web_mode", "mode"), WebAPICommand("web_psu", "psu")],
+        ),
+        str(DataOptions.FANS): DataFunction(
+            "_get_fans",
+            [WebAPICommand("web_fan", "fan")],
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "_get_fault_light",
+            [WebAPICommand("web_led", "led")],
+        ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "_is_mining",
+            [WebAPICommand("web_mode", "mode")],
+        ),
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [RPCAPICommand("api_summary", "summary")],
+        ),
+    }
+)
 
 
 class AuradineLEDColors(Enum):
@@ -127,3 +186,194 @@ class Auradine(BaseMiner):
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
+
+    async def _get_mac(self, web_ipreport: dict = None) -> Optional[str]:
+        if web_ipreport is None:
+            try:
+                web_ipreport = await self.web.ipreport()
+            except APIError:
+                pass
+
+        if web_ipreport is not None:
+            try:
+                return web_ipreport["IPReport"][0]["mac"]
+            except LookupError:
+                pass
+
+    async def _get_fw_ver(self, web_ipreport: dict = None) -> Optional[str]:
+        if web_ipreport is None:
+            try:
+                web_ipreport = await self.web.ipreport()
+            except APIError:
+                pass
+
+        if web_ipreport is not None:
+            try:
+                return web_ipreport["IPReport"][0]["version"]
+            except LookupError:
+                pass
+
+    async def _get_hostname(self, web_ipreport: dict = None) -> Optional[str]:
+        if web_ipreport is None:
+            try:
+                web_ipreport = await self.web.ipreport()
+            except APIError:
+                pass
+
+        if web_ipreport is not None:
+            try:
+                return web_ipreport["IPReport"][0]["hostname"]
+            except LookupError:
+                pass
+
+    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+        if api_summary is None:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary is not None:
+            try:
+                return round(
+                    float(float(api_summary["SUMMARY"][0]["MHS 5s"]) / 1000000), 2
+                )
+            except (LookupError, ValueError, TypeError):
+                pass
+
+    async def _get_hashboards(
+        self, api_devs: dict = None, web_ipreport: dict = None
+    ) -> List[HashBoard]:
+        hashboards = [
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
+        ]
+
+        if api_devs is None:
+            try:
+                api_devs = await self.api.devs()
+            except APIError:
+                pass
+        if web_ipreport is None:
+            try:
+                web_ipreport = await self.web.ipreport()
+            except APIError:
+                pass
+
+        if api_devs is not None:
+            try:
+                for board in api_devs["DEVS"][0]:
+                    b_id = board["ID"]
+                    hashboards[b_id].hashrate = round(
+                        float(float(board["MHS 5s"]) / 1000000), 2
+                    )
+                    hashboards[b_id].temp = round(float(float(board["Temperature"])), 2)
+            except LookupError:
+                pass
+
+        if web_ipreport is not None:
+            try:
+                for board, sn in enumerate(web_ipreport["IPReport"][0]["HBSerialNo"]):
+                    hashboards[board].serial_number = sn
+
+            except LookupError:
+                pass
+
+        return hashboards
+
+    async def _get_wattage(self, web_psu: dict = None) -> Optional[int]:
+        if web_psu is None:
+            try:
+                web_psu = await self.web.get_psu()
+            except APIError:
+                pass
+
+        if web_psu is not None:
+            try:
+                return int(web_psu["PSU"][0]["PowerIn"].replace("W", ""))
+            except (LookupError, TypeError, ValueError):
+                pass
+
+    async def _get_wattage_limit(
+        self, web_mode: dict = None, web_psu: dict = None
+    ) -> Optional[int]:
+        if web_mode is None:
+            try:
+                web_mode = await self.web.get_mode()
+            except APIError:
+                pass
+
+        if web_mode is not None:
+            try:
+                return web_mode["Mode"][0]["Power"]
+            except (LookupError, TypeError, ValueError):
+                pass
+
+        if web_psu is None:
+            try:
+                web_psu = await self.web.get_psu()
+            except APIError:
+                pass
+
+        if web_psu is not None:
+            try:
+                return int(web_psu["PSU"][0]["PoutMax"].replace("W", ""))
+            except (LookupError, TypeError, ValueError):
+                pass
+
+    async def _get_fans(self, web_fan: dict = None) -> List[Fan]:
+        if web_fan is None:
+            try:
+                web_fan = await self.web.get_fan()
+            except APIError:
+                pass
+
+        fans = []
+        if web_fan is not None:
+            try:
+                for fan in web_fan["Fan"]:
+                    f_max = fan["Max"]
+                    f_speed = fan["Speed"]
+                    fans.append(Fan(round((f_speed / f_max) * 100)))
+            except LookupError:
+                pass
+        return fans
+
+    async def _get_fault_light(self, web_led: dict = None) -> Optional[bool]:
+        if web_led is None:
+            try:
+                web_led = await self.web.get_led()
+            except APIError:
+                pass
+
+        if web_led is not None:
+            try:
+                return web_led["LED"][0]["Code"] == int(AuradineLEDCodes.LOCATE_MINER)
+            except LookupError:
+                pass
+
+    async def _is_mining(self, web_mode: dict = None) -> Optional[bool]:
+        if web_mode is None:
+            try:
+                web_mode = await self.web.get_mode()
+            except APIError:
+                pass
+
+        if web_mode is not None:
+            try:
+                return web_mode["Mode"][0]["Sleep"] == "off"
+            except (LookupError, TypeError, ValueError):
+                pass
+
+    async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
+        if api_summary is None:
+            try:
+                api_summary = await self.api.summary()
+            except APIError:
+                pass
+
+        if api_summary is not None:
+            try:
+                return api_summary["SUMMARY"][0]["Elapsed"]
+            except LookupError:
+                pass
