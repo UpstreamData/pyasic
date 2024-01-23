@@ -334,6 +334,8 @@ class BOSMiner(BaseMiner):
     async def _get_hostname(self) -> Union[str, None]:
         try:
             hostname = (await self.ssh.get_hostname()).strip()
+        except AttributeError:
+            return None
         except Exception as e:
             logging.error(f"{self} - Getting hostname failed: {e}")
             return None
