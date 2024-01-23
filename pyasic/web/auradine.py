@@ -192,7 +192,10 @@ class FluxWebAPI(BaseWebAPI):
     async def get_led(self):
         return await self.send_command("led")
 
-    async def set_led(self, code: int, led_1: int, led_2: int, msg: str = ""):
+    async def set_led(self, code: int):
+        return await self.send_command("led", code=code)
+
+    async def set_led_custom(self, code: int, led_1: int, led_2: int, msg: str):
         return await self.send_command(
             "led", code=code, led1=led_1, led2=led_2, msg=msg
         )

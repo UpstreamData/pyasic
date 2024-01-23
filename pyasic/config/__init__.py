@@ -113,8 +113,15 @@ class MinerConfig:
             **self.fan_mode.as_epic(),
             **self.temperature.as_epic(),
             **self.mining_mode.as_epic(),
-            **self.pools.as_epic(user_suffix=user_suffix),
+            **self.pools.as_epic(),
             **self.power_scaling.as_epic(),
+        }
+
+    def as_auradine(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_auradine(),
+            **self.mining_mode.as_auradine(),
+            **self.pools.as_auradine(user_suffix=user_suffix),
         }
 
     @classmethod
@@ -187,6 +194,14 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_vnish(web_settings),
             temperature=TemperatureConfig.from_vnish(web_settings),
             mining_mode=MiningModeConfig.from_vnish(web_settings),
+        )
+
+    @classmethod
+    def from_auradine(cls, web_conf: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_api(web_conf["pools"][0]),
+            fan_mode=FanModeConfig.from_auradine(web_conf["fans"][0]),
+            mining_mode=MiningModeConfig.from_auradine(web_conf["mode"][0]),
         )
 
 

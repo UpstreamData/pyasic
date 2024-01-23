@@ -92,6 +92,9 @@ class FanModeManual(MinerConfigValue):
             "fan_control": {"min_fans": self.minimum_fans, "speed": self.speed},
         }
 
+    def as_auradine(self) -> dict:
+        return {"fan": {"percentage": self.speed}}
+
 
 @dataclass
 class FanModeImmersion(MinerConfigValue):
@@ -106,6 +109,9 @@ class FanModeImmersion(MinerConfigValue):
 
     def as_bosminer(self) -> dict:
         return {"temp_control": {"mode": "disabled"}}
+
+    def as_auradine(self) -> dict:
+        return {"fan": {"percentage": 0}}
 
 
 class FanModeConfig(MinerConfigOption):
@@ -202,3 +208,13 @@ class FanModeConfig(MinerConfigOption):
             if "minimumRequiredFans" in keys:
                 conf["minimum_fans"] = int(temperature_conf["minimumRequiredFans"])
             return cls.manual(**conf)
+
+    @classmethod
+    def from_auradine(cls, web_fan: dict):
+        try:
+            fan_data = web_fan["Fan"][0]
+            fan_1_max = fan_data["Max"]
+            fan_1_target = fan_data["Target"]
+            return cls.manual(speed=round((fan_1_target / fan_1_max) * 100))
+        except LookupError:
+            return cls.default()

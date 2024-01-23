@@ -27,7 +27,7 @@ class Pool(MinerConfigValue):
     user: str
     password: str
 
-    def as_am_modern(self, user_suffix: str = None):
+    def as_am_modern(self, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 "url": self.url,
@@ -36,7 +36,7 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
 
-    def as_wm(self, idx: int = 1, user_suffix: str = None):
+    def as_wm(self, idx: int = 1, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 f"pool_{idx}": self.url,
@@ -49,7 +49,7 @@ class Pool(MinerConfigValue):
             f"passwd_{idx}": self.password,
         }
 
-    def as_am_old(self, idx: int = 1, user_suffix: str = None):
+    def as_am_old(self, idx: int = 1, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 f"_ant_pool{idx}url": self.url,
@@ -62,7 +62,7 @@ class Pool(MinerConfigValue):
             f"_ant_pool{idx}pw": self.password,
         }
 
-    def as_goldshell(self, user_suffix: str = None):
+    def as_goldshell(self, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 "url": self.url,
@@ -71,12 +71,12 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
 
-    def as_avalon(self, user_suffix: str = None):
+    def as_avalon(self, user_suffix: str = None) -> str:
         if user_suffix is not None:
             return ",".join([self.url, f"{self.user}{user_suffix}", self.password])
         return ",".join([self.url, self.user, self.password])
 
-    def as_inno(self, idx: int = 1, user_suffix: str = None):
+    def as_inno(self, idx: int = 1, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 f"Pool{idx}": self.url,
@@ -89,7 +89,7 @@ class Pool(MinerConfigValue):
             f"Password{idx}": self.password,
         }
 
-    def as_bosminer(self, user_suffix: str = None):
+    def as_bosminer(self, user_suffix: str = None) -> dict:
         if user_suffix is not None:
             return {
                 "url": self.url,
@@ -97,6 +97,15 @@ class Pool(MinerConfigValue):
                 "password": self.password,
             }
         return {"url": self.url, "user": self.user, "password": self.password}
+
+    def as_auradine(self, user_suffix: str = None) -> dict:
+        if user_suffix is not None:
+            return {
+                "url": self.url,
+                "user": f"{self.user}{user_suffix}",
+                "pass": self.password,
+            }
+        return {"url": self.url, "user": self.user, "pass": self.password}
 
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "Pool":
@@ -241,6 +250,9 @@ class PoolGroup(MinerConfigValue):
             return conf
         return {"name": "Group", "pool": []}
 
+    def as_auradine(self, user_suffix: str = None) -> list:
+        return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
+
     @classmethod
     def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolGroup":
         cls_conf = {}
@@ -296,7 +308,7 @@ class PoolGroup(MinerConfigValue):
         return cls([Pool.from_vnish(p) for p in web_settings_pools])
 
     @classmethod
-    def from_boser(cls, grpc_pool_group: dict):
+    def from_boser(cls, grpc_pool_group: dict) -> "PoolGroup":
         try:
             return cls(
                 pools=[Pool.from_boser(p) for p in grpc_pool_group["pools"]],
@@ -373,6 +385,15 @@ class PoolConfig(MinerConfigValue):
     def as_boser(self, user_suffix: str = None) -> dict:
         return {}
 
+    def as_auradine(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {
+                "updatepools": {
+                    "pools": self.groups[0].as_auradine(user_suffix=user_suffix)
+                }
+            }
+        return {"updatepools": {"pools": PoolGroup().as_auradine()}}
+
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":
         try:
@@ -417,7 +438,7 @@ class PoolConfig(MinerConfigValue):
             return cls()
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict):
+    def from_boser(cls, grpc_miner_conf: dict) -> "PoolConfig":
         try:
             return cls(
                 groups=[

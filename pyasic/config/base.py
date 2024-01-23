@@ -53,6 +53,9 @@ class MinerConfigOption(Enum):
     def as_vnish(self) -> dict:
         return self.value.as_vnish()
 
+    def as_auradine(self) -> dict:
+        return self.value.as_auradine()
+
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
@@ -98,4 +101,7 @@ class MinerConfigValue:
         return {}
 
     def as_vnish(self) -> dict:
+        return {}
+
+    def as_auradine(self) -> dict:
         return {}
