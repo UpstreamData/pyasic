@@ -411,12 +411,6 @@ async def concurrent_get_first_result(tasks: list, verification_func: Callable):
 
 
 class MinerFactory:
-    def __init__(self):
-        self.cache = {}
-
-    def clear_cached_miners(self):
-        self.cache = {}
-
     async def get_multiple_miners(
         self, ips: List[str], limit: int = 200
     ) -> List[AnyMiner]:
@@ -442,8 +436,6 @@ class MinerFactory:
 
     async def get_miner(self, ip: str):
         ip = str(ip)
-        if ip in self.cache:
-            return self.cache[ip]
 
         miner_type = None
 
@@ -491,8 +483,6 @@ class MinerFactory:
                 miner_model=miner_model,
             )
 
-            if miner is not None and not isinstance(miner, UnknownMiner):
-                self.cache[ip] = miner
             return miner
 
     async def _get_miner_type(self, ip: str):

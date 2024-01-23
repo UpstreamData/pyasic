@@ -120,9 +120,6 @@ class MinerNetwork:
     async def scan_network_for_miners(self) -> List[AnyMiner]:
         logging.debug(f"{self} - (Scan Network For Miners) - Scanning")
 
-        # clear cached miners
-        miner_factory.clear_cached_miners()
-
         miners = await asyncio.gather(
             *[self.ping_and_get_miner(host) for host in self.hosts]
         )
