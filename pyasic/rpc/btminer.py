@@ -187,7 +187,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0"):
         super().__init__(ip, port, api_ver)
-        self.pwd = settings.get("default_whatsminer_password", "admin")
+        self.pwd = settings.get("default_whatsminer_rpc_password", "admin")
         self.current_token = None
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:

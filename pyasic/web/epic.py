@@ -27,7 +27,7 @@ class ePICWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "root"
-        self.pwd = settings.get("default_epic_password", "letmein")
+        self.pwd = settings.get("default_epic_web_password", "letmein")
         self.token = None
         self.port = 4028
 

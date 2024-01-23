@@ -26,7 +26,7 @@ from pyasic.web import BaseWebAPI
 class AntminerModernWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = settings.get("default_antminer_password", "root")
+        self.pwd = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,
@@ -142,7 +142,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 class AntminerOldWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.pwd = settings.get("default_antminer_password", "root")
+        self.pwd = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,

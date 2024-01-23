@@ -38,6 +38,7 @@ from pyasic.miners.backends import (
     VNish,
     ePIC,
 )
+from pyasic.miners.backends.auradine import Auradine
 from pyasic.miners.backends.innosilicon import Innosilicon
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
@@ -57,6 +58,7 @@ class MinerTypes(enum.Enum):
     HIVEON = 7
     LUX_OS = 8
     EPIC = 9
+    AURADINE = 10
 
 
 MINER_CLASSES = {
@@ -392,6 +394,16 @@ MINER_CLASSES = {
         None: LUXMiner,
         "ANTMINER S9": LUXMinerS9,
     },
+    MinerTypes.AURADINE: {
+        None: Auradine,
+        # "AT1500": None,
+        # "AT2860": None,
+        # "AT2880": None,
+        # "AI2500": None,
+        # "AI3680": None,
+        # "AD2500": None,
+        # "AD3500": None,
+    },
 }
 
 
@@ -660,6 +672,8 @@ class MinerFactory:
             return MinerTypes.GOLDSHELL
         if "AVALON" in upper_data:
             return MinerTypes.AVALONMINER
+        if "GCMINER" in upper_data or "FLUXOS" in upper_data:
+            return MinerTypes.AURADINE
 
     async def send_web_command(
         self,
@@ -945,6 +959,13 @@ class MinerFactory:
                 split_miner_model = miner_model.split(" (")
                 miner_model = split_miner_model[0]
             return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_auradine(self, ip: str):
+        web_json_data = await self.send_web_command(ip, ":8080/ipreport")
+        try:
+            return web_json_data["IPReport"][0]["model"]
         except (TypeError, LookupError):
             pass
 
