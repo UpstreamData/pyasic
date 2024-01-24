@@ -485,6 +485,7 @@ class MinerFactory:
                 MinerTypes.EPIC: self.get_miner_model_epic,
                 MinerTypes.HIVEON: self.get_miner_model_hiveon,
                 MinerTypes.LUX_OS: self.get_miner_model_luxos,
+                MinerTypes.AURADINE: self.get_miner_model_auradine,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -964,10 +965,27 @@ class MinerFactory:
             pass
 
     async def get_miner_model_auradine(self, ip: str):
-        web_json_data = await self.send_web_command(ip, ":8080/ipreport")
         try:
-            return web_json_data["IPReport"][0]["model"]
-        except (TypeError, LookupError):
+            async with httpx.AsyncClient(transport=settings.transport()) as client:
+                auth = await client.post(
+                    f"http://{ip}:8080/token",
+                    data={
+                        "command": "token",
+                        "username": "admin",
+                        "password": settings.get(
+                            "default_auradine_web_password", "admin"
+                        ),
+                    },
+                    timeout=settings.get("factory_get_timeout", 3),
+                )
+                token = auth.json()["Token"][0]["Token"]
+                web_json_data = await client.get(
+                    f"http://{ip}:8080/ipreport",
+                    headers={"Token": token},
+                    timeout=settings.get("factory_get_timeout", 3),
+                )
+                return web_json_data.json()["IPReport"][0]["model"]
+        except (TypeError, LookupError, httpx.HTTPError):
             pass
 
 
