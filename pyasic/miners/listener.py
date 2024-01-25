@@ -43,10 +43,11 @@ class MinerListenerProtocol(asyncio.Protocol):
 
 
 class MinerListener:
-    def __init__(self):
+    def __init__(self, bind_addr: str = "0.0.0.0"):
         self.found_miners = []
         self.new_miner = None
         self.stop = False
+        self.bind_addr = bind_addr
 
     async def listen(self):
         self.stop = False
@@ -54,10 +55,10 @@ class MinerListener:
         loop = asyncio.get_running_loop()
 
         transport_14235, _ = await loop.create_datagram_endpoint(
-            MinerListenerProtocol, local_addr=("0.0.0.0", 14235)
+            MinerListenerProtocol, local_addr=(self.bind_addr, 14235)
         )
         transport_8888, _ = await loop.create_datagram_endpoint(
-            MinerListenerProtocol, local_addr=("0.0.0.0", 8888)
+            MinerListenerProtocol, local_addr=(self.bind_addr, 8888)
         )
 
         while True:
