@@ -196,8 +196,8 @@ class Auradine(BaseMiner):
 
         if web_ipreport is not None:
             try:
-                return web_ipreport["IPReport"][0]["mac"]
-            except LookupError:
+                return web_ipreport["IPReport"][0]["mac"].upper()
+            except (LookupError, AttributeError):
                 pass
 
     async def _get_fw_ver(self, web_ipreport: dict = None) -> Optional[str]:
@@ -291,7 +291,7 @@ class Auradine(BaseMiner):
 
         if web_psu is not None:
             try:
-                return int(web_psu["PSU"][0]["PowerIn"].replace("W", ""))
+                return int(float(web_psu["PSU"][0]["PowerIn"].replace("W", "")))
             except (LookupError, TypeError, ValueError):
                 pass
 
@@ -318,7 +318,7 @@ class Auradine(BaseMiner):
 
         if web_psu is not None:
             try:
-                return int(web_psu["PSU"][0]["PoutMax"].replace("W", ""))
+                return int(float(web_psu["PSU"][0]["PoutMax"].replace("W", "")))
             except (LookupError, TypeError, ValueError):
                 pass
 
