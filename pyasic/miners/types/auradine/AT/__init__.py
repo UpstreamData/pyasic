@@ -1,2 +1,2 @@
-from .AD2 import AuradineAD2500
-from .AD3 import AuradineAD3500
+from .AT1 import AuradineAT1500
+from .AT2 import AuradineAT2860, AuradineAT2880
