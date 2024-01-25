@@ -199,9 +199,9 @@ class MinerConfig:
     @classmethod
     def from_auradine(cls, web_conf: dict) -> "MinerConfig":
         return cls(
-            pools=PoolConfig.from_api(web_conf["pools"][0]),
-            fan_mode=FanModeConfig.from_auradine(web_conf["fans"][0]),
-            mining_mode=MiningModeConfig.from_auradine(web_conf["mode"][0]),
+            pools=PoolConfig.from_api(web_conf["pools"]),
+            fan_mode=FanModeConfig.from_auradine(web_conf["fans"]),
+            mining_mode=MiningModeConfig.from_auradine(web_conf["mode"]),
         )
 
 

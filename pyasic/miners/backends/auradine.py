@@ -333,9 +333,7 @@ class Auradine(BaseMiner):
         if web_fan is not None:
             try:
                 for fan in web_fan["Fan"]:
-                    f_max = fan["Max"]
-                    f_speed = fan["Speed"]
-                    fans.append(Fan(round((f_speed / f_max) * 100)))
+                    fans.append(Fan(round(fan["Speed"])))
             except LookupError:
                 pass
         return fans
