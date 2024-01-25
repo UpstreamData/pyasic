@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import warnings
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Any
 
 from pyasic.errors import APIWarning
 
@@ -23,10 +25,12 @@ from pyasic.errors import APIWarning
 class BaseWebAPI(ABC):
     def __init__(self, ip: str) -> None:
         # ip address of the miner
-        self.ip = ip  # ipaddress.ip_address(ip)
-        self.username = "root"
+        self.ip = ip
+        self.username = None
         self.pwd = None
         self.port = 80
+
+        self.token = None
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseWebAPI:
@@ -39,10 +43,11 @@ class BaseWebAPI(ABC):
     @abstractmethod
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
         pass
 

@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import json
 import warnings
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -28,9 +30,9 @@ class GoldshellWebAPI(BaseWebAPI):
         super().__init__(ip)
         self.username = "admin"
         self.pwd = settings.get("default_goldshell_web_password", "123456789")
-        self.jwt = None
+        self.token = None
 
-    async def auth(self):
+    async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 await client.get(f"http://{self.ip}:{self.port}/user/logout")
@@ -54,47 +56,43 @@ class GoldshellWebAPI(BaseWebAPI):
                         f"Could not authenticate web token with miner: {self}"
                     )
                 else:
-                    self.jwt = auth.get("JWT Token")
+                    self.token = auth.get("JWT Token")
             else:
-                self.jwt = auth.get("JWT Token")
-            return self.jwt
+                self.token = auth.get("JWT Token")
+            return self.token
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
-        if parameters.get("pool_pwd"):
-            parameters["pass"] = parameters["pool_pwd"]
-            parameters.pop("pool_pwd")
-        if self.jwt is None:
+        if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for _ in range(settings.get("get_data_retries", 1)):
                 try:
-                    if parameters:
+                    if not parameters == {}:
                         response = await client.put(
                             f"http://{self.ip}:{self.port}/mcb/{command}",
-                            headers={"Authorization": "Bearer " + self.jwt},
+                            headers={"Authorization": "Bearer " + self.token},
                             timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}:{self.port}/mcb/{command}",
-                            headers={"Authorization": "Bearer " + self.jwt},
+                            headers={"Authorization": "Bearer " + self.token},
                             timeout=settings.get("api_function_timeout", 5),
                         )
                     json_data = response.json()
                     return json_data
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
-                    pass
                 except TypeError:
                     await self.auth()
+                except (httpx.HTTPError, json.JSONDecodeError):
+                    pass
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -107,7 +105,7 @@ class GoldshellWebAPI(BaseWebAPI):
                 try:
                     response = await client.get(
                         f"http://{self.ip}:{self.port}/mcb/{command}",
-                        headers={"Authorization": "Bearer " + self.jwt},
+                        headers={"Authorization": "Bearer " + self.token},
                         timeout=settings.get("api_function_timeout", 5),
                     )
                     json_data = response.json()
@@ -120,19 +118,25 @@ class GoldshellWebAPI(BaseWebAPI):
                     await self.auth()
         return data
 
-    async def pools(self):
+    async def pools(self) -> dict:
         return await self.send_command("pools")
 
-    async def newpool(self, url: str, user: str, password: str):
-        return await self.send_command("newpool", url=url, user=user, pool_pwd=password)
-
-    async def delpool(self, url: str, user: str, password: str, dragid: int = 0):
+    async def newpool(self, url: str, user: str, password: str) -> dict:
+        # looks dumb, but cant pass `pass` since it is a built in type
         return await self.send_command(
-            "delpool", url=url, user=user, pool_pwd=password, dragid=dragid
+            "newpool", **{"url": url, "user": user, "pass": password}
         )
 
-    async def setting(self):
+    async def delpool(
+        self, url: str, user: str, password: str, dragid: int = 0
+    ) -> dict:
+        # looks dumb, but cant pass `pass` since it is a built in type
+        return await self.send_command(
+            "delpool", **{"url": url, "user": user, "pass": password, "dragid": dragid}
+        )
+
+    async def setting(self) -> dict:
         return await self.send_command("setting")
 
-    async def status(self):
+    async def status(self) -> dict:
         return await self.send_command("status")

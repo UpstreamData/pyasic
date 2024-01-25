@@ -13,10 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import asyncio
 import json
 import warnings
-from typing import Any, List, Union
+from typing import Any
 
 import httpx
 
@@ -31,9 +33,9 @@ class FluxWebAPI(BaseWebAPI):
         self.username = "admin"
         self.pwd = settings.get("default_auradine_web_password", "admin")
         self.port = 8080
-        self.jwt = None
+        self.token = None
 
-    async def auth(self):
+    async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
@@ -49,20 +51,24 @@ class FluxWebAPI(BaseWebAPI):
             else:
                 json_auth = auth.json()
                 try:
-                    self.jwt = json_auth["Token"][0]["Token"]
+                    self.token = json_auth["Token"][0]["Token"]
                 except LookupError:
                     return None
-            return self.jwt
+            return self.token
 
     async def send_command(
         self,
-        command: Union[str, bytes],
-        post: bool = False,
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
+        privileged: bool = False,
         **parameters: Any,
     ) -> dict:
-        if self.jwt is None:
+        post = privileged or not parameters == {}
+        if not parameters == {}:
+            parameters["command"] = command
+
+        if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1)):
@@ -70,20 +76,14 @@ class FluxWebAPI(BaseWebAPI):
                     if post:
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
-                            headers={"Token": self.jwt},
+                            headers={"Token": self.token},
                             timeout=settings.get("api_function_timeout", 5),
-                        )
-                    elif parameters:
-                        response = await client.post(
-                            f"http://{self.ip}:{self.port}/{command}",
-                            headers={"Token": self.jwt},
-                            timeout=settings.get("api_function_timeout", 5),
-                            json={"command": command, **parameters},
+                            json=parameters,
                         )
                     else:
                         response = await client.get(
                             f"http://{self.ip}:{self.port}/{command}",
-                            headers={"Token": self.jwt},
+                            headers={"Token": self.token},
                             timeout=settings.get("api_function_timeout", 5),
                         )
                     json_data = response.json()
@@ -95,9 +95,7 @@ class FluxWebAPI(BaseWebAPI):
                         await self.auth()
                         continue
                     return json_data
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
+                except (httpx.HTTPError, json.JSONDecodeError):
                     pass
 
     async def multicommand(
@@ -166,97 +164,97 @@ class FluxWebAPI(BaseWebAPI):
                     return False, data["STATUS"][0]["Msg"]
         return True, None
 
-    async def factory_reset(self):
-        return await self.send_command("factory-reset", post=True)
+    async def factory_reset(self) -> dict:
+        return await self.send_command("factory-reset", privileged=True)
 
-    async def get_fan(self):
+    async def get_fan(self) -> dict:
         return await self.send_command("fan")
 
-    async def set_fan(self, fan: int, speed_pct: int):
+    async def set_fan(self, fan: int, speed_pct: int) -> dict:
         return await self.send_command("fan", index=fan, percentage=speed_pct)
 
-    async def firmware_upgrade(self, url: str = None, version: str = "latest"):
+    async def firmware_upgrade(self, url: str = None, version: str = "latest") -> dict:
         if url is not None:
             return await self.send_command("firmware-upgrade", url=url)
         return await self.send_command("firmware-upgrade", version=version)
 
-    async def get_frequency(self):
+    async def get_frequency(self) -> dict:
         return await self.send_command("frequency")
 
-    async def set_frequency(self, board: int, frequency: float):
+    async def set_frequency(self, board: int, frequency: float) -> dict:
         return await self.send_command("frequency", board=board, frequency=frequency)
 
-    async def ipreport(self):
+    async def ipreport(self) -> dict:
         return await self.send_command("ipreport")
 
-    async def get_led(self):
+    async def get_led(self) -> dict:
         return await self.send_command("led")
 
-    async def set_led(self, code: int):
+    async def set_led(self, code: int) -> dict:
         return await self.send_command("led", code=code)
 
-    async def set_led_custom(self, code: int, led_1: int, led_2: int, msg: str):
+    async def set_led_custom(self, code: int, led_1: int, led_2: int, msg: str) -> dict:
         return await self.send_command(
             "led", code=code, led1=led_1, led2=led_2, msg=msg
         )
 
-    async def get_mode(self):
+    async def get_mode(self) -> dict:
         return await self.send_command("mode")
 
-    async def set_mode(self, **kwargs):
+    async def set_mode(self, **kwargs) -> dict:
         return await self.send_command("mode", **kwargs)
 
-    async def get_network(self):
+    async def get_network(self) -> dict:
         return await self.send_command("network")
 
-    async def set_network(self, **kwargs):
+    async def set_network(self, **kwargs) -> dict:
         return await self.send_command("network", **kwargs)
 
-    async def password(self, password: str):
+    async def password(self, password: str) -> dict:
         res = await self.send_command(
             "password", user=self.username, old=self.pwd, new=password
         )
         self.pwd = password
         return res
 
-    async def get_psu(self):
+    async def get_psu(self) -> dict:
         return await self.send_command("psu")
 
-    async def set_psu(self, voltage: float):
+    async def set_psu(self, voltage: float) -> dict:
         return await self.send_command("psu", voltage=voltage)
 
-    async def get_register(self):
+    async def get_register(self) -> dict:
         return await self.send_command("register")
 
-    async def set_register(self, company: str):
+    async def set_register(self, company: str) -> dict:
         return await self.send_command("register", parameter=company)
 
-    async def reboot(self):
-        return await self.send_command("restart", post=True)
+    async def reboot(self) -> dict:
+        return await self.send_command("restart", privileged=True)
 
-    async def restart_gcminer(self):
+    async def restart_gcminer(self) -> dict:
         return await self.send_command("restart", parameter="gcminer")
 
-    async def restart_api_server(self):
+    async def restart_api_server(self) -> dict:
         return await self.send_command("restart", parameter="api-server")
 
-    async def temperature(self):
+    async def temperature(self) -> dict:
         return await self.send_command("temperature")
 
-    async def timedate(self, ntp: str, timezone: str):
+    async def timedate(self, ntp: str, timezone: str) -> dict:
         return await self.send_command("timedate", ntp=ntp, timezone=timezone)
 
-    async def token(self):
+    async def token(self) -> dict:
         return await self.send_command("token", user=self.username, password=self.pwd)
 
-    async def update_pools(self, pools: List[dict]):
+    async def update_pools(self, pools: list[dict]) -> dict:
         return await self.send_command("updatepools", pools=pools)
 
-    async def voltage(self):
+    async def voltage(self) -> dict:
         return await self.send_command("voltage")
 
-    async def get_ztp(self):
+    async def get_ztp(self) -> dict:
         return await self.send_command("ztp")
 
-    async def set_ztp(self, enable: bool):
+    async def set_ztp(self, enable: bool) -> dict:
         return await self.send_command("ztp", parameter="on" if enable else "off")

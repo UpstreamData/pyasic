@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import json
 import warnings
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -30,7 +32,7 @@ class VNishWebAPI(BaseWebAPI):
         self.pwd = settings.get("default_vnish_web_password", "admin")
         self.token = None
 
-    async def auth(self):
+    async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
@@ -51,11 +53,13 @@ class VNishWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
+        post = privileged or not parameters == {}
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -65,15 +69,7 @@ class VNishWebAPI(BaseWebAPI):
                     if command.startswith("system"):
                         auth = "Bearer " + self.token
 
-                    if parameters.get("post"):
-                        parameters.pop("post")
-                        response = await client.post(
-                            f"http://{self.ip}:{self.port}/api/v1/{command}",
-                            headers={"Authorization": auth},
-                            timeout=settings.get("api_function_timeout", 5),
-                            json=parameters,
-                        )
-                    elif not parameters == {}:
+                    if post:
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/api/v1/{command}",
                             headers={"Authorization": auth},
@@ -94,11 +90,7 @@ class VNishWebAPI(BaseWebAPI):
                     if json_data:
                         return json_data
                     return {"success": True}
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
-                    pass
-                except AttributeError:
+                except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
                     pass
 
     async def multicommand(
@@ -111,40 +103,40 @@ class VNishWebAPI(BaseWebAPI):
         return data
 
     async def restart_vnish(self) -> dict:
-        return await self.send_command("mining/restart", post=True)
+        return await self.send_command("mining/restart", privileged=True)
 
     async def reboot(self) -> dict:
-        return await self.send_command("system/reboot", post=True)
+        return await self.send_command("system/reboot", privileged=True)
 
     async def pause_mining(self) -> dict:
-        return await self.send_command("mining/pause", post=True)
+        return await self.send_command("mining/pause", privileged=True)
 
     async def resume_mining(self) -> dict:
-        return await self.send_command("mining/resume", post=True)
+        return await self.send_command("mining/resume", privileged=True)
 
     async def stop_mining(self) -> dict:
-        return await self.send_command("mining/stop", post=True)
+        return await self.send_command("mining/stop", privileged=True)
 
     async def start_mining(self) -> dict:
-        return await self.send_command("mining/start", post=True)
+        return await self.send_command("mining/start", privileged=True)
 
-    async def info(self):
+    async def info(self) -> dict:
         return await self.send_command("info")
 
-    async def summary(self):
+    async def summary(self) -> dict:
         return await self.send_command("summary")
 
-    async def chips(self):
+    async def chips(self) -> dict:
         return await self.send_command("chips")
 
-    async def layout(self):
+    async def layout(self) -> dict:
         return await self.send_command("layout")
 
-    async def status(self):
+    async def status(self) -> dict:
         return await self.send_command("status")
 
-    async def settings(self):
+    async def settings(self) -> dict:
         return await self.send_command("settings")
 
-    async def autotune_presets(self):
+    async def autotune_presets(self) -> dict:
         return await self.send_command("autotune/presets")

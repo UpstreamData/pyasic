@@ -77,17 +77,11 @@ class GRPCCommand(WebAPICommand):
 
 
 @dataclass
-class GraphQLCommand(WebAPICommand):
-    name: str
-    cmd: dict
-
-
-@dataclass
 class DataFunction:
     cmd: str
-    kwargs: List[
-        Union[RPCAPICommand, WebAPICommand, GRPCCommand, GraphQLCommand]
-    ] = field(default_factory=list)
+    kwargs: List[Union[RPCAPICommand, WebAPICommand, GRPCCommand]] = field(
+        default_factory=list
+    )
 
     def __call__(self, *args, **kwargs):
         return self

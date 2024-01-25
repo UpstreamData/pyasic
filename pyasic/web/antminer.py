@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import asyncio
 import json
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -26,14 +28,16 @@ from pyasic.web import BaseWebAPI
 class AntminerModernWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.username = "root"
         self.pwd = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
         url = f"http://{self.ip}:{self.port}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
@@ -44,9 +48,9 @@ class AntminerModernWebAPI(BaseWebAPI):
                 if parameters:
                     data = await client.post(
                         url,
-                        data=json.dumps(parameters),
                         auth=auth,
-                        timeout=settings.get("api_function_timeout", 3),  # noqa
+                        timeout=settings.get("api_function_timeout", 3),
+                        json=parameters,
                     )
                 else:
                     data = await client.get(url, auth=auth)
@@ -76,7 +80,9 @@ class AntminerModernWebAPI(BaseWebAPI):
         data["multicommand"] = True
         return data
 
-    async def _handle_multicommand(self, client: httpx.AsyncClient, command: str):
+    async def _handle_multicommand(
+        self, client: httpx.AsyncClient, command: str
+    ) -> dict:
         auth = httpx.DigestAuth(self.username, self.pwd)
 
         try:
@@ -142,14 +148,16 @@ class AntminerModernWebAPI(BaseWebAPI):
 class AntminerOldWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.username = "root"
         self.pwd = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
         url = f"http://{self.ip}:{self.port}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)

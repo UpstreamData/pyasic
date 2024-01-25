@@ -13,15 +13,19 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import timedelta
+from typing import Any
 
-from betterproto import Message
 from grpclib import GRPCError, Status
 from grpclib.client import Channel
 
+from pyasic import settings
 from pyasic.errors import APIError
+from pyasic.web import BaseWebAPI
 
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *
@@ -41,14 +45,13 @@ class BOSMinerGRPCStub(
     pass
 
 
-class BOSerGRPCAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
+class BOSerWebAPI(BaseWebAPI):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.username = "root"
-        self.pwd = pwd
+        self.pwd = settings.get("default_bosminer_password", "root")
         self.port = 50051
-        self._auth = None
-        self._auth_time = datetime.now()
+        self._auth_time = None
 
     @property
     def commands(self) -> list:
@@ -85,13 +88,15 @@ class BOSerGRPCAPI:
 
     async def send_command(
         self,
-        command: str,
-        message: Message = None,
+        command: str | bytes,
         ignore_errors: bool = False,
-        auth: bool = True,
+        allow_warning: bool = True,
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
+        message: betterproto.Message = parameters["message"]
         metadata = []
-        if auth:
+        if privileged:
             metadata.append(("authorization", await self.auth()))
         try:
             async with Channel(self.ip, self.port) as c:
@@ -111,15 +116,15 @@ class BOSerGRPCAPI:
         except GRPCError as e:
             raise APIError(f"gRPC command failed - {endpoint}") from e
 
-    async def auth(self):
-        if self._auth is not None and self._auth_time - datetime.now() < timedelta(
+    async def auth(self) -> str | None:
+        if self.token is not None and self._auth_time - datetime.now() < timedelta(
             seconds=3540
         ):
-            return self._auth
+            return self.token
         await self._get_auth()
-        return self._auth
+        return self.token
 
-    async def _get_auth(self):
+    async def _get_auth(self) -> str:
         async with Channel(self.ip, self.port) as c:
             req = LoginRequest(username=self.username, password=self.pwd)
             async with c.request(
@@ -132,74 +137,79 @@ class BOSerGRPCAPI:
                 await stream.recv_initial_metadata()
                 auth = stream.initial_metadata.get("authorization")
                 if auth is not None:
-                    self._auth = auth
+                    self.token = auth
                     self._auth_time = datetime.now()
-                    return self._auth
+                    return self.token
 
-    async def get_api_version(self):
+    async def get_api_version(self) -> dict:
         return await self.send_command(
-            "get_api_version", ApiVersionRequest(), auth=False
+            "get_api_version", message=ApiVersionRequest(), privileged=False
         )
 
-    async def start(self):
-        return await self.send_command("start", StartRequest())
+    async def start(self) -> dict:
+        return await self.send_command("start", message=StartRequest())
 
-    async def stop(self):
-        return await self.send_command("stop", StopRequest())
+    async def stop(self) -> dict:
+        return await self.send_command("stop", message=StopRequest())
 
-    async def pause_mining(self):
-        return await self.send_command("pause_mining", PauseMiningRequest())
+    async def pause_mining(self) -> dict:
+        return await self.send_command("pause_mining", message=PauseMiningRequest())
 
-    async def resume_mining(self):
-        return await self.send_command("resume_mining", ResumeMiningRequest())
+    async def resume_mining(self) -> dict:
+        return await self.send_command("resume_mining", message=ResumeMiningRequest())
 
-    async def restart(self):
-        return await self.send_command("restart", RestartRequest())
+    async def restart(self) -> dict:
+        return await self.send_command("restart", message=RestartRequest())
 
-    async def reboot(self):
-        return await self.send_command("reboot", RebootRequest())
+    async def reboot(self) -> dict:
+        return await self.send_command("reboot", message=RebootRequest())
 
-    async def set_locate_device_status(self, enable: bool):
+    async def set_locate_device_status(self, enable: bool) -> dict:
         return await self.send_command(
-            "set_locate_device_status", SetLocateDeviceStatusRequest(enable=enable)
+            "set_locate_device_status",
+            message=SetLocateDeviceStatusRequest(enable=enable),
         )
 
-    async def get_locate_device_status(self):
+    async def get_locate_device_status(self) -> dict:
         return await self.send_command(
-            "get_locate_device_status", GetLocateDeviceStatusRequest()
+            "get_locate_device_status", message=GetLocateDeviceStatusRequest()
         )
 
-    async def set_password(self, password: str = None):
+    async def set_password(self, password: str = None) -> dict:
         return await self.send_command(
-            "set_password", SetPasswordRequest(password=password)
+            "set_password", message=SetPasswordRequest(password=password)
         )
 
-    async def get_cooling_state(self):
-        return await self.send_command("get_cooling_state", GetCoolingStateRequest())
+    async def get_cooling_state(self) -> dict:
+        return await self.send_command(
+            "get_cooling_state", message=GetCoolingStateRequest()
+        )
 
     async def set_immersion_mode(
         self,
         enable: bool,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_immersion_mode",
-            SetImmersionModeRequest(
+            message=SetImmersionModeRequest(
                 enable_immersion_mode=enable, save_action=save_action
             ),
         )
 
-    async def get_tuner_state(self):
-        return await self.send_command("get_tuner_state", GetTunerStateRequest())
-
-    async def list_target_profiles(self):
+    async def get_tuner_state(self) -> dict:
         return await self.send_command(
-            "list_target_profiles", ListTargetProfilesRequest()
+            "get_tuner_state", message=GetTunerStateRequest()
+        )
+
+    async def list_target_profiles(self) -> dict:
+        return await self.send_command(
+            "list_target_profiles", message=ListTargetProfilesRequest()
         )
 
     async def set_default_power_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_default_power_target",
             message=SetDefaultPowerTargetRequest(save_action=save_action),
@@ -209,10 +219,10 @@ class BOSerGRPCAPI:
         self,
         power_target: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_power_target",
-            SetPowerTargetRequest(
+            message=SetPowerTargetRequest(
                 power_target=Power(watt=power_target), save_action=save_action
             ),
         )
@@ -221,7 +231,7 @@ class BOSerGRPCAPI:
         self,
         power_target_increment: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "increment_power_target",
             message=IncrementPowerTargetRequest(
@@ -234,7 +244,7 @@ class BOSerGRPCAPI:
         self,
         power_target_decrement: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "decrement_power_target",
             message=DecrementPowerTargetRequest(
@@ -245,7 +255,7 @@ class BOSerGRPCAPI:
 
     async def set_default_hashrate_target(
         self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_default_hashrate_target",
             message=SetDefaultHashrateTargetRequest(save_action=save_action),
@@ -255,10 +265,10 @@ class BOSerGRPCAPI:
         self,
         hashrate_target: float,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_hashrate_target",
-            SetHashrateTargetRequest(
+            message=SetHashrateTargetRequest(
                 hashrate_target=TeraHashrate(terahash_per_second=hashrate_target),
                 save_action=save_action,
             ),
@@ -268,10 +278,10 @@ class BOSerGRPCAPI:
         self,
         hashrate_target_increment: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "increment_hashrate_target",
-            IncrementHashrateTargetRequest(
+            message=IncrementHashrateTargetRequest(
                 hashrate_target_increment=TeraHashrate(
                     terahash_per_second=hashrate_target_increment
                 ),
@@ -283,10 +293,10 @@ class BOSerGRPCAPI:
         self,
         hashrate_target_decrement: int,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "decrement_hashrate_target",
-            DecrementHashrateTargetRequest(
+            message=DecrementHashrateTargetRequest(
                 hashrate_target_decrement=TeraHashrate(
                     terahash_per_second=hashrate_target_decrement
                 ),
@@ -301,7 +311,7 @@ class BOSerGRPCAPI:
         min_power_target: int,
         enable_shutdown: bool = None,
         shutdown_duration: int = None,
-    ):
+    ) -> dict:
         return await self.send_command(
             "set_dps",
             message=SetDpsRequest(
@@ -322,7 +332,7 @@ class BOSerGRPCAPI:
         wattage_target: int = None,
         hashrate_target: int = None,
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         if wattage_target is not None and hashrate_target is not None:
             logging.error(
                 "Cannot use both wattage_target and hashrate_target, using wattage_target."
@@ -362,62 +372,71 @@ class BOSerGRPCAPI:
                 ),
             )
 
-    async def get_active_performance_mode(self):
+    async def get_active_performance_mode(self) -> dict:
         return await self.send_command(
-            "get_active_performance_mode", GetPerformanceModeRequest()
+            "get_active_performance_mode", message=GetPerformanceModeRequest()
         )
 
-    async def get_pool_groups(self):
-        return await self.send_command("get_pool_groups", GetPoolGroupsRequest())
-
-    async def create_pool_group(self):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PoolService/CreatePoolGroup")
-
-    async def update_pool_group(self):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PoolService/UpdatePoolGroup")
-
-    async def remove_pool_group(self):
-        raise NotImplementedError
-        return await self.send_command("braiins.bos.v1.PoolService/RemovePoolGroup")
-
-    async def get_miner_configuration(self):
+    async def get_pool_groups(self) -> dict:
         return await self.send_command(
-            "get_miner_configuration", GetMinerConfigurationRequest()
+            "get_pool_groups", message=GetPoolGroupsRequest()
         )
 
-    async def get_constraints(self):
-        return await self.send_command("get_constraints", GetConstraintsRequest())
+    async def create_pool_group(self) -> dict:
+        raise NotImplementedError
 
-    async def get_license_state(self):
-        return await self.send_command("get_license_state", GetLicenseStateRequest())
+    async def update_pool_group(self) -> dict:
+        raise NotImplementedError
 
-    async def get_miner_status(self):
-        return await self.send_command("get_miner_status", GetMinerStatusRequest())
+    async def remove_pool_group(self) -> dict:
+        raise NotImplementedError
 
-    async def get_miner_details(self):
-        return await self.send_command("get_miner_details", GetMinerDetailsRequest())
-
-    async def get_miner_stats(self):
-        return await self.send_command("get_miner_stats", GetMinerStatsRequest())
-
-    async def get_hashboards(self):
-        return await self.send_command("get_hashboards", GetHashboardsRequest())
-
-    async def get_support_archive(self):
+    async def get_miner_configuration(self) -> dict:
         return await self.send_command(
-            "get_support_archive", GetSupportArchiveRequest()
+            "get_miner_configuration", message=GetMinerConfigurationRequest()
+        )
+
+    async def get_constraints(self) -> dict:
+        return await self.send_command(
+            "get_constraints", message=GetConstraintsRequest()
+        )
+
+    async def get_license_state(self) -> dict:
+        return await self.send_command(
+            "get_license_state", message=GetLicenseStateRequest()
+        )
+
+    async def get_miner_status(self) -> dict:
+        return await self.send_command(
+            "get_miner_status", message=GetMinerStatusRequest()
+        )
+
+    async def get_miner_details(self) -> dict:
+        return await self.send_command(
+            "get_miner_details", message=GetMinerDetailsRequest()
+        )
+
+    async def get_miner_stats(self) -> dict:
+        return await self.send_command(
+            "get_miner_stats", message=GetMinerStatsRequest()
+        )
+
+    async def get_hashboards(self) -> dict:
+        return await self.send_command("get_hashboards", message=GetHashboardsRequest())
+
+    async def get_support_archive(self) -> dict:
+        return await self.send_command(
+            "get_support_archive", message=GetSupportArchiveRequest()
         )
 
     async def enable_hashboards(
         self,
         hashboard_ids: List[str],
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "enable_hashboards",
-            EnableHashboardsRequest(
+            message=EnableHashboardsRequest(
                 hashboard_ids=hashboard_ids, save_action=save_action
             ),
         )
@@ -426,10 +445,10 @@ class BOSerGRPCAPI:
         self,
         hashboard_ids: List[str],
         save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
-    ):
+    ) -> dict:
         return await self.send_command(
             "disable_hashboards",
-            DisableHashboardsRequest(
+            message=DisableHashboardsRequest(
                 hashboard_ids=hashboard_ids, save_action=save_action
             ),
         )

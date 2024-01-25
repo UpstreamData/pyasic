@@ -29,7 +29,6 @@ from pyasic.miners.base import (
     DataFunction,
     DataLocations,
     DataOptions,
-    GRPCCommand,
     RPCAPICommand,
     WebAPICommand,
 )
@@ -275,7 +274,7 @@ class BOSMiner(BaseMiner):
     async def _get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
         if web_net_conf is None:
             try:
-                web_net_conf = await self.web.luci.get_net_conf()
+                web_net_conf = await self.web.get_net_conf()
             except APIError:
                 pass
 
@@ -314,7 +313,7 @@ class BOSMiner(BaseMiner):
     async def _get_fw_ver(self, web_bos_info: dict = None) -> Optional[str]:
         if web_bos_info is None:
             try:
-                web_bos_info = await self.web.luci.get_bos_info()
+                web_bos_info = await self.web.get_bos_info()
             except APIError:
                 return None
 
@@ -571,19 +570,19 @@ BOSER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [GRPCCommand("api_version", "get_api_version")],
+            [RPCAPICommand("api_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
             "_get_hostname",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
@@ -591,27 +590,27 @@ BOSER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [GRPCCommand("grpc_miner_details", "get_miner_details")],
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [GRPCCommand("grpc_hashboards", "get_hashboards")],
+            [WebAPICommand("grpc_hashboards", "get_hashboards")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [GRPCCommand("grpc_miner_stats", "get_miner_stats")],
+            [WebAPICommand("grpc_miner_stats", "get_miner_stats")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
             [
-                GRPCCommand(
+                WebAPICommand(
                     "grpc_active_performance_mode", "get_active_performance_mode"
                 )
             ],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [GRPCCommand("grpc_cooling_state", "get_cooling_state")],
+            [WebAPICommand("grpc_cooling_state", "get_cooling_state")],
         ),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
@@ -619,7 +618,7 @@ BOSER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
-            [GRPCCommand("grpc_locate_device_status", "get_locate_device_status")],
+            [WebAPICommand("grpc_locate_device_status", "get_locate_device_status")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
@@ -647,13 +646,13 @@ class BOSer(BaseMiner):
     supports_shutdown = True
 
     async def fault_light_on(self) -> bool:
-        resp = await self.web.grpc.set_locate_device_status(True)
+        resp = await self.web.set_locate_device_status(True)
         if resp.get("enabled", False):
             return True
         return False
 
     async def fault_light_off(self) -> bool:
-        resp = await self.web.grpc.set_locate_device_status(False)
+        resp = await self.web.set_locate_device_status(False)
         if resp == {}:
             return True
         return False
@@ -662,37 +661,37 @@ class BOSer(BaseMiner):
         return await self.restart_boser()
 
     async def restart_boser(self) -> bool:
-        await self.web.grpc.restart()
+        await self.web.restart()
         return True
 
     async def stop_mining(self) -> bool:
         try:
-            await self.web.grpc.pause_mining()
+            await self.web.pause_mining()
         except APIError:
             return False
         return True
 
     async def resume_mining(self) -> bool:
         try:
-            await self.web.grpc.resume_mining()
+            await self.web.resume_mining()
         except APIError:
             return False
         return True
 
     async def reboot(self) -> bool:
-        ret = await self.web.grpc.reboot()
+        ret = await self.web.reboot()
         if ret == {}:
             return True
         return False
 
     async def get_config(self) -> MinerConfig:
-        grpc_conf = await self.web.grpc.get_miner_configuration()
+        grpc_conf = await self.web.get_miner_configuration()
 
         return MinerConfig.from_boser(grpc_conf)
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
-            result = await self.web.grpc.set_power_target(wattage)
+            result = await self.web.set_power_target(wattage)
         except APIError:
             return False
 
@@ -710,7 +709,7 @@ class BOSer(BaseMiner):
     async def _get_mac(self, grpc_miner_details: dict = None) -> Optional[str]:
         if grpc_miner_details is None:
             try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
+                grpc_miner_details = await self.web.get_miner_details()
             except APIError:
                 pass
 
@@ -740,7 +739,7 @@ class BOSer(BaseMiner):
     async def _get_fw_ver(self, grpc_miner_details: dict = None) -> Optional[str]:
         if grpc_miner_details is None:
             try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
+                grpc_miner_details = await self.web.get_miner_details()
             except APIError:
                 pass
 
@@ -763,7 +762,7 @@ class BOSer(BaseMiner):
     async def _get_hostname(self, grpc_miner_details: dict = None) -> Optional[str]:
         if grpc_miner_details is None:
             try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
+                grpc_miner_details = await self.web.get_miner_details()
             except APIError:
                 pass
 
@@ -791,7 +790,7 @@ class BOSer(BaseMiner):
     ) -> Optional[float]:
         if grpc_miner_details is None:
             try:
-                grpc_miner_details = await self.web.grpc.get_miner_details()
+                grpc_miner_details = await self.web.get_miner_details()
             except APIError:
                 pass
 
@@ -809,7 +808,7 @@ class BOSer(BaseMiner):
 
         if grpc_hashboards is None:
             try:
-                grpc_hashboards = await self.web.grpc.get_hashboards()
+                grpc_hashboards = await self.web.get_hashboards()
             except APIError:
                 pass
 
@@ -840,7 +839,7 @@ class BOSer(BaseMiner):
     async def _get_wattage(self, grpc_miner_stats: dict = None) -> Optional[int]:
         if grpc_miner_stats is None:
             try:
-                grpc_miner_stats = self.web.grpc.get_miner_stats()
+                grpc_miner_stats = self.web.get_miner_stats()
             except APIError:
                 pass
 
@@ -855,9 +854,7 @@ class BOSer(BaseMiner):
     ) -> Optional[int]:
         if grpc_active_performance_mode is None:
             try:
-                grpc_active_performance_mode = (
-                    self.web.grpc.get_active_performance_mode()
-                )
+                grpc_active_performance_mode = self.web.get_active_performance_mode()
             except APIError:
                 pass
 
@@ -872,7 +869,7 @@ class BOSer(BaseMiner):
     async def _get_fans(self, grpc_cooling_state: dict = None) -> List[Fan]:
         if grpc_cooling_state is None:
             try:
-                grpc_cooling_state = self.web.grpc.get_cooling_state()
+                grpc_cooling_state = self.web.get_cooling_state()
             except APIError:
                 pass
 
@@ -922,9 +919,7 @@ class BOSer(BaseMiner):
 
         if grpc_locate_device_status is None:
             try:
-                grpc_locate_device_status = (
-                    await self.web.grpc.get_locate_device_status()
-                )
+                grpc_locate_device_status = await self.web.get_locate_device_status()
             except APIError:
                 pass
 

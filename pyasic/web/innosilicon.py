@@ -13,9 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import json
 import warnings
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -29,9 +31,9 @@ class InnosiliconWebAPI(BaseWebAPI):
         super().__init__(ip)
         self.username = "admin"
         self.pwd = settings.get("default_innosilicon_web_password", "admin")
-        self.jwt = None
+        self.token = None
 
-    async def auth(self):
+    async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 auth = await client.post(
@@ -42,24 +44,25 @@ class InnosiliconWebAPI(BaseWebAPI):
                 warnings.warn(f"Could not authenticate web token with miner: {self}")
             else:
                 json_auth = auth.json()
-                self.jwt = json_auth.get("jwt")
-            return self.jwt
+                self.token = json_auth.get("jwt")
+            return self.token
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
-        if self.jwt is None:
+        if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for _ in range(settings.get("get_data_retries", 1)):
                 try:
                     response = await client.post(
                         f"http://{self.ip}:{self.port}/api/{command}",
-                        headers={"Authorization": "Bearer " + self.jwt},
+                        headers={"Authorization": "Bearer " + self.token},
                         timeout=settings.get("api_function_timeout", 5),
                         json=parameters,
                     )
@@ -79,9 +82,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                             raise APIError(json_data["message"])
                         raise APIError("Innosilicon web api command failed.")
                     return json_data
-                except httpx.HTTPError:
-                    pass
-                except json.JSONDecodeError:
+                except (httpx.HTTPError, json.JSONDecodeError):
                     pass
 
     async def multicommand(
@@ -95,7 +96,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                 try:
                     response = await client.post(
                         f"http://{self.ip}:{self.port}/api/{command}",
-                        headers={"Authorization": "Bearer " + self.jwt},
+                        headers={"Authorization": "Bearer " + self.token},
                         timeout=settings.get("api_function_timeout", 5),
                     )
                     json_data = response.json()
@@ -123,14 +124,14 @@ class InnosiliconWebAPI(BaseWebAPI):
     async def type(self) -> dict:
         return await self.send_command("type")
 
-    async def get_all(self):
+    async def get_all(self) -> dict:
         return await self.send_command("getAll")
 
-    async def get_error_detail(self):
+    async def get_error_detail(self) -> dict:
         return await self.send_command("getErrorDetail")
 
-    async def pools(self):
+    async def pools(self) -> dict:
         return await self.send_command("pools")
 
-    async def poweroff(self):
+    async def poweroff(self) -> dict:
         return await self.send_command("poweroff")

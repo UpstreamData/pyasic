@@ -13,33 +13,38 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import json
+from typing import Any
 
 import httpx
 
 from pyasic import settings
 from pyasic.errors import APIError
+from pyasic.web import BaseWebAPI
 
 
-class BOSMinerLuCIAPI:
-    def __init__(self, ip: str, pwd: str):
-        self.ip = ip
+class BOSMinerWebAPI(BaseWebAPI):
+    def __init__(self, ip: str) -> None:
+        super().__init__(ip)
         self.username = "root"
-        self.pwd = pwd
+        self.pwd = settings.get("default_bosminer_password", "root")
         self.port = 80
 
-    async def multicommand(self, *commands: str) -> dict:
-        data = {}
-        for command in commands:
-            data[command] = await self.send_command(command, ignore_errors=True)
-        return data
-
-    async def send_command(self, path: str, ignore_errors: bool = False) -> dict:
+    async def send_command(
+        self,
+        command: str | bytes,
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        privileged: bool = False,
+        **parameters: Any,
+    ) -> dict:
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
                 await self.auth(client)
                 data = await client.get(
-                    f"http://{self.ip}:{self.port}/cgi-bin/luci/{path}",
+                    f"http://{self.ip}:{self.port}/cgi-bin/luci/{command}",
                     headers={"User-Agent": "BTC Tools v0.1"},
                 )
                 if data.status_code == 200:
@@ -47,14 +52,20 @@ class BOSMinerLuCIAPI:
                 if ignore_errors:
                     return {}
                 raise APIError(
-                    f"LUCI web command failed: path={path}, code={data.status_code}"
+                    f"LUCI web command failed: command={command}, code={data.status_code}"
                 )
         except (httpx.HTTPError, json.JSONDecodeError):
             if ignore_errors:
                 return {}
-            raise APIError(f"LUCI web command failed: path={path}")
+            raise APIError(f"LUCI web command failed: command={command}")
 
-    async def auth(self, session: httpx.AsyncClient):
+    async def multicommand(self, *commands: str) -> dict:
+        data = {}
+        for command in commands:
+            data[command] = await self.send_command(command, ignore_errors=True)
+        return data
+
+    async def auth(self, session: httpx.AsyncClient) -> None:
         login = {"luci_username": self.username, "luci_password": self.pwd}
         url = f"http://{self.ip}:{self.port}/cgi-bin/luci"
         headers = {
@@ -63,22 +74,22 @@ class BOSMinerLuCIAPI:
         }
         await session.post(url, headers=headers, data=login)
 
-    async def get_net_conf(self):
+    async def get_net_conf(self) -> dict:
         return await self.send_command("admin/network/iface_status/lan")
 
-    async def get_cfg_metadata(self):
+    async def get_cfg_metadata(self) -> dict:
         return await self.send_command("admin/miner/cfg_metadata")
 
-    async def get_cfg_data(self):
+    async def get_cfg_data(self) -> dict:
         return await self.send_command("admin/miner/cfg_data")
 
-    async def get_bos_info(self):
+    async def get_bos_info(self) -> dict:
         return await self.send_command("bos/info")
 
-    async def get_overview(self):
+    async def get_overview(self) -> dict:
         return await self.send_command(
             "admin/status/overview?status=1"
         )  # needs status=1 or it fails
 
-    async def get_api_status(self):
+    async def get_api_status(self) -> dict:
         return await self.send_command("admin/miner/api_status")

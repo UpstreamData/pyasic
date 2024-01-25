@@ -13,8 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import json
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -28,32 +30,30 @@ class ePICWebAPI(BaseWebAPI):
         super().__init__(ip)
         self.username = "root"
         self.pwd = settings.get("default_epic_web_password", "letmein")
-        self.token = None
         self.port = 4028
+        self.token = None
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str | bytes,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        post: bool = False,
-        **parameters: Union[str, int, bool],
+        privileged: bool = False,
+        **parameters: Any,
     ) -> dict:
-        if post or parameters != {}:
-            post = True
+        post = privileged or not parameters == {}
 
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1) + 1):
                 try:
                     if post:
-                        epic_param = {
-                            "param": parameters.get("parameters"),
-                            "password": self.pwd,
-                        }
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
-                            json=epic_param,
+                            json={
+                                **parameters,
+                                "password": self.pwd,
+                            },
                         )
                     else:
                         response = await client.get(
@@ -89,31 +89,31 @@ class ePICWebAPI(BaseWebAPI):
         return data
 
     async def restart_epic(self) -> dict:
-        return await self.send_command("softreboot", post=True)
+        return await self.send_command("softreboot", privileged=True)
 
     async def reboot(self) -> dict:
-        return await self.send_command("reboot", post=True)
+        return await self.send_command("reboot", privileged=True)
 
     async def pause_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters="Stop")
+        return await self.send_command("miner", param="Stop")
 
     async def resume_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters="Autostart")
+        return await self.send_command("miner", param="Autostart")
 
     async def stop_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters="Stop")
+        return await self.send_command("miner", param="Stop")
 
     async def start_mining(self) -> dict:
-        return await self.send_command("miner", post=True, parameters="Autostart")
+        return await self.send_command("miner", param="Autostart")
 
-    async def summary(self):
+    async def summary(self) -> dict:
         return await self.send_command("summary")
 
-    async def hashrate(self):
+    async def hashrate(self) -> dict:
         return await self.send_command("hashrate")
 
-    async def network(self):
+    async def network(self) -> dict:
         return await self.send_command("network")
 
-    async def capabilities(self):
+    async def capabilities(self) -> dict:
         return await self.send_command("capabilities")
