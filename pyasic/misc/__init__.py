@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from copy import deepcopy
+
 from pyasic.rpc import APIError
 
 
@@ -76,3 +78,14 @@ def api_min_version(version: str):
         return inner
 
     return decorator
+
+
+def merge_dicts(a: dict, b: dict) -> dict:
+    result = deepcopy(a)
+    for b_key, b_val in b.items():
+        a_val = result.get(b_key)
+        if isinstance(a_val, dict) and isinstance(b_val, dict):
+            result[b_key] = merge_dicts(a_val, b_val)
+        else:
+            result[b_key] = deepcopy(b_val)
+    return result

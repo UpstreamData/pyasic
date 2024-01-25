@@ -13,14 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Union
 
 
 class MinerConfigOption(Enum):
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         return cls.default()
 
     def as_am_modern(self) -> dict:
@@ -67,7 +68,7 @@ class MinerConfigOption(Enum):
 @dataclass
 class MinerConfigValue:
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         return cls()
 
     def as_dict(self) -> dict:

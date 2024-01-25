@@ -13,10 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import random
 import string
 from dataclasses import dataclass, field
-from typing import Dict, List, Union
+from typing import List
 
 from pyasic.config.base import MinerConfigValue
 
@@ -108,7 +110,7 @@ class Pool(MinerConfigValue):
         return {"url": self.url, "user": self.user, "pass": self.password}
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "Pool":
+    def from_dict(cls, dict_conf: dict | None) -> "Pool":
         return cls(
             url=dict_conf["url"], user=dict_conf["user"], password=dict_conf["password"]
         )
@@ -169,7 +171,7 @@ class Pool(MinerConfigValue):
 
 @dataclass
 class PoolGroup(MinerConfigValue):
-    pools: List[Pool] = field(default_factory=list)
+    pools: list[Pool] = field(default_factory=list)
     quota: int = 1
     name: str = None
 
@@ -254,7 +256,7 @@ class PoolGroup(MinerConfigValue):
         return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolGroup":
+    def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
         cls_conf = {}
 
         if dict_conf.get("quota") is not None:
@@ -330,14 +332,14 @@ class PoolConfig(MinerConfigValue):
         return cls()
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "PoolConfig":
+    def from_dict(cls, dict_conf: dict | None) -> "PoolConfig":
         if dict_conf is None:
             return cls.default()
 
         return cls(groups=[PoolGroup.from_dict(g) for g in dict_conf["groups"]])
 
     @classmethod
-    def simple(cls, pools: List[Union[Pool, Dict[str, str]]]) -> "PoolConfig":
+    def simple(cls, pools: list[Pool | dict[str, str]]) -> "PoolConfig":
         group_pools = []
         for pool in pools:
             if isinstance(pool, dict):

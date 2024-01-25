@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Dict, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
@@ -34,7 +35,7 @@ class MiningModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="normal")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeNormal":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeNormal":
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -52,7 +53,7 @@ class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeSleep":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeSleep":
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -70,7 +71,7 @@ class MiningModeLPM(MinerConfigValue):
     mode: str = field(init=False, default="low")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeLPM":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeLPM":
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -88,7 +89,7 @@ class MiningModeHPM(MinerConfigValue):
     mode: str = field(init=False, default="high")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeHPM":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeHPM":
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -107,7 +108,7 @@ class MiningModePowerTune(MinerConfigValue):
     power: int = None
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModePowerTune":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
         return cls(dict_conf.get("power"))
 
     def as_am_modern(self) -> dict:
@@ -145,7 +146,7 @@ class MiningModeHashrateTune(MinerConfigValue):
     hashrate: int = None
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeHashrateTune":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
         return cls(dict_conf.get("hashrate"))
 
     def as_am_modern(self) -> dict:
@@ -177,7 +178,7 @@ class ManualBoardSettings(MinerConfigValue):
     volt: float
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "ManualBoardSettings":
+    def from_dict(cls, dict_conf: dict | None) -> "ManualBoardSettings":
         return cls(freq=dict_conf["freq"], volt=dict_conf["volt"])
 
     def as_am_modern(self) -> dict:
@@ -190,10 +191,10 @@ class MiningModeManual(MinerConfigValue):
 
     global_freq: float
     global_volt: float
-    boards: Dict[int, ManualBoardSettings] = field(default_factory=dict)
+    boards: dict[int, ManualBoardSettings] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeManual":
+    def from_dict(cls, dict_conf: dict | None) -> "MiningModeManual":
         return cls(
             global_freq=dict_conf["global_freq"],
             global_volt=dict_conf["global_volt"],
@@ -232,7 +233,7 @@ class MiningModeConfig(MinerConfigOption):
         return cls.normal()
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         if dict_conf is None:
             return cls.default()
 
@@ -240,9 +241,9 @@ class MiningModeConfig(MinerConfigOption):
         if mode is None:
             return cls.default()
 
-        clsattr = getattr(cls, mode)
-        if clsattr is not None:
-            return clsattr().from_dict(dict_conf)
+        cls_attr = getattr(cls, mode)
+        if cls_attr is not None:
+            return cls_attr().from_dict(dict_conf)
 
     @classmethod
     def from_am_modern(cls, web_conf: dict):

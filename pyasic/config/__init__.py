@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 
 from pyasic.config.fans import FanModeConfig
@@ -21,6 +20,7 @@ from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig
 from pyasic.config.power_scaling import PowerScalingConfig
 from pyasic.config.temperature import TemperatureConfig
+from pyasic.misc import merge_dicts
 
 
 @dataclass
@@ -93,7 +93,7 @@ class MinerConfig:
 
     def as_bosminer(self, user_suffix: str = None) -> dict:
         return {
-            **merge(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
+            **merge_dicts(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
             **self.mining_mode.as_bosminer(),
             **self.pools.as_bosminer(user_suffix=user_suffix),
             **self.power_scaling.as_bosminer(),
@@ -120,8 +120,10 @@ class MinerConfig:
     def as_auradine(self, user_suffix: str = None) -> dict:
         return {
             **self.fan_mode.as_auradine(),
+            **self.temperature.as_auradine(),
             **self.mining_mode.as_auradine(),
             **self.pools.as_auradine(user_suffix=user_suffix),
+            **self.power_scaling.as_auradine(),
         }
 
     @classmethod
@@ -203,14 +205,3 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_auradine(web_conf["fan"]),
             mining_mode=MiningModeConfig.from_auradine(web_conf["mode"]),
         )
-
-
-def merge(a: dict, b: dict) -> dict:
-    result = deepcopy(a)
-    for b_key, b_val in b.items():
-        a_val = result.get(b_key)
-        if isinstance(a_val, dict) and isinstance(b_val, dict):
-            result[b_key] = merge(a_val, b_val)
-        else:
-            result[b_key] = deepcopy(b_val)
-    return result

@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Union
 
 from pyasic.config.base import MinerConfigValue
 
@@ -40,7 +41,7 @@ class TemperatureConfig(MinerConfigValue):
         return {"temp_control": temp_cfg}
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "TemperatureConfig":
+    def from_dict(cls, dict_conf: dict | None) -> "TemperatureConfig":
         return cls(
             target=dict_conf.get("target"),
             hot=dict_conf.get("hot"),

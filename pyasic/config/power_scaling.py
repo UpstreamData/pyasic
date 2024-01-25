@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
@@ -31,7 +32,7 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
     duration: int = None
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingShutdownEnabled":
+    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingShutdownEnabled":
         return cls(duration=dict_conf.get("duration"))
 
     def as_bosminer(self) -> dict:
@@ -51,7 +52,7 @@ class PowerScalingShutdownDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingShutdownDisabled":
+    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingShutdownDisabled":
         return cls()
 
     def as_bosminer(self) -> dict:
@@ -66,7 +67,7 @@ class PowerScalingShutdown(MinerConfigOption):
     disabled = PowerScalingShutdownDisabled
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         if dict_conf is None:
             return cls.default()
 
@@ -107,9 +108,7 @@ class PowerScalingEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     power_step: int = None
     minimum_power: int = None
-    shutdown_enabled: Union[
-        PowerScalingShutdownEnabled, PowerScalingShutdownDisabled
-    ] = None
+    shutdown_enabled: PowerScalingShutdownEnabled | PowerScalingShutdownDisabled = None
 
     @classmethod
     def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScalingEnabled":
@@ -122,7 +121,7 @@ class PowerScalingEnabled(MinerConfigValue):
         )
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "PowerScalingEnabled":
+    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingEnabled":
         cls_conf = {
             "power_step": dict_conf.get("power_step"),
             "minimum_power": dict_conf.get("minimum_power"),
@@ -175,7 +174,7 @@ class PowerScalingConfig(MinerConfigOption):
         return cls.disabled()
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         if dict_conf is None:
             return cls.default()
 

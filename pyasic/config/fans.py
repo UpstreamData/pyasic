@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
@@ -26,7 +27,7 @@ class FanModeNormal(MinerConfigValue):
     minimum_speed: int = 0
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeNormal":
+    def from_dict(cls, dict_conf: dict | None) -> "FanModeNormal":
         cls_conf = {}
         if dict_conf.get("minimum_fans") is not None:
             cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
@@ -57,7 +58,7 @@ class FanModeManual(MinerConfigValue):
     minimum_fans: int = 1
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeManual":
+    def from_dict(cls, dict_conf: dict | None) -> "FanModeManual":
         cls_conf = {}
         if dict_conf.get("speed") is not None:
             cls_conf["speed"] = dict_conf["speed"]
@@ -101,7 +102,7 @@ class FanModeImmersion(MinerConfigValue):
     mode: str = field(init=False, default="immersion")
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]) -> "FanModeImmersion":
+    def from_dict(cls, dict_conf: dict | None) -> "FanModeImmersion":
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -124,7 +125,7 @@ class FanModeConfig(MinerConfigOption):
         return cls.normal()
 
     @classmethod
-    def from_dict(cls, dict_conf: Union[dict, None]):
+    def from_dict(cls, dict_conf: dict | None):
         if dict_conf is None:
             return cls.default()
 
@@ -132,9 +133,9 @@ class FanModeConfig(MinerConfigOption):
         if mode is None:
             return cls.default()
 
-        clsattr = getattr(cls, mode)
-        if clsattr is not None:
-            return clsattr().from_dict(dict_conf)
+        cls_attr = getattr(cls, mode)
+        if cls_attr is not None:
+            return cls_attr().from_dict(dict_conf)
 
     @classmethod
     def from_am_modern(cls, web_conf: dict):
