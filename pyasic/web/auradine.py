@@ -244,7 +244,7 @@ class AuradineWebAPI(BaseWebAPI):
     async def timedate(self, ntp: str, timezone: str) -> dict:
         return await self.send_command("timedate", ntp=ntp, timezone=timezone)
 
-    async def token(self) -> dict:
+    async def get_token(self) -> dict:
         return await self.send_command("token", user=self.username, password=self.pwd)
 
     async def update_pools(self, pools: list[dict]) -> dict:
