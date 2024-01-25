@@ -14,17 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import copy
-import json
-import time
-from dataclasses import asdict, dataclass, field, fields
-from datetime import datetime, timezone
-from typing import Any, List, Union
-
-from pyasic.config import MinerConfig
-from pyasic.config.mining import MiningModePowerTune
-
-from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
