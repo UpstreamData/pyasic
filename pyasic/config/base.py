@@ -70,7 +70,7 @@ class MinerConfigValue:
     def from_dict(cls, dict_conf: Union[dict, None]):
         return cls()
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return asdict(self)
 
     def as_am_modern(self) -> dict:

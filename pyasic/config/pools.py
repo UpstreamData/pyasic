@@ -219,7 +219,7 @@ class PoolGroup(MinerConfigValue):
     def as_goldshell(self, user_suffix: str = None) -> list:
         return [pool.as_goldshell(user_suffix) for pool in self.pools]
 
-    def as_avalon(self, user_suffix: str = None) -> dict:
+    def as_avalon(self, user_suffix: str = None) -> str:
         if len(self.pools) > 0:
             return self.pools[0].as_avalon(user_suffix=user_suffix)
         return Pool("", "", "").as_avalon()

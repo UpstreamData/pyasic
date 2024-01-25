@@ -91,7 +91,7 @@ class MiningModeHPM(MinerConfigValue):
     def from_dict(cls, dict_conf: Union[dict, None]) -> "MiningModeHPM":
         return cls()
 
-    def as_am_modern(self):
+    def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
 
     def as_wm(self) -> dict:

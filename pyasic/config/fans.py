@@ -35,7 +35,7 @@ class FanModeNormal(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_vnish(cls, web_cooling_settings: dict):
+    def from_vnish(cls, web_cooling_settings: dict) -> "FanModeNormal":
         cls_conf = {}
         if web_cooling_settings.get("fan_min_count") is not None:
             cls_conf["minimum_fans"] = web_cooling_settings["fan_min_count"]
