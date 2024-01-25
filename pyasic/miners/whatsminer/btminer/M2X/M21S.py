@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M2X
-from pyasic.miners.types import M21SV20, M21SV60, M21SV70
+from pyasic.miners.models import M21SV20, M21SV60, M21SV70
 
 
 class BTMinerM21SV20(M2X, M21SV20):

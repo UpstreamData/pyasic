@@ -18,7 +18,8 @@ import ipaddress
 from typing import Union
 
 from pyasic.miners.base import AnyMiner, BaseMiner
-from pyasic.miners.miner_factory import miner_factory
+from pyasic.miners.data import DataOptions
+from pyasic.miners.factory import miner_factory
 
 
 # abstracted version of get miner that is easier to access

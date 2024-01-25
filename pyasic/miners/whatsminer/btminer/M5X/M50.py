@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M5X
-from pyasic.miners.types import (
+from pyasic.miners.models import (
     M50VE30,
     M50VG30,
     M50VH10,

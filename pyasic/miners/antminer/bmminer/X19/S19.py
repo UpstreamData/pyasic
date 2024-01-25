@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.types import (
+from pyasic.miners.models import (
     S19,
     S19L,
     S19XP,

@@ -19,16 +19,16 @@ from typing import List, Optional, Union
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
-from pyasic.miners.base import (
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.rpc import APIError
 from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 

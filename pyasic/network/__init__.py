@@ -20,7 +20,7 @@ import logging
 from typing import AsyncIterator, List, Union
 
 from pyasic import settings
-from pyasic.miners.miner_factory import AnyMiner, miner_factory
+from pyasic.miners.factory import AnyMiner, miner_factory
 
 
 class MinerNetwork:

@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerOld
-from pyasic.miners.types import Z15
+from pyasic.miners.models import Z15
 
 
 class CGMinerZ15(AntminerOld, Z15):

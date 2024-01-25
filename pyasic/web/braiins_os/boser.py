@@ -25,7 +25,7 @@ from grpclib.client import Channel
 
 from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.web import BaseWebAPI
+from pyasic.web.base import BaseWebAPI
 
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *

@@ -3,7 +3,7 @@ import importlib
 import os
 import warnings
 
-from pyasic.miners.miner_factory import MINER_CLASSES, MinerTypes
+from pyasic.miners.factory import MINER_CLASSES, MinerTypes
 
 warnings.filterwarnings("ignore")
 

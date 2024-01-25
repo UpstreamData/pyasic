@@ -21,13 +21,8 @@ from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
-from pyasic.miners.base import (
-    BaseMiner,
-    DataFunction,
-    DataLocations,
-    DataOptions,
-    RPCAPICommand,
-)
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.rpc.btminer import BTMinerRPCAPI
 
 BTMINER_DATA_LOC = DataLocations(

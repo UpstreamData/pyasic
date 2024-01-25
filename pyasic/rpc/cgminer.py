@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.rpc import BaseMinerRPCAPI
+from pyasic.rpc.base import BaseMinerRPCAPI
 
 
 class CGMinerRPCAPI(BaseMinerRPCAPI):

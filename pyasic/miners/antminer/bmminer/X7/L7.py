@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.types import L7
+from pyasic.miners.models import L7
 
 
 class BMMinerL7(AntminerModern, L7):

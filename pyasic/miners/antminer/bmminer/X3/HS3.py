@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.types import HS3
+from pyasic.miners.models import HS3
 
 
 class BMMinerHS3(AntminerModern, HS3):

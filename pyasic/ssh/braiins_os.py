@@ -1,8 +1,8 @@
 from pyasic import settings
-from pyasic.ssh import MinerSSH
+from pyasic.ssh.base import BaseSSH
 
 
-class BOSMinerSSH(MinerSSH):
+class BOSMinerSSH(BaseSSH):
     def __init__(self, ip: str):
         super().__init__(ip)
         self.pwd = settings.get("default_bosminer_ssh_password", "root")

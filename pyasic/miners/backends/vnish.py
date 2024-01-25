@@ -19,7 +19,7 @@ from typing import Optional
 from pyasic import MinerConfig
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
-from pyasic.miners.base import (
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,

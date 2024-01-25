@@ -24,8 +24,8 @@ from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.base import (
-    BaseMiner,
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,

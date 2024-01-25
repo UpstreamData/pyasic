@@ -16,8 +16,6 @@
 import asyncio
 import ipaddress
 import warnings
-from dataclasses import dataclass, field, make_dataclass
-from enum import Enum
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
@@ -25,79 +23,7 @@ from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.logger import logger
-
-
-class DataOptions(Enum):
-    MAC = "mac"
-    API_VERSION = "api_ver"
-    FW_VERSION = "fw_ver"
-    HOSTNAME = "hostname"
-    HASHRATE = "hashrate"
-    EXPECTED_HASHRATE = "expected_hashrate"
-    HASHBOARDS = "hashboards"
-    ENVIRONMENT_TEMP = "env_temp"
-    WATTAGE = "wattage"
-    WATTAGE_LIMIT = "wattage_limit"
-    FANS = "fans"
-    FAN_PSU = "fan_psu"
-    ERRORS = "errors"
-    FAULT_LIGHT = "fault_light"
-    IS_MINING = "is_mining"
-    UPTIME = "uptime"
-    CONFIG = "config"
-
-    def __str__(self):
-        return self.value
-
-    def default_command(self):
-        if str(self.value) == "config":
-            return "get_config"
-        elif str(self.value) == "is_mining":
-            return "_is_mining"
-        else:
-            return f"_get_{str(self.value)}"
-
-
-@dataclass
-class RPCAPICommand:
-    name: str
-    cmd: str
-
-
-@dataclass
-class WebAPICommand:
-    name: str
-    cmd: str
-
-
-@dataclass
-class GRPCCommand(WebAPICommand):
-    name: str
-    cmd: str
-
-
-@dataclass
-class DataFunction:
-    cmd: str
-    kwargs: List[Union[RPCAPICommand, WebAPICommand, GRPCCommand]] = field(
-        default_factory=list
-    )
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-
-DataLocations = make_dataclass(
-    "DataLocations",
-    [
-        (
-            enum_value.value,
-            DataFunction,
-            field(default_factory=DataFunction(enum_value.default_command())),
-        )
-        for enum_value in DataOptions
-    ],
-)
+from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
 
 
 class MinerProtocol(Protocol):

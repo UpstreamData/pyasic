@@ -25,6 +25,7 @@ import httpx
 
 from pyasic import settings
 from pyasic.logger import logger
+from pyasic.miners import AnyMiner
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
@@ -41,10 +42,9 @@ from pyasic.miners.backends import (
     VNish,
     ePIC,
 )
-from pyasic.miners.base import AnyMiner
+from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
-from pyasic.miners.unknown import UnknownMiner
 from pyasic.miners.whatsminer import *
 
 

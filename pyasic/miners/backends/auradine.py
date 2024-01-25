@@ -17,10 +17,11 @@ import logging
 from enum import Enum
 from typing import List, Optional
 
-from pyasic import APIError, MinerConfig
+from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.miners.base import (
-    BaseMiner,
+from pyasic.errors import APIError
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,
@@ -28,7 +29,7 @@ from pyasic.miners.base import (
     WebAPICommand,
 )
 from pyasic.rpc.gcminer import GCMinerRPCAPI
-from pyasic.web.auradine import FluxWebAPI
+from pyasic.web.auradine import AuradineWebAPI
 
 AURADINE_DATA_LOC = DataLocations(
     **{
@@ -117,8 +118,8 @@ class Auradine(BaseMiner):
 
     _api_cls = GCMinerRPCAPI
     api: GCMinerRPCAPI
-    _web_cls = FluxWebAPI
-    web: FluxWebAPI
+    _web_cls = AuradineWebAPI
+    web: AuradineWebAPI
 
     data_locations = AURADINE_DATA_LOC
 

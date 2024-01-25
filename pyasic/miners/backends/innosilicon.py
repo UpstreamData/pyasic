@@ -21,7 +21,7 @@ from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.error_codes.innosilicon import InnosiliconError
 from pyasic.errors import APIError
 from pyasic.miners.backends import CGMiner
-from pyasic.miners.base import (
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,

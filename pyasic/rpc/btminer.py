@@ -30,7 +30,7 @@ from passlib.handlers.md5_crypt import md5_crypt
 from pyasic import settings
 from pyasic.errors import APIError
 from pyasic.misc import api_min_version
-from pyasic.rpc import BaseMinerRPCAPI
+from pyasic.rpc.base import BaseMinerRPCAPI
 
 ### IMPORTANT ###
 # you need to change the password of the miners using the Whatsminer
@@ -89,7 +89,7 @@ def _add_to_16(string: str) -> bytes:
     return str.encode(string)  # return bytes
 
 
-def parse_btminer_priviledge_data(token_data: dict, data: dict):
+def parse_btminer_priviledge_data(token_data: dict, data: dict) -> dict:
     """Parses data returned from the BTMiner privileged API.
 
     Parses data from the BTMiner privileged API using the token
@@ -185,10 +185,10 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         ip: The IP of the miner to reference the API on.
     """
 
-    def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0"):
+    def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, port, api_ver)
         self.pwd = settings.get("default_whatsminer_rpc_password", "admin")
-        self.current_token = None
+        self.token = None
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -269,7 +269,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         data = self._load_api_data(data)
 
         try:
-            data = parse_btminer_priviledge_data(self.current_token, data)
+            data = parse_btminer_priviledge_data(self.token, data)
         except Exception as e:
             logging.info(f"{str(self.ip)}: {e}")
 
@@ -292,11 +292,11 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         </details>
         """
         logging.debug(f"{self} - (Get Token) - Getting token")
-        if self.current_token:
-            if self.current_token[
-                "timestamp"
-            ] > datetime.datetime.now() - datetime.timedelta(minutes=30):
-                return self.current_token
+        if self.token:
+            if self.token["timestamp"] > datetime.datetime.now() - datetime.timedelta(
+                minutes=30
+            ):
+                return self.token
 
         # get the token
         data = await self.send_command("get_token")
@@ -316,15 +316,13 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         host_sign = tmp[3]
 
         # set the current token
-        self.current_token = {
+        self.token = {
             "host_sign": host_sign,
             "host_passwd_md5": host_passwd_md5,
             "timestamp": datetime.datetime.now(),
         }
-        logging.debug(
-            f"{self} - (Get Token) - Gathered token data: {self.current_token}"
-        )
-        return self.current_token
+        logging.debug(f"{self} - (Get Token) - Gathered token data: {self.token}")
+        return self.token
 
     #### PRIVILEGED COMMANDS ####
     # Please read the top of this file to learn

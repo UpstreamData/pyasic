@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSMiner
-from pyasic.miners.types import S9
+from pyasic.miners.models import S9
 
 
 class BOSMinerS9(BOSMiner, S9):

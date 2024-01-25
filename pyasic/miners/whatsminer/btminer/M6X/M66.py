@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M6X
-from pyasic.miners.types import M66VK20, M66VK30
+from pyasic.miners.models import M66VK20, M66VK30
 
 
 class BTMinerM66VK20(M6X, M66VK20):

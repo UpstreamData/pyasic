@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends.innosilicon import Innosilicon
-from pyasic.miners.types import T3HPlus
+from pyasic.miners.models import T3HPlus
 
 
 class InnosiliconT3HPlus(Innosilicon, T3HPlus):

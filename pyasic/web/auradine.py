@@ -24,10 +24,10 @@ import httpx
 
 from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.web import BaseWebAPI
+from pyasic.web.base import BaseWebAPI
 
 
-class FluxWebAPI(BaseWebAPI):
+class AuradineWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "admin"

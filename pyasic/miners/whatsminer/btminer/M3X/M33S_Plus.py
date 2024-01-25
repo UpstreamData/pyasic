@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M3X
-from pyasic.miners.types import M33SPlusVG20, M33SPlusVH20, M33SPlusVH30
+from pyasic.miners.models import M33SPlusVG20, M33SPlusVH20, M33SPlusVH30
 
 
 class BTMinerM33SPlusVG20(M3X, M33SPlusVG20):

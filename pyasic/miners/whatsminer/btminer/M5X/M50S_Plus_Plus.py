@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M5X
-from pyasic.miners.types.whatsminer.M5X.M50S_Plus_Plus import (  # noqa - ignore _module import
+from pyasic.miners.models.whatsminer.M5X.M50S_Plus_Plus import (  # noqa - ignore _module import
     M50SPlusPlusVK10,
     M50SPlusPlusVK20,
     M50SPlusPlusVK30,

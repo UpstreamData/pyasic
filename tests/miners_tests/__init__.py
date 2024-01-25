@@ -18,7 +18,7 @@ import unittest
 import warnings
 from dataclasses import asdict
 
-from pyasic.miners.miner_factory import MINER_CLASSES
+from pyasic.miners.factory import MINER_CLASSES
 
 
 class MinersTest(unittest.TestCase):

@@ -18,13 +18,8 @@ from typing import List, Optional
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
-from pyasic.miners.base import (
-    BaseMiner,
-    DataFunction,
-    DataLocations,
-    DataOptions,
-    RPCAPICommand,
-)
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
 LUXMINER_DATA_LOC = DataLocations(

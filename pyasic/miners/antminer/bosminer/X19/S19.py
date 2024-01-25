@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSer
-from pyasic.miners.types import (
+from pyasic.miners.models import (
     S19,
     S19XP,
     S19a,

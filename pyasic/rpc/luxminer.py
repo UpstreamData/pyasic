@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from typing import Literal
 
-from pyasic.rpc import BaseMinerRPCAPI
+from pyasic.rpc.base import BaseMinerRPCAPI
 
 
 class LUXMinerRPCAPI(BaseMinerRPCAPI):

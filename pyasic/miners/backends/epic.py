@@ -21,13 +21,8 @@ from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
-from pyasic.miners.base import (
-    BaseMiner,
-    DataFunction,
-    DataLocations,
-    DataOptions,
-    WebAPICommand,
-)
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.web.epic import ePICWebAPI
 
 EPIC_DATA_LOC = DataLocations(

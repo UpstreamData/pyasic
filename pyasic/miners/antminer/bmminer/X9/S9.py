@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BMMiner
-from pyasic.miners.types import S9, S9i, S9j
+from pyasic.miners.models import S9, S9i, S9j
 
 
 class BMMinerS9(BMMiner, S9):

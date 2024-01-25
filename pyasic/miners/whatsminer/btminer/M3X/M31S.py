@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M3X
-from pyasic.miners.types import (
+from pyasic.miners.models import (
     M31SV10,
     M31SV20,
     M31SV30,

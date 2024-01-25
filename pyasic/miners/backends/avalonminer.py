@@ -20,7 +20,7 @@ from typing import List, Optional
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
-from pyasic.miners.base import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 
 AVALON_DATA_LOC = DataLocations(
     **{

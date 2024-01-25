@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends.innosilicon import Innosilicon
-from pyasic.miners.types import A10X
+from pyasic.miners.models import A10X
 
 
 class InnosiliconA10X(Innosilicon, A10X):

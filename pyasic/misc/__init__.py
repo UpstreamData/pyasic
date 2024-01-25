@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from copy import deepcopy
 
-from pyasic.rpc import APIError
+from pyasic.errors import APIError
 
 
 class Singleton(type):

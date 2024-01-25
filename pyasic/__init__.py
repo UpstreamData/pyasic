@@ -23,10 +23,9 @@ from pyasic.data import (
     X19Error,
 )
 from pyasic.errors import APIError, APIWarning
-from pyasic.miners import get_miner
-from pyasic.miners.base import AnyMiner, DataOptions
-from pyasic.miners.miner_factory import MinerFactory, miner_factory
-from pyasic.miners.miner_listener import MinerListener
+from pyasic.miners import AnyMiner, DataOptions, get_miner
+from pyasic.miners.factory import MinerFactory, miner_factory
+from pyasic.miners.listener import MinerListener
 from pyasic.network import MinerNetwork
 from pyasic.rpc.bmminer import BMMinerRPCAPI
 from pyasic.rpc.bosminer import BOSMinerRPCAPI

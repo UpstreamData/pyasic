@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import GoldshellMiner
-from pyasic.miners.types import KDMax
+from pyasic.miners.models import KDMax
 
 
 class GoldshellKDMax(GoldshellMiner, KDMax):

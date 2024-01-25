@@ -18,13 +18,8 @@ from typing import Optional
 
 from pyasic.config import MinerConfig
 from pyasic.errors import APIError
-from pyasic.miners.base import (
-    BaseMiner,
-    DataFunction,
-    DataLocations,
-    DataOptions,
-    RPCAPICommand,
-)
+from pyasic.miners.base import BaseMiner
+from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 CGMINER_DATA_LOC = DataLocations(

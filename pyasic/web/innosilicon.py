@@ -23,7 +23,7 @@ import httpx
 
 from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.web import BaseWebAPI
+from pyasic.web.base import BaseWebAPI
 
 
 class InnosiliconWebAPI(BaseWebAPI):

@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.types import T19
+from pyasic.miners.models import T19
 
 
 class BMMinerT19(AntminerModern, T19):

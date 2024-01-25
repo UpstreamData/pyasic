@@ -20,7 +20,7 @@ from pyasic.data import HashBoard
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import BFGMiner
-from pyasic.miners.base import (
+from pyasic.miners.data import (
     DataFunction,
     DataLocations,
     DataOptions,
