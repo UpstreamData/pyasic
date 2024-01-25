@@ -112,7 +112,7 @@ class FluxWebAPI(BaseWebAPI):
 
         await asyncio.gather(*[tasks[cmd] for cmd in tasks], return_exceptions=True)
 
-        data = {}
+        data = {"multicommand": True}
         for cmd in tasks:
             try:
                 result = tasks[cmd].result()
