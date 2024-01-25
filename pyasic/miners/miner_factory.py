@@ -585,6 +585,8 @@ class MinerFactory:
             return MinerTypes.AVALONMINER
         if "DragonMint" in web_text:
             return MinerTypes.INNOSILICON
+        if "Miner UI" in web_text:
+            return MinerTypes.AURADINE
 
     async def _get_miner_socket(self, ip: str):
         tasks = []
