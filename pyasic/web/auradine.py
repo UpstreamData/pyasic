@@ -118,7 +118,7 @@ class FluxWebAPI(BaseWebAPI):
                 result = tasks[cmd].result()
                 if result is None or result == {}:
                     result = {}
-                data[cmd] = [result]
+                data[cmd] = result
             except APIError:
                 pass
 
