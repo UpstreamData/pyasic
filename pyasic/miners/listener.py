@@ -16,10 +16,8 @@
 
 import asyncio
 
-from pyasic.misc import Singleton
 
-
-class _MinerListener:
+class MinerListenerProtocol(asyncio.Protocol):
     def __init__(self):
         self.responses = {}
         self.transport = None
@@ -44,7 +42,7 @@ class _MinerListener:
         pass
 
 
-class MinerListener(metaclass=Singleton):
+class MinerListener:
     def __init__(self):
         self.found_miners = []
         self.new_miner = None
@@ -56,10 +54,10 @@ class MinerListener(metaclass=Singleton):
         loop = asyncio.get_running_loop()
 
         transport_14235, _ = await loop.create_datagram_endpoint(
-            _MinerListener, local_addr=("0.0.0.0", 14235)
+            MinerListenerProtocol, local_addr=("0.0.0.0", 14235)
         )
         transport_8888, _ = await loop.create_datagram_endpoint(
-            _MinerListener, local_addr=("0.0.0.0", 8888)
+            MinerListenerProtocol, local_addr=("0.0.0.0", 8888)
         )
 
         while True:
@@ -75,21 +73,3 @@ class MinerListener(metaclass=Singleton):
 
     async def cancel(self):
         self.stop = True
-
-
-async def main():
-    await asyncio.gather(run(), cancel())
-
-
-async def run():
-    async for miner in MinerListener().listen():
-        print(miner)
-
-
-async def cancel():
-    await asyncio.sleep(60)
-    await MinerListener().cancel()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

@@ -15,44 +15,10 @@
 # ------------------------------------------------------------------------------
 from pyasic import settings
 from pyasic.config import MinerConfig
-from pyasic.data import (
-    BraiinsOSError,
-    InnosiliconError,
-    MinerData,
-    WhatsminerError,
-    X19Error,
-)
+from pyasic.data import MinerData
 from pyasic.errors import APIError, APIWarning
-from pyasic.miners import AnyMiner, DataOptions, get_miner
-from pyasic.miners.factory import MinerFactory, miner_factory
-from pyasic.miners.listener import MinerListener
+from pyasic.miners import *
 from pyasic.network import MinerNetwork
-from pyasic.rpc.bmminer import BMMinerRPCAPI
-from pyasic.rpc.bosminer import BOSMinerRPCAPI
-from pyasic.rpc.btminer import BTMinerRPCAPI
-from pyasic.rpc.cgminer import CGMinerRPCAPI
-from pyasic.rpc.unknown import UnknownRPCAPI
-
-__all__ = [
-    "BMMinerRPCAPI",
-    "BOSMinerRPCAPI",
-    "BTMinerRPCAPI",
-    "CGMinerRPCAPI",
-    "UnknownRPCAPI",
-    "MinerConfig",
-    "MinerData",
-    "BraiinsOSError",
-    "InnosiliconError",
-    "WhatsminerError",
-    "X19Error",
-    "APIError",
-    "APIWarning",
-    "get_miner",
-    "AnyMiner",
-    "DataOptions",
-    "MinerFactory",
-    "miner_factory",
-    "MinerListener",
-    "MinerNetwork",
-    "settings",
-]
+from pyasic.rpc import *
+from pyasic.ssh import *
+from pyasic.web import *

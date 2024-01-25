@@ -18,15 +18,6 @@ from copy import deepcopy
 from pyasic.errors import APIError
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 def api_min_version(version: str):
     def decorator(func):
         # handle the inner function that the decorator is wrapping

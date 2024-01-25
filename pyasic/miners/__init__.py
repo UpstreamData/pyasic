@@ -14,14 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import ipaddress
-from typing import Union
-
-from pyasic.miners.base import AnyMiner, BaseMiner
-from pyasic.miners.data import DataOptions
-from pyasic.miners.factory import miner_factory
-
-
-# abstracted version of get miner that is easier to access
-async def get_miner(ip: Union[ipaddress.ip_address, str]) -> AnyMiner:
-    return await miner_factory.get_miner(ip)
+from .base import AnyMiner
+from .data import DataOptions
+from .factory import get_miner, miner_factory
+from .listener import MinerListener

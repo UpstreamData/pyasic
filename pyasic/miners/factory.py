@@ -13,19 +13,20 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 import asyncio
 import enum
 import ipaddress
 import json
 import re
-from typing import AsyncGenerator, Callable, List, Optional, Tuple, Union
+from typing import Any, AsyncGenerator, Callable
 
 import anyio
 import httpx
 
 from pyasic import settings
 from pyasic.logger import logger
-from pyasic.miners import AnyMiner
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
@@ -43,6 +44,7 @@ from pyasic.miners.backends import (
     ePIC,
 )
 from pyasic.miners.backends.unknown import UnknownMiner
+from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
 from pyasic.miners.whatsminer import *
@@ -408,7 +410,7 @@ MINER_CLASSES = {
 }
 
 
-async def concurrent_get_first_result(tasks: list, verification_func: Callable):
+async def concurrent_get_first_result(tasks: list, verification_func: Callable) -> Any:
     res = None
     for fut in asyncio.as_completed(tasks):
         res = await fut
@@ -425,8 +427,8 @@ async def concurrent_get_first_result(tasks: list, verification_func: Callable):
 
 class MinerFactory:
     async def get_multiple_miners(
-        self, ips: List[str], limit: int = 200
-    ) -> List[AnyMiner]:
+        self, ips: list[str], limit: int = 200
+    ) -> list[AnyMiner]:
         results = []
 
         async for miner in self.get_miner_generator(ips, limit):
@@ -434,7 +436,9 @@ class MinerFactory:
 
         return results
 
-    async def get_miner_generator(self, ips: list, limit: int = 200) -> AsyncGenerator:
+    async def get_miner_generator(
+        self, ips: list, limit: int = 200
+    ) -> AsyncGenerator[AnyMiner]:
         tasks = []
         semaphore = asyncio.Semaphore(limit)
 
@@ -447,7 +451,7 @@ class MinerFactory:
                 if result is not None:
                     yield result
 
-    async def get_miner(self, ip: str):
+    async def get_miner(self, ip: str | ipaddress.ip_address) -> AnyMiner | None:
         ip = str(ip)
 
         miner_type = None
@@ -499,7 +503,7 @@ class MinerFactory:
 
             return miner
 
-    async def _get_miner_type(self, ip: str):
+    async def _get_miner_type(self, ip: str) -> MinerTypes | None:
         tasks = [
             asyncio.create_task(self._get_miner_web(ip)),
             asyncio.create_task(self._get_miner_socket(ip)),
@@ -507,7 +511,7 @@ class MinerFactory:
 
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
 
-    async def _get_miner_web(self, ip: str):
+    async def _get_miner_web(self, ip: str) -> MinerTypes | None:
         tasks = []
         try:
             urls = [f"http://{ip}/", f"https://{ip}/"]
@@ -536,7 +540,7 @@ class MinerFactory:
     @staticmethod
     async def _web_ping(
         session: httpx.AsyncClient, url: str
-    ) -> Tuple[Optional[str], Optional[httpx.Response]]:
+    ) -> tuple[str | None, httpx.Response | None]:
         try:
             resp = await session.get(url, follow_redirects=True)
             return resp.text, resp
@@ -550,7 +554,7 @@ class MinerFactory:
         return None, None
 
     @staticmethod
-    def _parse_web_type(web_text: str, web_resp: httpx.Response) -> MinerTypes:
+    def _parse_web_type(web_text: str, web_resp: httpx.Response) -> MinerTypes | None:
         if web_resp.status_code == 401 and 'realm="antMiner' in web_resp.headers.get(
             "www-authenticate", ""
         ):
@@ -578,7 +582,7 @@ class MinerFactory:
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
 
-    async def _get_miner_socket(self, ip: str):
+    async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         tasks = []
         try:
             commands = ["version", "devdetails"]
@@ -602,7 +606,7 @@ class MinerFactory:
                     pass
 
     @staticmethod
-    async def _socket_ping(ip: str, cmd: str) -> Optional[str]:
+    async def _socket_ping(ip: str, cmd: str) -> str | None:
         data = b""
         try:
             reader, writer = await asyncio.wait_for(
@@ -648,7 +652,7 @@ class MinerFactory:
             return data.decode("utf-8")
 
     @staticmethod
-    def _parse_socket_type(data: str) -> MinerTypes:
+    def _parse_socket_type(data: str) -> MinerTypes | None:
         upper_data = data.upper()
         if "BOSMINER" in upper_data or "BOSER" in upper_data:
             return MinerTypes.BRAIINS_OS
@@ -671,14 +675,14 @@ class MinerFactory:
 
     async def send_web_command(
         self,
-        ip: Union[ipaddress.ip_address, str],
+        ip: str,
         location: str,
-        auth: Optional[httpx.DigestAuth] = None,
-    ) -> Optional[dict]:
+        auth: httpx.DigestAuth = None,
+    ) -> dict | None:
         async with httpx.AsyncClient(transport=settings.transport()) as session:
             try:
                 data = await session.get(
-                    f"http://{str(ip)}{location}",
+                    f"http://{ip}{location}",
                     auth=auth,
                     timeout=settings.get("factory_get_timeout", 3),
                 )
@@ -697,12 +701,10 @@ class MinerFactory:
         else:
             return json_data
 
-    async def send_api_command(
-        self, ip: Union[ipaddress.ip_address, str], command: str
-    ) -> Optional[dict]:
+    async def send_api_command(self, ip: str, command: str) -> dict | None:
         data = b""
         try:
-            reader, writer = await asyncio.open_connection(str(ip), 4028)
+            reader, writer = await asyncio.open_connection(ip, 4028)
         except (ConnectionError, OSError):
             return
         cmd = {"command": command}
@@ -740,7 +742,7 @@ class MinerFactory:
         return data
 
     @staticmethod
-    async def _fix_api_data(data: bytes):
+    async def _fix_api_data(data: bytes) -> str:
         if data.endswith(b"\x00"):
             str_data = data.decode("utf-8")[:-1]
         else:
@@ -777,9 +779,9 @@ class MinerFactory:
     @staticmethod
     def _select_miner_from_classes(
         ip: ipaddress.ip_address,
-        miner_model: Union[str, None],
-        miner_type: Union[MinerTypes, None],
-    ) -> AnyMiner:
+        miner_model: str | None,
+        miner_type: MinerTypes | None,
+    ) -> AnyMiner | None:
         try:
             return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
         except LookupError:
@@ -787,7 +789,7 @@ class MinerFactory:
                 return MINER_CLASSES[miner_type][None](ip)
             return UnknownMiner(str(ip))
 
-    async def get_miner_model_antminer(self, ip: str):
+    async def get_miner_model_antminer(self, ip: str) -> str | None:
         tasks = [
             asyncio.create_task(self._get_model_antminer_web(ip)),
             asyncio.create_task(self._get_model_antminer_sock(ip)),
@@ -795,7 +797,7 @@ class MinerFactory:
 
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
 
-    async def _get_model_antminer_web(self, ip: str):
+    async def _get_model_antminer_web(self, ip: str) -> str | None:
         # last resort, this is slow
         auth = httpx.DigestAuth("root", "root")
         web_json_data = await self.send_web_command(
@@ -809,7 +811,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def _get_model_antminer_sock(self, ip: str):
+    async def _get_model_antminer_sock(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
@@ -834,7 +836,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_goldshell(self, ip: str):
+    async def get_miner_model_goldshell(self, ip: str) -> str | None:
         json_data = await self.send_web_command(ip, "/mcb/status")
 
         try:
@@ -844,7 +846,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_whatsminer(self, ip: str):
+    async def get_miner_model_whatsminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
@@ -854,7 +856,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_avalonminer(self, ip: str) -> Optional[str]:
+    async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["PROD"]
@@ -865,7 +867,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_innosilicon(self, ip: str) -> Optional[str]:
+    async def get_miner_model_innosilicon(self, ip: str) -> str | None:
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as session:
                 auth_req = await session.post(
@@ -885,7 +887,7 @@ class MinerFactory:
         except (httpx.HTTPError, LookupError):
             pass
 
-    async def get_miner_model_braiins_os(self, ip: str) -> Optional[str]:
+    async def get_miner_model_braiins_os(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace(
@@ -909,7 +911,7 @@ class MinerFactory:
         except (httpx.HTTPError, LookupError):
             pass
 
-    async def get_miner_model_vnish(self, ip: str) -> Optional[str]:
+    async def get_miner_model_vnish(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "stats")
         try:
             miner_model = sock_json_data["STATS"][0]["Type"]
@@ -927,7 +929,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_epic(self, ip: str) -> Optional[str]:
+    async def get_miner_model_epic(self, ip: str) -> str | None:
         sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
         try:
             miner_model = sock_json_data["Model"]
@@ -935,7 +937,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_hiveon(self, ip: str) -> Optional[str]:
+    async def get_miner_model_hiveon(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_type = sock_json_data["VERSION"][0]["Type"]
@@ -944,7 +946,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_luxos(self, ip: str):
+    async def get_miner_model_luxos(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
             miner_model = sock_json_data["VERSION"][0]["Type"]
@@ -956,7 +958,7 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
-    async def get_miner_model_auradine(self, ip: str):
+    async def get_miner_model_auradine(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
             return sock_json_data["DEVDETAILS"][0]["Model"]
@@ -965,3 +967,7 @@ class MinerFactory:
 
 
 miner_factory = MinerFactory()
+
+# abstracted version of get miner that is easier to access
+async def get_miner(ip: ipaddress.ip_address | str) -> AnyMiner:
+    return await miner_factory.get_miner(ip)
