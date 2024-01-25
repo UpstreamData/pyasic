@@ -40,7 +40,7 @@ class FluxWebAPI(BaseWebAPI):
                     f"http://{self.ip}:{self.port}/token",
                     data={
                         "command": "token",
-                        "username": self.username,
+                        "user": self.username,
                         "password": self.pwd,
                     },
                 )
