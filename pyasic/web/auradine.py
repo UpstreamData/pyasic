@@ -38,7 +38,7 @@ class FluxWebAPI(BaseWebAPI):
             try:
                 auth = await client.post(
                     f"http://{self.ip}:{self.port}/token",
-                    data={
+                    json={
                         "command": "token",
                         "user": self.username,
                         "password": self.pwd,
