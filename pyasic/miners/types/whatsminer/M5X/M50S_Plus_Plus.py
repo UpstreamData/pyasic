@@ -19,6 +19,7 @@ from pyasic.miners.makes import WhatsMinerMake
 
 class M50SPlusPlusVK10(WhatsMinerMake):
     raw_model = "M50S++ VK10"
+    expected_chips = 117
     expected_fans = 2
 
 
