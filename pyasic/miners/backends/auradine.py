@@ -262,12 +262,13 @@ class Auradine(BaseMiner):
 
         if api_devs is not None:
             try:
-                for board in api_devs["DEVS"][0]:
-                    b_id = board["ID"]
+                for board in api_devs["DEVS"]:
+                    b_id = board["ID"] - 1
                     hashboards[b_id].hashrate = round(
                         float(float(board["MHS 5s"]) / 1000000), 2
                     )
                     hashboards[b_id].temp = round(float(float(board["Temperature"])), 2)
+                    hashboards[b_id].missing = False
             except LookupError:
                 pass
 
@@ -275,7 +276,7 @@ class Auradine(BaseMiner):
             try:
                 for board, sn in enumerate(web_ipreport["IPReport"][0]["HBSerialNo"]):
                     hashboards[board].serial_number = sn
-
+                    hashboards[board].missing = False
             except LookupError:
                 pass
 
