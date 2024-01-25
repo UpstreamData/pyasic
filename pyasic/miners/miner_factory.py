@@ -26,19 +26,21 @@ import httpx
 from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
+from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
+    Auradine,
     AvalonMiner,
     BMMiner,
     BOSMiner,
     BTMiner,
     GoldshellMiner,
     Hiveon,
+    Innosilicon,
     LUXMiner,
     VNish,
     ePIC,
 )
-from pyasic.miners.backends.innosilicon import Innosilicon
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
@@ -57,6 +59,7 @@ class MinerTypes(enum.Enum):
     HIVEON = 7
     LUX_OS = 8
     EPIC = 9
+    AURADINE = 10
 
 
 MINER_CLASSES = {
@@ -392,6 +395,16 @@ MINER_CLASSES = {
         None: LUXMiner,
         "ANTMINER S9": LUXMinerS9,
     },
+    MinerTypes.AURADINE: {
+        None: Auradine,
+        "AT1500": AuradineFluxAT1500,
+        "AT2860": AuradineFluxAT2860,
+        "AT2880": AuradineFluxAT2880,
+        "AI2500": AuradineFluxAI2500,
+        "AI3680": AuradineFluxAI3680,
+        "AD2500": AuradineFluxAD2500,
+        "AD3500": AuradineFluxAD3500,
+    },
 }
 
 
@@ -464,6 +477,7 @@ class MinerFactory:
                 MinerTypes.EPIC: self.get_miner_model_epic,
                 MinerTypes.HIVEON: self.get_miner_model_hiveon,
                 MinerTypes.LUX_OS: self.get_miner_model_luxos,
+                MinerTypes.AURADINE: self.get_miner_model_auradine,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -561,6 +575,8 @@ class MinerFactory:
             return MinerTypes.AVALONMINER
         if "DragonMint" in web_text:
             return MinerTypes.INNOSILICON
+        if "Miner UI" in web_text:
+            return MinerTypes.AURADINE
 
     async def _get_miner_socket(self, ip: str):
         tasks = []
@@ -650,6 +666,8 @@ class MinerFactory:
             return MinerTypes.GOLDSHELL
         if "AVALON" in upper_data:
             return MinerTypes.AVALONMINER
+        if "GCMINER" in upper_data or "FLUXOS" in upper_data:
+            return MinerTypes.AURADINE
 
     async def send_web_command(
         self,
@@ -936,6 +954,13 @@ class MinerFactory:
                 miner_model = split_miner_model[0]
             return miner_model
         except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_auradine(self, ip: str):
+        sock_json_data = await self.send_api_command(ip, "devdetails")
+        try:
+            return sock_json_data["DEVDETAILS"][0]["Model"]
+        except LookupError:
             pass
 
 

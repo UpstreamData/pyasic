@@ -35,3 +35,7 @@ class InnosiliconMake(BaseMiner):
 
 class GoldshellMake(BaseMiner):
     make = "Goldshell"
+
+
+class AuradineMake(BaseMiner):
+    make = "Auradine"

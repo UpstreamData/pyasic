@@ -109,7 +109,7 @@ class BOSerWebAPI(BOSMinerWebAPI):
             return await self.gql.send_command(command)
         elif command_type == "grpc":
             try:
-                return await (getattr(self.grpc, command.replace("grpc_", "")))()
+                return await getattr(self.grpc, command.replace("grpc_", ""))()
             except AttributeError:
                 raise APIError(f"No gRPC command found for command: {command}")
         elif command_type == "luci":

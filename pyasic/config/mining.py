@@ -43,6 +43,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_auradine(self) -> dict:
+        return {"mode": {"mode": self.mode}}
+
 
 @dataclass
 class MiningModeSleep(MinerConfigValue):
@@ -57,6 +60,9 @@ class MiningModeSleep(MinerConfigValue):
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
+
+    def as_auradine(self) -> dict:
+        return {"mode": {"sleep": "on"}}
 
 
 @dataclass
@@ -73,6 +79,9 @@ class MiningModeLPM(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_auradine(self) -> dict:
+        return {"mode": {"mode": "eco"}}
+
 
 @dataclass
 class MiningModeHPM(MinerConfigValue):
@@ -87,6 +96,9 @@ class MiningModeHPM(MinerConfigValue):
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
+
+    def as_auradine(self) -> dict:
+        return {"mode": {"mode": "turbo"}}
 
 
 @dataclass
@@ -123,6 +135,9 @@ class MiningModePowerTune(MinerConfigValue):
             ),
         }
 
+    def as_auradine(self) -> dict:
+        return {"mode": {"mode": "custom", "tune": "power", "power": self.power}}
+
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
@@ -151,6 +166,9 @@ class MiningModeHashrateTune(MinerConfigValue):
                 ),
             )
         }
+
+    def as_auradine(self) -> dict:
+        return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
 
 
 @dataclass
@@ -330,3 +348,22 @@ class MiningModeConfig(MinerConfigOption):
             return cls.hashrate_tuning(
                 int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
             )
+
+    @classmethod
+    def from_auradine(cls, web_mode: dict):
+        try:
+            mode_data = web_mode["Mode"][0]
+            if mode_data.get("Sleep") == "on":
+                return cls.sleep()
+            if mode_data.get("Mode") == "normal":
+                return cls.normal()
+            if mode_data.get("Mode") == "eco":
+                return cls.low()
+            if mode_data.get("Mode") == "turbo":
+                return cls.high()
+            if mode_data.get("Ths") is not None:
+                return cls.hashrate_tuning(mode_data["Ths"])
+            if mode_data.get("Power") is not None:
+                return cls.power_tuning(mode_data["Power"])
+        except LookupError:
+            return cls.default()

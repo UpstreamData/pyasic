@@ -28,7 +28,7 @@ class InnosiliconWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "admin"
-        self.pwd = settings.get("default_innosilicon_password", "admin")
+        self.pwd = settings.get("default_innosilicon_web_password", "admin")
         self.jwt = None
 
     async def auth(self):
@@ -52,7 +52,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         **parameters: Union[str, int, bool],
     ) -> dict:
-        if not self.jwt:
+        if self.jwt is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for _ in range(settings.get("get_data_retries", 1)):

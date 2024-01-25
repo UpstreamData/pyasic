@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .antminer import AntminerModern, AntminerOld
+from .auradine import Auradine
 from .avalonminer import AvalonMiner
 from .bfgminer import BFGMiner
 from .bmminer import BMMiner
@@ -23,6 +24,7 @@ from .cgminer import CGMiner
 from .epic import ePIC
 from .goldshell import GoldshellMiner
 from .hiveon import Hiveon
+from .innosilicon import Innosilicon
 from .luxminer import LUXMiner
 from .vnish import VNish
 from .whatsminer import M2X, M3X, M5X, M6X

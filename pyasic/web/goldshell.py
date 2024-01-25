@@ -27,7 +27,7 @@ class GoldshellWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.username = "admin"
-        self.pwd = settings.get("default_goldshell_password", "123456789")
+        self.pwd = settings.get("default_goldshell_web_password", "123456789")
         self.jwt = None
 
     async def auth(self):
@@ -69,7 +69,7 @@ class GoldshellWebAPI(BaseWebAPI):
         if parameters.get("pool_pwd"):
             parameters["pass"] = parameters["pool_pwd"]
             parameters.pop("pool_pwd")
-        if not self.jwt:
+        if self.jwt is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for _ in range(settings.get("get_data_retries", 1)):
