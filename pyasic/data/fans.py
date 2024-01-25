@@ -14,19 +14,40 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.rpc.cgminer import CGMinerRPCAPI
+import copy
+import json
+import time
+from dataclasses import asdict, dataclass, field, fields
+from datetime import datetime, timezone
+from typing import Any, List, Union
+
+from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModePowerTune
+
+from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 
 
-class BMMinerRPCAPI(CGMinerRPCAPI):
-    """An abstraction of the BMMiner API.
+@dataclass
+class Fan:
+    """A Dataclass to standardize fan data.
 
-    Each method corresponds to an API command in BMMiner.
-
-    [BMMiner API documentation](https://github.com/jameshilliard/bmminer/blob/master/API-README)
-
-    This class abstracts use of the BMMiner API, as well as the
-    methods for sending commands to it.  The `self.send_command()`
-    function handles sending a command to the miner asynchronously, and
-    as such is the base for many of the functions in this class, which
-    rely on it to send the command for them.
+    Attributes:
+        speed: The speed of the fan.
     """
+
+    speed: int = None
+
+    def get(self, __key: str, default: Any = None):
+        try:
+            val = self.__getitem__(__key)
+            if val is None:
+                return default
+            return val
+        except KeyError:
+            return default
+
+    def __getitem__(self, item: str):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"{item}")

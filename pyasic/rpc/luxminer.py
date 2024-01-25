@@ -30,9 +30,6 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
     function handles sending a command to the miner asynchronously, and
     as such is the base for many of the functions in this class, which
     rely on it to send the command for them.
-
-    Parameters:
-        ip: The IP of the miner to reference the API on.
     """
 
     async def addgroup(self, name: str, quota: int) -> dict:

@@ -24,7 +24,7 @@ from pyasic.miners.factory import AnyMiner, miner_factory
 
 
 class MinerNetwork:
-    """A class to handle a network containing miners. Handles scanning and gets miners via [`MinerFactory`][pyasic.miners.miner_factory.MinerFactory].
+    """A class to handle a network containing miners. Handles scanning and gets miners via [`MinerFactory`][pyasic.miners.factory.MinerFactory].
 
     Parameters:
         hosts: A list of `ipaddress.IPv4Address` to be used when scanning.

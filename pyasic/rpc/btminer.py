@@ -180,9 +180,6 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
     encoded using a token from the miner, all privileged commands do
     this automatically for you and will decode the output to look like
     a normal output from a miner API.
-
-    Parameters:
-        ip: The IP of the miner to reference the API on.
     """
 
     def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0") -> None:
