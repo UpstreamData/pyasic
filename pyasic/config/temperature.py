@@ -44,6 +44,8 @@ class TemperatureConfig(MinerConfigValue):
         temps_config = {"temps": {}, "fans": {"Auto": {}}}
         if self.target is not None:
             temps_config["fans"]["Target Temperature"] = self.target
+        else:
+            temps_config["fans"]["Target Temperature"] = 60
         if self.danger is not None:
             temps_config["temps"]["shutdown"] = self.danger
         return temps_config

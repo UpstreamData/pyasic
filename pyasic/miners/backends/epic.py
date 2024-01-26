@@ -113,7 +113,7 @@ class ePIC(BaseMiner):
 
         try:
             # Temps
-            if not conf["temps"] == {}:
+            if not conf.get("temps", {}) == {}:
                 await self.web.set_shutdown_temp(conf["temps"]["shutdown"])
             # Fans
             if not conf["fans"].get("Manual", {}) == {}:
