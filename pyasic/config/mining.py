@@ -47,6 +47,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_auradine(self) -> dict:
         return {"mode": {"mode": self.mode}}
 
+    def as_epic(self) -> dict:
+        return {"ptune": {"enabled": False}}
+
 
 @dataclass
 class MiningModeSleep(MinerConfigValue):
@@ -64,6 +67,9 @@ class MiningModeSleep(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"mode": {"sleep": "on"}}
+
+    def as_epic(self) -> dict:
+        return {"ptune": {"algo": "Sleep", "target": 0}}
 
 
 @dataclass
@@ -102,14 +108,52 @@ class MiningModeHPM(MinerConfigValue):
         return {"mode": {"mode": "turbo"}}
 
 
+class StandardPowerTuneAlgo(MinerConfigValue):
+    mode: str = field(init=False, default="standard")
+
+    def as_epic(self):
+        return VOptPowerTuneAlgo().as_epic()
+
+
+class VOptPowerTuneAlgo(MinerConfigValue):
+    mode: str = field(init=False, default="standard")
+
+    def as_epic(self):
+        return "VoltageOptimizer"
+
+
+class ChipTunePowerTuneAlgo(MinerConfigValue):
+    mode: str = field(init=False, default="standard")
+
+    def as_epic(self):
+        return "ChipTune"
+
+
+class PowerTunerAlgo(MinerConfigOption):
+    standard = StandardPowerTuneAlgo
+    voltage_optimizer = VOptPowerTuneAlgo
+    chip_tune = ChipTunePowerTuneAlgo
+
+    @classmethod
+    def default(cls):
+        return cls.standard()
+
+
 @dataclass
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
+    algo: PowerTunerAlgo = PowerTunerAlgo.default()
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
-        return cls(dict_conf.get("power"))
+        cls_conf = {}
+        if dict_conf.get("power"):
+            cls_conf["power"] = dict_conf["power"]
+        if dict_conf.get("algo"):
+            cls_conf["algo"] = dict_conf["algo"]
+
+        return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
         return {"miner-mode": "0"}
@@ -138,6 +182,9 @@ class MiningModePowerTune(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "power", "power": self.power}}
+
+    def as_epic(self) -> dict:
+        return {"ptune": {**self.algo.as_epic(), "target": self.power}}
 
 
 @dataclass
@@ -262,20 +309,18 @@ class MiningModeConfig(MinerConfigOption):
     @classmethod
     def from_epic(cls, web_conf: dict):
         try:
-            work_mode = web_conf["PerpetualTune"]["Running"]
-            if work_mode:
-                if (
-                    web_conf["PerpetualTune"]["Algorithm"].get("VoltageOptimizer")
-                    is not None
-                ):
-                    return cls.hashrate_tuning(
-                        web_conf["PerpetualTune"]["Algorithm"]["VoltageOptimizer"][
-                            "Target"
-                        ]
+            tuner_running = web_conf["PerpetualTune"]["Running"]
+            if tuner_running:
+                algo_info = web_conf["PerpetualTune"]["Algorithm"]
+                if algo_info.get("VoltageOptimizer") is not None:
+                    return cls.power_tuning(
+                        power=algo_info["VoltageOptimizer"]["Target"],
+                        algo=PowerTunerAlgo.voltage_optimizer,
                     )
                 else:
-                    return cls.hashrate_tuning(
-                        web_conf["PerpetualTune"]["Algorithm"]["ChipTune"]["Target"]
+                    return cls.power_tuning(
+                        power=algo_info["ChipTune"]["Target"],
+                        algo=PowerTunerAlgo.chip_tune,
                     )
             else:
                 return cls.normal()

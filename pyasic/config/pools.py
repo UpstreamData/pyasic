@@ -109,6 +109,15 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
 
+    def as_epic(self, user_suffix: str = None):
+        if user_suffix is not None:
+            return {
+                "pool": self.url,
+                "login": f"{self.user}{user_suffix}",
+                "password": self.password,
+            }
+        return {"pool": self.url, "login": self.user, "password": self.password}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
         return cls(
@@ -255,6 +264,17 @@ class PoolGroup(MinerConfigValue):
     def as_auradine(self, user_suffix: str = None) -> list:
         return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
 
+    def as_epic(self, user_suffix: str = None) -> dict:
+        if len(self.pools) > 0:
+            conf = {
+                "name": self.name,
+                "pool": [pool.as_epic(user_suffix=user_suffix) for pool in self.pools],
+            }
+            if self.quota is not None:
+                conf["quota"] = self.quota
+            return conf
+        return {"name": self.name, "pool": []}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
         cls_conf = {}
@@ -395,6 +415,25 @@ class PoolConfig(MinerConfigValue):
                 }
             }
         return {"updatepools": {"pools": PoolGroup().as_auradine()}}
+
+    def as_epic(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {
+                "pools": {
+                    "coin": "Btc",
+                    "stratum_configs": [
+                        g.as_epic(user_suffix=user_suffix) for g in self.groups
+                    ],
+                    "unique_id": False,
+                }
+            }
+        return {
+            "pools": {
+                "coin": "Btc",
+                "stratum_configs": [PoolGroup().as_epic()],
+                "unique_id": False,
+            }
+        }
 
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":

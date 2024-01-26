@@ -40,6 +40,16 @@ class TemperatureConfig(MinerConfigValue):
             temp_cfg["dangerous_temp"] = self.danger
         return {"temp_control": temp_cfg}
 
+    def as_epic(self) -> dict:
+        temps_config = {"temps": {}, "fans": {"Auto": {}}}
+        if self.target is not None:
+            temps_config["fans"]["Target Temperature"] = self.target
+        else:
+            temps_config["fans"]["Target Temperature"] = 60
+        if self.danger is not None:
+            temps_config["temps"]["shutdown"] = self.danger
+        return temps_config
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "TemperatureConfig":
         return cls(

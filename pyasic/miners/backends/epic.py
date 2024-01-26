@@ -107,6 +107,30 @@ class ePIC(BaseMiner):
         self.config = cfg
         return self.config
 
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
+        conf = self.config.as_epic(user_suffix=user_suffix)
+
+        try:
+            # Temps
+            if not conf.get("temps", {}) == {}:
+                await self.web.set_shutdown_temp(conf["temps"]["shutdown"])
+            # Fans
+            if not conf["fans"].get("Manual", {}) == {}:
+                await self.web.set_fan({"Manual": conf["fans"]["Manual"]})
+            elif not conf["fans"].get("Auto", {}) == {}:
+                await self.web.set_fan({"Auto": conf["fans"]["Auto"]})
+
+            # Mining Mode -- Need to handle that you may not be able to change while miner is tuning
+            if conf["ptune"].get("enabled", True):
+                await self.web.set_ptune_enable(True)
+                await self.web.set_ptune_algo(**conf["ptune"])
+
+            ## Pools
+            await self.web.set_pools(conf["pools"])
+        except APIError:
+            pass
+
     async def restart_backend(self) -> bool:
         data = await self.web.restart_epic()
         if data:

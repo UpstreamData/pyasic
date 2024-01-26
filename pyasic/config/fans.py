@@ -50,6 +50,17 @@ class FanModeNormal(MinerConfigValue):
     def as_bosminer(self) -> dict:
         return {"temp_control": {"mode": "auto"}}
 
+    def as_epic(self) -> dict:
+        return {
+            "fans": {
+                "Auto": {
+                    "Idle Speed": self.minimum_speed
+                    if not self.minimum_speed == 0
+                    else 100
+                }
+            }
+        }
+
 
 @dataclass
 class FanModeManual(MinerConfigValue):
@@ -95,6 +106,9 @@ class FanModeManual(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"fan": {"percentage": self.speed}}
+
+    def as_epic(self) -> dict:
+        return {"fans": {"Manual": {"speed": self.speed}}}
 
 
 @dataclass
