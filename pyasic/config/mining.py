@@ -143,7 +143,7 @@ class PowerTunerAlgo(MinerConfigOption):
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
-    algo: PowerTunerAlgo = PowerTunerAlgo.default()
+    algo: PowerTunerAlgo = field(default_factory=PowerTunerAlgo.default)
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
