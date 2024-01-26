@@ -424,14 +424,14 @@ class PoolConfig(MinerConfigValue):
                     "stratum_configs": [
                         g.as_epic(user_suffix=user_suffix) for g in self.groups
                     ],
-                    "unique_id": True,
+                    "unique_id": False,
                 }
             }
         return {
             "pools": {
                 "coin": "Btc",
                 "stratum_configs": [PoolGroup().as_epic()],
-                "unique_id": True,
+                "unique_id": False,
             }
         }
 
