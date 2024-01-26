@@ -94,6 +94,21 @@ class ePICWebAPI(BaseWebAPI):
     async def reboot(self) -> dict:
         return await self.send_command("reboot", privileged=True)
 
+    async def set_shutdown_temp(self, params: int) -> dict:
+        return await self.send_command("shutdowntemp", parameters=params)
+
+    async def set_fan(self, params: dict) -> dict:
+        return await self.send_command("fanspeed", parameters=params)
+
+    async def set_ptune_enable(self, params: bool) -> dict:
+        return await self.send_command("perpetualtune", parameters=params)
+
+    async def set_ptune_algo(self, params: dict) -> dict:
+        return await self.send_command("perpetualtune/algo", parameters=params)
+
+    async def set_pools(self, params: dict) -> dict:
+        return await self.send_command("coin", parameters=params)
+
     async def pause_mining(self) -> dict:
         return await self.send_command("miner", param="Stop")
 

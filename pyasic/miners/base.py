@@ -24,7 +24,6 @@ from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
-from pyasic.rpc.base import BaseMinerRPCAPI
 
 
 class MinerProtocol(Protocol):

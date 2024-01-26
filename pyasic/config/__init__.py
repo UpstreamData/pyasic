@@ -110,10 +110,9 @@ class MinerConfig:
 
     def as_epic(self, user_suffix: str = None) -> dict:
         return {
-            **self.fan_mode.as_epic(),
-            **self.temperature.as_epic(),
+            **merge_dicts(self.fan_mode.as_epic(), self.temperature.as_epic()),
             **self.mining_mode.as_epic(),
-            **self.pools.as_epic(),
+            **self.pools.as_epic(user_suffix=user_suffix),
             **self.power_scaling.as_epic(),
         }
 
