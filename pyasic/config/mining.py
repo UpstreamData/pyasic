@@ -111,21 +111,21 @@ class MiningModeHPM(MinerConfigValue):
 class StandardPowerTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
-    def as_epic(self):
+    def as_epic(self) -> str:
         return VOptPowerTuneAlgo().as_epic()
 
 
 class VOptPowerTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
-    def as_epic(self):
+    def as_epic(self) -> str:
         return "VoltageOptimizer"
 
 
 class ChipTunePowerTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
-    def as_epic(self):
+    def as_epic(self) -> str:
         return "ChipTune"
 
 
