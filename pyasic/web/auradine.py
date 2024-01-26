@@ -24,6 +24,7 @@ import httpx
 
 from pyasic import settings
 from pyasic.errors import APIError
+from pyasic.misc import validate_command_output
 from pyasic.web.base import BaseWebAPI
 
 
@@ -87,7 +88,7 @@ class AuradineWebAPI(BaseWebAPI):
                             timeout=settings.get("api_function_timeout", 5),
                         )
                     json_data = response.json()
-                    validation = self._validate_command_output(json_data)
+                    validation = validate_command_output(json_data)
                     if not validation[0]:
                         if i == settings.get("get_data_retries", 1):
                             raise APIError(validation[1])
@@ -121,48 +122,6 @@ class AuradineWebAPI(BaseWebAPI):
                 pass
 
         return data
-
-    @staticmethod
-    def _validate_command_output(data: dict) -> tuple:
-        # check if the data returned is correct or an error
-        # if status isn't a key, it is a multicommand
-        if "STATUS" not in data.keys():
-            for key in data.keys():
-                # make sure not to try to turn id into a dict
-                if not key == "id":
-                    # make sure they succeeded
-                    if "STATUS" in data[key][0].keys():
-                        if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
-                            # this is an error
-                            return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
-        elif "id" not in data.keys():
-            if isinstance(data["STATUS"], list):
-                if data["STATUS"][0].get("STATUS", None) in ["S", "I"]:
-                    return True, None
-                else:
-                    return False, data["STATUS"][0]["Msg"]
-
-            elif isinstance(data["STATUS"], dict):
-                # new style X19 command
-                if data["STATUS"]["STATUS"] not in ["S", "I"]:
-                    return False, data["STATUS"]["Msg"]
-                return True, None
-
-            if data["STATUS"] not in ["S", "I"]:
-                return False, data["Msg"]
-        else:
-            # make sure the command succeeded
-            if isinstance(data["STATUS"], str):
-                if data["STATUS"] in ["RESTART"]:
-                    return True, None
-            elif isinstance(data["STATUS"], dict):
-                if data["STATUS"].get("STATUS") in ["S", "I"]:
-                    return True, None
-            elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                # this is an error
-                if data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                    return False, data["STATUS"][0]["Msg"]
-        return True, None
 
     async def factory_reset(self) -> dict:
         return await self.send_command("factory-reset", privileged=True)

@@ -49,6 +49,23 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
         ).encode("utf-8")
 
     def get_success_value(self, command: str):
+        if self.api_str == "BTMiner" and command == "status":
+            return json.dumps(
+                {
+                    "STATUS": "S",
+                    "When": 1706287567,
+                    "Code": 131,
+                    "Msg": {
+                        "mineroff": "false",
+                        "mineroff_reason": "",
+                        "mineroff_time": "",
+                        "FirmwareVersion": "20230911.12.Rel",
+                        "power_mode": "",
+                        "hash_percent": "",
+                    },
+                    "Description": "",
+                }
+            ).encode("utf-8")
         return json.dumps(
             {
                 "STATUS": [

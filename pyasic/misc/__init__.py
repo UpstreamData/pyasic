@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from copy import deepcopy
 
 from pyasic.errors import APIError
@@ -80,3 +82,28 @@ def merge_dicts(a: dict, b: dict) -> dict:
         else:
             result[b_key] = deepcopy(b_val)
     return result
+
+
+def validate_command_output(data: dict) -> tuple[bool, str | None]:
+    if "STATUS" in data.keys():
+        status = data["STATUS"]
+        if isinstance(status, str):
+            if status in ["RESTART"]:
+                return True, None
+            status = data
+        if isinstance(status, list):
+            status = status[0]
+
+        if status.get("STATUS") in ["S", "I"]:
+            return True, None
+        else:
+            return False, status.get("Msg", "Unknown error")
+    else:
+        for key in data.keys():
+            # make sure not to try to turn id into a dict
+            if key == "id":
+                continue
+            if "STATUS" in data[key][0].keys():
+                if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
+                    # this is an error
+                    return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]

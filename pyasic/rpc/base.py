@@ -23,6 +23,7 @@ import warnings
 from typing import Union
 
 from pyasic.errors import APIError, APIWarning
+from pyasic.misc import validate_command_output
 
 
 class BaseMinerRPCAPI:
@@ -85,7 +86,7 @@ class BaseMinerRPCAPI:
         data = self._load_api_data(data)
 
         # check for if the user wants to allow errors to return
-        validation = self._validate_command_output(data)
+        validation = validate_command_output(data)
         if not validation[0]:
             if not ignore_errors:
                 # validate the command succeeded
@@ -247,48 +248,6 @@ If you are sure you want to use this command please use API.send_command("{comma
         await writer.wait_closed()
 
         return ret_data
-
-    @staticmethod
-    def _validate_command_output(data: dict) -> tuple:
-        # check if the data returned is correct or an error
-        # if status isn't a key, it is a multicommand
-        if "STATUS" not in data.keys():
-            for key in data.keys():
-                # make sure not to try to turn id into a dict
-                if not key == "id":
-                    # make sure they succeeded
-                    if "STATUS" in data[key][0].keys():
-                        if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
-                            # this is an error
-                            return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
-        elif "id" not in data.keys():
-            if isinstance(data["STATUS"], list):
-                if data["STATUS"][0].get("STATUS", None) in ["S", "I"]:
-                    return True, None
-                else:
-                    return False, data["STATUS"][0]["Msg"]
-
-            elif isinstance(data["STATUS"], dict):
-                # new style X19 command
-                if data["STATUS"]["STATUS"] not in ["S", "I"]:
-                    return False, data["STATUS"]["Msg"]
-                return True, None
-
-            if data["STATUS"] not in ["S", "I"]:
-                return False, data["Msg"]
-        else:
-            # make sure the command succeeded
-            if isinstance(data["STATUS"], str):
-                if data["STATUS"] in ["RESTART"]:
-                    return True, None
-            elif isinstance(data["STATUS"], dict):
-                if data["STATUS"].get("STATUS") in ["S", "I"]:
-                    return True, None
-            elif data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                # this is an error
-                if data["STATUS"][0]["STATUS"] not in ("S", "I"):
-                    return False, data["STATUS"][0]["Msg"]
-        return True, None
 
     @staticmethod
     def _load_api_data(data: bytes) -> dict:
