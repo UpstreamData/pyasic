@@ -36,7 +36,7 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
@@ -48,15 +48,15 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
@@ -68,11 +68,11 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -172,18 +172,18 @@ class VNish(BMMiner):
             except KeyError:
                 pass
 
-    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
                 return round(
-                    float(float(api_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
+                    float(float(rpc_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
                 )
             except (LookupError, ValueError, TypeError):
                 pass

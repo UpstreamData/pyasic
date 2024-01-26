@@ -24,15 +24,16 @@ from pyasic.data.error_codes import MinerErrorData
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
+from pyasic.rpc.base import BaseMinerRPCAPI
 
 
 class MinerProtocol(Protocol):
-    _api_cls: Type = None
+    _rpc_cls: Type = None
     _web_cls: Type = None
     _ssh_cls: Type = None
 
     ip: str = None
-    api: _api_cls = None
+    rpc: _rpc_cls = None
     web: _web_cls = None
     ssh: _ssh_cls = None
 
@@ -72,6 +73,10 @@ class MinerProtocol(Protocol):
         if self.firmware is not None:
             model_data.append(f"({self.firmware})")
         return " ".join(model_data)
+
+    @property
+    def api(self):
+        return self.rpc
 
     async def check_light(self) -> bool:
         return await self.get_fault_light()
@@ -488,8 +493,8 @@ class BaseMiner(MinerProtocol):
             )
 
         # interfaces
-        if self._api_cls is not None:
-            self.api = self._api_cls(ip)
+        if self._rpc_cls is not None:
+            self.rpc = self._rpc_cls(ip)
         if self._web_cls is not None:
             self.web = self._web_cls(ip)
         if self._ssh_cls is not None:

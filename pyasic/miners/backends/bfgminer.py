@@ -27,27 +27,27 @@ BFGMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -56,82 +56,82 @@ BFGMINER_DATA_LOC = DataLocations(
 class BFGMiner(BaseMiner):
     """Base handler for BFGMiner based miners."""
 
-    _api_cls = BFGMinerRPCAPI
-    api: BFGMinerRPCAPI
+    _rpc_cls = BFGMinerRPCAPI
+    rpc: BFGMinerRPCAPI
 
     data_locations = BFGMINER_DATA_LOC
 
     async def get_config(self) -> MinerConfig:
         # get pool data
         try:
-            pools = await self.api.pools()
+            pools = await self.rpc.pools()
         except APIError:
             return self.config
 
-        self.config = MinerConfig.from_api(pools)
+        self.config = MinerConfig.from_rpc(pools)
         return self.config
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_api_ver(self, api_version: dict = None) -> Optional[str]:
-        if api_version is None:
+    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
             try:
-                api_version = await self.api.version()
+                rpc_version = await self.rpc.version()
             except APIError:
                 pass
 
-        if api_version is not None:
+        if rpc_version is not None:
             try:
-                self.api_ver = api_version["VERSION"][0]["API"]
+                self.rpc_ver = rpc_version["VERSION"][0]["API"]
             except LookupError:
                 pass
 
-        return self.api_ver
+        return self.rpc_ver
 
-    async def _get_fw_ver(self, api_version: dict = None) -> Optional[str]:
-        if api_version is None:
+    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
             try:
-                api_version = await self.api.version()
+                rpc_version = await self.rpc.version()
             except APIError:
                 pass
 
-        if api_version is not None:
+        if rpc_version is not None:
             try:
-                self.fw_ver = api_version["VERSION"][0]["CompileTime"]
+                self.fw_ver = rpc_version["VERSION"][0]["CompileTime"]
             except LookupError:
                 pass
 
         return self.fw_ver
 
-    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
         # get hr from API
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 20s"] / 1000000), 2)
+                return round(float(rpc_summary["SUMMARY"][0]["MHS 20s"] / 1000000), 2)
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
                 board_offset = -1
-                boards = api_stats["STATS"]
+                boards = rpc_stats["STATS"]
                 if len(boards) > 1:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
@@ -173,28 +173,28 @@ class BFGMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if api_stats is None:
+    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
         fans_data = [None, None, None, None]
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
                 fan_offset = -1
 
                 for fan_num in range(0, 8, 4):
                     for _f_num in range(4):
-                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
+                        f = rpc_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
                         if not f == 0 and fan_offset == -1:
                             fan_offset = fan_num
                 if fan_offset == -1:
                     fan_offset = 1
 
                 for fan in range(self.expected_fans):
-                    fans_data[fan] = api_stats["STATS"][1].get(
+                    fans_data[fan] = rpc_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
             except LookupError:
@@ -203,19 +203,19 @@ class BFGMiner(BaseMiner):
 
         return fans
 
-    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
         # X19 method, not sure compatibility
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                expected_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
                 try:
-                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":

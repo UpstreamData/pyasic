@@ -30,81 +30,81 @@ BTMINER_DATA_LOC = DataLocations(
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
             [
-                RPCAPICommand("api_summary", "summary"),
-                RPCAPICommand("api_get_miner_info", "get_miner_info"),
+                RPCAPICommand("rpc_summary", "summary"),
+                RPCAPICommand("rpc_get_miner_info", "get_miner_info"),
             ],
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_get_version", "get_version")],
+            [RPCAPICommand("rpc_get_version", "get_version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
             [
-                RPCAPICommand("api_get_version", "get_version"),
-                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("rpc_get_version", "get_version"),
+                RPCAPICommand("rpc_summary", "summary"),
             ],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
             "_get_hostname",
-            [RPCAPICommand("api_get_miner_info", "get_miner_info")],
+            [RPCAPICommand("rpc_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_devs", "devs")],
+            [RPCAPICommand("rpc_devs", "devs")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [
-                RPCAPICommand("api_summary", "summary"),
-                RPCAPICommand("api_get_psu", "get_psu"),
+                RPCAPICommand("rpc_summary", "summary"),
+                RPCAPICommand("rpc_get_psu", "get_psu"),
             ],
         ),
         str(DataOptions.FAN_PSU): DataFunction(
             "_get_fan_psu",
             [
-                RPCAPICommand("api_summary", "summary"),
-                RPCAPICommand("api_get_psu", "get_psu"),
+                RPCAPICommand("rpc_summary", "summary"),
+                RPCAPICommand("rpc_get_psu", "get_psu"),
             ],
         ),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
             [
-                RPCAPICommand("api_get_error_code", "get_error_code"),
-                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("rpc_get_error_code", "get_error_code"),
+                RPCAPICommand("rpc_summary", "summary"),
             ],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
-            [RPCAPICommand("api_get_miner_info", "get_miner_info")],
+            [RPCAPICommand("rpc_get_miner_info", "get_miner_info")],
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
-            [RPCAPICommand("api_status", "status")],
+            [RPCAPICommand("rpc_status", "status")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
     }
 )
@@ -113,16 +113,16 @@ BTMINER_DATA_LOC = DataLocations(
 class BTMiner(BaseMiner):
     """Base handler for BTMiner based miners."""
 
-    _api_cls = BTMinerRPCAPI
-    api: BTMinerRPCAPI
+    _rpc_cls = BTMinerRPCAPI
+    rpc: BTMinerRPCAPI
 
     data_locations = BTMINER_DATA_LOC
 
     supports_shutdown = True
 
-    async def _reset_api_pwd_to_admin(self, pwd: str):
+    async def _reset_rpc_pwd_to_admin(self, pwd: str):
         try:
-            data = await self.api.update_pwd(pwd, "admin")
+            data = await self.rpc.update_pwd(pwd, "admin")
         except APIError:
             return False
         if data:
@@ -133,7 +133,7 @@ class BTMiner(BaseMiner):
 
     async def fault_light_off(self) -> bool:
         try:
-            data = await self.api.set_led(auto=True)
+            data = await self.rpc.set_led(auto=True)
         except APIError:
             return False
         if data:
@@ -145,8 +145,8 @@ class BTMiner(BaseMiner):
 
     async def fault_light_on(self) -> bool:
         try:
-            data = await self.api.set_led(auto=False)
-            await self.api.set_led(
+            data = await self.rpc.set_led(auto=False)
+            await self.rpc.set_led(
                 auto=False, color="green", start=0, period=1, duration=0
             )
         except APIError:
@@ -160,7 +160,7 @@ class BTMiner(BaseMiner):
 
     async def reboot(self) -> bool:
         try:
-            data = await self.api.reboot()
+            data = await self.rpc.reboot()
         except APIError:
             return False
         if data.get("Msg"):
@@ -170,7 +170,7 @@ class BTMiner(BaseMiner):
 
     async def restart_backend(self) -> bool:
         try:
-            data = await self.api.restart()
+            data = await self.rpc.restart()
         except APIError:
             return False
         if data.get("Msg"):
@@ -180,7 +180,7 @@ class BTMiner(BaseMiner):
 
     async def stop_mining(self) -> bool:
         try:
-            data = await self.api.power_off(respbefore=True)
+            data = await self.rpc.power_off(respbefore=True)
         except APIError:
             return False
         if data.get("Msg"):
@@ -190,7 +190,7 @@ class BTMiner(BaseMiner):
 
     async def resume_mining(self) -> bool:
         try:
-            data = await self.api.power_on()
+            data = await self.rpc.power_on()
         except APIError:
             return False
         if data.get("Msg"):
@@ -205,16 +205,16 @@ class BTMiner(BaseMiner):
         pools_conf = conf["pools"]
 
         try:
-            await self.api.update_pools(**pools_conf)
+            await self.rpc.update_pools(**pools_conf)
 
             if conf["mode"] == "normal":
-                await self.api.set_normal_power()
+                await self.rpc.set_normal_power()
             elif conf["mode"] == "high":
-                await self.api.set_high_power()
+                await self.rpc.set_high_power()
             elif conf["mode"] == "low":
-                await self.api.set_low_power()
+                await self.rpc.set_low_power()
             elif conf["mode"] == "power_tuning":
-                await self.api.adjust_power_limit(conf["power_tuning"]["wattage"])
+                await self.rpc.adjust_power_limit(conf["power_tuning"]["wattage"])
         except APIError:
             # cannot update, no API access usually
             pass
@@ -224,7 +224,7 @@ class BTMiner(BaseMiner):
         summary = None
         status = None
         try:
-            data = await self.api.multicommand("pools", "summary", "status")
+            data = await self.rpc.multicommand("pools", "summary", "status")
             pools = data["pools"][0]
             summary = data["summary"][0]
             status = data["status"][0]
@@ -234,7 +234,7 @@ class BTMiner(BaseMiner):
             pass
 
         if pools is not None:
-            cfg = MinerConfig.from_api(pools)
+            cfg = MinerConfig.from_rpc(pools)
         else:
             cfg = MinerConfig()
 
@@ -271,7 +271,7 @@ class BTMiner(BaseMiner):
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
-            await self.api.adjust_power_limit(wattage)
+            await self.rpc.adjust_power_limit(wattage)
         except Exception as e:
             logging.warning(f"{self} set_power_limit: {e}")
             return False
@@ -283,85 +283,85 @@ class BTMiner(BaseMiner):
     ##################################################
 
     async def _get_mac(
-        self, api_summary: dict = None, api_get_miner_info: dict = None
+        self, rpc_summary: dict = None, rpc_get_miner_info: dict = None
     ) -> Optional[str]:
-        if api_get_miner_info is None:
+        if rpc_get_miner_info is None:
             try:
-                api_get_miner_info = await self.api.get_miner_info()
+                rpc_get_miner_info = await self.rpc.get_miner_info()
             except APIError:
                 pass
 
-        if api_get_miner_info is not None:
+        if rpc_get_miner_info is not None:
             try:
-                mac = api_get_miner_info["Msg"]["mac"]
+                mac = rpc_get_miner_info["Msg"]["mac"]
                 return str(mac).upper()
             except KeyError:
                 pass
 
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                mac = api_summary["SUMMARY"][0]["MAC"]
+                mac = rpc_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
             except LookupError:
                 pass
 
-    async def _get_api_ver(self, api_get_version: dict = None) -> Optional[str]:
-        if api_get_version is None:
+    async def _get_api_ver(self, rpc_get_version: dict = None) -> Optional[str]:
+        if rpc_get_version is None:
             try:
-                api_get_version = await self.api.get_version()
+                rpc_get_version = await self.rpc.get_version()
             except APIError:
                 pass
 
-        if api_get_version is not None:
-            if "Code" in api_get_version.keys():
-                if api_get_version["Code"] == 131:
+        if rpc_get_version is not None:
+            if "Code" in rpc_get_version.keys():
+                if rpc_get_version["Code"] == 131:
                     try:
-                        api_ver = api_get_version["Msg"]
-                        if not isinstance(api_ver, str):
-                            api_ver = api_ver["api_ver"]
-                        self.api_ver = api_ver.replace("whatsminer v", "")
+                        rpc_ver = rpc_get_version["Msg"]
+                        if not isinstance(rpc_ver, str):
+                            rpc_ver = rpc_ver["rpc_ver"]
+                        self.rpc_ver = rpc_ver.replace("whatsminer v", "")
                     except (KeyError, TypeError):
                         pass
                     else:
-                        self.api.api_ver = self.api_ver
-                        return self.api_ver
+                        self.rpc.rpc_ver = self.rpc_ver
+                        return self.rpc_ver
 
-        return self.api_ver
+        return self.rpc_ver
 
     async def _get_fw_ver(
-        self, api_get_version: dict = None, api_summary: dict = None
+        self, rpc_get_version: dict = None, rpc_summary: dict = None
     ) -> Optional[str]:
-        if api_get_version is None:
+        if rpc_get_version is None:
             try:
-                api_get_version = await self.api.get_version()
+                rpc_get_version = await self.rpc.get_version()
             except APIError:
                 pass
 
-        if api_get_version is not None:
-            if "Code" in api_get_version.keys():
-                if api_get_version["Code"] == 131:
+        if rpc_get_version is not None:
+            if "Code" in rpc_get_version.keys():
+                if rpc_get_version["Code"] == 131:
                     try:
-                        self.fw_ver = api_get_version["Msg"]["fw_ver"]
+                        self.fw_ver = rpc_get_version["Msg"]["fw_ver"]
                     except (KeyError, TypeError):
                         pass
                     else:
                         return self.fw_ver
 
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary:
+        if rpc_summary:
             try:
-                self.fw_ver = api_summary["SUMMARY"][0]["Firmware Version"].replace(
+                self.fw_ver = rpc_summary["SUMMARY"][0]["Firmware Version"].replace(
                     "'", ""
                 )
             except LookupError:
@@ -369,50 +369,50 @@ class BTMiner(BaseMiner):
 
         return self.fw_ver
 
-    async def _get_hostname(self, api_get_miner_info: dict = None) -> Optional[str]:
+    async def _get_hostname(self, rpc_get_miner_info: dict = None) -> Optional[str]:
         hostname = None
-        if api_get_miner_info is None:
+        if rpc_get_miner_info is None:
             try:
-                api_get_miner_info = await self.api.get_miner_info()
+                rpc_get_miner_info = await self.rpc.get_miner_info()
             except APIError:
                 return None  # only one way to get this
 
-        if api_get_miner_info is not None:
+        if rpc_get_miner_info is not None:
             try:
-                hostname = api_get_miner_info["Msg"]["hostname"]
+                hostname = rpc_get_miner_info["Msg"]["hostname"]
             except KeyError:
                 return None
 
         return hostname
 
-    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if api_summary is None:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except LookupError:
                 pass
 
-    async def _get_hashboards(self, api_devs: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_devs: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
 
-        if api_devs is None:
+        if rpc_devs is None:
             try:
-                api_devs = await self.api.devs()
+                rpc_devs = await self.rpc.devs()
             except APIError:
                 pass
 
-        if api_devs is not None:
+        if rpc_devs is not None:
             try:
-                for board in api_devs["DEVS"]:
+                for board in rpc_devs["DEVS"]:
                     if len(hashboards) < board["ASC"] + 1:
                         hashboards.append(
                             HashBoard(
@@ -433,62 +433,62 @@ class BTMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_env_temp(self, api_summary: dict = None) -> Optional[float]:
-        if api_summary is None:
+    async def _get_env_temp(self, rpc_summary: dict = None) -> Optional[float]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return api_summary["SUMMARY"][0]["Env Temp"]
+                return rpc_summary["SUMMARY"][0]["Env Temp"]
             except LookupError:
                 pass
 
-    async def _get_wattage(self, api_summary: dict = None) -> Optional[int]:
-        if api_summary is None:
+    async def _get_wattage(self, rpc_summary: dict = None) -> Optional[int]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                wattage = api_summary["SUMMARY"][0]["Power"]
+                wattage = rpc_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
             except LookupError:
                 pass
 
-    async def _get_wattage_limit(self, api_summary: dict = None) -> Optional[int]:
-        if api_summary is None:
+    async def _get_wattage_limit(self, rpc_summary: dict = None) -> Optional[int]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return api_summary["SUMMARY"][0]["Power Limit"]
+                return rpc_summary["SUMMARY"][0]["Power Limit"]
             except LookupError:
                 pass
 
     async def _get_fans(
-        self, api_summary: dict = None, api_get_psu: dict = None
+        self, rpc_summary: dict = None, rpc_get_psu: dict = None
     ) -> List[Fan]:
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
         fans = [Fan() for _ in range(self.expected_fans)]
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
                 if self.expected_fans > 0:
                     fans = [
-                        Fan(api_summary["SUMMARY"][0].get("Fan Speed In", 0)),
-                        Fan(api_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
+                        Fan(rpc_summary["SUMMARY"][0].get("Fan Speed In", 0)),
+                        Fan(rpc_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
                     ]
             except LookupError:
                 pass
@@ -496,45 +496,45 @@ class BTMiner(BaseMiner):
         return fans
 
     async def _get_fan_psu(
-        self, api_summary: dict = None, api_get_psu: dict = None
+        self, rpc_summary: dict = None, rpc_get_psu: dict = None
     ) -> Optional[int]:
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return int(api_summary["SUMMARY"][0]["Power Fanspeed"])
+                return int(rpc_summary["SUMMARY"][0]["Power Fanspeed"])
             except LookupError:
                 pass
 
-        if api_get_psu is None:
+        if rpc_get_psu is None:
             try:
-                api_get_psu = await self.api.get_psu()
+                rpc_get_psu = await self.rpc.get_psu()
             except APIError:
                 pass
 
-        if api_get_psu is not None:
+        if rpc_get_psu is not None:
             try:
-                return int(api_get_psu["Msg"]["fan_speed"])
+                return int(rpc_get_psu["Msg"]["fan_speed"])
             except (KeyError, TypeError):
                 pass
 
     async def _get_errors(
-        self, api_summary: dict = None, api_get_error_code: dict = None
+        self, rpc_summary: dict = None, rpc_get_error_code: dict = None
     ) -> List[MinerErrorData]:
         errors = []
-        if api_get_error_code is None and api_summary is None:
+        if rpc_get_error_code is None and rpc_summary is None:
             try:
-                api_get_error_code = await self.api.get_error_code()
+                rpc_get_error_code = await self.rpc.get_error_code()
             except APIError:
                 pass
 
-        if api_get_error_code is not None:
+        if rpc_get_error_code is not None:
             try:
-                for err in api_get_error_code["Msg"]["error_code"]:
+                for err in rpc_get_error_code["Msg"]["error_code"]:
                     if isinstance(err, dict):
                         for code in err:
                             errors.append(WhatsminerError(error_code=int(code)))
@@ -543,48 +543,48 @@ class BTMiner(BaseMiner):
             except KeyError:
                 pass
 
-        if api_summary is None:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                for i in range(api_summary["SUMMARY"][0]["Error Code Count"]):
-                    err = api_summary["SUMMARY"][0].get(f"Error Code {i}")
+                for i in range(rpc_summary["SUMMARY"][0]["Error Code Count"]):
+                    err = rpc_summary["SUMMARY"][0].get(f"Error Code {i}")
                     if err:
                         errors.append(WhatsminerError(error_code=err))
             except (LookupError, ValueError, TypeError):
                 pass
         return errors
 
-    async def _get_expected_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if api_summary is None:
+    async def _get_expected_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                expected_hashrate = api_summary["SUMMARY"][0]["Factory GHS"]
+                expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return round(expected_hashrate / 1000, 2)
             except LookupError:
                 pass
 
-    async def _get_fault_light(self, api_get_miner_info: dict = None) -> Optional[bool]:
-        if api_get_miner_info is None:
+    async def _get_fault_light(self, rpc_get_miner_info: dict = None) -> Optional[bool]:
+        if rpc_get_miner_info is None:
             try:
-                api_get_miner_info = await self.api.get_miner_info()
+                rpc_get_miner_info = await self.rpc.get_miner_info()
             except APIError:
                 if not self.light:
                     self.light = False
 
-        if api_get_miner_info is not None:
+        if rpc_get_miner_info is not None:
             try:
-                self.light = not (api_get_miner_info["Msg"]["ledstat"] == "auto")
+                self.light = not (rpc_get_miner_info["Msg"]["ledstat"] == "auto")
             except KeyError:
                 pass
 
@@ -600,46 +600,46 @@ class BTMiner(BaseMiner):
     ):
         if not hostname:
             hostname = await self.get_hostname()
-        await self.api.net_config(
+        await self.rpc.net_config(
             ip=ip, mask=subnet_mask, dns=dns, gate=gateway, host=hostname, dhcp=False
         )
 
     async def set_dhcp(self, hostname: str = None):
         if hostname:
             await self.set_hostname(hostname)
-        await self.api.net_config()
+        await self.rpc.net_config()
 
     async def set_hostname(self, hostname: str):
-        await self.api.set_hostname(hostname)
+        await self.rpc.set_hostname(hostname)
 
-    async def _is_mining(self, api_status: dict = None) -> Optional[bool]:
-        if api_status is None:
+    async def _is_mining(self, rpc_status: dict = None) -> Optional[bool]:
+        if rpc_status is None:
             try:
-                api_status = await self.api.status()
+                rpc_status = await self.rpc.status()
             except APIError:
                 pass
 
-        if api_status is not None:
+        if rpc_status is not None:
             try:
-                if api_status["Msg"].get("btmineroff"):
+                if rpc_status["Msg"].get("btmineroff"):
                     try:
-                        await self.api.devdetails()
+                        await self.rpc.devdetails()
                     except APIError:
                         return False
                     return True
-                return True if api_status["Msg"]["mineroff"] == "false" else False
+                return True if rpc_status["Msg"]["mineroff"] == "false" else False
             except LookupError:
                 pass
 
-    async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if api_summary is None:
+    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return int(api_summary["SUMMARY"][0]["Elapsed"])
+                return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass

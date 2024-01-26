@@ -28,39 +28,39 @@ HIVEON_T9_DATA_LOC = DataLocations(
     **{
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -84,15 +84,15 @@ class HiveonT9(Hiveon, T9):
         except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
             pass
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
             for board in range(self.expected_hashboards)
         ]
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = self.api.stats()
+                rpc_stats = self.rpc.stats()
             except APIError:
                 return []
 
@@ -108,8 +108,8 @@ class HiveonT9(Hiveon, T9):
             for chipset in board_map[board]:
                 if hashboards[board].chip_temp is None:
                     try:
-                        hashboards[board].temp = api_stats["STATS"][1][f"temp{chipset}"]
-                        hashboards[board].chip_temp = api_stats["STATS"][1][
+                        hashboards[board].temp = rpc_stats["STATS"][1][f"temp{chipset}"]
+                        hashboards[board].chip_temp = rpc_stats["STATS"][1][
                             f"temp2_{chipset}"
                         ]
                     except (KeyError, IndexError):
@@ -117,8 +117,8 @@ class HiveonT9(Hiveon, T9):
                     else:
                         hashboards[board].missing = False
                 try:
-                    hashrate += api_stats["STATS"][1][f"chain_rate{chipset}"]
-                    chips += api_stats["STATS"][1][f"chain_acn{chipset}"]
+                    hashrate += rpc_stats["STATS"][1][f"chain_rate{chipset}"]
+                    chips += rpc_stats["STATS"][1][f"chain_acn{chipset}"]
                 except (KeyError, IndexError):
                     pass
             hashboards[board].hashrate = round(hashrate / 1000, 2)
@@ -126,15 +126,15 @@ class HiveonT9(Hiveon, T9):
 
         return hashboards
 
-    async def _get_wattage(self, api_stats: dict = None) -> Optional[int]:
-        if not api_stats:
+    async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
+        if not rpc_stats:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats:
-            boards = api_stats.get("STATS")
+        if rpc_stats:
+            boards = rpc_stats.get("STATS")
             try:
                 wattage_raw = boards[1]["chain_power"]
             except (KeyError, IndexError):
@@ -143,23 +143,23 @@ class HiveonT9(Hiveon, T9):
                 # parse wattage position out of raw data
                 return round(float(wattage_raw.split(" ")[0]))
 
-    async def _get_env_temp(self, api_stats: dict = None) -> Optional[float]:
+    async def _get_env_temp(self, rpc_stats: dict = None) -> Optional[float]:
         env_temp_list = []
         board_map = {
             0: [2, 9, 10],
             1: [3, 11, 12],
             2: [4, 13, 14],
         }
-        if not api_stats:
+        if not rpc_stats:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
-        if api_stats:
+        if rpc_stats:
             for board in board_map.values():
                 for chipset in board:
                     try:
-                        env_temp = api_stats["STATS"][1][f"temp3_{chipset}"]
+                        env_temp = rpc_stats["STATS"][1][f"temp3_{chipset}"]
                         if not env_temp == 0:
                             env_temp_list.append(int(env_temp))
                     except (KeyError, IndexError):

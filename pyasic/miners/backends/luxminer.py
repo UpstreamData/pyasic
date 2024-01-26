@@ -26,30 +26,30 @@ LUXMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
-            [RPCAPICommand("api_config", "config")],
+            [RPCAPICommand("rpc_config", "config")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("api_power", "power")],
+            [RPCAPICommand("rpc_power", "power")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_fans", "fans")],
+            [RPCAPICommand("rpc_fans", "fans")],
         ),
         str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime", [RPCAPICommand("api_stats", "stats")]
+            "_get_uptime", [RPCAPICommand("rpc_stats", "stats")]
         ),
     }
 )
@@ -58,8 +58,8 @@ LUXMINER_DATA_LOC = DataLocations(
 class LUXMiner(BaseMiner):
     """Handler for LuxOS miners"""
 
-    _api_cls = LUXMinerRPCAPI
-    api: LUXMinerRPCAPI
+    _rpc_cls = LUXMinerRPCAPI
+    rpc: LUXMinerRPCAPI
 
     firmware = "LuxOS"
 
@@ -67,14 +67,14 @@ class LUXMiner(BaseMiner):
 
     async def _get_session(self) -> Optional[str]:
         try:
-            data = await self.api.session()
+            data = await self.rpc.session()
             if not data["SESSION"][0]["SessionID"] == "":
                 return data["SESSION"][0]["SessionID"]
         except APIError:
             pass
 
         try:
-            data = await self.api.logon()
+            data = await self.rpc.logon()
             return data["SESSION"][0]["SessionID"]
         except (LookupError, APIError):
             return
@@ -83,7 +83,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.ledset(session_id, "red", "blink")
+                await self.rpc.ledset(session_id, "red", "blink")
             return True
         except (APIError, LookupError):
             pass
@@ -93,7 +93,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.ledset(session_id, "red", "off")
+                await self.rpc.ledset(session_id, "red", "off")
             return True
         except (APIError, LookupError):
             pass
@@ -106,7 +106,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.resetminer(session_id)
+                await self.rpc.resetminer(session_id)
             return True
         except (APIError, LookupError):
             pass
@@ -116,7 +116,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.curtail(session_id)
+                await self.rpc.curtail(session_id)
             return True
         except (APIError, LookupError):
             pass
@@ -126,7 +126,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.wakeup(session_id)
+                await self.rpc.wakeup(session_id)
             return True
         except (APIError, LookupError):
             pass
@@ -135,7 +135,7 @@ class LUXMiner(BaseMiner):
         try:
             session_id = await self._get_session()
             if session_id:
-                await self.api.rebootdevice(session_id)
+                await self.rpc.rebootdevice(session_id)
             return True
         except (APIError, LookupError):
             pass
@@ -148,48 +148,48 @@ class LUXMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, api_config: dict = None) -> Optional[str]:
+    async def _get_mac(self, rpc_config: dict = None) -> Optional[str]:
         mac = None
-        if api_config is None:
+        if rpc_config is None:
             try:
-                api_config = await self.api.config()
+                rpc_config = await self.rpc.config()
             except APIError:
                 return None
 
-        if api_config is not None:
+        if rpc_config is not None:
             try:
-                mac = api_config["CONFIG"][0]["MACAddr"]
+                mac = rpc_config["CONFIG"][0]["MACAddr"]
             except KeyError:
                 return None
 
         return mac
 
-    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if api_summary is None:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return round(float(api_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
+                return round(float(rpc_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
                 board_offset = -1
-                boards = api_stats["STATS"]
+                boards = rpc_stats["STATS"]
                 if len(boards) > 1:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
@@ -231,48 +231,48 @@ class LUXMiner(BaseMiner):
 
         return hashboards
 
-    async def _get_wattage(self, api_power: dict = None) -> Optional[int]:
-        if api_power is None:
+    async def _get_wattage(self, rpc_power: dict = None) -> Optional[int]:
+        if rpc_power is None:
             try:
-                api_power = await self.api.power()
+                rpc_power = await self.rpc.power()
             except APIError:
                 pass
 
-        if api_power is not None:
+        if rpc_power is not None:
             try:
-                return api_power["POWER"][0]["Watts"]
+                return rpc_power["POWER"][0]["Watts"]
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_fans(self, api_fans: dict = None) -> List[Fan]:
-        if api_fans is None:
+    async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
+        if rpc_fans is None:
             try:
-                api_fans = await self.api.fans()
+                rpc_fans = await self.rpc.fans()
             except APIError:
                 pass
 
         fans = []
 
-        if api_fans is not None:
+        if rpc_fans is not None:
             for fan in range(self.expected_fans):
                 try:
-                    fans.append(Fan(api_fans["FANS"][fan]["RPM"]))
+                    fans.append(Fan(rpc_fans["FANS"][fan]["RPM"]))
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
 
-    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if api_stats is None:
+    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                expected_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
                 try:
-                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
@@ -284,15 +284,15 @@ class LUXMiner(BaseMiner):
             except LookupError:
                 pass
 
-    async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if api_stats is None:
+    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                return int(api_stats["STATS"][1]["Elapsed"])
+                return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass

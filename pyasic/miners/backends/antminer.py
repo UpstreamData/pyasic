@@ -40,11 +40,11 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
             "_get_hostname",
@@ -52,15 +52,15 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.ERRORS): DataFunction(
             "_get_errors",
@@ -76,7 +76,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -206,13 +206,13 @@ class AntminerModern(BMMiner):
         ]
 
         try:
-            api_stats = await self.api.send_command("stats", new_api=True)
+            rpc_stats = await self.rpc.send_command("stats", new_rpc=True)
         except APIError:
             return hashboards
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                for board in api_stats["STATS"][0]["chain"]:
+                for board in rpc_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = round(
                         board["rate_real"] / 1000, 2
                     )
@@ -254,18 +254,18 @@ class AntminerModern(BMMiner):
                 pass
         return self.light
 
-    async def _get_expected_hashrate(self, api_stats: dict = None) -> Optional[float]:
-        if api_stats is None:
+    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                expected_rate = api_stats["STATS"][1]["total_rateideal"]
+                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
                 try:
-                    rate_unit = api_stats["STATS"][1]["rate_unit"]
+                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
                 if rate_unit == "GH":
@@ -336,16 +336,16 @@ class AntminerModern(BMMiner):
             except LookupError:
                 pass
 
-    async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if api_stats is None:
+    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                return int(api_stats["STATS"][1]["Elapsed"])
+                return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
 
@@ -354,11 +354,11 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
     **{
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
             "_get_hostname",
@@ -366,15 +366,15 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
@@ -386,7 +386,7 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -479,47 +479,47 @@ class AntminerOld(CGMiner):
             except KeyError:
                 pass
 
-    async def _get_fans(self, api_stats: dict = None) -> List[Fan]:
-        if api_stats is None:
+    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
         fans_data = [Fan() for _ in range(self.expected_fans)]
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
                 fan_offset = -1
 
                 for fan_num in range(1, 8, 4):
                     for _f_num in range(4):
-                        f = api_stats["STATS"][1].get(f"fan{fan_num + _f_num}")
+                        f = rpc_stats["STATS"][1].get(f"fan{fan_num + _f_num}")
                         if f and not f == 0 and fan_offset == -1:
                             fan_offset = fan_num + 2
                 if fan_offset == -1:
                     fan_offset = 3
 
                 for fan in range(self.expected_fans):
-                    fans_data[fan].speed = api_stats["STATS"][1].get(
+                    fans_data[fan].speed = rpc_stats["STATS"][1].get(
                         f"fan{fan_offset+fan}", 0
                     )
             except LookupError:
                 pass
         return fans_data
 
-    async def _get_hashboards(self, api_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = []
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
                 board_offset = -1
-                boards = api_stats["STATS"]
+                boards = rpc_stats["STATS"]
                 if len(boards) > 1:
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
@@ -574,27 +574,27 @@ class AntminerOld(CGMiner):
             except LookupError:
                 pass
 
-        api_summary = None
+        rpc_summary = None
         try:
-            api_summary = await self.api.summary()
+            rpc_summary = await self.rpc.summary()
         except APIError:
             pass
 
-        if api_summary is not None:
-            if not api_summary == {}:
+        if rpc_summary is not None:
+            if not rpc_summary == {}:
                 return True
             else:
                 return False
 
-    async def _get_uptime(self, api_stats: dict = None) -> Optional[int]:
-        if api_stats is None:
+    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
+        if rpc_stats is not None:
             try:
-                return int(api_stats["STATS"][1]["Elapsed"])
+                return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass

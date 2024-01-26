@@ -37,7 +37,7 @@ GOLDSHELL_DATA_LOC = DataLocations(
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
@@ -45,22 +45,22 @@ GOLDSHELL_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [
-                RPCAPICommand("api_devs", "devs"),
-                RPCAPICommand("api_devdetails", "devdetails"),
+                RPCAPICommand("rpc_devs", "devs"),
+                RPCAPICommand("rpc_devdetails", "devdetails"),
             ],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -130,11 +130,11 @@ class GoldshellMiner(BFGMiner):
                 pass
 
     async def _get_hashboards(
-        self, api_devs: dict = None, api_devdetails: dict = None
+        self, rpc_devs: dict = None, rpc_devdetails: dict = None
     ) -> List[HashBoard]:
-        if api_devs is None:
+        if rpc_devs is None:
             try:
-                api_devs = await self.api.devs()
+                rpc_devs = await self.rpc.devs()
             except APIError:
                 pass
 
@@ -143,9 +143,9 @@ class GoldshellMiner(BFGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if api_devs is not None:
-            if api_devs.get("DEVS"):
-                for board in api_devs["DEVS"]:
+        if rpc_devs is not None:
+            if rpc_devs.get("DEVS"):
+                for board in rpc_devs["DEVS"]:
                     if board.get("ID") is not None:
                         try:
                             b_id = board["ID"]
@@ -157,17 +157,17 @@ class GoldshellMiner(BFGMiner):
                         except KeyError:
                             pass
             else:
-                logger.error(self, api_devs)
+                logger.error(self, rpc_devs)
 
-        if api_devdetails is None:
+        if rpc_devdetails is None:
             try:
-                api_devdetails = await self.api.devdetails()
+                rpc_devdetails = await self.rpc.devdetails()
             except APIError:
                 pass
 
-        if api_devdetails is not None:
-            if api_devdetails.get("DEVS"):
-                for board in api_devdetails["DEVS"]:
+        if rpc_devdetails is not None:
+            if rpc_devdetails.get("DEVS"):
+                for board in rpc_devdetails["DEVS"]:
                     if board.get("ID") is not None:
                         try:
                             b_id = board["ID"]
@@ -175,6 +175,6 @@ class GoldshellMiner(BFGMiner):
                         except KeyError:
                             pass
             else:
-                logger.error(self, api_devdetails)
+                logger.error(self, rpc_devdetails)
 
         return hashboards

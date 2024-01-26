@@ -47,12 +47,12 @@ AURADINE_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [
-                RPCAPICommand("api_devs", "devs"),
+                RPCAPICommand("rpc_devs", "devs"),
                 WebAPICommand("web_ipreport", "ipreport"),
             ],
         ),
@@ -78,7 +78,7 @@ AURADINE_DATA_LOC = DataLocations(
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_summary", "summary")],
+            [RPCAPICommand("rpc_summary", "summary")],
         ),
     }
 )
@@ -116,8 +116,8 @@ class AuradineLEDCodes(Enum):
 class Auradine(BaseMiner):
     """Base handler for Auradine miners"""
 
-    _api_cls = GCMinerRPCAPI
-    api: GCMinerRPCAPI
+    _rpc_cls = GCMinerRPCAPI
+    rpc: GCMinerRPCAPI
     _web_cls = AuradineWebAPI
     web: AuradineWebAPI
 
@@ -127,10 +127,18 @@ class Auradine(BaseMiner):
     supports_autotuning = True
 
     async def fault_light_on(self) -> bool:
-        return await self.web.set_led(code=int(AuradineLEDCodes.LOCATE_MINER))
+        try:
+            await self.web.set_led(code=int(AuradineLEDCodes.LOCATE_MINER))
+            return True
+        except APIError:
+            return False
 
     async def fault_light_off(self) -> bool:
-        return await self.web.set_led(code=int(AuradineLEDCodes.NORMAL))
+        try:
+            await self.web.set_led(code=int(AuradineLEDCodes.NORMAL))
+            return True
+        except APIError:
+            return False
 
     async def reboot(self) -> bool:
         try:
@@ -227,32 +235,32 @@ class Auradine(BaseMiner):
             except LookupError:
                 pass
 
-    async def _get_hashrate(self, api_summary: dict = None) -> Optional[float]:
-        if api_summary is None:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
                 return round(
-                    float(float(api_summary["SUMMARY"][0]["MHS 5s"]) / 1000000), 2
+                    float(float(rpc_summary["SUMMARY"][0]["MHS 5s"]) / 1000000), 2
                 )
             except (LookupError, ValueError, TypeError):
                 pass
 
     async def _get_hashboards(
-        self, api_devs: dict = None, web_ipreport: dict = None
+        self, rpc_devs: dict = None, web_ipreport: dict = None
     ) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
 
-        if api_devs is None:
+        if rpc_devs is None:
             try:
-                api_devs = await self.api.devs()
+                rpc_devs = await self.rpc.devs()
             except APIError:
                 pass
         if web_ipreport is None:
@@ -261,9 +269,9 @@ class Auradine(BaseMiner):
             except APIError:
                 pass
 
-        if api_devs is not None:
+        if rpc_devs is not None:
             try:
-                for board in api_devs["DEVS"]:
+                for board in rpc_devs["DEVS"]:
                     b_id = board["ID"] - 1
                     hashboards[b_id].hashrate = round(
                         float(float(board["MHS 5s"]) / 1000000), 2
@@ -365,15 +373,15 @@ class Auradine(BaseMiner):
             except (LookupError, TypeError, ValueError):
                 pass
 
-    async def _get_uptime(self, api_summary: dict = None) -> Optional[int]:
-        if api_summary is None:
+    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+        if rpc_summary is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return api_summary["SUMMARY"][0]["Elapsed"]
+                return rpc_summary["SUMMARY"][0]["Elapsed"]
             except LookupError:
                 pass

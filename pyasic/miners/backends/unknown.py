@@ -30,7 +30,7 @@ class UnknownMiner(BaseMiner):
     ) -> None:
         super().__init__(ip)
         self.ip = ip
-        self.api = UnknownRPCAPI(ip)
+        self.rpc = UnknownRPCAPI(ip)
 
     def __repr__(self) -> str:
         return f"Unknown: {str(self.ip)}"

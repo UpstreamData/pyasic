@@ -41,23 +41,23 @@ INNOSILICON_DATA_LOC = DataLocations(
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
-            [RPCAPICommand("api_version", "version")],
+            [RPCAPICommand("rpc_version", "version")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
             [
-                RPCAPICommand("api_summary", "summary"),
+                RPCAPICommand("rpc_summary", "summary"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [
-                RPCAPICommand("api_stats", "stats"),
+                RPCAPICommand("rpc_stats", "stats"),
                 WebAPICommand("web_get_all", "getAll"),
             ],
         ),
@@ -65,7 +65,7 @@ INNOSILICON_DATA_LOC = DataLocations(
             "_get_wattage",
             [
                 WebAPICommand("web_get_all", "getAll"),
-                RPCAPICommand("api_stats", "stats"),
+                RPCAPICommand("rpc_stats", "stats"),
             ],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
@@ -88,7 +88,7 @@ INNOSILICON_DATA_LOC = DataLocations(
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("api_stats", "stats")],
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
     }
 )
@@ -168,14 +168,14 @@ class Innosilicon(CGMiner):
                 pass
 
     async def _get_hashrate(
-        self, api_summary: dict = None, web_get_all: dict = None
+        self, rpc_summary: dict = None, web_get_all: dict = None
     ) -> Optional[float]:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
-        if api_summary is None and web_get_all is None:
+        if rpc_summary is None and web_get_all is None:
             try:
-                api_summary = await self.api.summary()
+                rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
 
@@ -193,14 +193,14 @@ class Innosilicon(CGMiner):
             except KeyError:
                 pass
 
-        if api_summary is not None:
+        if rpc_summary is not None:
             try:
-                return round(float(api_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
             except (KeyError, IndexError):
                 pass
 
     async def _get_hashboards(
-        self, api_stats: dict = None, web_get_all: dict = None
+        self, rpc_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
         if web_get_all:
             web_get_all = web_get_all["all"]
@@ -210,9 +210,9 @@ class Innosilicon(CGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
@@ -224,9 +224,9 @@ class Innosilicon(CGMiner):
             else:
                 web_get_all = web_get_all["all"]
 
-        if api_stats is not None:
-            if api_stats.get("STATS"):
-                for board in api_stats["STATS"]:
+        if rpc_stats is not None:
+            if rpc_stats.get("STATS"):
+                for board in rpc_stats["STATS"]:
                     try:
                         idx = board["Chain ID"]
                         chips = board["Num active chips"]
@@ -258,7 +258,7 @@ class Innosilicon(CGMiner):
         return hashboards
 
     async def _get_wattage(
-        self, web_get_all: dict = None, api_stats: dict = None
+        self, web_get_all: dict = None, rpc_stats: dict = None
     ) -> Optional[int]:
         if web_get_all:
             web_get_all = web_get_all["all"]
@@ -277,15 +277,15 @@ class Innosilicon(CGMiner):
             except KeyError:
                 pass
 
-        if api_stats is None:
+        if rpc_stats is None:
             try:
-                api_stats = await self.api.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
 
-        if api_stats is not None:
-            if api_stats.get("STATS"):
-                for board in api_stats["STATS"]:
+        if rpc_stats is not None:
+            if rpc_stats.get("STATS"):
+                for board in rpc_stats["STATS"]:
                     try:
                         wattage = board["power"]
                     except KeyError:
