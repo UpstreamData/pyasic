@@ -184,7 +184,7 @@ class MiningModePowerTune(MinerConfigValue):
         return {"mode": {"mode": "custom", "tune": "power", "power": self.power}}
 
     def as_epic(self) -> dict:
-        return {"ptune": {**self.algo.as_epic(), "target": self.power}}
+        return {"ptune": {"algo": self.algo.as_epic(), "target": self.power}}
 
 
 @dataclass

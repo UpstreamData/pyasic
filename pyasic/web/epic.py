@@ -51,7 +51,7 @@ class ePICWebAPI(BaseWebAPI):
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
                             json={
-                                "param": parameters["parameters"],
+                                **parameters,
                                 "password": self.pwd,
                             },
                         )
@@ -95,19 +95,19 @@ class ePICWebAPI(BaseWebAPI):
         return await self.send_command("reboot", privileged=True)
 
     async def set_shutdown_temp(self, params: int) -> dict:
-        return await self.send_command("shutdowntemp", parameters=params)
+        return await self.send_command("shutdowntemp", param=params)
 
     async def set_fan(self, params: dict) -> dict:
-        return await self.send_command("fanspeed", parameters=params)
+        return await self.send_command("fanspeed", param=params)
 
     async def set_ptune_enable(self, params: bool) -> dict:
-        return await self.send_command("perpetualtune", parameters=params)
+        return await self.send_command("perpetualtune", param=params)
 
     async def set_ptune_algo(self, params: dict) -> dict:
-        return await self.send_command("perpetualtune/algo", parameters=params)
+        return await self.send_command("perpetualtune/algo", param=params)
 
     async def set_pools(self, params: dict) -> dict:
-        return await self.send_command("coin", parameters=params)
+        return await self.send_command("coin", param=params)
 
     async def pause_mining(self) -> dict:
         return await self.send_command("miner", param="Stop")
