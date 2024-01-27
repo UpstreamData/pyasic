@@ -119,7 +119,10 @@ class ePIC(BaseMiner):
             if not conf["fans"].get("Manual", {}) == {}:
                 await self.web.set_fan({"Manual": conf["fans"]["Manual"]})
             elif not conf["fans"].get("Auto", {}) == {}:
-                await self.web.set_fan({"Auto": conf["fans"]["Auto"]})
+                target_temp = {"Target Temperature": conf["fans"]["Target Temperature"]}
+                await self.web.set_fan(
+                    {"Auto": {**conf["fans"]["Auto"], **target_temp}}
+                )
 
             # Mining Mode -- Need to handle that you may not be able to change while miner is tuning
             if conf["ptune"].get("enabled", True):

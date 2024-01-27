@@ -51,7 +51,7 @@ class ePICWebAPI(BaseWebAPI):
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
                             json={
-                                **parameters,
+                                "param": parameters["parameters"],
                                 "password": self.pwd,
                             },
                         )

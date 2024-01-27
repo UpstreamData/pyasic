@@ -265,15 +265,7 @@ class PoolGroup(MinerConfigValue):
         return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
 
     def as_epic(self, user_suffix: str = None) -> dict:
-        if len(self.pools) > 0:
-            conf = {
-                "name": self.name,
-                "pool": [pool.as_epic(user_suffix=user_suffix) for pool in self.pools],
-            }
-            if self.quota is not None:
-                conf["quota"] = self.quota
-            return conf
-        return {"name": self.name, "pool": []}
+        return [p.as_epic(user_suffix=user_suffix) for p in self.pools]
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
@@ -421,9 +413,7 @@ class PoolConfig(MinerConfigValue):
             return {
                 "pools": {
                     "coin": "Btc",
-                    "stratum_configs": [
-                        g.as_epic(user_suffix=user_suffix) for g in self.groups
-                    ],
+                    "stratum_configs": self.groups[0].as_epic(user_suffix=user_suffix),
                     "unique_id": False,
                 }
             }
