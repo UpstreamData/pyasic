@@ -29,7 +29,7 @@ from passlib.handlers.md5_crypt import md5_crypt
 
 from pyasic import settings
 from pyasic.errors import APIError
-from pyasic.misc import api_min_version
+from pyasic.misc import api_min_version, validate_command_output
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 ### IMPORTANT ###
@@ -272,7 +272,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
         if not ignore_errors:
             # if it fails to validate, it is likely an error
-            validation = self._validate_command_output(data)
+            validation = validate_command_output(data)
             if not validation[0]:
                 raise APIError(validation[1])
 
