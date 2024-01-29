@@ -90,7 +90,7 @@ class BaseMinerRPCAPI:
         if not validation[0]:
             if not ignore_errors:
                 # validate the command succeeded
-                raise APIError(validation[1])
+                raise APIError(f"{command}: {validation[1]}")
             if allow_warning:
                 logging.warning(
                     f"{self.ip}: API Command Error: {command}: {validation[1]}"

@@ -305,10 +305,10 @@ class BOSMiner(BaseMiner):
                 rpc_ver = rpc_version["VERSION"][0]["API"]
             except LookupError:
                 rpc_ver = None
-            self.rpc_ver = rpc_ver
-            self.rpc.rpc_ver = self.rpc_ver
+            self.api_ver = rpc_ver
+            self.rpc.rpc_ver = self.api_ver
 
-        return self.rpc_ver
+        return self.api_ver
 
     async def _get_fw_ver(self, web_bos_info: dict = None) -> Optional[str]:
         if web_bos_info is None:
@@ -731,10 +731,10 @@ class BOSer(BaseMiner):
                 rpc_ver = rpc_version["VERSION"][0]["API"]
             except LookupError:
                 rpc_ver = None
-            self.rpc_ver = rpc_ver
-            self.rpc.rpc_ver = self.rpc_ver
+            self.api_ver = rpc_ver
+            self.rpc.rpc_ver = self.api_ver
 
-        return self.rpc_ver
+        return self.api_ver
 
     async def _get_fw_ver(self, grpc_miner_details: dict = None) -> Optional[str]:
         if grpc_miner_details is None:

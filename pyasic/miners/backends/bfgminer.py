@@ -68,7 +68,7 @@ class BFGMiner(BaseMiner):
         except APIError:
             return self.config
 
-        self.config = MinerConfig.from_rpc(pools)
+        self.config = MinerConfig.from_api(pools)
         return self.config
 
     ##################################################
@@ -84,11 +84,11 @@ class BFGMiner(BaseMiner):
 
         if rpc_version is not None:
             try:
-                self.rpc_ver = rpc_version["VERSION"][0]["API"]
+                self.api_ver = rpc_version["VERSION"][0]["API"]
             except LookupError:
                 pass
 
-        return self.rpc_ver
+        return self.api_ver
 
     async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
         if rpc_version is None:

@@ -234,7 +234,7 @@ class BTMiner(BaseMiner):
             pass
 
         if pools is not None:
-            cfg = MinerConfig.from_rpc(pools)
+            cfg = MinerConfig.from_api(pools)
         else:
             cfg = MinerConfig()
 
@@ -325,14 +325,14 @@ class BTMiner(BaseMiner):
                         rpc_ver = rpc_get_version["Msg"]
                         if not isinstance(rpc_ver, str):
                             rpc_ver = rpc_ver["rpc_ver"]
-                        self.rpc_ver = rpc_ver.replace("whatsminer v", "")
+                        self.api_ver = rpc_ver.replace("whatsminer v", "")
                     except (KeyError, TypeError):
                         pass
                     else:
-                        self.rpc.rpc_ver = self.rpc_ver
-                        return self.rpc_ver
+                        self.rpc.rpc_ver = self.api_ver
+                        return self.api_ver
 
-        return self.rpc_ver
+        return self.api_ver
 
     async def _get_fw_ver(
         self, rpc_get_version: dict = None, rpc_summary: dict = None

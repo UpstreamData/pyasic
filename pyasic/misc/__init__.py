@@ -107,3 +107,4 @@ def validate_command_output(data: dict) -> tuple[bool, str | None]:
                 if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
                     # this is an error
                     return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]
+        return True, None
