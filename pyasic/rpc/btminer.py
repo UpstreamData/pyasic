@@ -607,10 +607,10 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             A reply informing of the status of setting the frequency.
         </details>
         """
-        if not -10 < percent < 100:
+        if not -100 < percent < 100:
             raise APIError(
                 f"Frequency % is outside of the allowed "
-                f"range.  Please set a % between -10 and "
+                f"range.  Please set a % between -100 and "
                 f"100"
             )
         return await self.send_privileged_command(
