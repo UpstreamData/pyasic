@@ -14,21 +14,21 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import BOSer
+from pyasic.miners.backends import BOSMiner
 from pyasic.miners.models import S17, S17e, S17Plus, S17Pro
 
 
-class BOSMinerS17(BOSer, S17):
+class BOSMinerS17(BOSMiner, S17):
     pass
 
 
-class BOSMinerS17Plus(BOSer, S17Plus):
+class BOSMinerS17Plus(BOSMiner, S17Plus):
     pass
 
 
-class BOSMinerS17Pro(BOSer, S17Pro):
+class BOSMinerS17Pro(BOSMiner, S17Pro):
     pass
 
 
-class BOSMinerS17e(BOSer, S17e):
+class BOSMinerS17e(BOSMiner, S17e):
     pass

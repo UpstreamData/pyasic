@@ -59,10 +59,14 @@ class BOSMinerWebAPI(BaseWebAPI):
                 return {}
             raise APIError(f"LUCI web command failed: command={command}")
 
-    async def multicommand(self, *commands: str) -> dict:
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
         data = {}
         for command in commands:
-            data[command] = await self.send_command(command, ignore_errors=True)
+            data[command] = await self.send_command(
+                command, ignore_errors=ignore_errors
+            )
         return data
 
     async def auth(self, session: httpx.AsyncClient) -> None:

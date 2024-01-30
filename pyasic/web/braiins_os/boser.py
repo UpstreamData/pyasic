@@ -70,13 +70,15 @@ class BOSerWebAPI(BaseWebAPI):
             not func.startswith("__") and not func.startswith("_")
         ]
 
-    async def multicommand(self, *commands: str) -> dict:
+    async def multicommand(
+        self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
+    ) -> dict:
         result = {"multicommand": True}
         tasks = {}
         for command in commands:
             try:
                 tasks[command] = asyncio.create_task(getattr(self, command)())
-            except AttributeError:
+            except (APIError, AttributeError):
                 result["command"] = {}
 
         await asyncio.gather(*list(tasks.values()))
