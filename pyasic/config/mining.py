@@ -108,31 +108,31 @@ class MiningModeHPM(MinerConfigValue):
         return {"mode": {"mode": "turbo"}}
 
 
-class StandardPowerTuneAlgo(MinerConfigValue):
+class StandardTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
     def as_epic(self) -> str:
-        return VOptPowerTuneAlgo().as_epic()
+        return VOptAlgo().as_epic()
 
 
-class VOptPowerTuneAlgo(MinerConfigValue):
+class VOptAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
     def as_epic(self) -> str:
         return "VoltageOptimizer"
 
 
-class ChipTunePowerTuneAlgo(MinerConfigValue):
+class ChipTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
     def as_epic(self) -> str:
         return "ChipTune"
 
 
-class PowerTunerAlgo(MinerConfigOption):
-    standard = StandardPowerTuneAlgo
-    voltage_optimizer = VOptPowerTuneAlgo
-    chip_tune = ChipTunePowerTuneAlgo
+class TunerAlgo(MinerConfigOption):
+    standard = StandardTuneAlgo
+    voltage_optimizer = VOptAlgo
+    chip_tune = ChipTuneAlgo
 
     @classmethod
     def default(cls):
@@ -143,7 +143,7 @@ class PowerTunerAlgo(MinerConfigOption):
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
-    algo: PowerTunerAlgo = field(default_factory=PowerTunerAlgo.default)
+    algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
@@ -183,14 +183,12 @@ class MiningModePowerTune(MinerConfigValue):
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "power", "power": self.power}}
 
-    def as_epic(self) -> dict:
-        return {"ptune": {"algo": self.algo.as_epic(), "target": self.power}}
-
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
+    algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
@@ -217,6 +215,9 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
+
+    def as_epic(self) -> dict:
+        return {"ptune": {"algo": self.algo.as_epic(), "target": self.hashrate}}
 
 
 @dataclass
@@ -313,14 +314,14 @@ class MiningModeConfig(MinerConfigOption):
             if tuner_running:
                 algo_info = web_conf["PerpetualTune"]["Algorithm"]
                 if algo_info.get("VoltageOptimizer") is not None:
-                    return cls.power_tuning(
-                        power=algo_info["VoltageOptimizer"]["Target"],
-                        algo=PowerTunerAlgo.voltage_optimizer,
+                    return cls.hashrate_tuning(
+                        hashrate=algo_info["VoltageOptimizer"]["Target"],
+                        algo=TunerAlgo.voltage_optimizer,
                     )
                 else:
-                    return cls.power_tuning(
-                        power=algo_info["ChipTune"]["Target"],
-                        algo=PowerTunerAlgo.chip_tune,
+                    return cls.hashrate_tuning(
+                        hashrate=algo_info["ChipTune"]["Target"],
+                        algo=TunerAlgo.chip_tune,
                     )
             else:
                 return cls.normal()
