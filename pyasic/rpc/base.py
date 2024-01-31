@@ -78,6 +78,9 @@ class BaseMinerRPCAPI:
         # send the command
         data = await self._send_bytes(json.dumps(cmd).encode("utf-8"))
 
+        if data is None:
+            raise APIError("No data returned from the API.")
+
         if data == b"Socket connect failed: Connection refused\n":
             if not ignore_errors:
                 raise APIError(data.decode("utf-8"))
@@ -208,23 +211,24 @@ If you are sure you want to use this command please use API.send_command("{comma
             return b"{}"
 
         # send the command
+        data_task = asyncio.create_task(self._read_bytes(reader, timeout=timeout))
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Writing")
         writer.write(data)
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
         await writer.drain()
-        try:
-            # TO address a situation where a whatsminer has an unknown PW -AND-
-            # Fix for stupid whatsminer bug, reboot/restart seem to not load properly in the loop
-            # have to receive, save the data, check if there is more data by reading with a short timeout
-            # append that data if there is more, and then onto the main loop.
-            # the password timeout might need to be longer than 1, but it seems to work for now.
-            ret_data = await asyncio.wait_for(reader.read(1), timeout=1)
-        except asyncio.TimeoutError:
-            return b"{}"
-        try:
-            ret_data += await asyncio.wait_for(reader.read(4096), timeout=timeout)
-        except ConnectionAbortedError:
-            return b"{}"
+
+        await data_task
+        ret_data = data_task.result()
+
+        # close the connection
+        logging.debug(f"{self} - ([Hidden] Send Bytes) - Closing")
+        writer.close()
+        await writer.wait_closed()
+
+        return ret_data
+
+    async def _read_bytes(self, reader: asyncio.StreamReader, timeout: int) -> bytes:
+        ret_data = b""
 
         # loop to receive all the data
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
@@ -241,12 +245,6 @@ If you are sure you want to use this command please use API.send_command("{comma
             raise e
         except Exception as e:
             logging.warning(f"{self} - ([Hidden] Send Bytes) - API Command Error {e}")
-
-        # close the connection
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Closing")
-        writer.close()
-        await writer.wait_closed()
-
         return ret_data
 
     @staticmethod

@@ -20,3 +20,8 @@ from pyasic.miners.makes import WhatsMinerMake
 class M53SVH30(WhatsMinerMake):
     raw_model = "M53S VH30"
     expected_fans = 0
+
+
+class M53SVJ40(WhatsMinerMake):
+    raw_model = "M53S VJ40"
+    expected_fans = 0

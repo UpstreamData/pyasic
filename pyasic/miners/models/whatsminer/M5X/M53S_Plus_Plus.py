@@ -14,13 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import M5X
-from pyasic.miners.models import M53SVH30, M53SVJ40
+from pyasic.miners.makes import WhatsMinerMake
 
 
-class BTMinerM53SVH30(M5X, M53SVH30):
-    pass
-
-
-class BTMinerM53SVJ40(M5X, M53SVJ40):
-    pass
+class M53SPlusPlusVK10(WhatsMinerMake):
+    raw_model = "M53S++ VK10"
+    expected_fans = 0

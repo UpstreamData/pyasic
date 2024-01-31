@@ -42,8 +42,9 @@ from .M50S import (
 from .M50S_Plus import M50SPlusVH30, M50SPlusVH40, M50SPlusVJ30, M50SPlusVK20
 from .M50S_Plus_Plus import M50SPlusPlusVK10, M50SPlusPlusVK20, M50SPlusPlusVK30
 from .M53 import M53VH30
-from .M53S import M53SVH30
+from .M53S import M53SVH30, M53SVJ40
 from .M53S_Plus import M53SPlusVJ30
+from .M53S_Plus_Plus import M53SPlusPlusVK10
 from .M56 import M56VH30
 from .M56S import M56SVH30
 from .M56S_Plus import M56SPlusVJ30

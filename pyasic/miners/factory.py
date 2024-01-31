@@ -289,7 +289,9 @@ MINER_CLASSES = {
         "M50S++VK30": BTMinerM50SPlusPlusVK30,
         "M53VH30": BTMinerM53VH30,
         "M53SVH30": BTMinerM53SVH30,
+        "M53SVJ40": BTMinerM53SVJ40,
         "M53S+VJ30": BTMinerM53SPlusVJ30,
+        "M53S++VK10": BTMinerM53SPlusPlusVK10,
         "M56VH30": BTMinerM56VH30,
         "M56SVH30": BTMinerM56SVH30,
         "M56S+VJ30": BTMinerM56SPlusVJ30,
@@ -967,6 +969,7 @@ class MinerFactory:
 
 
 miner_factory = MinerFactory()
+
 
 # abstracted version of get miner that is easier to access
 async def get_miner(ip: ipaddress.ip_address | str) -> AnyMiner:
