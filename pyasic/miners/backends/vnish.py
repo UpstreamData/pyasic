@@ -210,7 +210,7 @@ class VNish(BMMiner):
                 fw_ver = web_summary["miner"]["miner_type"]
                 fw_ver = fw_ver.split("(Vnish ")[1].replace(")", "")
                 return fw_ver
-            except KeyError:
+            except LookupError:
                 pass
 
     async def get_config(self) -> MinerConfig:
