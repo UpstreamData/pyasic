@@ -205,13 +205,14 @@ class VNish(BMMiner):
         if web_summary is None:
             web_summary = await self.web.summary()
 
+        fw_ver = None
         if web_summary is not None:
             try:
                 fw_ver = web_summary["miner"]["miner_type"]
                 fw_ver = fw_ver.split("(Vnish ")[1].replace(")", "")
                 return fw_ver
             except LookupError:
-                pass
+                return fw_ver
 
     async def get_config(self) -> MinerConfig:
         try:
