@@ -196,12 +196,15 @@ If you are sure you want to use this command please use API.send_command("{comma
     async def _send_bytes(
         self,
         data: bytes,
+        port: int = None,
         timeout: int = 100,
     ) -> bytes:
+        if port is None:
+            port = self.port
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
         try:
             # get reader and writer streams
-            reader, writer = await asyncio.open_connection(str(self.ip), self.port)
+            reader, writer = await asyncio.open_connection(str(self.ip), port)
         # handle OSError 121
         except OSError as e:
             if e.errno == 121:

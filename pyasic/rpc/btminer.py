@@ -24,6 +24,7 @@ import logging
 import re
 from typing import Literal, Union
 
+import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
 
@@ -241,6 +242,28 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         timeout: int = 10,
         **kwargs,
     ) -> dict:
+        try:
+            return await self._send_privileged_command(
+                command=command, ignore_errors=ignore_errors, timeout=timeout, **kwargs
+            )
+        except APIError as e:
+            if not e.message == "can't access write cmd":
+                raise
+        try:
+            await self.open_api()
+        except Exception as e:
+            raise APIError("Failed to open whatsminer API.") from e
+        return await self._send_privileged_command(
+            command=command, ignore_errors=ignore_errors, timeout=timeout, **kwargs
+        )
+
+    async def _send_privileged_command(
+        self,
+        command: Union[str, bytes],
+        ignore_errors: bool = False,
+        timeout: int = 10,
+        **kwargs,
+    ) -> dict:
         logging.debug(
             f"{self} - (Send Privileged Command) - {command} " + f"with args {kwargs}"
             if len(kwargs) > 0
@@ -320,6 +343,30 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         }
         logging.debug(f"{self} - (Get Token) - Gathered token data: {self.token}")
         return self.token
+
+    async def open_api(self):
+        async with httpx.AsyncClient() as c:
+            stage1_req = (
+                await c.post(
+                    "https://wmt.pyasic.org/v1/stage1",
+                    json={"ip": self.ip},
+                    follow_redirects=True,
+                )
+            ).json()
+            stage1_res = binascii.hexlify(
+                await self._send_bytes(binascii.unhexlify(stage1_req), port=8889)
+            )
+            stage2_req = (
+                await c.post(
+                    "https://wmt.pyasic.org/v1/stage2",
+                    json={"ip": self.ip, "stage1_result": stage1_res.decode("utf-8")},
+                )
+            ).json()
+        try:
+            await self._send_bytes(binascii.unhexlify(stage2_req), timeout=3, port=8889)
+        except asyncio.TimeoutError:
+            pass
+        return True
 
     #### PRIVILEGED COMMANDS ####
     # Please read the top of this file to learn
