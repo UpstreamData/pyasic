@@ -206,7 +206,7 @@ class AntminerModern(BMMiner):
         ]
 
         try:
-            rpc_stats = await self.rpc.send_command("stats", new_rpc=True)
+            rpc_stats = await self.rpc.send_command("stats", new_api=True)
         except APIError:
             return hashboards
 
