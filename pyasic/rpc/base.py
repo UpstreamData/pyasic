@@ -165,7 +165,7 @@ class BaseMinerRPCAPI:
             for func in
             # each function in self
             dir(self)
-            if not func == "commands"
+            if not func in ["commands", "open_api"]
             if callable(getattr(self, func)) and
             # no __ or _ methods
             not func.startswith("__") and not func.startswith("_") and

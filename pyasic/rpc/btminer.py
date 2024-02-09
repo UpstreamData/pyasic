@@ -349,7 +349,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             stage1_req = (
                 await c.post(
                     "https://wmt.pyasic.org/v1/stage1",
-                    json={"ip": self.ip},
+                    json={"ip": str(self.ip)},
                     follow_redirects=True,
                 )
             ).json()
@@ -359,7 +359,10 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             stage2_req = (
                 await c.post(
                     "https://wmt.pyasic.org/v1/stage2",
-                    json={"ip": self.ip, "stage1_result": stage1_res.decode("utf-8")},
+                    json={
+                        "ip": str(self.ip),
+                        "stage1_result": stage1_res.decode("utf-8"),
+                    },
                 )
             ).json()
         for command in stage2_req:
