@@ -362,10 +362,13 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
                     json={"ip": self.ip, "stage1_result": stage1_res.decode("utf-8")},
                 )
             ).json()
-        try:
-            await self._send_bytes(binascii.unhexlify(stage2_req), timeout=3, port=8889)
-        except asyncio.TimeoutError:
-            pass
+        for command in stage2_req:
+            try:
+                await self._send_bytes(
+                    binascii.unhexlify(command), timeout=3, port=8889
+                )
+            except asyncio.TimeoutError:
+                pass
         return True
 
     #### PRIVILEGED COMMANDS ####
