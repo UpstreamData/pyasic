@@ -106,7 +106,7 @@ class GoldshellMiner(BFGMiner):
             )
 
         settings = await self.web.setting()
-        for idx, plan in settings["powerplans"]:
+        for idx, plan in enumerate(settings["powerplans"]):
             if plan["level"] == cfg["settings"]["level"]:
                 settings["select"] = idx
         await self.web.set_setting(settings)
@@ -192,7 +192,7 @@ class GoldshellMiner(BFGMiner):
         mode = MiningModeConfig.sleep()
         cfg = mode.as_goldshell()
         level = cfg["settings"]["level"]
-        for idx, plan in settings["powerplans"]:
+        for idx, plan in enumerate(settings["powerplans"]):
             if plan["level"] == level:
                 settings["select"] = idx
         await self.web.set_setting(settings)
@@ -203,7 +203,7 @@ class GoldshellMiner(BFGMiner):
         mode = MiningModeConfig.normal()
         cfg = mode.as_goldshell()
         level = cfg["settings"]["level"]
-        for idx, plan in settings["powerplans"]:
+        for idx, plan in enumerate(settings["powerplans"]):
             if plan["level"] == level:
                 settings["select"] = idx
         await self.web.set_setting(settings)
