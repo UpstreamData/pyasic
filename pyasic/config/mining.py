@@ -75,7 +75,7 @@ class MiningModeSleep(MinerConfigValue):
         return {"ptune": {"algo": "Sleep", "target": 0}}
 
     def as_goldshell(self) -> dict:
-        return {"settings": {"select": 2}}
+        return {"settings": {"select": 3}}
 
 
 @dataclass
