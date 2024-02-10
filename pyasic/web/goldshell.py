@@ -138,5 +138,8 @@ class GoldshellWebAPI(BaseWebAPI):
     async def setting(self) -> dict:
         return await self.send_command("setting")
 
+    async def set_setting(self, values: dict):
+        await self.send_command("setting", **values)
+
     async def status(self) -> dict:
         return await self.send_command("status")

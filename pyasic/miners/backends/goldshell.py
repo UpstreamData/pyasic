@@ -96,12 +96,17 @@ class GoldshellMiner(BFGMiner):
             )
 
         self.config = config
-
+        cfg = config.as_goldshell(user_suffix=user_suffix)
         # send them back 1 at a time
-        for pool in config.as_goldshell(user_suffix=user_suffix)["pools"]:
+        for pool in cfg["pools"]:
             await self.web.newpool(
                 url=pool["url"], user=pool["user"], password=pool["pass"]
             )
+
+        settings = await self.web.setting()
+        for new_setting in cfg["settings"]:
+            settings[new_setting] = cfg["settings"][new_setting]
+        await self.web.set_setting(settings)
 
     async def _get_mac(self, web_setting: dict = None) -> str:
         if web_setting is None:

@@ -50,6 +50,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_epic(self) -> dict:
         return {"ptune": {"enabled": False}}
 
+    def as_goldshell(self) -> dict:
+        return {"settings": {"select": 0}}
+
 
 @dataclass
 class MiningModeSleep(MinerConfigValue):
@@ -71,6 +74,9 @@ class MiningModeSleep(MinerConfigValue):
     def as_epic(self) -> dict:
         return {"ptune": {"algo": "Sleep", "target": 0}}
 
+    def as_goldshell(self) -> dict:
+        return {"settings": {"select": 2}}
+
 
 @dataclass
 class MiningModeLPM(MinerConfigValue):
@@ -88,6 +94,9 @@ class MiningModeLPM(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "eco"}}
+
+    def as_goldshell(self) -> dict:
+        return {"settings": {"select": 1}}
 
 
 @dataclass
