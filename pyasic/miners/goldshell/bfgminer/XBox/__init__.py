@@ -13,6 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X5 import *
-from .XBox import *
-from .XMax import *
+from .KDBox import GoldshellKDBoxII, GoldshellKDBoxPro

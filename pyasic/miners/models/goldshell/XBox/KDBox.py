@@ -13,6 +13,18 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X5 import *
-from .XBox import *
-from .XMax import *
+from pyasic.miners.makes import GoldshellMake
+
+
+class KDBoxII(GoldshellMake):
+    raw_model = "KD Box II"
+    expected_chips = 36
+    expected_fans = 2
+    expected_hashboards = 1
+
+
+class KDBoxPro(GoldshellMake):
+    raw_model = "KD Box Pro"
+    expected_chips = 16
+    expected_fans = 2
+    expected_hashboards = 1

@@ -342,6 +342,8 @@ MINER_CLASSES = {
         "GOLDSHELL HS5": GoldshellHS5,
         "GOLDSHELL KD5": GoldshellKD5,
         "GOLDSHELL KDMAX": GoldshellKDMax,
+        "GOLDSHELL KDBOXII": GoldshellKDBoxII,
+        "GOLDSHELL KDBOXPRO": GoldshellKDBoxPro,
     },
     MinerTypes.BRAIINS_OS: {
         None: BOSMiner,
@@ -668,7 +670,11 @@ class MinerFactory:
             return MinerTypes.LUX_OS
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
-        if "INTCHAINS_QOMO" in upper_data:
+        if (
+            "INTCHAINS_QOMO" in upper_data
+            or "KDAMINER" in upper_data
+            or "BFGMINER" in upper_data
+        ):
             return MinerTypes.GOLDSHELL
         if "AVALON" in upper_data:
             return MinerTypes.AVALONMINER
