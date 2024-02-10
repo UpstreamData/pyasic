@@ -51,7 +51,7 @@ class MiningModeNormal(MinerConfigValue):
         return {"ptune": {"enabled": False}}
 
     def as_goldshell(self) -> dict:
-        return {"settings": {"select": 0}}
+        return {"settings": {"level": 0}}
 
 
 @dataclass
@@ -75,7 +75,7 @@ class MiningModeSleep(MinerConfigValue):
         return {"ptune": {"algo": "Sleep", "target": 0}}
 
     def as_goldshell(self) -> dict:
-        return {"settings": {"select": 3}}
+        return {"settings": {"level": 3}}
 
 
 @dataclass
@@ -96,7 +96,7 @@ class MiningModeLPM(MinerConfigValue):
         return {"mode": {"mode": "eco"}}
 
     def as_goldshell(self) -> dict:
-        return {"settings": {"select": 1}}
+        return {"settings": {"level": 1}}
 
 
 @dataclass

@@ -106,8 +106,9 @@ class GoldshellMiner(BFGMiner):
             )
 
         settings = await self.web.setting()
-        for new_setting in cfg["settings"]:
-            settings[new_setting] = cfg["settings"][new_setting]
+        for idx, plan in settings["powerplans"]:
+            if plan["level"] == cfg["settings"]["level"]:
+                settings["select"] = idx
         await self.web.set_setting(settings)
 
     async def _get_mac(self, web_setting: dict = None) -> str:
@@ -190,8 +191,10 @@ class GoldshellMiner(BFGMiner):
         settings = await self.web.setting()
         mode = MiningModeConfig.sleep()
         cfg = mode.as_goldshell()
-        for new_setting in cfg["settings"]:
-            settings[new_setting] = cfg["settings"][new_setting]
+        level = cfg["settings"]["level"]
+        for idx, plan in settings["powerplans"]:
+            if plan["level"] == level:
+                settings["select"] = idx
         await self.web.set_setting(settings)
         return True
 
@@ -199,7 +202,9 @@ class GoldshellMiner(BFGMiner):
         settings = await self.web.setting()
         mode = MiningModeConfig.normal()
         cfg = mode.as_goldshell()
-        for new_setting in cfg["settings"]:
-            settings[new_setting] = cfg["settings"][new_setting]
+        level = cfg["settings"]["level"]
+        for idx, plan in settings["powerplans"]:
+            if plan["level"] == level:
+                settings["select"] = idx
         await self.web.set_setting(settings)
         return True
