@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from typing import List
 
-from pyasic.config import MinerConfig
+from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import HashBoard
 from pyasic.errors import APIError
 from pyasic.logger import logger
@@ -73,6 +73,8 @@ class GoldshellMiner(BFGMiner):
     web: GoldshellWebAPI
 
     data_locations = GOLDSHELL_DATA_LOC
+
+    supports_shutdown = True
 
     async def get_config(self) -> MinerConfig:
         # get pool data
@@ -183,3 +185,21 @@ class GoldshellMiner(BFGMiner):
                 logger.error(self, rpc_devdetails)
 
         return hashboards
+
+    async def stop_mining(self) -> bool:
+        settings = await self.web.setting()
+        mode = MiningModeConfig.sleep()
+        cfg = mode.as_goldshell()
+        for new_setting in cfg["settings"]:
+            settings[new_setting] = cfg["settings"][new_setting]
+        await self.web.set_setting(settings)
+        return True
+
+    async def resume_mining(self) -> bool:
+        settings = await self.web.setting()
+        mode = MiningModeConfig.normal()
+        cfg = mode.as_goldshell()
+        for new_setting in cfg["settings"]:
+            settings[new_setting] = cfg["settings"][new_setting]
+        await self.web.set_setting(settings)
+        return True
