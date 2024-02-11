@@ -939,12 +939,15 @@ class MinerFactory:
             pass
 
     async def get_miner_model_epic(self, ip: str) -> str | None:
-        sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
-        try:
-            miner_model = sock_json_data["Model"]
-            return miner_model
-        except (TypeError, LookupError):
-            pass
+        for retry_cnt in range(settings.get("get_data_retries", 1)):
+            sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
+            try:
+                miner_model = sock_json_data["Model"]
+                return miner_model
+            except (TypeError, LookupError):
+                if retry_cnt < settings.get("get_data_retries", 1) - 1:
+                    continue
+                pass
 
     async def get_miner_model_hiveon(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
