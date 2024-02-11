@@ -73,7 +73,9 @@ class BOSMinerWebAPI(BaseWebAPI):
         login = {"luci_username": self.username, "luci_password": self.pwd}
         url = f"http://{self.ip}:{self.port}/cgi-bin/luci"
         headers = {
-            "User-Agent": "BTC Tools v0.1",  # only seems to respond if this user-agent is set
+            "User-Agent": (
+                "BTC Tools v0.1"
+            ),  # only seems to respond if this user-agent is set
             "Content-Type": "application/x-www-form-urlencoded",
         }
         await session.post(url, headers=headers, data=login)

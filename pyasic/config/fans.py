@@ -54,9 +54,9 @@ class FanModeNormal(MinerConfigValue):
         return {
             "fans": {
                 "Auto": {
-                    "Idle Speed": self.minimum_speed
-                    if not self.minimum_speed == 0
-                    else 100
+                    "Idle Speed": (
+                        self.minimum_speed if not self.minimum_speed == 0 else 100
+                    )
                 }
             }
         }

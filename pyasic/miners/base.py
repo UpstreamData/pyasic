@@ -461,9 +461,11 @@ class MinerProtocol(Protocol):
             ip=str(self.ip),
             make=self.make,
             model=self.model,
-            expected_chips=self.expected_chips * self.expected_hashboards
-            if self.expected_chips is not None
-            else 0,
+            expected_chips=(
+                self.expected_chips * self.expected_hashboards
+                if self.expected_chips is not None
+                else 0
+            ),
             expected_hashboards=self.expected_hashboards,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.expected_chips)

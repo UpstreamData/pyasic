@@ -51,7 +51,7 @@ EPIC_DATA_LOC = DataLocations(
             "_get_hashboards",
             [
                 WebAPICommand("web_summary", "summary"),
-                WebAPICommand("web_hashrate", "hashrate"),
+                WebAPICommand("web_capabilities", "capabilities"),
             ],
         ),
         str(DataOptions.WATTAGE): DataFunction(
@@ -284,7 +284,7 @@ class ePIC(BaseMiner):
         return fans
 
     async def _get_hashboards(
-        self, web_summary: dict = None, web_hashrate: dict = None
+        self, web_summary: dict = None, web_capabilities: dict = None
     ) -> List[HashBoard]:
         if web_summary is None:
             try:
@@ -292,28 +292,25 @@ class ePIC(BaseMiner):
             except APIError:
                 pass
 
-        if web_hashrate is not None:
+        if web_capabilities is not None:
             try:
-                web_hashrate = await self.web.hashrate()
+                web_capabilities = await self.web.capabilities()
             except APIError:
                 pass
+
         hb_list = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
-
         if web_summary.get("HBs") is not None:
             for hb in web_summary["HBs"]:
-                for hr in web_hashrate:
-                    if hr["Index"] == hb["Index"]:
-                        num_of_chips = len(hr["Data"])
-                        hashrate = hb["Hashrate"][0]
-                        # Update the Hashboard object
-                        hb_list[hr["Index"]].expected_chips = num_of_chips
-                        hb_list[hr["Index"]].missing = False
-                        hb_list[hr["Index"]].hashrate = round(hashrate / 1000000, 2)
-                        hb_list[hr["Index"]].chips = num_of_chips
-                        hb_list[hr["Index"]].temp = hb["Temperature"]
+                num_of_chips = web_capabilities["Performance Estimator"]["Chip Count"]
+                hashrate = hb["Hashrate"][0]
+                # Update the Hashboard object
+                hb_list[hb["Index"]].missing = False
+                hb_list[hb["Index"]].hashrate = round(hashrate / 1000000, 2)
+                hb_list[hb["Index"]].chips = num_of_chips
+                hb_list[hb["Index"]].temp = hb["Temperature"]
         return hb_list
 
     async def _is_mining(self, *args, **kwargs) -> Optional[bool]:

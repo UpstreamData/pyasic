@@ -327,9 +327,11 @@ class PoolGroup(MinerConfigValue):
             return cls(
                 pools=[Pool.from_boser(p) for p in grpc_pool_group["pools"]],
                 name=grpc_pool_group["name"],
-                quota=grpc_pool_group["quota"]["value"]
-                if grpc_pool_group.get("quota") is not None
-                else 1,
+                quota=(
+                    grpc_pool_group["quota"]["value"]
+                    if grpc_pool_group.get("quota") is not None
+                    else 1
+                ),
             )
         except LookupError:
             return cls()
