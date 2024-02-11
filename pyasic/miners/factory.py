@@ -29,6 +29,7 @@ from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
+from pyasic.miners.blockminer import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
     Auradine,
@@ -393,6 +394,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": ePICS19kPro,
         "ANTMINER S19 XP": ePICS19XP,
         "ANTMINER S21": ePICS21,
+        "BLOCKMINER 520I": ePICBlockMiner520,
     },
     MinerTypes.HIVEON: {
         None: Hiveon,
