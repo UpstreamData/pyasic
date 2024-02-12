@@ -9,7 +9,7 @@
 [![Commit Activity - master](https://img.shields.io/github/commit-activity/y/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/commits/master/)
 
 [![Code Style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Read The Docs - Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
+[![Read The Docs - Docs](https://img.shields.io/readthedocs/pyasic)](https://docs.pyasic.org)
 [![License - Apache 2.0](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 
 ---
