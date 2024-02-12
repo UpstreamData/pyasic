@@ -47,6 +47,7 @@ class MinerProtocol(Protocol):
     data_locations: DataLocations = None
 
     supports_shutdown: bool = False
+    supports_power_modes: bool = False
     supports_autotuning: bool = False
 
     api_ver: str = None

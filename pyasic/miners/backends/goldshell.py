@@ -75,6 +75,7 @@ class GoldshellMiner(BFGMiner):
     data_locations = GOLDSHELL_DATA_LOC
 
     supports_shutdown = True
+    supports_power_modes = True
 
     async def get_config(self) -> MinerConfig:
         # get pool data

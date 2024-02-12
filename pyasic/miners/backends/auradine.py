@@ -124,6 +124,7 @@ class Auradine(BaseMiner):
     data_locations = AURADINE_DATA_LOC
 
     supports_shutdown = True
+    supports_power_modes = True
     supports_autotuning = True
 
     async def fault_light_on(self) -> bool:

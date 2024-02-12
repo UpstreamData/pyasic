@@ -94,6 +94,7 @@ class AntminerModern(BMMiner):
     data_locations = ANTMINER_MODERN_DATA_LOC
 
     supports_shutdown = True
+    supports_power_modes = True
 
     async def get_config(self) -> MinerConfig:
         data = await self.web.get_miner_conf()
