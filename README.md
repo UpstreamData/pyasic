@@ -17,7 +17,7 @@
 
 Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with ASIC miners on your network, which makes it super fast.
 
-[Click here to view supported miner types](miners/supported_types.md)
+[Click here to view supported miner types](https://docs.pyasic.org/en/latest/miners/supported_types/)
 
 ---
 ## Getting started
