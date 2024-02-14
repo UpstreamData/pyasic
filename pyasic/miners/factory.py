@@ -47,6 +47,7 @@ from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
+from pyasic.miners.makes import *
 from pyasic.miners.whatsminer import *
 
 
@@ -66,7 +67,7 @@ class MinerTypes(enum.Enum):
 
 MINER_CLASSES = {
     MinerTypes.ANTMINER: {
-        None: BMMiner,
+        None: type("AntminerUnknown", (BMMiner, AntMinerMake), {}),
         "ANTMINER D3": CGMinerD3,
         "ANTMINER HS3": BMMinerHS3,
         "ANTMINER L3+": BMMinerL3Plus,
@@ -101,7 +102,7 @@ MINER_CLASSES = {
         "ANTMINER T19": BMMinerT19,
     },
     MinerTypes.WHATSMINER: {
-        None: BTMiner,
+        None: type("WhatsminerUnknown", (BTMiner, WhatsMinerMake), {}),
         "M20V10": BTMinerM20V10,
         "M20SV10": BTMinerM20SV10,
         "M20SV20": BTMinerM20SV20,
@@ -317,7 +318,7 @@ MINER_CLASSES = {
         "M66SVK40": BTMinerM66SVK40,
     },
     MinerTypes.AVALONMINER: {
-        None: AvalonMiner,
+        None: type("AvalonUnknown", (AvalonMiner, AvalonMinerMake), {}),
         "AVALONMINER 721": CGMinerAvalon721,
         "AVALONMINER 741": CGMinerAvalon741,
         "AVALONMINER 761": CGMinerAvalon761,
@@ -332,12 +333,12 @@ MINER_CLASSES = {
         "AVALONMINER 1246": CGMinerAvalon1246,
     },
     MinerTypes.INNOSILICON: {
-        None: Innosilicon,
+        None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
         "T3H+": InnosiliconT3HPlus,
         "A10X": InnosiliconA10X,
     },
     MinerTypes.GOLDSHELL: {
-        None: GoldshellMiner,
+        None: type("GoldshellUnknown", (GoldshellMiner, GoldshellMake), {}),
         "GOLDSHELL CK5": GoldshellCK5,
         "GOLDSHELL HS5": GoldshellHS5,
         "GOLDSHELL KD5": GoldshellKD5,
@@ -403,7 +404,7 @@ MINER_CLASSES = {
         "ANTMINER S9": LUXMinerS9,
     },
     MinerTypes.AURADINE: {
-        None: Auradine,
+        None: type("GoldshellUnknown", (Auradine, AuradineMake), {}),
         "AT1500": AuradineFluxAT1500,
         "AT2860": AuradineFluxAT2860,
         "AT2880": AuradineFluxAT2880,
@@ -499,7 +500,6 @@ class MinerFactory:
                     )
                 except asyncio.TimeoutError:
                     pass
-
             miner = self._select_miner_from_classes(
                 ip,
                 miner_type=miner_type,

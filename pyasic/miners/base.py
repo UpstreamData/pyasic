@@ -69,7 +69,12 @@ class MinerProtocol(Protocol):
 
     @property
     def model(self) -> str:
-        model_data = [self.raw_model if self.raw_model is not None else "Unknown"]
+        if self.raw_model is not None:
+            model_data = [self.raw_model]
+        elif self.make is not None:
+            model_data = [self.make]
+        else:
+            model_data = ["Unknown"]
         if self.firmware is not None:
             model_data.append(f"({self.firmware})")
         return " ".join(model_data)
