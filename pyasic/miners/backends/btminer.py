@@ -119,6 +119,7 @@ class BTMiner(BaseMiner):
     data_locations = BTMINER_DATA_LOC
 
     supports_shutdown = True
+    supports_power_modes = True
 
     async def _reset_rpc_pwd_to_admin(self, pwd: str):
         try:
