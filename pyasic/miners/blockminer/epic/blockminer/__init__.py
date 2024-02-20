@@ -15,5 +15,5 @@
 # ------------------------------------------------------------------------------
 
 from .blockminer import (
-    ePICBlockMiner520,
+    ePICBlockMiner520i,
 )

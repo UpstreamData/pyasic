@@ -18,5 +18,5 @@ from pyasic.miners.backends import ePIC
 from pyasic.miners.models import Blockminer520i
 
 
-class ePICBlockMiner520(ePIC, Blockminer520i):
+class ePICBlockMiner520i(ePIC, Blockminer520i):
     pass
