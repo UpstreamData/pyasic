@@ -35,6 +35,7 @@ from pyasic.miners.data import (
 from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -691,7 +692,9 @@ class BOSer(BaseMiner):
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
-            result = await self.web.set_power_target(wattage)
+            result = await self.web.set_power_target(
+                wattage, save_action=SaveAction.SAVE_ACTION_SAVE_AND_FORCE_APPLY
+            )
         except APIError:
             return False
 

@@ -373,7 +373,9 @@ MINER_CLASSES = {
     },
     MinerTypes.VNISH: {
         None: VNish,
+        "L3+": VnishL3Plus,
         "ANTMINER L3+": VnishL3Plus,
+        "ANTMINER L7": VnishL7,
         "ANTMINER S17+": VNishS17Plus,
         "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
@@ -404,6 +406,7 @@ MINER_CLASSES = {
     MinerTypes.LUX_OS: {
         None: LUXMiner,
         "ANTMINER S9": LUXMinerS9,
+        "ANTMINER S19": LUXMinerS19,
     },
     MinerTypes.AURADINE: {
         None: type("GoldshellUnknown", (Auradine, AuradineMake), {}),
