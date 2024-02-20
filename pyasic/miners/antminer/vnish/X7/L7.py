@@ -14,5 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .X9 import *
-from .X19 import *
+from pyasic.miners.backends import VNish
+from pyasic.miners.models import L7
+
+
+class VnishL7(VNish, L7):
+    pass

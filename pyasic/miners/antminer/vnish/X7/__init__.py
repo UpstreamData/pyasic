@@ -14,5 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .X9 import *
-from .X19 import *
+from .L7 import VnishL7
