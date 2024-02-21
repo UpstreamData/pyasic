@@ -1,7 +1,7 @@
 from pyasic.miners.makes import ePICMake
 
 
-class Blockminer520i(ePICMake):
-    raw_model = "Blockminer 520i"
+class BlockMiner520i(ePICMake):
+    raw_model = "BlockMiner 520i"
     expected_chips = 124
     expected_fans = 4
