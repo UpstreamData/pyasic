@@ -196,6 +196,7 @@ If you are sure you want to use this command please use API.send_command("{comma
     async def _send_bytes(
         self,
         data: bytes,
+        *,
         port: int = None,
         timeout: int = 100,
     ) -> bytes:
