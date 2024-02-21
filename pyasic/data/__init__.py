@@ -94,9 +94,7 @@ class MinerData:
     percent_expected_wattage: float = field(init=False)
     nominal: bool = field(init=False)
     config: MinerConfig = None
-    errors: List[Union[WhatsminerError, BraiinsOSError, X19Error, InnosiliconError]] = (
-        field(default_factory=list)
-    )
+    errors: List[Union[WhatsminerError, BraiinsOSError, X19Error, InnosiliconError]] = field(default_factory=list)
     fault_light: Union[bool, None] = None
     efficiency: int = field(init=False)
     is_mining: bool = True
