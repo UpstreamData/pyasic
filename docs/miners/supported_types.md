@@ -543,7 +543,7 @@ details {
     </ul>
 </details>
 <details>
-<summary>None:</summary>
+<summary>Stock Firmware Auradine Miners:</summary>
     <ul>
         <details>
             <summary>AD Series:</summary>
