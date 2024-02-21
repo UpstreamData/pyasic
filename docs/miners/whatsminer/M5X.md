@@ -211,8 +211,22 @@
         show_root_heading: false
         heading_level: 4
 
+## M53S VJ40
+::: pyasic.miners.whatsminer.btminer.M5X.M53S.BTMinerM53SVJ40
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M53S+ VJ30
 ::: pyasic.miners.whatsminer.btminer.M5X.M53S_Plus.BTMinerM53SPlusVJ30
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M53S++ VK10
+::: pyasic.miners.whatsminer.btminer.M5X.M53S_Plus_Plus.BTMinerM53SPlusPlusVK10
     handler: python
     options:
         show_root_heading: false

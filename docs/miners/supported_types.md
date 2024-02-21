@@ -78,6 +78,7 @@ details {
                     <li><a href="../antminer/X19#s19-xp">S19 XP</a></li>
                     <li><a href="../antminer/X19#s19a">S19a</a></li>
                     <li><a href="../antminer/X19#s19a-pro">S19a Pro</a></li>
+                    <li><a href="../antminer/X19#s19-pro-hydro">S19 Pro Hydro</a></li>
                     <li><a href="../antminer/X19#t19">T19</a></li>
                 </ul>
         </details>
@@ -286,11 +287,37 @@ details {
                     <li><a href="../whatsminer/M5X#m50s_1_1-vk30">M50S++ VK30</a></li>
                     <li><a href="../whatsminer/M5X#m53-vh30">M53 VH30</a></li>
                     <li><a href="../whatsminer/M5X#m53s-vh30">M53S VH30</a></li>
+                    <li><a href="../whatsminer/M5X#m53s-vj40">M53S VJ40</a></li>
                     <li><a href="../whatsminer/M5X#m53s_1-vj30">M53S+ VJ30</a></li>
+                    <li><a href="../whatsminer/M5X#m53s_1_1-vk10">M53S++ VK10</a></li>
                     <li><a href="../whatsminer/M5X#m56-vh30">M56 VH30</a></li>
                     <li><a href="../whatsminer/M5X#m56s-vh30">M56S VH30</a></li>
                     <li><a href="../whatsminer/M5X#m56s_1-vj30">M56S+ VJ30</a></li>
                     <li><a href="../whatsminer/M5X#m59-vh30">M59 VH30</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>M6X Series:</summary>
+                <ul>
+                    <li><a href="../whatsminer/M6X#m60-vk10">M60 VK10</a></li>
+                    <li><a href="../whatsminer/M6X#m60-vk20">M60 VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m60-vk30">M60 VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m60-vk40">M60 VK40</a></li>
+                    <li><a href="../whatsminer/M6X#m60s-vk10">M60S VK10</a></li>
+                    <li><a href="../whatsminer/M6X#m60s-vk20">M60S VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m60s-vk30">M60S VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m60s-vk40">M60S VK40</a></li>
+                    <li><a href="../whatsminer/M6X#m63-vk10">M63 VK10</a></li>
+                    <li><a href="../whatsminer/M6X#m63-vk20">M63 VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m63-vk30">M63 VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m63s-vk10">M63S VK10</a></li>
+                    <li><a href="../whatsminer/M6X#m63s-vk20">M63S VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m63s-vk30">M63S VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m66-vk20">M66 VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m66-vk30">M66 VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m66s-vk20">M66S VK20</a></li>
+                    <li><a href="../whatsminer/M6X#m66s-vk30">M66S VK30</a></li>
+                    <li><a href="../whatsminer/M6X#m66s-vk40">M66S VK40</a></li>
                 </ul>
         </details>
     </ul>
@@ -376,6 +403,13 @@ details {
                     <li><a href="../goldshell/XMax#kd-max">KD Max</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>XBox Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/XBox#kd-box-ii">KD Box II</a></li>
+                    <li><a href="../goldshell/XBox#kd-box-pro">KD Box Pro</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
@@ -384,31 +418,37 @@ details {
         <details>
             <summary>X9 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X9#s9-bos">S9 (BOS)</a></li>
+                    <li><a href="../antminer/X9#s9-bos_1">S9 (BOS+)</a></li>
                 </ul>
         </details>
         <details>
             <summary>X17 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X17#s17-bos">S17 (BOS)</a></li>
-                    <li><a href="../antminer/X17#s17_1-bos">S17+ (BOS)</a></li>
-                    <li><a href="../antminer/X17#s17-pro-bos">S17 Pro (BOS)</a></li>
-                    <li><a href="../antminer/X17#s17e-bos">S17e (BOS)</a></li>
-                    <li><a href="../antminer/X17#t17-bos">T17 (BOS)</a></li>
-                    <li><a href="../antminer/X17#t17_1-bos">T17+ (BOS)</a></li>
-                    <li><a href="../antminer/X17#t17e-bos">T17e (BOS)</a></li>
+                    <li><a href="../antminer/X17#s17-bos_1">S17 (BOS+)</a></li>
+                    <li><a href="../antminer/X17#s17_1-bos_1">S17+ (BOS+)</a></li>
+                    <li><a href="../antminer/X17#s17-pro-bos_1">S17 Pro (BOS+)</a></li>
+                    <li><a href="../antminer/X17#s17e-bos_1">S17e (BOS+)</a></li>
+                    <li><a href="../antminer/X17#t17-bos_1">T17 (BOS+)</a></li>
+                    <li><a href="../antminer/X17#t17_1-bos_1">T17+ (BOS+)</a></li>
+                    <li><a href="../antminer/X17#t17e-bos_1">T17e (BOS+)</a></li>
                 </ul>
         </details>
         <details>
             <summary>X19 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X19#s19-bos">S19 (BOS)</a></li>
-                    <li><a href="../antminer/X19#s19-pro-bos">S19 Pro (BOS)</a></li>
-                    <li><a href="../antminer/X19#s19j-bos">S19j (BOS)</a></li>
-                    <li><a href="../antminer/X19#s19j-no-pic-bos">S19j No PIC (BOS)</a></li>
-                    <li><a href="../antminer/X19#s19j-pro-bos">S19j Pro (BOS)</a></li>
-                    <li><a href="../antminer/X19#s19j-pro-bos">S19j Pro (BOS)</a></li>
-                    <li><a href="../antminer/X19#t19-bos">T19 (BOS)</a></li>
+                    <li><a href="../antminer/X19#s19">S19</a></li>
+                    <li><a href="../antminer/X19#s19_1">S19+</a></li>
+                    <li><a href="../antminer/X19#s19-pro">S19 Pro</a></li>
+                    <li><a href="../antminer/X19#s19a">S19a</a></li>
+                    <li><a href="../antminer/X19#s19a-pro">S19a Pro</a></li>
+                    <li><a href="../antminer/X19#s19j">S19j</a></li>
+                    <li><a href="../antminer/X19#s19j-no-pic">S19j No PIC</a></li>
+                    <li><a href="../antminer/X19#s19j-pro">S19j Pro</a></li>
+                    <li><a href="../antminer/X19#s19j-pro">S19j Pro</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1">S19j Pro+</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-no-pic">S19k Pro No PIC</a></li>
+                    <li><a href="../antminer/X19#s19-xp">S19 XP</a></li>
+                    <li><a href="../antminer/X19#t19">T19</a></li>
                 </ul>
         </details>
     </ul>
@@ -420,6 +460,13 @@ details {
             <summary>X3 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X3#l3_1-vnish">L3+ (VNish)</a></li>
+                    <li><a href="../antminer/X3#l3_1-vnish">L3+ (VNish)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X7 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X7#l7-vnish">L7 (VNish)</a></li>
                 </ul>
         </details>
         <details>
@@ -454,7 +501,15 @@ details {
                     <li><a href="../antminer/X19#s19-pro-epic">S19 Pro (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19j-epic">S19j (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-epic">S19j Pro (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-epic">S19j Pro+ (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-epic">S19k Pro (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19-xp-epic">S19 XP (ePIC)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X21 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X21#s21-epic">S21 (ePIC)</a></li>
                 </ul>
         </details>
     </ul>
@@ -465,7 +520,7 @@ details {
         <details>
             <summary>X9 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X9#t9-hiveon">T9 (Hiveon)</a></li>
+                    <li><a href="../antminer/X9#t9-hive">T9 (Hive)</a></li>
                 </ul>
         </details>
     </ul>
@@ -477,6 +532,39 @@ details {
             <summary>X9 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X9#s9-luxos">S9 (LuxOS)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19-luxos">S19 (LuxOS)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>None:</summary>
+    <ul>
+        <details>
+            <summary>AD Series:</summary>
+                <ul>
+                    <li><a href="../auradine/AD#at1500">AT1500</a></li>
+                    <li><a href="../auradine/AD#at2860">AT2860</a></li>
+                    <li><a href="../auradine/AD#at2880">AT2880</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>AI Series:</summary>
+                <ul>
+                    <li><a href="../auradine/AI#ai2500">AI2500</a></li>
+                    <li><a href="../auradine/AI#ai3680">AI3680</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>AT Series:</summary>
+                <ul>
+                    <li><a href="../auradine/AT#ad2500">AD2500</a></li>
+                    <li><a href="../auradine/AT#ad3500">AD3500</a></li>
                 </ul>
         </details>
     </ul>
