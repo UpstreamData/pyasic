@@ -29,6 +29,7 @@ from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
+from pyasic.miners.blockminer import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
     Auradine,
@@ -396,6 +397,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": ePICS19kPro,
         "ANTMINER S19 XP": ePICS19XP,
         "ANTMINER S21": ePICS21,
+        "BLOCKMINER 520I": ePICBlockMiner520i,
     },
     MinerTypes.HIVEON: {
         None: Hiveon,
@@ -942,12 +944,16 @@ class MinerFactory:
             pass
 
     async def get_miner_model_epic(self, ip: str) -> str | None:
-        sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
-        try:
-            miner_model = sock_json_data["Model"]
-            return miner_model
-        except (TypeError, LookupError):
-            pass
+        for retry_cnt in range(settings.get("get_data_retries", 1)):
+            sock_json_data = await self.send_web_command(ip, ":4028/capabilities")
+            try:
+                miner_model = sock_json_data["Model"]
+                return miner_model
+            except (TypeError, LookupError):
+                if retry_cnt < settings.get("get_data_retries", 1) - 1:
+                    continue
+                else:
+                    pass
 
     async def get_miner_model_hiveon(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")

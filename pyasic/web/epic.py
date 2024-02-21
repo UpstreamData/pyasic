@@ -44,37 +44,40 @@ class ePICWebAPI(BaseWebAPI):
         post = privileged or not parameters == {}
 
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            try:
-                if post:
-                    response = await client.post(
-                        f"http://{self.ip}:{self.port}/{command}",
-                        timeout=5,
-                        json={
-                            **parameters,
-                            "password": self.pwd,
-                        },
-                    )
-                else:
-                    response = await client.get(
-                        f"http://{self.ip}:{self.port}/{command}",
-                        timeout=5,
-                    )
-                if not response.status_code == 200:
-                    if not ignore_errors:
-                        raise APIError(
-                            f"Web command {command} failed with status code {response.status_code}"
+            for retry_cnt in range(settings.get("get_data_retries", 1)):
+                try:
+                    if post:
+                        response = await client.post(
+                            f"http://{self.ip}:{self.port}/{command}",
+                            timeout=5,
+                            json={
+                                **parameters,
+                                "password": self.pwd,
+                            },
                         )
-                    return {}
-                json_data = response.json()
-                if json_data:
-                    # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
-                    if not json_data.get("result", True) and not post:
+                    else:
+                        response = await client.get(
+                            f"http://{self.ip}:{self.port}/{command}",
+                            timeout=5,
+                        )
+                    if not response.status_code == 200:
                         if not ignore_errors:
-                            raise APIError(json_data["error"])
-                    return json_data
-                return {"success": True}
-            except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
-                pass
+                            raise APIError(
+                                f"Web command {command} failed with status code {response.status_code}"
+                            )
+                        return {}
+                    json_data = response.json()
+                    if json_data:
+                        # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
+                        if not json_data.get("result", True) and not post:
+                            if retry_cnt < settings.get("get_data_retries", 1) - 1:
+                                continue
+                            if not ignore_errors:
+                                raise APIError(json_data["error"])
+                        return json_data
+                    return {"success": True}
+                except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
+                    pass
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True

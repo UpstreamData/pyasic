@@ -39,3 +39,7 @@ class GoldshellMake(BaseMiner):
 
 class AuradineMake(BaseMiner):
     make = "Auradine"
+
+
+class ePICMake(BaseMiner):
+    make = "ePIC"
