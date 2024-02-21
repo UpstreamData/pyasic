@@ -512,6 +512,12 @@ details {
                     <li><a href="../antminer/X21#s21-epic">S21 (ePIC)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>blockminer Series:</summary>
+                <ul>
+                    <li><a href="../blockminer/blockminer#blockminer-520i-epic">BlockMiner 520i (ePIC)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
