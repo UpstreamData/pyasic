@@ -952,7 +952,8 @@ class MinerFactory:
             except (TypeError, LookupError):
                 if retry_cnt < settings.get("get_data_retries", 1) - 1:
                     continue
-                pass
+                else:
+                    pass
 
     async def get_miner_model_hiveon(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
