@@ -14,6 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .X9 import *
-from .X19 import *
-from .X21 import *
+from pyasic.miners.backends import LUXMiner
+from pyasic.miners.models import S21
+
+
+class LUXMinerS21(LUXMiner, S21):
+    pass

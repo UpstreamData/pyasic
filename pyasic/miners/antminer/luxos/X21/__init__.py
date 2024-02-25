@@ -14,6 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .X9 import *
-from .X19 import *
-from .X21 import *
+from .S21 import LUXMinerS21
