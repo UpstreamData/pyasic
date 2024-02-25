@@ -29,7 +29,6 @@ from pyasic import settings
 from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
-from pyasic.miners.blockminer import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import (
     Auradine,
@@ -46,6 +45,7 @@ from pyasic.miners.backends import (
 )
 from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
+from pyasic.miners.blockminer import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
 from pyasic.miners.makes import *
@@ -407,6 +407,12 @@ MINER_CLASSES = {
         None: LUXMiner,
         "ANTMINER S9": LUXMinerS9,
         "ANTMINER S19": LUXMinerS19,
+        "ANTMINER S19 PRO": LUXMinerS19Pro,
+        "ANTMINER S19J PRO": LUXMinerS19jPro,
+        "ANTMINER S19J PRO+": LUXMinerS19jProPlus,
+        "ANTMINER S19K PRO": LUXMinerS19kPro,
+        "ANTMINER S19 XP": LUXMinerS19XP,
+        "ANTMINER T19": LUXMinerT19,
     },
     MinerTypes.AURADINE: {
         None: type("GoldshellUnknown", (Auradine, AuradineMake), {}),

@@ -14,12 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S19 import (
-    LUXMinerS19,
-    LUXMinerS19jPro,
-    LUXMinerS19jProPlus,
-    LUXMinerS19kPro,
-    LUXMinerS19Pro,
-    LUXMinerS19XP,
-)
-from .T19 import LUXMinerT19
+from pyasic.miners.backends import LUXMiner
+from pyasic.miners.models import T19
+
+
+class LUXMinerT19(LUXMiner, T19):
+    pass

@@ -15,8 +15,28 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import LUXMiner
-from pyasic.miners.models import S19
+from pyasic.miners.models import S19, S19XP, S19jPro, S19jProPlus, S19kPro, S19Pro
 
 
 class LUXMinerS19(LUXMiner, S19):
+    pass
+
+
+class LUXMinerS19Pro(LUXMiner, S19Pro):
+    pass
+
+
+class LUXMinerS19jPro(LUXMiner, S19jPro):
+    pass
+
+
+class LUXMinerS19jProPlus(LUXMiner, S19jProPlus):
+    pass
+
+
+class LUXMinerS19kPro(LUXMiner, S19kPro):
+    pass
+
+
+class LUXMinerS19XP(LUXMiner, S19XP):
     pass
