@@ -14,7 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .blockminer import (
-    ePICBlockMiner520i,
-    ePICBlockMiner720i,
-)
+from pyasic.miners.makes import AntMinerMake
+
+
+class T21(AntMinerMake):
+    raw_model = "T21"
+    expected_chips = 108
+    expected_fans = 4

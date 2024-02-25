@@ -14,7 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .blockminer import (
-    ePICBlockMiner520i,
-    ePICBlockMiner720i,
-)
+from pyasic.miners.backends import ePIC
+from pyasic.miners.models import T21
+
+
+class ePICT21(ePIC, T21):
+    pass
