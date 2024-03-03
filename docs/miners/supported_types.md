@@ -78,7 +78,9 @@ details {
                     <li><a href="../antminer/X19#s19-xp">S19 XP</a></li>
                     <li><a href="../antminer/X19#s19a">S19a</a></li>
                     <li><a href="../antminer/X19#s19a-pro">S19a Pro</a></li>
+                    <li><a href="../antminer/X19#s19-hydro">S19 Hydro</a></li>
                     <li><a href="../antminer/X19#s19-pro-hydro">S19 Pro Hydro</a></li>
+                    <li><a href="../antminer/X19#s19-pro_1-hydro">S19 Pro+ Hydro</a></li>
                     <li><a href="../antminer/X19#t19">T19</a></li>
                 </ul>
         </details>
@@ -544,6 +546,18 @@ details {
             <summary>X19 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X19#s19-luxos">S19 (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-luxos">S19 Pro (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-luxos">S19j Pro (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-luxos">S19j Pro+ (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-luxos">S19k Pro (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-luxos">S19 XP (LuxOS)</a></li>
+                    <li><a href="../antminer/X19#t19-luxos">T19 (LuxOS)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X21 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X21#s21-luxos">S21 (LuxOS)</a></li>
                 </ul>
         </details>
     </ul>
