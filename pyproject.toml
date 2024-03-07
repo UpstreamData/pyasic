@@ -9,7 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-httpx = "^0.26.0"
+httpx = ">=0.26.0"
 asyncssh = "^2.14.2"
 passlib = "^1.7.4"
 pyaml = "^23.12.0"
