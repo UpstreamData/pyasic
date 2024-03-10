@@ -19,6 +19,23 @@ Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with
 [Click here to view supported miner types](miners/supported_types.md)
 
 ---
+## Installation
+
+It is recommended to install `pyasic` in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/#what-other-popular-options-exist-aside-from-venv) to isolate it from the rest of your system. Options include:
+  - [venv](https://docs.python.org/3/library/venv.html): included in Python standard library but has fewer features than other options
+  - [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv): [pyenv](https://github.com/pyenv/pyenv) plugin for managing virtualenvs
+    ```
+    pyenv install <python version number>
+    pyenv virtualenv <python version number> <env name>
+    pyenv activate <env name>
+    ```
+  - [conda](https://docs.conda.io/en/latest/)
+
+##### Installing `pyasic`
+
+`python -m pip install .` or `poetry install`
+
+---
 ## Getting started
 ---
 Getting started with `pyasic` is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
