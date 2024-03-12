@@ -253,6 +253,7 @@ settings.update("default_antminer_password", "my_pwd")
 "factory_get_timeout": 3,
 "get_data_retries": 1,
 "api_function_timeout": 5,
+"antminer_mining_mode_as_str": False,
 "default_whatsminer_password": "admin",
 "default_innosilicon_password": "admin",
 "default_antminer_password": "root",

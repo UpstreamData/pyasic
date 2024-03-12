@@ -28,6 +28,7 @@ _settings = {  # defaults
     "factory_get_timeout": 3,
     "get_data_retries": 1,
     "api_function_timeout": 5,
+    "antminer_mining_mode_as_str": False,
     "default_whatsminer_rpc_password": "admin",
     "default_innosilicon_web_password": "admin",
     "default_antminer_web_password": "root",
