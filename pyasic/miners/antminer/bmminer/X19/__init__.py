@@ -18,6 +18,7 @@ from .S19 import (
     BMMinerS19,
     BMMinerS19a,
     BMMinerS19aPro,
+    BMMinerS19Hydro,
     BMMinerS19i,
     BMMinerS19j,
     BMMinerS19jNoPIC,
@@ -27,6 +28,7 @@ from .S19 import (
     BMMinerS19Pro,
     BMMinerS19ProHydro,
     BMMinerS19ProPlus,
+    BMMinerS19ProPlusHydro,
     BMMinerS19XP,
 )
 from .T19 import BMMinerT19

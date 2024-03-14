@@ -12,6 +12,7 @@ Settings options:
 - `factory_get_timeout`
 - `get_data_retries`
 - `api_function_timeout`
+- `antminer_mining_mode_as_str`
 - `default_whatsminer_password`
 - `default_innosilicon_password`
 - `default_antminer_password`

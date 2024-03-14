@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pyasic import settings
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
     HashrateTargetMode,
@@ -39,7 +40,9 @@ class MiningModeNormal(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
@@ -63,7 +66,9 @@ class MiningModeSleep(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "1"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "1"}
+        return {"miner-mode": 1}
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
@@ -87,7 +92,9 @@ class MiningModeLPM(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "3"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "3"}
+        return {"miner-mode": 3}
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
@@ -108,7 +115,9 @@ class MiningModeHPM(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
@@ -165,7 +174,9 @@ class MiningModePowerTune(MinerConfigValue):
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
     def as_wm(self) -> dict:
         if self.power is not None:
@@ -204,7 +215,9 @@ class MiningModeHashrateTune(MinerConfigValue):
         return cls(dict_conf.get("hashrate"))
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
     def as_boser(self) -> dict:
         return {
@@ -239,7 +252,9 @@ class ManualBoardSettings(MinerConfigValue):
         return cls(freq=dict_conf["freq"], volt=dict_conf["volt"])
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
 
 @dataclass
@@ -259,7 +274,9 @@ class MiningModeManual(MinerConfigValue):
         )
 
     def as_am_modern(self) -> dict:
-        return {"miner-mode": "0"}
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
 
     @classmethod
     def from_vnish(cls, web_overclock_settings: dict) -> "MiningModeManual":
