@@ -132,3 +132,9 @@ class S19ProPlusHydro(AntMinerMake):
     expected_chips = 180
     expected_hashboards = 4
     expected_fans = 0
+
+
+class S19KPro(AntMinerMake):
+    raw_model = "S19 Pro+ Hydro"
+    expected_chips = 77
+    expected_fans = 4
