@@ -96,7 +96,7 @@ class FanModeManual(MinerConfigValue):
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
-        return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": str(self.speed)}
+        return {"bitmain-fan-ctrl": True, "bitmain-fan-pwm": str(self.speed)}
 
     def as_bosminer(self) -> dict:
         return {
@@ -120,7 +120,7 @@ class FanModeImmersion(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
-        return {"bitmain-fan-ctrl": True, "bitmain-fan-pwn": "0"}
+        return {"bitmain-fan-ctrl": True, "bitmain-fan-pwm": "0"}
 
     def as_bosminer(self) -> dict:
         return {"temp_control": {"mode": "disabled"}}
@@ -156,7 +156,10 @@ class FanModeConfig(MinerConfigOption):
         if web_conf.get("bitmain-fan-ctrl") is not None:
             fan_manual = web_conf["bitmain-fan-ctrl"]
             if fan_manual:
-                return cls.manual(speed=web_conf["bitmain-fan-pwm"])
+                speed = int(web_conf["bitmain-fan-pwm"])
+                if speed == 0:
+                    return cls.immersion()
+                return cls.manual(speed=speed)
             else:
                 return cls.normal()
         else:

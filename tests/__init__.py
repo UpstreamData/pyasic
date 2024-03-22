@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from tests.api_tests import *
+from tests.rpc_tests import *
 from tests.config_tests import TestConfig
 from tests.miners_tests import MinersTest
 from tests.network_tests import NetworkTest

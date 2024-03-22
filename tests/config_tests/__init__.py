@@ -128,9 +128,9 @@ class TestConfig(unittest.TestCase):
     def test_am_modern_serialize(self):
         correct_config = {
             "bitmain-fan-ctrl": True,
-            "bitmain-fan-pwn": "90",
+            "bitmain-fan-pwm": "90",
             "freq-level": "100",
-            "miner-mode": "0",
+            "miner-mode": 0,
             "pools": [
                 {
                     "url": "stratum+tcp://stratum.test.io:3333",
