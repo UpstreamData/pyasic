@@ -22,6 +22,7 @@ from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
+from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -29,6 +30,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.rpc.antminer import AntminerRPCAPI
 from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
@@ -87,6 +89,9 @@ class AntminerModern(BMMiner):
 
     _web_cls = AntminerModernWebAPI
     web: AntminerModernWebAPI
+
+    _rpc_cls = AntminerRPCAPI
+    web: AntminerRPCAPI
 
     _ssh_cls = AntminerModernSSH
     ssh: AntminerModernSSH
@@ -207,7 +212,7 @@ class AntminerModern(BMMiner):
         ]
 
         try:
-            rpc_stats = await self.rpc.send_command("stats", new_api=True)
+            rpc_stats = await self.rpc.stats(new_api=True)
         except APIError:
             return hashboards
 
