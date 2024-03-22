@@ -84,6 +84,8 @@ class VNish(BMMiner):
     _web_cls = VNishWebAPI
     web: VNishWebAPI
 
+    supports_shutdown = True
+
     firmware = "VNish"
 
     data_locations = VNISH_DATA_LOC
