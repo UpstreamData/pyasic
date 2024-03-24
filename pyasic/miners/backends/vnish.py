@@ -127,19 +127,18 @@ class VNish(BMMiner):
         return False
 
     async def _get_mac(self, web_summary: dict = None) -> str:
-        if web_summary is None:
-            web_info = await self.web.info()
-
-            if web_info is not None:
-                try:
-                    mac = web_info["system"]["network_status"]["mac"]
-                    return mac
-                except KeyError:
-                    pass
-
         if web_summary is not None:
             try:
                 mac = web_summary["system"]["network_status"]["mac"]
+                return mac
+            except KeyError:
+                pass
+
+        web_info = await self.web.info()
+
+        if web_info is not None:
+            try:
+                mac = web_info["system"]["network_status"]["mac"]
                 return mac
             except KeyError:
                 pass
