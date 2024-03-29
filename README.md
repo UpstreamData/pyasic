@@ -23,6 +23,8 @@ Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with
 ## Installation
 
 It is recommended to install `pyasic` in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/#what-other-popular-options-exist-aside-from-venv) to isolate it from the rest of your system. Options include:
+  - [pypoetry](https://python-poetry.org/)
+    `poetry install`
   - [venv](https://docs.python.org/3/library/venv.html): included in Python standard library but has fewer features than other options
   - [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv): [pyenv](https://github.com/pyenv/pyenv) plugin for managing virtualenvs
     ```
@@ -35,6 +37,10 @@ It is recommended to install `pyasic` in a [virtual environment](https://realpyt
 ##### Installing `pyasic`
 
 `python -m pip install .` or `poetry install`
+
+##### Additional Developer Setup
+`poetry install --with dev`
+`pre-commit install`
 
 ---
 ## Getting started
