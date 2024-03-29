@@ -46,7 +46,9 @@ _settings = {  # defaults
 
 ssl_cxt = httpx.create_ssl_context()
 
-
+#this function configures socket options like SO_LINGER and returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests 
+#using those options.
+#SO_LINGER controls what happens when you close a socket with unsent data - it allows specifying linger time for the data to be sent. 
 def transport(verify: Union[str, bool, SSLContext] = ssl_cxt):
     l_onoff = 1
     l_linger = get("so_linger_time", 1000)
