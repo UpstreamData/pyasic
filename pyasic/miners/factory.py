@@ -372,7 +372,7 @@ MINER_CLASSES = {
         "ANTMINER S19J PRO NOPIC": BOSMinerS19jPro,
         "ANTMINER S19J PRO+": BOSMinerS19jProPlus,
         "ANTMINER S19K PRO NOPIC": BOSMinerS19kProNoPIC,
-        "ANTMINER S19XP": BOSMinerS19XP,
+        "ANTMINER S19 XP": BOSMinerS19XP,
         "ANTMINER T19": BOSMinerT19,
     },
     MinerTypes.VNISH: {
@@ -915,10 +915,11 @@ class MinerFactory:
     async def get_miner_model_braiins_os(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
-            miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace(
-                "Bitmain ", ""
+            miner_model = (
+                sock_json_data["DEVDETAILS"][0]["Model"]
+                .replace("Bitmain ", "")
+                .replace("S19XP", "S19 XP")
             )
-
             return miner_model
         except (TypeError, LookupError):
             pass
@@ -931,7 +932,9 @@ class MinerFactory:
                 )
             if d.status_code == 200:
                 json_data = d.json()
-                miner_model = json_data["data"]["bosminer"]["info"]["modelName"]
+                miner_model = json_data["data"]["bosminer"]["info"][
+                    "modelName"
+                ].replace("S19XP", "S19 XP")
                 return miner_model
         except (httpx.HTTPError, LookupError):
             pass
