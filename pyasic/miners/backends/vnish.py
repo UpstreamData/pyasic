@@ -225,9 +225,10 @@ class VNish(BMMiner):
 
         if web_summary is not None:
             try:
-                is_mining = (
-                    not web_summary["miner"]["miner_status"]["miner_state"] == "stopped"
-                )
+                is_mining = not web_summary["miner"]["miner_status"]["miner_state"] in [
+                    "stopped",
+                    "shutting-down",
+                ]
                 return is_mining
             except LookupError:
                 pass
