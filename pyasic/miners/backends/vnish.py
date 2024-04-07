@@ -74,6 +74,10 @@ VNISH_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],
         ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "_is_mining",
+            [WebAPICommand("web_summary", "summary")],
+        ),
     }
 )
 
@@ -214,6 +218,19 @@ class VNish(BMMiner):
                 return fw_ver
             except LookupError:
                 return fw_ver
+
+    async def _is_mining(self, web_summary: dict = None) -> Optional[bool]:
+        if web_summary is None:
+            web_summary = await self.web.summary()
+
+        if web_summary is not None:
+            try:
+                is_mining = (
+                    not web_summary["miner"]["miner_status"]["miner_state"] == "stopped"
+                )
+                return is_mining
+            except LookupError:
+                pass
 
     async def get_config(self) -> MinerConfig:
         try:
