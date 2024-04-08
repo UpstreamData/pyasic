@@ -14,7 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .X9 import *
-from .X17 import *
-from .X19 import *
-from .X21 import *
+from pyasic.miners.backends import BOSer
+from pyasic.miners.models import S21
+
+
+class BOSMinerS21(BOSer, S21):
+    pass

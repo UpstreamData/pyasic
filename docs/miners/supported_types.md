@@ -81,7 +81,7 @@ details {
                     <li><a href="../antminer/X19#s19-hydro">S19 Hydro</a></li>
                     <li><a href="../antminer/X19#s19-pro-hydro">S19 Pro Hydro</a></li>
                     <li><a href="../antminer/X19#s19-pro_1-hydro">S19 Pro+ Hydro</a></li>
-                    <li><a href="../antminer/X19#s19-pro_1-hydro">S19 Pro+ Hydro</a></li>
+                    <li><a href="../antminer/X19#s19k-pro">S19K Pro</a></li>
                     <li><a href="../antminer/X19#t19">T19</a></li>
                 </ul>
         </details>
@@ -458,6 +458,12 @@ details {
                     <li><a href="../antminer/X19#s19k-pro-no-pic">S19k Pro No PIC</a></li>
                     <li><a href="../antminer/X19#s19-xp">S19 XP</a></li>
                     <li><a href="../antminer/X19#t19">T19</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X21 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X21#s21">S21</a></li>
                 </ul>
         </details>
     </ul>
