@@ -40,7 +40,7 @@ class MinerConfig:
         return asdict(self)
 
     def as_am_modern(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for AM Modern miners."""
+        """Generates the configuration in the format suitable for modern Antminers."""
         return {
             **self.fan_mode.as_am_modern(),
             "freq-level": "100",
@@ -51,7 +51,7 @@ class MinerConfig:
         }
 
     def as_wm(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for WM miners."""
+        """Generates the configuration in the format suitable for Whatsminers."""
         return {
             **self.fan_mode.as_wm(),
             **self.mining_mode.as_wm(),
@@ -61,7 +61,7 @@ class MinerConfig:
         }
 
     def as_am_old(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for old versions of AM miners."""
+        """Generates the configuration in the format suitable for old versions of modern Antminers."""
         return {
             **self.fan_mode.as_am_old(),
             **self.mining_mode.as_am_old(),
@@ -71,7 +71,7 @@ class MinerConfig:
         }
 
     def as_goldshell(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for Goldshell miners"""
+        """Generates the configuration in the format suitable for Goldshell miners."""
         return {
             **self.fan_mode.as_goldshell(),
             **self.mining_mode.as_goldshell(),
@@ -81,7 +81,7 @@ class MinerConfig:
         }
 
     def as_avalon(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for Avalon miners."""
+        """Generates the configuration in the format suitable for Avalonminers."""
         return {
             **self.fan_mode.as_avalon(),
             **self.mining_mode.as_avalon(),
@@ -91,7 +91,7 @@ class MinerConfig:
         }
 
     def as_inno(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for Inno miners."""
+        """Generates the configuration in the format suitable for Innosilicon miners."""
         return {
             **self.fan_mode.as_inno(),
             **self.mining_mode.as_inno(),
@@ -101,7 +101,7 @@ class MinerConfig:
         }
 
     def as_bosminer(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for Bosminer."""
+        """Generates the configuration in the bosminer.toml format."""
         return {
             **merge_dicts(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
             **self.mining_mode.as_bosminer(),
@@ -110,7 +110,7 @@ class MinerConfig:
         }
 
     def as_boser(self, user_suffix: str = None) -> dict:
-        """"Generates the configuration in the format suitable for Boser."""
+        """"Generates the configuration in the format suitable for BOSer."""
         return {
             **self.fan_mode.as_boser(),
             **self.temperature.as_boser(),
@@ -120,7 +120,7 @@ class MinerConfig:
         }
 
     def as_epic(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for Epic miners."""
+        """Generates the configuration in the format suitable for ePIC miners."""
         return {
             **merge_dicts(self.fan_mode.as_epic(), self.temperature.as_epic()),
             **self.mining_mode.as_epic(),
