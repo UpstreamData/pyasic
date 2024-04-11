@@ -13,5 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .S21 import BMMinerS21
-from .T21 import BMMinerT21
+
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.models import T21
+
+
+class BMMinerT21(AntminerModern, T21):
+    pass

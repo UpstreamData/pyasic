@@ -105,6 +105,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": BMMinerS19KPro,
         "ANTMINER T19": BMMinerT19,
         "ANTMINER S21": BMMinerS21,
+        "ANTMINER T21": BMMinerT21,
     },
     MinerTypes.WHATSMINER: {
         None: type("WhatsminerUnknown", (BTMiner, WhatsMinerMake), {}),
