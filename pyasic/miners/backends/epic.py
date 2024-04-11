@@ -74,6 +74,10 @@ EPIC_DATA_LOC = DataLocations(
             "_get_uptime",
             [WebAPICommand("web_summary", "summary")],
         ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "_is_mining",
+            [WebAPICommand("web_summary", "summary")],
+        ),
     }
 )
 
@@ -313,8 +317,18 @@ class ePIC(BaseMiner):
                 hb_list[hb["Index"]].temp = hb["Temperature"]
         return hb_list
 
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
-        return None
+    async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+        if web_summary is not None:
+            try:
+                op_state = web_summary["Status"]["Operating State"]
+                return not op_state == "Idling"
+            except KeyError:
+                pass
 
     async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
         if web_summary is None:

@@ -17,3 +17,7 @@
 from .S21 import (
     ePICS21,
 )
+
+from .T21 import (
+    ePICT21,
+)
