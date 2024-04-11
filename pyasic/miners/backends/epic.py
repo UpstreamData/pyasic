@@ -326,13 +326,9 @@ class ePIC(BaseMiner):
         if web_summary is not None:
             try:
                 op_state = web_summary["Status"]["Operating State"]
+                return not op_state == "Idling"
             except KeyError:
-                return None
                 pass
-        if op_state != "Idling":
-            return True
-        else:
-            return False
 
     async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
         if web_summary is None:
