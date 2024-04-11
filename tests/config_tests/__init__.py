@@ -98,7 +98,11 @@ class TestConfig(unittest.TestCase):
                 "dangerous_temp": 120,
             },
             "fan_control": {"min_fans": 2, "speed": 90},
-            "autotuning": {"enabled": True, "psu_power_limit": 3000},
+            "autotuning": {
+                "enabled": True,
+                "mode": "power_target",
+                "power_target": 3000,
+            },
             "group": [
                 {
                     "name": "W91Q1L",
@@ -112,10 +116,10 @@ class TestConfig(unittest.TestCase):
                     "quota": 1,
                 }
             ],
-            "power_scaling": {
+            "performance_scaling": {
                 "enabled": True,
                 "power_step": 100,
-                "min_psu_power_limit": 2000,
+                "min_power_target": 2000,
                 "shutdown_enabled": True,
                 "shutdown_duration": 3,
             },

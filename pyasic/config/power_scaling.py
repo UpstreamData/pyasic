@@ -114,6 +114,8 @@ class PowerScalingEnabled(MinerConfigValue):
     def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScalingEnabled":
         power_step = power_scaling_conf.get("power_step")
         min_power = power_scaling_conf.get("min_psu_power_limit")
+        if min_power is None:
+            min_power = power_scaling_conf.get("min_power_target")
         sd_mode = PowerScalingShutdown.from_bosminer(power_scaling_conf)
 
         return cls(
@@ -138,12 +140,12 @@ class PowerScalingEnabled(MinerConfigValue):
         if self.power_step is not None:
             cfg["power_step"] = self.power_step
         if self.minimum_power is not None:
-            cfg["min_psu_power_limit"] = self.minimum_power
+            cfg["min_power_target"] = self.minimum_power
 
         if self.shutdown_enabled is not None:
             cfg = {**cfg, **self.shutdown_enabled.as_bosminer()}
 
-        return {"power_scaling": cfg}
+        return {"performance_scaling": cfg}
 
     def as_boser(self) -> dict:
         return {
@@ -189,6 +191,8 @@ class PowerScalingConfig(MinerConfigOption):
     @classmethod
     def from_bosminer(cls, toml_conf: dict):
         power_scaling = toml_conf.get("power_scaling")
+        if power_scaling is None:
+            power_scaling = toml_conf.get("performance_scaling")
         if power_scaling is not None:
             enabled = power_scaling.get("enabled")
             if enabled is not None:

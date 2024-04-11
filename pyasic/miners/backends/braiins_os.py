@@ -181,16 +181,17 @@ class BOSMiner(BaseMiner):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
+        parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
         toml_conf = toml.dumps(
             {
                 "format": {
-                    "version": "1.2+",
+                    "version": "2.0",
                     "generator": "pyasic",
                     "model": f"{self.make.replace('Miner', 'miner')} {self.raw_model.replace('j', 'J')}",
                     "timestamp": int(time.time()),
                 },
-                **config.as_bosminer(user_suffix=user_suffix),
+                **parsed_cfg,
             }
         )
         try:

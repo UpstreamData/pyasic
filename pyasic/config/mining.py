@@ -184,7 +184,10 @@ class MiningModePowerTune(MinerConfigValue):
         return {}
 
     def as_bosminer(self) -> dict:
-        return {"autotuning": {"enabled": True, "psu_power_limit": self.power}}
+        conf = {"enabled": True, "mode": "power_target"}
+        if self.power is not None:
+            conf["power_target"] = self.power
+        return {"autotuning": conf}
 
     def as_boser(self) -> dict:
         return {
@@ -218,6 +221,12 @@ class MiningModeHashrateTune(MinerConfigValue):
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
+
+    def as_bosminer(self) -> dict:
+        conf = {"enabled": True, "mode": "hashrate_target"}
+        if self.hashrate is not None:
+            conf["hashrate_target"] = self.hashrate
+        return {"autotuning": conf}
 
     def as_boser(self) -> dict:
         return {
