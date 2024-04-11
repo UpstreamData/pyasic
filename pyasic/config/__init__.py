@@ -140,6 +140,7 @@ class MinerConfig:
 
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from a dictionary."""
         return cls(
             pools=PoolConfig.from_dict(dict_conf.get("pools")),
             mining_mode=MiningModeConfig.from_dict(dict_conf.get("mining_mode")),
@@ -150,10 +151,12 @@ class MinerConfig:
 
     @classmethod
     def from_api(cls, api_pools: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from API pool data."""
         return cls(pools=PoolConfig.from_api(api_pools))
 
     @classmethod
     def from_am_modern(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for modern Antminers."""
         return cls(
             pools=PoolConfig.from_am_modern(web_conf),
             mining_mode=MiningModeConfig.from_am_modern(web_conf),
@@ -162,18 +165,22 @@ class MinerConfig:
 
     @classmethod
     def from_am_old(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for old versions of Antminers."""
         return cls.from_am_modern(web_conf)
 
     @classmethod
     def from_goldshell(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for Goldshell miners."""
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
     def from_inno(cls, web_pools: list) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for Innosilicon miners."""
         return cls(pools=PoolConfig.from_inno(web_pools))
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from TOML configuration for BOSminer."""
         return cls(
             pools=PoolConfig.from_bosminer(toml_conf),
             mining_mode=MiningModeConfig.from_bosminer(toml_conf),
@@ -184,6 +191,7 @@ class MinerConfig:
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from gRPC configuration for BOSer."""
         return cls(
             pools=PoolConfig.from_boser(grpc_miner_conf),
             mining_mode=MiningModeConfig.from_boser(grpc_miner_conf),
@@ -194,6 +202,7 @@ class MinerConfig:
 
     @classmethod
     def from_epic(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for ePIC miners."""
         return cls(
             pools=PoolConfig.from_epic(web_conf),
             fan_mode=FanModeConfig.from_epic(web_conf),
@@ -203,6 +212,7 @@ class MinerConfig:
 
     @classmethod
     def from_vnish(cls, web_settings: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web settings for VNish miners."""
         return cls(
             pools=PoolConfig.from_vnish(web_settings),
             fan_mode=FanModeConfig.from_vnish(web_settings),
@@ -212,6 +222,7 @@ class MinerConfig:
 
     @classmethod
     def from_auradine(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for Auradine miners."""
         return cls(
             pools=PoolConfig.from_api(web_conf["pools"]),
             fan_mode=FanModeConfig.from_auradine(web_conf["fan"]),
