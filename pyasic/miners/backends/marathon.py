@@ -11,22 +11,6 @@ from pyasic.web.marathon import MaraWebAPI
 
 MARA_DATA_LOC = DataLocations(
     **{
-        str(DataOptions.WATTAGE): DataFunction(
-            "_get_wattage",
-            [WebAPICommand("web_brief", "brief")],
-        ),
-        str(DataOptions.IS_MINING): DataFunction(
-            "_is_mining",
-            [WebAPICommand("web_brief", "brief")],
-        ),
-        str(DataOptions.UPTIME): DataFunction(
-            "_get_uptime",
-            [WebAPICommand("web_brief", "brief")],
-        ),
-        str(DataOptions.HASHBOARDS): DataFunction(
-            "_get_hashboards",
-            [WebAPICommand("web_hashboards", "hashboards")],
-        ),
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
             [WebAPICommand("web_overview", "overview")],
@@ -43,6 +27,22 @@ MARA_DATA_LOC = DataLocations(
             "_get_hashrate",
             [WebAPICommand("web_brief", "brief")],
         ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "_get_expected_hashrate",
+            [WebAPICommand("web_brief", "brief")],
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [WebAPICommand("web_hashboards", "hashboards")],
+        ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_wattage",
+            [WebAPICommand("web_brief", "brief")],
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "_get_wattage_limit",
+            [WebAPICommand("web_miner_config", "miner_config")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_fans", "fans")],
@@ -51,13 +51,13 @@ MARA_DATA_LOC = DataLocations(
             "_get_fault_light",
             [WebAPICommand("web_locate_miner", "locate_miner")],
         ),
-        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
-            "_get_expected_hashrate",
+        str(DataOptions.IS_MINING): DataFunction(
+            "_is_mining",
             [WebAPICommand("web_brief", "brief")],
         ),
-        str(DataOptions.WATTAGE_LIMIT): DataFunction(
-            "_get_wattage_limit",
-            [WebAPICommand("web_miner_config", "miner_config")],
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [WebAPICommand("web_brief", "brief")],
         ),
     }
 )
@@ -95,6 +95,26 @@ class MaraMiner(BaseMiner):
         cfg = await self.get_config()
         cfg.mining_mode = MiningModeConfig.power_tuning(wattage)
         await self.send_config(cfg)
+        return True
+
+    async def stop_mining(self) -> bool:
+        data = await self.web.get_miner_config()
+        data["mode"]["work-mode-selector"] = "Sleep"
+        await self.web.set_miner_config(**data)
+        return True
+
+    async def resume_mining(self) -> bool:
+        data = await self.web.get_miner_config()
+        data["mode"]["work-mode-selector"] = "Auto"
+        await self.web.set_miner_config(**data)
+        return True
+
+    async def reboot(self) -> bool:
+        await self.web.reboot()
+        return True
+
+    async def restart_backend(self) -> bool:
+        await self.web.reload()
         return True
 
     async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
