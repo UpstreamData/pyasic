@@ -5,6 +5,7 @@ from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
+from pyasic.misc import merge_dicts
 from pyasic.web.marathon import MaraWebAPI
 
 MARA_DATA_LOC = DataLocations(
@@ -78,6 +79,12 @@ class MaraMiner(BaseMiner):
         if data:
             self.config = MinerConfig.from_mara(data)
         return self.config
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        data = await self.web.get_miner_config()
+        cfg_data = config.as_mara(user_suffix=user_suffix)
+        merged_cfg = merge_dicts(data, cfg_data)
+        await self.web.set_miner_config(**merged_cfg)
 
     async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
         if web_brief is None:

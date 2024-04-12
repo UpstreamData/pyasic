@@ -125,6 +125,15 @@ class MinerConfig:
             **self.power_scaling.as_auradine(),
         }
 
+    def as_mara(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_mara(),
+            **self.temperature.as_mara(),
+            **self.mining_mode.as_mara(),
+            **self.pools.as_mara(user_suffix=user_suffix),
+            **self.power_scaling.as_mara(),
+        }
+
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
         return cls(

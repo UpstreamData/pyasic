@@ -118,6 +118,15 @@ class Pool(MinerConfigValue):
             }
         return {"pool": self.url, "login": self.user, "password": self.password}
 
+    def as_mara(self, user_suffix: str = None) -> dict:
+        if user_suffix is not None:
+            return {
+                "url": self.url,
+                "user": f"{self.user}{user_suffix}",
+                "pass": self.password,
+            }
+        return {"url": self.url, "user": self.user, "pass": self.password}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
         return cls(
@@ -272,8 +281,11 @@ class PoolGroup(MinerConfigValue):
     def as_auradine(self, user_suffix: str = None) -> list:
         return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
 
-    def as_epic(self, user_suffix: str = None) -> dict:
+    def as_epic(self, user_suffix: str = None) -> list:
         return [p.as_epic(user_suffix=user_suffix) for p in self.pools]
+
+    def as_mara(self, user_suffix: str = None) -> list:
+        return [p.as_mara(user_suffix=user_suffix) for p in self.pools]
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
@@ -438,6 +450,11 @@ class PoolConfig(MinerConfigValue):
                 "unique_id": False,
             }
         }
+
+    def as_mara(self, user_suffix: str = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": self.groups[0].as_mara(user_suffix=user_suffix)}
+        return {"pools": []}
 
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":
