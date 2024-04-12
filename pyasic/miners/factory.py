@@ -30,19 +30,7 @@ from pyasic.logger import logger
 from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
-from pyasic.miners.backends import (
-    Auradine,
-    AvalonMiner,
-    BMMiner,
-    BOSMiner,
-    BTMiner,
-    GoldshellMiner,
-    Hiveon,
-    Innosilicon,
-    LUXMiner,
-    VNish,
-    ePIC,
-)
+from pyasic.miners.backends import *
 from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.blockminer import *
@@ -64,6 +52,7 @@ class MinerTypes(enum.Enum):
     LUX_OS = 8
     EPIC = 9
     AURADINE = 10
+    MARATHON = 11
 
 
 MINER_CLASSES = {
@@ -424,7 +413,7 @@ MINER_CLASSES = {
         "ANTMINER S21": LUXMinerS21,
     },
     MinerTypes.AURADINE: {
-        None: type("GoldshellUnknown", (Auradine, AuradineMake), {}),
+        None: type("AuradineUnknown", (Auradine, AuradineMake), {}),
         "AT1500": AuradineFluxAT1500,
         "AT2860": AuradineFluxAT2860,
         "AT2880": AuradineFluxAT2880,
@@ -432,6 +421,9 @@ MINER_CLASSES = {
         "AI3680": AuradineFluxAI3680,
         "AD2500": AuradineFluxAD2500,
         "AD3500": AuradineFluxAD3500,
+    },
+    MinerTypes.MARATHON: {
+        None: MaraMiner,
     },
 }
 
@@ -508,6 +500,7 @@ class MinerFactory:
                 MinerTypes.HIVEON: self.get_miner_model_hiveon,
                 MinerTypes.LUX_OS: self.get_miner_model_luxos,
                 MinerTypes.AURADINE: self.get_miner_model_auradine,
+                MinerTypes.MARATHON: self.get_miner_model_marathon,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -689,6 +682,8 @@ class MinerFactory:
             return MinerTypes.HIVEON
         if "LUXMINER" in upper_data:
             return MinerTypes.LUX_OS
+        if "KAONSU" in upper_data:
+            return MinerTypes.MARATHON
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
         if (
@@ -999,6 +994,21 @@ class MinerFactory:
         try:
             return sock_json_data["DEVDETAILS"][0]["Model"]
         except LookupError:
+            pass
+
+    async def get_miner_model_marathon(self, ip: str) -> str | None:
+        auth = httpx.DigestAuth("root", "root")
+        web_json_data = await self.send_web_command(
+            ip, "/kaonsu/v1/overview", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["model"]
+            if miner_model == "":
+                return None
+
+            return miner_model
+        except (TypeError, LookupError):
             pass
 
 

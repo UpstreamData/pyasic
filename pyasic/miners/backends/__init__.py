@@ -26,5 +26,6 @@ from .goldshell import GoldshellMiner
 from .hiveon import Hiveon
 from .innosilicon import Innosilicon
 from .luxminer import LUXMiner
+from .marathon import MaraMiner
 from .vnish import VNish
 from .whatsminer import M2X, M3X, M5X, M6X
