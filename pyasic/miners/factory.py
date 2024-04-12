@@ -424,6 +424,15 @@ MINER_CLASSES = {
     },
     MinerTypes.MARATHON: {
         None: MaraMiner,
+        "ANTMINER S19": MaraS19,
+        "ANTMINER S19 PRO": MaraS19Pro,
+        "ANTMINER S19J": MaraS19j,
+        "ANTMINER S19J88NOPIC": MaraS19jNoPIC,
+        "ANTMINER S19J PRO": MaraS19jPro,
+        "ANTMINER S19 XP": MaraS19XP,
+        "ANTMINER S19K PRO": MaraS19KPro,
+        "ANTMINER S21": MaraS21,
+        "ANTMINER T21": MaraT21,
     },
 }
 

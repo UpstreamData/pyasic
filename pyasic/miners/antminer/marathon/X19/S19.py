@@ -14,11 +14,33 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .bmminer import *
-from .bosminer import *
-from .cgminer import *
-from .epic import *
-from .hiveon import *
-from .luxos import *
-from .marathon import *
-from .vnish import *
+from pyasic.miners.backends import MaraMiner
+from pyasic.miners.models import S19, S19XP, S19j, S19jNoPIC, S19jPro, S19KPro, S19Pro
+
+
+class MaraS19(MaraMiner, S19):
+    pass
+
+
+class MaraS19Pro(MaraMiner, S19Pro):
+    pass
+
+
+class MaraS19XP(MaraMiner, S19XP):
+    pass
+
+
+class MaraS19j(MaraMiner, S19j):
+    pass
+
+
+class MaraS19jNoPIC(MaraMiner, S19jNoPIC):
+    pass
+
+
+class MaraS19jPro(MaraMiner, S19jPro):
+    pass
+
+
+class MaraS19KPro(MaraMiner, S19KPro):
+    pass
