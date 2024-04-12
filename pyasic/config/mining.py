@@ -126,6 +126,7 @@ class MiningModeHPM(MinerConfigValue):
         return {"mode": {"mode": "turbo"}}
 
 
+@dataclass
 class StandardTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
@@ -133,20 +134,22 @@ class StandardTuneAlgo(MinerConfigValue):
         return VOptAlgo().as_epic()
 
 
+@dataclass
 class VOptAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="standard")
+    mode: str = field(init=False, default="voltage_optimizer")
 
     def as_epic(self) -> str:
         return "VoltageOptimizer"
 
 
 class ChipTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="standard")
+    mode: str = field(init=False, default="chip_tune")
 
     def as_epic(self) -> str:
         return "ChipTune"
 
 
+@dataclass
 class TunerAlgo(MinerConfigOption):
     standard = StandardTuneAlgo
     voltage_optimizer = VOptAlgo
@@ -155,6 +158,16 @@ class TunerAlgo(MinerConfigOption):
     @classmethod
     def default(cls):
         return cls.standard()
+
+    @classmethod
+    def from_dict(cls, dict_conf: dict | None):
+        mode = dict_conf.get("mode")
+        if mode is None:
+            return cls.default()
+
+        cls_attr = getattr(cls, mode)
+        if cls_attr is not None:
+            return cls_attr().from_dict(dict_conf)
 
 
 @dataclass
@@ -169,7 +182,7 @@ class MiningModePowerTune(MinerConfigValue):
         if dict_conf.get("power"):
             cls_conf["power"] = dict_conf["power"]
         if dict_conf.get("algo"):
-            cls_conf["algo"] = dict_conf["algo"]
+            cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
 
         return cls(**cls_conf)
 
@@ -215,7 +228,13 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
-        return cls(dict_conf.get("hashrate"))
+        cls_conf = {}
+        if dict_conf.get("hashrate"):
+            cls_conf["hashrate"] = dict_conf["hashrate"]
+        if dict_conf.get("algo"):
+            cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
+
+        return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):

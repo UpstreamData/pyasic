@@ -72,7 +72,11 @@ class TestConfig(unittest.TestCase):
             },
             "fan_mode": {"mode": "manual", "speed": 90, "minimum_fans": 2},
             "temperature": {"target": 70, "hot": None, "danger": 120},
-            "mining_mode": {"mode": "power_tuning", "power": 3000, "algo": {}},
+            "mining_mode": {
+                "mode": "power_tuning",
+                "power": 3000,
+                "algo": {"mode": "standard"},
+            },
             "power_scaling": {
                 "mode": "enabled",
                 "power_step": 100,
