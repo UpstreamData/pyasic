@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from pyasic import MinerConfig
+from pyasic.config import MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
@@ -54,6 +55,10 @@ MARA_DATA_LOC = DataLocations(
             "_get_expected_hashrate",
             [WebAPICommand("web_brief", "brief")],
         ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "_get_wattage_limit",
+            [WebAPICommand("web_miner_config", "miner_config")],
+        ),
     }
 )
 
@@ -85,6 +90,12 @@ class MaraMiner(BaseMiner):
         cfg_data = config.as_mara(user_suffix=user_suffix)
         merged_cfg = merge_dicts(data, cfg_data)
         await self.web.set_miner_config(**merged_cfg)
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        cfg = await self.get_config()
+        cfg.mining_mode = MiningModeConfig.power_tuning(wattage)
+        await self.send_config(cfg)
+        return True
 
     async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
         if web_brief is None:
@@ -248,5 +259,20 @@ class MaraMiner(BaseMiner):
         if web_brief is not None:
             try:
                 return round(web_brief["hashrate_ideal"], 2)
+            except LookupError:
+                pass
+
+    async def _get_wattage_limit(
+        self, web_miner_config: dict = None
+    ) -> Optional[float]:
+        if web_miner_config is None:
+            try:
+                web_miner_config = await self.web.get_miner_config()
+            except APIError:
+                pass
+
+        if web_miner_config is not None:
+            try:
+                return web_miner_config["mode"]["concorde"]["power-target"]
             except LookupError:
                 pass
