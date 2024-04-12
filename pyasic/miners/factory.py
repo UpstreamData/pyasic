@@ -533,7 +533,7 @@ class MinerFactory:
     async def _get_miner_type(self, ip: str) -> MinerTypes | None:
         tasks = [
             asyncio.create_task(self._get_miner_web(ip)),
-            asyncio.create_task(self._get_miner_socket(ip)),
+            # asyncio.create_task(self._get_miner_socket(ip)),
         ]
 
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
@@ -555,7 +555,16 @@ class MinerFactory:
                     and self._parse_web_type(x[0], x[1]) is not None,
                 )
                 if text is not None:
-                    return self._parse_web_type(text, resp)
+                    mtype = self._parse_web_type(text, resp)
+                    if mtype == MinerTypes.ANTMINER:
+                        # could still be mara
+                        auth = httpx.DigestAuth("root", "root")
+                        res = await self.send_web_command(
+                            ip, "/kaonsu/v1/brief", auth=auth
+                        )
+                        if res is not None:
+                            mtype = MinerTypes.MARATHON
+                    return mtype
         except asyncio.CancelledError:
             for t in tasks:
                 t.cancel()

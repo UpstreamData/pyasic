@@ -163,7 +163,7 @@ class MaraMiner(BaseMiner):
 
         if web_overview is not None:
             try:
-                return web_overview["version_firmware"].upper()
+                return web_overview["version_firmware"]
             except LookupError:
                 pass
 
@@ -176,7 +176,7 @@ class MaraMiner(BaseMiner):
 
         if web_network_config is not None:
             try:
-                return web_network_config["hostname"].upper()
+                return web_network_config["hostname"]
             except LookupError:
                 pass
 
