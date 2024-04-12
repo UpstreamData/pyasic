@@ -119,7 +119,7 @@ class MaraWebAPI(BaseWebAPI):
     async def get_miner_config(self):
         return await self.send_command("miner_config")
 
-    async def set_network_config(self, **params):
+    async def set_miner_config(self, **params):
         return await self.send_command("miner_config", **params)
 
     async def fans(self):
