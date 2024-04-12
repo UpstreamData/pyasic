@@ -235,4 +235,18 @@ class FanModeConfig(MinerConfigOption):
             fan_1_target = fan_data["Target"]
             return cls.manual(speed=round((fan_1_target / fan_1_max) * 100))
         except LookupError:
-            return cls.default()
+            pass
+        return cls.default()
+
+    @classmethod
+    def from_mara(cls, web_config: dict):
+        try:
+            mode = web_config["general-config"]["environment-profile"]
+            if mode == "AirCooling":
+                if web_config["advance-config"]["override-fan-control"]:
+                    return cls.manual(web_config["advance-config"]["fan-fixed-percent"])
+                return cls.normal()
+            return cls.immersion()
+        except LookupError:
+            pass
+        return cls.default()

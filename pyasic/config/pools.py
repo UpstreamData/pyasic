@@ -177,6 +177,14 @@ class Pool(MinerConfigValue):
             password=grpc_pool["password"],
         )
 
+    @classmethod
+    def from_mara(cls, web_pool: dict) -> "Pool":
+        return cls(
+            url=web_pool["url"],
+            user=web_pool["user"],
+            password=web_pool["pass"],
+        )
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -336,6 +344,10 @@ class PoolGroup(MinerConfigValue):
         except LookupError:
             return cls()
 
+    @classmethod
+    def from_mara(cls, web_config_pools: dict) -> "PoolGroup":
+        return cls(pools=[Pool.from_mara(pool_conf) for pool_conf in web_config_pools])
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -481,3 +493,7 @@ class PoolConfig(MinerConfigValue):
             )
         except LookupError:
             return cls()
+
+    @classmethod
+    def from_mara(cls, web_config: dict) -> "PoolConfig":
+        return cls(groups=[PoolGroup.from_mara(web_config["pools"])])

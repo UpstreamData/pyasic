@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
@@ -71,6 +72,12 @@ class MaraMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         res = await self.web.set_locate_miner(blinking=True)
         return res.get("blinking") is True
+
+    async def get_config(self) -> MinerConfig:
+        data = await self.web.get_miner_config()
+        if data:
+            self.config = MinerConfig.from_mara(data)
+        return self.config
 
     async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
         if web_brief is None:

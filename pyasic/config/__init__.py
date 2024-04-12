@@ -204,3 +204,11 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_auradine(web_conf["fan"]),
             mining_mode=MiningModeConfig.from_auradine(web_conf["mode"]),
         )
+
+    @classmethod
+    def from_mara(cls, web_miner_config: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_mara(web_miner_config),
+            fan_mode=FanModeConfig.from_mara(web_miner_config),
+            mining_mode=MiningModeConfig.from_mara(web_miner_config),
+        )

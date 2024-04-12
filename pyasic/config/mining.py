@@ -468,3 +468,28 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.power_tuning(mode_data["Power"])
         except LookupError:
             return cls.default()
+
+    @classmethod
+    def from_mara(cls, web_config: dict):
+        try:
+            mode = web_config["mode"]["work-mode-selector"]
+            if mode == "Fixed":
+                fixed_conf = web_config["mode"]["fixed"]
+                return cls.manual(
+                    global_freq=fixed_conf["frequency"],
+                    global_volt=fixed_conf["voltage"],
+                )
+            elif mode == "Stock":
+                return cls.normal()
+            elif mode == "Sleep":
+                return cls.sleep()
+            elif mode == "Auto":
+                auto_conf = web_config["mode"]["concorde"]
+                auto_mode = auto_conf["mode-select"]
+                if auto_mode == "Hashrate":
+                    return cls.hashrate_tuning(hashrate=auto_conf["hash-target"])
+                elif auto_mode == "PowerTarget":
+                    return cls.power_tuning(power=auto_conf["power-target"])
+        except LookupError:
+            pass
+        return cls.default()
