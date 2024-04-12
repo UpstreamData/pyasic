@@ -64,6 +64,14 @@ class MaraMiner(BaseMiner):
 
     firmware = "MaraFW"
 
+    async def fault_light_off(self) -> bool:
+        res = await self.web.set_locate_miner(blinking=False)
+        return res.get("blinking") is False
+
+    async def fault_light_on(self) -> bool:
+        res = await self.web.set_locate_miner(blinking=True)
+        return res.get("blinking") is True
+
     async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
         if web_brief is None:
             try:
