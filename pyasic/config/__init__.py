@@ -61,7 +61,7 @@ class MinerConfig:
         }
 
     def as_am_old(self, user_suffix: str = None) -> dict:
-        """Generates the configuration in the format suitable for old versions of modern Antminers."""
+        """Generates the configuration in the format suitable for old versions of Antminers."""
         return {
             **self.fan_mode.as_am_old(),
             **self.mining_mode.as_am_old(),
@@ -180,7 +180,7 @@ class MinerConfig:
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict) -> "MinerConfig":
-        """Constructs a MinerConfig object from TOML configuration for BOSminer."""
+        """Constructs a MinerConfig object from the bosminer.toml file, same as the `as_bosminer` dumps a dict for writing to that file as toml."""
         return cls(
             pools=PoolConfig.from_bosminer(toml_conf),
             mining_mode=MiningModeConfig.from_bosminer(toml_conf),
