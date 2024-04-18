@@ -438,5 +438,5 @@ class AuradineWebAPI(BaseWebAPI):
         
         Returns:
             dict: A dictionary indicating the result of the ZTP setting operation.
-        """   
+        """
         return await self.send_command("ztp", parameter="on" if enable else "off")

@@ -31,7 +31,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         
         Args:
             ip (str): IP address of the Antminer device.
-        """        
+        """    
         super().__init__(ip)
         self.username = "root"
         self.pwd = settings.get("default_antminer_web_password", "root")
