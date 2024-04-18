@@ -92,7 +92,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         
         Returns:
             dict: A dictionary containing the results of all commands executed.
-        """   
+        """
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             tasks = [
                 asyncio.create_task(self._handle_multicommand(client, command))
@@ -329,7 +329,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         
         Returns:
             dict: A dictionary containing system information of the miner.
-        """        
+        """
         return await self.send_command("get_system_info")
 
     async def blink(self, blink: bool) -> dict:
