@@ -24,16 +24,20 @@ Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with
 
 It is recommended to install `pyasic` in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/#what-other-popular-options-exist-aside-from-venv) to isolate it from the rest of your system. Options include:
   - [pypoetry](https://python-poetry.org/): the reccommended way, since pyasic already uses it by default
-    ```
+
+```
     poetry install
-    ```
+```
+
   - [venv](https://docs.python.org/3/library/venv.html): included in Python standard library but has fewer features than other options
   - [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv): [pyenv](https://github.com/pyenv/pyenv) plugin for managing virtualenvs
-    ```
+
+```
     pyenv install <python version number>
     pyenv virtualenv <python version number> <env name>
     pyenv activate <env name>
-    ```
+```
+
   - [conda](https://docs.conda.io/en/latest/)
 
 ##### Installing `pyasic`
