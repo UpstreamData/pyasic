@@ -152,7 +152,6 @@ class FanModeImmersion(MinerConfigValue):
 
     def as_bosminer(self) -> dict:
         return {
-            "temp_control": {"mode": "disabled"},
             "fan_control": {"min_fans": 0},
         }
 
