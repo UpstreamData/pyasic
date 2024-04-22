@@ -44,11 +44,21 @@ class FanModeNormal(MinerConfigValue):
             cls_conf["minimum_speed"] = web_cooling_settings["fan_min_duty"]
         return cls(**cls_conf)
 
+    @classmethod
+    def from_bosminer(cls, toml_fan_conf: dict):
+        cls_conf = {}
+        if toml_fan_conf.get("min_fans") is not None:
+            cls_conf["minimum_fans"] = toml_fan_conf["min_fans"]
+        return cls(**cls_conf)
+
     def as_am_modern(self) -> dict:
         return {"bitmain-fan-ctrl": False, "bitmain-fan-pwn": "100"}
 
     def as_bosminer(self) -> dict:
-        return {"temp_control": {"mode": "auto"}}
+        return {
+            "temp_control": {"mode": "auto"},
+            "fan_control": {"min_fans": self.minimum_fans},
+        }
 
     def as_epic(self) -> dict:
         return {
@@ -123,7 +133,10 @@ class FanModeImmersion(MinerConfigValue):
         return {"bitmain-fan-ctrl": True, "bitmain-fan-pwm": "0"}
 
     def as_bosminer(self) -> dict:
-        return {"temp_control": {"mode": "disabled"}}
+        return {
+            "temp_control": {"mode": "disabled"},
+            "fan_control": {"min_fans": 0},
+        }
 
     def as_auradine(self) -> dict:
         return {"fan": {"percentage": 0}}
@@ -178,20 +191,28 @@ class FanModeConfig(MinerConfigOption):
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict):
-        if toml_conf.get("temp_control") is None:
-            return cls.default()
-        if toml_conf["temp_control"].get("mode") is None:
+        try:
+            mode = toml_conf["temp_control"]["mode"]
+            fan_config = toml_conf.get("fan_control", {})
+            if mode == "auto":
+                return cls.normal().from_bosminer(fan_config)
+            elif mode == "manual":
+                if toml_conf.get("fan_control"):
+                    return cls.manual().from_bosminer(fan_config)
+                return cls.manual()
+            elif mode == "disabled":
+                return cls.immersion()
+        except KeyError:
+            pass
+
+        try:
+            min_fans = toml_conf["fan_control"]["min_fans"]
+        except KeyError:
             return cls.default()
 
-        mode = toml_conf["temp_control"]["mode"]
-        if mode == "auto":
-            return cls.normal()
-        elif mode == "manual":
-            if toml_conf.get("fan_control"):
-                return cls.manual().from_bosminer(toml_conf["fan_control"])
-            return cls.manual()
-        elif mode == "disabled":
+        if min_fans == 0:
             return cls.immersion()
+        return cls.normal(minimum_fans=min_fans)
 
     @classmethod
     def from_vnish(cls, web_settings: dict):
