@@ -24,6 +24,7 @@ from pyasic.rpc.bmminer import BMMinerRPCAPI
 from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.rpc.btminer import BTMinerRPCAPI
 from pyasic.rpc.cgminer import CGMinerRPCAPI
+from pyasic.rpc.gcminer import GCMinerRPCAPI
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
 
@@ -157,6 +158,12 @@ class TestCGMinerAPI(TestAPIBase):
     def setUpData(self):
         self.api = CGMinerRPCAPI(self.ip)
         self.api_str = "CGMiner"
+
+
+class TestGCMinerRPCAPI(TestAPIBase):
+    def setUpData(self):
+        self.api = GCMinerRPCAPI(self.ip)
+        self.api_str = "GCMiner"
 
 
 class TestLuxOSAPI(TestAPIBase):
