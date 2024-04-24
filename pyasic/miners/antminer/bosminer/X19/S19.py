@@ -23,7 +23,9 @@ from pyasic.miners.models import (
     S19j,
     S19jNoPIC,
     S19jPro,
+    S19jProNoPIC,
     S19jProPlus,
+    S19jProPlusNoPIC,
     S19kProNoPIC,
     S19Plus,
     S19Pro,
@@ -58,6 +60,10 @@ class BOSMinerS19jPro(BOSer, S19jPro):
     pass
 
 
+class BOSMinerS19jProNoPIC(BOSer, S19jProNoPIC):
+    pass
+
+
 class BOSMinerS19kProNoPIC(BOSer, S19kProNoPIC):
     pass
 
@@ -67,6 +73,10 @@ class BOSMinerS19aPro(BOSer, S19aPro):
 
 
 class BOSMinerS19jProPlus(BOSer, S19jProPlus):
+    pass
+
+
+class BOSMinerS19jProPlusNoPIC(BOSer, S19jProPlusNoPIC):
     pass
 
 
