@@ -89,6 +89,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21">S21</a></li>
+                    <li><a href="../antminer/X21#t21">T21</a></li>
                 </ul>
         </details>
     </ul>
@@ -453,8 +454,10 @@ details {
                     <li><a href="../antminer/X19#s19j">S19j</a></li>
                     <li><a href="../antminer/X19#s19j-no-pic">S19j No PIC</a></li>
                     <li><a href="../antminer/X19#s19j-pro">S19j Pro</a></li>
-                    <li><a href="../antminer/X19#s19j-pro">S19j Pro</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-no-pic">S19j Pro No PIC</a></li>
                     <li><a href="../antminer/X19#s19j-pro_1">S19j Pro+</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1">S19j Pro+</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-no-pic">S19j Pro+ No PIC</a></li>
                     <li><a href="../antminer/X19#s19k-pro-no-pic">S19k Pro No PIC</a></li>
                     <li><a href="../antminer/X19#s19-xp">S19 XP</a></li>
                     <li><a href="../antminer/X19#t19">T19</a></li>
@@ -525,12 +528,14 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-epic">S21 (ePIC)</a></li>
+                    <li><a href="../antminer/X21#t21-epic">T21 (ePIC)</a></li>
                 </ul>
         </details>
         <details>
             <summary>blockminer Series:</summary>
                 <ul>
                     <li><a href="../blockminer/blockminer#blockminer-520i-epic">BlockMiner 520i (ePIC)</a></li>
+                    <li><a href="../blockminer/blockminer#blockminer-720i-epic">BlockMiner 720i (ePIC)</a></li>
                 </ul>
         </details>
     </ul>
@@ -598,6 +603,30 @@ details {
                 <ul>
                     <li><a href="../auradine/AT#ad2500">AD2500</a></li>
                     <li><a href="../auradine/AT#ad3500">AD3500</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>None:</summary>
+    <ul>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19-marafw">S19 (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-marafw">S19 Pro (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19j-marafw">S19j (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19j-no-pic-marafw">S19j No PIC (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-marafw">S19j Pro (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-marafw">S19 XP (MaraFW)</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-marafw">S19K Pro (MaraFW)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>X21 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X21#s21-marafw">S21 (MaraFW)</a></li>
+                    <li><a href="../antminer/X21#t21-marafw">T21 (MaraFW)</a></li>
                 </ul>
         </details>
     </ul>
