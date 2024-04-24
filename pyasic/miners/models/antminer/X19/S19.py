@@ -89,8 +89,20 @@ class S19jPro(AntMinerMake):
     expected_fans = 4
 
 
+class S19jProNoPIC(AntMinerMake):
+    raw_model = "S19j Pro No PIC"
+    expected_chips = 126
+    expected_fans = 4
+
+
 class S19jProPlus(AntMinerMake):
     raw_model = "S19j Pro+"
+    expected_chips = 120
+    expected_fans = 4
+
+
+class S19jProPlusNoPIC(AntMinerMake):
+    raw_model = "S19j Pro+ No PIC"
     expected_chips = 120
     expected_fans = 4
 
