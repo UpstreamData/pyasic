@@ -542,25 +542,22 @@ class MinerFactory:
 
     async def _get_miner_web(self, ip: str) -> MinerTypes | None:
         urls = [f"http://{ip}/", f"https://{ip}/"]
-        async with httpx.AsyncClient(
-            transport=settings.transport(verify=False)
-        ) as session:
-            tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
+        tasks = [asyncio.create_task(self._web_ping(url)) for url in urls]
 
-            text, resp = await concurrent_get_first_result(
-                tasks,
-                lambda x: x[0] is not None
-                and self._parse_web_type(x[0], x[1]) is not None,
-            )
-            if text is not None:
-                return self._parse_web_type(text, resp)
+        text, resp = await concurrent_get_first_result(
+            tasks,
+            lambda x: x[0] is not None and self._parse_web_type(x[0], x[1]) is not None,
+        )
+        if text is not None:
+            return self._parse_web_type(text, resp)
 
     @staticmethod
-    async def _web_ping(
-        session: httpx.AsyncClient, url: str
-    ) -> tuple[str | None, httpx.Response | None]:
+    async def _web_ping(url: str) -> tuple[str | None, httpx.Response | None]:
         try:
-            resp = await session.get(url, follow_redirects=True)
+            async with httpx.AsyncClient(
+                transport=settings.transport(verify=False)
+            ) as c:
+                resp = await c.get(url, follow_redirects=True)
             return resp.text, resp
         except (
             httpx.HTTPError,
