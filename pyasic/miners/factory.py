@@ -541,30 +541,19 @@ class MinerFactory:
         return await concurrent_get_first_result(tasks, lambda x: x is not None)
 
     async def _get_miner_web(self, ip: str) -> MinerTypes | None:
-        tasks = []
-        try:
-            urls = [f"http://{ip}/", f"https://{ip}/"]
-            async with httpx.AsyncClient(
-                transport=settings.transport(verify=False)
-            ) as session:
-                tasks = [
-                    asyncio.create_task(self._web_ping(session, url)) for url in urls
-                ]
+        urls = [f"http://{ip}/", f"https://{ip}/"]
+        async with httpx.AsyncClient(
+            transport=settings.transport(verify=False)
+        ) as session:
+            tasks = [asyncio.create_task(self._web_ping(session, url)) for url in urls]
 
-                text, resp = await concurrent_get_first_result(
-                    tasks,
-                    lambda x: x[0] is not None
-                    and self._parse_web_type(x[0], x[1]) is not None,
-                )
-                if text is not None:
-                    return self._parse_web_type(text, resp)
-        except asyncio.CancelledError:
-            for t in tasks:
-                t.cancel()
-                try:
-                    await t
-                except asyncio.CancelledError:
-                    pass
+            text, resp = await concurrent_get_first_result(
+                tasks,
+                lambda x: x[0] is not None
+                and self._parse_web_type(x[0], x[1]) is not None,
+            )
+            if text is not None:
+                return self._parse_web_type(text, resp)
 
     @staticmethod
     async def _web_ping(
@@ -612,27 +601,16 @@ class MinerFactory:
             return MinerTypes.AURADINE
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
-        tasks = []
-        try:
-            commands = ["version", "devdetails"]
-            tasks = [
-                asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands
-            ]
+        commands = ["version", "devdetails"]
+        tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
 
-            data = await concurrent_get_first_result(
-                tasks,
-                lambda x: x is not None and self._parse_socket_type(x) is not None,
-            )
-            if data is not None:
-                d = self._parse_socket_type(data)
-                return d
-        except asyncio.CancelledError:
-            for t in tasks:
-                t.cancel()
-                try:
-                    await t
-                except asyncio.CancelledError:
-                    pass
+        data = await concurrent_get_first_result(
+            tasks,
+            lambda x: x is not None and self._parse_socket_type(x) is not None,
+        )
+        if data is not None:
+            d = self._parse_socket_type(data)
+            return d
 
     @staticmethod
     async def _socket_ping(ip: str, cmd: str) -> str | None:
