@@ -43,7 +43,7 @@ class TestFanConfig(unittest.TestCase):
                 conf = fan_mode()
                 epic_conf = conf.as_epic()
                 self.assertEqual(conf, FanModeConfig.from_epic(epic_conf))
-    
+
     def test_vnish_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
