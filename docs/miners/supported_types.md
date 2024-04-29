@@ -608,7 +608,7 @@ details {
     </ul>
 </details>
 <details>
-<summary>None:</summary>
+<summary>Mara Firmware Miners:</summary>
     <ul>
         <details>
             <summary>X19 Series:</summary>
