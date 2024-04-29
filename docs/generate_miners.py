@@ -47,8 +47,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware Goldshells"
         case MinerTypes.LUX_OS:
             return "LuxOS Firmware Miners"
-        case MinerTypes.EPIC:
-            return "ePIC Firmware Miners"
+        case MinerTypes.MARATHON:
+            return "Mara Firmware Miners"
 
 
 def create_url_str(mtype: str):
