@@ -557,9 +557,7 @@ class MinerFactory:
                 if mtype == MinerTypes.ANTMINER:
                     # could still be mara
                     auth = httpx.DigestAuth("root", "root")
-                    res = await self.send_web_command(
-                        ip, "/kaonsu/v1/brief", auth=auth
-                    )
+                    res = await self.send_web_command(ip, "/kaonsu/v1/brief", auth=auth)
                     if res is not None:
                         mtype = MinerTypes.MARATHON
                 return mtype

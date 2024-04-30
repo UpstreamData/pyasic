@@ -25,8 +25,9 @@ from pyasic.misc import merge_dicts
 
 @dataclass
 class MinerConfig:
-    """Represents the configuration for a miner including pool configuration, 
+    """Represents the configuration for a miner including pool configuration,
     fan mode, temperature settings, mining mode, and power scaling."""
+
     pools: PoolConfig = field(default_factory=PoolConfig.default)
     fan_mode: FanModeConfig = field(default_factory=FanModeConfig.default)
     temperature: TemperatureConfig = field(default_factory=TemperatureConfig.default)
@@ -110,7 +111,7 @@ class MinerConfig:
         }
 
     def as_boser(self, user_suffix: str = None) -> dict:
-        """"Generates the configuration in the format suitable for BOSer."""
+        """ "Generates the configuration in the format suitable for BOSer."""
         return {
             **self.fan_mode.as_boser(),
             **self.temperature.as_boser(),
