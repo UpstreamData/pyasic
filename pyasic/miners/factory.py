@@ -564,6 +564,7 @@ class MinerFactory:
                         mtype = MinerTypes.MARATHON
                 return mtype
 
+
     @staticmethod
     async def _web_ping(
         session: httpx.AsyncClient, url: str
