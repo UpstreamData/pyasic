@@ -138,6 +138,15 @@ class MinerConfig:
             **self.power_scaling.as_auradine(),
         }
 
+    def as_mara(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_mara(),
+            **self.temperature.as_mara(),
+            **self.mining_mode.as_mara(),
+            **self.pools.as_mara(user_suffix=user_suffix),
+            **self.power_scaling.as_mara(),
+        }
+
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
         """Constructs a MinerConfig object from a dictionary."""
@@ -227,4 +236,12 @@ class MinerConfig:
             pools=PoolConfig.from_api(web_conf["pools"]),
             fan_mode=FanModeConfig.from_auradine(web_conf["fan"]),
             mining_mode=MiningModeConfig.from_auradine(web_conf["mode"]),
+        )
+
+    @classmethod
+    def from_mara(cls, web_miner_config: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_mara(web_miner_config),
+            fan_mode=FanModeConfig.from_mara(web_miner_config),
+            mining_mode=MiningModeConfig.from_mara(web_miner_config),
         )

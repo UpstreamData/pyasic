@@ -71,6 +71,15 @@ class FanModeNormal(MinerConfigValue):
             }
         }
 
+    def as_mara(self) -> dict:
+        return {
+            "general-config": {"environment-profile": "AirCooling"},
+            "advance-config": {
+                "override-fan-control": False,
+                "fan-fixed-percent": 0,
+            },
+        }
+
 
 @dataclass
 class FanModeManual(MinerConfigValue):
@@ -120,6 +129,15 @@ class FanModeManual(MinerConfigValue):
     def as_epic(self) -> dict:
         return {"fans": {"Manual": {"speed": self.speed}}}
 
+    def as_mara(self) -> dict:
+        return {
+            "general-config": {"environment-profile": "AirCooling"},
+            "advance-config": {
+                "override-fan-control": True,
+                "fan-fixed-percent": self.speed,
+            },
+        }
+
 
 @dataclass
 class FanModeImmersion(MinerConfigValue):
@@ -139,6 +157,9 @@ class FanModeImmersion(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"fan": {"percentage": 0}}
+
+    def as_mara(self) -> dict:
+        return {"general-config": {"environment-profile": "OilImmersionCooling"}}
 
 
 class FanModeConfig(MinerConfigOption):
@@ -255,4 +276,18 @@ class FanModeConfig(MinerConfigOption):
             fan_1_target = fan_data["Target"]
             return cls.manual(speed=round((fan_1_target / fan_1_max) * 100))
         except LookupError:
-            return cls.default()
+            pass
+        return cls.default()
+
+    @classmethod
+    def from_mara(cls, web_config: dict):
+        try:
+            mode = web_config["general-config"]["environment-profile"]
+            if mode == "AirCooling":
+                if web_config["advance-config"]["override-fan-control"]:
+                    return cls.manual(web_config["advance-config"]["fan-fixed-percent"])
+                return cls.normal()
+            return cls.immersion()
+        except LookupError:
+            pass
+        return cls.default()
