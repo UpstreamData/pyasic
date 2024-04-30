@@ -642,6 +642,8 @@ class BOSer(BaseMiner):
     _web_cls = BOSerWebAPI
     web: BOSerWebAPI
 
+    firmware = "BOS+"
+
     data_locations = BOSER_DATA_LOC
 
     supports_autotuning = True
