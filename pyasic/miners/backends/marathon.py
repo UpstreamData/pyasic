@@ -172,7 +172,7 @@ class MaraMiner(BaseMiner):
             try:
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
-                    hashboards[idx].hashrate = hb["hashrate_average"]
+                    hashboards[idx].hashrate = round(hb["hashrate_average"] / 1000, 2)
                     hashboards[idx].temp = round(
                         sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"]), 2
                     )
