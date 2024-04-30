@@ -126,7 +126,7 @@ class MaraMiner(BaseMiner):
 
         if web_brief is not None:
             try:
-                return web_brief["power_consumption_estimated"]
+                return round(web_brief["power_consumption_estimated"])
             except LookupError:
                 pass
 
