@@ -278,7 +278,7 @@ class MaraMiner(BaseMiner):
 
         if web_brief is not None:
             try:
-                return round(web_brief["hashrate_ideal"], 2)
+                return round(web_brief["hashrate_ideal"] / 1000, 2)
             except LookupError:
                 pass
 
