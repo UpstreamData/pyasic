@@ -13,12 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M53VH30(WhatsMinerMake):
-    raw_model = "M53 VH30"
+    raw_model = MinerModels.WHATSMINER.M53VH30
+
     expected_hashboards = 4
     expected_chips = 128
     expected_fans = 0

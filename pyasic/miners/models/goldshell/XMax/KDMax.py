@@ -13,11 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import GoldshellMake
 
 
 class KDMax(GoldshellMake):
-    raw_model = "KD Max"
-    expected_hashboards = 3
+    raw_model = MinerModels.GOLDSHELL.KDMax
+
     expected_chips = 84
     expected_fans = 4

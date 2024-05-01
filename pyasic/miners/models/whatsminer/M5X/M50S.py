@@ -13,47 +13,41 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M50SVJ10(WhatsMinerMake):
-    raw_model = "M50S VJ10"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVJ10
 
 
 class M50SVJ20(WhatsMinerMake):
-    raw_model = "M50S VJ20"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVJ20
 
 
 class M50SVJ30(WhatsMinerMake):
-    raw_model = "M50S VJ30"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVJ30
 
 
 class M50SVH10(WhatsMinerMake):
-    raw_model = "M50S VH10"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVH10
 
 
 class M50SVH20(WhatsMinerMake):
-    raw_model = "M50S VH20"
+    raw_model = MinerModels.WHATSMINER.M50SVH20
+
     expected_chips = 135
-    expected_fans = 2
 
 
 class M50SVH30(WhatsMinerMake):
-    raw_model = "M50S VH30"
+    raw_model = MinerModels.WHATSMINER.M50SVH30
+
     expected_chips = 156
-    expected_fans = 2
 
 
 class M50SVH40(WhatsMinerMake):
-    raw_model = "M50S VH40"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVH40
 
 
 class M50SVH50(WhatsMinerMake):
-    raw_model = "M50S VH50"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50SVH50

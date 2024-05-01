@@ -13,12 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M34SPlusVE10(WhatsMinerMake):
-    raw_model = "M34S+ VE10"
+    raw_model = MinerModels.WHATSMINER.M34SPlusVE10
+
     expected_hashboards = 4
     expected_chips = 116
     expected_fans = 0

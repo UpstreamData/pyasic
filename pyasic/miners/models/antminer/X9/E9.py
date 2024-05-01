@@ -13,12 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class E9Pro(AntMinerMake):
-    raw_model = "E9Pro"
+    raw_model = MinerModels.ANTMINER.E9Pro
+
     expected_chips = 8
     expected_hashboards = 2
     expected_fans = 4

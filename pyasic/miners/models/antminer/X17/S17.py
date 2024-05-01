@@ -13,29 +13,33 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class S17(AntMinerMake):
-    raw_model = "S17"
+    raw_model = MinerModels.ANTMINER.S17
+
     expected_chips = 48
     expected_fans = 4
 
 
 class S17Plus(AntMinerMake):
-    raw_model = "S17+"
+    raw_model = MinerModels.ANTMINER.S17Plus
+
     expected_chips = 65
     expected_fans = 4
 
 
 class S17Pro(AntMinerMake):
-    raw_model = "S17 Pro"
+    raw_model = MinerModels.ANTMINER.S17Pro
+
     expected_chips = 48
     expected_fans = 4
 
 
 class S17e(AntMinerMake):
-    raw_model = "S17e"
+    raw_model = MinerModels.ANTMINER.S17e
+
     expected_chips = 135
     expected_fans = 4

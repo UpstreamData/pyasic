@@ -13,11 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class T9(AntMinerMake):
-    raw_model = "T9"
+    raw_model = MinerModels.ANTMINER.T9
+
     expected_chips = 54
-    expected_fans = 2
