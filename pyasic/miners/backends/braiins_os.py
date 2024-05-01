@@ -32,6 +32,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import BraiinsOSFirmware
 from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
@@ -95,7 +96,7 @@ BOSMINER_DATA_LOC = DataLocations(
 )
 
 
-class BOSMiner(BaseMiner):
+class BOSMiner(BraiinsOSFirmware):
     """Handler for old versions of BraiinsOS+ (pre-gRPC)"""
 
     _rpc_cls = BOSMinerRPCAPI
@@ -104,8 +105,6 @@ class BOSMiner(BaseMiner):
     web: BOSMinerWebAPI
     _ssh_cls = BOSMinerSSH
     ssh: BOSMinerSSH
-
-    firmware = "BOS+"
 
     data_locations = BOSMINER_DATA_LOC
 
@@ -634,15 +633,13 @@ BOSER_DATA_LOC = DataLocations(
 )
 
 
-class BOSer(BaseMiner):
+class BOSer(BraiinsOSFirmware):
     """Handler for new versions of BraiinsOS+ (post-gRPC)"""
 
     _rpc_cls = BOSMinerRPCAPI
     web: BOSMinerRPCAPI
     _web_cls = BOSerWebAPI
     web: BOSerWebAPI
-
-    firmware = "BOS+"
 
     data_locations = BOSER_DATA_LOC
 

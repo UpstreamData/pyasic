@@ -6,6 +6,7 @@ from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
+from pyasic.miners.device.firmware import MaraFirmware, StockFirmware
 from pyasic.misc import merge_dicts
 from pyasic.web.marathon import MaraWebAPI
 
@@ -63,13 +64,11 @@ MARA_DATA_LOC = DataLocations(
 )
 
 
-class MaraMiner(BaseMiner):
+class MaraMiner(MaraFirmware):
     _web_cls = MaraWebAPI
     web: MaraWebAPI
 
     data_locations = MARA_DATA_LOC
-
-    firmware = "MaraFW"
 
     async def fault_light_off(self) -> bool:
         res = await self.web.set_locate_miner(blinking=False)

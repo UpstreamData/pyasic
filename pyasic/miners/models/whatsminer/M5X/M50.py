@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import WhatsMinerMake
+from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M50VE30(WhatsMinerMake):

@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AvalonMinerMake
+from pyasic.miners.device.makes import AvalonMinerMake
 
 
 class Avalon1166Pro(AvalonMinerMake):

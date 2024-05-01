@@ -21,6 +21,7 @@ from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.bmminer import BMMinerRPCAPI
 
 BMMINER_DATA_LOC = DataLocations(
@@ -57,7 +58,7 @@ BMMINER_DATA_LOC = DataLocations(
 )
 
 
-class BMMiner(BaseMiner):
+class BMMiner(StockFirmware):
     """Base handler for BMMiner based miners."""
 
     _rpc_cls = BMMinerRPCAPI

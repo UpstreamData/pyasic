@@ -34,9 +34,9 @@ from pyasic.miners.backends import *
 from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.blockminer import *
+from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.innosilicon import *
-from pyasic.miners.makes import *
 from pyasic.miners.whatsminer import *
 
 

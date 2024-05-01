@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import GoldshellMake
+from pyasic.miners.device.makes import GoldshellMake
 
 
 class CK5(GoldshellMake):

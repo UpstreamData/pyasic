@@ -1,4 +1,4 @@
-from pyasic.miners.makes import AuradineMake
+from pyasic.miners.device.makes import AuradineMake
 
 
 class AuradineAT1500(AuradineMake):
