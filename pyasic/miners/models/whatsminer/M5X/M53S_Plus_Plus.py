@@ -13,10 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M53SPlusPlusVK10(WhatsMinerMake):
-    raw_model = "M53S++ VK10"
+    raw_model = MinerModels.WHATSMINER.M53SPlusPlusVK10
+
     expected_fans = 0

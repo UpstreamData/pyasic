@@ -13,81 +13,76 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M50VE30(WhatsMinerMake):
-    raw_model = "M50 VE30"
+    raw_model = MinerModels.WHATSMINER.M50VE30
+
     expected_hashboards = 4
     expected_chips = 255
-    expected_fans = 2
 
 
 class M50VG30(WhatsMinerMake):
-    raw_model = "M50 VG30"
+    raw_model = MinerModels.WHATSMINER.M50VG30
+
     expected_chips = 156
-    expected_fans = 2
 
 
 class M50VH10(WhatsMinerMake):
-    raw_model = "M50 VH10"
+    raw_model = MinerModels.WHATSMINER.M50VH10
+
     expected_chips = 86
-    expected_fans = 2
 
 
 class M50VH20(WhatsMinerMake):
-    raw_model = "M50 VH20"
+    raw_model = MinerModels.WHATSMINER.M50VH20
+
     expected_chips = 111
-    expected_fans = 2
 
 
 class M50VH30(WhatsMinerMake):
-    raw_model = "M50 VH30"
+    raw_model = MinerModels.WHATSMINER.M50VH30
+
     expected_chips = 117
-    expected_fans = 2
 
 
 class M50VH40(WhatsMinerMake):
-    raw_model = "M50 VH40"
+    raw_model = MinerModels.WHATSMINER.M50VH40
+
     expected_chips = 84
-    expected_fans = 2
 
 
 class M50VH50(WhatsMinerMake):
-    raw_model = "M50 VH50"
+    raw_model = MinerModels.WHATSMINER.M50VH50
+
     expected_chips = 105
-    expected_fans = 2
 
 
 class M50VH60(WhatsMinerMake):
-    raw_model = "M50 VH60"
+    raw_model = MinerModels.WHATSMINER.M50VH60
+
     expected_chips = 84
-    expected_fans = 2
 
 
 class M50VH70(WhatsMinerMake):
-    raw_model = "M50 VH70"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50VH70
 
 
 class M50VH80(WhatsMinerMake):
-    raw_model = "M50 VH80"
+    raw_model = MinerModels.WHATSMINER.M50VH80
+
     expected_chips = 111
-    expected_fans = 2
 
 
 class M50VJ10(WhatsMinerMake):
-    raw_model = "M50 VJ10"
-    expected_chips = 0
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50VJ10
 
 
 class M50VJ20(WhatsMinerMake):
-    raw_model = "M50 VJ20"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50VJ20
 
 
 class M50VJ30(WhatsMinerMake):
-    raw_model = "M50 VJ30"
-    expected_fans = 2
+    raw_model = MinerModels.WHATSMINER.M50VJ30

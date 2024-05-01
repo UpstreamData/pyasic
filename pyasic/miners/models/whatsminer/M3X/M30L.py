@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M30LV10(WhatsMinerMake):
-    raw_model = "M30L V10"
+    raw_model = MinerModels.WHATSMINER.M30LV10
+
     board_num = 4
     expected_chips = 144
-    expected_fans = 2

@@ -13,11 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import InnosiliconMake
 
 
 class T3HPlus(InnosiliconMake):
-    raw_model = "T3H+"
+    raw_model = MinerModels.INNOSILICON.T3HPlus
+
     expected_chips = 114
     expected_fans = 4

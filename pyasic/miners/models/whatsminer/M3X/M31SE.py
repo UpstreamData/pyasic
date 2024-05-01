@@ -13,23 +13,23 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+from pyasic.device.models import MinerModels
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M31SEV10(WhatsMinerMake):
-    raw_model = "M31SE V10"
+    raw_model = MinerModels.WHATSMINER.M31SEV10
+
     expected_chips = 82
-    expected_fans = 2
 
 
 class M31SEV20(WhatsMinerMake):
-    raw_model = "M31SE V20"
+    raw_model = MinerModels.WHATSMINER.M31SEV20
+
     expected_chips = 78
-    expected_fans = 2
 
 
 class M31SEV30(WhatsMinerMake):
-    raw_model = "M31SE V30"
+    raw_model = MinerModels.WHATSMINER.M31SEV30
+
     expected_chips = 78
-    expected_fans = 2
