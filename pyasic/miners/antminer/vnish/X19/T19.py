@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.models import T19
+from pyasic.miners.device.models import T19
 
 
 class VNishT19(VNish, T19):

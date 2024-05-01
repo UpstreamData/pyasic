@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerOld
-from pyasic.miners.models import L3Plus
+from pyasic.miners.device.models import L3Plus
 
 
 class BMMinerL3Plus(AntminerOld, L3Plus):

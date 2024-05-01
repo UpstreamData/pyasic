@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.models import (
+from pyasic.miners.device.models import (
     S19,
     S19L,
     S19XP,
@@ -26,12 +26,12 @@ from pyasic.miners.models import (
     S19j,
     S19jNoPIC,
     S19jPro,
+    S19KPro,
     S19Plus,
     S19Pro,
     S19ProHydro,
     S19ProPlus,
     S19ProPlusHydro,
-    S19KPro,
 )
 
 

@@ -15,7 +15,15 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import ePIC
-from pyasic.miners.models import S19, S19XP, S19j, S19jPro, S19jProPlus, S19kPro, S19Pro
+from pyasic.miners.device.models import (
+    S19,
+    S19XP,
+    S19j,
+    S19jPro,
+    S19jProPlus,
+    S19kPro,
+    S19Pro,
+)
 
 
 class ePICS19(ePIC, S19):

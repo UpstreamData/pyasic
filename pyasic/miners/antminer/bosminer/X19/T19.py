@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSer
-from pyasic.miners.models import T19
+from pyasic.miners.device.models import T19
 
 
 class BOSMinerT19(BOSer, T19):

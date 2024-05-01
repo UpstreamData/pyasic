@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.models import E9Pro
+from pyasic.miners.device.models import E9Pro
 
 
 class BMMinerE9Pro(AntminerModern, E9Pro):
