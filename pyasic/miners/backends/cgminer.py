@@ -20,6 +20,7 @@ from pyasic.config import MinerConfig
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 CGMINER_DATA_LOC = DataLocations(
@@ -56,7 +57,7 @@ CGMINER_DATA_LOC = DataLocations(
 )
 
 
-class CGMiner(BaseMiner):
+class CGMiner(StockFirmware):
     """Base handler for CGMiner based miners"""
 
     _rpc_cls = CGMinerRPCAPI

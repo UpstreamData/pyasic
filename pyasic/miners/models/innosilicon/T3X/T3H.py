@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import InnosiliconMake
+from pyasic.miners.device.makes import InnosiliconMake
 
 
 class T3HPlus(InnosiliconMake):

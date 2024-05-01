@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import WhatsMinerMake
+from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M32V10(WhatsMinerMake):

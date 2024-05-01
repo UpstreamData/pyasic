@@ -1,4 +1,4 @@
-from pyasic.miners.makes import ePICMake
+from pyasic.miners.device.makes import ePICMake
 
 
 class BlockMiner520i(ePICMake):

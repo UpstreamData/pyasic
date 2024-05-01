@@ -23,6 +23,7 @@ from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
 
 BTMINER_DATA_LOC = DataLocations(
@@ -110,7 +111,7 @@ BTMINER_DATA_LOC = DataLocations(
 )
 
 
-class BTMiner(BaseMiner):
+class BTMiner(StockFirmware):
     """Base handler for BTMiner based miners."""
 
     _rpc_cls = BTMinerRPCAPI

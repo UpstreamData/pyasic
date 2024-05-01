@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.makes import AntMinerMake
+from pyasic.miners.device.makes import AntMinerMake
 
 
 class Z15(AntMinerMake):

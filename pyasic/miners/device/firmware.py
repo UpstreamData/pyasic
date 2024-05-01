@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2023 Upstream Data Inc                                            -
+#  Copyright 2022 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -14,24 +14,33 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.device.makes import WhatsMinerMake
+from pyasic.device.firmware import MinerFirmware
+from pyasic.miners.base import BaseMiner
 
 
-class M60VK10(WhatsMinerMake):
-    raw_model = "M60 VK10"
-    expected_fans = 2
+class StockFirmware(BaseMiner):
+    firmware = MinerFirmware.STOCK
 
 
-class M60VK20(WhatsMinerMake):
-    raw_model = "M60 VK20"
-    expected_fans = 2
+class BraiinsOSFirmware(BaseMiner):
+    firmware = MinerFirmware.BRAIINS_OS
 
 
-class M60VK30(WhatsMinerMake):
-    raw_model = "M60 VK30"
-    expected_fans = 2
+class VNishFirmware(BaseMiner):
+    firmware = MinerFirmware.VNISH
 
 
-class M60VK40(WhatsMinerMake):
-    raw_model = "M60 VK40"
-    expected_fans = 2
+class ePICFirmware(BaseMiner):
+    firmware = MinerFirmware.EPIC
+
+
+class HiveonFirmware(BaseMiner):
+    firmware = MinerFirmware.HIVEON
+
+
+class LuxOSFirmware(BaseMiner):
+    firmware = MinerFirmware.LUXOS
+
+
+class MaraFirmware(BaseMiner):
+    firmware = MinerFirmware.MARATHON

@@ -26,6 +26,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import VNishFirmware
 from pyasic.web.vnish import VNishWebAPI
 
 VNISH_DATA_LOC = DataLocations(
@@ -82,15 +83,13 @@ VNISH_DATA_LOC = DataLocations(
 )
 
 
-class VNish(BMMiner):
+class VNish(BMMiner, VNishFirmware):
     """Handler for VNish miners"""
 
     _web_cls = VNishWebAPI
     web: VNishWebAPI
 
     supports_shutdown = True
-
-    firmware = "VNish"
 
     data_locations = VNISH_DATA_LOC
 

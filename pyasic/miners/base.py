@@ -20,7 +20,10 @@ from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.device.firmware import MinerFirmware
+from pyasic.device.makes import MinerMake
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
@@ -36,9 +39,9 @@ class MinerProtocol(Protocol):
     web: _web_cls = None
     ssh: _ssh_cls = None
 
-    make: str = None
+    make: MinerMake = None
     raw_model: str = None
-    firmware: str = None
+    firmware: MinerFirmware = None
 
     expected_hashboards: int = 3
     expected_chips: int = None
@@ -78,6 +81,10 @@ class MinerProtocol(Protocol):
         if self.firmware is not None:
             model_data.append(f"({self.firmware})")
         return " ".join(model_data)
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(make=self.make, model=self.raw_model, firmware=self.firmware)
 
     @property
     def api(self):
@@ -182,6 +189,14 @@ class MinerProtocol(Protocol):
             A string representing the model of the miner.
         """
         return self.model
+
+    async def get_device_info(self) -> Optional[DeviceInfo]:
+        """Get device information, including model, make, and firmware.
+
+        Returns:
+            A dataclass containing device information.
+        """
+        return self.device_info
 
     async def get_api_ver(self) -> Optional[str]:
         """Get the API version of the miner and is as a string.
@@ -465,8 +480,7 @@ class MinerProtocol(Protocol):
         """
         data = MinerData(
             ip=str(self.ip),
-            make=self.make,
-            model=self.model,
+            device_info=self.device_info,
             expected_chips=(
                 self.expected_chips * self.expected_hashboards
                 if self.expected_chips is not None
