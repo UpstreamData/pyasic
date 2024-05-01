@@ -68,7 +68,9 @@ class MinerData:
     """
 
     ip: str
-    datetime: datetime = None
+    _datetime: datetime = field(repr=False, default=None)
+    datetime: str = field(init=False)
+    timestamp: int = field(init=False)
     uptime: int = None
     mac: str = None
     model: str = None
@@ -117,7 +119,7 @@ class MinerData:
         return {k: v for (k, v) in x if not k.startswith("_")}
 
     def __post_init__(self):
-        self.datetime = datetime.now(timezone.utc).astimezone()
+        self._datetime = datetime.now(timezone.utc).astimezone()
 
     def get(self, __key: str, default: Any = None):
         try:
@@ -292,6 +294,22 @@ class MinerData:
     def efficiency(self, val):
         pass
 
+    @property
+    def datetime(self):  # noqa - Skip PyCharm inspection
+        return self._datetime.isoformat()
+
+    @datetime.setter
+    def datetime(self, val):
+        pass
+
+    @property
+    def timestamp(self):  # noqa - Skip PyCharm inspection
+        return int(time.mktime(self._datetime.timetuple()))
+
+    @timestamp.setter
+    def timestamp(self, val):
+        pass
+
     def asdict(self) -> dict:
         return asdict(self, dict_factory=self.dict_factory)
 
@@ -309,9 +327,7 @@ class MinerData:
         Returns:
             A JSON version of this class.
         """
-        data = self.asdict()
-        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
-        return json.dumps(data)
+        return json.dumps(self.as_dict())
 
     def as_csv(self) -> str:
         """Get this dataclass as CSV.
@@ -320,7 +336,6 @@ class MinerData:
             A CSV version of this class with no headers.
         """
         data = self.asdict()
-        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         errs = []
         for error in data["errors"]:
             errs.append(error["error_message"])
