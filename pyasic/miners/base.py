@@ -498,6 +498,7 @@ class MinerProtocol(Protocol):
                 else 0
             ),
             expected_hashboards=self.expected_hashboards,
+            expected_fans=self.expected_fans,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.expected_chips)
                 for i in range(self.expected_hashboards)

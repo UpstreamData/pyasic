@@ -39,8 +39,7 @@ class MinerData:
         datetime: The time and date this data was generated.
         uptime: The uptime of the miner in seconds.
         mac: The MAC address of the miner as a str.
-        model: The model of the miner as a str.
-        make: The make of the miner as a str.
+        device_info: Info about the device, such as model, make, and firmware.
         api_ver: The current api version on the miner as a str.
         fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
@@ -54,6 +53,7 @@ class MinerData:
         voltage: Current output voltage of the PSU as an float.
         wattage_limit: Power limit of the miner as an int.
         fans: A list of fans on the miner with their speeds.
+        expected_fans: The number of fans expected on a miner.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
         total_chips: The total number of chips on all boards.  Calculated automatically.
         expected_chips: The expected number of chips in the miner as an int.
@@ -68,36 +68,58 @@ class MinerData:
         is_mining: Whether the miner is mining.
     """
 
+    # general
     ip: str
     _datetime: datetime = field(repr=False, default=None)
     datetime: str = field(init=False)
     timestamp: int = field(init=False)
-    uptime: int = None
+
+    # about
     device_info: DeviceInfo = None
     mac: str = None
     api_ver: str = None
     fw_ver: str = None
     hostname: str = None
+
+    # hashrate
     hashrate: float = field(init=False)
     _hashrate: float = field(repr=False, default=None)
+
+    # expected
     expected_hashrate: float = None
-    hashboards: List[HashBoard] = field(default_factory=list)
     expected_hashboards: int = None
+    expected_chips: int = None
+    expected_fans: int = None
+
+    # % expected
+    percent_expected_chips: float = field(init=False)
+    percent_expected_hashrate: float = field(init=False)
+    percent_expected_wattage: float = field(init=False)
+
+    # temperature
     temperature_avg: int = field(init=False)
     env_temp: float = None
+
+    # power
     wattage: int = None
     wattage_limit: int = field(init=False)
     voltage: float = None
     _wattage_limit: int = field(repr=False, default=None)
+
+    # fans
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None
+
+    # boards
+    hashboards: List[HashBoard] = field(default_factory=list)
     total_chips: int = field(init=False)
-    expected_chips: int = None
-    percent_expected_chips: float = field(init=False)
-    percent_expected_hashrate: float = field(init=False)
-    percent_expected_wattage: float = field(init=False)
     nominal: bool = field(init=False)
+
+    # config
     config: MinerConfig = None
+    fault_light: Union[bool, None] = None
+
+    # errors
     errors: List[
         Union[
             WhatsminerError,
@@ -106,9 +128,11 @@ class MinerData:
             InnosiliconError,
         ]
     ] = field(default_factory=list)
-    fault_light: Union[bool, None] = None
-    efficiency: int = field(init=False)
+
+    # mining state
     is_mining: bool = True
+    uptime: int = None
+    efficiency: int = field(init=False)
 
     @classmethod
     def fields(cls):
