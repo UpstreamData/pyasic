@@ -27,7 +27,6 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.miners.device.firmware import StockFirmware
 from pyasic.web.goldshell import GoldshellWebAPI
 
 GOLDSHELL_DATA_LOC = DataLocations(
