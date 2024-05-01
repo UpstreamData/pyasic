@@ -398,6 +398,6 @@ class MinerData:
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
-        timestamp = str(int(time.mktime(self.datetime.timetuple()) * 1e9))
+        timestamp = str(self.timestamp * 1e9)
 
         return " ".join([tags_str, field_str, timestamp])
