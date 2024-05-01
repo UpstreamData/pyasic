@@ -21,7 +21,6 @@ from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
-from pyasic.miners.device.firmware import StockFirmware
 
 AVALON_DATA_LOC = DataLocations(
     **{

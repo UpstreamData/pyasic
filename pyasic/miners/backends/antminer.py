@@ -22,7 +22,6 @@ from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -30,7 +29,6 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.antminer import AntminerRPCAPI
 from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI

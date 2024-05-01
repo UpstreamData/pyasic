@@ -4,9 +4,8 @@ from pyasic import MinerConfig
 from pyasic.config import MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
-from pyasic.miners.device.firmware import MaraFirmware, StockFirmware
+from pyasic.miners.device.firmware import MaraFirmware
 from pyasic.misc import merge_dicts
 from pyasic.web.marathon import MaraWebAPI
 
