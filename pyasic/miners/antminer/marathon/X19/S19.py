@@ -15,7 +15,15 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import MaraMiner
-from pyasic.miners.models import S19, S19XP, S19j, S19jNoPIC, S19jPro, S19KPro, S19Pro
+from pyasic.miners.device.models import (
+    S19,
+    S19XP,
+    S19j,
+    S19jNoPIC,
+    S19jPro,
+    S19KPro,
+    S19Pro,
+)
 
 
 class MaraS19(MaraMiner, S19):

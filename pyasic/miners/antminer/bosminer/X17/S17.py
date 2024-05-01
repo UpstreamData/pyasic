@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSMiner
-from pyasic.miners.models import S17, S17e, S17Plus, S17Pro
+from pyasic.miners.device.models import S17, S17e, S17Plus, S17Pro
 
 
 class BOSMinerS17(BOSMiner, S17):

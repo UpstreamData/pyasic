@@ -15,7 +15,14 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import LUXMiner
-from pyasic.miners.models import S19, S19XP, S19jPro, S19jProPlus, S19kPro, S19Pro
+from pyasic.miners.device.models import (
+    S19,
+    S19XP,
+    S19jPro,
+    S19jProPlus,
+    S19kPro,
+    S19Pro,
+)
 
 
 class LUXMinerS19(LUXMiner, S19):

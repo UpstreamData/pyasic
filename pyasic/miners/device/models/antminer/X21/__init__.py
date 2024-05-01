@@ -14,9 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import (
-    S21,
-)
-from .T21 import (
-    T21,
-)
+from .S21 import S21
+from .T21 import T21

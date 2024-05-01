@@ -22,7 +22,7 @@ from pyasic.data import HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.backends import Hiveon
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
-from pyasic.miners.models import T9
+from pyasic.miners.device.models import T9
 
 HIVEON_T9_DATA_LOC = DataLocations(
     **{

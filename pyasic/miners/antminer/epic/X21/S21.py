@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import ePIC
-from pyasic.miners.models import S21
+from pyasic.miners.device.models import S21
 
 
 class ePICS21(ePIC, S21):
