@@ -14,32 +14,33 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from pyasic.device.makes import MinerMake
 from pyasic.miners.base import BaseMiner
 
 
 class WhatsMinerMake(BaseMiner):
-    make = "WhatsMiner"
+    make = MinerMake.WHATSMINER
 
 
 class AntMinerMake(BaseMiner):
-    make = "AntMiner"
+    make = MinerMake.ANTMINER
 
 
 class AvalonMinerMake(BaseMiner):
-    make = "AvalonMiner"
+    make = MinerMake.AVALONMINER
 
 
 class InnosiliconMake(BaseMiner):
-    make = "Innosilicon"
+    make = MinerMake.INNOSILICON
 
 
 class GoldshellMake(BaseMiner):
-    make = "Goldshell"
+    make = MinerMake.GOLDSHELL
 
 
 class AuradineMake(BaseMiner):
-    make = "Auradine"
+    make = MinerMake.AURADINE
 
 
 class ePICMake(BaseMiner):
-    make = "ePIC"
+    make = MinerMake.EPIC

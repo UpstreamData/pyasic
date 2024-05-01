@@ -28,6 +28,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.gcminer import GCMinerRPCAPI
 from pyasic.web.auradine import AuradineWebAPI
 
@@ -113,7 +114,7 @@ class AuradineLEDCodes(Enum):
         return self.value
 
 
-class Auradine(BaseMiner):
+class Auradine(StockFirmware):
     """Base handler for Auradine miners"""
 
     _rpc_cls = GCMinerRPCAPI

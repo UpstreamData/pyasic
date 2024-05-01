@@ -23,6 +23,7 @@ from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
+from pyasic.miners.device.firmware import ePICFirmware
 from pyasic.web.epic import ePICWebAPI
 
 EPIC_DATA_LOC = DataLocations(
@@ -86,13 +87,11 @@ EPIC_DATA_LOC = DataLocations(
 )
 
 
-class ePIC(BaseMiner):
+class ePIC(ePICFirmware):
     """Handler for miners with the ePIC board"""
 
     _web_cls = ePICWebAPI
     web: ePICWebAPI
-
-    firmware = "ePIC"
 
     data_locations = EPIC_DATA_LOC
 

@@ -28,6 +28,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.web.innosilicon import InnosiliconWebAPI
 
 INNOSILICON_DATA_LOC = DataLocations(

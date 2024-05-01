@@ -15,7 +15,8 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BMMiner
+from pyasic.miners.device.firmware import HiveonFirmware
 
 
-class Hiveon(BMMiner):
-    firmware = "Hive"
+class Hiveon(BMMiner, HiveonFirmware):
+    pass

@@ -20,6 +20,7 @@ from pyasic.data import Fan, HashBoard
 from pyasic.errors import APIError
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import LuxOSFirmware
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
 LUXMINER_DATA_LOC = DataLocations(
@@ -55,13 +56,11 @@ LUXMINER_DATA_LOC = DataLocations(
 )
 
 
-class LUXMiner(BaseMiner):
+class LUXMiner(LuxOSFirmware):
     """Handler for LuxOS miners"""
 
     _rpc_cls = LUXMinerRPCAPI
     rpc: LUXMinerRPCAPI
-
-    firmware = "LuxOS"
 
     data_locations = LUXMINER_DATA_LOC
 

@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.miners.makes import AntMinerMake
+from pyasic.miners.device.makes import AntMinerMake
 
 
 class L7(AntMinerMake):

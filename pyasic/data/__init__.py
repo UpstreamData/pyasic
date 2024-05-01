@@ -25,6 +25,7 @@ from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 
 from .boards import HashBoard
+from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
 
@@ -72,9 +73,8 @@ class MinerData:
     datetime: str = field(init=False)
     timestamp: int = field(init=False)
     uptime: int = None
+    device_info: DeviceInfo = None
     mac: str = None
-    model: str = None
-    make: str = None
     api_ver: str = None
     fw_ver: str = None
     hostname: str = None
