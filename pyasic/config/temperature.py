@@ -38,6 +38,8 @@ class TemperatureConfig(MinerConfigValue):
             temp_cfg["hot_temp"] = self.hot
         if self.danger is not None:
             temp_cfg["dangerous_temp"] = self.danger
+        if len(temp_cfg) == 0:
+            return {}
         return {"temp_control": temp_cfg}
 
     def as_epic(self) -> dict:
@@ -67,6 +69,7 @@ class TemperatureConfig(MinerConfigValue):
                 hot=temp_control.get("hot_temp"),
                 danger=temp_control.get("dangerous_temp"),
             )
+        return cls()
 
     @classmethod
     def from_epic(cls, web_conf: dict) -> "TemperatureConfig":

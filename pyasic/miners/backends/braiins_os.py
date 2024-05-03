@@ -176,11 +176,14 @@ class BOSMiner(BaseMiner):
             self.config = cfg
         except toml.TomlDecodeError as e:
             raise APIError("Failed to decode toml when getting config.") from e
+        except TypeError as e:
+            raise APIError("Failed to decode toml when getting config.") from e
 
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
+        print(config)
         parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
         toml_conf = toml.dumps(
