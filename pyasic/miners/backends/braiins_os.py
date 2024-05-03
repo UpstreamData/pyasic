@@ -201,9 +201,7 @@ class BOSMiner(BaseMiner):
 
         async with conn:
             await conn.run("/etc/init.d/bosminer stop")
-            async with conn.start_sftp_client() as sftp:
-                async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                    await file.write(toml_conf)
+            await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
             await conn.run("/etc/init.d/bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
