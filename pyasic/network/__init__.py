@@ -32,6 +32,10 @@ class MinerNetwork:
 
     def __init__(self, hosts: List[ipaddress.IPv4Address]):
         self.hosts = hosts
+        semaphore_limit = settings.get("network_scan_semaphore", 255)
+        if semaphore_limit is None:
+            semaphore_limit = 255
+        self.semaphore = asyncio.Semaphore(semaphore_limit)
 
     def __len__(self):
         return len(self.hosts)
@@ -153,8 +157,16 @@ class MinerNetwork:
             except TimeoutError:
                 yield None
 
+    async def ping_and_get_miner(
+        self, ip: ipaddress.ip_address
+    ) -> Union[None, AnyMiner]:
+        if settings.get("network_scan_semaphore") is None:
+            return await self._ping_and_get_miner(ip)
+        async with self.semaphore:
+            return await self._ping_and_get_miner(ip)
+
     @staticmethod
-    async def ping_and_get_miner(ip: ipaddress.ip_address) -> Union[None, AnyMiner]:
+    async def _ping_and_get_miner(ip: ipaddress.ip_address) -> Union[None, AnyMiner]:
         try:
             return await ping_and_get_miner(ip)
         except ConnectionRefusedError:

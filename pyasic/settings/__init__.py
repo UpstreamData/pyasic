@@ -24,6 +24,7 @@ from httpx import AsyncHTTPTransport
 _settings = {  # defaults
     "network_ping_retries": 1,
     "network_ping_timeout": 3,
+    "network_scan_semaphore": None,
     "factory_get_retries": 1,
     "factory_get_timeout": 3,
     "get_data_retries": 1,
