@@ -22,6 +22,8 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.device import MinerModel
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake
 from pyasic.errors import APIError
@@ -40,8 +42,9 @@ class MinerProtocol(Protocol):
     ssh: _ssh_cls = None
 
     make: MinerMake = None
-    raw_model: str = None
+    raw_model: MinerModel = None
     firmware: MinerFirmware = None
+    algo = MinerAlgo.SHA256
 
     expected_hashboards: int = 3
     expected_chips: int = None
@@ -84,7 +87,9 @@ class MinerProtocol(Protocol):
 
     @property
     def device_info(self) -> DeviceInfo:
-        return DeviceInfo(make=self.make, model=self.raw_model, firmware=self.firmware)
+        return DeviceInfo(
+            make=self.make, model=self.raw_model, firmware=self.firmware, algo=self.algo
+        )
 
     @property
     def api(self):

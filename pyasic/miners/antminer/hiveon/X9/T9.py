@@ -18,7 +18,7 @@ from typing import List, Optional
 
 import asyncssh
 
-from pyasic.data import HashBoard
+from pyasic.data import AlgoHashRate, HashBoard, HashUnit
 from pyasic.errors import APIError
 from pyasic.miners.backends import Hiveon
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -121,7 +121,9 @@ class HiveonT9(Hiveon, T9):
                     chips += rpc_stats["STATS"][1][f"chain_acn{chipset}"]
                 except (KeyError, IndexError):
                     pass
-            hashboards[board].hashrate = round(hashrate / 1000, 2)
+            hashboards[board].hashrate = AlgoHashRate.SHA256(
+                hashrate, HashUnit.SHA256.GH
+            ).into(self.algo.unit.default)
             hashboards[board].chips = chips
 
         return hashboards
