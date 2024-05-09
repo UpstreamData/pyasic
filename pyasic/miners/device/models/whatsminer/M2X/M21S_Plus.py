@@ -13,9 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M21SPlusV20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M21SPlusV20
+    raw_model = MinerModel.WHATSMINER.M21SPlusV20

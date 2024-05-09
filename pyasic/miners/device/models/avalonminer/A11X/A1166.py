@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AvalonMinerMake
 
 
 class Avalon1166Pro(AvalonMinerMake):
-    raw_model = MinerModels.AVALONMINER.Avalon1166Pro
+    raw_model = MinerModel.AVALONMINER.Avalon1166Pro
 
     expected_chips = 120
     expected_fans = 4

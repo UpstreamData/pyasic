@@ -13,138 +13,138 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class S19(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19
+    raw_model = MinerModel.ANTMINER.S19
 
     expected_chips = 76
     expected_fans = 4
 
 
 class S19NoPIC(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19NoPIC
+    raw_model = MinerModel.ANTMINER.S19NoPIC
 
     expected_chips = 88
     expected_fans = 4
 
 
 class S19Pro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19Pro
+    raw_model = MinerModel.ANTMINER.S19Pro
 
     expected_chips = 114
     expected_fans = 4
 
 
 class S19i(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19i
+    raw_model = MinerModel.ANTMINER.S19i
 
     expected_chips = 80
     expected_fans = 4
 
 
 class S19Plus(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19Plus
+    raw_model = MinerModel.ANTMINER.S19Plus
 
     expected_chips = 80
     expected_fans = 4
 
 
 class S19ProPlus(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19ProPlus
+    raw_model = MinerModel.ANTMINER.S19ProPlus
 
     expected_chips = 120
     expected_fans = 4
 
 
 class S19XP(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19XP
+    raw_model = MinerModel.ANTMINER.S19XP
 
     expected_chips = 110
     expected_fans = 4
 
 
 class S19a(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19a
+    raw_model = MinerModel.ANTMINER.S19a
 
     expected_chips = 72
     expected_fans = 4
 
 
 class S19aPro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19aPro
+    raw_model = MinerModel.ANTMINER.S19aPro
 
     expected_chips = 100
     expected_fans = 4
 
 
 class S19j(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19j
+    raw_model = MinerModel.ANTMINER.S19j
 
     expected_chips = 114
     expected_fans = 4
 
 
 class S19jNoPIC(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19jNoPIC
+    raw_model = MinerModel.ANTMINER.S19jNoPIC
 
     expected_chips = 88
     expected_fans = 4
 
 
 class S19jPro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19jPro
+    raw_model = MinerModel.ANTMINER.S19jPro
 
     expected_chips = 126
     expected_fans = 4
 
 
 class S19jProNoPIC(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19jProNoPIC
+    raw_model = MinerModel.ANTMINER.S19jProNoPIC
 
     expected_chips = 126
     expected_fans = 4
 
 
 class S19jProPlus(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19jProPlus
+    raw_model = MinerModel.ANTMINER.S19jProPlus
 
     expected_chips = 120
     expected_fans = 4
 
 
 class S19jProPlusNoPIC(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19jProPlusNoPIC
+    raw_model = MinerModel.ANTMINER.S19jProPlusNoPIC
 
     expected_chips = 120
     expected_fans = 4
 
 
 class S19kPro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19kPro
+    raw_model = MinerModel.ANTMINER.S19kPro
 
     expected_chips = 77
     expected_fans = 4
 
 
 class S19kProNoPIC(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19kProNoPIC
+    raw_model = MinerModel.ANTMINER.S19kProNoPIC
 
     expected_chips = 77
     expected_fans = 4
 
 
 class S19L(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19L
+    raw_model = MinerModel.ANTMINER.S19L
 
     expected_chips = 76
     expected_fans = 4
 
 
 class S19Hydro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19Hydro
+    raw_model = MinerModel.ANTMINER.S19Hydro
 
     expected_chips = 104
     expected_hashboards = 4
@@ -152,7 +152,7 @@ class S19Hydro(AntMinerMake):
 
 
 class S19ProHydro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19ProHydro
+    raw_model = MinerModel.ANTMINER.S19ProHydro
 
     expected_chips = 180
     expected_hashboards = 4
@@ -160,7 +160,7 @@ class S19ProHydro(AntMinerMake):
 
 
 class S19ProPlusHydro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19ProPlusHydro
+    raw_model = MinerModel.ANTMINER.S19ProPlusHydro
 
     expected_chips = 180
     expected_hashboards = 4
@@ -168,7 +168,7 @@ class S19ProPlusHydro(AntMinerMake):
 
 
 class S19KPro(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.S19KPro
+    raw_model = MinerModel.ANTMINER.S19KPro
 
     expected_chips = 77
     expected_fans = 4

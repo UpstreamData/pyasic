@@ -13,21 +13,21 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M60VK10(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M60VK10
+    raw_model = MinerModel.WHATSMINER.M60VK10
 
 
 class M60VK20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M60VK20
+    raw_model = MinerModel.WHATSMINER.M60VK20
 
 
 class M60VK30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M60VK30
+    raw_model = MinerModel.WHATSMINER.M60VK30
 
 
 class M60VK40(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M60VK40
+    raw_model = MinerModel.WHATSMINER.M60VK40
