@@ -13,73 +13,73 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M31SV10(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV10
+    raw_model = MinerModel.WHATSMINER.M31SV10
 
     expected_chips = 105
 
 
 class M31SV20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV20
+    raw_model = MinerModel.WHATSMINER.M31SV20
 
     expected_chips = 111
 
 
 class M31SV30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV30
+    raw_model = MinerModel.WHATSMINER.M31SV30
 
     expected_chips = 117
 
 
 class M31SV40(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV40
+    raw_model = MinerModel.WHATSMINER.M31SV40
 
     expected_chips = 123
 
 
 class M31SV50(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV50
+    raw_model = MinerModel.WHATSMINER.M31SV50
 
     expected_chips = 78
 
 
 class M31SV60(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV60
+    raw_model = MinerModel.WHATSMINER.M31SV60
 
     expected_chips = 105
 
 
 class M31SV70(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV70
+    raw_model = MinerModel.WHATSMINER.M31SV70
 
     expected_chips = 111
 
 
 class M31SV80(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV80
+    raw_model = MinerModel.WHATSMINER.M31SV80
 
 
 class M31SV90(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SV90
+    raw_model = MinerModel.WHATSMINER.M31SV90
 
     expected_chips = 117
 
 
 class M31SVE10(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SVE10
+    raw_model = MinerModel.WHATSMINER.M31SVE10
 
     expected_chips = 70
 
 
 class M31SVE20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SVE20
+    raw_model = MinerModel.WHATSMINER.M31SVE20
 
     expected_chips = 74
 
 
 class M31SVE30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M31SVE30
+    raw_model = MinerModel.WHATSMINER.M31SVE30

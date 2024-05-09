@@ -13,76 +13,76 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M50VE30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VE30
+    raw_model = MinerModel.WHATSMINER.M50VE30
 
     expected_hashboards = 4
     expected_chips = 255
 
 
 class M50VG30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VG30
+    raw_model = MinerModel.WHATSMINER.M50VG30
 
     expected_chips = 156
 
 
 class M50VH10(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH10
+    raw_model = MinerModel.WHATSMINER.M50VH10
 
     expected_chips = 86
 
 
 class M50VH20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH20
+    raw_model = MinerModel.WHATSMINER.M50VH20
 
     expected_chips = 111
 
 
 class M50VH30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH30
+    raw_model = MinerModel.WHATSMINER.M50VH30
 
     expected_chips = 117
 
 
 class M50VH40(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH40
+    raw_model = MinerModel.WHATSMINER.M50VH40
 
     expected_chips = 84
 
 
 class M50VH50(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH50
+    raw_model = MinerModel.WHATSMINER.M50VH50
 
     expected_chips = 105
 
 
 class M50VH60(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH60
+    raw_model = MinerModel.WHATSMINER.M50VH60
 
     expected_chips = 84
 
 
 class M50VH70(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH70
+    raw_model = MinerModel.WHATSMINER.M50VH70
 
 
 class M50VH80(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VH80
+    raw_model = MinerModel.WHATSMINER.M50VH80
 
     expected_chips = 111
 
 
 class M50VJ10(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VJ10
+    raw_model = MinerModel.WHATSMINER.M50VJ10
 
 
 class M50VJ20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VJ20
+    raw_model = MinerModel.WHATSMINER.M50VJ20
 
 
 class M50VJ30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M50VJ30
+    raw_model = MinerModel.WHATSMINER.M50VJ30

@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class L7(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.L7
+    raw_model = MinerModel.ANTMINER.L7
 
     expected_chips = 120
     expected_fans = 4

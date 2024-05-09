@@ -13,11 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
 
 class DR5(AntMinerMake):
-    raw_model = MinerModels.ANTMINER.DR5
+    raw_model = MinerModel.ANTMINER.DR5
 
     expected_chips = 72

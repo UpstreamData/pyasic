@@ -13,11 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M32S(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M32S
+    raw_model = MinerModel.WHATSMINER.M32S
 
     expected_chips = 78

@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import GoldshellMake
 
 
 class HS5(GoldshellMake):
-    raw_model = MinerModels.GOLDSHELL.HS5
+    raw_model = MinerModel.GOLDSHELL.HS5
 
     expected_hashboards = 4
     expected_chips = 46

@@ -13,19 +13,19 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import GoldshellMake
 
 
 class KDBoxII(GoldshellMake):
-    raw_model = MinerModels.GOLDSHELL.KDBoxII
+    raw_model = MinerModel.GOLDSHELL.KDBoxII
 
     expected_chips = 36
     expected_hashboards = 1
 
 
 class KDBoxPro(GoldshellMake):
-    raw_model = MinerModels.GOLDSHELL.KDBoxPro
+    raw_model = MinerModel.GOLDSHELL.KDBoxPro
 
     expected_chips = 16
     expected_hashboards = 1

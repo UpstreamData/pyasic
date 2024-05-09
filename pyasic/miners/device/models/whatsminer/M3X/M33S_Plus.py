@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModels
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M33SPlusVG20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M33SPlusVG20
+    raw_model = MinerModel.WHATSMINER.M33SPlusVG20
 
     expected_hashboards = 4
     expected_chips = 112
@@ -26,7 +26,7 @@ class M33SPlusVG20(WhatsMinerMake):
 
 
 class M33SPlusVH20(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M33SPlusVH20
+    raw_model = MinerModel.WHATSMINER.M33SPlusVH20
 
     expected_hashboards = 4
     expected_chips = 100
@@ -34,7 +34,7 @@ class M33SPlusVH20(WhatsMinerMake):
 
 
 class M33SPlusVH30(WhatsMinerMake):
-    raw_model = MinerModels.WHATSMINER.M33SPlusVH30
+    raw_model = MinerModel.WHATSMINER.M33SPlusVH30
 
     expected_hashboards = 4
     expected_fans = 0

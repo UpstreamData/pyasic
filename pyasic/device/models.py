@@ -308,7 +308,7 @@ class AuradineModels(StrEnum):
     AD3500 = "AD3500"
 
 
-class MinerModels:
+class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
     AVALONMINER = AvalonminerModels

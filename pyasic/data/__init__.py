@@ -75,6 +75,9 @@ class MinerData:
 
     # about
     device_info: DeviceInfo = None
+    make: str = field(init=False)
+    model: str = field(init=False)
+    firmware: str = field(init=False)
     mac: str = None
     api_ver: str = None
     fw_ver: str = None
@@ -330,6 +333,33 @@ class MinerData:
 
     @timestamp.setter
     def timestamp(self, val):
+        pass
+
+    @property
+    def make(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.make is not None:
+            return str(self.device_info.make)
+
+    @make.setter
+    def make(self, val):
+        pass
+
+    @property
+    def model(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.model is not None:
+            return str(self.device_info.model)
+
+    @model.setter
+    def model(self, val):
+        pass
+
+    @property
+    def firmware(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.firmware is not None:
+            return str(self.device_info.firmware)
+
+    @firmware.setter
+    def firmware(self, val):
         pass
 
     def asdict(self) -> dict:
