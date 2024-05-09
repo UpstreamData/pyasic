@@ -16,7 +16,7 @@
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.error_codes.innosilicon import InnosiliconError
 from pyasic.errors import APIError
@@ -182,20 +182,21 @@ class Innosilicon(CGMiner):
         if web_get_all is not None:
             try:
                 if "Hash Rate H" in web_get_all["total_hash"].keys():
-                    return round(
-                        float(web_get_all["total_hash"]["Hash Rate H"] / 1000000000000),
-                        2,
-                    )
+                    return AlgoHashRate.SHA256(
+                        web_get_all["total_hash"]["Hash Rate H"], HashUnit.SHA256.H
+                    ).into(self.algo.unit.default)
                 elif "Hash Rate" in web_get_all["total_hash"].keys():
-                    return round(
-                        float(web_get_all["total_hash"]["Hash Rate"] / 1000000), 5
-                    )
+                    return AlgoHashRate.SHA256(
+                        web_get_all["total_hash"]["Hash Rate"], HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
             except KeyError:
                 pass
 
         if rpc_summary is not None:
             try:
-                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                ).into(self.algo.unit.default)
             except (KeyError, IndexError):
                 pass
 
@@ -247,9 +248,9 @@ class Innosilicon(CGMiner):
 
                         hashrate = board.get("Hash Rate H")
                         if hashrate:
-                            hashboards[idx].hashrate = round(
-                                hashrate / 1000000000000, 2
-                            )
+                            hashboards[idx].hashrate = AlgoHashRate.SHA256(
+                                hashrate, HashUnit.SHA256.H
+                            ).into(self.algo.unit.default)
 
                         chip_temp = board.get("Temp max")
                         if chip_temp:

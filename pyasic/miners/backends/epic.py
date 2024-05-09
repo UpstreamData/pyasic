@@ -17,7 +17,7 @@
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
@@ -246,7 +246,9 @@ class ePIC(ePICFirmware):
                 if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
-                    return round(float(float(hashrate / 1000000)), 2)
+                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
+                        HashUnit.SHA256.TH
+                    )
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -268,7 +270,9 @@ class ePIC(ePICFirmware):
                             ideal = hb["Hashrate"][1] / 100
 
                         hashrate += hb["Hashrate"][0] / ideal
-                    return round(float(float(hashrate / 1000000)), 2)
+                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.GH).int(
+                        self.algo.unit.default
+                    )
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -340,7 +344,9 @@ class ePIC(ePICFirmware):
                     hashrate = hb["Hashrate"][0]
                     # Update the Hashboard object
                     hb_list[hb["Index"]].missing = False
-                    hb_list[hb["Index"]].hashrate = round(hashrate / 1000000, 2)
+                    hb_list[hb["Index"]].hashrate = AlgoHashRate.SHA256(
+                        hashrate, HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]
             return hb_list

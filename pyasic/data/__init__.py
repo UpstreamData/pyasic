@@ -28,6 +28,7 @@ from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
+from .hashrate import AlgoHashRate, HashUnit
 
 
 @dataclass
@@ -40,6 +41,10 @@ class MinerData:
         uptime: The uptime of the miner in seconds.
         mac: The MAC address of the miner as a str.
         device_info: Info about the device, such as model, make, and firmware.
+        model: The model of the miner as a str.
+        make: The make of the miner as a str.
+        firmware: The firmware on the miner as a str.
+        algo: The mining algorithm of the miner as a str.
         api_ver: The current api version on the miner as a str.
         fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
@@ -79,14 +84,15 @@ class MinerData:
     make: str = field(init=False)
     model: str = field(init=False)
     firmware: str = field(init=False)
+    algo: str = field(init=False)
     mac: str = None
     api_ver: str = None
     fw_ver: str = None
     hostname: str = None
 
     # hashrate
-    hashrate: float = field(init=False)
-    _hashrate: float = field(repr=False, default=None)
+    hashrate: AlgoHashRate = field(init=False)
+    _hashrate: AlgoHashRate = field(repr=False, default=None)
 
     # expected
     expected_hashrate: float = None
@@ -214,7 +220,7 @@ class MinerData:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return round(sum(hr_data), 2)
+                return sum(hr_data, start=type(hr_data[0])(0))
         return self._hashrate
 
     @hashrate.setter
@@ -315,7 +321,7 @@ class MinerData:
             return None
         if self.hashrate == 0 or self.wattage == 0:
             return 0
-        return round(self.wattage / self.hashrate)
+        return round(self.wattage / float(self.hashrate))
 
     @efficiency.setter
     def efficiency(self, val):
@@ -362,6 +368,15 @@ class MinerData:
 
     @firmware.setter
     def firmware(self, val):
+        pass
+
+    @property
+    def algo(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.algo is not None:
+            return str(self.device_info.algo)
+
+    @algo.setter
+    def algo(self, val):
         pass
 
     def asdict(self) -> dict:

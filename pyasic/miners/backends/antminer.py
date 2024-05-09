@@ -17,7 +17,7 @@
 from typing import List, Optional, Union
 
 from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
@@ -218,9 +218,9 @@ class AntminerModern(BMMiner):
         if rpc_stats is not None:
             try:
                 for board in rpc_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = round(
-                        board["rate_real"] / 1000, 2
-                    )
+                    hashboards[board["index"]].hashrate = AlgoHashRate.SHA256(
+                        board["rate_real"], HashUnit.SHA256.GH
+                    ).into(self.algo.unit.default)
                     hashboards[board["index"]].chips = board["asic_num"]
                     board_temp_data = list(
                         filter(lambda x: not x == 0, board["temp_pcb"])
@@ -273,12 +273,9 @@ class AntminerModern(BMMiner):
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
-                if rate_unit == "GH":
-                    return round(expected_rate / 1000, 2)
-                if rate_unit == "MH":
-                    return round(expected_rate / 1000000, 2)
-                else:
-                    return round(expected_rate, 2)
+                return AlgoHashRate.SHA256(
+                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                ).int(self.algo.unit.default)
             except LookupError:
                 pass
 
@@ -552,7 +549,9 @@ class AntminerOld(CGMiner):
 
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
-                            hashboard.hashrate = round(float(hashrate) / 1000, 2)
+                            hashboard.hashrate = AlgoHashRate.SHA256(
+                                hashrate, HashUnit.SHA256.GH
+                            ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
                         if chips:

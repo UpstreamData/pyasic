@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pyasic import MinerConfig
 from pyasic.config import MiningModeConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import MaraFirmware
@@ -170,7 +170,9 @@ class MaraMiner(MaraFirmware):
             try:
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
-                    hashboards[idx].hashrate = round(hb["hashrate_average"] / 1000, 2)
+                    hashboards[idx].hashrate = AlgoHashRate.SHA256(
+                        hb["hashrate_average"], HashUnit.SHA256.GH
+                    ).into(self.algo.unit.default)
                     hashboards[idx].temp = round(
                         sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"]), 2
                     )
@@ -232,7 +234,9 @@ class MaraMiner(MaraFirmware):
 
         if web_brief is not None:
             try:
-                return round(web_brief["hashrate_realtime"], 2)
+                return AlgoHashRate.SHA256(
+                    web_brief["hashrate_realtime"], HashUnit.SHA256.TH
+                ).into(self.algo.unit.default)
             except LookupError:
                 pass
 
@@ -276,7 +280,9 @@ class MaraMiner(MaraFirmware):
 
         if web_brief is not None:
             try:
-                return round(web_brief["hashrate_ideal"] / 1000, 2)
+                return AlgoHashRate.SHA256(
+                    web_brief["hashrate_ideal"], HashUnit.SHA256.GH
+                ).int(self.algo.unit.default)
             except LookupError:
                 pass
 
