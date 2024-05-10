@@ -377,6 +377,9 @@ class MinerData:
     def algo(self, val):
         pass
 
+    def keys(self) -> list:
+        return [f.name for f in fields(self)]
+
     def asdict(self) -> dict:
         return asdict(self, dict_factory=self.dict_factory)
 
