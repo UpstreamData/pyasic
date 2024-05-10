@@ -36,6 +36,12 @@ class MinerConfig:
         default_factory=PowerScalingConfig.default
     )
 
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError
+
     def as_dict(self) -> dict:
         """Converts the MinerConfig object to a dictionary."""
         return asdict(self)
