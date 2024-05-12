@@ -298,8 +298,6 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
 
     def as_epic(self) -> dict:
-        print("JP", self.algo)
-        print(self.algo.as_epic())
         return {
             "ptune": {
                 "algo": self.algo.as_epic(),
