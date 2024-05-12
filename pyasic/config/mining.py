@@ -152,14 +152,14 @@ class StandardTuneAlgo(MinerConfigValue):
 class VOptAlgo(MinerConfigValue):
     mode: str = field(init=False, default="voltage_optimizer")
 
-    def as_epic(self) -> str:
+    def as_epic() -> str:
         return "VoltageOptimizer"
 
 
 class ChipTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="chip_tune")
 
-    def as_epic(self) -> str:
+    def as_epic() -> str:
         return "ChipTune"
 
 
@@ -249,6 +249,8 @@ class MiningModePowerTune(MinerConfigValue):
 class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
+    throttle_limit: int = None
+    throttle_step: int = None
     algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
@@ -256,6 +258,10 @@ class MiningModeHashrateTune(MinerConfigValue):
         cls_conf = {}
         if dict_conf.get("hashrate"):
             cls_conf["hashrate"] = dict_conf["hashrate"]
+        if dict_conf.get("throttle_limit"):
+            cls_conf["throttle_limit"] = dict_conf["throttle_limit"]
+        if dict_conf.get("throttle_step"):
+            cls_conf["throttle_step"] = dict_conf["throttle_step"]
         if dict_conf.get("algo"):
             cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
 
@@ -292,7 +298,16 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
 
     def as_epic(self) -> dict:
-        return {"ptune": {"algo": self.algo.as_epic(), "target": self.hashrate}}
+        print("JP", self.algo)
+        print(self.algo.as_epic())
+        return {
+            "ptune": {
+                "algo": self.algo.as_epic(),
+                "target": self.hashrate,
+                "min_throttle": self.throttle_limit,
+                "throttle_step": self.throttle_step,
+            }
+        }
 
     def as_mara(self) -> dict:
         return {
@@ -417,6 +432,10 @@ class MiningModeConfig(MinerConfigOption):
                 if algo_info.get("VoltageOptimizer") is not None:
                     return cls.hashrate_tuning(
                         hashrate=algo_info["VoltageOptimizer"]["Target"],
+                        throttle_limit=algo_info["VoltageOptimizer"][
+                            "Min Throttle Target"
+                        ],
+                        throttle_step=algo_info["VoltageOptimizer"]["Throttle Step"],
                         algo=TunerAlgo.voltage_optimizer,
                     )
                 else:

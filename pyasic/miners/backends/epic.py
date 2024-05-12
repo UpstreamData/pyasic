@@ -130,7 +130,7 @@ class ePIC(BaseMiner):
             # Mining Mode -- Need to handle that you may not be able to change while miner is tuning
             if conf["ptune"].get("enabled", True):
                 await self.web.set_ptune_enable(True)
-                await self.web.set_ptune_algo(**conf["ptune"])
+                await self.web.set_ptune_algo(conf["ptune"])
 
             ## Pools
             await self.web.set_pools(conf["pools"])
