@@ -57,6 +57,9 @@ class MinerConfigOption(Enum):
     def as_auradine(self) -> dict:
         return self.value.as_auradine()
 
+    def as_mara(self) -> dict:
+        return self.value.as_mara()
+
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
@@ -105,4 +108,7 @@ class MinerConfigValue:
         return {}
 
     def as_auradine(self) -> dict:
+        return {}
+
+    def as_mara(self) -> dict:
         return {}

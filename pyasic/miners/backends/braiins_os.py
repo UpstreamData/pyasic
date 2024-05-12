@@ -176,11 +176,14 @@ class BOSMiner(BaseMiner):
             self.config = cfg
         except toml.TomlDecodeError as e:
             raise APIError("Failed to decode toml when getting config.") from e
+        except TypeError as e:
+            raise APIError("Failed to decode toml when getting config.") from e
 
         return self.config
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
+        print(config)
         parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
         toml_conf = toml.dumps(
@@ -201,9 +204,7 @@ class BOSMiner(BaseMiner):
 
         async with conn:
             await conn.run("/etc/init.d/bosminer stop")
-            async with conn.start_sftp_client() as sftp:
-                async with sftp.open("/etc/bosminer.toml", "w+") as file:
-                    await file.write(toml_conf)
+            await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
             await conn.run("/etc/init.d/bosminer start")
 
     async def set_power_limit(self, wattage: int) -> bool:
@@ -641,6 +642,8 @@ class BOSer(BaseMiner):
     web: BOSMinerRPCAPI
     _web_cls = BOSerWebAPI
     web: BOSerWebAPI
+
+    firmware = "BOS+"
 
     data_locations = BOSER_DATA_LOC
 

@@ -28,7 +28,7 @@ from pyasic.web.base import BaseWebAPI
 class AntminerModernWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         """Initialize the modern Antminer API client with a specific IP address.
-        
+
         Args:
             ip (str): IP address of the Antminer device.
         """
@@ -45,14 +45,14 @@ class AntminerModernWebAPI(BaseWebAPI):
         **parameters: Any,
     ) -> dict:
         """Send a command to the Antminer device using HTTP digest authentication.
-        
+
         Args:
             command (str | bytes): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.
             **parameters: Arbitrary keyword arguments to be sent as parameters in the request.
-        
+
         Returns:
             dict: The JSON response from the device or an empty dictionary if an error occurs.
         """
@@ -84,12 +84,12 @@ class AntminerModernWebAPI(BaseWebAPI):
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
         """Execute multiple commands simultaneously.
-        
+
         Args:
             *commands (str): Multiple command strings to be executed.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
-        
+
         Returns:
             dict: A dictionary containing the results of all commands executed.
         """
@@ -111,11 +111,11 @@ class AntminerModernWebAPI(BaseWebAPI):
         self, client: httpx.AsyncClient, command: str
     ) -> dict:
         """Helper function for handling individual commands in a multicommand execution.
-        
+
         Args:
             client (httpx.AsyncClient): The HTTP client to use for the request.
             command (str): The command to be executed.
-        
+
         Returns:
             dict: A dictionary containing the response of the executed command.
         """
@@ -137,7 +137,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def get_miner_conf(self) -> dict:
         """Retrieve the miner configuration from the Antminer device.
-        
+
         Returns:
             dict: A dictionary containing the current configuration of the miner.
         """
@@ -145,10 +145,10 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def set_miner_conf(self, conf: dict) -> dict:
         """Set the configuration for the miner.
-        
+
         Args:
             conf (dict): A dictionary of configuration settings to apply to the miner.
-        
+
         Returns:
             dict: A dictionary response from the device after setting the configuration.
         """
@@ -156,10 +156,10 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def blink(self, blink: bool) -> dict:
         """Control the blinking of the LED on the miner device.
-        
+
         Args:
             blink (bool): True to start blinking, False to stop.
-        
+
         Returns:
             dict: A dictionary response from the device after the command execution.
         """
@@ -169,7 +169,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def reboot(self) -> dict:
         """Reboot the miner device.
-        
+
         Returns:
             dict: A dictionary response from the device confirming the reboot command.
         """
@@ -177,7 +177,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def get_system_info(self) -> dict:
         """Retrieve system information from the miner.
-        
+
         Returns:
             dict: A dictionary containing system information of the miner.
         """
@@ -185,7 +185,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def get_network_info(self) -> dict:
         """Retrieve network configuration information from the miner.
-        
+
         Returns:
             dict: A dictionary containing the network configuration of the miner.
         """
@@ -193,7 +193,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def summary(self) -> dict:
         """Get a summary of the miner's status and performance.
-        
+
         Returns:
             dict: A summary of the miner's current operational status.
         """
@@ -201,7 +201,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def get_blink_status(self) -> dict:
         """Check the status of the LED blinking on the miner.
-        
+
         Returns:
             dict: A dictionary indicating whether the LED is currently blinking.
         """
@@ -217,7 +217,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         protocol: int,
     ) -> dict:
         """Set the network configuration of the miner.
-        
+
         Args:
             ip (str): IP address of the device.
             dns (str): DNS server IP address.
@@ -225,7 +225,7 @@ class AntminerModernWebAPI(BaseWebAPI):
             subnet_mask (str): Network subnet mask.
             hostname (str): Hostname of the device.
             protocol (int): Network protocol used.
-        
+
         Returns:
             dict: A dictionary response from the device after setting the network configuration.
         """
@@ -243,7 +243,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 class AntminerOldWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         """Initialize the old Antminer API client with a specific IP address.
-        
+
         Args:
             ip (str): IP address of the Antminer device.
         """
@@ -260,14 +260,14 @@ class AntminerOldWebAPI(BaseWebAPI):
         **parameters: Any,
     ) -> dict:
         """Send a command to the Antminer device using HTTP digest authentication.
-        
+
         Args:
             command (str | bytes): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.
             **parameters: Arbitrary keyword arguments to be sent as parameters in the request.
-        
+
         Returns:
             dict: The JSON response from the device or an empty dictionary if an error occurs.
         """
@@ -297,12 +297,12 @@ class AntminerOldWebAPI(BaseWebAPI):
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
         """Execute multiple commands simultaneously.
-        
+
         Args:
             *commands (str): Multiple command strings to be executed.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
-        
+
         Returns:
             dict: A dictionary containing the results of all commands executed.
         """
@@ -326,7 +326,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def get_system_info(self) -> dict:
         """Retrieve system information from the miner.
-        
+
         Returns:
             dict: A dictionary containing system information of the miner.
         """
@@ -334,10 +334,10 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def blink(self, blink: bool) -> dict:
         """Control the blinking of the LED on the miner device.
-        
+
         Args:
             blink (bool): True to start blinking, False to stop.
-        
+
         Returns:
             dict: A dictionary response from the device after the command execution.
         """
@@ -347,7 +347,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def reboot(self) -> dict:
         """Reboot the miner device.
-        
+
         Returns:
             dict: A dictionary response from the device confirming the reboot command.
         """
@@ -355,7 +355,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def get_blink_status(self) -> dict:
         """Check the status of the LED blinking on the miner.
-        
+
         Returns:
             dict: A dictionary indicating whether the LED is currently blinking.
         """
@@ -363,7 +363,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def get_miner_conf(self) -> dict:
         """Retrieve the miner configuration from the Antminer device.
-        
+
         Returns:
             dict: A dictionary containing the current configuration of the miner.
         """
@@ -371,10 +371,10 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def set_miner_conf(self, conf: dict) -> dict:
         """Set the configuration for the miner.
-        
+
         Args:
             conf (dict): A dictionary of configuration settings to apply to the miner.
-        
+
         Returns:
             dict: A dictionary response from the device after setting the configuration.
         """
@@ -382,7 +382,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def stats(self) -> dict:
         """Retrieve detailed statistical data of the mining operation.
-        
+
         Returns:
             dict: Detailed statistics of the miner's operation.
         """
@@ -390,7 +390,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def summary(self) -> dict:
         """Get a summary of the miner's status and performance.
-        
+
         Returns:
             dict: A summary of the miner's current operational status.
         """
@@ -398,7 +398,7 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def pools(self) -> dict:
         """Retrieve current pool information associated with the miner.
-        
+
         Returns:
             dict: Information about the mining pools configured in the miner.
         """

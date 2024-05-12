@@ -24,6 +24,7 @@ from httpx import AsyncHTTPTransport
 _settings = {  # defaults
     "network_ping_retries": 1,
     "network_ping_timeout": 3,
+    "network_scan_semaphore": None,
     "factory_get_retries": 1,
     "factory_get_timeout": 3,
     "get_data_retries": 1,
@@ -46,9 +47,10 @@ _settings = {  # defaults
 
 ssl_cxt = httpx.create_ssl_context()
 
-#this function configures socket options like SO_LINGER and returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests 
-#using those options.
-#SO_LINGER controls what happens when you close a socket with unsent data - it allows specifying linger time for the data to be sent. 
+
+# this function configures socket options like SO_LINGER and returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests
+# using those options.
+# SO_LINGER controls what happens when you close a socket with unsent data - it allows specifying linger time for the data to be sent.
 def transport(verify: Union[str, bool, SSLContext] = ssl_cxt):
     l_onoff = 1
     l_linger = get("so_linger_time", 1000)

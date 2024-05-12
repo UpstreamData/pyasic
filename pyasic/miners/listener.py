@@ -21,22 +21,33 @@ class MinerListenerProtocol(asyncio.Protocol):
     def __init__(self):
         self.responses = {}
         self.transport = None
+        self.new_miner = None
+
+    async def get_new_miner(self):
+        try:
+            while self.new_miner is None:
+                await asyncio.sleep(0)
+            return self.new_miner
+        finally:
+            self.new_miner = None
 
     def connection_made(self, transport):
         self.transport = transport
 
-    @staticmethod
-    def datagram_received(data, _addr):
+    def datagram_received(self, data, _addr):
+        if data == b"OK\x00\x00\x00\x00\x00\x00\x00\x00":
+            return
         m = data.decode()
         if "," in m:
             ip, mac = m.split(",")
+            if "/" in ip:
+                ip = ip.replace("[", "").split("/")[0]
         else:
             d = m[:-1].split("MAC")
             ip = d[0][3:]
             mac = d[1][1:]
 
-        new_miner = {"IP": ip, "MAC": mac.upper()}
-        MinerListener().new_miner = new_miner
+        self.new_miner = {"IP": ip, "MAC": mac.upper()}
 
     def connection_lost(self, _):
         pass
@@ -45,32 +56,32 @@ class MinerListenerProtocol(asyncio.Protocol):
 class MinerListener:
     def __init__(self, bind_addr: str = "0.0.0.0"):
         self.found_miners = []
-        self.new_miner = None
-        self.stop = False
+        self.stop = asyncio.Event()
         self.bind_addr = bind_addr
 
     async def listen(self):
-        self.stop = False
-
         loop = asyncio.get_running_loop()
 
-        transport_14235, _ = await loop.create_datagram_endpoint(
+        transport_14235, protocol_14235 = await loop.create_datagram_endpoint(
             MinerListenerProtocol, local_addr=(self.bind_addr, 14235)
         )
-        transport_8888, _ = await loop.create_datagram_endpoint(
+        transport_8888, protocol_8888 = await loop.create_datagram_endpoint(
             MinerListenerProtocol, local_addr=(self.bind_addr, 8888)
         )
+        try:
+            while not self.stop.is_set():
+                tasks = [
+                    asyncio.create_task(protocol_14235.get_new_miner()),
+                    asyncio.create_task(protocol_8888.get_new_miner()),
+                ]
+                await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+                for t in tasks:
+                    if t.done():
+                        yield t.result()
 
-        while True:
-            if self.new_miner:
-                yield self.new_miner
-                self.found_miners.append(self.new_miner)
-                self.new_miner = None
-            if self.stop:
-                transport_14235.close()
-                transport_8888.close()
-                break
-            await asyncio.sleep(0)
+        finally:
+            transport_14235.close()
+            transport_8888.close()
 
     async def cancel(self):
         self.stop = True

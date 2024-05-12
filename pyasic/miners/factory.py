@@ -364,6 +364,7 @@ MINER_CLASSES = {
         "ANTMINER S19J PRO PLUS": BOSMinerS19jProPlus,
         "ANTMINER S19J PRO PLUS NOPIC": BOSMinerS19jProPlusNoPIC,
         "ANTMINER S19K PRO NOPIC": BOSMinerS19kProNoPIC,
+        "ANTMINER S19K PRO": BOSMinerS19kProNoPIC,
         "ANTMINER S19 XP": BOSMinerS19XP,
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
@@ -553,7 +554,14 @@ class MinerFactory:
                 and self._parse_web_type(x[0], x[1]) is not None,
             )
             if text is not None:
-                return self._parse_web_type(text, resp)
+                mtype = self._parse_web_type(text, resp)
+                if mtype == MinerTypes.ANTMINER:
+                    # could still be mara
+                    auth = httpx.DigestAuth("root", "root")
+                    res = await self.send_web_command(ip, "/kaonsu/v1/brief", auth=auth)
+                    if res is not None:
+                        mtype = MinerTypes.MARATHON
+                return mtype
 
     @staticmethod
     async def _web_ping(
