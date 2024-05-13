@@ -58,7 +58,7 @@ EPIC_DATA_LOC = DataLocations(
             "_get_wattage",
             [WebAPICommand("web_summary", "summary")],
         ),
-        str(DataOptions.WATTAGE): DataFunction(
+        str(DataOptions.VOLTAGE): DataFunction(
             "_get_voltage",
             [WebAPICommand("web_summary", "summary")],
         ),
