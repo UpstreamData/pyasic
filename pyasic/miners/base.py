@@ -250,10 +250,10 @@ class MinerProtocol(Protocol):
         return await self._get_wattage()
 
     async def get_voltage(self) -> Optional[float]:
-        """Get voltage from the miner as a float.
+        """Get output voltage of the PSU as a float.
 
         Returns:
-            Voltage of the miner as an float.
+            Output voltage of the PSU as an float.
         """
         return await self._get_voltage()
 

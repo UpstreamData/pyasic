@@ -50,7 +50,7 @@ class MinerData:
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
         wattage: Current power draw of the miner as an int.
-        voltage: Current voltage draw of the miner as an float.
+        voltage: Current output voltage of the PSU as an float.
         wattage_limit: Power limit of the miner as an int.
         fans: A list of fans on the miner with their speeds.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
