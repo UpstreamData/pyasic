@@ -50,6 +50,7 @@ class MinerData:
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
         wattage: Current power draw of the miner as an int.
+        voltage: Current voltage draw of the miner as an float.
         wattage_limit: Power limit of the miner as an int.
         fans: A list of fans on the miner with their speeds.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
@@ -84,6 +85,7 @@ class MinerData:
     env_temp: float = None
     wattage: int = None
     wattage_limit: int = field(init=False)
+    voltage: float = None
     _wattage_limit: int = field(repr=False, default=None)
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None

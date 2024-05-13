@@ -58,6 +58,10 @@ EPIC_DATA_LOC = DataLocations(
             "_get_wattage",
             [WebAPICommand("web_summary", "summary")],
         ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_voltage",
+            [WebAPICommand("web_summary", "summary")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_summary", "summary")],
@@ -214,6 +218,20 @@ class ePIC(BaseMiner):
                 wattage = web_summary["Power Supply Stats"]["Input Power"]
                 wattage = round(wattage)
                 return wattage
+            except KeyError:
+                pass
+
+    async def _get_voltage(self, web_summary: dict = None) -> Optional[float]:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary is not None:
+            try:
+                voltage = web_summary["Power Supply Stats"]["Output Voltage"]
+                return voltage
             except KeyError:
                 pass
 
