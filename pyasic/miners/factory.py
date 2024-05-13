@@ -557,7 +557,10 @@ class MinerFactory:
             async with httpx.AsyncClient(
                 transport=settings.transport(verify=False)
             ) as c:
-                resp = await c.get(url, follow_redirects=True)
+                resp = await asyncio.wait_for(
+                    c.get(url, follow_redirects=True),
+                    settings.get("api_function_timeout", 5),
+                )
             return resp.text, resp
         except (
             httpx.HTTPError,
