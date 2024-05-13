@@ -277,9 +277,10 @@ class MinerData:
     def percent_expected_hashrate(self):  # noqa - Skip PyCharm inspection
         if self.hashrate is None or self.expected_hashrate is None:
             return None
-        if self.hashrate == 0 or self.expected_hashrate == 0:
+        try:
+            return round((self.hashrate / self.expected_hashrate) * 100)
+        except ZeroDivisionError:
             return 0
-        return round((self.hashrate / self.expected_hashrate) * 100)
 
     @percent_expected_hashrate.setter
     def percent_expected_hashrate(self, val):
@@ -289,9 +290,10 @@ class MinerData:
     def percent_expected_wattage(self):  # noqa - Skip PyCharm inspection
         if self.wattage_limit is None or self.wattage is None:
             return None
-        if self.wattage_limit == 0 or self.wattage == 0:
+        try:
+            return round((self.wattage / self.wattage_limit) * 100)
+        except ZeroDivisionError:
             return 0
-        return round((self.wattage / self.wattage_limit) * 100)
 
     @percent_expected_wattage.setter
     def percent_expected_wattage(self, val):
@@ -317,9 +319,10 @@ class MinerData:
     def efficiency(self):  # noqa - Skip PyCharm inspection
         if self.hashrate is None or self.wattage is None:
             return None
-        if self.hashrate == 0 or self.wattage == 0:
+        try:
+            return round(self.wattage / float(self.hashrate))
+        except ZeroDivisionError:
             return 0
-        return round(self.wattage / float(self.hashrate))
 
     @efficiency.setter
     def efficiency(self, val):
