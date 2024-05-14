@@ -299,14 +299,23 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
 
     def as_epic(self) -> dict:
-        return {
-            "ptune": {
-                "algo": self.algo.as_epic(),
-                "target": self.hashrate,
-                "min_throttle": self.throttle_limit,
-                "throttle_step": self.throttle_step,
+        ## Ensures both backwards compatibility and vopt algos that don't have throttle
+        if self.throttle_limit is None or self.throttle_step is None:
+            return {
+                "ptune": {
+                    "algo": self.algo.as_epic(),
+                    "target": self.hashrate,
+                }
             }
-        }
+        else:
+            return {
+                "ptune": {
+                    "algo": self.algo.as_epic(),
+                    "target": self.hashrate,
+                    "min_throttle": self.throttle_limit,
+                    "throttle_step": self.throttle_step,
+                }
+            }
 
     def as_mara(self) -> dict:
         return {
@@ -429,12 +438,14 @@ class MiningModeConfig(MinerConfigOption):
             if tuner_running:
                 algo_info = web_conf["PerpetualTune"]["Algorithm"]
                 if algo_info.get("VoltageOptimizer") is not None:
+                    throttle_limit = algo_info["VoltageOptimizer"].get(
+                        "Min Throttle Target"
+                    )
+                    throttle_step = algo_info["VoltageOptimizer"].get("Throttle Step")
                     return cls.hashrate_tuning(
                         hashrate=algo_info["VoltageOptimizer"]["Target"],
-                        throttle_limit=algo_info["VoltageOptimizer"][
-                            "Min Throttle Target"
-                        ],
-                        throttle_step=algo_info["VoltageOptimizer"]["Throttle Step"],
+                        throttle_limit=throttle_limit,
+                        throttle_step=throttle_step,
                         algo=TunerAlgo.voltage_optimizer,
                     )
                 else:
