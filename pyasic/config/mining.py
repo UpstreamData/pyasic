@@ -152,14 +152,15 @@ class StandardTuneAlgo(MinerConfigValue):
 class VOptAlgo(MinerConfigValue):
     mode: str = field(init=False, default="voltage_optimizer")
 
-    def as_epic() -> str:
+    def as_epic(self) -> str:
         return "VoltageOptimizer"
 
 
+@dataclass
 class ChipTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="chip_tune")
 
-    def as_epic() -> str:
+    def as_epic(self) -> str:
         return "ChipTune"
 
 
