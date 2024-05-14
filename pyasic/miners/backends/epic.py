@@ -58,6 +58,10 @@ EPIC_DATA_LOC = DataLocations(
             "_get_wattage",
             [WebAPICommand("web_summary", "summary")],
         ),
+        str(DataOptions.VOLTAGE): DataFunction(
+            "_get_voltage",
+            [WebAPICommand("web_summary", "summary")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_summary", "summary")],
@@ -119,6 +123,7 @@ class ePIC(BaseMiner):
             # Temps
             if not conf.get("temps", {}) == {}:
                 await self.web.set_shutdown_temp(conf["temps"]["shutdown"])
+                await self.web.set_critical_temp(conf["temps"]["critical"])
             # Fans
             # set with sub-keys instead of conf["fans"] because sometimes both can be set
             if not conf["fans"].get("Manual", {}) == {}:
@@ -129,7 +134,7 @@ class ePIC(BaseMiner):
             # Mining Mode -- Need to handle that you may not be able to change while miner is tuning
             if conf["ptune"].get("enabled", True):
                 await self.web.set_ptune_enable(True)
-                await self.web.set_ptune_algo(**conf["ptune"])
+                await self.web.set_ptune_algo(conf["ptune"])
 
             ## Pools
             await self.web.set_pools(conf["pools"])
@@ -213,6 +218,20 @@ class ePIC(BaseMiner):
                 wattage = web_summary["Power Supply Stats"]["Input Power"]
                 wattage = round(wattage)
                 return wattage
+            except KeyError:
+                pass
+
+    async def _get_voltage(self, web_summary: dict = None) -> Optional[float]:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        if web_summary is not None:
+            try:
+                voltage = web_summary["Power Supply Stats"]["Output Voltage"]
+                return voltage
             except KeyError:
                 pass
 
@@ -306,16 +325,27 @@ class ePIC(BaseMiner):
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
         ]
-        if web_summary.get("HBs") is not None:
-            for hb in web_summary["HBs"]:
-                num_of_chips = web_capabilities["Performance Estimator"]["Chip Count"]
-                hashrate = hb["Hashrate"][0]
-                # Update the Hashboard object
-                hb_list[hb["Index"]].missing = False
-                hb_list[hb["Index"]].hashrate = round(hashrate / 1000000, 2)
-                hb_list[hb["Index"]].chips = num_of_chips
-                hb_list[hb["Index"]].temp = hb["Temperature"]
-        return hb_list
+        if web_summary is not None and web_capabilities is not None:
+            if web_summary.get("HBs") is not None:
+                for hb in web_summary["HBs"]:
+                    if web_capabilities.get("Performance Estimator") is not None:
+                        num_of_chips = web_capabilities["Performance Estimator"][
+                            "Chip Count"
+                        ]
+                    else:
+                        num_of_chips = self.expected_chips
+                    if web_capabilities.get("Board Serial Numbers") is not None:
+                        if hb["Index"] < len(web_capabilities["Board Serial Numbers"]):
+                            hb_list[hb["Index"]].serial_number = web_capabilities[
+                                "Board Serial Numbers"
+                            ][hb["Index"]]
+                    hashrate = hb["Hashrate"][0]
+                    # Update the Hashboard object
+                    hb_list[hb["Index"]].missing = False
+                    hb_list[hb["Index"]].hashrate = round(hashrate / 1000000, 2)
+                    hb_list[hb["Index"]].chips = num_of_chips
+                    hb_list[hb["Index"]].temp = hb["Temperature"]
+            return hb_list
 
     async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:
         if web_summary is None:

@@ -97,6 +97,9 @@ class ePICWebAPI(BaseWebAPI):
     async def set_shutdown_temp(self, params: int) -> dict:
         return await self.send_command("shutdowntemp", param=params)
 
+    async def set_critical_temp(self, params: int) -> dict:
+        return await self.send_command("criticaltemp", param=params)
+
     async def set_fan(self, params: dict) -> dict:
         return await self.send_command("fanspeed", param=params)
 

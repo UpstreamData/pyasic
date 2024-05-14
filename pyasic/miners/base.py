@@ -249,6 +249,14 @@ class MinerProtocol(Protocol):
         """
         return await self._get_wattage()
 
+    async def get_voltage(self) -> Optional[float]:
+        """Get output voltage of the PSU as a float.
+
+        Returns:
+            Output voltage of the PSU as an float.
+        """
+        return await self._get_voltage()
+
     async def get_wattage_limit(self) -> Optional[int]:
         """Get wattage limit from the miner as an int.
 
@@ -335,6 +343,9 @@ class MinerProtocol(Protocol):
         pass
 
     async def _get_wattage(self) -> Optional[int]:
+        pass
+
+    async def _get_voltage(self) -> Optional[float]:
         pass
 
     async def _get_wattage_limit(self) -> Optional[int]:
