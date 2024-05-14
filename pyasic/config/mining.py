@@ -300,22 +300,17 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     def as_epic(self) -> dict:
         ## Ensures both backwards compatibility and vopt algos that don't have throttle
-        if self.throttle_limit is None or self.throttle_step is None:
-            return {
-                "ptune": {
-                    "algo": self.algo.as_epic(),
-                    "target": self.hashrate,
-                }
+        mode = {
+            "ptune": {
+                "algo": self.algo.as_epic(),
+                "target": self.hashrate,
             }
-        else:
-            return {
-                "ptune": {
-                    "algo": self.algo.as_epic(),
-                    "target": self.hashrate,
-                    "min_throttle": self.throttle_limit,
-                    "throttle_step": self.throttle_step,
-                }
-            }
+        }
+        if self.throttle_limit is not None and self.throttle_step is not None:
+            mode["ptune"]["min_throttle"] = self.throttle_limit
+            mode["ptune"]["throttle_step"] = self.throttle_step
+
+        return mode
 
     def as_mara(self) -> dict:
         return {
