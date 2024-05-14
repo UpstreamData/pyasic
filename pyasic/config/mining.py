@@ -432,14 +432,14 @@ class MiningModeConfig(MinerConfigOption):
             if tuner_running:
                 algo_info = web_conf["PerpetualTune"]["Algorithm"]
                 if algo_info.get("VoltageOptimizer") is not None:
-                    throttle_limit = algo_info["VoltageOptimizer"].get(
-                        "Min Throttle Target"
-                    )
-                    throttle_step = algo_info["VoltageOptimizer"].get("Throttle Step")
                     return cls.hashrate_tuning(
                         hashrate=algo_info["VoltageOptimizer"]["Target"],
-                        throttle_limit=throttle_limit,
-                        throttle_step=throttle_step,
+                        throttle_limit=algo_info["VoltageOptimizer"].get(
+                            "Min Throttle Target"
+                        ),
+                        throttle_step=algo_info["VoltageOptimizer"].get(
+                            "Throttle Step"
+                        ),
                         algo=TunerAlgo.voltage_optimizer,
                     )
                 else:
