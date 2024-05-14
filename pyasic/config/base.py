@@ -49,7 +49,7 @@ class MinerConfigOption(Enum):
         return self.value.as_boser()
 
     def as_epic(self) -> dict:
-        return self.value.as_epic(self)
+        return self.value.as_epic()
 
     def as_vnish(self) -> dict:
         return self.value.as_vnish()

@@ -440,7 +440,7 @@ class MiningModeConfig(MinerConfigOption):
                         throttle_step=algo_info["VoltageOptimizer"].get(
                             "Throttle Step"
                         ),
-                        algo=TunerAlgo.voltage_optimizer,
+                        algo=TunerAlgo.voltage_optimizer(),
                     )
                 else:
                     return cls.hashrate_tuning(
