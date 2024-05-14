@@ -445,7 +445,7 @@ class MiningModeConfig(MinerConfigOption):
                 else:
                     return cls.hashrate_tuning(
                         hashrate=algo_info["ChipTune"]["Target"],
-                        algo=TunerAlgo.chip_tune,
+                        algo=TunerAlgo.chip_tune(),
                     )
             else:
                 return cls.normal()
