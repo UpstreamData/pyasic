@@ -252,6 +252,7 @@ class MiningModeHashrateTune(MinerConfigValue):
     hashrate: int = None
     throttle_limit: int = None
     throttle_step: int = None
+    optimized: bool = False
     algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
@@ -263,6 +264,8 @@ class MiningModeHashrateTune(MinerConfigValue):
             cls_conf["throttle_limit"] = dict_conf["throttle_limit"]
         if dict_conf.get("throttle_step"):
             cls_conf["throttle_step"] = dict_conf["throttle_step"]
+        if dict_conf.get("optimized"):
+            cls_conf["optimized"] = dict_conf["optimized"]
         if dict_conf.get("algo"):
             cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
 
@@ -440,6 +443,7 @@ class MiningModeConfig(MinerConfigOption):
                         throttle_step=algo_info["VoltageOptimizer"].get(
                             "Throttle Step"
                         ),
+                        optimized=algo_info["VoltageOptimizer"].get("Optimized"),
                         algo=TunerAlgo.voltage_optimizer(),
                     )
                 else:
