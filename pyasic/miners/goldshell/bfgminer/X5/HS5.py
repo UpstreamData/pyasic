@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import GoldshellMiner
-from pyasic.miners.models import HS5
+from pyasic.miners.device.models import HS5
 
 
 class GoldshellHS5(GoldshellMiner, HS5):

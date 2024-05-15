@@ -18,11 +18,11 @@ import logging
 from typing import List, Optional
 
 from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
 
 BTMINER_DATA_LOC = DataLocations(
@@ -110,7 +110,7 @@ BTMINER_DATA_LOC = DataLocations(
 )
 
 
-class BTMiner(BaseMiner):
+class BTMiner(StockFirmware):
     """Base handler for BTMiner based miners."""
 
     _rpc_cls = BTMinerRPCAPI
@@ -395,7 +395,9 @@ class BTMiner(BaseMiner):
 
         if rpc_summary is not None:
             try:
-                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                ).into(self.algo.unit.default)
             except LookupError:
                 pass
 
@@ -423,9 +425,9 @@ class BTMiner(BaseMiner):
                         self.expected_hashboards += 1
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
-                    hashboards[board["ASC"]].hashrate = round(
-                        float(board["MHS 1m"] / 1000000), 2
-                    )
+                    hashboards[board["ASC"]].hashrate = AlgoHashRate.SHA256(
+                        board["MHS 1m"], HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
                     hashboards[board["ASC"]].missing = False
@@ -571,7 +573,10 @@ class BTMiner(BaseMiner):
             try:
                 expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
-                    return round(expected_hashrate / 1000, 2)
+                    return AlgoHashRate.SHA256(
+                        expected_hashrate, HashUnit.SHA256.GH
+                    ).int(self.algo.unit.default)
+
             except LookupError:
                 pass
 

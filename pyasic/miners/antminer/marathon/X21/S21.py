@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import MaraMiner
-from pyasic.miners.models import S21
+from pyasic.miners.device.models import S21
 
 
 class MaraS21(MaraMiner, S21):

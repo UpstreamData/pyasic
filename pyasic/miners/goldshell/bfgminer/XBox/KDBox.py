@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import GoldshellMiner
-from pyasic.miners.models import KDBoxII, KDBoxPro
+from pyasic.miners.device.models import KDBoxII, KDBoxPro
 
 
 class GoldshellKDBoxII(GoldshellMiner, KDBoxII):

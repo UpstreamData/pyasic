@@ -17,6 +17,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from .hashrate import AlgoHashRate
+
 
 @dataclass
 class HashBoard:
@@ -34,7 +36,7 @@ class HashBoard:
     """
 
     slot: int = 0
-    hashrate: float = None
+    hashrate: AlgoHashRate = None
     temp: int = None
     chip_temp: int = None
     chips: int = None

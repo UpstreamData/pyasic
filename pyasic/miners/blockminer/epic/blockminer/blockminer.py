@@ -15,8 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import ePIC
-from pyasic.miners.models import BlockMiner520i
-from pyasic.miners.models import BlockMiner720i
+from pyasic.miners.device.models import BlockMiner520i, BlockMiner720i
 
 
 class ePICBlockMiner520i(ePIC, BlockMiner520i):

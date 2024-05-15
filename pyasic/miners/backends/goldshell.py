@@ -16,7 +16,7 @@
 from typing import List
 
 from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import HashBoard
+from pyasic.data import AlgoHashRate, HashBoard, HashUnit
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import BFGMiner
@@ -158,9 +158,9 @@ class GoldshellMiner(BFGMiner):
                     if board.get("ID") is not None:
                         try:
                             b_id = board["ID"]
-                            hashboards[b_id].hashrate = round(
-                                board["MHS 20s"] / 1000000, 2
-                            )
+                            hashboards[b_id].hashrate = AlgoHashRate.SHA256(
+                                board["MHS 20s"], HashUnit.SHA256.MH
+                            ).into(self.algo.unit.default)
                             hashboards[b_id].temp = board["tstemp-2"]
                             hashboards[b_id].missing = False
                         except KeyError:

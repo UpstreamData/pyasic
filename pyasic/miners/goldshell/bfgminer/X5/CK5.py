@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import GoldshellMiner
-from pyasic.miners.models import CK5
+from pyasic.miners.device.models import CK5
 
 
 class GoldshellCK5(GoldshellMiner, CK5):

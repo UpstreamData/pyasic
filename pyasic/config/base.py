@@ -67,6 +67,13 @@ class MinerConfigOption(Enum):
     def default(cls):
         pass
 
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError
+
+
 
 @dataclass
 class MinerConfigValue:
@@ -112,3 +119,9 @@ class MinerConfigValue:
 
     def as_mara(self) -> dict:
         return {}
+
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError

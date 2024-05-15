@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import AntminerOld
-from pyasic.miners.models import D3
+from pyasic.miners.device.models import D3
 
 
 class CGMinerD3(AntminerOld, D3):

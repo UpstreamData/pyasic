@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M2X
-from pyasic.miners.models import M20SV10, M20SV20, M20SV30
+from pyasic.miners.device.models import M20SV10, M20SV20, M20SV30
 
 
 class BTMinerM20SV10(M2X, M20SV10):

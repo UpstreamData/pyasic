@@ -17,9 +17,10 @@
 from typing import Optional
 
 from pyasic.config import MinerConfig
+from pyasic.data import AlgoHashRate, HashUnit
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 CGMINER_DATA_LOC = DataLocations(
@@ -56,7 +57,7 @@ CGMINER_DATA_LOC = DataLocations(
 )
 
 
-class CGMiner(BaseMiner):
+class CGMiner(StockFirmware):
     """Base handler for CGMiner based miners"""
 
     _rpc_cls = CGMinerRPCAPI
@@ -117,9 +118,9 @@ class CGMiner(BaseMiner):
 
         if rpc_summary is not None:
             try:
-                return round(
-                    float(float(rpc_summary["SUMMARY"][0]["GHS 5s"]) / 1000), 2
-                )
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
 

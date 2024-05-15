@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerOld
-from pyasic.miners.models import DR5
+from pyasic.miners.device.models import DR5
 
 
 class CGMinerDR5(AntminerOld, DR5):
