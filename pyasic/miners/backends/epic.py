@@ -317,7 +317,7 @@ class ePIC(ePICFirmware):
             except APIError:
                 pass
 
-        if web_capabilities is not None:
+        if web_capabilities is None:
             try:
                 web_capabilities = await self.web.capabilities()
             except APIError:
