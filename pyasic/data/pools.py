@@ -11,15 +11,19 @@ class PoolMetrics:
     get_failures: Number of failures in obtaining work from the pool.
     remote_failures: Number of failures communicating with the pool server.
     active: Indicates if the miner is connected to the stratum server.
+    Alive : Indicates if a pool is alive.
     pool_rejected_percent: Percentage of rejected shares by the pool.
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    accepted: int = field(init=False)
-    rejected: int = field(init=False)
-    get_failures: int = field(init=False)
-    remote_failures: int = field(init=False)
-    stratum_active: bool = field(init=False)
+    accepted: int = None
+    rejected: int = None
+    get_failures: int = None
+    remote_failures: int = None
+    active: bool = None
+    alive: bool = None
+    pool_rejected_percent: float = field(init=False)
+    pool_stale_percent: float = field(init=False)
 
     @property
     def pool_rejected_percent(self) -> float:
