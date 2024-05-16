@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import M5X
-from pyasic.miners.models import M53SPlusPlusVK10
+from pyasic.miners.device.models import M53SPlusPlusVK10
 
 
 class BTMinerM53SPlusPlusVK10(M5X, M53SPlusPlusVK10):

@@ -25,8 +25,10 @@ from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 
 from .boards import HashBoard
+from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
+from .hashrate import AlgoHashRate, HashUnit
 
 
 @dataclass
@@ -38,8 +40,11 @@ class MinerData:
         datetime: The time and date this data was generated.
         uptime: The uptime of the miner in seconds.
         mac: The MAC address of the miner as a str.
+        device_info: Info about the device, such as model, make, and firmware.
         model: The model of the miner as a str.
         make: The make of the miner as a str.
+        firmware: The firmware on the miner as a str.
+        algo: The mining algorithm of the miner as a str.
         api_ver: The current api version on the miner as a str.
         fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
@@ -53,6 +58,7 @@ class MinerData:
         voltage: Current output voltage of the PSU as an float.
         wattage_limit: Power limit of the miner as an int.
         fans: A list of fans on the miner with their speeds.
+        expected_fans: The number of fans expected on a miner.
         fan_psu: The speed of the PSU on the fan if the miner collects it.
         total_chips: The total number of chips on all boards.  Calculated automatically.
         expected_chips: The expected number of chips in the miner as an int.
@@ -67,35 +73,62 @@ class MinerData:
         is_mining: Whether the miner is mining.
     """
 
+    # general
     ip: str
-    datetime: datetime = None
-    uptime: int = None
+    _datetime: datetime = field(repr=False, default=None)
+    datetime: str = field(init=False)
+    timestamp: int = field(init=False)
+
+    # about
+    device_info: DeviceInfo = None
+    make: str = field(init=False)
+    model: str = field(init=False)
+    firmware: str = field(init=False)
+    algo: str = field(init=False)
     mac: str = None
-    model: str = None
-    make: str = None
     api_ver: str = None
     fw_ver: str = None
     hostname: str = None
-    hashrate: float = field(init=False)
-    _hashrate: float = field(repr=False, default=None)
+
+    # hashrate
+    hashrate: AlgoHashRate = field(init=False)
+    _hashrate: AlgoHashRate = field(repr=False, default=None)
+
+    # expected
     expected_hashrate: float = None
-    hashboards: List[HashBoard] = field(default_factory=list)
     expected_hashboards: int = None
+    expected_chips: int = None
+    expected_fans: int = None
+
+    # % expected
+    percent_expected_chips: float = field(init=False)
+    percent_expected_hashrate: float = field(init=False)
+    percent_expected_wattage: float = field(init=False)
+
+    # temperature
     temperature_avg: int = field(init=False)
     env_temp: float = None
+
+    # power
     wattage: int = None
     wattage_limit: int = field(init=False)
     voltage: float = None
     _wattage_limit: int = field(repr=False, default=None)
+
+    # fans
     fans: List[Fan] = field(default_factory=list)
     fan_psu: int = None
+
+    # boards
+    hashboards: List[HashBoard] = field(default_factory=list)
     total_chips: int = field(init=False)
-    expected_chips: int = None
-    percent_expected_chips: float = field(init=False)
-    percent_expected_hashrate: float = field(init=False)
-    percent_expected_wattage: float = field(init=False)
     nominal: bool = field(init=False)
+
+    # config
     config: MinerConfig = None
+    fault_light: Union[bool, None] = None
+
+    # errors
     errors: List[
         Union[
             WhatsminerError,
@@ -104,9 +137,11 @@ class MinerData:
             InnosiliconError,
         ]
     ] = field(default_factory=list)
-    fault_light: Union[bool, None] = None
-    efficiency: int = field(init=False)
+
+    # mining state
     is_mining: bool = True
+    uptime: int = None
+    efficiency: int = field(init=False)
 
     @classmethod
     def fields(cls):
@@ -117,7 +152,7 @@ class MinerData:
         return {k: v for (k, v) in x if not k.startswith("_")}
 
     def __post_init__(self):
-        self.datetime = datetime.now(timezone.utc).astimezone()
+        self._datetime = datetime.now(timezone.utc).astimezone()
 
     def get(self, __key: str, default: Any = None):
         try:
@@ -185,7 +220,7 @@ class MinerData:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return round(sum(hr_data), 2)
+                return sum(hr_data, start=type(hr_data[0])(0))
         return self._hashrate
 
     @hashrate.setter
@@ -244,9 +279,10 @@ class MinerData:
     def percent_expected_hashrate(self):  # noqa - Skip PyCharm inspection
         if self.hashrate is None or self.expected_hashrate is None:
             return None
-        if self.hashrate == 0 or self.expected_hashrate == 0:
+        try:
+            return round((self.hashrate / self.expected_hashrate) * 100)
+        except ZeroDivisionError:
             return 0
-        return round((self.hashrate / self.expected_hashrate) * 100)
 
     @percent_expected_hashrate.setter
     def percent_expected_hashrate(self, val):
@@ -256,9 +292,10 @@ class MinerData:
     def percent_expected_wattage(self):  # noqa - Skip PyCharm inspection
         if self.wattage_limit is None or self.wattage is None:
             return None
-        if self.wattage_limit == 0 or self.wattage == 0:
+        try:
+            return round((self.wattage / self.wattage_limit) * 100)
+        except ZeroDivisionError:
             return 0
-        return round((self.wattage / self.wattage_limit) * 100)
 
     @percent_expected_wattage.setter
     def percent_expected_wattage(self, val):
@@ -284,13 +321,69 @@ class MinerData:
     def efficiency(self):  # noqa - Skip PyCharm inspection
         if self.hashrate is None or self.wattage is None:
             return None
-        if self.hashrate == 0 or self.wattage == 0:
+        try:
+            return round(self.wattage / float(self.hashrate))
+        except ZeroDivisionError:
             return 0
-        return round(self.wattage / self.hashrate)
 
     @efficiency.setter
     def efficiency(self, val):
         pass
+
+    @property
+    def datetime(self):  # noqa - Skip PyCharm inspection
+        return self._datetime.isoformat()
+
+    @datetime.setter
+    def datetime(self, val):
+        pass
+
+    @property
+    def timestamp(self):  # noqa - Skip PyCharm inspection
+        return int(time.mktime(self._datetime.timetuple()))
+
+    @timestamp.setter
+    def timestamp(self, val):
+        pass
+
+    @property
+    def make(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.make is not None:
+            return str(self.device_info.make)
+
+    @make.setter
+    def make(self, val):
+        pass
+
+    @property
+    def model(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.model is not None:
+            return str(self.device_info.model)
+
+    @model.setter
+    def model(self, val):
+        pass
+
+    @property
+    def firmware(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.firmware is not None:
+            return str(self.device_info.firmware)
+
+    @firmware.setter
+    def firmware(self, val):
+        pass
+
+    @property
+    def algo(self):  # noqa - Skip PyCharm inspection
+        if self.device_info.algo is not None:
+            return str(self.device_info.algo)
+
+    @algo.setter
+    def algo(self, val):
+        pass
+
+    def keys(self) -> list:
+        return [f.name for f in fields(self)]
 
     def asdict(self) -> dict:
         return asdict(self, dict_factory=self.dict_factory)
@@ -309,9 +402,7 @@ class MinerData:
         Returns:
             A JSON version of this class.
         """
-        data = self.asdict()
-        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
-        return json.dumps(data)
+        return json.dumps(self.as_dict())
 
     def as_csv(self) -> str:
         """Get this dataclass as CSV.
@@ -320,7 +411,6 @@ class MinerData:
             A CSV version of this class with no headers.
         """
         data = self.asdict()
-        data["datetime"] = str(int(time.mktime(data["datetime"].timetuple())))
         errs = []
         for error in data["errors"]:
             errs.append(error["error_message"])
@@ -385,6 +475,6 @@ class MinerData:
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
-        timestamp = str(int(time.mktime(self.datetime.timetuple()) * 1e9))
+        timestamp = str(self.timestamp * 1e9)
 
         return " ".join([tags_str, field_str, timestamp])

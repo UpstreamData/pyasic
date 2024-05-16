@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BMMiner
-from pyasic.miners.models import T9
+from pyasic.miners.device.models import T9
 
 
 class BMMinerT9(BMMiner, T9):

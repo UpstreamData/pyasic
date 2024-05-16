@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import LUXMiner
-from pyasic.miners.models import T19
+from pyasic.miners.device.models import T19
 
 
 class LUXMinerT19(LUXMiner, T19):

@@ -21,10 +21,9 @@ import toml
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -32,6 +31,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import BraiinsOSFirmware
 from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
@@ -95,7 +95,7 @@ BOSMINER_DATA_LOC = DataLocations(
 )
 
 
-class BOSMiner(BaseMiner):
+class BOSMiner(BraiinsOSFirmware):
     """Handler for old versions of BraiinsOS+ (pre-gRPC)"""
 
     _rpc_cls = BOSMinerRPCAPI
@@ -104,8 +104,6 @@ class BOSMiner(BaseMiner):
     web: BOSMinerWebAPI
     _ssh_cls = BOSMinerSSH
     ssh: BOSMinerSSH
-
-    firmware = "BOS+"
 
     data_locations = BOSMINER_DATA_LOC
 
@@ -352,7 +350,9 @@ class BOSMiner(BaseMiner):
 
         if rpc_summary is not None:
             try:
-                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
@@ -422,8 +422,9 @@ class BOSMiner(BaseMiner):
 
                 for board in rpc_devs["DEVS"]:
                     _id = board["ID"] - offset
-                    hashrate = round(float(board["MHS 1m"] / 1000000), 2)
-                    hashboards[_id].hashrate = hashrate
+                    hashboards[_id].hashrate = AlgoHashRate.SHA256(
+                        board["MHS 1m"], HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
             except (IndexError, KeyError):
                 pass
 
@@ -531,11 +532,12 @@ class BOSMiner(BaseMiner):
                     expected_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
                     if expected_hashrate:
                         hr_list.append(expected_hashrate)
+
                 if len(hr_list) == 0:
-                    return 0
+                    return AlgoHashRate.SHA256(0)
                 else:
-                    return round(
-                        (sum(hr_list) / len(hr_list)) * self.expected_hashboards, 2
+                    return AlgoHashRate.SHA256(
+                        (sum(hr_list) / len(hr_list)) * self.expected_hashboards
                     )
             except (IndexError, KeyError):
                 pass
@@ -635,15 +637,13 @@ BOSER_DATA_LOC = DataLocations(
 )
 
 
-class BOSer(BaseMiner):
+class BOSer(BraiinsOSFirmware):
     """Handler for new versions of BraiinsOS+ (post-gRPC)"""
 
     _rpc_cls = BOSMinerRPCAPI
     web: BOSMinerRPCAPI
     _web_cls = BOSerWebAPI
     web: BOSerWebAPI
-
-    firmware = "BOS+"
 
     data_locations = BOSER_DATA_LOC
 
@@ -788,7 +788,9 @@ class BOSer(BaseMiner):
 
         if rpc_summary is not None:
             try:
-                return round(float(rpc_summary["SUMMARY"][0]["MHS 1m"] / 1000000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
@@ -803,7 +805,10 @@ class BOSer(BaseMiner):
 
         if grpc_miner_details is not None:
             try:
-                return grpc_miner_details["stickerHashrate"]["gigahashPerSecond"] / 1000
+                return AlgoHashRate.SHA256(
+                    grpc_miner_details["stickerHashrate"]["gigahashPerSecond"],
+                    HashUnit.SHA256.GH,
+                ).into(self.algo.unit.default)
             except LookupError:
                 pass
 
@@ -832,13 +837,12 @@ class BOSer(BaseMiner):
                     ]
                 if board.get("stats") is not None:
                     if not board["stats"]["realHashrate"]["last5S"] == {}:
-                        hashboards[idx].hashrate = round(
+                        hashboards[idx].hashrate = AlgoHashRate.SHA256(
                             board["stats"]["realHashrate"]["last5S"][
                                 "gigahashPerSecond"
-                            ]
-                            / 1000,
-                            2,
-                        )
+                            ],
+                            HashUnit.SHA256.GH,
+                        ).into(self.algo.unit.default)
                 hashboards[idx].missing = False
 
         return hashboards

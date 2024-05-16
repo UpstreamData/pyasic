@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerOld
-from pyasic.miners.models import T17, T17e, T17Plus
+from pyasic.miners.device.models import T17, T17e, T17Plus
 
 
 class BMMinerT17(AntminerOld, T17):

@@ -17,7 +17,7 @@
 import re
 from typing import List, Optional
 
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -182,7 +182,9 @@ class AvalonMiner(CGMiner):
 
         if rpc_devs is not None:
             try:
-                return round(float(rpc_devs["DEVS"][0]["MHS 1m"] / 1000000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_devs["DEVS"][0]["MHS 1m"], HashUnit.SHA256.MH
+                ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
@@ -213,7 +215,9 @@ class AvalonMiner(CGMiner):
 
                 try:
                     board_hr = parsed_stats["MGHS"][board]
-                    hashboards[board].hashrate = round(float(board_hr) / 1000, 2)
+                    hashboards[board].hashrate = AlgoHashRate.SHA256(
+                        board_hr, HashUnit.SHA256.GH
+                    ).into(self.algo.unit.default)
                 except LookupError:
                     pass
 
@@ -245,7 +249,9 @@ class AvalonMiner(CGMiner):
             try:
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-                return round(float(parsed_stats["GHSmm"]) / 1000, 2)
+                return AlgoHashRate.SHA256(
+                    parsed_stats["GHSmm"], HashUnit.SHA256.GH
+                ).int(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 

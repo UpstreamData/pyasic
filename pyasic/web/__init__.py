@@ -13,10 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .base import BaseWebAPI
-
 from .antminer import AntminerModernWebAPI, AntminerOldWebAPI
 from .auradine import AuradineWebAPI
+from .base import BaseWebAPI
 from .braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from .epic import ePICWebAPI
 from .goldshell import GoldshellWebAPI

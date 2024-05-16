@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.models import L3Plus
+from pyasic.miners.device.models import L3Plus
 
 
 class VnishL3Plus(VNish, L3Plus):

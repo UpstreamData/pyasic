@@ -16,10 +16,10 @@
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.miners.device.firmware import LuxOSFirmware
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
 LUXMINER_DATA_LOC = DataLocations(
@@ -55,13 +55,11 @@ LUXMINER_DATA_LOC = DataLocations(
 )
 
 
-class LUXMiner(BaseMiner):
+class LUXMiner(LuxOSFirmware):
     """Handler for LuxOS miners"""
 
     _rpc_cls = LUXMinerRPCAPI
     rpc: LUXMinerRPCAPI
-
-    firmware = "LuxOS"
 
     data_locations = LUXMINER_DATA_LOC
 
@@ -173,7 +171,9 @@ class LUXMiner(BaseMiner):
 
         if rpc_summary is not None:
             try:
-                return round(float(rpc_summary["SUMMARY"][0]["GHS 5s"] / 1000), 2)
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -217,7 +217,9 @@ class LUXMiner(BaseMiner):
 
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
-                            hashboard.hashrate = round(float(hashrate) / 1000, 2)
+                            hashboard.hashrate = AlgoHashRate.SHA256(
+                                hashrate, HashUnit.SHA256.GH
+                            ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
                         if chips:
@@ -275,12 +277,9 @@ class LUXMiner(BaseMiner):
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
-                if rate_unit == "GH":
-                    return round(expected_rate / 1000, 2)
-                if rate_unit == "MH":
-                    return round(expected_rate / 1000000, 2)
-                else:
-                    return round(expected_rate, 2)
+                return AlgoHashRate.SHA256(
+                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                ).int(self.algo.unit.default)
             except LookupError:
                 pass
 

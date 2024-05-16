@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AvalonMiner
-from pyasic.miners.models import Avalon841
+from pyasic.miners.device.models import Avalon841
 
 
 class CGMinerAvalon841(AvalonMiner, Avalon841):

@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import LUXMiner
-from pyasic.miners.models import S21
+from pyasic.miners.device.models import S21
 
 
 class LUXMinerS21(LUXMiner, S21):

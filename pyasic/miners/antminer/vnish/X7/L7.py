@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.models import L7
+from pyasic.miners.device.models import L7
 
 
 class VnishL7(VNish, L7):
