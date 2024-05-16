@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -10,16 +10,16 @@ class PoolMetrics:
     rejected: Number of rejected shares.
     get_failures: Number of failures in obtaining work from the pool.
     remote_failures: Number of failures communicating with the pool server.
-    stratum_active: Indicates if the miner is connected to the stratum server.
+    active: Indicates if the miner is connected to the stratum server.
     pool_rejected_percent: Percentage of rejected shares by the pool.
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    accepted: int
-    rejected: int
-    get_failures: int
-    remove_failures: int
-    stratum_active: bool
+    accepted: int = field(init=False)
+    rejected: int = field(init=False)
+    get_failures: int = field(init=False)
+    remote_failures: int = field(init=False)
+    stratum_active: bool = field(init=False)
 
     @property
     def pool_rejected_percent(self) -> float:
