@@ -270,7 +270,7 @@ class ePIC(ePICFirmware):
                             ideal = hb["Hashrate"][1] / 100
 
                         hashrate += hb["Hashrate"][0] / ideal
-                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.GH).int(
+                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
                         self.algo.unit.default
                     )
             except (LookupError, ValueError, TypeError):
