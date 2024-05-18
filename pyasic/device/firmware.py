@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from enum import StrEnum
+from enum import Enum
 
 
-class MinerFirmware(StrEnum):
+class MinerFirmware(str, Enum):
     STOCK = "Stock"
     BRAIINS_OS = "BOS+"
     VNISH = "VNish"
@@ -25,3 +25,6 @@ class MinerFirmware(StrEnum):
     HIVEON = "Hive"
     LUXOS = "LuxOS"
     MARATHON = "MaraFW"
+
+    def __str__(self):
+        return self.value
