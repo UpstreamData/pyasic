@@ -26,16 +26,24 @@ class PoolMetrics:
     pool_stale_percent: float = field(init=False)
 
     @property
-    def pool_rejected_percent(self) -> float:
+    def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of rejected shares"""
         return self._calculate_percentage(self.rejected, self.accepted + self.rejected)
 
+    @pool_rejected_percent.setter
+    def pool_rejected_percent(self, val):
+        pass
+
     @property
-    def pool_stale_percent(self) -> float:
+    def pool_stale_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of stale shares."""
         return self._calculate_percentage(
             self.get_failures, self.accepted + self.rejected
         )
+
+    @pool_stale_percent.setter
+    def pool_stale_percent(self, val):
+        pass
 
     @staticmethod
     def _calculate_percentage(value: int, total: int) -> float:

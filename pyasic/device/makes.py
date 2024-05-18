@@ -14,10 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from enum import StrEnum
+from enum import Enum
 
 
-class MinerMake(StrEnum):
+class MinerMake(str, Enum):
     WHATSMINER = "WhatsMiner"
     ANTMINER = "AntMiner"
     AVALONMINER = "AvalonMiner"
@@ -25,3 +25,6 @@ class MinerMake(StrEnum):
     GOLDSHELL = "Goldshell"
     AURADINE = "Auradine"
     EPIC = "ePIC"
+
+    def __str__(self):
+        return self.value

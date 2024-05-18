@@ -1,7 +1,7 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class AntminerModels(StrEnum):
+class AntminerModels(str, Enum):
     D3 = "D3"
     HS3 = "HS3"
     L3Plus = "L3+"
@@ -46,8 +46,11 @@ class AntminerModels(StrEnum):
     S21 = "S21"
     T21 = "T21"
 
+    def __str__(self):
+        return self.value
 
-class WhatsminerModels(StrEnum):
+
+class WhatsminerModels(str, Enum):
     M20V10 = "M20 V10"
     M20SV10 = "M20S V10"
     M20SV20 = "M20S V20"
@@ -263,8 +266,11 @@ class WhatsminerModels(StrEnum):
     M66SVK30 = "M66S VK30"
     M66SVK40 = "M66S VK40"
 
+    def __str__(self):
+        return self.value
 
-class AvalonminerModels(StrEnum):
+
+class AvalonminerModels(str, Enum):
     Avalon721 = "Avalon 721"
     Avalon741 = "Avalon 741"
     Avalon761 = "Avalon 761"
@@ -278,13 +284,19 @@ class AvalonminerModels(StrEnum):
     Avalon1166Pro = "Avalon 1166 Pro"
     Avalon1246 = "Avalon 1246"
 
+    def __str__(self):
+        return self.value
 
-class InnosiliconModels(StrEnum):
+
+class InnosiliconModels(str, Enum):
     T3HPlus = "T3H+"
     A10X = "A10X"
 
+    def __str__(self):
+        return self.value
 
-class GoldshellModels(StrEnum):
+
+class GoldshellModels(str, Enum):
     CK5 = "CK5"
     HS5 = "HS5"
     KD5 = "KD5"
@@ -292,13 +304,19 @@ class GoldshellModels(StrEnum):
     KDBoxII = "KD Box II"
     KDBoxPro = "KD Box Pro"
 
+    def __str__(self):
+        return self.value
 
-class ePICModels(StrEnum):
+
+class ePICModels(str, Enum):
     BM520i = "BlockMiner 520i"
     BM720i = "BlockMiner 720i"
 
+    def __str__(self):
+        return self.value
 
-class AuradineModels(StrEnum):
+
+class AuradineModels(str, Enum):
     AT1500 = "AT1500"
     AT2860 = "AT2860"
     AT2880 = "AT2880"
@@ -306,6 +324,9 @@ class AuradineModels(StrEnum):
     AI3680 = "AI3680"
     AD2500 = "AD2500"
     AD3500 = "AD3500"
+
+    def __str__(self):
+        return self.value
 
 
 class MinerModel:
