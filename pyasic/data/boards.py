@@ -33,6 +33,7 @@ class HashBoard:
         expected_chips: The expected chip count of the board as an int.
         serial_number: The serial number of the board.
         missing: Whether the board is returned from the miners data as a bool.
+        tuned: Whether the board is tuned as a bool.
     """
 
     slot: int = 0
@@ -43,6 +44,7 @@ class HashBoard:
     expected_chips: int = None
     serial_number: str = None
     missing: bool = True
+    tuned: bool = True
 
     def get(self, __key: str, default: Any = None):
         try:

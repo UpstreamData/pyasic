@@ -323,6 +323,20 @@ class ePIC(ePICFirmware):
             except APIError:
                 pass
 
+        tuned = True
+        if web_summary is not None:
+            tuner_running = web_summary["PerpetualTune"]["Running"]
+            if tuner_running:
+                algo_info = web_summary["PerpetualTune"]["Algorithm"]
+                if algo_info.get("VoltageOptimizer") is not None:
+                    tuned = algo_info["VoltageOptimizer"].get("Optimized")
+                elif algo_info.get("BoardTune") is not None:
+                    tuned = algo_info["BoardTune"].get("Optimized")
+                else:
+                    tuned = algo_info["ChipTune"].get("Optimized")
+            # To be extra detailed, also ensure the miner is in "Mining" state
+            tuned = tuned and web_summary["Status"]["Operating State"] == "Mining"
+
         hb_list = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -349,6 +363,7 @@ class ePIC(ePICFirmware):
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]
+                    hb_list[hb["Index"]].tuned = tuned
             return hb_list
 
     async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:
