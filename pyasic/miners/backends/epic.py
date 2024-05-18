@@ -58,10 +58,6 @@ EPIC_DATA_LOC = DataLocations(
             "_get_wattage",
             [WebAPICommand("web_summary", "summary")],
         ),
-        str(DataOptions.VOLTAGE): DataFunction(
-            "_get_voltage",
-            [WebAPICommand("web_summary", "summary")],
-        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_summary", "summary")],
@@ -219,20 +215,6 @@ class ePIC(ePICFirmware):
             except KeyError:
                 pass
 
-    async def _get_voltage(self, web_summary: dict = None) -> Optional[float]:
-        if web_summary is None:
-            try:
-                web_summary = await self.web.summary()
-            except APIError:
-                pass
-
-        if web_summary is not None:
-            try:
-                voltage = web_summary["Power Supply Stats"]["Output Voltage"]
-                return voltage
-            except KeyError:
-                pass
-
     async def _get_hashrate(self, web_summary: dict = None) -> Optional[float]:
         if web_summary is None:
             try:
@@ -364,6 +346,7 @@ class ePIC(ePICFirmware):
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]
                     hb_list[hb["Index"]].tuned = tuned
+                    hb_list[hb["Index"]].voltage = hb["Input Voltage"]
             return hb_list
 
     async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:

@@ -37,7 +37,6 @@ class DataOptions(Enum):
     IS_MINING = "is_mining"
     UPTIME = "uptime"
     CONFIG = "config"
-    VOLTAGE = "voltage"
     POOLS = "pools"
 
     def __str__(self):
