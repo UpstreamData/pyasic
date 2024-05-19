@@ -78,13 +78,16 @@ class BOSerWebAPI(BaseWebAPI):
         for command in commands:
             try:
                 tasks[command] = asyncio.create_task(getattr(self, command)())
-            except (APIError, AttributeError):
-                result["command"] = {}
+            except AttributeError:
+                pass
 
-        await asyncio.gather(*list(tasks.values()))
+        await asyncio.gather(*[t for t in tasks.values()], return_exceptions=True)
 
         for cmd in tasks:
-            result[cmd] = tasks[cmd].result()
+            try:
+                result[cmd] = await tasks[cmd]
+            except (GRPCError, APIError):
+                pass
 
         return result
 
@@ -149,42 +152,55 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
     async def start(self) -> dict:
-        return await self.send_command("start", message=StartRequest())
+        return await self.send_command("start", message=StartRequest(), privileged=True)
 
     async def stop(self) -> dict:
-        return await self.send_command("stop", message=StopRequest())
+        return await self.send_command("stop", message=StopRequest(), privileged=True)
 
     async def pause_mining(self) -> dict:
-        return await self.send_command("pause_mining", message=PauseMiningRequest())
+        return await self.send_command(
+            "pause_mining", message=PauseMiningRequest(), privileged=True
+        )
 
     async def resume_mining(self) -> dict:
-        return await self.send_command("resume_mining", message=ResumeMiningRequest())
+        return await self.send_command(
+            "resume_mining", message=ResumeMiningRequest(), privileged=True
+        )
 
     async def restart(self) -> dict:
-        return await self.send_command("restart", message=RestartRequest())
+        return await self.send_command(
+            "restart", message=RestartRequest(), privileged=True
+        )
 
     async def reboot(self) -> dict:
-        return await self.send_command("reboot", message=RebootRequest())
+        return await self.send_command(
+            "reboot", message=RebootRequest(), privileged=True
+        )
 
     async def set_locate_device_status(self, enable: bool) -> dict:
         return await self.send_command(
             "set_locate_device_status",
             message=SetLocateDeviceStatusRequest(enable=enable),
+            privileged=True,
         )
 
     async def get_locate_device_status(self) -> dict:
         return await self.send_command(
-            "get_locate_device_status", message=GetLocateDeviceStatusRequest()
+            "get_locate_device_status",
+            message=GetLocateDeviceStatusRequest(),
+            privileged=True,
         )
 
     async def set_password(self, password: str = None) -> dict:
         return await self.send_command(
-            "set_password", message=SetPasswordRequest(password=password)
+            "set_password",
+            message=SetPasswordRequest(password=password),
+            privileged=True,
         )
 
     async def get_cooling_state(self) -> dict:
         return await self.send_command(
-            "get_cooling_state", message=GetCoolingStateRequest()
+            "get_cooling_state", message=GetCoolingStateRequest(), privileged=True
         )
 
     async def set_immersion_mode(
@@ -197,16 +213,17 @@ class BOSerWebAPI(BaseWebAPI):
             message=SetImmersionModeRequest(
                 enable_immersion_mode=enable, save_action=save_action
             ),
+            privileged=True,
         )
 
     async def get_tuner_state(self) -> dict:
         return await self.send_command(
-            "get_tuner_state", message=GetTunerStateRequest()
+            "get_tuner_state", message=GetTunerStateRequest(), privileged=True
         )
 
     async def list_target_profiles(self) -> dict:
         return await self.send_command(
-            "list_target_profiles", message=ListTargetProfilesRequest()
+            "list_target_profiles", message=ListTargetProfilesRequest(), privileged=True
         )
 
     async def set_default_power_target(
@@ -215,6 +232,7 @@ class BOSerWebAPI(BaseWebAPI):
         return await self.send_command(
             "set_default_power_target",
             message=SetDefaultPowerTargetRequest(save_action=save_action),
+            privileged=True,
         )
 
     async def set_power_target(
@@ -227,6 +245,7 @@ class BOSerWebAPI(BaseWebAPI):
             message=SetPowerTargetRequest(
                 power_target=Power(watt=power_target), save_action=save_action
             ),
+            privileged=True,
         )
 
     async def increment_power_target(
@@ -240,6 +259,7 @@ class BOSerWebAPI(BaseWebAPI):
                 power_target_increment=Power(watt=power_target_increment),
                 save_action=save_action,
             ),
+            privileged=True,
         )
 
     async def decrement_power_target(
@@ -253,6 +273,7 @@ class BOSerWebAPI(BaseWebAPI):
                 power_target_decrement=Power(watt=power_target_decrement),
                 save_action=save_action,
             ),
+            privileged=True,
         )
 
     async def set_default_hashrate_target(
@@ -261,6 +282,7 @@ class BOSerWebAPI(BaseWebAPI):
         return await self.send_command(
             "set_default_hashrate_target",
             message=SetDefaultHashrateTargetRequest(save_action=save_action),
+            privileged=True,
         )
 
     async def set_hashrate_target(
@@ -274,6 +296,7 @@ class BOSerWebAPI(BaseWebAPI):
                 hashrate_target=TeraHashrate(terahash_per_second=hashrate_target),
                 save_action=save_action,
             ),
+            privileged=True,
         )
 
     async def increment_hashrate_target(
@@ -289,6 +312,7 @@ class BOSerWebAPI(BaseWebAPI):
                 ),
                 save_action=save_action,
             ),
+            privileged=True,
         )
 
     async def decrement_hashrate_target(
@@ -304,6 +328,7 @@ class BOSerWebAPI(BaseWebAPI):
                 ),
                 save_action=save_action,
             ),
+            privileged=True,
         )
 
     async def set_dps(
@@ -327,6 +352,7 @@ class BOSerWebAPI(BaseWebAPI):
                     )
                 ),
             ),
+            privileged=True,
         )
 
     async def set_performance_mode(
@@ -356,6 +382,7 @@ class BOSerWebAPI(BaseWebAPI):
                         )
                     ),
                 ),
+                privileged=True,
             )
         if hashrate_target is not None:
             return await self.send_command(
@@ -372,16 +399,19 @@ class BOSerWebAPI(BaseWebAPI):
                         )
                     ),
                 ),
+                privileged=True,
             )
 
     async def get_active_performance_mode(self) -> dict:
         return await self.send_command(
-            "get_active_performance_mode", message=GetPerformanceModeRequest()
+            "get_active_performance_mode",
+            message=GetPerformanceModeRequest(),
+            privileged=True,
         )
 
     async def get_pool_groups(self) -> dict:
         return await self.send_command(
-            "get_pool_groups", message=GetPoolGroupsRequest()
+            "get_pool_groups", message=GetPoolGroupsRequest(), privileged=True
         )
 
     async def create_pool_group(self) -> dict:
@@ -395,40 +425,44 @@ class BOSerWebAPI(BaseWebAPI):
 
     async def get_miner_configuration(self) -> dict:
         return await self.send_command(
-            "get_miner_configuration", message=GetMinerConfigurationRequest()
+            "get_miner_configuration",
+            message=GetMinerConfigurationRequest(),
+            privileged=True,
         )
 
     async def get_constraints(self) -> dict:
         return await self.send_command(
-            "get_constraints", message=GetConstraintsRequest()
+            "get_constraints", message=GetConstraintsRequest(), privileged=True
         )
 
     async def get_license_state(self) -> dict:
         return await self.send_command(
-            "get_license_state", message=GetLicenseStateRequest()
+            "get_license_state", message=GetLicenseStateRequest(), privileged=True
         )
 
     async def get_miner_status(self) -> dict:
         return await self.send_command(
-            "get_miner_status", message=GetMinerStatusRequest()
+            "get_miner_status", message=GetMinerStatusRequest(), privileged=True
         )
 
     async def get_miner_details(self) -> dict:
         return await self.send_command(
-            "get_miner_details", message=GetMinerDetailsRequest()
+            "get_miner_details", message=GetMinerDetailsRequest(), privileged=True
         )
 
     async def get_miner_stats(self) -> dict:
         return await self.send_command(
-            "get_miner_stats", message=GetMinerStatsRequest()
+            "get_miner_stats", message=GetMinerStatsRequest(), privileged=True
         )
 
     async def get_hashboards(self) -> dict:
-        return await self.send_command("get_hashboards", message=GetHashboardsRequest())
+        return await self.send_command(
+            "get_hashboards", message=GetHashboardsRequest(), privileged=True
+        )
 
     async def get_support_archive(self) -> dict:
         return await self.send_command(
-            "get_support_archive", message=GetSupportArchiveRequest()
+            "get_support_archive", message=GetSupportArchiveRequest(), privileged=True
         )
 
     async def enable_hashboards(
@@ -441,6 +475,7 @@ class BOSerWebAPI(BaseWebAPI):
             message=EnableHashboardsRequest(
                 hashboard_ids=hashboard_ids, save_action=save_action
             ),
+            privileged=True,
         )
 
     async def disable_hashboards(
@@ -453,4 +488,5 @@ class BOSerWebAPI(BaseWebAPI):
             message=DisableHashboardsRequest(
                 hashboard_ids=hashboard_ids, save_action=save_action
             ),
+            privileged=True,
         )

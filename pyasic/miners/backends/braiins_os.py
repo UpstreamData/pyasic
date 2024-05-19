@@ -865,7 +865,9 @@ class BOSer(BraiinsOSFirmware):
     ) -> Optional[int]:
         if grpc_active_performance_mode is None:
             try:
-                grpc_active_performance_mode = self.web.get_active_performance_mode()
+                grpc_active_performance_mode = (
+                    await self.web.get_active_performance_mode()
+                )
             except APIError:
                 pass
 
