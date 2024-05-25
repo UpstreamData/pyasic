@@ -16,7 +16,7 @@
 import asyncio
 import ipaddress
 import warnings
-import aiohttp
+import httpx
 import tempfile
 import os
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
@@ -548,16 +548,23 @@ class MinerProtocol(Protocol):
         if current_firmware_version == latest_firmware_info['version']:
             return True  # Firmware is already up to date
 
-        # Download the new firmware file
-        firmware_file_path = await self._download_firmware(latest_firmware_info['download_url'])
-        if not firmware_file_path:
-            raise IOError("Failed to download the firmware file.")
+        # Download the new firmware file if it's not a local file
+        if not firmware_url.startswith("file://"):
+            firmware_file_path = await self._download_firmware(latest_firmware_info['download_url'])
+            if not firmware_file_path:
+                raise IOError("Failed to download the firmware file.")
+        else:
+            firmware_file_path = latest_firmware_info['download_url']
 
         # Transfer the firmware file to the miner
-        # TODO
+        transfer_success = await self._transfer_firmware_to_miner(firmware_file_path)
+        if not transfer_success:
+            raise IOError("Failed to transfer the firmware file to the miner.")
 
         # Apply the firmware update on the miner
-        # TODO
+        update_success = await self._apply_firmware_update(firmware_file_path)
+        if not update_success:
+            raise IOError("Failed to apply the firmware update.")
 
         # Reboot the miner
         # TODO
@@ -596,15 +603,15 @@ class BaseMiner(MinerProtocol):
         Returns:
             A dictionary containing the firmware version and download URL.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(firmware_url) as response:
-                if response.status != 200:
-                    raise ConnectionError(f"Failed to fetch firmware info, status code: {response.status}")
-                firmware_info = await response.json()
-                return {
-                    'version': firmware_info['version'],
-                    'download_url': firmware_info['download_url']
-                }
+        async with httpx.AsyncClient() as client:
+            response = await client.get(firmware_url)
+            if response.status_code != 200:
+                raise ConnectionError(f"Failed to fetch firmware info, status code: {response.status_code}")
+            firmware_info = response.json()
+            return {
+                'version': firmware_info['version'],
+                'download_url': firmware_info['download_url']
+            }
 
     async def _download_firmware(self, download_url: str) -> str:
         """
@@ -616,20 +623,24 @@ class BaseMiner(MinerProtocol):
         Returns:
             The file path to the downloaded firmware file.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(download_url) as response:
-                if response.status != 200:
-                    raise ConnectionError(f"Failed to download firmware, status code: {response.status}")
-                # Assuming the Content-Disposition header contains the filename
-                content_disposition = response.headers.get('Content-Disposition')
-                if not content_disposition:
-                    raise ValueError("Could not determine the filename of the firmware download.")
-                filename = content_disposition.split("filename=")[-1].strip().strip('"')
-                temp_dir = tempfile.gettempdir()
-                file_path = os.path.join(temp_dir, filename)
-                with open(file_path, 'wb') as file:
-                    file.write(await response.read())
-                return file_path
+        async with httpx.AsyncClient() as client:
+            response = await client.get(download_url)
+            if response.status_code != 200:
+                raise ConnectionError(f"Failed to download firmware, status code: {response.status_code}")
+            
+            # Assuming the Content-Disposition header contains the filename
+            content_disposition = response.headers.get('Content-Disposition')
+            if not content_disposition:
+                raise ValueError("Could not determine the filename of the firmware download.")
+            
+            filename = content_disposition.split("filename=")[-1].strip().strip('"')
+            temp_dir = tempfile.gettempdir()
+            file_path = os.path.join(temp_dir, filename)
+            
+            with open(file_path, 'wb') as file:
+                file.write(response.content)
+            
+            return file_path
 
     async def _query_firmware_server(self, server_url: str) -> dict:
         """
@@ -641,18 +652,106 @@ class BaseMiner(MinerProtocol):
         Returns:
             A dictionary containing the firmware version and download URL.
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(server_url) as response:
-                if response.status != 200:
-                    raise ConnectionError(f"Failed to query firmware server, status code: {response.status}")
-                firmware_files = await response.json()
-                for firmware_file in firmware_files:
-                    if self._is_appropriate_firmware(firmware_file['version']):
-                        return {
-                            'version': firmware_file['version'],
-                            'download_url': firmware_file['url']
-                        }
-                raise ValueError("No appropriate firmware file found on the server.")
+        async with httpx.AsyncClient() as client:
+            response = await client.get(server_url)
+            if response.status_code != 200:
+                raise ConnectionError(f"Failed to query firmware server, status code: {response.status_code}")
+            firmware_files = response.json()
+            for firmware_file in firmware_files:
+                if self._is_appropriate_firmware(firmware_file['version']):
+                    return {
+                        'version': firmware_file['version'],
+                        'download_url': firmware_file['url']
+                    }
+            raise ValueError("No appropriate firmware file found on the server.")
 
+    async def _transfer_firmware_to_miner(self, firmware_file_path: str) -> bool:
+        """
+        Transfer the firmware file to the miner using SSH.
+
+        Parameters:
+            firmware_file_path: The file path to the firmware file that needs to be transferred.
+
+        Returns:
+            A boolean value indicating the success of the transfer.
+        """
+        import paramiko
+        from paramiko import SSHClient
+        from scp import SCPClient
+
+        # Retrieve SSH credentials from environment variables or secure storage
+        ssh_username = os.getenv('MINER_SSH_USERNAME')
+        ssh_password = os.getenv('MINER_SSH_PASSWORD')
+        ssh_key_path = os.getenv('MINER_SSH_KEY_PATH')
+
+        try:
+            # Establish an SSH client session using credentials
+            with SSHClient() as ssh_client:
+                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+                if ssh_key_path:
+                    ssh_client.connect(self.ip, username=ssh_username, key_filename=ssh_key_path)
+                else:
+                    ssh_client.connect(self.ip, username=ssh_username, password=ssh_password)
+
+                # Use SCPClient to transfer the firmware file to the miner
+                with SCPClient(ssh_client.get_transport()) as scp_client:
+                    scp_client.put(firmware_file_path, remote_path='/tmp/')
+
+                return True
+        except Exception as e:
+            logger.error(f"Failed to transfer firmware to miner {self.ip}: {e}")
+            return False
+
+    async def _apply_firmware_update(self, firmware_file_path: str) -> bool:
+        """
+        Apply the firmware update to the miner.
+
+        Parameterrs:
+            firmware_file_path: The path to the firmware file to be uploaded.
+        
+        Returns:
+            True if the firmware update was successful, False otherwise.
+        """
+        try:
+            # Identify the miner using the get_miner function
+            miner = await self.get_miner(self.ip)
+            if not miner:
+                logger.error(f"Failed to identify miner at {self.ip}")
+                return False
+
+            # Gather necessary data from the miner
+            miner_data = await miner.get_data()
+
+            # Logic to apply firmware update using SSH
+            if miner.ssh:
+                async with miner.ssh as ssh_client:
+                    await ssh_client.upload_file(firmware_file_path, "/tmp/firmware.bin")
+                    await ssh_client.execute_command("upgrade_firmware /tmp/firmware.bin")
+                    return True
+            # Logic to apply firmware update using RPC
+            elif miner.rpc:
+                await miner.rpc.upload_firmware(firmware_file_path)
+                await miner.rpc.execute_command("upgrade_firmware")
+                return True
+            else:
+                logger.error("No valid interface available to apply firmware update.")
+                return False
+        except Exception as e:
+            logger.error(f"Error applying firmware update: {e}")
+            return False
+
+    async def _is_appropriate_firmware(self, firmware_version: str) -> bool:
+            """
+            Determine if the given firmware version is appropriate for the miner.
+
+            Parameters:
+                firmware_version: The version of the firmware to evaluate.
+
+            Returns:
+                A boolean indicating if the firmware version is appropriate.
+            """
+            # TODO
+            return True
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
