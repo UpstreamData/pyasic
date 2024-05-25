@@ -19,7 +19,6 @@ from typing import List, Optional, Union
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
-from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import (
@@ -32,6 +31,8 @@ from pyasic.miners.data import (
 from pyasic.rpc.antminer import AntminerRPCAPI
 from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
+from pyasic.data.pools import PoolMetrics
+from pyasic.errors import APIError
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(
     **{
@@ -350,6 +351,35 @@ class AntminerModern(BMMiner):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+
+    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+        if rpc_pools is None:
+            try:
+                rpc_pools = await self.rpc.pools()
+            except APIError:
+                pass
+
+        pools_data = []
+        if rpc_pools is not None:
+            try:
+                pools = rpc_pools.get("POOLS", [])
+                for index, pool_info in enumerate(pools):
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("Accepted"),
+                        rejected=pool_info.get("Rejected"),
+                        get_failures=pool_info.get("Get Failures"),
+                        remote_failures=pool_info.get("Remote Failures"),
+                        active=pool_info.get("Stratum Active"),
+                        alive=pool_info.get("Alive"),
+                        url=pool_info.get("URL"),
+                        user=pool_info.get("User"),
+                        index=pool_info.get("Index")
+
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
 
 
 ANTMINER_OLD_DATA_LOC = DataLocations(
