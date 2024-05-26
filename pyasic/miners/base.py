@@ -29,6 +29,7 @@ from pyasic.device.makes import MinerMake
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
+from pyasic.data.pools import PoolMetrics
 
 
 class MinerProtocol(Protocol):
@@ -341,6 +342,14 @@ class MinerProtocol(Protocol):
         """
         return await self._get_uptime()
 
+    async def get_pools(self) -> List[PoolMetrics]:
+        """ Get the pools information from Miner.
+
+        Return:
+            The pool information of the miner.
+        """
+        return await self._get_pools()
+
     async def _get_mac(self) -> Optional[str]:
         pass
 
@@ -390,6 +399,9 @@ class MinerProtocol(Protocol):
         pass
 
     async def _get_uptime(self) -> Optional[int]:
+        pass
+
+    async def _get_pools(self) -> List[PoolMetrics]:
         pass
 
     async def _get_data(
