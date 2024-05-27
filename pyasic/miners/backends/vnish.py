@@ -147,6 +147,22 @@ class VNish(VNishFirmware, BMMiner):
             except KeyError:
                 pass
 
+    async def fault_light_off(self) -> bool:
+        result = await self.web.find_miner()
+        if result is not None:
+            if result.get("on") is False:
+                return True
+            else:
+                await self.web.find_miner()
+
+    async def fault_light_on(self) -> bool:
+        result = await self.web.find_miner()
+        if result is not None:
+            if result.get("on") is True:
+                return True
+            else:
+                await self.web.find_miner()
+
     async def _get_hostname(self, web_summary: dict = None) -> str:
         if web_summary is None:
             web_info = await self.web.info()
