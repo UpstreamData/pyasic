@@ -384,6 +384,7 @@ MINER_CLASSES = {
         "ANTMINER S19A": VNishS19a,
         "ANTMINER S19A PRO": VNishS19aPro,
         "ANTMINER T19": VNishT19,
+        "ANTMINER S21": VNishS21,
     },
     MinerTypes.EPIC: {
         None: ePIC,
@@ -530,7 +531,6 @@ class MinerFactory:
                 miner_type=miner_type,
                 miner_model=miner_model,
             )
-
             return miner
 
     async def _get_miner_type(self, ip: str) -> MinerTypes | None:
@@ -673,7 +673,7 @@ class MinerFactory:
             return MinerTypes.BRAIINS_OS
         if "BTMINER" in upper_data or "BITMICRO" in upper_data:
             return MinerTypes.WHATSMINER
-        if "VNISH" in upper_data:
+        if "VNISH" in upper_data or "DEVICE PATH" in upper_data:
             return MinerTypes.VNISH
         if "HIVEON" in upper_data:
             return MinerTypes.HIVEON
