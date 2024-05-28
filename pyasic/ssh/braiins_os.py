@@ -1,7 +1,9 @@
+import tempfile
 from pyasic import settings
 from pyasic.ssh.base import BaseSSH
 import logging
-import requests
+import httpx
+from pathlib import Path
 import os
 
 # Set up logging
@@ -119,40 +121,44 @@ class BOSMinerSSH(BaseSSH):
 
             if file_location is None:
                 # Check for cached firmware file
-                cached_file_location = "/tmp/cached_firmware.tar.gz"
-                if os.path.exists(cached_file_location):
+                with tempfile.NamedTemporaryFile(delete=False) as temp_firmware_file:
+                    cached_file_location = Path(temp_firmware_file.name)
+                if cached_file_location.exists():
                     logger.info("Cached firmware file found. Checking version.")
                     # Compare cached firmware version with the latest version on the server
-                    response = requests.get("http://firmware.pyasic.org/latest")
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get("http://firmware.pyasic.org/latest")
                     response.raise_for_status()
                     latest_version = response.json().get("version")
                     cached_version = self._get_fw_ver()
-                    
                     if cached_version == latest_version:
                         logger.info("Cached firmware version matches the latest version. Using cached file.")
-                        file_location = cached_file_location
+                        file_location = str(cached_file_location)
                     else:
                         logger.info("Cached firmware version does not match the latest version. Downloading new version.")
                         firmware_url = response.json().get("url")
                         if not firmware_url:
                             raise ValueError("Firmware URL not found in the server response.")
-                        firmware_response = requests.get(firmware_url)
+                        async with httpx.AsyncClient() as client:
+                            firmware_response = await client.get(firmware_url)
                         firmware_response.raise_for_status()
-                        with open(cached_file_location, "wb") as firmware_file:
+                        with cached_file_location.open("wb") as firmware_file:
                             firmware_file.write(firmware_response.content)
-                        file_location = cached_file_location
+                        file_location = str(cached_file_location)
                 else:
                     logger.info("No cached firmware file found. Downloading new version.")
-                    response = requests.get("http://firmware.pyasic.org/latest")
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get("http://firmware.pyasic.org/latest")
                     response.raise_for_status()
                     firmware_url = response.json().get("url")
                     if not firmware_url:
                         raise ValueError("Firmware URL not found in the server response.")
-                    firmware_response = requests.get(firmware_url)
+                    async with httpx.AsyncClient() as client:
+                        firmware_response = await client.get(firmware_url)
                     firmware_response.raise_for_status()
-                    with open(cached_file_location, "wb") as firmware_file:
+                    with cached_file_location.open("wb") as firmware_file:
                         firmware_file.write(firmware_response.content)
-                    file_location = cached_file_location
+                    file_location = str(cached_file_location)
 
             # Upload the firmware file to the BOSMiner device
             logger.info(f"Uploading firmware file from {file_location} to the device.")
