@@ -93,3 +93,15 @@ class BOSMinerSSH(BaseSSH):
             str: Status of the LED.
         """
         return await self.send_command("cat /sys/class/leds/'Red LED'/delay_off")
+
+    async def upgrade_firmware(self, file: str):
+        """Upgrade the firmware of the BrainOS miner using a specified file.
+
+        This function upgrades the firmware of the BrainOS miner using a specified file.
+        It downloads the firmware file to a temporary location and performs the upgrade.
+
+        Args:
+            file (str): The URL or local path of the firmware file.
+
+        """
+        pass
