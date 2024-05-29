@@ -4,7 +4,15 @@ from pyasic.ssh.base import BaseSSH
 import logging
 import httpx
 from pathlib import Path
-import os
+import hashlib
+from pyasic.miners.base import FirmwareManager
+
+def calculate_sha256(file_path):
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -24,6 +32,27 @@ class BOSMinerSSH(BaseSSH):
         """
         super().__init__(ip)
         self.pwd = settings.get("default_bosminer_ssh_password", "root")
+        self.firmware_manager = FirmwareManager()
+
+    def get_firmware_version(self, firmware_file):
+        """
+        Extract the firmware version from the firmware file.
+
+        Args:
+            firmware_file (file): The firmware file to extract the version from.
+
+        Returns:
+            str: The firmware version.
+        """
+        import re
+
+        # Extract the version from the filename using a regular expression
+        filename = firmware_file.name
+        match = re.search(r"firmware_v(\d+\.\d+\.\d+)\.tar\.gz", filename)
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError("Firmware version not found in the filename.")
 
     async def get_board_info(self):
         """
@@ -106,12 +135,14 @@ class BOSMinerSSH(BaseSSH):
         """
         return await self.send_command("cat /sys/class/leds/'Red LED'/delay_off")
 
-    async def upgrade_firmware(self, file_location: str = None):
+    async def upgrade_firmware(self, file_location: str = None, custom_url: str = None, override_validation: bool = False):
         """
         Upgrade the firmware of the BOSMiner device.
 
         Args:
             file_location (str): The local file path of the firmware to be uploaded. If not provided, the firmware will be downloaded from the internal server.
+            custom_url (str): Custom URL to download the firmware from.
+            override_validation (bool): Whether to override SHA256 validation.
 
         Returns:
             str: Confirmation message after upgrading the firmware.
@@ -126,38 +157,36 @@ class BOSMinerSSH(BaseSSH):
                 if cached_file_location.exists():
                     logger.info("Cached firmware file found. Checking version.")
                     # Compare cached firmware version with the latest version on the server
-                    async with httpx.AsyncClient() as client:
-                        response = await client.get("http://firmware.pyasic.org/latest")
-                    response.raise_for_status()
-                    latest_version = response.json().get("version")
-                    cached_version = self._get_fw_ver()
+                    latest_firmware_info = await self.firmware_manager.get_latest_firmware_info()
+                    latest_version = latest_firmware_info.get("version")
+                    latest_hash = latest_firmware_info.get("sha256")
+                    cached_version = self.firmware_manager.get_firmware_version("braiins_os", cached_file_location)
                     if cached_version == latest_version:
                         logger.info("Cached firmware version matches the latest version. Using cached file.")
                         file_location = str(cached_file_location)
                     else:
                         logger.info("Cached firmware version does not match the latest version. Downloading new version.")
-                        firmware_url = response.json().get("url")
+                        firmware_url = custom_url or latest_firmware_info.get("url")
                         if not firmware_url:
                             raise ValueError("Firmware URL not found in the server response.")
-                        async with httpx.AsyncClient() as client:
-                            firmware_response = await client.get(firmware_url)
-                        firmware_response.raise_for_status()
-                        with cached_file_location.open("wb") as firmware_file:
-                            firmware_file.write(firmware_response.content)
+                        await self.firmware_manager.download_firmware(firmware_url, cached_file_location)
+                        if not override_validation:
+                            downloaded_hash = self.firmware_manager.calculate_sha256(cached_file_location)
+                            if downloaded_hash != latest_hash:
+                                raise ValueError("SHA256 hash validation failed for the downloaded firmware file.")
                         file_location = str(cached_file_location)
                 else:
                     logger.info("No cached firmware file found. Downloading new version.")
-                    async with httpx.AsyncClient() as client:
-                        response = await client.get("http://firmware.pyasic.org/latest")
-                    response.raise_for_status()
-                    firmware_url = response.json().get("url")
+                    latest_firmware_info = await self.firmware_manager.get_latest_firmware_info()
+                    firmware_url = custom_url or latest_firmware_info.get("url")
+                    latest_hash = latest_firmware_info.get("sha256")
                     if not firmware_url:
                         raise ValueError("Firmware URL not found in the server response.")
-                    async with httpx.AsyncClient() as client:
-                        firmware_response = await client.get(firmware_url)
-                    firmware_response.raise_for_status()
-                    with cached_file_location.open("wb") as firmware_file:
-                        firmware_file.write(firmware_response.content)
+                    await self.firmware_manager.download_firmware(firmware_url, cached_file_location)
+                    if not override_validation:
+                        downloaded_hash = self.firmware_manager.calculate_sha256(cached_file_location)
+                        if downloaded_hash != latest_hash:
+                            raise ValueError("SHA256 hash validation failed for the downloaded firmware file.")
                     file_location = str(cached_file_location)
 
             # Upload the firmware file to the BOSMiner device
@@ -174,6 +203,18 @@ class BOSMinerSSH(BaseSSH):
 
             logger.info("Firmware upgrade process completed successfully.")
             return result
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error occurred during the firmware upgrade process: {e}")
+            raise
+        except FileNotFoundError as e:
+            logger.error(f"File not found during the firmware upgrade process: {e}")
+            raise
+        except ValueError as e:
+            logger.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            raise
+        except OSError as e:
+            logger.error(f"OS error occurred during the firmware upgrade process: {e}")
+            raise
         except Exception as e:
-            logger.error(f"An error occurred during the firmware upgrade process: {e}")
+            logger.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
             raise
