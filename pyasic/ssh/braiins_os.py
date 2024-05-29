@@ -1,10 +1,6 @@
-import tempfile
 from pyasic import settings
 from pyasic.ssh.base import BaseSSH
 import logging
-import httpx
-from pathlib import Path
-import os
 import hashlib
 from pyasic.updater.bos import FirmwareManager
 
@@ -22,6 +18,7 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
 
 class BOSMinerSSH(BaseSSH):
     def __init__(self, ip: str):
