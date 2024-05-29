@@ -282,7 +282,7 @@ class MaraMiner(MaraFirmware):
             try:
                 return AlgoHashRate.SHA256(
                     web_brief["hashrate_ideal"], HashUnit.SHA256.GH
-                ).int(self.algo.unit.default)
+                ).into(self.algo.unit.default)
             except LookupError:
                 pass
 
