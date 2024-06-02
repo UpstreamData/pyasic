@@ -367,7 +367,7 @@ class AntminerModern(BMMiner):
         if rpc_pools is not None:
             try:
                 pools = rpc_pools.get("POOLS", [])
-                for index, pool_info in enumerate(pools):
+                for pool_info in pools:
                     pool_data = PoolMetrics(
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
