@@ -575,7 +575,7 @@ class BTMiner(StockFirmware):
                 if expected_hashrate:
                     return AlgoHashRate.SHA256(
                         expected_hashrate, HashUnit.SHA256.GH
-                    ).int(self.algo.unit.default)
+                    ).into(self.algo.unit.default)
 
             except LookupError:
                 pass

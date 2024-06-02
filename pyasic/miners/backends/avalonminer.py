@@ -251,7 +251,7 @@ class AvalonMiner(CGMiner):
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return AlgoHashRate.SHA256(
                     parsed_stats["GHSmm"], HashUnit.SHA256.GH
-                ).int(self.algo.unit.default)
+                ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 

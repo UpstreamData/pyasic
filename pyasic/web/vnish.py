@@ -140,3 +140,6 @@ class VNishWebAPI(BaseWebAPI):
 
     async def autotune_presets(self) -> dict:
         return await self.send_command("autotune/presets")
+
+    async def find_miner(self) -> dict:
+        return await self.send_command("find-miner", privileged=True)
