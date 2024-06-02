@@ -2,14 +2,28 @@ import httpx
 from pathlib import Path
 import re
 import hashlib
+import aiofiles
+import logging
 
 class FirmwareManager:
-    def __init__(self):
+    def __init__(self, ssh_client):
         """
         Initialize a FirmwareManager instance.
+
+        Args:
+            ssh_client: The SSH client to use for sending commands to the device.
         """
         self.remote_server_url = "http://feeds.braiins-os.com"
         self.version_extractors = {}
+        self.ssh = ssh_client
+
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
         # Register version extractor for braiins_os
         self.register_version_extractor("braiins_os", self.extract_braiins_os_version)
@@ -109,3 +123,46 @@ class FirmwareManager:
 
         extractor_func = self.version_extractors[miner_type]
         return extractor_func(firmware_file)
+
+    async def upgrade_firmware(self, file: Path):
+        """
+        Upgrade the firmware of the BOSMiner device.
+
+        Args:
+            file (Path): The local file path of the firmware to be uploaded.
+
+        Returns:
+            str: Confirmation message after upgrading the firmware.
+        """
+        try:
+            self.logger.info("Starting firmware upgrade process.")
+
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
+
+            # Read the firmware file contents
+            async with aiofiles.open(file, "rb") as f:
+                upgrade_contents = await f.read()
+
+            # Encode the firmware contents in base64
+            import base64
+            encoded_contents = base64.b64encode(upgrade_contents).decode('utf-8')
+
+            # Upload the firmware file to the BOSMiner device
+            self.logger.info(f"Uploading firmware file from {file} to the device.")
+            await self.ssh.send_command(f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar")
+
+            self.logger.info("Firmware upgrade process completed successfully.")
+            return "Firmware upgrade completed successfully."
+        except FileNotFoundError as e:
+            self.logger.error(f"File not found during the firmware upgrade process: {e}")
+            raise
+        except ValueError as e:
+            self.logger.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            raise
+        except OSError as e:
+            self.logger.error(f"OS error occurred during the firmware upgrade process: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise

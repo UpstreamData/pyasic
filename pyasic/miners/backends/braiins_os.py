@@ -37,6 +37,9 @@ from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
 
+import aiofiles
+import base64
+
 BOSMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
@@ -569,6 +572,48 @@ class BOSMiner(BraiinsOSFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def upgrade_firmware(self, file: Path):
+        """
+        Upgrade the firmware of the BOSMiner device.
+
+        Args:
+            file (Path): The local file path of the firmware to be uploaded.
+
+        Returns:
+            str: Confirmation message after upgrading the firmware.
+        """
+        try:
+            self.logger.info("Starting firmware upgrade process.")
+
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
+
+            # Read the firmware file contents
+            async with aiofiles.open(file, "rb") as f:
+                upgrade_contents = await f.read()
+
+            # Encode the firmware contents in base64
+            encoded_contents = base64.b64encode(upgrade_contents).decode('utf-8')
+
+            # Upload the firmware file to the BOSMiner device
+            self.logger.info(f"Uploading firmware file from {file} to the device.")
+            await self.ssh.send_command(f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar")
+
+            self.logger.info("Firmware upgrade process completed successfully.")
+            return "Firmware upgrade completed successfully."
+        except FileNotFoundError as e:
+            self.logger.error(f"File not found during the firmware upgrade process: {e}")
+            raise
+        except ValueError as e:
+            self.logger.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            raise
+        except OSError as e:
+            self.logger.error(f"OS error occurred during the firmware upgrade process: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise
 
 
 BOSER_DATA_LOC = DataLocations(
