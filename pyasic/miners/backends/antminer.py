@@ -374,10 +374,10 @@ class AntminerModern(BMMiner):
                         get_failures=pool_info.get("Get Failures"),
                         remote_failures=pool_info.get("Remote Failures"),
                         active=pool_info.get("Stratum Active"),
-                        alive=pool_info.get("Alive"),
+                        alive=pool_info.get("Status") == "Alive",
                         url=pool_info.get("URL"),
                         user=pool_info.get("User"),
-                        index=pool_info.get("Index")
+                        index=pool_info.get("POOL")
 
                     )
                     pools_data.append(pool_data)
