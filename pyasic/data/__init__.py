@@ -29,6 +29,7 @@ from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
 from .hashrate import AlgoHashRate, HashUnit
+from pyasic.data.pools import PoolMetrics
 
 
 @dataclass
@@ -71,6 +72,7 @@ class MinerData:
         fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
         is_mining: Whether the miner is mining.
+        pools: A list of PoolMetrics instances, each representing metrics for a pool.
     """
 
     # general
@@ -142,6 +144,9 @@ class MinerData:
     is_mining: bool = True
     uptime: int = None
     efficiency: int = field(init=False)
+
+    # pools
+    pools: list[PoolMetrics] = field(default_factory=list)
 
     @classmethod
     def fields(cls):

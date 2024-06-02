@@ -38,6 +38,7 @@ class DataOptions(Enum):
     UPTIME = "uptime"
     CONFIG = "config"
     VOLTAGE = "voltage"
+    POOLS = "pools"
 
     def __str__(self):
         return self.value
