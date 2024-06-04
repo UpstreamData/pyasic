@@ -165,10 +165,19 @@ class ChipTuneAlgo(MinerConfigValue):
 
 
 @dataclass
+class BoardTuneAlgo(MinerConfigValue):
+    mode: str = field(init=False, default="board_tune")
+
+    def as_epic(self) -> str:
+        return "BoardTune"
+
+
+@dataclass
 class TunerAlgo(MinerConfigOption):
     standard = StandardTuneAlgo
     voltage_optimizer = VOptAlgo
     chip_tune = ChipTuneAlgo
+    board_tune = BoardTuneAlgo
 
     @classmethod
     def default(cls):
@@ -441,6 +450,15 @@ class MiningModeConfig(MinerConfigOption):
                             "Throttle Step"
                         ),
                         algo=TunerAlgo.voltage_optimizer(),
+                    )
+                elif algo_info.get("BoardTune") is not None:
+                    return cls.hashrate_tuning(
+                        hashrate=algo_info["BoardTune"].get("Target"),
+                        throttle_limit=algo_info["BoardTune"].get(
+                            "Min Throttle Target"
+                        ),
+                        throttle_step=algo_info["BoardTune"].get("Throttle Step"),
+                        algo=TunerAlgo.board_tune(),
                     )
                 else:
                     return cls.hashrate_tuning(
