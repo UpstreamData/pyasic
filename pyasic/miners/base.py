@@ -22,6 +22,7 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.data.pools import PoolMetrics
 from pyasic.device import MinerModel
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.firmware import MinerFirmware
@@ -29,7 +30,6 @@ from pyasic.device.makes import MinerMake
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
-from pyasic.data.pools import PoolMetrics
 
 
 class MinerProtocol(Protocol):
@@ -343,7 +343,7 @@ class MinerProtocol(Protocol):
         return await self._get_uptime()
 
     async def get_pools(self) -> List[PoolMetrics]:
-        """ Get the pools information from Miner.
+        """Get the pools information from Miner.
 
         Return:
             The pool information of the miner.
@@ -410,50 +410,60 @@ class MinerProtocol(Protocol):
         include: List[Union[str, DataOptions]] = None,
         exclude: List[Union[str, DataOptions]] = None,
     ) -> dict:
+        # handle include
         if include is not None:
             include = [str(i) for i in include]
         else:
             # everything
             include = [str(enum_value.value) for enum_value in DataOptions]
 
+        # handle exclude
+        # prioritized over include, including x and excluding x will exclude x
         if exclude is not None:
             for item in exclude:
                 if str(item) in include:
                     include.remove(str(item))
 
-        api_multicommand = set()
-        web_multicommand = []
+        rpc_multicommand = set()
+        web_multicommand = set()
+        # create multicommand
         for data_name in include:
             try:
+                # get kwargs needed for the _get_xyz function
                 fn_args = getattr(self.data_locations, data_name).kwargs
+
+                # keep track of which RPC/Web commands need to be sent
                 for arg in fn_args:
                     if isinstance(arg, RPCAPICommand):
-                        api_multicommand.add(arg.cmd)
+                        rpc_multicommand.add(arg.cmd)
                     if isinstance(arg, WebAPICommand):
-                        if arg.cmd not in web_multicommand:
-                            web_multicommand.append(arg.cmd)
+                        web_multicommand.add(arg.cmd)
             except KeyError as e:
-                logger.error(e, data_name)
+                logger.error(type(e), e, data_name)
                 continue
 
-        if len(api_multicommand) > 0:
-            api_command_task = asyncio.create_task(
-                self.api.multicommand(*api_multicommand, allow_warning=allow_warning)
+        # create tasks for all commands that need to be sent, or no-op with sleep(0) -> None
+        if len(rpc_multicommand) > 0:
+            rpc_command_task = asyncio.create_task(
+                self.rpc.multicommand(*rpc_multicommand, allow_warning=allow_warning)
             )
         else:
-            api_command_task = asyncio.sleep(0)
+            rpc_command_task = asyncio.create_task(asyncio.sleep(0))
         if len(web_multicommand) > 0:
             web_command_task = asyncio.create_task(
                 self.web.multicommand(*web_multicommand, allow_warning=allow_warning)
             )
         else:
-            web_command_task = asyncio.sleep(0)
+            web_command_task = asyncio.create_task(asyncio.sleep(0))
 
-        web_command_data = await web_command_task
+        # make sure the tasks complete
+        await asyncio.gather(rpc_command_task, web_command_task)
+
+        # grab data out of the tasks
+        web_command_data = web_command_task.result()
         if web_command_data is None:
             web_command_data = {}
-
-        api_command_data = await api_command_task
+        api_command_data = rpc_command_task.result()
         if api_command_data is None:
             api_command_data = {}
 
