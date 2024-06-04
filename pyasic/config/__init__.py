@@ -18,7 +18,7 @@ from dataclasses import asdict, dataclass, field
 from pyasic.config.fans import FanModeConfig
 from pyasic.config.mining import MiningModeConfig
 from pyasic.config.pools import PoolConfig
-from pyasic.config.power_scaling import PowerScalingConfig
+from pyasic.config.scaling import ScalingConfig
 from pyasic.config.temperature import TemperatureConfig
 from pyasic.misc import merge_dicts
 
@@ -32,9 +32,7 @@ class MinerConfig:
     fan_mode: FanModeConfig = field(default_factory=FanModeConfig.default)
     temperature: TemperatureConfig = field(default_factory=TemperatureConfig.default)
     mining_mode: MiningModeConfig = field(default_factory=MiningModeConfig.default)
-    power_scaling: PowerScalingConfig = field(
-        default_factory=PowerScalingConfig.default
-    )
+    scaling: ScalingConfig = field(default_factory=ScalingConfig.default)
 
     def __getitem__(self, item):
         try:
@@ -54,7 +52,7 @@ class MinerConfig:
             **self.mining_mode.as_am_modern(),
             **self.pools.as_am_modern(user_suffix=user_suffix),
             **self.temperature.as_am_modern(),
-            **self.power_scaling.as_am_modern(),
+            **self.scaling.as_am_modern(),
         }
 
     def as_wm(self, user_suffix: str = None) -> dict:
@@ -64,7 +62,7 @@ class MinerConfig:
             **self.mining_mode.as_wm(),
             **self.pools.as_wm(user_suffix=user_suffix),
             **self.temperature.as_wm(),
-            **self.power_scaling.as_wm(),
+            **self.scaling.as_wm(),
         }
 
     def as_am_old(self, user_suffix: str = None) -> dict:
@@ -74,7 +72,7 @@ class MinerConfig:
             **self.mining_mode.as_am_old(),
             **self.pools.as_am_old(user_suffix=user_suffix),
             **self.temperature.as_am_old(),
-            **self.power_scaling.as_am_old(),
+            **self.scaling.as_am_old(),
         }
 
     def as_goldshell(self, user_suffix: str = None) -> dict:
@@ -84,7 +82,7 @@ class MinerConfig:
             **self.mining_mode.as_goldshell(),
             **self.pools.as_goldshell(user_suffix=user_suffix),
             **self.temperature.as_goldshell(),
-            **self.power_scaling.as_goldshell(),
+            **self.scaling.as_goldshell(),
         }
 
     def as_avalon(self, user_suffix: str = None) -> dict:
@@ -94,7 +92,7 @@ class MinerConfig:
             **self.mining_mode.as_avalon(),
             **self.pools.as_avalon(user_suffix=user_suffix),
             **self.temperature.as_avalon(),
-            **self.power_scaling.as_avalon(),
+            **self.scaling.as_avalon(),
         }
 
     def as_inno(self, user_suffix: str = None) -> dict:
@@ -104,7 +102,7 @@ class MinerConfig:
             **self.mining_mode.as_inno(),
             **self.pools.as_inno(user_suffix=user_suffix),
             **self.temperature.as_inno(),
-            **self.power_scaling.as_inno(),
+            **self.scaling.as_inno(),
         }
 
     def as_bosminer(self, user_suffix: str = None) -> dict:
@@ -113,7 +111,7 @@ class MinerConfig:
             **merge_dicts(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
             **self.mining_mode.as_bosminer(),
             **self.pools.as_bosminer(user_suffix=user_suffix),
-            **self.power_scaling.as_bosminer(),
+            **self.scaling.as_bosminer(),
         }
 
     def as_boser(self, user_suffix: str = None) -> dict:
@@ -123,7 +121,7 @@ class MinerConfig:
             **self.temperature.as_boser(),
             **self.mining_mode.as_boser(),
             **self.pools.as_boser(user_suffix=user_suffix),
-            **self.power_scaling.as_boser(),
+            **self.scaling.as_boser(),
         }
 
     def as_epic(self, user_suffix: str = None) -> dict:
@@ -132,7 +130,7 @@ class MinerConfig:
             **merge_dicts(self.fan_mode.as_epic(), self.temperature.as_epic()),
             **self.mining_mode.as_epic(),
             **self.pools.as_epic(user_suffix=user_suffix),
-            **self.power_scaling.as_epic(),
+            **self.scaling.as_epic(),
         }
 
     def as_auradine(self, user_suffix: str = None) -> dict:
@@ -142,7 +140,7 @@ class MinerConfig:
             **self.temperature.as_auradine(),
             **self.mining_mode.as_auradine(),
             **self.pools.as_auradine(user_suffix=user_suffix),
-            **self.power_scaling.as_auradine(),
+            **self.scaling.as_auradine(),
         }
 
     def as_mara(self, user_suffix: str = None) -> dict:
@@ -151,7 +149,7 @@ class MinerConfig:
             **self.temperature.as_mara(),
             **self.mining_mode.as_mara(),
             **self.pools.as_mara(user_suffix=user_suffix),
-            **self.power_scaling.as_mara(),
+            **self.scaling.as_mara(),
         }
 
     @classmethod
@@ -162,7 +160,7 @@ class MinerConfig:
             mining_mode=MiningModeConfig.from_dict(dict_conf.get("mining_mode")),
             fan_mode=FanModeConfig.from_dict(dict_conf.get("fan_mode")),
             temperature=TemperatureConfig.from_dict(dict_conf.get("temperature")),
-            power_scaling=PowerScalingConfig.from_dict(dict_conf.get("power_scaling")),
+            scaling=ScalingConfig.from_dict(dict_conf.get("scaling")),
         )
 
     @classmethod
@@ -202,7 +200,7 @@ class MinerConfig:
             mining_mode=MiningModeConfig.from_bosminer(toml_conf),
             fan_mode=FanModeConfig.from_bosminer(toml_conf),
             temperature=TemperatureConfig.from_bosminer(toml_conf),
-            power_scaling=PowerScalingConfig.from_bosminer(toml_conf),
+            scaling=ScalingConfig.from_bosminer(toml_conf),
         )
 
     @classmethod
@@ -213,7 +211,7 @@ class MinerConfig:
             mining_mode=MiningModeConfig.from_boser(grpc_miner_conf),
             fan_mode=FanModeConfig.from_boser(grpc_miner_conf),
             temperature=TemperatureConfig.from_boser(grpc_miner_conf),
-            power_scaling=PowerScalingConfig.from_boser(grpc_miner_conf),
+            scaling=ScalingConfig.from_boser(grpc_miner_conf),
         )
 
     @classmethod

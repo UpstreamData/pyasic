@@ -19,20 +19,22 @@ from dataclasses import dataclass, field
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    DpsHashrateTarget,
     DpsPowerTarget,
     DpsTarget,
     Power,
     SetDpsRequest,
+    TeraHashrate,
 )
 
 
 @dataclass
-class PowerScalingShutdownEnabled(MinerConfigValue):
+class ScalingShutdownEnabled(MinerConfigValue):
     mode: str = field(init=False, default="enabled")
     duration: int = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingShutdownEnabled":
+    def from_dict(cls, dict_conf: dict | None) -> "ScalingShutdownEnabled":
         return cls(duration=dict_conf.get("duration"))
 
     def as_bosminer(self) -> dict:
@@ -48,11 +50,11 @@ class PowerScalingShutdownEnabled(MinerConfigValue):
 
 
 @dataclass
-class PowerScalingShutdownDisabled(MinerConfigValue):
+class ScalingShutdownDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingShutdownDisabled":
+    def from_dict(cls, dict_conf: dict | None) -> "ScalingShutdownDisabled":
         return cls()
 
     def as_bosminer(self) -> dict:
@@ -62,9 +64,9 @@ class PowerScalingShutdownDisabled(MinerConfigValue):
         return {"enable_shutdown ": False}
 
 
-class PowerScalingShutdown(MinerConfigOption):
-    enabled = PowerScalingShutdownEnabled
-    disabled = PowerScalingShutdownDisabled
+class ScalingShutdown(MinerConfigOption):
+    enabled = ScalingShutdownEnabled
+    disabled = ScalingShutdownDisabled
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None):
@@ -104,46 +106,42 @@ class PowerScalingShutdown(MinerConfigOption):
 
 
 @dataclass
-class PowerScalingEnabled(MinerConfigValue):
-    mode: str = field(init=False, default="enabled")
-    power_step: int = None
-    minimum_power: int = None
-    shutdown_enabled: PowerScalingShutdownEnabled | PowerScalingShutdownDisabled = None
+class PowerScaling(MinerConfigValue):
+    mode: str = field(init=False, default="power")
+    step: int = None
+    minimum: int = None
+    shutdown: ScalingShutdownEnabled | ScalingShutdownDisabled = None
 
     @classmethod
-    def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScalingEnabled":
+    def from_bosminer(cls, power_scaling_conf: dict) -> "PowerScaling":
         power_step = power_scaling_conf.get("power_step")
         min_power = power_scaling_conf.get("min_psu_power_limit")
         if min_power is None:
             min_power = power_scaling_conf.get("min_power_target")
-        sd_mode = PowerScalingShutdown.from_bosminer(power_scaling_conf)
+        sd_mode = ScalingShutdown.from_bosminer(power_scaling_conf)
 
-        return cls(
-            power_step=power_step, minimum_power=min_power, shutdown_enabled=sd_mode
-        )
+        return cls(step=power_step, minimum=min_power, shutdown=sd_mode)
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "PowerScalingEnabled":
+    def from_dict(cls, dict_conf: dict | None) -> "PowerScaling":
         cls_conf = {
-            "power_step": dict_conf.get("power_step"),
-            "minimum_power": dict_conf.get("minimum_power"),
+            "step": dict_conf.get("step"),
+            "minimum": dict_conf.get("minimum"),
         }
-        shutdown_enabled = dict_conf.get("shutdown_enabled")
-        if shutdown_enabled is not None:
-            cls_conf["shutdown_enabled"] = PowerScalingShutdown.from_dict(
-                shutdown_enabled
-            )
+        shutdown = dict_conf.get("shutdown")
+        if shutdown is not None:
+            cls_conf["shutdown"] = ScalingShutdown.from_dict(shutdown)
         return cls(**cls_conf)
 
     def as_bosminer(self) -> dict:
         cfg = {"enabled": True}
-        if self.power_step is not None:
-            cfg["power_step"] = self.power_step
-        if self.minimum_power is not None:
-            cfg["min_power_target"] = self.minimum_power
+        if self.step is not None:
+            cfg["power_step"] = self.step
+        if self.minimum is not None:
+            cfg["min_power_target"] = self.minimum
 
-        if self.shutdown_enabled is not None:
-            cfg = {**cfg, **self.shutdown_enabled.as_bosminer()}
+        if self.shutdown is not None:
+            cfg = {**cfg, **self.shutdown.as_bosminer()}
 
         return {"performance_scaling": cfg}
 
@@ -151,11 +149,11 @@ class PowerScalingEnabled(MinerConfigValue):
         return {
             "set_dps": SetDpsRequest(
                 enable=True,
-                **self.shutdown_enabled.as_boser(),
+                **self.shutdown.as_boser(),
                 target=DpsTarget(
                     power_target=DpsPowerTarget(
-                        power_step=Power(self.power_step),
-                        min_power_target=Power(self.minimum_power),
+                        power_step=Power(self.step),
+                        min_power_target=Power(self.minimum),
                     )
                 ),
             ),
@@ -163,13 +161,47 @@ class PowerScalingEnabled(MinerConfigValue):
 
 
 @dataclass
-class PowerScalingDisabled(MinerConfigValue):
+class HashrateScaling(MinerConfigValue):
+    mode: str = field(init=False, default="hashrate")
+    step: int = None
+    minimum: int = None
+    shutdown: ScalingShutdownEnabled | ScalingShutdownDisabled = None
+
+    @classmethod
+    def from_dict(cls, dict_conf: dict | None) -> "HashrateScaling":
+        cls_conf = {
+            "step": dict_conf.get("step"),
+            "minimum": dict_conf.get("minimum"),
+        }
+        shutdown = dict_conf.get("shutdown")
+        if shutdown is not None:
+            cls_conf["shutdown"] = ScalingShutdown.from_dict(shutdown)
+        return cls(**cls_conf)
+
+    def as_boser(self) -> dict:
+        return {
+            "set_dps": SetDpsRequest(
+                enable=True,
+                **self.shutdown.as_boser(),
+                target=DpsTarget(
+                    hashrate_target=DpsHashrateTarget(
+                        hashrate_step=TeraHashrate(self.step),
+                        min_hashrate_target=TeraHashrate(self.minimum),
+                    )
+                ),
+            ),
+        }
+
+
+@dataclass
+class ScalingDisabled(MinerConfigValue):
     mode: str = field(init=False, default="disabled")
 
 
-class PowerScalingConfig(MinerConfigOption):
-    enabled = PowerScalingEnabled
-    disabled = PowerScalingDisabled
+class ScalingConfig(MinerConfigOption):
+    power = PowerScaling
+    hashrate = HashrateScaling
+    disabled = ScalingDisabled
 
     @classmethod
     def default(cls):
@@ -197,7 +229,7 @@ class PowerScalingConfig(MinerConfigOption):
             enabled = power_scaling.get("enabled")
             if enabled is not None:
                 if enabled:
-                    return cls.enabled().from_bosminer(power_scaling)
+                    return cls.power().from_bosminer(power_scaling)
                 else:
                     return cls.disabled()
 
@@ -212,10 +244,10 @@ class PowerScalingConfig(MinerConfigOption):
         except LookupError:
             return cls.default()
 
-        conf = {"shutdown_enabled": PowerScalingShutdown.from_boser(dps_conf)}
+        conf = {"shutdown_enabled": ScalingShutdown.from_boser(dps_conf)}
 
         if dps_conf.get("minPowerTarget") is not None:
             conf["minimum_power"] = dps_conf["minPowerTarget"]["watt"]
         if dps_conf.get("powerStep") is not None:
             conf["power_step"] = dps_conf["powerStep"]["watt"]
-        return cls.enabled(**conf)
+        return cls.power(**conf)
