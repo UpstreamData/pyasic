@@ -22,6 +22,7 @@ from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
+from pyasic.data.pools import PoolMetrics
 from pyasic.miners.device.firmware import ePICFirmware
 from pyasic.web.epic import ePICWebAPI
 
@@ -76,6 +77,10 @@ EPIC_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
+            [WebAPICommand("web_summary", "summary")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
             [WebAPICommand("web_summary", "summary")],
         ),
     }
@@ -409,3 +414,35 @@ class ePIC(ePICFirmware):
             except KeyError:
                 pass
         return errors
+
+    async def _get_pools(self, web_summary: dict = None) -> List[PoolMetrics]:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        pool_data = []
+        try:
+            if web_summary is not None:
+                if (
+                    web_summary.get("Session") is not None
+                    and web_summary.get("Stratum") is not None
+                ):
+                    pool_data.append(
+                        PoolMetrics(
+                            accepted=web_summary["Session"].get("Accepted"),
+                            rejected=web_summary["Session"].get("Rejected"),
+                            latency=web_summary["Stratum"].get("Average Latency"),
+                            get_failures=0,
+                            remote_failures=0,
+                            active=web_summary["Stratum"].get("IsPoolConnected"),
+                            alive=web_summary["Stratum"].get("IsPoolConnected"),
+                            url=web_summary["Stratum"].get("Current Pool"),
+                            user=web_summary["Stratum"].get("Current User"),
+                            index=web_summary["Stratum"].get("Config Id"),
+                        )
+                    )
+                return pool_data
+        except LookupError:
+            pass
