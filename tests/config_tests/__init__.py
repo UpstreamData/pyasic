@@ -20,10 +20,10 @@ from pyasic.config import (
     MinerConfig,
     MiningModeConfig,
     PoolConfig,
-    PowerScalingConfig,
+    ScalingConfig,
     TemperatureConfig,
 )
-from pyasic.config.power_scaling import PowerScalingShutdown
+from pyasic.config.scaling import ScalingShutdown
 
 
 class TestConfig(unittest.TestCase):
@@ -41,10 +41,10 @@ class TestConfig(unittest.TestCase):
             fan_mode=FanModeConfig.manual(speed=90, minimum_fans=2),
             temperature=TemperatureConfig(target=70, danger=120),
             mining_mode=MiningModeConfig.power_tuning(power=3000),
-            power_scaling=PowerScalingConfig.enabled(
-                power_step=100,
-                minimum_power=2000,
-                shutdown_enabled=PowerScalingShutdown.enabled(duration=3),
+            scaling=ScalingConfig.power(
+                step=100,
+                minimum=2000,
+                shutdown=ScalingShutdown.enabled(duration=3),
             ),
         )
 
@@ -77,11 +77,11 @@ class TestConfig(unittest.TestCase):
                 "power": 3000,
                 "algo": {"mode": "standard"},
             },
-            "power_scaling": {
-                "mode": "enabled",
-                "power_step": 100,
-                "minimum_power": 2000,
-                "shutdown_enabled": {"mode": "enabled", "duration": 3},
+            "scaling": {
+                "mode": "power",
+                "step": 100,
+                "minimum": 2000,
+                "shutdown": {"mode": "enabled", "duration": 3},
             },
         }
 
