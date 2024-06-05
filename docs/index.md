@@ -41,7 +41,7 @@ It is recommended to install `pyasic` in a [virtual environment](https://realpyt
 
 ##### Installing `pyasic`
 
-`python -m pip install .` or `poetry install`
+`python -m pip install pyasic` or `poetry install`
 
 ---
 ## Getting started
@@ -256,18 +256,23 @@ settings.update("default_antminer_password", "my_pwd")
 ```
 "network_ping_retries": 1,
 "network_ping_timeout": 3,
-"network_scan_threads": 300,
+"network_scan_semaphore": None,
 "factory_get_retries": 1,
 "factory_get_timeout": 3,
 "get_data_retries": 1,
 "api_function_timeout": 5,
 "antminer_mining_mode_as_str": False,
-"default_whatsminer_password": "admin",
-"default_innosilicon_password": "admin",
-"default_antminer_password": "root",
-"default_bosminer_password": "root",
-"default_vnish_password": "admin",
-"default_goldshell_password": "123456789",
+"default_whatsminer_rpc_password": "admin",
+"default_innosilicon_web_password": "admin",
+"default_antminer_web_password": "root",
+"default_bosminer_web_password": "root",
+"default_vnish_web_password": "admin",
+"default_goldshell_web_password": "123456789",
+"default_auradine_web_password": "admin",
+"default_epic_web_password": "letmein",
+"default_hive_web_password": "admin",
+"default_antminer_ssh_password": "miner",
+"default_bosminer_ssh_password": "root",
 
 # ADVANCED
 # Only use this if you know what you are doing

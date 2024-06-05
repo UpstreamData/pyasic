@@ -13,10 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import base64
 import logging
 import time
+from pathlib import Path
 from typing import List, Optional, Union
 
+import aiofiles
 import toml
 
 from pyasic.config import MinerConfig
@@ -569,6 +572,55 @@ class BOSMiner(BraiinsOSFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def upgrade_firmware(self, file: Path):
+        """
+        Upgrade the firmware of the BOSMiner device.
+
+        Args:
+            file (Path): The local file path of the firmware to be uploaded.
+
+        Returns:
+            str: Confirmation message after upgrading the firmware.
+        """
+        try:
+            logging.info("Starting firmware upgrade process.")
+
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
+
+            # Read the firmware file contents
+            async with aiofiles.open(file, "rb") as f:
+                upgrade_contents = await f.read()
+
+            # Encode the firmware contents in base64
+            encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
+
+            # Upload the firmware file to the BOSMiner device
+            logging.info(f"Uploading firmware file from {file} to the device.")
+            await self.ssh.send_command(
+                f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
+            )
+
+            logging.info("Firmware upgrade process completed successfully.")
+            return "Firmware upgrade completed successfully."
+        except FileNotFoundError as e:
+            logging.error(f"File not found during the firmware upgrade process: {e}")
+            raise
+        except ValueError as e:
+            logging.error(
+                f"Validation error occurred during the firmware upgrade process: {e}"
+            )
+            raise
+        except OSError as e:
+            logging.error(f"OS error occurred during the firmware upgrade process: {e}")
+            raise
+        except Exception as e:
+            logging.error(
+                f"An unexpected error occurred during the firmware upgrade process: {e}",
+                exc_info=True,
+            )
+            raise
 
 
 BOSER_DATA_LOC = DataLocations(
