@@ -141,72 +141,15 @@ class MiningModeHPM(MinerConfigValue):
 
 
 @dataclass
-class StandardTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="standard")
-
-    def as_epic(self) -> str:
-        return VOptAlgo().as_epic()
-
-
-@dataclass
-class VOptAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="voltage_optimizer")
-
-    def as_epic(self) -> str:
-        return "VoltageOptimizer"
-
-
-@dataclass
-class ChipTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="chip_tune")
-
-    def as_epic(self) -> str:
-        return "ChipTune"
-
-
-@dataclass
-class BoardTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="board_tune")
-
-    def as_epic(self) -> str:
-        return "BoardTune"
-
-
-@dataclass
-class TunerAlgo(MinerConfigOption):
-    standard = StandardTuneAlgo
-    voltage_optimizer = VOptAlgo
-    chip_tune = ChipTuneAlgo
-    board_tune = BoardTuneAlgo
-
-    @classmethod
-    def default(cls):
-        return cls.standard()
-
-    @classmethod
-    def from_dict(cls, dict_conf: dict | None):
-        mode = dict_conf.get("mode")
-        if mode is None:
-            return cls.default()
-
-        cls_attr = getattr(cls, mode)
-        if cls_attr is not None:
-            return cls_attr().from_dict(dict_conf)
-
-
-@dataclass
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
-    algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
         cls_conf = {}
         if dict_conf.get("power"):
             cls_conf["power"] = dict_conf["power"]
-        if dict_conf.get("algo"):
-            cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
 
         return cls(**cls_conf)
 
@@ -259,21 +202,12 @@ class MiningModePowerTune(MinerConfigValue):
 class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
-    throttle_limit: int = None
-    throttle_step: int = None
-    algo: TunerAlgo = field(default_factory=TunerAlgo.default)
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
         cls_conf = {}
         if dict_conf.get("hashrate"):
             cls_conf["hashrate"] = dict_conf["hashrate"]
-        if dict_conf.get("throttle_limit"):
-            cls_conf["throttle_limit"] = dict_conf["throttle_limit"]
-        if dict_conf.get("throttle_step"):
-            cls_conf["throttle_step"] = dict_conf["throttle_step"]
-        if dict_conf.get("algo"):
-            cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
 
         return cls(**cls_conf)
 
@@ -306,19 +240,6 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
-
-    def as_epic(self) -> dict:
-        mode = {
-            "ptune": {
-                "algo": self.algo.as_epic(),
-                "target": self.hashrate,
-            }
-        }
-        if self.throttle_limit is not None:
-            mode["ptune"]["min_throttle"] = self.throttle_limit
-        if self.throttle_step is not None:
-            mode["ptune"]["throttle_step"] = self.throttle_step
-        return mode
 
     def as_mara(self) -> dict:
         return {
@@ -363,6 +284,7 @@ class MiningModeManual(MinerConfigValue):
             boards={i: ManualBoardSettings.from_dict(dict_conf[i]) for i in dict_conf},
         )
 
+    @classmethod
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
@@ -382,6 +304,25 @@ class MiningModeManual(MinerConfigValue):
         }
         return cls(global_freq=freq, global_volt=voltage, boards=boards)
 
+    @classmethod
+    def from_epic(cls, epic_conf: dict) -> "MiningModeManual":
+        voltage = 0
+        freq = 0
+        if epic_conf.get("HwConfig") is not None:
+            freq = epic_conf["HwConfig"]["Boards Target Clock"][0]["Data"]
+        if epic_conf.get("Power Supply Stats") is not None:
+            voltage = epic_conf["Power Supply Stats"]["Target Voltage"]
+        boards = {}
+        if epic_conf.get("HBs") is not None:
+            boards = {
+                idx: ManualBoardSettings(
+                    freq=board["Core Clock Avg"], volt=board["Input Voltage"]
+                )
+                for idx, board in enumerate(epic_conf["HBs"])
+            }
+        return cls(global_freq=freq, global_volt=voltage, boards=boards)
+
+    @classmethod
     def as_mara(self) -> dict:
         return {
             "mode": {
@@ -439,36 +380,11 @@ class MiningModeConfig(MinerConfigOption):
         try:
             tuner_running = web_conf["PerpetualTune"]["Running"]
             if tuner_running:
-                algo_info = web_conf["PerpetualTune"]["Algorithm"]
-                if algo_info.get("VoltageOptimizer") is not None:
-                    return cls.hashrate_tuning(
-                        hashrate=algo_info["VoltageOptimizer"].get("Target"),
-                        throttle_limit=algo_info["VoltageOptimizer"].get(
-                            "Min Throttle Target"
-                        ),
-                        throttle_step=algo_info["VoltageOptimizer"].get(
-                            "Throttle Step"
-                        ),
-                        algo=TunerAlgo.voltage_optimizer(),
-                    )
-                elif algo_info.get("BoardTune") is not None:
-                    return cls.hashrate_tuning(
-                        hashrate=algo_info["BoardTune"].get("Target"),
-                        throttle_limit=algo_info["BoardTune"].get(
-                            "Min Throttle Target"
-                        ),
-                        throttle_step=algo_info["BoardTune"].get("Throttle Step"),
-                        algo=TunerAlgo.board_tune(),
-                    )
-                else:
-                    return cls.hashrate_tuning(
-                        hashrate=algo_info["ChipTune"].get("Target"),
-                        algo=TunerAlgo.chip_tune(),
-                    )
-            else:
                 return cls.normal()
+            else:
+                return MiningModeManual.from_epic(web_conf)
         except KeyError:
-            return cls.default()
+            return cls.normal()
 
     @classmethod
     def from_bosminer(cls, toml_conf: dict):

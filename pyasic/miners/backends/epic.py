@@ -117,6 +117,7 @@ class ePIC(ePICFirmware):
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
         conf = self.config.as_epic(user_suffix=user_suffix)
+        print(conf)
 
         try:
             # Temps
@@ -131,7 +132,7 @@ class ePIC(ePICFirmware):
                 await self.web.set_fan({"Auto": conf["fans"]["Auto"]})
 
             # Mining Mode -- Need to handle that you may not be able to change while miner is tuning
-            if conf["ptune"].get("enabled", True):
+            if conf.get("ptune") is not None:
                 await self.web.set_ptune_enable(True)
                 await self.web.set_ptune_algo(conf["ptune"])
 

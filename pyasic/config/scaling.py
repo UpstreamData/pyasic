@@ -163,8 +163,10 @@ class PowerScaling(MinerConfigValue):
 @dataclass
 class HashrateScaling(MinerConfigValue):
     mode: str = field(init=False, default="hashrate")
+    target: int = None
     step: int = None
     minimum: int = None
+    algo: str = None
     shutdown: ScalingShutdownEnabled | ScalingShutdownDisabled = None
 
     @classmethod
@@ -191,6 +193,19 @@ class HashrateScaling(MinerConfigValue):
                 ),
             ),
         }
+
+    def as_epic(self) -> dict:
+        mode = {
+            "ptune": {
+                "algo": self.algo,
+                "target": self.target,
+            }
+        }
+        if self.minimum is not None:
+            mode["ptune"]["min_throttle"] = self.minimum
+        if self.step is not None:
+            mode["ptune"]["throttle_step"] = self.step
+        return mode
 
 
 @dataclass
@@ -251,3 +266,39 @@ class ScalingConfig(MinerConfigOption):
         if dps_conf.get("powerStep") is not None:
             conf["power_step"] = dps_conf["powerStep"]["watt"]
         return cls.power(**conf)
+
+    @classmethod
+    def from_epic(cls, web_conf: dict):
+        # print(web_summary)
+        try:
+            tuner_running = web_conf["PerpetualTune"]["Running"]
+            if not tuner_running:
+                return cls.disabled()
+            else:
+                algo_info = web_conf["PerpetualTune"]["Algorithm"]
+                if algo_info.get("VoltageOptimizer") is not None:
+                    return cls.hashrate(
+                        algo="VoltageOptimizer",
+                        target=algo_info["VoltageOptimizer"].get("Target"),
+                        minimum=algo_info["VoltageOptimizer"].get(
+                            "Min Throttle Target"
+                        ),
+                        step=algo_info["VoltageOptimizer"].get("Throttle Step"),
+                    )
+                if algo_info.get("BoardTune") is not None:
+                    return cls.hashrate(
+                        algo="BoardTune",
+                        target=algo_info["VoltageOptimizer"].get("Target"),
+                        minimum=algo_info["VoltageOptimizer"].get(
+                            "Min Throttle Target"
+                        ),
+                        step=algo_info["VoltageOptimizer"].get("Throttle Step"),
+                    )
+                # ChipTune does not have scaling, but will be added
+                if algo_info.get("ChipTune") is not None:
+                    return cls.hashrate(
+                        algo="ChipTune",
+                        target=algo_info["VoltageOptimizer"].get("Target"),
+                    )
+        except LookupError:
+            return cls.default()

@@ -222,6 +222,7 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_epic(web_conf),
             temperature=TemperatureConfig.from_epic(web_conf),
             mining_mode=MiningModeConfig.from_epic(web_conf),
+            scaling=ScalingConfig.from_epic(web_conf),
         )
 
     @classmethod
