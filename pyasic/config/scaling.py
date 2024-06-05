@@ -288,17 +288,15 @@ class ScalingConfig(MinerConfigOption):
                 if algo_info.get("BoardTune") is not None:
                     return cls.hashrate(
                         algo="BoardTune",
-                        target=algo_info["VoltageOptimizer"].get("Target"),
-                        minimum=algo_info["VoltageOptimizer"].get(
-                            "Min Throttle Target"
-                        ),
-                        step=algo_info["VoltageOptimizer"].get("Throttle Step"),
+                        target=algo_info["BoardTune"].get("Target"),
+                        minimum=algo_info["BoardTune"].get("Min Throttle Target"),
+                        step=algo_info["BoardTune"].get("Throttle Step"),
                     )
                 # ChipTune does not have scaling, but will be added
                 if algo_info.get("ChipTune") is not None:
                     return cls.hashrate(
                         algo="ChipTune",
-                        target=algo_info["VoltageOptimizer"].get("Target"),
+                        target=algo_info["ChipTune"].get("Target"),
                     )
         except LookupError:
             return cls.default()

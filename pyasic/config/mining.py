@@ -315,10 +315,10 @@ class MiningModeManual(MinerConfigValue):
         boards = {}
         if epic_conf.get("HBs") is not None:
             boards = {
-                idx: ManualBoardSettings(
+                board["Index"]: ManualBoardSettings(
                     freq=board["Core Clock Avg"], volt=board["Input Voltage"]
                 )
-                for idx, board in enumerate(epic_conf["HBs"])
+                for board in epic_conf["HBs"]
             }
         return cls(global_freq=freq, global_volt=voltage, boards=boards)
 
