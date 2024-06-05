@@ -584,7 +584,7 @@ class BOSMiner(BraiinsOSFirmware):
             str: Confirmation message after upgrading the firmware.
         """
         try:
-            self.logger.info("Starting firmware upgrade process.")
+            logging.info("Starting firmware upgrade process.")
 
             if not file:
                 raise ValueError("File location must be provided for firmware upgrade.")
@@ -597,30 +597,26 @@ class BOSMiner(BraiinsOSFirmware):
             encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
 
             # Upload the firmware file to the BOSMiner device
-            self.logger.info(f"Uploading firmware file from {file} to the device.")
+            logging.info(f"Uploading firmware file from {file} to the device.")
             await self.ssh.send_command(
                 f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
             )
 
-            self.logger.info("Firmware upgrade process completed successfully.")
+            logging.info("Firmware upgrade process completed successfully.")
             return "Firmware upgrade completed successfully."
         except FileNotFoundError as e:
-            self.logger.error(
-                f"File not found during the firmware upgrade process: {e}"
-            )
+            logging.error(f"File not found during the firmware upgrade process: {e}")
             raise
         except ValueError as e:
-            self.logger.error(
+            logging.error(
                 f"Validation error occurred during the firmware upgrade process: {e}"
             )
             raise
         except OSError as e:
-            self.logger.error(
-                f"OS error occurred during the firmware upgrade process: {e}"
-            )
+            logging.error(f"OS error occurred during the firmware upgrade process: {e}")
             raise
         except Exception as e:
-            self.logger.error(
+            logging.error(
                 f"An unexpected error occurred during the firmware upgrade process: {e}",
                 exc_info=True,
             )
