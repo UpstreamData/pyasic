@@ -13,10 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import base64
 import logging
 import time
+from pathlib import Path
 from typing import List, Optional, Union
 
+import aiofiles
 import toml
 
 from pyasic.config import MinerConfig
@@ -36,9 +39,6 @@ from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
-
-import aiofiles
-import base64
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -594,25 +594,36 @@ class BOSMiner(BraiinsOSFirmware):
                 upgrade_contents = await f.read()
 
             # Encode the firmware contents in base64
-            encoded_contents = base64.b64encode(upgrade_contents).decode('utf-8')
+            encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
 
             # Upload the firmware file to the BOSMiner device
             self.logger.info(f"Uploading firmware file from {file} to the device.")
-            await self.ssh.send_command(f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar")
+            await self.ssh.send_command(
+                f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
+            )
 
             self.logger.info("Firmware upgrade process completed successfully.")
             return "Firmware upgrade completed successfully."
         except FileNotFoundError as e:
-            self.logger.error(f"File not found during the firmware upgrade process: {e}")
+            self.logger.error(
+                f"File not found during the firmware upgrade process: {e}"
+            )
             raise
         except ValueError as e:
-            self.logger.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            self.logger.error(
+                f"Validation error occurred during the firmware upgrade process: {e}"
+            )
             raise
         except OSError as e:
-            self.logger.error(f"OS error occurred during the firmware upgrade process: {e}")
+            self.logger.error(
+                f"OS error occurred during the firmware upgrade process: {e}"
+            )
             raise
         except Exception as e:
-            self.logger.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            self.logger.error(
+                f"An unexpected error occurred during the firmware upgrade process: {e}",
+                exc_info=True,
+            )
             raise
 
 
