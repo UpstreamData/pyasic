@@ -227,3 +227,5 @@ class BFGMiner(StockFirmware):
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
+
+
