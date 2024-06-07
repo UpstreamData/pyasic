@@ -39,6 +39,7 @@ from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
+from pyasic.data.pools import PoolMetrics
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -93,6 +94,10 @@ BOSMINER_DATA_LOC = DataLocations(
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
         ),
     }
 )
@@ -572,6 +577,37 @@ class BOSMiner(BraiinsOSFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    @classmethod
+    def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+        if rpc_pools is None:
+            try:
+                rpc_pools = self.rpc.pools()
+            except APIError:
+                pass
+
+        pools_data = []
+        if rpc_pools is not None:
+            try:
+                pools = rpc_pools.get("POOLS", [])
+                for pool_info in pools:
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("Accepted"),
+                        rejected=pool_info.get("Rejected"),
+                        get_failures=pool_info.get("Get Failures"),
+                        remote_failures=pool_info.get("Remote Failures"),
+                        active=pool_info.get("Stratum Active"),
+                        alive=pool_info.get("Status") == "Alive",
+                        url=pool_info.get("URL"),
+                        user=pool_info.get("User"),
+                        index=pool_info.get("POOL"),
+
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
+
 
     async def upgrade_firmware(self, file: Path):
         """
