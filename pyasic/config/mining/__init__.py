@@ -485,7 +485,7 @@ class MiningModeConfig(MinerConfigOption):
 
                     return cls.hashrate_tuning(
                         hashrate=algo_info["BoardTune"].get("Target"),
-                        algo=TunerAlgo.voltage_optimizer(),
+                        algo=TunerAlgo.board_tune(),
                         scaling=scaling_cfg,
                     )
                 else:

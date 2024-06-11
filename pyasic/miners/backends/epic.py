@@ -21,6 +21,7 @@ from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.errors import APIError
 from pyasic.logger import logger
+from pyasic.data.pools import PoolMetrics
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import ePICFirmware
 from pyasic.web.epic import ePICWebAPI
@@ -58,10 +59,6 @@ EPIC_DATA_LOC = DataLocations(
             "_get_wattage",
             [WebAPICommand("web_summary", "summary")],
         ),
-        str(DataOptions.VOLTAGE): DataFunction(
-            "_get_voltage",
-            [WebAPICommand("web_summary", "summary")],
-        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_summary", "summary")],
@@ -80,6 +77,10 @@ EPIC_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
+            [WebAPICommand("web_summary", "summary")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
             [WebAPICommand("web_summary", "summary")],
         ),
     }
@@ -219,20 +220,6 @@ class ePIC(ePICFirmware):
             except KeyError:
                 pass
 
-    async def _get_voltage(self, web_summary: dict = None) -> Optional[float]:
-        if web_summary is None:
-            try:
-                web_summary = await self.web.summary()
-            except APIError:
-                pass
-
-        if web_summary is not None:
-            try:
-                voltage = web_summary["Power Supply Stats"]["Output Voltage"]
-                return voltage
-            except KeyError:
-                pass
-
     async def _get_hashrate(self, web_summary: dict = None) -> Optional[float]:
         if web_summary is None:
             try:
@@ -323,6 +310,20 @@ class ePIC(ePICFirmware):
             except APIError:
                 pass
 
+        tuned = True
+        if web_summary is not None:
+            tuner_running = web_summary["PerpetualTune"]["Running"]
+            if tuner_running:
+                algo_info = web_summary["PerpetualTune"]["Algorithm"]
+                if algo_info.get("VoltageOptimizer") is not None:
+                    tuned = algo_info["VoltageOptimizer"].get("Optimized")
+                elif algo_info.get("BoardTune") is not None:
+                    tuned = algo_info["BoardTune"].get("Optimized")
+                else:
+                    tuned = algo_info["ChipTune"].get("Optimized")
+            # To be extra detailed, also ensure the miner is in "Mining" state
+            tuned = tuned and web_summary["Status"]["Operating State"] == "Mining"
+
         hb_list = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -349,6 +350,8 @@ class ePIC(ePICFirmware):
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]
+                    hb_list[hb["Index"]].tuned = tuned
+                    hb_list[hb["Index"]].voltage = hb["Input Voltage"]
             return hb_list
 
     async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:
@@ -411,3 +414,35 @@ class ePIC(ePICFirmware):
             except KeyError:
                 pass
         return errors
+
+    async def _get_pools(self, web_summary: dict = None) -> List[PoolMetrics]:
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
+
+        pool_data = []
+        try:
+            if web_summary is not None:
+                if (
+                    web_summary.get("Session") is not None
+                    and web_summary.get("Stratum") is not None
+                ):
+                    pool_data.append(
+                        PoolMetrics(
+                            accepted=web_summary["Session"].get("Accepted"),
+                            rejected=web_summary["Session"].get("Rejected"),
+                            latency=web_summary["Stratum"].get("Average Latency"),
+                            get_failures=0,
+                            remote_failures=0,
+                            active=web_summary["Stratum"].get("IsPoolConnected"),
+                            alive=web_summary["Stratum"].get("IsPoolConnected"),
+                            url=web_summary["Stratum"].get("Current Pool"),
+                            user=web_summary["Stratum"].get("Current User"),
+                            index=web_summary["Stratum"].get("Config Id"),
+                        )
+                    )
+                return pool_data
+        except LookupError:
+            pass
