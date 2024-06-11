@@ -578,11 +578,10 @@ class BOSMiner(BraiinsOSFirmware):
             except LookupError:
                 pass
 
-    @classmethod
-    def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
         if rpc_pools is None:
             try:
-                rpc_pools = self.rpc.pools()
+                rpc_pools = await self.rpc.pools()
             except APIError:
                 pass
 
