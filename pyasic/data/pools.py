@@ -15,7 +15,6 @@ class PoolMetrics:
     url: URL of the pool.
     index: Index of the pool.
     user: Username for the pool.
-    latency: latency of pool connection in milliseconds.
     pool_rejected_percent: Percentage of rejected shares by the pool.
     pool_stale_percent: Percentage of stale shares by the pool.
     """
@@ -29,7 +28,6 @@ class PoolMetrics:
     url: str = None
     index: int = None
     user: str = None
-    latency: float = None
     pool_rejected_percent: float = field(init=False)
     pool_stale_percent: float = field(init=False)
 

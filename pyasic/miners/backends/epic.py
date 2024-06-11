@@ -433,7 +433,6 @@ class ePIC(ePICFirmware):
                         PoolMetrics(
                             accepted=web_summary["Session"].get("Accepted"),
                             rejected=web_summary["Session"].get("Rejected"),
-                            latency=web_summary["Stratum"].get("Average Latency"),
                             get_failures=0,
                             remote_failures=0,
                             active=web_summary["Stratum"].get("IsPoolConnected"),
