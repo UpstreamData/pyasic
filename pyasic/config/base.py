@@ -46,7 +46,7 @@ class MinerConfigOption(Enum):
         return self.value.as_bosminer()
 
     def as_boser(self) -> dict:
-        return self.value.as_boser()
+        return self.value.as_boser
 
     def as_epic(self) -> dict:
         return self.value.as_epic()
@@ -72,7 +72,6 @@ class MinerConfigOption(Enum):
             return getattr(self, item)
         except AttributeError:
             raise KeyError
-
 
 
 @dataclass

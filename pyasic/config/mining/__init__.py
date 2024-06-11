@@ -20,15 +20,22 @@ from dataclasses import dataclass, field
 from pyasic import settings
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    DpsHashrateTarget,
+    DpsPowerTarget,
+    DpsTarget,
     HashrateTargetMode,
     PerformanceMode,
     Power,
     PowerTargetMode,
     SaveAction,
+    SetDpsRequest,
     SetPerformanceModeRequest,
     TeraHashrate,
     TunerPerformanceMode,
 )
+
+from .algo import TunerAlgo
+from .scaling import ScalingConfig
 
 
 @dataclass
@@ -141,55 +148,11 @@ class MiningModeHPM(MinerConfigValue):
 
 
 @dataclass
-class StandardTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="standard")
-
-    def as_epic(self) -> str:
-        return VOptAlgo().as_epic()
-
-
-@dataclass
-class VOptAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="voltage_optimizer")
-
-    def as_epic(self) -> str:
-        return "VoltageOptimizer"
-
-
-@dataclass
-class ChipTuneAlgo(MinerConfigValue):
-    mode: str = field(init=False, default="chip_tune")
-
-    def as_epic(self) -> str:
-        return "ChipTune"
-
-
-@dataclass
-class TunerAlgo(MinerConfigOption):
-    standard = StandardTuneAlgo
-    voltage_optimizer = VOptAlgo
-    chip_tune = ChipTuneAlgo
-
-    @classmethod
-    def default(cls):
-        return cls.standard()
-
-    @classmethod
-    def from_dict(cls, dict_conf: dict | None):
-        mode = dict_conf.get("mode")
-        if mode is None:
-            return cls.default()
-
-        cls_attr = getattr(cls, mode)
-        if cls_attr is not None:
-            return cls_attr().from_dict(dict_conf)
-
-
-@dataclass
 class MiningModePowerTune(MinerConfigValue):
     mode: str = field(init=False, default="power_tuning")
     power: int = None
     algo: TunerAlgo = field(default_factory=TunerAlgo.default)
+    scaling: ScalingConfig = None
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
@@ -198,6 +161,8 @@ class MiningModePowerTune(MinerConfigValue):
             cls_conf["power"] = dict_conf["power"]
         if dict_conf.get("algo"):
             cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
+        if dict_conf.get("scaling"):
+            cls_conf["scaling"] = ScalingConfig.from_dict(dict_conf["scaling"])
 
         return cls(**cls_conf)
 
@@ -212,13 +177,26 @@ class MiningModePowerTune(MinerConfigValue):
         return {}
 
     def as_bosminer(self) -> dict:
-        conf = {"enabled": True, "mode": "power_target"}
+        tuning_cfg = {"enabled": True, "mode": "power_target"}
         if self.power is not None:
-            conf["power_target"] = self.power
-        return {"autotuning": conf}
+            tuning_cfg["power_target"] = self.power
+
+        cfg = {"autotuning": tuning_cfg}
+
+        if self.scaling is not None:
+            scaling_cfg = {"enabled": True}
+            if self.scaling.step is not None:
+                scaling_cfg["power_step"] = self.scaling.step
+            if self.scaling.minimum is not None:
+                scaling_cfg["min_power_target"] = self.scaling.minimum
+            if self.scaling.shutdown is not None:
+                scaling_cfg = {**scaling_cfg, **self.scaling.shutdown.as_bosminer()}
+            cfg["performance_scaling"] = scaling_cfg
+
+        return cfg
 
     def as_boser(self) -> dict:
-        return {
+        cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
                 mode=PerformanceMode(
@@ -230,6 +208,23 @@ class MiningModePowerTune(MinerConfigValue):
                 ),
             ),
         }
+        if self.scaling is not None:
+            sd_cfg = {}
+            if self.scaling.shutdown is not None:
+                sd_cfg = self.scaling.shutdown.as_boser()
+            cfg["set_dps"] = (
+                SetDpsRequest(
+                    enable=True,
+                    **sd_cfg,
+                    target=DpsTarget(
+                        power_target=DpsPowerTarget(
+                            power_step=Power(self.scaling.step),
+                            min_power_target=Power(self.scaling.minimum),
+                        )
+                    ),
+                ),
+            )
+        return cfg
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "power", "power": self.power}}
@@ -250,21 +245,18 @@ class MiningModePowerTune(MinerConfigValue):
 class MiningModeHashrateTune(MinerConfigValue):
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
-    throttle_limit: int = None
-    throttle_step: int = None
     algo: TunerAlgo = field(default_factory=TunerAlgo.default)
+    scaling: ScalingConfig = None
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
         cls_conf = {}
         if dict_conf.get("hashrate"):
             cls_conf["hashrate"] = dict_conf["hashrate"]
-        if dict_conf.get("throttle_limit"):
-            cls_conf["throttle_limit"] = dict_conf["throttle_limit"]
-        if dict_conf.get("throttle_step"):
-            cls_conf["throttle_step"] = dict_conf["throttle_step"]
         if dict_conf.get("algo"):
             cls_conf["algo"] = TunerAlgo.from_dict(dict_conf["algo"])
+        if dict_conf.get("scaling"):
+            cls_conf["scaling"] = ScalingConfig.from_dict(dict_conf["scaling"])
 
         return cls(**cls_conf)
 
@@ -279,8 +271,9 @@ class MiningModeHashrateTune(MinerConfigValue):
             conf["hashrate_target"] = self.hashrate
         return {"autotuning": conf}
 
+    @property
     def as_boser(self) -> dict:
-        return {
+        cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
                 mode=PerformanceMode(
@@ -294,6 +287,23 @@ class MiningModeHashrateTune(MinerConfigValue):
                 ),
             )
         }
+        if self.scaling is not None:
+            sd_cfg = {}
+            if self.scaling.shutdown is not None:
+                sd_cfg = self.scaling.shutdown.as_boser()
+            cfg["set_dps"] = (
+                SetDpsRequest(
+                    enable=True,
+                    **sd_cfg,
+                    target=DpsTarget(
+                        hashrate_target=DpsHashrateTarget(
+                            hashrate_step=TeraHashrate(self.scaling.step),
+                            min_hashrate_target=TeraHashrate(self.scaling.minimum),
+                        )
+                    ),
+                ),
+            )
+        return cfg
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "custom", "tune": "ths", "ths": self.hashrate}}
@@ -305,10 +315,11 @@ class MiningModeHashrateTune(MinerConfigValue):
                 "target": self.hashrate,
             }
         }
-        if self.throttle_limit is not None:
-            mode["ptune"]["min_throttle"] = self.throttle_limit
-        if self.throttle_step is not None:
-            mode["ptune"]["throttle_step"] = self.throttle_step
+        if self.scaling is not None:
+            if self.scaling.minimum is not None:
+                mode["ptune"]["min_throttle"] = self.scaling.minimum
+            if self.scaling.step is not None:
+                mode["ptune"]["throttle_step"] = self.scaling.step
         return mode
 
     def as_mara(self) -> dict:
@@ -373,6 +384,24 @@ class MiningModeManual(MinerConfigValue):
         }
         return cls(global_freq=freq, global_volt=voltage, boards=boards)
 
+    @classmethod
+    def from_epic(cls, epic_conf: dict) -> "MiningModeManual":
+        voltage = 0
+        freq = 0
+        if epic_conf.get("HwConfig") is not None:
+            freq = epic_conf["HwConfig"]["Boards Target Clock"][0]["Data"]
+        if epic_conf.get("Power Supply Stats") is not None:
+            voltage = epic_conf["Power Supply Stats"]["Target Voltage"]
+        boards = {}
+        if epic_conf.get("HBs") is not None:
+            boards = {
+                board["Index"]: ManualBoardSettings(
+                    freq=board["Core Clock Avg"], volt=board["Input Voltage"]
+                )
+                for board in epic_conf["HBs"]
+            }
+        return cls(global_freq=freq, global_volt=voltage, boards=boards)
+
     def as_mara(self) -> dict:
         return {
             "mode": {
@@ -432,15 +461,32 @@ class MiningModeConfig(MinerConfigOption):
             if tuner_running:
                 algo_info = web_conf["PerpetualTune"]["Algorithm"]
                 if algo_info.get("VoltageOptimizer") is not None:
+                    scaling_cfg = None
+                    if "Throttle Step" in algo_info["VoltageOptimizer"]:
+                        scaling_cfg = ScalingConfig(
+                            minimum=algo_info["VoltageOptimizer"].get(
+                                "Min Throttle Target"
+                            ),
+                            step=algo_info["VoltageOptimizer"].get("Throttle Step"),
+                        )
+
                     return cls.hashrate_tuning(
                         hashrate=algo_info["VoltageOptimizer"].get("Target"),
-                        throttle_limit=algo_info["VoltageOptimizer"].get(
-                            "Min Throttle Target"
-                        ),
-                        throttle_step=algo_info["VoltageOptimizer"].get(
-                            "Throttle Step"
-                        ),
                         algo=TunerAlgo.voltage_optimizer(),
+                        scaling=scaling_cfg,
+                    )
+                elif algo_info.get("BoardTune") is not None:
+                    scaling_cfg = None
+                    if "Throttle Step" in algo_info["BoardTune"]:
+                        scaling_cfg = ScalingConfig(
+                            minimum=algo_info["BoardTune"].get("Min Throttle Target"),
+                            step=algo_info["BoardTune"].get("Throttle Step"),
+                        )
+
+                    return cls.hashrate_tuning(
+                        hashrate=algo_info["BoardTune"].get("Target"),
+                        algo=TunerAlgo.voltage_optimizer(),
+                        scaling=scaling_cfg,
                     )
                 else:
                     return cls.hashrate_tuning(
@@ -448,7 +494,7 @@ class MiningModeConfig(MinerConfigOption):
                         algo=TunerAlgo.chip_tune(),
                     )
             else:
-                return cls.normal()
+                return MiningModeManual.from_epic(web_conf)
         except KeyError:
             return cls.default()
 
@@ -465,18 +511,31 @@ class MiningModeConfig(MinerConfigOption):
 
         if autotuning_conf.get("psu_power_limit") is not None:
             # old autotuning conf
-            return cls.power_tuning(autotuning_conf["psu_power_limit"])
+            return cls.power_tuning(
+                autotuning_conf["psu_power_limit"],
+                scaling=ScalingConfig.from_bosminer(toml_conf, mode="power"),
+            )
         if autotuning_conf.get("mode") is not None:
             # new autotuning conf
             mode = autotuning_conf["mode"]
             if mode == "power_target":
                 if autotuning_conf.get("power_target") is not None:
-                    return cls.power_tuning(autotuning_conf["power_target"])
-                return cls.power_tuning()
+                    return cls.power_tuning(
+                        autotuning_conf["power_target"],
+                        scaling=ScalingConfig.from_bosminer(toml_conf, mode="power"),
+                    )
+                return cls.power_tuning(
+                    scaling=ScalingConfig.from_bosminer(toml_conf, mode="power"),
+                )
             if mode == "hashrate_target":
                 if autotuning_conf.get("hashrate_target") is not None:
-                    return cls.hashrate_tuning(autotuning_conf["hashrate_target"])
-                return cls.hashrate_tuning()
+                    return cls.hashrate_tuning(
+                        autotuning_conf["hashrate_target"],
+                        scaling=ScalingConfig.from_bosminer(toml_conf, mode="hashrate"),
+                    )
+                return cls.hashrate_tuning(
+                    scaling=ScalingConfig.from_bosminer(toml_conf, mode="hashrate"),
+                )
 
     @classmethod
     def from_vnish(cls, web_settings: dict):
@@ -502,22 +561,36 @@ class MiningModeConfig(MinerConfigOption):
         if tuner_conf.get("tunerMode") is not None:
             if tuner_conf["tunerMode"] == 1:
                 if tuner_conf.get("powerTarget") is not None:
-                    return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
-                return cls.power_tuning()
+                    return cls.power_tuning(
+                        tuner_conf["powerTarget"]["watt"],
+                        scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="power"),
+                    )
+                return cls.power_tuning(
+                    scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="power")
+                )
 
             if tuner_conf["tunerMode"] == 2:
                 if tuner_conf.get("hashrateTarget") is not None:
                     return cls.hashrate_tuning(
-                        int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+                        int(tuner_conf["hashrateTarget"]["terahashPerSecond"]),
+                        scaling=ScalingConfig.from_boser(
+                            grpc_miner_conf, mode="hashrate"
+                        ),
                     )
-                return cls.hashrate_tuning()
+                return cls.hashrate_tuning(
+                    scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="hashrate"),
+                )
 
         if tuner_conf.get("powerTarget") is not None:
-            return cls.power_tuning(tuner_conf["powerTarget"]["watt"])
+            return cls.power_tuning(
+                tuner_conf["powerTarget"]["watt"],
+                scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="power"),
+            )
 
         if tuner_conf.get("hashrateTarget") is not None:
             return cls.hashrate_tuning(
-                int(tuner_conf["hashrateTarget"]["terahashPerSecond"])
+                int(tuner_conf["hashrateTarget"]["terahashPerSecond"]),
+                scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="hashrate"),
             )
 
     @classmethod

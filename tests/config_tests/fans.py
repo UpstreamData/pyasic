@@ -71,5 +71,5 @@ class TestFanConfig(unittest.TestCase):
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
-                boser_conf = conf.as_boser()
+                boser_conf = conf.as_boser
                 self.assertEqual(conf, FanModeConfig.from_boser(boser_conf))
