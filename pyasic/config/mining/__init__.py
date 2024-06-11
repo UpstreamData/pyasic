@@ -384,6 +384,24 @@ class MiningModeManual(MinerConfigValue):
         }
         return cls(global_freq=freq, global_volt=voltage, boards=boards)
 
+    @classmethod
+    def from_epic(cls, epic_conf: dict) -> "MiningModeManual":
+        voltage = 0
+        freq = 0
+        if epic_conf.get("HwConfig") is not None:
+            freq = epic_conf["HwConfig"]["Boards Target Clock"][0]["Data"]
+        if epic_conf.get("Power Supply Stats") is not None:
+            voltage = epic_conf["Power Supply Stats"]["Target Voltage"]
+        boards = {}
+        if epic_conf.get("HBs") is not None:
+            boards = {
+                board["Index"]: ManualBoardSettings(
+                    freq=board["Core Clock Avg"], volt=board["Input Voltage"]
+                )
+                for board in epic_conf["HBs"]
+            }
+        return cls(global_freq=freq, global_volt=voltage, boards=boards)
+
     def as_mara(self) -> dict:
         return {
             "mode": {
@@ -457,13 +475,26 @@ class MiningModeConfig(MinerConfigOption):
                         algo=TunerAlgo.voltage_optimizer(),
                         scaling=scaling_cfg,
                     )
+                elif algo_info.get("BoardTune") is not None:
+                    scaling_cfg = None
+                    if "Throttle Step" in algo_info["BoardTune"]:
+                        scaling_cfg = ScalingConfig(
+                            minimum=algo_info["BoardTune"].get("Min Throttle Target"),
+                            step=algo_info["BoardTune"].get("Throttle Step"),
+                        )
+
+                    return cls.hashrate_tuning(
+                        hashrate=algo_info["BoardTune"].get("Target"),
+                        algo=TunerAlgo.voltage_optimizer(),
+                        scaling=scaling_cfg,
+                    )
                 else:
                     return cls.hashrate_tuning(
                         hashrate=algo_info["ChipTune"].get("Target"),
                         algo=TunerAlgo.chip_tune(),
                     )
             else:
-                return cls.normal()
+                return MiningModeManual.from_epic(web_conf)
         except KeyError:
             return cls.default()
 

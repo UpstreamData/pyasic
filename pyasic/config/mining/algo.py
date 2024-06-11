@@ -20,6 +20,14 @@ class VOptAlgo(MinerConfigValue):
 
 
 @dataclass
+class BoardTuneAlgo(MinerConfigValue):
+    mode: str = field(init=False, default="board_tune")
+
+    def as_epic(self) -> str:
+        return "BoardTune"
+
+
+@dataclass
 class ChipTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="chip_tune")
 
@@ -31,6 +39,7 @@ class ChipTuneAlgo(MinerConfigValue):
 class TunerAlgo(MinerConfigOption):
     standard = StandardTuneAlgo
     voltage_optimizer = VOptAlgo
+    board_tune = BoardTuneAlgo
     chip_tune = ChipTuneAlgo
 
     @classmethod
