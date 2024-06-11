@@ -45,7 +45,7 @@ class HashBoard:
     expected_chips: int = None
     serial_number: str = None
     missing: bool = True
-    tuned: bool = True
+    tuned: bool = None
     voltage: float = None
 
     def get(self, __key: str, default: Any = None):
