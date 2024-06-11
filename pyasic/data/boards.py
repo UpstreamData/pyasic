@@ -34,6 +34,7 @@ class HashBoard:
         serial_number: The serial number of the board.
         missing: Whether the board is returned from the miners data as a bool.
         tuned: Whether the board is tuned as a bool.
+        active: Whether the board is currently tuning as a bool.
         voltage: Current input voltage of the board as a float.
     """
 
@@ -46,6 +47,7 @@ class HashBoard:
     serial_number: str = None
     missing: bool = True
     tuned: bool = None
+    active: bool = None
     voltage: float = None
 
     def get(self, __key: str, default: Any = None):

@@ -311,9 +311,11 @@ class ePIC(ePICFirmware):
                 pass
 
         tuned = True
+        active = False
         if web_summary is not None:
             tuner_running = web_summary["PerpetualTune"]["Running"]
             if tuner_running:
+                active = True
                 algo_info = web_summary["PerpetualTune"]["Algorithm"]
                 if algo_info.get("VoltageOptimizer") is not None:
                     tuned = algo_info["VoltageOptimizer"].get("Optimized")
@@ -321,8 +323,10 @@ class ePIC(ePICFirmware):
                     tuned = algo_info["BoardTune"].get("Optimized")
                 else:
                     tuned = algo_info["ChipTune"].get("Optimized")
+
             # To be extra detailed, also ensure the miner is in "Mining" state
             tuned = tuned and web_summary["Status"]["Operating State"] == "Mining"
+            active = active and web_summary["Status"]["Operating State"] == "Mining"
 
         hb_list = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
@@ -351,6 +355,7 @@ class ePIC(ePICFirmware):
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]
                     hb_list[hb["Index"]].tuned = tuned
+                    hb_list[hb["Index"]].active = active
                     hb_list[hb["Index"]].voltage = hb["Input Voltage"]
             return hb_list
 
