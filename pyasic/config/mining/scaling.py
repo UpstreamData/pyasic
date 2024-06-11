@@ -119,7 +119,7 @@ class ScalingConfig(MinerConfigValue):
         except LookupError:
             return None
 
-        conf = {"shutdown_enabled": ScalingShutdown.from_boser(dps_conf)}
+        conf = {"shutdown": ScalingShutdown.from_boser(dps_conf)}
 
         if dps_conf.get("minPowerTarget") is not None:
             conf["minimum"] = dps_conf["minPowerTarget"]["watt"]
