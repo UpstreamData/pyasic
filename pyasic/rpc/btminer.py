@@ -560,15 +560,15 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_normal_power")
 
-    async def upgrade_firmware(self, firmware: bytes):
+    async def update_firmware(self, firmware: bytes):
         """Upgrade the firmware running on the miner and using the firmware passed in bytes.
-            
+
         Parameters:
             firmware (bytes): The firmware binary data to be uploaded.
-        
+
         Returns:
             bool: A boolean indicating the success of the firmware upgrade.
-            
+
         Raises:
             APIError: If the miner is not ready for firmware update.
         """

@@ -16,6 +16,11 @@
 
 import logging
 from typing import List, Optional
+import asyncio
+import aiofiles
+import json
+import struct
+from pathlib import Path
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
@@ -649,3 +654,63 @@ class BTMiner(StockFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def upgrade_firmware(self, file: Path, token: str):
+        """
+        Upgrade the firmware of the Whatsminer device.
+
+        Args:
+            file (Path): The local file path of the firmware to be uploaded.
+            token (str): The authentication token for the firmware upgrade.
+
+        Returns:
+            str: Confirmation message after upgrading the firmware.
+        """
+        try:
+            logging.info("Starting firmware upgrade process for Whatsminer.")
+
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
+
+            # Read the firmware file contents
+            async with aiofiles.open(file, "rb") as f:
+                upgrade_contents = await f.read()
+
+            # Establish a TCP connection to the miner
+            reader, writer = await asyncio.open_connection(self.ip, self.port)
+
+            # Send the update_firmware command
+            command = json.dumps({"token": token, "cmd": "update_firmware"})
+            writer.write(command.encode())
+            await writer.drain()
+
+            # Wait for the miner to respond with "ready"
+            response = await reader.read(1024)
+            response_json = json.loads(response.decode())
+            if response_json.get("Msg") != "ready":
+                raise Exception("Miner is not ready for firmware upgrade.")
+
+            # Send the firmware file size and data
+            file_size = struct.pack("<I", len(upgrade_contents))
+            writer.write(file_size)
+            writer.write(upgrade_contents)
+            await writer.drain()
+
+            # Close the connection
+            writer.close()
+            await writer.wait_closed()
+
+            logging.info("Firmware upgrade process completed successfully for Whatsminer.")
+            return "Firmware upgrade completed successfully."
+        except FileNotFoundError as e:
+            logging.error(f"File not found during the firmware upgrade process: {e}")
+            raise
+        except ValueError as e:
+            logging.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            raise
+        except OSError as e:
+            logging.error(f"OS error occurred during the firmware upgrade process: {e}")
+            raise
+        except Exception as e:
+            logging.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise
