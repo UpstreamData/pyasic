@@ -16,10 +16,7 @@
 
 import logging
 from typing import List, Optional
-import asyncio
 import aiofiles
-import json
-import struct
 from pathlib import Path
 
 from pyasic.config import MinerConfig, MiningModeConfig
@@ -676,32 +673,10 @@ class BTMiner(StockFirmware):
             async with aiofiles.open(file, "rb") as f:
                 upgrade_contents = await f.read()
 
-            # Establish a TCP connection to the miner
-            reader, writer = await asyncio.open_connection(self.ip, self.port)
-
-            # Send the update_firmware command
-            command = json.dumps({"token": token, "cmd": "update_firmware"})
-            writer.write(command.encode())
-            await writer.drain()
-
-            # Wait for the miner to respond with "ready"
-            response = await reader.read(1024)
-            response_json = json.loads(response.decode())
-            if response_json.get("Msg") != "ready":
-                raise Exception("Miner is not ready for firmware upgrade.")
-
-            # Send the firmware file size and data
-            file_size = struct.pack("<I", len(upgrade_contents))
-            writer.write(file_size)
-            writer.write(upgrade_contents)
-            await writer.drain()
-
-            # Close the connection
-            writer.close()
-            await writer.wait_closed()
+            result = await self.rpc.update_firmware(upgrade_contents)
 
             logging.info("Firmware upgrade process completed successfully for Whatsminer.")
-            return "Firmware upgrade completed successfully."
+            return result
         except FileNotFoundError as e:
             logging.error(f"File not found during the firmware upgrade process: {e}")
             raise
