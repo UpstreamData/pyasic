@@ -23,6 +23,7 @@ import json
 import logging
 import re
 from typing import Literal, Union
+import struct
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -559,11 +560,24 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_normal_power")
 
-    async def update_firmware(self):  # noqa - static
-        """Not implemented."""
-        # to be determined if this will be added later
-        # requires a file stream in bytes
-        return NotImplementedError
+    async def update_firmware(self, firmware: bytes):
+        """Upgrade the firmware running on the miner and using the firmware passed in bytes.
+
+        Parameters:
+            firmware (bytes): The firmware binary data to be uploaded.
+
+        Returns:
+            bool: A boolean indicating the success of the firmware upgrade.
+
+        Raises:
+            APIError: If the miner is not ready for firmware update.
+        """
+        ready = await self.send_privileged_command("upgrade_firmware")
+        if not ready.get("Msg") == "ready":
+            raise APIError(f"Not ready for firmware update: {self}")
+        file_size = struct.pack("<I", len(firmware))
+        await self._send_bytes(file_size + firmware)
+        return True
 
     async def reboot(self, timeout: int = 10) -> dict:
         """Reboot the miner using the API.
