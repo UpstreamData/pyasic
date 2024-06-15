@@ -16,6 +16,7 @@
 import asyncio
 import ipaddress
 import warnings
+import logging
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
@@ -560,5 +561,24 @@ class BaseMiner(MinerProtocol):
         if self._ssh_cls is not None:
             self.ssh = self._ssh_cls(ip)
 
+    async def upgrade_firmware(self, url: str = None, version: str = "latest") -> bool:
+        """Upgrade the firmware of the miner.
+
+        Parameters:
+            url: The URL to download the firmware from.
+            version: The version of the firmware to upgrade to.
+
+        Returns:
+            A boolean value of the success of the firmware upgrade.
+        """
+        try:
+            if url is not None:
+                await self.web.send_command("firmware-upgrade", url=url)
+            else:
+                await self.web.send_command("firmware-upgrade", version=version)
+            return True
+        except Exception as e:
+            logging.error(f"Firmware upgrade failed: {e}")
+            return False
 
 AnyMiner = TypeVar("AnyMiner", bound=BaseMiner)
