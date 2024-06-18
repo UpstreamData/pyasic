@@ -40,6 +40,8 @@ from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
 from pyasic.data.pools import PoolMetrics
+from pyasic.web.braiins_os.boser import _get_pools_Group
+from grpclib.client import Channel
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -720,6 +722,10 @@ BOSER_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("grpc_pools", "pools")]
+        )
     }
 )
 
@@ -1058,3 +1064,28 @@ class BOSer(BraiinsOSFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def _get_pools(channel: Channel, grpc_pools: dict = None) -> List[PoolMetrics]:
+        if grpc_pools is None:
+            try:
+                grpc_pools = await _get_pools_Group(channel)
+            except APIError:
+                return []
+
+        pools_data = []
+        for group in grpc_pools:
+            for pool_info in group.pools:
+                pool_data = PoolMetrics(
+                    url=pool_info.url,
+                    user=pool_info.user,
+                    index=int(pool_info.uid),
+                    accepted=pool_info.stats.accepted_shares,
+                    rejected=pool_info.stats.rejected_shares,
+                    get_failures=pool_info.stats.stale_shares,
+                    remote_failures=0,
+                    active=pool_info.active,
+                    alive=pool_info.alive
+                )
+                pools_data.append(pool_data)
+
+        return pools_data

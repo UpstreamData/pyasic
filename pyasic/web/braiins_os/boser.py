@@ -30,6 +30,19 @@ from pyasic.web.base import BaseWebAPI
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *
 
+from .proto.braiins.bos.v1 import GetPoolGroupsRequest, PoolGroup
+from .proto.braiins.bos.v1 import PoolServiceStub
+
+
+async def _get_pools_Group(channel: Channel) -> List[PoolGroup]:
+    stub = PoolServiceStub(channel)
+    request = GetPoolGroupsRequest()
+    try:
+        response = await stub.get_pool_groups(request)
+    except GRPCError as e:
+        raise APIError(f"gRPC error: {e}")
+    return response.pool_groups
+
 
 class BOSMinerGRPCStub(
     ApiVersionServiceStub,
