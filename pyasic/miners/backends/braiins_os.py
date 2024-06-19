@@ -40,8 +40,6 @@ from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
 from pyasic.data.pools import PoolMetrics
-from pyasic.web.braiins_os.boser import _get_pools_Group
-from grpclib.client import Channel
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -724,7 +722,7 @@ BOSER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
-            [RPCAPICommand("grpc_pools", "pools")]
+            [WebAPICommand("grpc_pool_groups", "get_pool_groups")]
         )
     }
 )
@@ -1065,10 +1063,10 @@ class BOSer(BraiinsOSFirmware):
             except LookupError:
                 pass
 
-    async def _get_pools(channel: Channel, grpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, grpc_pools: dict = None) -> List[PoolMetrics]:
         if grpc_pools is None:
             try:
-                grpc_pools = await _get_pools_Group(channel)
+                grpc_pools = await self.web.get_pool_groups()
             except APIError:
                 return []
 
