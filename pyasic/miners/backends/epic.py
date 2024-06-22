@@ -16,8 +16,8 @@
 
 import logging
 import aiofiles
-import hashlib 
-import aiohttp 
+import hashlib
+import aiohttp
 from pathlib import Path
 from typing import List, Optional
 
