@@ -1063,15 +1063,14 @@ class BOSer(BraiinsOSFirmware):
             except LookupError:
                 pass
 
-    async def _get_pools(self, grpc_pools: dict = None) -> List[PoolMetrics]:
-        if grpc_pools is None:
+    async def _get_pools(self, grpc_pool_groups: dict = None) -> List[PoolMetrics]:
+        if grpc_pool_groups is None:
             try:
-                grpc_pools = await self.web.get_pool_groups()
+                grpc_pool_groups = await self.web.get_pool_groups()
             except APIError:
                 return []
-
         pools_data = []
-        for group in grpc_pools:
+        for group in grpc_pool_groups:
             for pool_info in group.pools:
                 pool_data = PoolMetrics(
                     url=pool_info.url,
