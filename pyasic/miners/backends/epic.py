@@ -490,20 +490,19 @@ class ePIC(ePICFirmware):
             form_data.add_field('update.zip', open(file, 'rb'), filename='update.zip')
 
             # Send the POST request to the ePIC miner device
-            async with aiohttp.ClientSession() as session:
-                async with session.post(f"http://{self.ip}:{self.port}/systemupdate", data=form_data) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                        if result.get("result"):
-                            logging.info("Firmware upgrade process completed successfully for ePIC miner.")
-                            return "Firmware upgrade completed successfully."
-                        else:
-                            error = result.get("error", "Unknown error")
-                            logging.error(f"Firmware upgrade failed: {error}")
-                            raise Exception(f"Firmware upgrade failed: {error}")
+            async with self.web.post(f"http://{self.ip}:{self.port}/systemupdate", data=form_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    if result.get("result"):
+                        logging.info("Firmware upgrade process completed successfully for ePIC miner.")
+                        return "Firmware upgrade completed successfully."
                     else:
-                        logging.error(f"Firmware upgrade failed with status code: {response.status}")
-                        raise Exception(f"Firmware upgrade failed with status code: {response.status}")
+                        error = result.get("error", "Unknown error")
+                        logging.error(f"Firmware upgrade failed: {error}")
+                        raise Exception(f"Firmware upgrade failed: {error}")
+                else:
+                    logging.error(f"Firmware upgrade failed with status code: {response.status}")
+                    raise Exception(f"Firmware upgrade failed with status code: {response.status}")
 
         except FileNotFoundError as e:
             logging.error(f"File not found during the firmware upgrade process: {e}")
