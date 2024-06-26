@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 import logging
 from enum import Enum
-import httpx
+import base64
 import aiofiles
 from typing import List, Optional
 
@@ -195,7 +195,7 @@ class Auradine(StockFirmware):
         for key in conf.keys():
             await self.web.send_command(command=key, **conf[key])
 
-    async def upgrade_firmware(self, url: str = None, file_path: str = None, version: str = "latest") -> bool:
+    async def upgrade_firmware(self, *, url: str = None, file_path: str = None, version: str = "latest") -> bool:
         """
         Upgrade the firmware of the Auradine device.
 
@@ -215,15 +215,22 @@ class Auradine(StockFirmware):
 
             if url:
                 # Download the firmware file from the URL
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(url)
-                    if response.status_code != 200:
-                        raise ValueError(f"Failed to download firmware from URL: {url}")
-                    upgrade_contents = response.content
+                response = await self.web.get(url)
+                if response.status_code != 200:
+                    raise ValueError(f"Failed to download firmware from URL: {url}")
+                upgrade_contents = response.content
             else:
-                # read the fimware file contents from the local file path
+                # Read the firmware file contents from the local file path
                 async with aiofiles.open(file_path, "rb") as f:
                     upgrade_contents = await f.read()
+
+            # Encode the firmware contents in base64
+            encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
+
+            # Upload the firmware file to the Auradine miner device
+            await self.ssh.send_command(
+                f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
+            )
 
             logging.info("Firmware upgrade process completed successfully.")
             return True
