@@ -21,26 +21,47 @@ from pyasic.miners.base import BaseMiner
 class StockFirmware(BaseMiner):
     firmware = MinerFirmware.STOCK
 
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
+
 
 class BraiinsOSFirmware(BaseMiner):
     firmware = MinerFirmware.BRAIINS_OS
+
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
 
 
 class VNishFirmware(BaseMiner):
     firmware = MinerFirmware.VNISH
 
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
+
 
 class ePICFirmware(BaseMiner):
     firmware = MinerFirmware.EPIC
+
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
 
 
 class HiveonFirmware(BaseMiner):
     firmware = MinerFirmware.HIVEON
 
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
+
 
 class LuxOSFirmware(BaseMiner):
     firmware = MinerFirmware.LUXOS
 
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)
+
 
 class MaraFirmware(BaseMiner):
     firmware = MinerFirmware.MARATHON
+
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest") -> bool:
+        return await super().upgrade_firmware(url=url, version=version)

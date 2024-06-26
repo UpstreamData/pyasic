@@ -561,10 +561,11 @@ class BaseMiner(MinerProtocol):
         if self._ssh_cls is not None:
             self.ssh = self._ssh_cls(ip)
 
-    async def upgrade_firmware(self, url: str = None, version: str = "latest") -> bool:
+    async def upgrade_firmware(self, file: str = None, url: str = None, version: str = "latest") -> bool:
         """Upgrade the firmware of the miner.
 
         Parameters:
+            file: The file path to the firmware to upgrade from.
             url: The URL to download the firmware from.
             version: The version of the firmware to upgrade to.
 
@@ -572,7 +573,9 @@ class BaseMiner(MinerProtocol):
             A boolean value of the success of the firmware upgrade.
         """
         try:
-            if url is not None:
+            if file is not None:
+                await self.web.send_command("firmware-upgrade", file=file)
+            elif url is not None:
                 await self.web.send_command("firmware-upgrade", url=url)
             else:
                 await self.web.send_command("firmware-upgrade", version=version)
