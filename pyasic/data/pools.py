@@ -15,8 +15,8 @@ class PoolUrl:
     pubkey: Optional[str] = None
 
     def __str__(self) -> str:
-        if self.scheme == Scheme.STRATUM_V2 and self.pubKey:
-            return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubKey}"
+        if self.scheme == Scheme.STRATUM_V2 and self.pubkey:
+            return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubkey}"
         else:
             return f"{self.scheme.value}://{self.host}:{self.port}"
 
