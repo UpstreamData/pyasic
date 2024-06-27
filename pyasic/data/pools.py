@@ -12,7 +12,7 @@ class PoolUrl:
     scheme: Scheme
     host: str
     port: int
-    pubKey: Optional[str] = None
+    pubkey: Optional[str] = None
 
     def __str__(self) -> str:
         if self.scheme == Scheme.STRATUM_V2 and self.pubKey:
@@ -39,17 +39,17 @@ class PoolMetrics:
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    accepted: int
-    rejected: int
-    get_failures: int
-    remote_failures: int
-    active: bool
-    alive: bool
-    url: PoolUrl
-    index: int
-    user: str
     pool_rejected_percent: float = field(init=False)
     pool_stale_percent: float = field(init=False)
+    url: PoolUrl
+    accepted: int = None
+    rejected: int = None
+    get_failures: int = None
+    remote_failures: int = None
+    active: bool = None
+    alive: bool = None
+    index: int = None
+    user: str = None
 
     @property
     def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
