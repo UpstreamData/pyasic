@@ -1,4 +1,24 @@
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Optional
+
+
+class Scheme (Enum):
+    STRATUM_V1 = "stratum+tcp"
+    STRATUM_V2 = "stratum2+tcp"
+
+@dataclass
+class PoolUrl:
+    scheme: Scheme
+    host: str
+    port: int
+    pubKey: Optional[str] = None
+
+    def __str__(self) -> str:
+        if self.scheme == Scheme.STRATUM_V2 and self.pubKey:
+            return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubKey}"
+        else:
+            return f"{self.scheme.value}://{self.host}:{self.port}"
 
 
 @dataclass
@@ -19,15 +39,15 @@ class PoolMetrics:
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    accepted: int = None
-    rejected: int = None
-    get_failures: int = None
-    remote_failures: int = None
-    active: bool = None
-    alive: bool = None
-    url: str = None
-    index: int = None
-    user: str = None
+    accepted: int
+    rejected: int
+    get_failures: int
+    remote_failures: int
+    active: bool
+    alive: bool
+    url: PoolUrl
+    index: int
+    user: str
     pool_rejected_percent: float = field(init=False)
     pool_stale_percent: float = field(init=False)
 
