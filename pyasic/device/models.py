@@ -329,6 +329,15 @@ class AuradineModels(str, Enum):
         return self.value
 
 
+class BitAxeModels(str, Enum):
+    BM1366 = "Ultra"
+    BM1368 = "Supra"
+    BM1397 = "Max"
+
+    def __str__(self):
+        return self.value
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -337,3 +346,4 @@ class MinerModel:
     GOLDSHELL = GoldshellModels
     AURADINE = AuradineModels
     EPIC = ePICModels
+    BITAXE = BitAxeModels
