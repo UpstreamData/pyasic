@@ -19,7 +19,7 @@ import warnings
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard, MinerData
+from pyasic.data import AlgoHashRate, Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
@@ -238,7 +238,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_hostname()
 
-    async def get_hashrate(self) -> Optional[float]:
+    async def get_hashrate(self) -> Optional[AlgoHashRate]:
         """Get the hashrate of the miner and return it as a float in TH/s.
 
         Returns:
@@ -318,7 +318,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_fault_light()
 
-    async def get_expected_hashrate(self) -> Optional[float]:
+    async def get_expected_hashrate(self) -> Optional[AlgoHashRate]:
         """Get the nominal hashrate from factory if available.
 
         Returns:
@@ -362,7 +362,7 @@ class MinerProtocol(Protocol):
     async def _get_hostname(self) -> Optional[str]:
         pass
 
-    async def _get_hashrate(self) -> Optional[float]:
+    async def _get_hashrate(self) -> Optional[AlgoHashRate]:
         pass
 
     async def _get_hashboards(self) -> List[HashBoard]:
@@ -392,7 +392,7 @@ class MinerProtocol(Protocol):
     async def _get_fault_light(self) -> Optional[bool]:
         pass
 
-    async def _get_expected_hashrate(self) -> Optional[float]:
+    async def _get_expected_hashrate(self) -> Optional[AlgoHashRate]:
         pass
 
     async def _is_mining(self) -> Optional[bool]:

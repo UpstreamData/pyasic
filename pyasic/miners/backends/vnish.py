@@ -193,7 +193,7 @@ class VNish(VNishFirmware, BMMiner):
             except KeyError:
                 pass
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         # get hr from API
         if rpc_summary is None:
             try:

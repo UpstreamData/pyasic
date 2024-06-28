@@ -225,7 +225,7 @@ class MaraMiner(MaraFirmware):
             except LookupError:
                 pass
 
-    async def _get_hashrate(self, web_brief: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, web_brief: dict = None) -> Optional[AlgoHashRate]:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
@@ -271,7 +271,9 @@ class MaraMiner(MaraFirmware):
                 pass
         return False
 
-    async def _get_expected_hashrate(self, web_brief: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, web_brief: dict = None
+    ) -> Optional[AlgoHashRate]:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
@@ -288,7 +290,7 @@ class MaraMiner(MaraFirmware):
 
     async def _get_wattage_limit(
         self, web_miner_config: dict = None
-    ) -> Optional[float]:
+    ) -> Optional[AlgoHashRate]:
         if web_miner_config is None:
             try:
                 web_miner_config = await self.web.get_miner_config()

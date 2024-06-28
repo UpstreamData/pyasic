@@ -162,7 +162,7 @@ class LUXMiner(LuxOSFirmware):
 
         return mac
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -263,7 +263,9 @@ class LUXMiner(LuxOSFirmware):
                     fans.append(Fan())
         return fans
 
-    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_stats: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()

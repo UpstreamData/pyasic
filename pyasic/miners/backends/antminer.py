@@ -19,6 +19,8 @@ from typing import List, Optional, Union
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.data.pools import PoolMetrics
+from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import (
@@ -31,8 +33,6 @@ from pyasic.miners.data import (
 from pyasic.rpc.antminer import AntminerRPCAPI
 from pyasic.ssh.antminer import AntminerModernSSH
 from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
-from pyasic.data.pools import PoolMetrics
-from pyasic.errors import APIError
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(
     **{
@@ -95,7 +95,7 @@ class AntminerModern(BMMiner):
     web: AntminerModernWebAPI
 
     _rpc_cls = AntminerRPCAPI
-    web: AntminerRPCAPI
+    rpc: AntminerRPCAPI
 
     _ssh_cls = AntminerModernSSH
     ssh: AntminerModernSSH
@@ -156,7 +156,7 @@ class AntminerModern(BMMiner):
         await self.send_config(cfg)
         return True
 
-    async def _get_hostname(self, web_get_system_info: dict = None) -> Union[str, None]:
+    async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -169,7 +169,7 @@ class AntminerModern(BMMiner):
             except KeyError:
                 pass
 
-    async def _get_mac(self, web_get_system_info: dict = None) -> Union[str, None]:
+    async def _get_mac(self, web_get_system_info: dict = None) -> Optional[str]:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -264,7 +264,9 @@ class AntminerModern(BMMiner):
                 pass
         return self.light
 
-    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_stats: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -377,8 +379,7 @@ class AntminerModern(BMMiner):
                         alive=pool_info.get("Status") == "Alive",
                         url=pool_info.get("URL"),
                         user=pool_info.get("User"),
-                        index=pool_info.get("POOL")
-
+                        index=pool_info.get("POOL"),
                     )
                     pools_data.append(pool_data)
             except LookupError:
@@ -446,7 +447,7 @@ class AntminerOld(CGMiner):
         self.config = config
         await self.web.set_miner_conf(config.as_am_old(user_suffix=user_suffix))
 
-    async def _get_mac(self) -> Union[str, None]:
+    async def _get_mac(self) -> Optional[str]:
         try:
             data = await self.web.get_system_info()
             if data:

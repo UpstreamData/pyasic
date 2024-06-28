@@ -55,7 +55,6 @@ class MinersTest(unittest.TestCase):
                 "expected_hashrate",
                 "uptime",
                 "wattage",
-                "voltage",
                 "wattage_limit",
                 "pools",
             ]
