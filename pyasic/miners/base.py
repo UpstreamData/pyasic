@@ -16,7 +16,6 @@
 import asyncio
 import ipaddress
 import warnings
-import logging
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
