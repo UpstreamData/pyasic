@@ -19,7 +19,7 @@ class BitAxeWebAPI(BaseWebAPI):
         privileged: bool = False,
         **parameters: Any,
     ) -> dict:
-        url = f"http://{self.ip}:{self.port}/{command}"
+        url = f"http://{self.ip}:{self.port}/api/{command}"
         try:
             async with httpx.AsyncClient(
                 transport=settings.transport(),
@@ -44,7 +44,7 @@ class BitAxeWebAPI(BaseWebAPI):
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        """Execute multiple commands simultaneously on the Auradine miner.
+        """Execute multiple commands simultaneously on the BitAxe miner.
 
         Args:
             *commands (str): Commands to execute.
@@ -76,10 +76,10 @@ class BitAxeWebAPI(BaseWebAPI):
         return data
 
     async def system_info(self):
-        return await self.send_command("api/system/info")
+        return await self.send_command("system/info")
 
     async def swarm_info(self):
-        return await self.send_command("api/swarm/info")
+        return await self.send_command("swarm/info")
 
     async def restart(self):
-        return await self.send_command("api/system/restart", post=True)
+        return await self.send_command("system/restart", post=True)

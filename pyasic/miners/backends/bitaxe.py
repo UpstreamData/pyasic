@@ -10,23 +10,31 @@ BITAXE_DATA_LOC = DataLocations(
     **{
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [WebAPICommand("web_system_info", "system_info")],
+            [WebAPICommand("web_system_info", "system/info")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [WebAPICommand("web_system_info", "system_info")],
+            [WebAPICommand("web_system_info", "system/info")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [WebAPICommand("web_system_info", "system_info")],
+            [WebAPICommand("web_system_info", "system/info")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [WebAPICommand("web_system_info", "system_info")],
+            [WebAPICommand("web_system_info", "system/info")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [WebAPICommand("web_system_info", "system_info")],
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
+        str(DataOptions.API_VERSION): DataFunction(
+            "_get_api_ver",
+            [WebAPICommand("web_system_info", "system/info")],
         ),
     }
 )
@@ -50,10 +58,9 @@ class BitAxe(BaseMiner):
                 web_system_info = await self.web.system_info()
             except APIError:
                 pass
-
         if web_system_info is not None:
             try:
-                return web_system_info["power"]
+                return round(web_system_info["power"])
             except KeyError:
                 pass
 
@@ -101,13 +108,13 @@ class BitAxe(BaseMiner):
                         hashrate=AlgoHashRate.SHA256(
                             web_system_info["hashRate"], HashUnit.SHA256.GH
                         ).into(self.algo.unit.default),
-                        chip_temp=web_system_info["temp"],
-                        temp=web_system_info["vrTemp"],
-                        chips=web_system_info["asicCount"],
+                        chip_temp=web_system_info.get("temp"),
+                        temp=web_system_info.get("vrTemp"),
+                        chips=web_system_info.get("asicCount"),
                         expected_chips=self.expected_chips,
                         missing=False,
                         active=True,
-                        voltage=web_system_info["voltage"],
+                        voltage=web_system_info.get("voltage"),
                     )
                 ]
             except KeyError:
@@ -127,3 +134,42 @@ class BitAxe(BaseMiner):
             except KeyError:
                 pass
         return []
+
+    async def _get_hostname(self, web_system_info: dict = None) -> Optional[str]:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return web_system_info["hostname"]
+            except KeyError:
+                pass
+
+    async def _get_api_ver(self, web_system_info: dict = None) -> Optional[str]:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return web_system_info["version"]
+            except KeyError:
+                pass
+
+    async def _get_fw_ver(self, web_system_info: dict = None) -> Optional[str]:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return web_system_info["version"]
+            except KeyError:
+                pass
