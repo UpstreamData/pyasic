@@ -25,7 +25,15 @@ class BitAxeWebAPI(BaseWebAPI):
                 transport=settings.transport(),
             ) as client:
                 if parameters.get("post", False):
+                    parameters.pop("post")
                     data = await client.post(
+                        url,
+                        timeout=settings.get("api_function_timeout", 3),
+                        json=parameters,
+                    )
+                elif parameters.get("patch", False):
+                    parameters.pop("patch")
+                    data = await client.patch(
                         url,
                         timeout=settings.get("api_function_timeout", 3),
                         json=parameters,
@@ -83,3 +91,6 @@ class BitAxeWebAPI(BaseWebAPI):
 
     async def restart(self):
         return await self.send_command("system/restart", post=True)
+
+    async def update_settings(self, **config):
+        return await self.send_command("system", patch=True, **config)

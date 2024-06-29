@@ -56,6 +56,9 @@ class BitAxe(BaseMiner):
         web_system_info = await self.web.system_info()
         return MinerConfig.from_bitaxe(web_system_info)
 
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        await self.web.update_settings(**config.as_bitaxe())
+
     async def _get_wattage(self, web_system_info: dict = None) -> Optional[int]:
         if web_system_info is None:
             try:

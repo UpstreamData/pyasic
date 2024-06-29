@@ -80,6 +80,9 @@ class FanModeNormal(MinerConfigValue):
             },
         }
 
+    def as_bitaxe(self) -> dict:
+        return {"autoFanspeed": 1}
+
 
 @dataclass
 class FanModeManual(MinerConfigValue):
@@ -137,6 +140,9 @@ class FanModeManual(MinerConfigValue):
                 "fan-fixed-percent": self.speed,
             },
         }
+
+    def as_bitaxe(self) -> dict:
+        return {"autoFanspeed": 0, "fanspeed": self.speed}
 
 
 @dataclass
