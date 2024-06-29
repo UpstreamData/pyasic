@@ -235,3 +235,11 @@ class MinerConfig:
             fan_mode=FanModeConfig.from_mara(web_miner_config),
             mining_mode=MiningModeConfig.from_mara(web_miner_config),
         )
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_bitaxe(web_system_info),
+            fan_mode=FanModeConfig.from_bitaxe(web_system_info)
+
+        )

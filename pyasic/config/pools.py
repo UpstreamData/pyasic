@@ -194,6 +194,11 @@ class Pool(MinerConfigValue):
             password=web_pool["pass"],
         )
 
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "Pool":
+        url = f"stratum+tcp://{web_system_info['stratumURL']}:{web_system_info['stratumPort']}"
+        return cls(url=url, user=web_system_info["stratumUser"], password=web_system_info.get("stratumPassword", ""))
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -360,6 +365,10 @@ class PoolGroup(MinerConfigValue):
     def from_mara(cls, web_config_pools: dict) -> "PoolGroup":
         return cls(pools=[Pool.from_mara(pool_conf) for pool_conf in web_config_pools])
 
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "PoolGroup":
+        return cls(pools=[Pool.from_bitaxe(web_system_info)])
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -514,3 +523,7 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_mara(cls, web_config: dict) -> "PoolConfig":
         return cls(groups=[PoolGroup.from_mara(web_config["pools"])])
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "PoolConfig":
+        return cls(groups=[PoolGroup.from_bitaxe(web_system_info)])

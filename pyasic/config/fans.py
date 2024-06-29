@@ -291,3 +291,10 @@ class FanModeConfig(MinerConfigOption):
         except LookupError:
             pass
         return cls.default()
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict):
+        if web_system_info["autofanspeed"] == 1:
+            return cls.normal()
+        else:
+            return cls.manual(speed=web_system_info["fanspeed"])

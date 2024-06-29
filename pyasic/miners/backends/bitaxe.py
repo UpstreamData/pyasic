@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pyasic import APIError
+from pyasic import APIError, MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -51,6 +51,10 @@ class BitAxe(BaseMiner):
     async def reboot(self) -> bool:
         await self.web.restart()
         return True
+
+    async def get_config(self) -> MinerConfig:
+        web_system_info = await self.web.system_info()
+        return MinerConfig.from_bitaxe(web_system_info)
 
     async def _get_wattage(self, web_system_info: dict = None) -> Optional[int]:
         if web_system_info is None:
