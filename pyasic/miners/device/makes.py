@@ -44,3 +44,7 @@ class AuradineMake(BaseMiner):
 
 class ePICMake(BaseMiner):
     make = MinerMake.EPIC
+
+
+class BitAxeMake(BaseMiner):
+    make = MinerMake.BITAXE

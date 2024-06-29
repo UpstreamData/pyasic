@@ -31,8 +31,10 @@ from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import *
+from pyasic.miners.backends.bitaxe import BitAxe
 from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
+from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
@@ -53,6 +55,7 @@ class MinerTypes(enum.Enum):
     EPIC = 9
     AURADINE = 10
     MARATHON = 11
+    BITAXE = 12
 
 
 MINER_CLASSES = {
@@ -438,6 +441,12 @@ MINER_CLASSES = {
         "ANTMINER S21": MaraS21,
         "ANTMINER T21": MaraT21,
     },
+    MinerTypes.BITAXE: {
+        None: BitAxe,
+        "SUPRA": BitAxeSupra,
+        "ULTRA": BitAxeUltra,
+        "MAX": BitAxeMax,
+    },
 }
 
 
@@ -514,6 +523,7 @@ class MinerFactory:
                 MinerTypes.LUX_OS: self.get_miner_model_luxos,
                 MinerTypes.AURADINE: self.get_miner_model_auradine,
                 MinerTypes.MARATHON: self.get_miner_model_marathon,
+                MinerTypes.BITAXE: self.get_miner_model_bitaxe,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -595,6 +605,8 @@ class MinerFactory:
                 return MinerTypes.WHATSMINER
         if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
+        if "AxeOS" in web_text:
+            return MinerTypes.BITAXE
         if "cloud-box" in web_text:
             return MinerTypes.GOLDSHELL
         if "AnthillOS" in web_text:
@@ -1001,6 +1013,18 @@ class MinerFactory:
 
         try:
             miner_model = web_json_data["model"]
+            if miner_model == "":
+                return None
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_bitaxe(self, ip: str) -> str | None:
+        web_json_data = await self.send_web_command(ip, "/api/system/info")
+
+        try:
+            miner_model = web_json_data["devicemodel"]
             if miner_model == "":
                 return None
 
