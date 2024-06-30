@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
+from urllib.parse import urlparse
 
 
 class Scheme (Enum):
     STRATUM_V1 = "stratum+tcp"
     STRATUM_V2 = "stratum2+tcp"
+
 
 @dataclass
 class PoolUrl:
@@ -19,6 +21,15 @@ class PoolUrl:
             return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubkey}"
         else:
             return f"{self.scheme.value}://{self.host}:{self.port}"
+
+    @classmethod
+    def from_str(cls, url: str) -> 'PoolUrl':
+        parsed_url = urlparse(url)
+        scheme = Scheme(parsed_url.scheme)
+        host = parsed_url.hostname
+        port = parsed_url.port
+        pubkey = parsed_url.path.lstrip('/') if scheme == Scheme.STRATUM_V2 else None
+        return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
 
 @dataclass
