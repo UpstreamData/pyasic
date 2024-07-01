@@ -443,9 +443,9 @@ MINER_CLASSES = {
     },
     MinerTypes.BITAXE: {
         None: BitAxe,
-        "SUPRA": BitAxeSupra,
-        "ULTRA": BitAxeUltra,
-        "MAX": BitAxeMax,
+        "BM1368": BitAxeSupra,
+        "BM1366": BitAxeUltra,
+        "BM1397": BitAxeMax,
     },
 }
 
@@ -1024,7 +1024,7 @@ class MinerFactory:
         web_json_data = await self.send_web_command(ip, "/api/system/info")
 
         try:
-            miner_model = web_json_data["devicemodel"]
+            miner_model = web_json_data["ASICModel"]
             if miner_model == "":
                 return None
 
