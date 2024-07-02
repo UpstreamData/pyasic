@@ -221,14 +221,14 @@ class Auradine(StockFirmware):
                 upgrade_contents = response.content
             else:
                 # Read the firmware file contents from the local file path
-                async with aiofiles.open(file_path, "rb") as f:
+                async with self.web.aiofiles.open(file_path, "rb") as f:
                     upgrade_contents = await f.read()
 
             # Encode the firmware contents in base64
             encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
 
             # Upload the firmware file to the Auradine miner device
-            await self.ssh.send_command(
+            await self.web.send_command(
                 f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
             )
 
