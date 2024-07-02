@@ -117,7 +117,7 @@ class BitAxe(BaseMiner):
                         ).into(self.algo.unit.default),
                         chip_temp=web_system_info.get("temp"),
                         temp=web_system_info.get("vrTemp"),
-                        chips=web_system_info.get("asicCount"),
+                        chips=web_system_info.get("asicCount", 1),
                         expected_chips=self.expected_chips,
                         missing=False,
                         active=True,
