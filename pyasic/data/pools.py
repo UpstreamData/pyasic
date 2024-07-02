@@ -1,4 +1,35 @@
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Optional
+from urllib.parse import urlparse
+
+
+class Scheme (Enum):
+    STRATUM_V1 = "stratum+tcp"
+    STRATUM_V2 = "stratum2+tcp"
+
+
+@dataclass
+class PoolUrl:
+    scheme: Scheme
+    host: str
+    port: int
+    pubkey: Optional[str] = None
+
+    def __str__(self) -> str:
+        if self.scheme == Scheme.STRATUM_V2 and self.pubkey:
+            return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubkey}"
+        else:
+            return f"{self.scheme.value}://{self.host}:{self.port}"
+
+    @classmethod
+    def from_str(cls, url: str) -> 'PoolUrl':
+        parsed_url = urlparse(url)
+        scheme = Scheme(parsed_url.scheme)
+        host = parsed_url.hostname
+        port = parsed_url.port
+        pubkey = parsed_url.path.lstrip('/') if scheme == Scheme.STRATUM_V2 else None
+        return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
 
 @dataclass
@@ -19,17 +50,17 @@ class PoolMetrics:
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
+    pool_rejected_percent: float = field(init=False)
+    pool_stale_percent: float = field(init=False)
+    url: PoolUrl
     accepted: int = None
     rejected: int = None
     get_failures: int = None
     remote_failures: int = None
     active: bool = None
     alive: bool = None
-    url: str = None
     index: int = None
     user: str = None
-    pool_rejected_percent: float = field(init=False)
-    pool_stale_percent: float = field(init=False)
 
     @property
     def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
