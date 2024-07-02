@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 import logging
 from enum import Enum
+import base64
+import aiofiles
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
@@ -192,6 +194,49 @@ class Auradine(StockFirmware):
         conf = config.as_auradine(user_suffix=user_suffix)
         for key in conf.keys():
             await self.web.send_command(command=key, **conf[key])
+
+    async def upgrade_firmware(self, *, url: str = None, file_path: str = None, version: str = "latest") -> bool:
+        """
+        Upgrade the firmware of the Auradine device.
+
+        Args:
+            url (str): The URL to download the firmware from.
+            file_path (str): The local file path of the firmware to be uploaded.
+            version (str): The version of the firmware to upgrade to.
+
+        Returns:
+            bool: True if the firmware upgrade was successful, False otherwise.
+        """
+        try:
+            logging.info("Starting firmware upgrade process.")
+
+            if not url and not file_path:
+                raise ValueError("Either URL or file path must be provided for firmware upgrade.")
+
+            if url:
+                # Download the firmware file from the URL
+                response = await self.web.get(url)
+                if response.status_code != 200:
+                    raise ValueError(f"Failed to download firmware from URL: {url}")
+                upgrade_contents = response.content
+            else:
+                # Read the firmware file contents from the local file path
+                async with self.web.aiofiles.open(file_path, "rb") as f:
+                    upgrade_contents = await f.read()
+
+            # Encode the firmware contents in base64
+            encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
+
+            # Upload the firmware file to the Auradine miner device
+            await self.web.send_command(
+                f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
+            )
+
+            logging.info("Firmware upgrade process completed successfully.")
+            return True
+        except Exception as e:
+            logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
+            return False
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
