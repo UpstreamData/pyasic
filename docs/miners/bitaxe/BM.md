@@ -1,22 +1,22 @@
 # pyasic
-## A8X Models
+## BM Models
 
-## Avalon 821 (Stock)
-::: pyasic.miners.avalonminer.cgminer.A8X.A821.CGMinerAvalon821
+## Supra (Stock)
+::: pyasic.miners.bitaxe.espminer.BM.BM1368.BitAxeSupra
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
-## Avalon 841 (Stock)
-::: pyasic.miners.avalonminer.cgminer.A8X.A841.CGMinerAvalon841
+## Ultra (Stock)
+::: pyasic.miners.bitaxe.espminer.BM.BM1366.BitAxeUltra
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
-## Avalon 851 (Stock)
-::: pyasic.miners.avalonminer.cgminer.A8X.A851.CGMinerAvalon851
+## Max (Stock)
+::: pyasic.miners.bitaxe.espminer.BM.BM1397.BitAxeMax
     handler: python
     options:
         show_root_heading: false

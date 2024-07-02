@@ -1,7 +1,7 @@
 # pyasic
 ## A9X Models
 
-## Avalon 921
+## Avalon 921 (Stock)
 ::: pyasic.miners.avalonminer.cgminer.A9X.A921.CGMinerAvalon921
     handler: python
     options:
