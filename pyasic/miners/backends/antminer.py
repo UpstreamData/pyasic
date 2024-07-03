@@ -19,7 +19,7 @@ from typing import List, Optional, Union
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
-from pyasic.data.pools import PoolMetrics
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
@@ -370,6 +370,8 @@ class AntminerModern(BMMiner):
             try:
                 pools = rpc_pools.get("POOLS", [])
                 for pool_info in pools:
+                    url = pool_info.get("URL")
+                    pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
@@ -377,7 +379,7 @@ class AntminerModern(BMMiner):
                         remote_failures=pool_info.get("Remote Failures"),
                         active=pool_info.get("Stratum Active"),
                         alive=pool_info.get("Status") == "Alive",
-                        url=pool_info.get("URL"),
+                        url=pool_url,
                         user=pool_info.get("User"),
                         index=pool_info.get("POOL"),
                     )
