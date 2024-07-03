@@ -14,10 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-import logging
-import aiofiles
-import hashlib
-import aiohttp
 from pathlib import Path
 from typing import List, Optional
 
@@ -455,69 +451,17 @@ class ePIC(ePICFirmware):
                 return pool_data
         except LookupError:
             pass
-
-    async def upgrade_firmware(self, file: Path, keepsettings: bool, password: str):
+    
+    async def upgrade_firmware(self, file: Path | str, keep_settings: bool = True) -> bool:
 
         """
         Upgrade the firmware of the ePIC miner device.
 
         Args:
-            file (Path): The local file path of the firmware to be uploaded.
-            keepsettings (bool): Whether to keep the current settings after the update.
-            password (str): The password for authentication.
+            file (Path | str): The local file path of the firmware to be uploaded.
+            keep_settings (bool): Whether to keep the current settings after the update.
 
         Returns:
-            str: Confirmation message after upgrading the firmware.
+            bool: Whether the firmware update succeeded.
         """
-        try:
-            logging.info("Starting firmware upgrade process for ePIC miner.")
-
-            if not file:
-                raise ValueError("File location must be provided for firmware upgrade.")
-
-            # calculate the SHA256 checksum of the firmware file
-            sha256_hash = hashlib.sha256()
-            async with aiofiles.open(file, "rb") as f:
-                while chunk := await f.read(8192):
-                    sha256_hash.update(chunk)
-            checksum = sha256_hash.hexdigest()
-
-            # prepare the multipart/form-data request
-            form_data = aiohttp.FormData()
-            form_data.add_field('checksum', checksum)
-            form_data.add_field('keepsettings', str(keepsettings).lower())
-            form_data.add_field('password', password)
-            form_data.add_field('update.zip', open(file, 'rb'), filename='update.zip')
-
-            # Send the POST request to the ePIC miner device
-            async with self.web.post(f"http://{self.ip}:{self.port}/systemupdate", data=form_data) as response:
-                if response.status == 200:
-                    result = await response.json()
-                    if result.get("result"):
-                        logging.info("Firmware upgrade process completed successfully for ePIC miner.")
-                        return "Firmware upgrade completed successfully."
-                    else:
-                        error = result.get("error", "Unknown error")
-                        logging.error(f"Firmware upgrade failed: {error}")
-                        raise Exception(f"Firmware upgrade failed: {error}")
-                else:
-                    logging.error(f"Firmware upgrade failed with status code: {response.status}")
-                    raise Exception(f"Firmware upgrade failed with status code: {response.status}")
-
-        except FileNotFoundError as e:
-            logging.error(f"File not found during the firmware upgrade process: {e}")
-            raise
-        except ValueError as e:
-            logging.error(
-                f"Validation error occurred during the firmware upgrade process: {e}"
-            )
-            raise
-        except OSError as e:
-            logging.error(f"OS error occurred during the firmware upgrade process: {e}")
-            raise
-        except Exception as e:
-            logging.error(
-                f"An unexpected error occurred during the firmware upgrade process: {e}",
-                exc_info=True,
-            )
-            raise
+        return await self.web.system_update(file=file, keep_settings=keep_settings)
