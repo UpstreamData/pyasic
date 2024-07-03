@@ -451,7 +451,7 @@ class ePIC(ePICFirmware):
                 return pool_data
         except LookupError:
             pass
-    
+
     async def upgrade_firmware(self, file: Path | str, keep_settings: bool = True) -> bool:
 
         """
