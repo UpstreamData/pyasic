@@ -4,7 +4,7 @@ from typing import Optional
 from urllib.parse import urlparse
 
 
-class Scheme (Enum):
+class Scheme(Enum):
     STRATUM_V1 = "stratum+tcp"
     STRATUM_V2 = "stratum2+tcp"
 
@@ -23,12 +23,12 @@ class PoolUrl:
             return f"{self.scheme.value}://{self.host}:{self.port}"
 
     @classmethod
-    def from_str(cls, url: str) -> 'PoolUrl':
+    def from_str(cls, url: str) -> "PoolUrl":
         parsed_url = urlparse(url)
         scheme = Scheme(parsed_url.scheme)
         host = parsed_url.hostname
         port = parsed_url.port
-        pubkey = parsed_url.path.lstrip('/') if scheme == Scheme.STRATUM_V2 else None
+        pubkey = parsed_url.path.lstrip("/") if scheme == Scheme.STRATUM_V2 else None
         return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
 
@@ -50,8 +50,6 @@ class PoolMetrics:
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    pool_rejected_percent: float = field(init=False)
-    pool_stale_percent: float = field(init=False)
     url: PoolUrl
     accepted: int = None
     rejected: int = None
@@ -61,6 +59,8 @@ class PoolMetrics:
     alive: bool = None
     index: int = None
     user: str = None
+    pool_rejected_percent: float = field(init=False)
+    pool_stale_percent: float = field(init=False)
 
     @property
     def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection

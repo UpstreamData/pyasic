@@ -25,6 +25,10 @@ BITAXE_DATA_LOC = DataLocations(
             "_get_hashboards",
             [WebAPICommand("web_system_info", "system/info")],
         ),
+        str(DataOptions.HOSTNAME): DataFunction(
+            "_get_hostname",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [WebAPICommand("web_system_info", "system/info")],
