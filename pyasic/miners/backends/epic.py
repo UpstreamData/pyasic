@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from pathlib import Path
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
@@ -452,3 +453,17 @@ class ePIC(ePICFirmware):
                 return pool_data
         except LookupError:
             pass
+
+    async def upgrade_firmware(self, file: Path | str, keep_settings: bool = True) -> bool:
+
+        """
+        Upgrade the firmware of the ePIC miner device.
+
+        Args:
+            file (Path | str): The local file path of the firmware to be uploaded.
+            keep_settings (bool): Whether to keep the current settings after the update.
+
+        Returns:
+            bool: Whether the firmware update succeeded.
+        """
+        return await self.web.system_update(file=file, keep_settings=keep_settings)
