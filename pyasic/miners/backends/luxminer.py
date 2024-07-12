@@ -17,11 +17,11 @@ from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import LuxOSFirmware
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
-from pyasic.data.pools import PoolMetrics, PoolUrl
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
@@ -53,7 +53,7 @@ LUXMINER_DATA_LOC = DataLocations(
             "_get_uptime", [RPCAPICommand("rpc_stats", "stats")]
         ),
         str(DataOptions.POOLS): DataFunction(
-            "get_pools", [RPCAPICommand("rpc_pools", "pools")]
+            "_get_pools", [RPCAPICommand("rpc_pools", "pools")]
         ),
     }
 )
