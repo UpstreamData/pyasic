@@ -15,14 +15,13 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import hashlib
 import json
+from pathlib import Path
 from typing import Any
 
-import httpx
 import aiofiles
-import aiohttp
-import hashlib
-from pathlib import Path
+import httpx
 
 from pyasic import settings
 from pyasic.errors import APIError
@@ -52,7 +51,7 @@ class ePICWebAPI(BaseWebAPI):
                 try:
                     if parameters.get("form") is not None:
                         form_data = parameters["form"]
-                        form_data.add_field('password', self.pwd)
+                        form_data.add_field("password", self.pwd)
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
@@ -149,7 +148,7 @@ class ePICWebAPI(BaseWebAPI):
         return await self.send_command("capabilities")
 
     async def system_update(self, file: Path | str, keep_settings: bool = True):
-        """Perform a system update by uploading a firmware file and sending a 
+        """Perform a system update by uploading a firmware file and sending a
         command to initiate the update."""
 
         # calculate the SHA256 checksum of the firmware file
@@ -161,8 +160,8 @@ class ePICWebAPI(BaseWebAPI):
 
         # prepare the multipart/form-data request
         form_data = aiohttp.FormData()
-        form_data.add_field('checksum', checksum)
-        form_data.add_field('keepsettings', str(keep_settings).lower())
-        form_data.add_field('update.zip', open(file, 'rb'), filename='update.zip')
+        form_data.add_field("checksum", checksum)
+        form_data.add_field("keepsettings", str(keep_settings).lower())
+        form_data.add_field("update.zip", open(file, "rb"), filename="update.zip")
 
         await self.send_command("systemupdate", form=form_data)
