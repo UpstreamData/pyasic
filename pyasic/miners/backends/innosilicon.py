@@ -29,6 +29,7 @@ from pyasic.miners.data import (
     WebAPICommand,
 )
 from pyasic.web.innosilicon import InnosiliconWebAPI
+from pyasic.data.pools import PoolMetrics, PoolUrl
 
 INNOSILICON_DATA_LOC = DataLocations(
     **{
@@ -90,6 +91,10 @@ INNOSILICON_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [WebAPICommand("web_pools", "pools")]
+        )
     }
 )
 
@@ -111,7 +116,7 @@ class Innosilicon(CGMiner):
         except APIError:
             return self.config
 
-        self.config = MinerConfig.from_inno(pools)
+        self.config = MinerConfig.from_inno([pools])
         return self.config
 
     async def reboot(self) -> bool:
@@ -365,3 +370,33 @@ class Innosilicon(CGMiner):
                 level = int(level)
                 limit = 1250 + (250 * level)
                 return limit
+
+    async def _get_pools(self, web_pools: dict = None) -> List[PoolMetrics]:
+        if web_pools is None:
+            try:
+                web_pools = await self.web.pools()
+            except APIError:
+                pass
+
+        pools_data = []
+        if web_pools is not None:
+            try:
+                pools = web_pools.get("POOLS", [])
+                for pool_info in pools:
+                    url = pool_info.get("URL")
+                    pool_url = PoolUrl.from_str(url) if url else None
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("Accepted"),
+                        rejected=pool_info.get("Rejected"),
+                        get_failures=pool_info.get("Get Failures"),
+                        remote_failures=pool_info.get("Remote Failures"),
+                        active=pool_info.get("Stratum Active"),
+                        alive=pool_info.get("Status") == "Alive",
+                        url=pool_url,
+                        user=pool_info.get("User"),
+                        index=pool_info.get("POOL"),
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
