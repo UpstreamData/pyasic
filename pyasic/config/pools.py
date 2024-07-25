@@ -127,6 +127,13 @@ class Pool(MinerConfigValue):
             }
         return {"url": self.url, "user": self.user, "pass": self.password}
 
+    def as_bitaxe(self, user_suffix: str = None) -> dict:
+        return {
+            "stratumURL": self.url,
+            "stratumUser": f"{self.user}{user_suffix}",
+            "stratumPassword": self.password,
+        }
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
         return cls(
@@ -192,6 +199,15 @@ class Pool(MinerConfigValue):
             url=web_pool["url"],
             user=web_pool["user"],
             password=web_pool["pass"],
+        )
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "Pool":
+        url = f"stratum+tcp://{web_system_info['stratumURL']}:{web_system_info['stratumPort']}"
+        return cls(
+            url=url,
+            user=web_system_info["stratumUser"],
+            password=web_system_info.get("stratumPassword", ""),
         )
 
 
@@ -287,6 +303,9 @@ class PoolGroup(MinerConfigValue):
     def as_mara(self, user_suffix: str = None) -> list:
         return [p.as_mara(user_suffix=user_suffix) for p in self.pools]
 
+    def as_bitaxe(self, user_suffix: str = None) -> dict:
+        return self.pools[0].as_bitaxe(user_suffix=user_suffix)
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
         cls_conf = {}
@@ -359,6 +378,10 @@ class PoolGroup(MinerConfigValue):
     @classmethod
     def from_mara(cls, web_config_pools: dict) -> "PoolGroup":
         return cls(pools=[Pool.from_mara(pool_conf) for pool_conf in web_config_pools])
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "PoolGroup":
+        return cls(pools=[Pool.from_bitaxe(web_system_info)])
 
 
 @dataclass
@@ -456,6 +479,9 @@ class PoolConfig(MinerConfigValue):
             return {"pools": self.groups[0].as_mara(user_suffix=user_suffix)}
         return {"pools": []}
 
+    def as_bitaxe(self, user_suffix: str = None) -> dict:
+        return self.groups[0].as_bitaxe(user_suffix=user_suffix)
+
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":
         try:
@@ -514,3 +540,7 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_mara(cls, web_config: dict) -> "PoolConfig":
         return cls(groups=[PoolGroup.from_mara(web_config["pools"])])
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "PoolConfig":
+        return cls(groups=[PoolGroup.from_bitaxe(web_system_info)])

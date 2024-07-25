@@ -173,7 +173,7 @@ class AvalonMiner(CGMiner):
             except (KeyError, ValueError):
                 pass
 
-    async def _get_hashrate(self, rpc_devs: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_devs: dict = None) -> Optional[AlgoHashRate]:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -238,7 +238,9 @@ class AvalonMiner(CGMiner):
 
         return hashboards
 
-    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_stats: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()

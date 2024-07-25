@@ -15,9 +15,12 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import hashlib
 import json
+from pathlib import Path
 from typing import Any
 
+import aiofiles
 import httpx
 
 from pyasic import settings
@@ -46,6 +49,14 @@ class ePICWebAPI(BaseWebAPI):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for retry_cnt in range(settings.get("get_data_retries", 1)):
                 try:
+                    if parameters.get("form") is not None:
+                        form_data = parameters["form"]
+                        form_data.add_field("password", self.pwd)
+                        response = await client.post(
+                            f"http://{self.ip}:{self.port}/{command}",
+                            timeout=5,
+                            data=form_data,
+                        )
                     if post:
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
@@ -135,3 +146,22 @@ class ePICWebAPI(BaseWebAPI):
 
     async def capabilities(self) -> dict:
         return await self.send_command("capabilities")
+
+    async def system_update(self, file: Path | str, keep_settings: bool = True):
+        """Perform a system update by uploading a firmware file and sending a
+        command to initiate the update."""
+
+        # calculate the SHA256 checksum of the firmware file
+        sha256_hash = hashlib.sha256()
+        async with aiofiles.open(str(file), "rb") as f:
+            while chunk := await f.read(8192):
+                sha256_hash.update(chunk)
+        checksum = sha256_hash.hexdigest()
+
+        # prepare the multipart/form-data request
+        form_data = aiohttp.FormData()
+        form_data.add_field("checksum", checksum)
+        form_data.add_field("keepsettings", str(keep_settings).lower())
+        form_data.add_field("update.zip", open(file, "rb"), filename="update.zip")
+
+        await self.send_command("systemupdate", form=form_data)

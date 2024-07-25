@@ -14,14 +14,15 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from pathlib import Path
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.data.pools import PoolMetrics
 from pyasic.errors import APIError
 from pyasic.logger import logger
-from pyasic.data.pools import PoolMetrics
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import ePICFirmware
 from pyasic.web.epic import ePICWebAPI
@@ -220,7 +221,7 @@ class ePIC(ePICFirmware):
             except KeyError:
                 pass
 
-    async def _get_hashrate(self, web_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, web_summary: dict = None) -> Optional[AlgoHashRate]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -239,7 +240,9 @@ class ePIC(ePICFirmware):
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_expected_hashrate(self, web_summary: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, web_summary: dict = None
+    ) -> Optional[AlgoHashRate]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -450,3 +453,17 @@ class ePIC(ePICFirmware):
                 return pool_data
         except LookupError:
             pass
+
+    async def upgrade_firmware(self, file: Path | str, keep_settings: bool = True) -> bool:
+
+        """
+        Upgrade the firmware of the ePIC miner device.
+
+        Args:
+            file (Path | str): The local file path of the firmware to be uploaded.
+            keep_settings (bool): Whether to keep the current settings after the update.
+
+        Returns:
+            bool: Whether the firmware update succeeded.
+        """
+        return await self.web.system_update(file=file, keep_settings=keep_settings)

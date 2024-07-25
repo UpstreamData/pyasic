@@ -109,7 +109,7 @@ class BMMiner(StockFirmware):
 
         return self.fw_ver
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         # get hr from API
         if rpc_summary is None:
             try:
@@ -223,7 +223,9 @@ class BMMiner(StockFirmware):
 
         return fans
 
-    async def _get_expected_hashrate(self, rpc_stats: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_stats: dict = None
+    ) -> Optional[AlgoHashRate]:
         # X19 method, not sure compatibility
         if rpc_stats is None:
             try:

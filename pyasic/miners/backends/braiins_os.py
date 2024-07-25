@@ -26,6 +26,7 @@ from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -39,7 +40,6 @@ from pyasic.rpc.bosminer import BOSMinerRPCAPI
 from pyasic.ssh.braiins_os import BOSMinerSSH
 from pyasic.web.braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from pyasic.web.braiins_os.proto.braiins.bos.v1 import SaveAction
-from pyasic.data.pools import PoolMetrics
 
 BOSMINER_DATA_LOC = DataLocations(
     **{
@@ -349,7 +349,7 @@ class BOSMiner(BraiinsOSFirmware):
             return None
         return hostname
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -525,7 +525,9 @@ class BOSMiner(BraiinsOSFirmware):
         except (TypeError, AttributeError):
             return self.light
 
-    async def _get_expected_hashrate(self, rpc_devs: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_devs: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -590,6 +592,8 @@ class BOSMiner(BraiinsOSFirmware):
             try:
                 pools = rpc_pools.get("POOLS", [])
                 for pool_info in pools:
+                    url = pool_info.get("URL")
+                    pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
@@ -597,16 +601,14 @@ class BOSMiner(BraiinsOSFirmware):
                         remote_failures=pool_info.get("Remote Failures"),
                         active=pool_info.get("Stratum Active"),
                         alive=pool_info.get("Status") == "Alive",
-                        url=pool_info.get("URL"),
+                        url=pool_url,
                         user=pool_info.get("User"),
                         index=pool_info.get("POOL"),
-
                     )
                     pools_data.append(pool_data)
             except LookupError:
                 pass
         return pools_data
-
 
     async def upgrade_firmware(self, file: Path):
         """
@@ -866,7 +868,7 @@ class BOSer(BraiinsOSFirmware):
             except LookupError:
                 pass
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -883,7 +885,7 @@ class BOSer(BraiinsOSFirmware):
 
     async def _get_expected_hashrate(
         self, grpc_miner_details: dict = None
-    ) -> Optional[float]:
+    ) -> Optional[AlgoHashRate]:
         if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.get_miner_details()

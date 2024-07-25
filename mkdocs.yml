@@ -68,6 +68,8 @@ nav:
         - Auradine AD: "miners/auradine/AD.md"
         - Auradine AI: "miners/auradine/AI.md"
         - Auradine AT: "miners/auradine/AT.md"
+        - Blockminer: "miners/blockminer/blockminer.md"
+        - BitAxe BM: "miners/bitaxe/BM.md"
     - Base Miner: "miners/base_miner.md"
 - Settings:
       - Settings: "settings/settings.md"

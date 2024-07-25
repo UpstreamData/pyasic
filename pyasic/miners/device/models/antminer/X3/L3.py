@@ -18,6 +18,6 @@ from pyasic.miners.device.makes import AntMinerMake
 
 
 class L3Plus(AntMinerMake):
-    raw_model = MinerModel.ANTMINER
+    raw_model = MinerModel.ANTMINER.L3Plus
 
     expected_chips = 72

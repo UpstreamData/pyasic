@@ -169,7 +169,7 @@ class Innosilicon(CGMiner):
 
     async def _get_hashrate(
         self, rpc_summary: dict = None, web_get_all: dict = None
-    ) -> Optional[float]:
+    ) -> Optional[AlgoHashRate]:
         if web_get_all:
             web_get_all = web_get_all["all"]
 

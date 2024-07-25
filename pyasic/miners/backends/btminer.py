@@ -15,9 +15,10 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from typing import List, Optional
-import aiofiles
 from pathlib import Path
+from typing import List, Optional
+
+import aiofiles
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
@@ -388,7 +389,7 @@ class BTMiner(StockFirmware):
 
         return hostname
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -564,7 +565,9 @@ class BTMiner(StockFirmware):
                 pass
         return errors
 
-    async def _get_expected_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_expected_hashrate(
+        self, rpc_summary: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -675,17 +678,24 @@ class BTMiner(StockFirmware):
 
             result = await self.rpc.update_firmware(upgrade_contents)
 
-            logging.info("Firmware upgrade process completed successfully for Whatsminer.")
+            logging.info(
+                "Firmware upgrade process completed successfully for Whatsminer."
+            )
             return result
         except FileNotFoundError as e:
             logging.error(f"File not found during the firmware upgrade process: {e}")
             raise
         except ValueError as e:
-            logging.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            logging.error(
+                f"Validation error occurred during the firmware upgrade process: {e}"
+            )
             raise
         except OSError as e:
             logging.error(f"OS error occurred during the firmware upgrade process: {e}")
             raise
         except Exception as e:
-            logging.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            logging.error(
+                f"An unexpected error occurred during the firmware upgrade process: {e}",
+                exc_info=True,
+            )
             raise

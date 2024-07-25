@@ -25,6 +25,7 @@ class MinerMake(str, Enum):
     GOLDSHELL = "Goldshell"
     AURADINE = "Auradine"
     EPIC = "ePIC"
+    BITAXE = "BitAxe"
 
     def __str__(self):
         return self.value

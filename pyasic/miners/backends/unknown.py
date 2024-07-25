@@ -15,7 +15,7 @@
 from typing import List, Optional, Tuple
 
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data import AlgoHashRate, Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.miners.base import BaseMiner
 from pyasic.rpc.unknown import UnknownRPCAPI
@@ -80,7 +80,7 @@ class UnknownMiner(BaseMiner):
     async def _get_hostname(self) -> Optional[str]:
         return None
 
-    async def _get_hashrate(self) -> Optional[float]:
+    async def _get_hashrate(self) -> Optional[AlgoHashRate]:
         return None
 
     async def _get_hashboards(self) -> List[HashBoard]:
@@ -113,7 +113,7 @@ class UnknownMiner(BaseMiner):
     async def _get_fault_light(self) -> bool:
         return False
 
-    async def _get_expected_hashrate(self) -> Optional[float]:
+    async def _get_expected_hashrate(self) -> Optional[AlgoHashRate]:
         return None
 
     async def _is_mining(self, *args, **kwargs) -> Optional[bool]:

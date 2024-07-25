@@ -140,6 +140,14 @@ class MinerConfig:
             **self.pools.as_mara(user_suffix=user_suffix),
         }
 
+    def as_bitaxe(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_bitaxe(),
+            **self.temperature.as_bitaxe(),
+            **self.mining_mode.as_bitaxe(),
+            **self.pools.as_bitaxe(user_suffix=user_suffix),
+        }
+
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
         """Constructs a MinerConfig object from a dictionary."""
@@ -234,4 +242,11 @@ class MinerConfig:
             pools=PoolConfig.from_mara(web_miner_config),
             fan_mode=FanModeConfig.from_mara(web_miner_config),
             mining_mode=MiningModeConfig.from_mara(web_miner_config),
+        )
+
+    @classmethod
+    def from_bitaxe(cls, web_system_info: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_bitaxe(web_system_info),
+            fan_mode=FanModeConfig.from_bitaxe(web_system_info),
         )

@@ -1,7 +1,7 @@
 # pyasic
 ## T3X Models
 
-## T3H+
+## T3H+ (Stock)
 ::: pyasic.miners.innosilicon.cgminer.T3X.T3H.InnosiliconT3HPlus
     handler: python
     options:
