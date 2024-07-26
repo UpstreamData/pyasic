@@ -93,7 +93,7 @@ INNOSILICON_DATA_LOC = DataLocations(
         ),
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
-            [WebAPICommand("web_pools", "pools")]
+            [RPCAPICommand("rpc_pools", "pools")]
         )
     }
 )
@@ -371,17 +371,17 @@ class Innosilicon(CGMiner):
                 limit = 1250 + (250 * level)
                 return limit
 
-    async def _get_pools(self, web_pools: dict = None) -> List[PoolMetrics]:
-        if web_pools is None:
+    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+        if rpc_pools is None:
             try:
-                web_pools = await self.web.pools()
+                rpc_pools = await self.rpc.pools()
             except APIError:
                 pass
 
         pools_data = []
-        if web_pools is not None:
+        if rpc_pools is not None:
             try:
-                pools = web_pools.get("POOLS", [])
+                pools = rpc_pools.get("POOLS", [])
                 for pool_info in pools:
                     url = pool_info.get("URL")
                     pool_url = PoolUrl.from_str(url) if url else None
