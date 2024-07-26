@@ -214,28 +214,32 @@ class Auradine(StockFirmware):
                 raise ValueError("Either URL or file path must be provided for firmware upgrade.")
 
             if url:
-                # Download the firmware file from the URL
-                response = await self.web.get(url)
-                if response.status_code != 200:
-                    raise ValueError(f"Failed to download firmware from URL: {url}")
-                upgrade_contents = response.content
-            else:
+                result = await self.web.firmware_upgrade(url=url)
+            elif file_path:
                 # Read the firmware file contents from the local file path
                 async with aiofiles.open(file_path, "rb") as f:
                     upgrade_contents = await f.read()
 
-            # Encode the firmware contents in base64
-            encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
+                # Encode the firmware contents in base64
+                encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
 
-            # Upload the firmware file to the Auradine miner device
-            await self.ssh.send_command(
-                f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
-            )
+                # Upload the firmware file to the Auradine miner device
+                await self.ssh.send_command(
+                    f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
+                )
+                result = {"success": True}  # Assuming success if no exception is raised
+            else:
+                result = await self.web.firmware_upgrade(version=version)
 
-            logging.info("Firmware upgrade process completed successfully.")
-            return True
+            if result.get("success", False):
+                logging.info("Firmware upgrade process completed successfully.")
+                return True
+            else:
+                logging.error(f"Firmware upgrade failed: {result.get('error', 'Unknown error')}")
+                return False
+
         except Exception as e:
-            logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
+            logging.error(f"An error occurred during the firmware upgrade process: {str(e)}")
             return False
 
     ##################################################
@@ -281,7 +285,7 @@ class Auradine(StockFirmware):
             except LookupError:
                 pass
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
