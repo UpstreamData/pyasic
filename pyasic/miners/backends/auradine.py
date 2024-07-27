@@ -270,7 +270,7 @@ class Auradine(StockFirmware):
             except LookupError:
                 pass
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[float]:
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
