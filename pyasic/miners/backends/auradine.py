@@ -15,8 +15,6 @@
 # ------------------------------------------------------------------------------
 import logging
 from enum import Enum
-import base64
-import aiofiles
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
@@ -195,14 +193,14 @@ class Auradine(StockFirmware):
         for key in conf.keys():
             await self.web.send_command(command=key, **conf[key])
 
-    async def upgrade_firmware(self, *, url: str = None, file_path: str = None, version: str = "latest") -> bool:
+    async def upgrade_firmware(self, *, url: str = None, version: str = "latest", keep_settings: bool = False, **kwargs) -> bool:
         """
         Upgrade the firmware of the Auradine device.
 
         Args:
             url (str): The URL to download the firmware from.
-            file_path (str): The local file path of the firmware to be uploaded.
             version (str): The version of the firmware to upgrade to.
+            keep_settings (bool): Whether to keep the current settings during the upgrade.
 
         Returns:
             bool: True if the firmware upgrade was successful, False otherwise.
@@ -210,24 +208,11 @@ class Auradine(StockFirmware):
         try:
             logging.info("Starting firmware upgrade process.")
 
-            if not url and not file_path:
-                raise ValueError("Either URL or file path must be provided for firmware upgrade.")
+            if not url and not version:
+                raise ValueError("Either URL or version must be provided for firmware upgrade.")
 
             if url:
                 result = await self.web.firmware_upgrade(url=url)
-            elif file_path:
-                # Read the firmware file contents from the local file path
-                async with aiofiles.open(file_path, "rb") as f:
-                    upgrade_contents = await f.read()
-
-                # Encode the firmware contents in base64
-                encoded_contents = base64.b64encode(upgrade_contents).decode("utf-8")
-
-                # Upload the firmware file to the Auradine miner device
-                await self.ssh.send_command(
-                    f"echo {encoded_contents} | base64 -d > /tmp/firmware.tar && sysupgrade /tmp/firmware.tar"
-                )
-                result = {"success": True}  # Assuming success if no exception is raised
             else:
                 result = await self.web.firmware_upgrade(version=version)
 
