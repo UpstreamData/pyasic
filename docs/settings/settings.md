@@ -15,7 +15,8 @@ Settings options:
 - `antminer_mining_mode_as_str`
 - `default_whatsminer_password`
 - `default_innosilicon_password`
-- `default_antminer_password`
+- `default_antminer_web_password`
+- `default_antminer_ssh_password`
 - `default_bosminer_password`
 - `default_vnish_password`
 - `default_goldshell_password`
