@@ -833,7 +833,9 @@ class MinerFactory:
 
     async def _get_model_antminer_web(self, ip: str) -> str | None:
         # last resort, this is slow
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_antminer_password", "root")
+        )
         web_json_data = await self.send_web_command(
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )
