@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @dataclass(eq=False, repr=False)
 class ApiVersion(betterproto.Message):
-    """LATEST_API_VERSION=1.0.0-beta.4"""
+    """LATEST_API_VERSION=1.2.0"""
 
     major: int = betterproto.uint64_field(1)
     minor: int = betterproto.uint64_field(2)
@@ -52,6 +52,7 @@ class ApiVersionServiceStub(betterproto.ServiceStub):
 
 
 class ApiVersionServiceBase(ServiceBase):
+
     async def get_api_version(
         self, api_version_request: "ApiVersionRequest"
     ) -> "ApiVersion":
