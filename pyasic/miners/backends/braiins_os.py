@@ -189,7 +189,6 @@ class BOSMiner(BraiinsOSFirmware):
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
         self.config = config
-        print(config)
         parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
         toml_conf = toml.dumps(

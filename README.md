@@ -255,7 +255,7 @@ if __name__ == "__main__":
 ```python
 from pyasic import settings
 
-settings.update("default_antminer_password", "my_pwd")
+settings.update("default_antminer_web_password", "my_pwd")
 ```
 
 ##### Default values:
