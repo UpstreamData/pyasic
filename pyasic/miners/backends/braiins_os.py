@@ -721,6 +721,10 @@ BOSER_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [WebAPICommand("grpc_pool_groups", "get_pool_groups")]
+        )
     }
 )
 
@@ -1064,3 +1068,27 @@ class BOSer(BraiinsOSFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def _get_pools(self, grpc_pool_groups: dict = None) -> List[PoolMetrics]:
+        if grpc_pool_groups is None:
+            try:
+                grpc_pool_groups = await self.web.get_pool_groups()
+            except APIError:
+                return []
+        pools_data = []
+        for group in grpc_pool_groups["poolGroups"]:
+            for idx, pool_info in enumerate(group["pools"]):
+                pool_data = PoolMetrics(
+                    url=pool_info["url"],
+                    user=pool_info["user"],
+                    index=idx,
+                    accepted=pool_info["stats"]["acceptedShares"],
+                    rejected=pool_info["stats"]["rejectedShares"],
+                    get_failures=pool_info["stats"]["stale_shares"],
+                    remote_failures=0,
+                    active=pool_info["active"],
+                    alive=pool_info["alive"]
+                )
+                pools_data.append(pool_data)
+
+        return pools_data
