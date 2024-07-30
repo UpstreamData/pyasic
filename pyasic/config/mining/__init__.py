@@ -593,6 +593,8 @@ class MiningModeConfig(MinerConfigOption):
                 scaling=ScalingConfig.from_boser(grpc_miner_conf, mode="hashrate"),
             )
 
+        return cls.default()
+
     @classmethod
     def from_auradine(cls, web_mode: dict):
         try:
