@@ -1070,18 +1070,18 @@ class BOSer(BraiinsOSFirmware):
             except APIError:
                 return []
         pools_data = []
-        for group in grpc_pool_groups:
-            for pool_info in group.pools:
+        for group in grpc_pool_groups["poolGroups"]:
+            for idx, pool_info in enumerate(group["pools"]):
                 pool_data = PoolMetrics(
-                    url=pool_info.url,
-                    user=pool_info.user,
-                    index=int(pool_info.uid),
-                    accepted=pool_info.stats.accepted_shares,
-                    rejected=pool_info.stats.rejected_shares,
-                    get_failures=pool_info.stats.stale_shares,
+                    url=pool_info["url"],
+                    user=pool_info["user"],
+                    index=idx,
+                    accepted=pool_info["stats"]["acceptedShares"],
+                    rejected=pool_info["stats"]["rejectedShares"],
+                    get_failures=pool_info["stats"]["stale_shares"],
                     remote_failures=0,
-                    active=pool_info.active,
-                    alive=pool_info.alive
+                    active=pool_info["active"],
+                    alive=pool_info["alive"]
                 )
                 pools_data.append(pool_data)
 
