@@ -783,7 +783,7 @@ class BOSer(BraiinsOSFirmware):
         return MinerConfig.from_boser(grpc_conf)
 
     async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
-        boser_cfg = config.as_boser()
+        boser_cfg = config.as_boser(user_suffix=user_suffix)
         for key in boser_cfg:
             await self.web.send_command(key, message=boser_cfg[key])
 
