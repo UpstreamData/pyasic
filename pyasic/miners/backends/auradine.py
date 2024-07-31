@@ -216,7 +216,7 @@ class Auradine(StockFirmware):
             else:
                 result = await self.web.firmware_upgrade(version=version)
 
-            if result.get("success", False):
+            if result.get("STATUS", [{}])[0].get("STATUS") == "S":
                 logging.info("Firmware upgrade process completed successfully.")
                 return True
             else:
