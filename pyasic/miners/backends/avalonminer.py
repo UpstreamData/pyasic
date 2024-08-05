@@ -16,14 +16,14 @@
 
 import re
 from typing import List, Optional
-import httpx
-import aiofiles
 import logging
+from pathlib import Path
 
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.web.avalon import AvalonWebAPI
 
 AVALON_DATA_LOC = DataLocations(
     **{
@@ -78,6 +78,8 @@ AVALON_DATA_LOC = DataLocations(
 class AvalonMiner(CGMiner):
     """Handler for Avalon Miners"""
 
+    _web_cls = AvalonWebAPI
+    web: AvalonWebAPI
     data_locations = AVALON_DATA_LOC
 
     async def fault_light_on(self) -> bool:
@@ -111,53 +113,35 @@ class AvalonMiner(CGMiner):
             return False
         return False
 
-    async def upgrade_firmware(self, ip: str, port: int, file: str) -> str:
+    async def upgrade_firmware(self, ip: str, port: int, file: Path) -> str:
         """
         Upgrade the firmware of an Avalon Miner.
-        
+
         Parameters:
         ip (str): The IP address of the Avalon Miner.
         port (int): The port number of the Avalon Miner's web interface.
-        file (str): Path to the firmware file to be uploaded.
-        
+        file (Path): Path to the firmware file to be uploaded.
+
         Returns:
         str: Result of the upgrade process.
         """
-        if not file:
-            raise ValueError("File location must be provided for firmware upgrade.")
-
-        async with aiofiles.open(file, "rb") as f:
-            upgrade_contents = await f.read()
-
-        url = f"http://{ip}:{port}/cgi-bin/upgrade"
-        data = {'version': self.get_fw_ver()}
-
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    url,
-                    files={'firmware': upgrade_contents},
-                    data=data,
-                    auth=('root', 'root'),
-                    timeout=60
-                )
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
 
-                response_text = response.text
+            version = self.get_fw_ver()
 
-                if 'Upgrade success' in response_text:
-                    logging.info("Firmware upgrade process completed successfully for Avalon Miner.")
-                    return "Firmware upgrade to version {} successful.".format(self.get_fw_ver())
-                else:
-                    return f"Firmware upgrade failed. Response: {response_text}"
+            result = await self.web.update_firmware(ip=ip, port=port, version=version, file=file)
 
-        except FileNotFoundError as e:
-            logging.error(f"File not found during the firmware upgrade process: {e}")
-            raise
+            if 'Success' in result:
+                logging.info("Firmware upgrade process completed successfully for Avalon Miner.")
+                return f"Firmware upgrade to version {version} successful."
+            else:
+                logging.error(f"Firmware upgrade failed. Response: {result}")
+                return f"Firmware upgrade failed. Response: {result}"
+
         except ValueError as e:
             logging.error(f"Validation error occurred during the firmware upgrade process: {e}")
-            raise
-        except OSError as e:
-            logging.error(f"OS error occurred during the firmware upgrade process: {e}")
             raise
         except Exception as e:
             logging.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
