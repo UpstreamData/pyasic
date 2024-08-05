@@ -39,25 +39,21 @@ class AvalonWebAPI(BaseWebAPI):
         self.token = "Success"
 
     async def send_command(
-        self,
-        command: str | bytes,
-        ignore_errors: bool = False,
-        allow_warning: bool = True,
-        privileged: bool = False,
-        upgrade_file: Optional[Path] = None,
-        **parameters: Any,
-    ) -> dict:
-        
-        if self.token is None:
-            await self.auth()
-
-        async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for i in range(settings.get("get_data_retries", 1)):
+            self,
+            command: str,
+            ignore_errors: bool = False,
+            allow_warning: bool = True,
+            privileged: bool = False,
+            upgrade_file: Optional[Path] = None,
+            **parameters: Any,
+        ) -> dict:
+            if self.token is None:
+                await self.auth()
+            async with httpx.AsyncClient(transport=settings.transport()) as client:
                 try:
                     if upgrade_file:
                         async with aiofiles.open(upgrade_file, "rb") as f:
                             upgrade_contents = await f.read()
-
                         url = f"http://{self.ip}:{self.port}/cgi-bin/upgrade"
                         data = {'version': parameters.get('version', 'latest')}
                         response = await client.post(
@@ -76,12 +72,13 @@ class AvalonWebAPI(BaseWebAPI):
                         return response.json()
                 except (httpx.HTTPError, json.JSONDecodeError):
                     pass
-        return {}
+            return {}
 
     async def update_firmware(self, ip: str, port: int, version: str = "latest", file: Optional[Path] = None) -> dict:
         """Perform a system update by uploading a firmware file and sending a
         command to initiate the update."""
         return await self.send_command(
+            command="upgrade",
             upgrade_file=file,
             version=version
         )
