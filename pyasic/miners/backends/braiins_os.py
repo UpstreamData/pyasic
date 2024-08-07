@@ -20,7 +20,11 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import aiofiles
-import toml
+import tomli_w
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
@@ -177,10 +181,10 @@ class BOSMiner(BraiinsOSFirmware):
         raw_data = await self.ssh.get_config_file()
 
         try:
-            toml_data = toml.loads(raw_data)
+            toml_data = tomllib.loads(raw_data)
             cfg = MinerConfig.from_bosminer(toml_data)
             self.config = cfg
-        except toml.TomlDecodeError as e:
+        except tomllib.TOMLDecodeError as e:
             raise APIError("Failed to decode toml when getting config.") from e
         except TypeError as e:
             raise APIError("Failed to decode toml when getting config.") from e
@@ -191,7 +195,7 @@ class BOSMiner(BraiinsOSFirmware):
         self.config = config
         parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
-        toml_conf = toml.dumps(
+        toml_conf = tomli_w.dumps(
             {
                 "format": {
                     "version": "2.0",
