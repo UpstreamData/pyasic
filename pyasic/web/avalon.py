@@ -20,7 +20,7 @@ import aiofiles
 import httpx
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from pyasic import settings
 from pyasic.web.base import BaseWebAPI
@@ -39,46 +39,49 @@ class AvalonWebAPI(BaseWebAPI):
         self.token = "Success"
 
     async def send_command(
-            self,
-            command: str,
-            ignore_errors: bool = False,
-            allow_warning: bool = True,
-            privileged: bool = False,
-            upgrade_file: Optional[Path] = None,
-            **parameters: Any,
-        ) -> dict:
-            if self.token is None:
-                await self.auth()
-            async with httpx.AsyncClient(transport=settings.transport()) as client:
-                try:
-                    if upgrade_file:
-                        async with aiofiles.open(upgrade_file, "rb") as f:
-                            upgrade_contents = await f.read()
-                        url = f"http://{self.ip}:{self.port}/cgi-bin/upgrade"
-                        data = {'version': parameters.get('version', 'latest')}
-                        response = await client.post(
-                            url,
-                            files={'firmware': upgrade_contents},
-                            data=data,
-                            auth=(self.username, self.pwd),
-                            timeout=60
-                        )
-                        return response.json()
-                    else:
-                        response = await client.get(
-                            f"http://{self.ip}:{self.port}/{command}",
-                            timeout=5,
-                        )
-                        return response.json()
-                except (httpx.HTTPError, json.JSONDecodeError):
-                    pass
-            return {}
+        self,
+        command: str,
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        privileged: bool = False,
+        **parameters: Any,
+    ) -> dict:
+        if self.token is None:
+            await self.auth()
 
-    async def update_firmware(self, ip: str, port: int, version: str = "latest", file: Optional[Path] = None) -> dict:
-        """Perform a system update by uploading a firmware file and sending a
-        command to initiate the update."""
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
+            try:
+                url = f"http://{self.ip}:{self.port}/{command}"
+                
+                if 'file' in parameters:
+                    file = parameters.pop('file')
+                    async with aiofiles.open(file, "rb") as f:
+                        file_contents = await f.read()
+                    files = {'firmware': file_contents}
+                    response = await client.post(
+                        url,
+                        files=files,
+                        data=parameters,
+                        auth=(self.username, self.pwd),
+                        timeout=60
+                    )
+                else:
+                    response = await client.get(
+                        url,
+                        params=parameters,
+                        auth=(self.username, self.pwd),
+                        timeout=5,
+                    )
+
+                return response.json()
+            except (httpx.HTTPError, json.JSONDecodeError):
+                if not ignore_errors:
+                    raise
+        return {}
+
+    async def update_firmware(self, file: Path) -> dict:
+        """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
         return await self.send_command(
-            command="upgrade",
-            upgrade_file=file,
-            version=version
+            command="cgi-bin/upgrade",
+            file=file,
         )

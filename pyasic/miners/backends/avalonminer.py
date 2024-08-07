@@ -113,29 +113,25 @@ class AvalonMiner(CGMiner):
             return False
         return False
 
-    async def upgrade_firmware(self, ip: str, port: int, file: Path) -> str:
+    async def upgrade_firmware(self, file: Path) -> str:
         """
         Upgrade the firmware of an Avalon Miner.
 
-        Parameters:
-        ip (str): The IP address of the Avalon Miner.
-        port (int): The port number of the Avalon Miner's web interface.
-        file (Path): Path to the firmware file to be uploaded.
+        Args:
+            file (Path): Path to the firmware file to be uploaded.
 
         Returns:
-        str: Result of the upgrade process.
+            str: Result of the upgrade process.
         """
         try:
             if not file:
                 raise ValueError("File location must be provided for firmware upgrade.")
 
-            version = self.get_fw_ver()
-
-            result = await self.web.update_firmware(ip=ip, port=port, version=version, file=file)
+            result = await self.web.update_firmware(file=file)
 
             if 'Success' in result:
                 logging.info("Firmware upgrade process completed successfully for Avalon Miner.")
-                return f"Firmware upgrade to version {version} successful."
+                return "Firmware upgrade successful."
             else:
                 logging.error(f"Firmware upgrade failed. Response: {result}")
                 return f"Firmware upgrade failed. Response: {result}"
