@@ -22,3 +22,10 @@ class S21(AntMinerMake):
 
     expected_chips = 108
     expected_fans = 4
+
+
+class S21Pro(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S21Pro
+
+    expected_chips = 65
+    expected_fans = 4

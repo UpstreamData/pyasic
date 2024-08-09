@@ -44,6 +44,7 @@ class AntminerModels(str, Enum):
     S19kProNoPIC = "S19k Pro No PIC"
     T19 = "T19"
     S21 = "S21"
+    S21Pro = "S21 Pro"
     T21 = "T21"
 
     def __str__(self):
