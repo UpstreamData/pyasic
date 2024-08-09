@@ -97,6 +97,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": BMMinerS19KPro,
         "ANTMINER T19": BMMinerT19,
         "ANTMINER S21": BMMinerS21,
+        "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
     },
     MinerTypes.WHATSMINER: {
@@ -401,6 +402,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": ePICS19kPro,
         "ANTMINER S19 XP": ePICS19XP,
         "ANTMINER S21": ePICS21,
+        "ANTMINER S21 PRO": ePICS21Pro,
         "ANTMINER T21": ePICT21,
         "BLOCKMINER 520I": ePICBlockMiner520i,
         "BLOCKMINER 720I": ePICBlockMiner720i,
