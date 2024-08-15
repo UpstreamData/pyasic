@@ -70,6 +70,9 @@ class MiningModeNormal(MinerConfigValue):
             }
         }
 
+    def as_luxos(self) -> dict:
+        return {"autotunerset": {"enabled": False}}
+
 
 @dataclass
 class MiningModeSleep(MinerConfigValue):
@@ -240,6 +243,9 @@ class MiningModePowerTune(MinerConfigValue):
             }
         }
 
+    def as_luxos(self) -> dict:
+        return {"autotunerset": {"enabled": True}}
+
 
 @dataclass
 class MiningModeHashrateTune(MinerConfigValue):
@@ -332,6 +338,9 @@ class MiningModeHashrateTune(MinerConfigValue):
                 },
             }
         }
+
+    def as_luxos(self) -> dict:
+        return {"autotunerset": {"enabled": True}}
 
 
 @dataclass
