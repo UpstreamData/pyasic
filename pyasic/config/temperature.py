@@ -54,6 +54,9 @@ class TemperatureConfig(MinerConfigValue):
             temps_config["temps"]["shutdown"] = self.hot
         return temps_config
 
+    def as_luxos(self) -> dict:
+        return {"tempctrlset": [self.target or "", self.hot or "", self.danger or ""]}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "TemperatureConfig":
         return cls(
