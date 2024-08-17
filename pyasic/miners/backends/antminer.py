@@ -132,7 +132,7 @@ class AntminerModern(BMMiner):
 
         Args:
             file (Path): Path to the firmware file.
-            keep_settings (bool): Whether to keep current settings after the upgrade. Defaults to True.
+            keep_settings (bool): Whether to keep the current settings after the update.
 
         Returns:
             str: Result of the upgrade process.
@@ -145,9 +145,10 @@ class AntminerModern(BMMiner):
 
             if 'Success' in result:
                 logging.info("Firmware upgrade process completed successfully for Antminer.")
+                return "Firmware upgrade completed successfully."
             else:
                 logging.error(f"Firmware upgrade failed. Response: {result}")
-                raise
+                return f"Firmware upgrade failed. Response: {result}"
         except Exception as e:
             logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
             raise

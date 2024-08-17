@@ -66,8 +66,9 @@ class AntminerModernWebAPI(BaseWebAPI):
                     keep_settings = parameters.get("keep_settings", True)
                     if file:
                         upload_url = f"http://{self.ip}:{self.port}/cgi-bin/firmware_upload.cgi"
-                        with open(file, "rb") as firmware:
-                            files = {"file": (file.name, firmware, "application/octet-stream")}
+                        async with aiofiles.open(file, "rb") as firmware:
+                            file_content = await firmware.read()
+                            files = {"file": (file.name, file_content, "application/octet-stream")}
                             upload_response = await client.post(
                                 upload_url,
                                 auth=auth,
@@ -76,7 +77,7 @@ class AntminerModernWebAPI(BaseWebAPI):
                             )
                         if upload_response.status_code != 200:
                             return {"success": False, "message": "Failed to upload firmware file"}
-                        
+
                         parameters["filename"] = file.name
                         parameters["keep_settings"] = keep_settings
 
