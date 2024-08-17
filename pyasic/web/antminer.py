@@ -18,8 +18,9 @@ from __future__ import annotations
 import asyncio
 import json
 from typing import Any
-
+import aiofiles
 import httpx
+from pathlib import Path
 
 from pyasic import settings
 from pyasic.web.base import BaseWebAPI
@@ -59,9 +60,26 @@ class AntminerModernWebAPI(BaseWebAPI):
         url = f"http://{self.ip}:{self.port}/cgi-bin/{command}.cgi"
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
-            async with httpx.AsyncClient(
-                transport=settings.transport(),
-            ) as client:
+            async with httpx.AsyncClient(transport=settings.transport()) as client:
+                if command == "upgrade":
+                    file = parameters.get("file")
+                    keep_settings = parameters.get("keep_settings", True)
+                    if file:
+                        upload_url = f"http://{self.ip}:{self.port}/cgi-bin/firmware_upload.cgi"
+                        with open(file, "rb") as firmware:
+                            files = {"file": (file.name, firmware, "application/octet-stream")}
+                            upload_response = await client.post(
+                                upload_url,
+                                auth=auth,
+                                files=files,
+                                timeout=settings.get("firmware_upload_timeout", 300)
+                            )
+                        if upload_response.status_code != 200:
+                            return {"success": False, "message": "Failed to upload firmware file"}
+                        
+                        parameters["filename"] = file.name
+                        parameters["keep_settings"] = keep_settings
+
                 if parameters:
                     data = await client.post(
                         url,
@@ -71,14 +89,15 @@ class AntminerModernWebAPI(BaseWebAPI):
                     )
                 else:
                     data = await client.get(url, auth=auth)
-        except httpx.HTTPError:
-            pass
+        except httpx.HTTPError as e:
+            return {"success": False, "message": f"HTTP error occurred: {str(e)}"}
         else:
             if data.status_code == 200:
                 try:
                     return data.json()
                 except json.decoder.JSONDecodeError:
-                    pass
+                    return {"success": False, "message": "Failed to decode JSON"}
+        return {"success": False, "message": "Unknown error occurred"}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -403,3 +422,11 @@ class AntminerOldWebAPI(BaseWebAPI):
             dict: Information about the mining pools configured in the miner.
         """
         return await self.send_command("miner_pools")
+
+    async def update_firmware(self, file: Path, keep_settings: bool = True) -> dict:
+        """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
+        return await self.send_command(
+            command="upgrade",
+            file=file,
+            keep_settings=keep_settings
+        )
