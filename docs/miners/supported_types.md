@@ -89,6 +89,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                 </ul>
         </details>
@@ -461,6 +462,7 @@ details {
                     <li><a href="../antminer/X19#s19k-pro-no-pic-bos_1">S19k Pro No PIC (BOS+)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-no-pic-bos_1">S19k Pro No PIC (BOS+)</a></li>
                     <li><a href="../antminer/X19#s19-xp-bos_1">S19 XP (BOS+)</a></li>
+                    <li><a href="../antminer/X19#s19-pro_1-hydro-bos_1">S19 Pro+ Hydro (BOS+)</a></li>
                     <li><a href="../antminer/X19#t19-bos_1">T19 (BOS+)</a></li>
                 </ul>
         </details>
@@ -505,6 +507,7 @@ details {
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-vnish">S19a (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-vnish">S19a Pro (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#t19-vnish">T19 (VNish)</a></li>
                 </ul>
         </details>
@@ -535,6 +538,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-epic">S21 (ePIC)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-epic">S21 Pro (ePIC)</a></li>
                     <li><a href="../antminer/X21#t21-epic">T21 (ePIC)</a></li>
                 </ul>
         </details>
@@ -647,6 +651,17 @@ details {
                     <li><a href="../bitaxe/BM#supra-stock">Supra (Stock)</a></li>
                     <li><a href="../bitaxe/BM#ultra-stock">Ultra (Stock)</a></li>
                     <li><a href="../bitaxe/BM#max-stock">Max (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware IceRiver Miners:</summary>
+    <ul>
+        <details>
+            <summary>KSX Series:</summary>
+                <ul>
+                    <li><a href="../iceriver/KSX#ks2-stock">KS2 (Stock)</a></li>
                 </ul>
         </details>
     </ul>
