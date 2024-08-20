@@ -152,25 +152,15 @@ class LUXMiner(LuxOSFirmware):
         Upgrade the firmware on a LuxOS miner by calling the 'updaterun' API command.
 
         Returns: Result of the upgrade process.
-
         """
-        command = "updaterun"
-
         try:
-            response = await self.rpc.send_command(command=command)
+            response = await self.rpc.upgraderun()
 
-            if not response:
-                raise ValueError("No response received during the firmware upgrade process.")
+            logging.info(f"{self.ip}: Firmware upgrade initiated successfully.")
+            return response
 
-            if response.get("status") == "success":
-                logging.info(f"{self.ip}: Firmware upgrade initiated successfully.")
-                return "Firmware upgrade completed successfully."
-            else:
-                logging.error(f"{self.ip}: Firmware upgrade failed. Response: {response}")
-                raise ValueError(f"Firmware upgrade failed. Response: {response}")
-
-        except Exception as e:
-            logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
+        except APIError as e:
+            logging.error(f"{self.ip}: Firmware upgrade failed: {e}")
             raise
 
     ##################################################

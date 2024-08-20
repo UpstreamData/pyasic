@@ -749,3 +749,12 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         </details>
         """
         return await self.send_command("wakeup", parameters=session_id)
+
+    async def upgraderun(self):
+        """
+        Send the 'updaterun' command to the miner.
+
+        Returns:
+            The response from the miner after sending the 'updaterun' command.
+        """
+        return await self.send_command("updaterun")
