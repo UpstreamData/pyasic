@@ -60,6 +60,10 @@ class IceRiverWebAPI(BaseWebAPI):
                 resp = await client.post(
                     f"http://{self.ip}:{self.port}/user/{command}", params=parameters
                 )
+                if not resp.status_code == 200:
+                    if not ignore_errors:
+                        raise APIError(f"Command failed: {command}")
+                    warnings.warn(f"Command failed: {command}")
                 return resp.json()
             except httpx.HTTPError:
                 raise APIError(f"Command failed: {command}")
