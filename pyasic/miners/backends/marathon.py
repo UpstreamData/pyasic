@@ -7,6 +7,7 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import MaraFirmware
 from pyasic.misc import merge_dicts
+from pyasic.rpc.marathon import MaraRPCAPI
 from pyasic.web.marathon import MaraWebAPI
 
 MARA_DATA_LOC = DataLocations(
@@ -64,6 +65,8 @@ MARA_DATA_LOC = DataLocations(
 
 
 class MaraMiner(MaraFirmware):
+    _rpc_cls = MaraRPCAPI
+    rpc: MaraRPCAPI
     _web_cls = MaraWebAPI
     web: MaraWebAPI
 
