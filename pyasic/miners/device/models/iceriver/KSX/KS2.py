@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2024 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,42 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-from pyasic.device.makes import MinerMake
-from pyasic.miners.base import BaseMiner
-
-
-class WhatsMinerMake(BaseMiner):
-    make = MinerMake.WHATSMINER
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import IceRiverMake
 
 
-class AntMinerMake(BaseMiner):
-    make = MinerMake.ANTMINER
+class KS2(IceRiverMake):
+    raw_model = MinerModel.ICERIVER.KS2
 
-
-class AvalonMinerMake(BaseMiner):
-    make = MinerMake.AVALONMINER
-
-
-class InnosiliconMake(BaseMiner):
-    make = MinerMake.INNOSILICON
-
-
-class GoldshellMake(BaseMiner):
-    make = MinerMake.GOLDSHELL
-
-
-class AuradineMake(BaseMiner):
-    make = MinerMake.AURADINE
-
-
-class ePICMake(BaseMiner):
-    make = MinerMake.EPIC
-
-
-class BitAxeMake(BaseMiner):
-    make = MinerMake.BITAXE
-
-
-class IceRiverMake(BaseMiner):
-    make = MinerMake.BITAXE
+    expected_fans = 4

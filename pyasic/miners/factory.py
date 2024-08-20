@@ -38,6 +38,7 @@ from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
+from pyasic.miners.iceriver import *
 from pyasic.miners.innosilicon import *
 from pyasic.miners.whatsminer import *
 
@@ -56,6 +57,7 @@ class MinerTypes(enum.Enum):
     AURADINE = 10
     MARATHON = 11
     BITAXE = 12
+    ICERIVER = 13
 
 
 MINER_CLASSES = {
@@ -451,6 +453,10 @@ MINER_CLASSES = {
         "BM1366": BitAxeUltra,
         "BM1397": BitAxeMax,
     },
+    MinerTypes.ICERIVER: {
+        None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),
+        "KS2": IceRiverKS2,
+    },
 }
 
 
@@ -623,6 +629,8 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
+        if "<TITLE>用户界面</TITLE>" in web_text:
+            return MinerTypes.ICERIVER
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         commands = ["version", "devdetails"]
