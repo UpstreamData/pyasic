@@ -144,7 +144,8 @@ class LUXMiner(LuxOSFirmware):
         return False
 
     async def get_config(self) -> MinerConfig:
-        return self.config
+        data = await self.rpc.multicommand("tempctrl", "config")
+        return MinerConfig.from_luxos(rpc_tempctrl=data.get("tempctrl", [{}])[0])
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###

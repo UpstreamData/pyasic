@@ -148,6 +148,14 @@ class MinerConfig:
             **self.pools.as_bitaxe(user_suffix=user_suffix),
         }
 
+    def as_luxos(self, user_suffix: str = None) -> dict:
+        return {
+            **self.fan_mode.as_luxos(),
+            **self.temperature.as_luxos(),
+            **self.mining_mode.as_luxos(),
+            **self.pools.as_luxos(user_suffix=user_suffix),
+        }
+
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
         """Constructs a MinerConfig object from a dictionary."""
@@ -250,3 +258,7 @@ class MinerConfig:
             pools=PoolConfig.from_bitaxe(web_system_info),
             fan_mode=FanModeConfig.from_bitaxe(web_system_info),
         )
+
+    @classmethod
+    def from_luxos(cls, rpc_tempctrl: dict) -> "MinerConfig":
+        return cls(temperature=TemperatureConfig.from_luxos(rpc_tempctrl=rpc_tempctrl))
