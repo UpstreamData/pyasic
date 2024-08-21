@@ -133,3 +133,16 @@ class TemperatureConfig(MinerConfigValue):
 
             return cls(**conf)
         return cls.default()
+
+    @classmethod
+    def from_luxos(cls, rpc_tempctrl: dict) -> "TemperatureConfig":
+        try:
+            tempctrl_config = rpc_tempctrl["TEMPCTRL"][0]
+            return cls(
+                target=tempctrl_config.get("Target"),
+                hot=tempctrl_config.get("Hot"),
+                danger=tempctrl_config.get("Dangerous"),
+            )
+        except LookupError:
+            pass
+        return cls.default()
