@@ -83,6 +83,9 @@ class FanModeNormal(MinerConfigValue):
     def as_bitaxe(self) -> dict:
         return {"autoFanspeed": 1}
 
+    def as_luxos(self) -> dict:
+        return {"fanset": {"speed": -1, "min_fans": self.minimum_fans}}
+
 
 @dataclass
 class FanModeManual(MinerConfigValue):
@@ -144,6 +147,9 @@ class FanModeManual(MinerConfigValue):
     def as_bitaxe(self) -> dict:
         return {"autoFanspeed": 0, "fanspeed": self.speed}
 
+    def as_luxos(self) -> dict:
+        return {"fanset": {"speed": self.speed, "min_fans": self.minimum_fans}}
+
 
 @dataclass
 class FanModeImmersion(MinerConfigValue):
@@ -166,6 +172,9 @@ class FanModeImmersion(MinerConfigValue):
 
     def as_mara(self) -> dict:
         return {"general-config": {"environment-profile": "OilImmersionCooling"}}
+
+    def as_luxos(self) -> dict:
+        return {"fanset": {"speed": 0, "min_fans": 0}}
 
 
 class FanModeConfig(MinerConfigOption):
@@ -304,3 +313,23 @@ class FanModeConfig(MinerConfigOption):
             return cls.normal()
         else:
             return cls.manual(speed=web_system_info["fanspeed"])
+
+    @classmethod
+    def from_luxos(cls, rpc_fans: dict, rpc_tempctrl: dict):
+        try:
+            mode = rpc_tempctrl["TEMPCTRL"][0]["Mode"]
+            if mode == "Manual":
+                speed = rpc_fans["FANS"][0]["Speed"]
+                min_fans = rpc_fans["FANCTRL"][0]["MinFans"]
+                if min_fans == 0 and speed == 0:
+                    return cls.immersion()
+                return cls.manual(
+                    speed=speed,
+                    minimum_fans=min_fans,
+                )
+            return cls.normal(
+                minimum_fans=rpc_fans["FANCTRL"][0]["MinFans"],
+            )
+        except LookupError:
+            pass
+        return cls.default()

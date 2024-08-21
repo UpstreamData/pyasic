@@ -266,5 +266,10 @@ class MinerConfig:
         )
 
     @classmethod
-    def from_luxos(cls, rpc_tempctrl: dict) -> "MinerConfig":
-        return cls(temperature=TemperatureConfig.from_luxos(rpc_tempctrl=rpc_tempctrl))
+    def from_luxos(cls, rpc_tempctrl: dict, rpc_fans: dict) -> "MinerConfig":
+        return cls(
+            temperature=TemperatureConfig.from_luxos(rpc_tempctrl=rpc_tempctrl),
+            fan_mode=FanModeConfig.from_luxos(
+                rpc_tempctrl=rpc_tempctrl, rpc_fans=rpc_fans
+            ),
+        )
