@@ -607,6 +607,8 @@ class MinerFactory:
                 and "https://" in history_resp.headers.get("location", "")
             ):
                 return MinerTypes.WHATSMINER
+        if "Luxor Firmware" in web_text:
+            return MinerTypes.LUX_OS
         if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
         if "AxeOS" in web_text:
@@ -689,12 +691,12 @@ class MinerFactory:
             return MinerTypes.BRAIINS_OS
         if "BTMINER" in upper_data or "BITMICRO" in upper_data:
             return MinerTypes.WHATSMINER
+        if "LUXMINER" in upper_data:
+            return MinerTypes.LUX_OS
         if "VNISH" in upper_data or "DEVICE PATH" in upper_data:
             return MinerTypes.VNISH
         if "HIVEON" in upper_data:
             return MinerTypes.HIVEON
-        if "LUXMINER" in upper_data:
-            return MinerTypes.LUX_OS
         if "KAONSU" in upper_data:
             return MinerTypes.MARATHON
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
