@@ -74,25 +74,9 @@ class LUXMiner(LuxOSFirmware):
 
     data_locations = LUXMINER_DATA_LOC
 
-    async def _get_session(self) -> Optional[str]:
-        try:
-            data = await self.rpc.session()
-            if not data["SESSION"][0]["SessionID"] == "":
-                return data["SESSION"][0]["SessionID"]
-        except APIError:
-            pass
-
-        try:
-            data = await self.rpc.logon()
-            return data["SESSION"][0]["SessionID"]
-        except (LookupError, APIError):
-            return
-
     async def fault_light_on(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.ledset(session_id, "red", "blink")
+            await self.rpc.ledset("red", "blink")
             return True
         except (APIError, LookupError):
             pass
@@ -100,9 +84,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def fault_light_off(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.ledset(session_id, "red", "off")
+            await self.rpc.ledset("red", "off")
             return True
         except (APIError, LookupError):
             pass
@@ -113,9 +95,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def restart_luxminer(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.resetminer(session_id)
+            await self.rpc.resetminer()
             return True
         except (APIError, LookupError):
             pass
@@ -123,9 +103,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def stop_mining(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.curtail(session_id)
+            await self.rpc.sleep()
             return True
         except (APIError, LookupError):
             pass
@@ -133,18 +111,14 @@ class LUXMiner(LuxOSFirmware):
 
     async def resume_mining(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.wakeup(session_id)
+            await self.rpc.wakeup()
             return True
         except (APIError, LookupError):
             pass
 
     async def reboot(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.rebootdevice(session_id)
+            await self.rpc.rebootdevice()
             return True
         except (APIError, LookupError):
             pass
