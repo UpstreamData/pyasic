@@ -56,6 +56,12 @@ LUXMINER_DATA_LOC = DataLocations(
         str(DataOptions.POOLS): DataFunction(
             "_get_pools", [RPCAPICommand("rpc_pools", "pools")]
         ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver", [RPCAPICommand("rpc_version", "version")]
+        ),
+        str(DataOptions.API_VERSION): DataFunction(
+            "_get_api_ver", [RPCAPICommand("rpc_version", "version")]
+        ),
     }
 )
 
@@ -303,6 +309,32 @@ class LUXMiner(LuxOSFirmware):
         if rpc_stats is not None:
             try:
                 return int(rpc_stats["STATS"][1]["Elapsed"])
+            except LookupError:
+                pass
+
+    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                return rpc_version["VERSION"][0]["Miner"]
+            except LookupError:
+                pass
+
+    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                return rpc_version["VERSION"][0]["API"]
             except LookupError:
                 pass
 
