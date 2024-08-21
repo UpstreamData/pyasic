@@ -187,9 +187,9 @@ class LUXMiner(LuxOSFirmware):
                 rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
-
         if rpc_stats is not None:
             try:
+                # TODO: bugged on S9 because of index issues, fix later.
                 board_stats = rpc_stats["STATS"][1]
                 for idx in range(3):
                     board_n = idx + 1
@@ -215,7 +215,6 @@ class LUXMiner(LuxOSFirmware):
                     hashboards[idx].temp = (
                         sum([board_temp_data[1], board_temp_data[2]]) / 2
                     )
-                    # hashboards[idx].serial_number = board["sn"]
                     hashboards[idx].missing = False
             except LookupError:
                 pass
