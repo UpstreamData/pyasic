@@ -282,7 +282,9 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("fans")
 
-    async def fanset(self, speed: int, min_fans: int = None) -> dict:
+    async def fanset(
+        self, speed: int = None, min_fans: int = None, power_off_speed: int = None
+    ) -> dict:
         """Set fan control.
         <details>
             <summary>Expand</summary>
@@ -295,9 +297,13 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting fan control values.
         </details>
         """
-        fanset_data = [str(speed)]
+        fanset_data = []
+        if speed is not None:
+            fanset_data.append(f"speed={speed}")
         if min_fans is not None:
-            fanset_data.append(str(min_fans))
+            fanset_data.append(f"min_fans={min_fans}")
+        if power_off_speed is not None:
+            fanset_data.append(f"power_off_speed={power_off_speed}")
         return await self.send_privileged_command("fanset", *fanset_data)
 
     async def frequencyget(self, board_n: int, chip_n: int = None) -> dict:
