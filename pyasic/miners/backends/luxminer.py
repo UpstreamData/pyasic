@@ -62,6 +62,9 @@ LUXMINER_DATA_LOC = DataLocations(
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver", [RPCAPICommand("rpc_version", "version")]
         ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "_get_fault_light", [RPCAPICommand("rpc_config", "config")]
+        ),
     }
 )
 
@@ -308,6 +311,19 @@ class LUXMiner(LuxOSFirmware):
         if rpc_version is not None:
             try:
                 return rpc_version["VERSION"][0]["API"]
+            except LookupError:
+                pass
+
+    async def _get_fault_light(self, rpc_config: dict = None) -> Optional[bool]:
+        if rpc_config is None:
+            try:
+                rpc_config = await self.rpc.config()
+            except APIError:
+                pass
+
+        if rpc_config is not None:
+            try:
+                return not rpc_config["CONFIG"][0]["RedLed"] == "off"
             except LookupError:
                 pass
 
