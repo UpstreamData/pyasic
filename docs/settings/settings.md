@@ -24,7 +24,6 @@ Settings options:
 - `default_hive_web_password`
 - `default_antminer_ssh_password`
 - `default_bosminer_ssh_password`
-- `socket_linger_time`
 
 
 ### get
