@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-import socket
 import struct
 from ssl import SSLContext
 from typing import Any, Union
@@ -41,23 +40,16 @@ _settings = {  # defaults
     "default_hive_web_password": "admin",
     "default_antminer_ssh_password": "miner",
     "default_bosminer_ssh_password": "root",
-    "socket_linger_time": 1000,
 }
 
 
 ssl_cxt = httpx.create_ssl_context()
 
 
-# this function configures socket options like SO_LINGER and returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests
+# this function returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests
 # using those options.
-# SO_LINGER controls what happens when you close a socket with unsent data - it allows specifying linger time for the data to be sent.
 def transport(verify: Union[str, bool, SSLContext] = ssl_cxt):
-    l_onoff = 1
-    l_linger = get("so_linger_time", 1000)
-
-    opts = [(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", l_onoff, l_linger))]
-
-    return AsyncHTTPTransport(socket_options=opts, verify=verify)
+    return AsyncHTTPTransport(verify=verify)
 
 
 def get(key: str, other: Any = None) -> Any:
