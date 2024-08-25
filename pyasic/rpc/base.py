@@ -215,14 +215,18 @@ If you are sure you want to use this command please use API.send_command("{comma
             return b"{}"
 
         # send the command
-        data_task = asyncio.create_task(self._read_bytes(reader, timeout=timeout))
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Writing")
-        writer.write(data)
-        logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
-        await writer.drain()
+        try:
+            data_task = asyncio.create_task(self._read_bytes(reader, timeout=timeout))
+            logging.debug(f"{self} - ([Hidden] Send Bytes) - Writing")
+            writer.write(data)
+            logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
+            await writer.drain()
 
-        await data_task
-        ret_data = data_task.result()
+            await data_task
+            ret_data = data_task.result()
+        except TimeoutError:
+            logging.warning(f"{self} - ([Hidden] Send Bytes) - Read timeout expired.")
+            return b"{}"
 
         # close the connection
         logging.debug(f"{self} - ([Hidden] Send Bytes) - Closing")
