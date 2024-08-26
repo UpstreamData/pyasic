@@ -61,25 +61,6 @@ class AntminerModernWebAPI(BaseWebAPI):
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
-                if command == "upgrade":
-                    file = parameters.get("file")
-                    keep_settings = parameters.get("keep_settings", True)
-                    if file:
-                        upload_url = f"http://{self.ip}:{self.port}/cgi-bin/firmware_upload.cgi"
-                        async with aiofiles.open(file, "rb") as firmware:
-                            file_content = await firmware.read()
-                            files = {"file": (file.name, file_content, "application/octet-stream")}
-                            upload_response = await client.post(
-                                upload_url,
-                                auth=auth,
-                                files=files,
-                                timeout=settings.get("firmware_upload_timeout", 300)
-                            )
-                        if upload_response.status_code != 200:
-                            return {"success": False, "message": "Failed to upload firmware file"}
-
-                        parameters["filename"] = file.name
-                        parameters["keep_settings"] = keep_settings
 
                 if parameters:
                     data = await client.post(
@@ -426,8 +407,17 @@ class AntminerOldWebAPI(BaseWebAPI):
 
     async def update_firmware(self, file: Path, keep_settings: bool = True) -> dict:
         """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
+
+        async with aiofiles.open(file, "rb") as firmware:
+            file_content = await firmware.read()
+
+        parameters = {
+            "file": (file.name, file_content, "application/octet-stream"),
+            "filename": file.name,
+            "keep_settings": keep_settings
+        }
+
         return await self.send_command(
             command="upgrade",
-            file=file,
-            keep_settings=keep_settings
+            **parameters
         )

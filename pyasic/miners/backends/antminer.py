@@ -143,12 +143,13 @@ class AntminerModern(BMMiner):
         try:
             result = await self.web.update_firmware(file=file, keep_settings=keep_settings)
 
-            if 'Success' in result:
-                logging.info("Firmware upgrade process completed successfully for Antminer.")
+            if result.get("success"):
+                logging.info("Firmware upgrade process completed successfully for AntMiner.")
                 return "Firmware upgrade completed successfully."
             else:
-                logging.error(f"Firmware upgrade failed. Response: {result}")
-                return f"Firmware upgrade failed. Response: {result}"
+                error_message = result.get("message", "Unknown error")
+                logging.error(f"Firmware upgrade failed. Response: {error_message}")
+                return f"Firmware upgrade failed. Response: {error_message}"
         except Exception as e:
             logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
             raise
