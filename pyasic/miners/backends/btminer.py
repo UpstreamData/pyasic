@@ -655,13 +655,12 @@ class BTMiner(StockFirmware):
             except LookupError:
                 pass
 
-    async def upgrade_firmware(self, file: Path, token: str):
+    async def upgrade_firmware(self, file: Path):
         """
         Upgrade the firmware of the Whatsminer device.
 
         Args:
             file (Path): The local file path of the firmware to be uploaded.
-            token (str): The authentication token for the firmware upgrade.
 
         Returns:
             str: Confirmation message after upgrading the firmware.

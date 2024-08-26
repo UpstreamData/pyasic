@@ -21,6 +21,13 @@ from dataclasses import dataclass, field
 from typing import List
 
 from pyasic.config.base import MinerConfigValue
+from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
+    PoolConfiguration,
+    PoolGroupConfiguration,
+    Quota,
+    SaveAction,
+    SetPoolGroupsRequest,
+)
 
 
 @dataclass
@@ -133,6 +140,11 @@ class Pool(MinerConfigValue):
             "stratumUser": f"{self.user}{user_suffix}",
             "stratumPassword": self.password,
         }
+
+    def as_boser(self) -> PoolConfiguration:
+        return PoolConfiguration(
+            url=self.url, user=self.user, password=self.password, enabled=True
+        )
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
@@ -306,6 +318,13 @@ class PoolGroup(MinerConfigValue):
     def as_bitaxe(self, user_suffix: str = None) -> dict:
         return self.pools[0].as_bitaxe(user_suffix=user_suffix)
 
+    def as_boser(self, user_suffix: str = None) -> PoolGroupConfiguration:
+        return PoolGroupConfiguration(
+            name=self.name,
+            quota=Quota(value=self.quota),
+            pools=[p.as_boser() for p in self.pools],
+        )
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
         cls_conf = {}
@@ -446,7 +465,12 @@ class PoolConfig(MinerConfigValue):
         return {"group": [PoolGroup().as_bosminer()]}
 
     def as_boser(self, user_suffix: str = None) -> dict:
-        return {}
+        return {
+            "set_pool_groups": SetPoolGroupsRequest(
+                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                pool_groups=[g.as_boser(user_suffix=user_suffix) for g in self.groups],
+            )
+        }
 
     def as_auradine(self, user_suffix: str = None) -> dict:
         if len(self.groups) > 0:

@@ -13,13 +13,17 @@ Settings options:
 - `get_data_retries`
 - `api_function_timeout`
 - `antminer_mining_mode_as_str`
-- `default_whatsminer_password`
-- `default_innosilicon_password`
-- `default_antminer_password`
-- `default_bosminer_password`
-- `default_vnish_password`
-- `default_goldshell_password`
-- `socket_linger_time`
+- `default_whatsminer_rpc_password`
+- `default_innosilicon_web_password`
+- `default_antminer_web_password`
+- `default_bosminer_web_password`
+- `default_vnish_web_password`
+- `default_goldshell_web_password`
+- `default_auradine_web_password`
+- `default_epic_web_password`
+- `default_hive_web_password`
+- `default_antminer_ssh_password`
+- `default_bosminer_ssh_password`
 
 
 ### get

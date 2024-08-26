@@ -144,12 +144,9 @@ class MinerNetwork:
         Returns:
              An asynchronous generator containing found miners.
         """
-        # get the current event loop
-        loop = asyncio.get_event_loop()
-
         # create a list of scan tasks
         miners = asyncio.as_completed(
-            [loop.create_task(self.ping_and_get_miner(host)) for host in self.hosts]
+            [asyncio.create_task(self.ping_and_get_miner(host)) for host in self.hosts]
         )
         for miner in miners:
             try:

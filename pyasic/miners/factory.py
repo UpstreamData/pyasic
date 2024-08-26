@@ -97,6 +97,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": BMMinerS19KPro,
         "ANTMINER T19": BMMinerT19,
         "ANTMINER S21": BMMinerS21,
+        "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
     },
     MinerTypes.WHATSMINER: {
@@ -369,6 +370,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO NOPIC": BOSMinerS19kProNoPIC,
         "ANTMINER S19K PRO": BOSMinerS19kProNoPIC,
         "ANTMINER S19 XP": BOSMinerS19XP,
+        "ANTMINER S19 PRO+ HYD.": BOSMinerS19ProPlusHydro,
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
     },
@@ -400,6 +402,7 @@ MINER_CLASSES = {
         "ANTMINER S19K PRO": ePICS19kPro,
         "ANTMINER S19 XP": ePICS19XP,
         "ANTMINER S21": ePICS21,
+        "ANTMINER S21 PRO": ePICS21Pro,
         "ANTMINER T21": ePICT21,
         "BLOCKMINER 520I": ePICBlockMiner520i,
         "BLOCKMINER 720I": ePICBlockMiner720i,
@@ -833,7 +836,9 @@ class MinerFactory:
 
     async def _get_model_antminer_web(self, ip: str) -> str | None:
         # last resort, this is slow
-        auth = httpx.DigestAuth("root", "root")
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_antminer_web_password", "root")
+        )
         web_json_data = await self.send_web_command(
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )

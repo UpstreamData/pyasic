@@ -414,15 +414,6 @@ class BOSerWebAPI(BaseWebAPI):
             "get_pool_groups", message=GetPoolGroupsRequest(), privileged=True
         )
 
-    async def create_pool_group(self) -> dict:
-        raise NotImplementedError
-
-    async def update_pool_group(self) -> dict:
-        raise NotImplementedError
-
-    async def remove_pool_group(self) -> dict:
-        raise NotImplementedError
-
     async def get_miner_configuration(self) -> dict:
         return await self.send_command(
             "get_miner_configuration",
@@ -489,4 +480,16 @@ class BOSerWebAPI(BaseWebAPI):
                 hashboard_ids=hashboard_ids, save_action=save_action
             ),
             privileged=True,
+        )
+
+    async def set_pool_groups(
+        self,
+        pool_groups: List[PoolGroupConfiguration],
+        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+    ) -> dict:
+        return await self.send_command(
+            "set_pool_groups",
+            message=SetPoolGroupsRequest(
+                save_action=save_action, pool_groups=pool_groups
+            ),
         )

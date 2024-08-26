@@ -427,6 +427,10 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
+        ),
     }
 )
 
