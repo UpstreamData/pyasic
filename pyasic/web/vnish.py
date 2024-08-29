@@ -97,7 +97,7 @@ class VNishWebAPI(BaseWebAPI):
                 except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
                     if not ignore_errors:
                         raise
-        
+
         return {"success": False, "message": "Command failed after retries"}
 
     async def multicommand(
