@@ -18,7 +18,8 @@ from __future__ import annotations
 import json
 import warnings
 from typing import Any
-
+import aiofiles
+from pathlib import Path
 import httpx
 
 from pyasic import settings
@@ -69,18 +70,21 @@ class VNishWebAPI(BaseWebAPI):
                     if command.startswith("system"):
                         auth = "Bearer " + self.token
 
+                    url = f"http://{self.ip}:{self.port}/api/v1/{command}"
+                    headers = {"Authorization": auth}
+
                     if post:
                         response = await client.post(
-                            f"http://{self.ip}:{self.port}/api/v1/{command}",
-                            headers={"Authorization": auth},
-                            timeout=settings.get("api_function_timeout", 5),
+                            url,
+                            headers=headers,
+                            timeout=settings.get("api_function_timeout", 30),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
-                            f"http://{self.ip}:{self.port}/api/v1/{command}",
-                            headers={"Authorization": auth},
-                            timeout=settings.get("api_function_timeout", 5),
+                            url,
+                            headers=headers,
+                            timeout=settings.get("api_function_timeout", 30),
                         )
                     if not response.status_code == 200:
                         # refresh the token, retry
@@ -91,7 +95,10 @@ class VNishWebAPI(BaseWebAPI):
                         return json_data
                     return {"success": True}
                 except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
-                    pass
+                    if not ignore_errors:
+                        raise
+        
+        return {"success": False, "message": "Command failed after retries"}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -143,3 +150,16 @@ class VNishWebAPI(BaseWebAPI):
 
     async def find_miner(self) -> dict:
         return await self.send_command("find-miner", privileged=True)
+
+    async def update_firmware(self, file: Path, keep_settings: bool = True) -> dict:
+        """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
+        async with aiofiles.open(file, "rb") as firmware:
+            file_content = await firmware.read()
+        parameters = {
+            "file": (file.name, file_content, "application/octet-stream"),
+            "keep_settings": keep_settings
+        }
+        return await self.send_command(
+            command="system/upgrade",
+            **parameters
+        )
