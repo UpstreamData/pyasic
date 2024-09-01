@@ -63,6 +63,9 @@ class MinerConfigOption(Enum):
     def as_bitaxe(self) -> dict:
         return self.value.as_bitaxe()
 
+    def as_luxos(self) -> dict:
+        return self.value.as_luxos()
+
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
@@ -123,6 +126,9 @@ class MinerConfigValue:
         return {}
 
     def as_bitaxe(self) -> dict:
+        return {}
+
+    def as_luxos(self) -> dict:
         return {}
 
     def __getitem__(self, item):
