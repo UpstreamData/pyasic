@@ -807,7 +807,9 @@ class MinerFactory:
         str_data = str_data.replace("info", "1nfo")
         str_data = str_data.replace("inf", "0")
         str_data = str_data.replace("1nfo", "info")
+        str_data = str_data.replace("nano", "n4no")
         str_data = str_data.replace("nan", "0")
+        str_data = str_data.replace("n4no", "nano")
         # fix whatever this garbage from avalonminers is `,"id":1}`
         if str_data.startswith(","):
             str_data = f"{{{str_data[1:]}"
