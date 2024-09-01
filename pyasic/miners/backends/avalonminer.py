@@ -216,7 +216,6 @@ class AvalonMiner(CGMiner):
 
                 try:
                     board_hr = parsed_stats["MGHS"][board]
-                    print(board_hr)
                     hashboards[board].hashrate = AlgoHashRate.SHA256(
                         float(board_hr), HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
