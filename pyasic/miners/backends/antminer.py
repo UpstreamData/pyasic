@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 
 from typing import List, Optional, Union
+from pathlib import Path
+import logging
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
@@ -123,6 +125,34 @@ class AntminerModern(BMMiner):
         #     if data == self.config:
         #         break
         #     await asyncio.sleep(1)
+
+    async def upgrade_firmware(self, file: Path, keep_settings: bool = True) -> str:
+        """
+        Upgrade the firmware of the AntMiner device.
+
+        Args:
+            file (Path): Path to the firmware file.
+            keep_settings (bool): Whether to keep the current settings after the update.
+
+        Returns:
+            str: Result of the upgrade process.
+        """
+        if not file:
+            raise ValueError("File location must be provided for firmware upgrade.")
+
+        try:
+            result = await self.web.update_firmware(file=file, keep_settings=keep_settings)
+
+            if result.get("success"):
+                logging.info("Firmware upgrade process completed successfully for AntMiner.")
+                return "Firmware upgrade completed successfully."
+            else:
+                error_message = result.get("message", "Unknown error")
+                logging.error(f"Firmware upgrade failed. Response: {error_message}")
+                return f"Firmware upgrade failed. Response: {error_message}"
+        except Exception as e:
+            logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise
 
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
