@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyasic"
-version = "0.60.2"
+version = "0.60.3"
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = ["UpstreamData <brett@upstreamdata.ca>"]
 repository = "https://github.com/UpstreamData/pyasic"
