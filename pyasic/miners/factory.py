@@ -910,7 +910,7 @@ class MinerFactory:
             miner_model = sock_json_data["VERSION"][0]["PROD"].upper()
             if "-" in miner_model:
                 miner_model = miner_model.split("-")[0]
-            if miner_model == "AVALONNANO":
+            if miner_model in ["AVALONNANO", "AVALON0O"]:
                 nano_subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
                 miner_model = f"AVALONMINER {nano_subtype}"
             return miner_model
