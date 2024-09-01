@@ -37,6 +37,7 @@ _settings = {  # defaults
     "default_auradine_web_password": "admin",
     "default_epic_web_password": "letmein",
     "default_hive_web_password": "admin",
+    "default_iceriver_web_password": "12345678",
     "default_antminer_ssh_password": "miner",
     "default_bosminer_ssh_password": "root",
 }

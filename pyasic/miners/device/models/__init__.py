@@ -19,5 +19,6 @@ from .auradine import *
 from .avalonminer import *
 from .epic import *
 from .goldshell import *
+from .iceriver import *
 from .innosilicon import *
 from .whatsminer import *

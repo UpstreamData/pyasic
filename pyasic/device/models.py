@@ -339,6 +339,13 @@ class BitAxeModels(str, Enum):
         return self.value
 
 
+class IceRiverModels(str, Enum):
+    KS2 = "KS2"
+
+    def __str__(self):
+        return self.value
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -348,3 +355,4 @@ class MinerModel:
     AURADINE = AuradineModels
     EPIC = ePICModels
     BITAXE = BitAxeModels
+    ICERIVER = IceRiverModels
