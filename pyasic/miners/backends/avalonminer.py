@@ -124,7 +124,6 @@ class AvalonMiner(CGMiner):
                 data_dict = {}
                 try:
                     for key, val in [tuple(item) for item in data_list]:
-                        print(key, val)
                         data_dict[key] = val
                 except ValueError:
                     # --avalon args
@@ -148,10 +147,7 @@ class AvalonMiner(CGMiner):
             if raw_data[0] == "":
                 raw_data = raw_data[1:]
 
-            if len(raw_data) == 2:
-                stats_dict[raw_data[0]] = raw_data[1]
-            else:
-                stats_dict[raw_data[0]] = raw_data[1:]
+            stats_dict[raw_data[0]] = raw_data[1:]
             stats_items.append(raw_data)
 
         return stats_dict
@@ -220,6 +216,7 @@ class AvalonMiner(CGMiner):
 
                 try:
                     board_hr = parsed_stats["MGHS"][board]
+                    print(board_hr)
                     hashboards[board].hashrate = AlgoHashRate.SHA256(
                         float(board_hr), HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
@@ -257,7 +254,7 @@ class AvalonMiner(CGMiner):
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return AlgoHashRate.SHA256(
-                    parsed_stats["GHSmm"], HashUnit.SHA256.GH
+                    float(parsed_stats["GHSmm"][0]), HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
@@ -273,7 +270,7 @@ class AvalonMiner(CGMiner):
             try:
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-                return float(parsed_stats["Temp"])
+                return float(parsed_stats["Temp"][0])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
@@ -288,7 +285,7 @@ class AvalonMiner(CGMiner):
             try:
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-                return int(parsed_stats["MPO"])
+                return int(parsed_stats["MPO"][0])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
@@ -309,7 +306,7 @@ class AvalonMiner(CGMiner):
 
             for fan in range(self.expected_fans):
                 try:
-                    fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"])
+                    fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"][0])
                 except (IndexError, KeyError, ValueError, TypeError):
                     pass
         return fans_data
@@ -327,7 +324,7 @@ class AvalonMiner(CGMiner):
             try:
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
-                led = int(parsed_stats["Led"])
+                led = int(parsed_stats["Led"][0])
                 return True if led == 1 else False
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
