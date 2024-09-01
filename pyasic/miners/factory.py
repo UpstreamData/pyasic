@@ -697,8 +697,6 @@ class MinerFactory:
             return MinerTypes.BRAIINS_OS
         if "BTMINER" in upper_data or "BITMICRO" in upper_data:
             return MinerTypes.WHATSMINER
-        if "VNISH" in upper_data or "DEVICE PATH" in upper_data:
-            return MinerTypes.VNISH
         if "HIVEON" in upper_data:
             return MinerTypes.HIVEON
         if "LUXMINER" in upper_data:
@@ -717,6 +715,8 @@ class MinerFactory:
             return MinerTypes.AVALONMINER
         if "GCMINER" in upper_data or "FLUXOS" in upper_data:
             return MinerTypes.AURADINE
+        if "VNISH" in upper_data or "DEVICE PATH" in upper_data:
+            return MinerTypes.VNISH
 
     async def send_web_command(
         self,
