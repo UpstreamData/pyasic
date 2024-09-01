@@ -118,12 +118,13 @@ class AvalonMiner(CGMiner):
         stats_items = []
         stats_dict = {}
         for item in _stats_items:
-            if ":" in item:
+            if ": " in item:
                 data = item.replace("]", "").split("[")
                 data_list = [i.split(": ") for i in data[1].strip().split(", ")]
                 data_dict = {}
                 try:
                     for key, val in [tuple(item) for item in data_list]:
+                        print(key, val)
                         data_dict[key] = val
                 except ValueError:
                     # --avalon args
@@ -220,7 +221,7 @@ class AvalonMiner(CGMiner):
                 try:
                     board_hr = parsed_stats["MGHS"][board]
                     hashboards[board].hashrate = AlgoHashRate.SHA256(
-                        board_hr, HashUnit.SHA256.GH
+                        float(board_hr), HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                 except LookupError:
                     pass

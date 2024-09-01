@@ -20,3 +20,4 @@ from .A9X import *
 from .A10X import *
 from .A11X import *
 from .A12X import *
+from .nano import *

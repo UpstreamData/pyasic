@@ -284,6 +284,7 @@ class AvalonminerModels(str, Enum):
     Avalon1066 = "Avalon 1066"
     Avalon1166Pro = "Avalon 1166 Pro"
     Avalon1246 = "Avalon 1246"
+    AvalonNano3 = "Avalon Nano 3"
 
     def __str__(self):
         return self.value

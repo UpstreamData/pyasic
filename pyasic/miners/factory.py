@@ -332,6 +332,7 @@ MINER_CLASSES = {
         "AVALONMINER 1066": CGMinerAvalon1066,
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
+        "AVALONMINER NANO3": CGMinerAvalonNano3,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
@@ -906,10 +907,12 @@ class MinerFactory:
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
-            miner_model = sock_json_data["VERSION"][0]["PROD"]
+            miner_model = sock_json_data["VERSION"][0]["PROD"].upper()
             if "-" in miner_model:
                 miner_model = miner_model.split("-")[0]
-
+            if miner_model == "AVALONNANO":
+                nano_subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
+                miner_model = f"AVALONMINER {nano_subtype}"
             return miner_model
         except (TypeError, LookupError):
             pass
