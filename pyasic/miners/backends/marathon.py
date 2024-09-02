@@ -318,8 +318,7 @@ class MaraMiner(MaraFirmware):
         pools_data = []
         if web_pools is not None:
             try:
-                pools = web_pools.get("POOLS", [])
-                for pool_info in pools:
+                for pool_info in web_pools:
                     url = pool_info.get("URL")
                     pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
