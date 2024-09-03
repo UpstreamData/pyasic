@@ -147,25 +147,21 @@ class LUXMiner(LuxOSFirmware):
     async def get_config(self) -> MinerConfig:
         return self.config
 
-    async def upgrade_firmware(self) -> tuple[bool, str]:
+    async def upgrade_firmware(self) -> bool:
         """
         Upgrade the firmware on a LuxOS miner by calling the 'updaterun' API command.
-
         Returns:
-        tuple[bool, str]: A tuple containing:
             bool: True if the firmware upgrade was successfully initiated, False otherwise.
-            str: A status message describing the result of the operation.
         """
         try:
             await self.rpc.upgraderun()
-            status = f"{self.ip}: Firmware upgrade initiated successfully."
-            logging.info(status)
-            return True, status
+            logging.info(f"{self.ip}: Firmware upgrade initiated successfully.")
+            return True
 
         except APIError as e:
-            status = f"{self.ip}: Firmware upgrade failed: {e}"
-            logging.error(status)
-            return False, status
+            logging.error(f"{self.ip}: Firmware upgrade failed: {e}")
+
+        return False
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
