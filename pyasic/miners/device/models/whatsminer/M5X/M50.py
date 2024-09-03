@@ -69,6 +69,8 @@ class M50VH60(WhatsMinerMake):
 class M50VH70(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M50VH70
 
+    expected_chips = 105
+
 
 class M50VH80(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M50VH80
@@ -83,6 +85,10 @@ class M50VJ10(WhatsMinerMake):
 class M50VJ20(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M50VJ20
 
+    expected_chips = 111
+
 
 class M50VJ30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M50VJ30
+
+    expected_chips = 117

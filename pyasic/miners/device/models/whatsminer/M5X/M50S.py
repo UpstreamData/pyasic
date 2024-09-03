@@ -51,3 +51,5 @@ class M50SVH40(WhatsMinerMake):
 
 class M50SVH50(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M50SVH50
+
+    expected_chips = 135
