@@ -319,12 +319,12 @@ class MaraMiner(MaraFirmware):
         if web_pools is not None:
             try:
                 for pool_info in web_pools:
-                    url = pool_info.get("URL")
+                    url = pool_info.get("url")
                     pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
-                        get_failures=pool_info.get("Get Failures"),
+                        get_failures=pool_info.get("stale"),
                         remote_failures=pool_info.get("Remote Failures"),
                         active=pool_info.get("Stratum Active"),
                         alive=pool_info.get("Status") == "Alive",
