@@ -308,7 +308,7 @@ class MaraMiner(MaraFirmware):
             except LookupError:
                 pass
 
-    async def _get_pools(self, web_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, web_pools: list = None) -> List[PoolMetrics]:
         if web_pools is None:
             try:
                 web_pools = await self.web.pools()
@@ -322,15 +322,15 @@ class MaraMiner(MaraFirmware):
                     url = pool_info.get("url")
                     pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
-                        accepted=pool_info.get("Accepted"),
-                        rejected=pool_info.get("Rejected"),
+                        accepted=pool_info.get("accepted"),
+                        rejected=pool_info.get("rejected"),
                         get_failures=pool_info.get("stale"),
-                        remote_failures=pool_info.get("Remote Failures"),
-                        active=pool_info.get("Stratum Active"),
-                        alive=pool_info.get("Status") == "Alive",
+                        remote_failures=pool_info.get("discarded"),
+                        active=pool_info.get("active", False),
+                        alive=pool_info.get("status") == "Alive",
                         url=pool_url,
-                        user=pool_info.get("User"),
-                        index=pool_info.get("POOL"),
+                        user=pool_info.get("user"),
+                        index=pool_info.get("index"),
                     )
                     pools_data.append(pool_data)
             except LookupError:
