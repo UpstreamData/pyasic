@@ -313,7 +313,15 @@ class MaraMiner(MaraFirmware):
             try:
                 web_pools = await self.web.pools()
             except APIError:
-                pass
+                return []
+
+        active_pool_index = None
+        highest_priority = float('inf')
+
+        for pool_info in web_pools:
+            if pool_info.get("status") == "Alive" and pool_info.get("priority", float('inf')) < highest_priority:
+                highest_priority = pool_info.get["priority"]
+                active_pool_index = pool_info["index"]
 
         pools_data = []
         if web_pools is not None:
@@ -326,7 +334,7 @@ class MaraMiner(MaraFirmware):
                         rejected=pool_info.get("rejected"),
                         get_failures=pool_info.get("stale"),
                         remote_failures=pool_info.get("discarded"),
-                        active=pool_info.get("active", False),
+                        active=pool_info.get("index") == active_pool_index,
                         alive=pool_info.get("status") == "Alive",
                         url=pool_url,
                         user=pool_info.get("user"),
