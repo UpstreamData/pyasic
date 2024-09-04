@@ -9,6 +9,7 @@ from pyasic.miners.device.firmware import MaraFirmware
 from pyasic.misc import merge_dicts
 from pyasic.rpc.marathon import MaraRPCAPI
 from pyasic.web.marathon import MaraWebAPI
+from pyasic.data.pools import PoolMetrics, PoolUrl
 
 MARA_DATA_LOC = DataLocations(
     **{
@@ -59,6 +60,10 @@ MARA_DATA_LOC = DataLocations(
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [WebAPICommand("web_brief", "brief")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [WebAPICommand("web_pools", "pools")],
         ),
     }
 )
@@ -305,3 +310,40 @@ class MaraMiner(MaraFirmware):
                 return web_miner_config["mode"]["concorde"]["power-target"]
             except LookupError:
                 pass
+
+    async def _get_pools(self, web_pools: list = None) -> List[PoolMetrics]:
+        if web_pools is None:
+            try:
+                web_pools = await self.web.pools()
+            except APIError:
+                return []
+
+        active_pool_index = None
+        highest_priority = float('inf')
+
+        for pool_info in web_pools:
+            if pool_info.get("status") == "Alive" and pool_info.get("priority", float('inf')) < highest_priority:
+                highest_priority = pool_info.get["priority"]
+                active_pool_index = pool_info["index"]
+
+        pools_data = []
+        if web_pools is not None:
+            try:
+                for pool_info in web_pools:
+                    url = pool_info.get("url")
+                    pool_url = PoolUrl.from_str(url) if url else None
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("accepted"),
+                        rejected=pool_info.get("rejected"),
+                        get_failures=pool_info.get("stale"),
+                        remote_failures=pool_info.get("discarded"),
+                        active=pool_info.get("index") == active_pool_index,
+                        alive=pool_info.get("status") == "Alive",
+                        url=pool_url,
+                        user=pool_info.get("user"),
+                        index=pool_info.get("index"),
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
