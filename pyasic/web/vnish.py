@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import json
+import time
 import warnings
 from typing import Any
 import aiofiles
@@ -58,9 +59,11 @@ class VNishWebAPI(BaseWebAPI):
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
+        custom_data: bytes = None,
+        custom_headers: dict = None,
         **parameters: Any,
     ) -> dict:
-        post = privileged or not parameters == {}
+        post = privileged or bool(parameters) or custom_data is not None
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -71,15 +74,24 @@ class VNishWebAPI(BaseWebAPI):
                         auth = "Bearer " + self.token
 
                     url = f"http://{self.ip}:{self.port}/api/v1/{command}"
-                    headers = {"Authorization": auth}
+                    headers = custom_headers or {}
+                    headers["Authorization"] = auth
 
                     if post:
-                        response = await client.post(
-                            url,
-                            headers=headers,
-                            timeout=settings.get("api_function_timeout", 30),
-                            json=parameters,
-                        )
+                        if custom_data is not None:
+                            response = await client.post(
+                                url,
+                                headers=headers,
+                                content=custom_data,
+                                timeout=settings.get("api_function_timeout", 30),
+                            )
+                        else:
+                            response = await client.post(
+                                url,
+                                headers=headers,
+                                timeout=settings.get("api_function_timeout", 30),
+                                json=parameters,
+                            )
                     else:
                         response = await client.get(
                             url,
@@ -155,11 +167,29 @@ class VNishWebAPI(BaseWebAPI):
         """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
         async with aiofiles.open(file, "rb") as firmware:
             file_content = await firmware.read()
-        parameters = {
-            "file": (file.name, file_content, "application/octet-stream"),
-            "keep_settings": keep_settings
+
+        boundary = f"-----------------------VNishTools{int(time.time())}"
+
+        data = b''
+        data += f'--{boundary}\r\n'.encode('utf-8')
+        data += f'Content-Disposition: form-data; name="file"; filename="{file.name}"\r\n'.encode('utf-8')
+        data += b'Content-Type: application/octet-stream\r\n\r\n'
+        data += file_content
+        data += b'\r\n'
+        data += f'--{boundary}\r\n'.encode('utf-8')
+        data += f'Content-Disposition: form-data; name="keep_settings"\r\n\r\n'.encode('utf-8')
+        data += f'{"true" if keep_settings else "false"}'.encode('utf-8')
+        data += b'\r\n'
+        data += f'--{boundary}--\r\n'.encode('utf-8')
+
+        headers = {
+            "Content-Type": f"multipart/form-data; boundary={boundary}"
         }
+
         return await self.send_command(
             command="system/upgrade",
-            **parameters
+            post=True,
+            privileged=True,
+            custom_data=data,
+            custom_headers=headers
         )
