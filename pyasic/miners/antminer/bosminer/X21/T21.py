@@ -14,5 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import BOSMinerS21
-from .T21 import BOSMinerT21
+from pyasic.miners.backends import BOSer
+from pyasic.miners.device.models import T21
+
+
+class BOSMinerT21(BOSer, T21):
+    pass

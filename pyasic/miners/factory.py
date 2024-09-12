@@ -376,6 +376,7 @@ MINER_CLASSES = {
         "ANTMINER S19 PRO+ HYD.": BOSMinerS19ProPlusHydro,
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
+        "ANTMINER T21": BOSMinerT21,
     },
     MinerTypes.VNISH: {
         None: VNish,
