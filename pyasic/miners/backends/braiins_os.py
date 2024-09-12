@@ -21,6 +21,7 @@ from typing import List, Optional, Union
 
 import aiofiles
 import tomli_w
+
 try:
     import tomllib
 except ImportError:
@@ -726,9 +727,8 @@ BOSER_DATA_LOC = DataLocations(
             [RPCAPICommand("rpc_summary", "summary")],
         ),
         str(DataOptions.POOLS): DataFunction(
-            "_get_pools",
-            [WebAPICommand("grpc_pool_groups", "get_pool_groups")]
-        )
+            "_get_pools", [WebAPICommand("grpc_pool_groups", "get_pool_groups")]
+        ),
     }
 )
 
@@ -951,7 +951,7 @@ class BOSer(BraiinsOSFirmware):
     async def _get_wattage(self, grpc_miner_stats: dict = None) -> Optional[int]:
         if grpc_miner_stats is None:
             try:
-                grpc_miner_stats = self.web.get_miner_stats()
+                grpc_miner_stats = await self.web.get_miner_stats()
             except APIError:
                 pass
 
@@ -983,7 +983,7 @@ class BOSer(BraiinsOSFirmware):
     async def _get_fans(self, grpc_cooling_state: dict = None) -> List[Fan]:
         if grpc_cooling_state is None:
             try:
-                grpc_cooling_state = self.web.get_cooling_state()
+                grpc_cooling_state = await self.web.get_cooling_state()
             except APIError:
                 pass
 
@@ -1091,7 +1091,7 @@ class BOSer(BraiinsOSFirmware):
                     get_failures=pool_info["stats"]["stale_shares"],
                     remote_failures=0,
                     active=pool_info["active"],
-                    alive=pool_info["alive"]
+                    alive=pool_info["alive"],
                 )
                 pools_data.append(pool_data)
 
