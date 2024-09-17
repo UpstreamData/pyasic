@@ -27,6 +27,7 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
+from pyasic.data.pools import PoolMetrics, PoolUrl
 
 BTMINER_DATA_LOC = DataLocations(
     **{
@@ -109,6 +110,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
+        )
     }
 )
 
@@ -654,6 +659,36 @@ class BTMiner(StockFirmware):
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+
+    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+        if rpc_pools is None:
+            try:
+                rpc_pools = await self.rpc.pools()
+            except APIError:
+                pass
+
+        pools_data = []
+        if rpc_pools is not None:
+            try:
+                pools = rpc_pools.get("POOLS", [])
+                for pool_info in pools:
+                    url = pool_info.get("URL")
+                    pool_url = PoolUrl.from_str(url) if url else None
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("Accepted"),
+                        rejected=pool_info.get("Rejected"),
+                        get_failures=pool_info.get("Get Failures"),
+                        remote_failures=pool_info.get("Remote Failures"),
+                        active=pool_info.get("Stratum Active"),
+                        alive=pool_info.get("Status") == "Alive",
+                        url=pool_url,
+                        user=pool_info.get("User"),
+                        index=pool_info.get("POOL"),
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
 
     async def upgrade_firmware(self, file: Path):
         """
