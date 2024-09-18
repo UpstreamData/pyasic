@@ -1086,11 +1086,11 @@ class BOSer(BraiinsOSFirmware):
                     url=pool_info["url"],
                     user=pool_info["user"],
                     index=idx,
-                    accepted=pool_info["stats"]["acceptedShares"],
-                    rejected=pool_info["stats"]["rejectedShares"],
-                    get_failures=pool_info["stats"]["stale_shares"],
+                    accepted=pool_info["stats"].get("acceptedShares", 0),
+                    rejected=pool_info["stats"].get("rejectedShares", 0),
+                    get_failures=0,
                     remote_failures=0,
-                    active=pool_info["active"],
+                    active=pool_info.get("active", False),
                     alive=pool_info["alive"],
                 )
                 pools_data.append(pool_data)
