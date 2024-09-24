@@ -926,8 +926,10 @@ class BOSer(BraiinsOSFirmware):
                 pass
 
         if grpc_hashboards is not None:
-            for board in grpc_hashboards["hashboards"]:
-                idx = int(board["id"]) - 1
+            grpc_boards = sorted(
+                grpc_hashboards["hashboards"], key=lambda x: int(x["id"])
+            )
+            for idx, board in enumerate(grpc_boards):
                 if board.get("chipsCount") is not None:
                     hashboards[idx].chips = board["chipsCount"]
                 if board.get("boardTemp") is not None:
