@@ -1,5 +1,34 @@
 site_name: pyasic
 repo_url: https://github.com/UpstreamData/pyasic
+site_url: !ENV SITE_URL
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to auto mode
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 nav:
 - Introduction: "index.md"
 - Miners:

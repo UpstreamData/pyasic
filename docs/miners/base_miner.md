@@ -10,8 +10,3 @@ You may not instantiate this class on its own, only subclass from it.
     handler: python
     options:
         heading_level: 4
-
-::: pyasic.miners.base.MinerProtocol
-    handler: python
-    options:
-        heading_level: 4
