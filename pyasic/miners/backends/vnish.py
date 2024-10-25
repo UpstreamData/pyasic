@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 
 from typing import Optional
+import logging
+from pathlib import Path
 
 from pyasic import MinerConfig
 from pyasic.data import AlgoHashRate, HashUnit
@@ -256,3 +258,27 @@ class VNish(VNishFirmware, BMMiner):
             return self.config
         self.config = MinerConfig.from_vnish(web_settings)
         return self.config
+
+    async def upgrade_firmware(self, file: Path, keep_settings: bool = True) -> str:
+        """
+        Upgrade the firmware of the VNish Miner device.
+        Args:
+            file (Path): Path to the firmware file.
+            keep_settings (bool): Whether to keep the current settings after the update.
+        Returns:
+            str: Result of the upgrade process.
+        """
+        if not file:
+            raise ValueError("File location must be provided for firmware upgrade.")
+        try:
+            result = await self.web.update_firmware(file=file, keep_settings=keep_settings)
+            if result.get("success"):
+                logging.info("Firmware upgrade process completed successfully for VNish Miner.")
+                return "Firmware upgrade completed successfully."
+            else:
+                error_message = result.get("message", "Unknown error")
+                logging.error(f"Firmware upgrade failed. Response: {error_message}")
+                return f"Firmware upgrade failed. Response: {error_message}"
+        except Exception as e:
+            logging.error(f"An error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise
