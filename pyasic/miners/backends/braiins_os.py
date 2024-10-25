@@ -1093,7 +1093,7 @@ class BOSer(BraiinsOSFirmware):
                     get_failures=0,
                     remote_failures=0,
                     active=pool_info.get("active", False),
-                    alive=pool_info["alive"],
+                    alive=pool_info.get("alive"),
                 )
                 pools_data.append(pool_data)
 
