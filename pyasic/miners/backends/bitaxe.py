@@ -41,6 +41,10 @@ BITAXE_DATA_LOC = DataLocations(
             "_get_api_ver",
             [WebAPICommand("web_system_info", "system/info")],
         ),
+        str(DataOptions.MAC): DataFunction(
+            "_get_mac",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
     }
 )
 
@@ -185,5 +189,18 @@ class BitAxe(BaseMiner):
         if web_system_info is not None:
             try:
                 return web_system_info["version"]
+            except KeyError:
+                pass
+
+    async def _get_mac(self, web_system_info: dict = None) -> Optional[str]:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return web_system_info["macAddr"].upper()
             except KeyError:
                 pass
