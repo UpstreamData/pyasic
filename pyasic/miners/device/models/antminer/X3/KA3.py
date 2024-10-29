@@ -13,6 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .HS3 import BMMinerHS3
-from .KA3 import BMMinerKA3
-from .L3 import BMMinerL3Plus
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import AntMinerMake
+
+
+class KA3(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.KA3
+
+    expected_chips = 92

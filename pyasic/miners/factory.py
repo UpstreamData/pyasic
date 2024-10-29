@@ -66,6 +66,7 @@ MINER_CLASSES = {
         "ANTMINER D3": CGMinerD3,
         "ANTMINER HS3": BMMinerHS3,
         "ANTMINER L3+": BMMinerL3Plus,
+        "ANTMINER KA3": BMMinerKA3,
         "ANTMINER DR5": CGMinerDR5,
         "ANTMINER L7": BMMinerL7,
         "ANTMINER E9 PRO": BMMinerE9Pro,

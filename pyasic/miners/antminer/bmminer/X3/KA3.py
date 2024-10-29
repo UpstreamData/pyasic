@@ -13,6 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .HS3 import BMMinerHS3
-from .KA3 import BMMinerKA3
-from .L3 import BMMinerL3Plus
+
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.device.models import KA3
+
+
+class BMMinerKA3(AntminerModern, KA3):
+    pass
