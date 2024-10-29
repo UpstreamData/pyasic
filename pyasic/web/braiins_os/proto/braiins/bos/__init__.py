@@ -4,11 +4,16 @@
 # This file has been @generated
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    Optional,
+)
 
 import betterproto
 import grpclib
 from betterproto.grpc.grpclib_server import ServiceBase
+
 
 if TYPE_CHECKING:
     import grpclib.server
