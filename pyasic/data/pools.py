@@ -25,7 +25,10 @@ class PoolUrl:
     @classmethod
     def from_str(cls, url: str) -> "PoolUrl":
         parsed_url = urlparse(url)
-        scheme = Scheme(parsed_url.scheme)
+        if not parsed_url.scheme.strip() == "":
+            scheme = Scheme(parsed_url.scheme)
+        else:
+            scheme = Scheme.STRATUM_V1
         host = parsed_url.hostname
         port = parsed_url.port
         pubkey = parsed_url.path.lstrip("/") if scheme == Scheme.STRATUM_V2 else None
