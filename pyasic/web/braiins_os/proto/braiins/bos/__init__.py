@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 @dataclass(eq=False, repr=False)
 class ApiVersion(betterproto.Message):
-    """LATEST_API_VERSION=1.2.0"""
+    """LATEST_API_VERSION=1.3.0"""
 
     major: int = betterproto.uint64_field(1)
     minor: int = betterproto.uint64_field(2)

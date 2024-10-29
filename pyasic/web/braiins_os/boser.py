@@ -26,6 +26,9 @@ from grpclib.client import Channel
 from pyasic import settings
 from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
+from pyasic.web.braiins_os.better_monkey import patch
+
+patch()
 
 from .proto.braiins.bos import *
 from .proto.braiins.bos.v1 import *
@@ -206,7 +209,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_immersion_mode(
         self,
         enable: bool,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "set_immersion_mode",
@@ -227,7 +230,7 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
     async def set_default_power_target(
-        self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
+        self, save_action: SaveAction = SaveAction.SAVE_AND_APPLY
     ) -> dict:
         return await self.send_command(
             "set_default_power_target",
@@ -238,7 +241,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_power_target(
         self,
         power_target: int,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "set_power_target",
@@ -251,7 +254,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def increment_power_target(
         self,
         power_target_increment: int,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "increment_power_target",
@@ -265,7 +268,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def decrement_power_target(
         self,
         power_target_decrement: int,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "decrement_power_target",
@@ -277,7 +280,7 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
     async def set_default_hashrate_target(
-        self, save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY
+        self, save_action: SaveAction = SaveAction.SAVE_AND_APPLY
     ) -> dict:
         return await self.send_command(
             "set_default_hashrate_target",
@@ -288,7 +291,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_hashrate_target(
         self,
         hashrate_target: float,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "set_hashrate_target",
@@ -302,7 +305,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def increment_hashrate_target(
         self,
         hashrate_target_increment: int,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "increment_hashrate_target",
@@ -318,7 +321,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def decrement_hashrate_target(
         self,
         hashrate_target_decrement: int,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "decrement_hashrate_target",
@@ -359,7 +362,7 @@ class BOSerWebAPI(BaseWebAPI):
         self,
         wattage_target: int = None,
         hashrate_target: int = None,
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         if wattage_target is not None and hashrate_target is not None:
             logging.error(
@@ -459,7 +462,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def enable_hashboards(
         self,
         hashboard_ids: List[str],
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "enable_hashboards",
@@ -472,7 +475,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def disable_hashboards(
         self,
         hashboard_ids: List[str],
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "disable_hashboards",
@@ -485,7 +488,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_pool_groups(
         self,
         pool_groups: List[PoolGroupConfiguration],
-        save_action: SaveAction = SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
     ) -> dict:
         return await self.send_command(
             "set_pool_groups",

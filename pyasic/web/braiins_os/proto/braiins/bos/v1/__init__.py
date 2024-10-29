@@ -20,125 +20,129 @@ if TYPE_CHECKING:
 class SaveAction(betterproto.Enum):
     """Save action for different operations"""
 
-    SAVE_ACTION_UNSPECIFIED = 0
-    SAVE_ACTION_SAVE = 1
-    SAVE_ACTION_SAVE_AND_APPLY = 2
-    SAVE_ACTION_SAVE_AND_FORCE_APPLY = 3
+    UNSPECIFIED = 0
+    SAVE = 1
+    SAVE_AND_APPLY = 2
+    SAVE_AND_FORCE_APPLY = 3
 
 
 class CoolingMode(betterproto.Enum):
-    COOLING_MODE_UNSPECIFIED = 0
-    COOLING_MODE_AUTO = 1
-    COOLING_MODE_MANUAL = 2
-    COOLING_MODE_DISABLED = 3
+    UNSPECIFIED = 0
+    AUTO = 1
+    MANUAL = 2
+    DISABLED = 3
 
 
 class SensorLocation(betterproto.Enum):
-    SENSOR_LOCATION_UNSPECIFIED = 0
-    SENSOR_LOCATION_CHIP = 1
-    SENSOR_LOCATION_PCB = 2
+    UNSPECIFIED = 0
+    CHIP = 1
+    PCB = 2
 
 
 class TunerMode(betterproto.Enum):
-    TUNER_MODE_UNSPECIFIED = 0
-    TUNER_MODE_POWER_TARGET = 1
-    TUNER_MODE_HASHRATE_TARGET = 2
+    UNSPECIFIED = 0
+    POWER_TARGET = 1
+    HASHRATE_TARGET = 2
 
 
 class TunerState(betterproto.Enum):
-    TUNER_STATE_UNSPECIFIED = 0
-    TUNER_STATE_DISABLED = 1
-    TUNER_STATE_STABLE = 2
-    TUNER_STATE_TUNING = 3
-    TUNER_STATE_ERROR = 4
+    UNSPECIFIED = 0
+    DISABLED = 1
+    STABLE = 2
+    TUNING = 3
+    ERROR = 4
 
 
 class LicenseType(betterproto.Enum):
-    LICENSE_TYPE_UNSPECIFIED = 0
-    LICENSE_TYPE_STANDARD = 1
-    LICENSE_TYPE_CUSTOM = 2
+    UNSPECIFIED = 0
+    STANDARD = 1
+    CUSTOM = 2
 
 
 class Platform(betterproto.Enum):
     """Supported platforms"""
 
-    PLATFORM_UNSPECIFIED = 0
-    PLATFORM_AM1_S9 = 1
-    PLATFORM_AM2_S17 = 2
-    PLATFORM_AM3_BBB = 3
-    PLATFORM_AM3_AML = 4
-    PLATFORM_STM32MP157C_II1_AM2 = 5
-    PLATFORM_CVITEK_BM1_AM2 = 6
-    PLATFORM_ZYNQ_BM3_AM2 = 7
+    UNSPECIFIED = 0
+    AM1_S9 = 1
+    AM2_S17 = 2
+    AM3_BBB = 3
+    AM3_AML = 4
+    STM32MP157C_II1_AM2 = 5
+    CVITEK_BM1_AM2 = 6
+    ZYNQ_BM3_AM2 = 7
+    STM32MP157C_II2_BMM1 = 8
 
 
 class BosMode(betterproto.Enum):
     """BOS modes enumeration"""
 
-    BOS_MODE_UNSPECIFIED = 0
-    BOS_MODE_UPGRADE = 1
-    BOS_MODE_RECOVERY = 2
-    BOS_MODE_SD = 3
-    BOS_MODE_NAND = 4
-    BOS_MODE_EMMC = 5
+    UNSPECIFIED = 0
+    UPGRADE = 1
+    RECOVERY = 2
+    SD = 3
+    NAND = 4
+    EMMC = 5
 
 
 class MinerBrand(betterproto.Enum):
-    MINER_BRAND_UNSPECIFIED = 0
-    MINER_BRAND_ANTMINER = 1
-    MINER_BRAND_WHATSMINER = 2
+    UNSPECIFIED = 0
+    ANTMINER = 1
+    WHATSMINER = 2
 
 
 class MinerModel(betterproto.Enum):
     """Deprecated: This enumeration is not longer maintained"""
 
-    MINER_MODEL_UNSPECIFIED = 0
-    MINER_MODEL_ANTMINER_S9 = 1
-    MINER_MODEL_ANTMINER_X17 = 2
-    MINER_MODEL_ANTMINER_S17 = 3
-    MINER_MODEL_ANTMINER_S17_PLUS = 4
-    MINER_MODEL_ANTMINER_S17_PRO = 5
-    MINER_MODEL_ANTMINER_S17E = 6
-    MINER_MODEL_ANTMINER_T17 = 7
-    MINER_MODEL_ANTMINER_T17E = 8
-    MINER_MODEL_ANTMINER_T17_PLUS = 9
-    MINER_MODEL_ANTMINER_X19 = 10
-    MINER_MODEL_ANTMINER_S19 = 11
-    MINER_MODEL_ANTMINER_S19_PRO = 12
-    MINER_MODEL_ANTMINER_S19_PLUS = 13
-    MINER_MODEL_ANTMINER_S19J = 14
-    MINER_MODEL_ANTMINER_S19J_PRO = 15
-    MINER_MODEL_ANTMINER_S19A = 16
-    MINER_MODEL_ANTMINER_S19A_PRO = 17
-    MINER_MODEL_ANTMINER_S19XP = 18
-    MINER_MODEL_ANTMINER_T19 = 19
-    MINER_MODEL_ANTMINER_S19J_PRO_PLUS = 20
+    UNSPECIFIED = 0
+    ANTMINER_S9 = 1
+    ANTMINER_X17 = 2
+    ANTMINER_S17 = 3
+    ANTMINER_S17_PLUS = 4
+    ANTMINER_S17_PRO = 5
+    ANTMINER_S17E = 6
+    ANTMINER_T17 = 7
+    ANTMINER_T17E = 8
+    ANTMINER_T17_PLUS = 9
+    ANTMINER_X19 = 10
+    ANTMINER_S19 = 11
+    ANTMINER_S19_PRO = 12
+    ANTMINER_S19_PLUS = 13
+    ANTMINER_S19J = 14
+    ANTMINER_S19J_PRO = 15
+    ANTMINER_S19A = 16
+    ANTMINER_S19A_PRO = 17
+    ANTMINER_S19XP = 18
+    ANTMINER_T19 = 19
+    ANTMINER_S19J_PRO_PLUS = 20
 
 
 class MinerStatus(betterproto.Enum):
-    MINER_STATUS_UNSPECIFIED = 0
-    MINER_STATUS_NOT_STARTED = 1
-    MINER_STATUS_NORMAL = 2
-    MINER_STATUS_PAUSED = 3
-    MINER_STATUS_SUSPENDED = 4
-    MINER_STATUS_RESTRICTED = 5
+    UNSPECIFIED = 0
+    NOT_STARTED = 1
+    NORMAL = 2
+    PAUSED = 3
+    SUSPENDED = 4
+    RESTRICTED = 5
 
 
 class SupportArchiveFormat(betterproto.Enum):
     """Enumeration for support archive format"""
 
-    SUPPORT_ARCHIVE_FORMAT_UNSPECIFIED = 0
-    SUPPORT_ARCHIVE_FORMAT_ZIP = 1
+    UNSPECIFIED = 0
+    ZIP = 1
     """Compressed zip format"""
 
-    SUPPORT_ARCHIVE_FORMAT_BOS = 2
+    BOS = 2
     """BOS custom format"""
+
+    ZIP_ENCRYPTED = 3
+    """Compressed encrypted zip format"""
 
 
 class NetworkProtocol(betterproto.Enum):
-    NETWORK_PROTOCOL_UNSPECIFIED = 0
-    NETWORK_PROTOCOL_DHCP = 1
-    NETWORK_PROTOCOL_STATIC = 2
+    UNSPECIFIED = 0
+    DHCP = 1
+    STATIC = 2
 
 
 @dataclass(eq=False, repr=False)
@@ -268,8 +272,8 @@ class LoginResponse(betterproto.Message):
 
     timeout_s: int = betterproto.uint32_field(2)
     """
-    Authentication token validity/timeout in seconds. Token validity refreshed
-    to this value with each request.
+    Authentication token validity/timeout in seconds.
+     Token validity refreshed to this value with each request.
     """
 
 
@@ -277,9 +281,7 @@ class LoginResponse(betterproto.Message):
 class SetPasswordRequest(betterproto.Message):
     """Request for set password action."""
 
-    password: Optional[str] = betterproto.string_field(
-        1, optional=True, group="_password"
-    )
+    password: Optional[str] = betterproto.string_field(1, optional=True)
 
 
 @dataclass(eq=False, repr=False)
@@ -335,8 +337,8 @@ class BasesPoints(betterproto.Message):
 
     bsp: int = betterproto.uint32_field(1)
     """
-    A basis point is one hundredth of 1 percentage point. For example: 1bps =
-    0.01%, 250bps = 2.5%
+    A basis point is one hundredth of 1 percentage point.
+     For example: 1bps = 0.01%, 250bps = 2.5%
     """
 
 
@@ -409,9 +411,9 @@ class VoltageConstraints(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class CoolingAutoMode(betterproto.Message):
     """
-    The temperature control modes. Miner software tries to regulate the fan
-    speed so that miner temperature is approximately at the target temperature.
-    The allowed temperature range is 0-200 degree Celsius.
+    The temperature control modes.
+     Miner software tries to regulate the fan speed so that miner temperature is approximately at the target temperature.
+     The allowed temperature range is 0-200 degree Celsius.
     """
 
     target_temperature: "Temperature" = betterproto.message_field(1)
@@ -422,8 +424,7 @@ class CoolingAutoMode(betterproto.Message):
 
     dangerous_temperature: "Temperature" = betterproto.message_field(3)
     """
-    Temperature threshold at which BOSMiner shuts down in order to prevent
-    overheating and damaging the miner.
+    Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
     """
 
 
@@ -433,12 +434,11 @@ class CoolingManualMode(betterproto.Message):
     Fans are kept at a fixed, user-defined speed, no matter the temperature.
     """
 
-    fan_speed_ratio: Optional[float] = betterproto.double_field(
-        1, optional=True, group="_fan_speed_ratio"
-    )
+    fan_speed_ratio: Optional[float] = betterproto.double_field(1, optional=True)
     """
-    User defined fan speed expressed as a ratio between 0.0 and 1.0 where 0.0
-    means completely turned off and 1.0 means running at full speed possible
+    User defined fan speed expressed as a ratio between 0.0 and 1.0
+     where 0.0 means completely turned off and
+     1.0 means running at full speed possible
     """
 
     hot_temperature: "Temperature" = betterproto.message_field(2)
@@ -446,8 +446,7 @@ class CoolingManualMode(betterproto.Message):
 
     dangerous_temperature: "Temperature" = betterproto.message_field(3)
     """
-    Temperature threshold at which BOSMiner shuts down in order to prevent
-    overheating and damaging the miner.
+    Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
     """
 
 
@@ -455,20 +454,17 @@ class CoolingManualMode(betterproto.Message):
 class CoolingDisabledMode(betterproto.Message):
     """Disable temperature control. May be dangerous."""
 
-    fan_speed_ratio: Optional[float] = betterproto.double_field(
-        1, optional=True, group="_fan_speed_ratio"
-    )
+    fan_speed_ratio: Optional[float] = betterproto.double_field(1, optional=True)
     """
-    User defined fan speed expressed as a ratio between 0.0 and 1.0 where 0.0
-    means completely turned off and 1.0 means running at full speed possible
+    User defined fan speed expressed as a ratio between 0.0 and 1.0
+     where 0.0 means completely turned off and
+     1.0 means running at full speed possible
     """
 
 
 @dataclass(eq=False, repr=False)
 class CoolingConfiguration(betterproto.Message):
-    minimum_required_fans: Optional[int] = betterproto.uint32_field(
-        1, optional=True, group="_minimum_required_fans"
-    )
+    minimum_required_fans: Optional[int] = betterproto.uint32_field(1, optional=True)
     auto: "CoolingAutoMode" = betterproto.message_field(2, group="mode")
     manual: "CoolingManualMode" = betterproto.message_field(3, group="mode")
     disabled: "CoolingDisabledMode" = betterproto.message_field(4, group="mode")
@@ -488,23 +484,19 @@ class CoolingConstraints(betterproto.Message):
 class FanState(betterproto.Message):
     """Structure which contain info about one specific miner fan."""
 
-    position: Optional[int] = betterproto.uint32_field(
-        1, optional=True, group="_position"
-    )
+    position: Optional[int] = betterproto.uint32_field(1, optional=True)
     """Fan positions/ID"""
 
     rpm: int = betterproto.uint32_field(2)
     """Actual fan RPM (Revolutions/Rotation Per Minute)"""
 
-    target_speed_ratio: Optional[float] = betterproto.double_field(
-        3, optional=True, group="_target_speed_ratio"
-    )
+    target_speed_ratio: Optional[float] = betterproto.double_field(3, optional=True)
     """Actual fan speed ratio(PWM) in range 0.0 - 1.0"""
 
 
 @dataclass(eq=False, repr=False)
 class TemperatureSensor(betterproto.Message):
-    id: Optional[int] = betterproto.uint32_field(1, optional=True, group="_id")
+    id: Optional[int] = betterproto.uint32_field(1, optional=True)
     """Sensor id"""
 
     location: "SensorLocation" = betterproto.enum_field(2)
@@ -523,7 +515,10 @@ class GetCoolingStateRequest(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class GetCoolingStateResponse(betterproto.Message):
-    """Response to get current fan states and temperature measurements"""
+    """
+    Response to get current fan states and
+     temperature measurements
+    """
 
     fans: List["FanState"] = betterproto.message_field(1)
     """All Fans state"""
@@ -551,12 +546,10 @@ class SetImmersionModeResponse(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class TunerConfiguration(betterproto.Message):
-    enabled: Optional[bool] = betterproto.bool_field(1, optional=True, group="_enabled")
+    enabled: Optional[bool] = betterproto.bool_field(1, optional=True)
     """Flag if tuner is enabled"""
 
-    tuner_mode: Optional["TunerMode"] = betterproto.enum_field(
-        2, optional=True, group="_tuner_mode"
-    )
+    tuner_mode: Optional["TunerMode"] = betterproto.enum_field(2, optional=True)
     """Tuner mode"""
 
     power_target: "Power" = betterproto.message_field(3)
@@ -583,7 +576,7 @@ class TunerConstraints(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class DpsConfiguration(betterproto.Message):
-    enabled: Optional[bool] = betterproto.bool_field(1, optional=True, group="_enabled")
+    enabled: Optional[bool] = betterproto.bool_field(1, optional=True)
     """Flag if Dynamic Performance Scaling is enabled"""
 
     power_step: "Power" = betterproto.message_field(2)
@@ -598,9 +591,7 @@ class DpsConfiguration(betterproto.Message):
     min_hashrate_target: "TeraHashrate" = betterproto.message_field(5)
     """Dynamic Performance Scaling minimal hashrate target"""
 
-    shutdown_enabled: Optional[bool] = betterproto.bool_field(
-        6, optional=True, group="_shutdown_enabled"
-    )
+    shutdown_enabled: Optional[bool] = betterproto.bool_field(6, optional=True)
     """Flag if shutdown for Dynamic Performance Scaling is enabled"""
 
     shutdown_duration: "Hours" = betterproto.message_field(7)
@@ -879,17 +870,13 @@ class SetDpsRequest(betterproto.Message):
     save_action: "SaveAction" = betterproto.enum_field(1)
     """Save action"""
 
-    enable: Optional[bool] = betterproto.bool_field(2, optional=True, group="_enable")
+    enable: Optional[bool] = betterproto.bool_field(2, optional=True)
     """Flag if Dynamic Performance Scaling should be enabled"""
 
-    enable_shutdown: Optional[bool] = betterproto.bool_field(
-        3, optional=True, group="_enable_shutdown"
-    )
+    enable_shutdown: Optional[bool] = betterproto.bool_field(3, optional=True)
     """Flag if shutdown for Dynamic Performance Scaling should be enabled"""
 
-    shutdown_duration: Optional["Hours"] = betterproto.message_field(
-        4, optional=True, group="_shutdown_duration"
-    )
+    shutdown_duration: Optional["Hours"] = betterproto.message_field(4, optional=True)
     """Dynamic Performance Scaling shutdown duration"""
 
     target: "DpsTarget" = betterproto.message_field(5)
@@ -898,17 +885,13 @@ class SetDpsRequest(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class SetDpsResponse(betterproto.Message):
-    enabled: Optional[bool] = betterproto.bool_field(1, optional=True, group="_enabled")
+    enabled: Optional[bool] = betterproto.bool_field(1, optional=True)
     """Flag if Dynamic Performance Scaling is enabled"""
 
-    shutdown_enabled: Optional[bool] = betterproto.bool_field(
-        2, optional=True, group="_shutdown_enabled"
-    )
+    shutdown_enabled: Optional[bool] = betterproto.bool_field(2, optional=True)
     """Flag if shutdown for Dynamic Performance Scaling should be enabled"""
 
-    shutdown_duration: Optional["Hours"] = betterproto.message_field(
-        3, optional=True, group="_shutdown_duration"
-    )
+    shutdown_duration: Optional["Hours"] = betterproto.message_field(3, optional=True)
     """Dynamic Performance Scaling shutdown duration"""
 
     power_target: "DpsPowerTarget" = betterproto.message_field(4)
@@ -935,7 +918,7 @@ class HashboardConfig(betterproto.Message):
     id: str = betterproto.string_field(1)
     """Hashboard id"""
 
-    enabled: Optional[bool] = betterproto.bool_field(2, optional=True, group="_enabled")
+    enabled: Optional[bool] = betterproto.bool_field(2, optional=True)
     """Flag if HB si enabled"""
 
     frequency: "Frequency" = betterproto.message_field(3)
@@ -1019,9 +1002,9 @@ class Quota(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class FixedShareRatio(betterproto.Message):
     """
-    Structure for fixed share ratio load balance strategy Fixed share ratio is
-    value between 0.0 to 1.0 where 1.0 represents that all work is generated
-    from the group
+    Structure for fixed share ratio load balance strategy
+     Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
+     generated from the group
     """
 
     value: float = betterproto.double_field(1)
@@ -1058,12 +1041,10 @@ class PoolConfiguration(betterproto.Message):
     user: str = betterproto.string_field(3)
     """Pool connection user"""
 
-    password: Optional[str] = betterproto.string_field(
-        4, optional=True, group="_password"
-    )
+    password: Optional[str] = betterproto.string_field(4, optional=True)
     """Pool connection password if set"""
 
-    enabled: Optional[bool] = betterproto.bool_field(5, optional=True, group="_enabled")
+    enabled: Optional[bool] = betterproto.bool_field(5, optional=True)
     """Flag if pool connection is enabled"""
 
 
@@ -1130,9 +1111,7 @@ class PoolStats(betterproto.Message):
     generated_work: int = betterproto.uint64_field(6)
     """Generated work"""
 
-    last_share_time: Optional[datetime] = betterproto.message_field(
-        7, optional=True, group="_last_share_time"
-    )
+    last_share_time: Optional[datetime] = betterproto.message_field(7, optional=True)
     """Last share time"""
 
 
@@ -1154,9 +1133,9 @@ class GetPoolGroupsResponse(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class CreatePoolGroupRequest(betterproto.Message):
     """
-    Request for pool group create action group.uid must not be specified (it
-    will be generated) group.pools[].uid must not be specified (it will be
-    generated)
+    Request for pool group create action
+     group.uid must not be specified (it will be generated)
+     group.pools[].uid must not be specified (it will be generated)
     """
 
     save_action: "SaveAction" = betterproto.enum_field(1)
@@ -1177,9 +1156,9 @@ class CreatePoolGroupResponse(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class UpdatePoolGroupRequest(betterproto.Message):
     """
-    Request for pool group update action group.uid must be specified and
-    represents unique id of group which will be updated group.pools[].uid must
-    not be specified (it will be generated)
+    Request for pool group update action
+     group.uid must be specified and represents unique id of group which will be updated
+     group.pools[].uid must not be specified (it will be generated)
     """
 
     save_action: "SaveAction" = betterproto.enum_field(1)
@@ -1221,16 +1200,15 @@ class SetPoolGroupsRequest(betterproto.Message):
 
     save_action: "SaveAction" = betterproto.enum_field(1)
     """
-    Save action SAVE just update config but changes will not be applied
-    SAVE_AND_APPLY and SAVE_AND_FORCE_APPLY are equal for this method. Pools
-    config will be updated and changes will be applied that will trigger
-    restart.
+    Save action
+     SAVE just update config but changes will not be applied
+     SAVE_AND_APPLY and SAVE_AND_FORCE_APPLY are equal for this method. Pools config will be updated and changes will be applied that will trigger restart.
     """
 
     pool_groups: List["PoolGroupConfiguration"] = betterproto.message_field(2)
     """
-    Pool groups configuration `uid` must not be specified (it will be
-    generated)
+    Pool groups configuration
+     `uid` must not be specified (it will be generated)
     """
 
 
@@ -1292,9 +1270,8 @@ class NoneLicense(betterproto.Message):
     time_to_restricted: int = betterproto.uint32_field(1)
     """
     BOS Initialization timeout - number of seconds elapsed since bosminer start
-    i.e., number of seconds BOS will start mining in restricted mode burning 5%
-    of hashrate For more, see Section 3.10 of
-    https://braiins.com/os/plus/license
+     i.e., number of seconds BOS will start mining in restricted mode burning 5% of hashrate
+     For more, see Section 3.10 of https://braiins.com/os/plus/license
     """
 
 
@@ -1313,9 +1290,8 @@ class ValidLicense(betterproto.Message):
 
     time_to_restricted: int = betterproto.uint32_field(3)
     """
-    Current license expiration - number of seconds since the moment the license
-    was received i.e., number of seconds BOS will start mining in restricted
-    mode burning 15% of hashrate
+    Current license expiration - number of seconds since the moment the license was received
+     i.e., number of seconds BOS will start mining in restricted mode burning 15% of hashrate
     """
 
     dev_fee: "BasesPoints" = betterproto.message_field(4)
@@ -1388,7 +1364,8 @@ class MinerIdentity(betterproto.Message):
     brand: "MinerBrand" = betterproto.enum_field(1)
     model: "MinerModel" = betterproto.enum_field(2)
     """
-    Deprecated: Use miner_model instead. This field is no longer supported.
+    Deprecated: Use miner_model instead.
+     This field is no longer supported.
     """
 
     name: str = betterproto.string_field(3)
@@ -1564,7 +1541,7 @@ class Hashboard(betterproto.Message):
     stats: "WorkSolverStats" = betterproto.message_field(8)
     """Hashboard stats"""
 
-    model: Optional[str] = betterproto.string_field(9, optional=True, group="_model")
+    model: Optional[str] = betterproto.string_field(9, optional=True)
     """Hashboard model"""
 
 
@@ -1644,9 +1621,7 @@ class GetNetworkConfigurationResponse(betterproto.Message):
 class SetNetworkConfigurationRequest(betterproto.Message):
     dhcp: "Dhcp" = betterproto.message_field(1, group="protocol")
     static: "Static" = betterproto.message_field(2, group="protocol")
-    hostname: Optional[str] = betterproto.string_field(
-        3, optional=True, group="_hostname"
-    )
+    hostname: Optional[str] = betterproto.string_field(3, optional=True)
     """Hostname. Existing value will be preserved if this field is not set."""
 
 
@@ -1691,27 +1666,21 @@ class GetNetworkInfoRequest(betterproto.Message):
 @dataclass(eq=False, repr=False)
 class GetNetworkInfoResponse(betterproto.Message):
     """
-    Response message for GetCurrentNetworkConfiguration Represents the current
-    network configuration for the default network interface. Only IPv4 is
-    supported.
+    Response message for GetCurrentNetworkConfiguration
+     Represents the current network configuration for the default network interface.
+     Only IPv4 is supported.
     """
 
     name: str = betterproto.string_field(1)
     """Name of the network interface"""
 
-    mac_address: Optional[str] = betterproto.string_field(
-        2, optional=True, group="_mac_address"
-    )
+    mac_address: Optional[str] = betterproto.string_field(2, optional=True)
     """MAC address of the network interface"""
 
-    hostname: Optional[str] = betterproto.string_field(
-        3, optional=True, group="_hostname"
-    )
+    hostname: Optional[str] = betterproto.string_field(3, optional=True)
     """Miner hostname"""
 
-    protocol: Optional["NetworkProtocol"] = betterproto.enum_field(
-        4, optional=True, group="_protocol"
-    )
+    protocol: Optional["NetworkProtocol"] = betterproto.enum_field(4, optional=True)
     """Network protocol"""
 
     dns_servers: List[str] = betterproto.string_field(5)
@@ -1720,9 +1689,7 @@ class GetNetworkInfoResponse(betterproto.Message):
     networks: List["IpNetwork"] = betterproto.message_field(6)
     """List of assigned IP addresses"""
 
-    default_gateway: Optional[str] = betterproto.string_field(
-        7, optional=True, group="_default_gateway"
-    )
+    default_gateway: Optional[str] = betterproto.string_field(7, optional=True)
     """Default gateway/route for the interface"""
 
 
@@ -2332,7 +2299,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> AsyncIterator["GetMinerStatusResponse"]:
+    ) -> AsyncIterator[GetMinerStatusResponse]:
         async for response in self._unary_stream(
             "/braiins.bos.v1.MinerService/GetMinerStatus",
             get_miner_status_request,
@@ -2418,7 +2385,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
         metadata: Optional["MetadataLike"] = None
-    ) -> AsyncIterator["GetSupportArchiveResponse"]:
+    ) -> AsyncIterator[GetSupportArchiveResponse]:
         async for response in self._unary_stream(
             "/braiins.bos.v1.MinerService/GetSupportArchive",
             get_support_archive_request,
@@ -3195,7 +3162,7 @@ class MinerServiceBase(ServiceBase):
 
     async def get_miner_status(
         self, get_miner_status_request: "GetMinerStatusRequest"
-    ) -> AsyncIterator["GetMinerStatusResponse"]:
+    ) -> AsyncIterator[GetMinerStatusResponse]:
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
         yield GetMinerStatusResponse()
 
@@ -3221,7 +3188,7 @@ class MinerServiceBase(ServiceBase):
 
     async def get_support_archive(
         self, get_support_archive_request: "GetSupportArchiveRequest"
-    ) -> AsyncIterator["GetSupportArchiveResponse"]:
+    ) -> AsyncIterator[GetSupportArchiveResponse]:
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
         yield GetSupportArchiveResponse()
 

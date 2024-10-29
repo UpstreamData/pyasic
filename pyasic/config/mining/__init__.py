@@ -198,7 +198,7 @@ class MiningModePowerTune(MinerConfigValue):
     def as_boser(self) -> dict:
         cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
-                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                save_action=SaveAction.SAVE_AND_APPLY,
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         power_target=PowerTargetMode(
@@ -275,7 +275,7 @@ class MiningModeHashrateTune(MinerConfigValue):
     def as_boser(self) -> dict:
         cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
-                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                save_action=SaveAction.SAVE_AND_APPLY,
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         hashrate_target=HashrateTargetMode(

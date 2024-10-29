@@ -467,7 +467,7 @@ class PoolConfig(MinerConfigValue):
     def as_boser(self, user_suffix: str = None) -> dict:
         return {
             "set_pool_groups": SetPoolGroupsRequest(
-                save_action=SaveAction.SAVE_ACTION_SAVE_AND_APPLY,
+                save_action=SaveAction.SAVE_AND_APPLY,
                 pool_groups=[g.as_boser(user_suffix=user_suffix) for g in self.groups],
             )
         }
