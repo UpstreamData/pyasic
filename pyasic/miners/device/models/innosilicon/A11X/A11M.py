@@ -13,7 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import InnosiliconMake
 
-from .A10X import *
-from .A11X import *
-from .T3X import *
+
+class A11MX(InnosiliconMake):
+    raw_model = MinerModel.INNOSILICON.A11MX

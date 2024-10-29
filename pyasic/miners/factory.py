@@ -339,6 +339,7 @@ MINER_CLASSES = {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
         "T3H+": InnosiliconT3HPlus,
         "A10X": InnosiliconA10X,
+        "A11MX": InnosiliconA11MX,
     },
     MinerTypes.GOLDSHELL: {
         None: type("GoldshellUnknown", (GoldshellMiner, GoldshellMake), {}),
@@ -714,11 +715,13 @@ class MinerFactory:
             or "BFGMINER" in upper_data
         ):
             return MinerTypes.GOLDSHELL
+        if "INNOMINER" in upper_data:
+            return MinerTypes.INNOSILICON
         if "AVALON" in upper_data:
             return MinerTypes.AVALONMINER
         if "GCMINER" in upper_data or "FLUXOS" in upper_data:
             return MinerTypes.AURADINE
-        if "VNISH" in upper_data or "DEVICE PATH" in upper_data:
+        if "VNISH" in upper_data:
             return MinerTypes.VNISH
 
     async def send_web_command(

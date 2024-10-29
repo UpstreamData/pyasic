@@ -13,7 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-from .A10X import *
-from .A11X import *
-from .T3X import *
+from .A11M import *

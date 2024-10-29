@@ -294,6 +294,7 @@ class AvalonminerModels(str, Enum):
 class InnosiliconModels(str, Enum):
     T3HPlus = "T3H+"
     A10X = "A10X"
+    A11MX = "A11MX"
 
     def __str__(self):
         return self.value

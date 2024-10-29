@@ -14,6 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A10X import *
-from .A11X import *
-from .T3X import *
+from pyasic.miners.backends.innosilicon import Innosilicon
+from pyasic.miners.device.models import A11MX
+
+
+class InnosiliconA11MX(Innosilicon, A11MX):
+    pass
