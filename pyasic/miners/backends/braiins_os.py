@@ -798,7 +798,7 @@ class BOSer(BraiinsOSFirmware):
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             result = await self.web.set_power_target(
-                wattage, save_action=SaveAction.SAVE_ACTION_SAVE_AND_FORCE_APPLY
+                wattage, save_action=SaveAction.SAVE_AND_FORCE_APPLY
             )
         except APIError:
             return False
