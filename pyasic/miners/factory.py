@@ -941,13 +941,34 @@ class MinerFactory:
             async with httpx.AsyncClient(transport=settings.transport()) as session:
                 auth_req = await session.post(
                     f"http://{ip}/api/auth",
-                    data={"username": "admin", "password": "admin"},
+                    data={
+                        "username": "admin",
+                        "password": settings.get(
+                            "default_innosilicon_web_password", "admin"
+                        ),
+                    },
                 )
                 auth = auth_req.json()["jwt"]
+        except (httpx.HTTPError, LookupError):
+            return
 
+        try:
+            async with httpx.AsyncClient(transport=settings.transport()) as session:
                 web_data = (
                     await session.post(
                         f"http://{ip}/api/type",
+                        headers={"Authorization": "Bearer " + auth},
+                        data={},
+                    )
+                ).json()
+                return web_data["type"]
+        except (httpx.HTTPError, LookupError):
+            pass
+        try:
+            async with httpx.AsyncClient(transport=settings.transport()) as session:
+                web_data = (
+                    await session.post(
+                        f"http://{ip}/overview",
                         headers={"Authorization": "Bearer " + auth},
                         data={},
                     )
