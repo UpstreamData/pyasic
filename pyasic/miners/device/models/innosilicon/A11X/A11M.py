@@ -19,3 +19,5 @@ from pyasic.miners.device.makes import InnosiliconMake
 
 class A11MX(InnosiliconMake):
     raw_model = MinerModel.INNOSILICON.A11MX
+
+    expected_hashboards = 4

@@ -127,6 +127,9 @@ class InnosiliconWebAPI(BaseWebAPI):
     async def get_all(self) -> dict:
         return await self.send_command("getAll")
 
+    async def summary(self) -> dict:
+        return await self.send_command("summary")
+
     async def get_error_detail(self) -> dict:
         return await self.send_command("getErrorDetail")
 
