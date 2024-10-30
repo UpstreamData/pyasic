@@ -24,6 +24,8 @@ class M60VK10(WhatsMinerMake):
 class M60VK20(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M60VK20
 
+    expected_chips = 172
+
 
 class M60VK30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M60VK30
