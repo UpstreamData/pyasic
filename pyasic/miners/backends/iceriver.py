@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device import MinerAlgo
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -39,6 +40,10 @@ ICERIVER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
+            [WebAPICommand("web_userpanel", "userpanel")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
             [WebAPICommand("web_userpanel", "userpanel")],
         ),
     }
@@ -202,3 +207,37 @@ class IceRiver(StockFirmware):
                 )
             except (LookupError, ValueError, TypeError):
                 pass
+
+    async def _get_pools(self, web_userpanel: dict = None) -> List[PoolMetrics]:
+        if web_userpanel is None:
+            try:
+                web_userpanel = await self.web.userpanel()
+            except APIError:
+                pass
+
+        pools_data = []
+        if web_userpanel is not None:
+            try:
+                active_found = False
+                pools = web_userpanel["userpanel"]["data"]["pools"]
+                for pool_info in pools:
+                    pool_num = pool_info.get("no")
+                    if pool_num is not None:
+                        pool_num = int(pool_num)
+                    if pool_info["addr"] == "":
+                        continue
+                    url = pool_info.get("addr")
+                    pool_url = PoolUrl.from_str(url) if url else None
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("accepted"),
+                        rejected=pool_info.get("rejected"),
+                        active=pool_info.get("connect"),
+                        alive=int(pool_info.get("state", 0)) == 1,
+                        url=pool_url,
+                        user=pool_info.get("user"),
+                        index=pool_num,
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data
