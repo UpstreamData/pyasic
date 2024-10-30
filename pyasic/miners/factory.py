@@ -20,6 +20,8 @@ import enum
 import ipaddress
 import json
 import re
+import warnings
+from logging import warning
 from typing import Any, AsyncGenerator, Callable
 
 import anyio
@@ -841,6 +843,10 @@ class MinerFactory:
             return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
         except LookupError:
             if miner_type in MINER_CLASSES:
+                warnings.warn(
+                    f"Partially supported miner found: {miner_model}, please open an issue with miner data "
+                    f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
+                )
                 return MINER_CLASSES[miner_type][None](ip)
             return UnknownMiner(str(ip))
 
