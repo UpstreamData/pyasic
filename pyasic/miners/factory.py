@@ -21,7 +21,6 @@ import ipaddress
 import json
 import re
 import warnings
-from logging import warning
 from typing import Any, AsyncGenerator, Callable
 
 import anyio
@@ -1063,6 +1062,39 @@ class MinerFactory:
             return miner_model
         except (TypeError, LookupError):
             pass
+
+    async def get_miner_model_iceriver(self, ip: str) -> str | None:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
+            try:
+                # auth
+                await client.post(
+                    f"http://{ip}/user/loginpost",
+                    params={
+                        "post": "6",
+                        "user": "admin",
+                        "pwd": settings.get(
+                            "default_iceriver_web_password", "12345678"
+                        ),
+                    },
+                )
+            except httpx.HTTPError:
+                return None
+            try:
+                resp = await client.post(
+                    f"http://{ip}:/user/userpanel", params={"post": "4"}
+                )
+                if not resp.status_code == 200:
+                    return
+                result = resp.json()
+                software_ver = result["data"]["softver1"]
+                split_ver = software_ver.split("_")
+                if split_ver[-1] == "miner":
+                    miner_ver = split_ver[-2]
+                else:
+                    miner_ver = split_ver[-1].replace("miner", "")
+                return miner_ver.upper()
+            except httpx.HTTPError:
+                pass
 
 
 miner_factory = MinerFactory()
