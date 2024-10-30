@@ -76,7 +76,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                return [Fan(spd) for spd in web_userpanel["fans"]]
+                return [Fan(spd) for spd in web_userpanel["userpanel"]["data"]["fans"]]
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -89,7 +89,9 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                return web_userpanel["mac"].upper().replace("-", ":")
+                return (
+                    web_userpanel["userpanel"]["data"]["mac"].upper().replace("-", ":")
+                )
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -102,7 +104,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                return web_userpanel["host"]
+                return web_userpanel["userpanel"]["data"]["host"]
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -115,9 +117,13 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                base_unit = web_userpanel["unit"]
+                base_unit = web_userpanel["userpanel"]["data"]["unit"]
                 return AlgoHashRate.SHA256(
-                    float(web_userpanel["rtpow"].replace(base_unit, "")),
+                    float(
+                        web_userpanel["userpanel"]["data"]["rtpow"].replace(
+                            base_unit, ""
+                        )
+                    ),
                     unit=MinerAlgo.SHA256.unit.from_str(base_unit + "H"),
                 ).into(MinerAlgo.SHA256.unit.default)
             except (LookupError, ValueError, TypeError):
@@ -132,7 +138,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                return web_userpanel["locate"]
+                return web_userpanel["userpanel"]["data"]["locate"]
             except (LookupError, ValueError, TypeError):
                 pass
         return False
@@ -146,7 +152,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                return web_userpanel["powstate"]
+                return web_userpanel["userpanel"]["data"]["powstate"]
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -164,7 +170,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                for board in web_userpanel["boards"]:
+                for board in web_userpanel["userpanel"]["data"]["boards"]:
                     idx = int(board["no"] - 1)
                     hb_list[idx].chip_temp = round(board["outtmp"])
                     hb_list[idx].temp = round(board["intmp"])
@@ -186,7 +192,7 @@ class IceRiver(StockFirmware):
 
         if web_userpanel is not None:
             try:
-                runtime = web_userpanel["runtime"]
+                runtime = web_userpanel["userpanel"]["data"]["runtime"]
                 days, hours, minutes, seconds = runtime.split(":")
                 return (
                     (int(days) * 24 * 60 * 60)
