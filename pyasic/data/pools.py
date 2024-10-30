@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 class Scheme(Enum):
     STRATUM_V1 = "stratum+tcp"
     STRATUM_V2 = "stratum2+tcp"
+    STRATUM_V1_SSL = "stratum+ssl"
 
 
 @dataclass
