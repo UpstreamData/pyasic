@@ -21,3 +21,4 @@ class KS3(AntMinerMake):
     raw_model = MinerModel.ANTMINER.KS3
 
     expected_chips = 92
+    expected_fans = 2
