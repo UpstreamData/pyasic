@@ -21,3 +21,4 @@ class A11MX(InnosiliconMake):
     raw_model = MinerModel.INNOSILICON.A11MX
 
     expected_hashboards = 4
+    expected_chips = 8
