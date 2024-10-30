@@ -13,5 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .DR5 import DR5
-from .KS5 import KS5
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import AntMinerMake
+
+
+class KS5(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.KS5
+
+    expected_chips = 92

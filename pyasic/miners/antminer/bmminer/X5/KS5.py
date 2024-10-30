@@ -13,5 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .DR5 import DR5
-from .KS5 import KS5
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.device.models import KS5
+
+
+class BMMinerKS5(AntminerModern, KS5):
+    supports_shutdown = False
