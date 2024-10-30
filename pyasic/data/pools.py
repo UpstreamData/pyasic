@@ -89,6 +89,8 @@ class PoolMetrics:
     @staticmethod
     def _calculate_percentage(value: int, total: int) -> float:
         """Calculate the percentage."""
+        if value is None or total is None:
+            return 0
         if total == 0:
             return 0
         return (value / total) * 100
