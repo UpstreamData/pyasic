@@ -27,4 +27,3 @@ repos:
         'types': [python]
         args: ["-p '*test.py'"] # Probably this option is absolutely not needed.
         pass_filenames: false
-        stages: [commit]
