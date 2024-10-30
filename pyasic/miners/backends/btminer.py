@@ -23,11 +23,11 @@ import aiofiles
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
-from pyasic.data.pools import PoolMetrics, PoolUrl
 
 BTMINER_DATA_LOC = DataLocations(
     **{
@@ -113,7 +113,7 @@ BTMINER_DATA_LOC = DataLocations(
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
             [RPCAPICommand("rpc_pools", "pools")],
-        )
+        ),
     }
 )
 

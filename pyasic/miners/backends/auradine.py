@@ -193,7 +193,14 @@ class Auradine(StockFirmware):
         for key in conf.keys():
             await self.web.send_command(command=key, **conf[key])
 
-    async def upgrade_firmware(self, *, url: str = None, version: str = "latest", keep_settings: bool = False, **kwargs) -> bool:
+    async def upgrade_firmware(
+        self,
+        *,
+        url: str = None,
+        version: str = "latest",
+        keep_settings: bool = False,
+        **kwargs,
+    ) -> bool:
         """
         Upgrade the firmware of the Auradine device.
 
@@ -209,7 +216,9 @@ class Auradine(StockFirmware):
             logging.info("Starting firmware upgrade process.")
 
             if not url and not version:
-                raise ValueError("Either URL or version must be provided for firmware upgrade.")
+                raise ValueError(
+                    "Either URL or version must be provided for firmware upgrade."
+                )
 
             if url:
                 result = await self.web.firmware_upgrade(url=url)
@@ -220,11 +229,15 @@ class Auradine(StockFirmware):
                 logging.info("Firmware upgrade process completed successfully.")
                 return True
             else:
-                logging.error(f"Firmware upgrade failed: {result.get('error', 'Unknown error')}")
+                logging.error(
+                    f"Firmware upgrade failed: {result.get('error', 'Unknown error')}"
+                )
                 return False
 
         except Exception as e:
-            logging.error(f"An error occurred during the firmware upgrade process: {str(e)}")
+            logging.error(
+                f"An error occurred during the firmware upgrade process: {str(e)}"
+            )
             return False
 
     ##################################################

@@ -3,13 +3,13 @@ from typing import List, Optional
 from pyasic import MinerConfig
 from pyasic.config import MiningModeConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import MaraFirmware
 from pyasic.misc import merge_dicts
 from pyasic.rpc.marathon import MaraRPCAPI
 from pyasic.web.marathon import MaraWebAPI
-from pyasic.data.pools import PoolMetrics, PoolUrl
 
 MARA_DATA_LOC = DataLocations(
     **{
@@ -319,10 +319,13 @@ class MaraMiner(MaraFirmware):
                 return []
 
         active_pool_index = None
-        highest_priority = float('inf')
+        highest_priority = float("inf")
 
         for pool_info in web_pools:
-            if pool_info.get("status") == "Alive" and pool_info.get("priority", float('inf')) < highest_priority:
+            if (
+                pool_info.get("status") == "Alive"
+                and pool_info.get("priority", float("inf")) < highest_priority
+            ):
                 highest_priority = pool_info.get["priority"]
                 active_pool_index = pool_info["index"]
 

@@ -15,7 +15,4 @@
 # ------------------------------------------------------------------------------
 
 from .S21 import ePICS21, ePICS21Pro
-
-from .T21 import (
-    ePICT21,
-)
+from .T21 import ePICT21

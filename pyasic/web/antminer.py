@@ -17,10 +17,11 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
 from typing import Any
+
 import aiofiles
 import httpx
-from pathlib import Path
 
 from pyasic import settings
 from pyasic.web.base import BaseWebAPI
@@ -414,10 +415,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         parameters = {
             "file": (file.name, file_content, "application/octet-stream"),
             "filename": file.name,
-            "keep_settings": keep_settings
+            "keep_settings": keep_settings,
         }
 
-        return await self.send_command(
-            command="upgrade",
-            **parameters
-        )
+        return await self.send_command(command="upgrade", **parameters)

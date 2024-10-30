@@ -14,7 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .blockminer import (
-    ePICBlockMiner520i,
-    ePICBlockMiner720i,
-)
+from .blockminer import ePICBlockMiner520i, ePICBlockMiner720i

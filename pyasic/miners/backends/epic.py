@@ -454,8 +454,9 @@ class ePIC(ePICFirmware):
         except LookupError:
             pass
 
-    async def upgrade_firmware(self, file: Path | str, keep_settings: bool = True) -> bool:
-
+    async def upgrade_firmware(
+        self, file: Path | str, keep_settings: bool = True
+    ) -> bool:
         """
         Upgrade the firmware of the ePIC miner device.
 

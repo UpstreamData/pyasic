@@ -23,13 +23,13 @@ from typing import Any, List, Union
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
+from pyasic.data.pools import PoolMetrics
 
 from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
 from .hashrate import AlgoHashRate, HashUnit
-from pyasic.data.pools import PoolMetrics
 
 
 @dataclass
