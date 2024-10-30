@@ -165,13 +165,13 @@ class IceRiver(StockFirmware):
         if web_userpanel is not None:
             try:
                 for board in web_userpanel["boards"]:
-                    idx = board["no"] - 1
+                    idx = int(board["no"] - 1)
                     hb_list[idx].chip_temp = round(board["outtmp"])
                     hb_list[idx].temp = round(board["intmp"])
                     hb_list[idx].hashrate = AlgoHashRate.SHA256(
                         float(board["rtpow"].replace("G", "")), HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
-                    hb_list[idx].chips = board["chipnum"]
+                    hb_list[idx].chips = int(board["chipnum"])
                     hb_list[idx].missing = False
             except LookupError:
                 pass

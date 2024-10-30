@@ -346,6 +346,7 @@ class BitAxeModels(str, Enum):
 
 class IceRiverModels(str, Enum):
     KS2 = "KS2"
+    KS3M = "KS3M"
 
     def __str__(self):
         return self.value

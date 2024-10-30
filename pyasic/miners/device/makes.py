@@ -51,4 +51,4 @@ class BitAxeMake(BaseMiner):
 
 
 class IceRiverMake(BaseMiner):
-    make = MinerMake.BITAXE
+    make = MinerMake.ICERIVER

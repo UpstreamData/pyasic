@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2024 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,20 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import IceRiverMake
 
-from enum import Enum
 
+class KS3M(IceRiverMake):
+    raw_model = MinerModel.ICERIVER.KS3M
 
-class MinerMake(str, Enum):
-    WHATSMINER = "WhatsMiner"
-    ANTMINER = "AntMiner"
-    AVALONMINER = "AvalonMiner"
-    INNOSILICON = "Innosilicon"
-    GOLDSHELL = "Goldshell"
-    AURADINE = "Auradine"
-    EPIC = "ePIC"
-    BITAXE = "BitAxe"
-    ICERIVER = "IceRiver"
-
-    def __str__(self):
-        return self.value
+    expected_fans = 4
+    expected_chips = 18
