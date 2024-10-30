@@ -222,6 +222,14 @@ class Pool(MinerConfigValue):
             password=web_system_info.get("stratumPassword", ""),
         )
 
+    @classmethod
+    def from_iceriver(cls, web_pool: dict) -> "Pool":
+        return cls(
+            url=web_pool["addr"],
+            user=web_pool["user"],
+            password=web_pool["pass"],
+        )
+
 
 @dataclass
 class PoolGroup(MinerConfigValue):
@@ -402,6 +410,15 @@ class PoolGroup(MinerConfigValue):
     def from_bitaxe(cls, web_system_info: dict) -> "PoolGroup":
         return cls(pools=[Pool.from_bitaxe(web_system_info)])
 
+    @classmethod
+    def from_iceriver(cls, web_userpanel: dict) -> "PoolGroup":
+        return cls(
+            pools=[
+                Pool.from_iceriver(web_pool)
+                for web_pool in web_userpanel["data"]["pools"]
+            ]
+        )
+
 
 @dataclass
 class PoolConfig(MinerConfigValue):
@@ -568,3 +585,7 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_bitaxe(cls, web_system_info: dict) -> "PoolConfig":
         return cls(groups=[PoolGroup.from_bitaxe(web_system_info)])
+
+    @classmethod
+    def from_iceriver(cls, web_userpanel: dict) -> "PoolConfig":
+        return cls(groups=[PoolGroup.from_iceriver(web_userpanel)])

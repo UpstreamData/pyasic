@@ -250,3 +250,9 @@ class MinerConfig:
             pools=PoolConfig.from_bitaxe(web_system_info),
             fan_mode=FanModeConfig.from_bitaxe(web_system_info),
         )
+
+    @classmethod
+    def from_iceriver(cls, web_userpanel: dict) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_iceriver(web_userpanel),
+        )

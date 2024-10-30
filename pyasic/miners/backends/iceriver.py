@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from pyasic import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device import MinerAlgo
@@ -71,6 +72,11 @@ class IceRiver(StockFirmware):
         except APIError:
             return False
         return True
+
+    async def get_config(self) -> MinerConfig:
+        web_userpanel = await self.web.userpanel()
+
+        return MinerConfig.from_iceriver(web_userpanel)
 
     async def _get_fans(self, web_userpanel: dict = None) -> List[Fan]:
         if web_userpanel is None:
@@ -218,7 +224,6 @@ class IceRiver(StockFirmware):
         pools_data = []
         if web_userpanel is not None:
             try:
-                active_found = False
                 pools = web_userpanel["userpanel"]["data"]["pools"]
                 for pool_info in pools:
                     pool_num = pool_info.get("no")
