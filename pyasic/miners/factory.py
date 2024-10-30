@@ -462,7 +462,11 @@ MINER_CLASSES = {
     },
     MinerTypes.ICERIVER: {
         None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),
+        "KS0": IceRiverKS0,
+        "KS1": IceRiverKS1,
         "KS2": IceRiverKS2,
+        "KS3": IceRiverKS3,
+        "KS3L": IceRiverKS3L,
         "KS3M": IceRiverKS3M,
     },
 }

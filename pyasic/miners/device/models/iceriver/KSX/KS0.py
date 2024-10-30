@@ -17,20 +17,7 @@ from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import IceRiverMake
 
 
-class KS3(IceRiverMake):
-    raw_model = MinerModel.ICERIVER.KS3
+class KS0(IceRiverMake):
+    raw_model = MinerModel.ICERIVER.KS0
 
-    expected_fans = 4
-
-
-class KS3L(IceRiverMake):
-    raw_model = MinerModel.ICERIVER.KS3L
-
-    expected_fans = 4
-
-
-class KS3M(IceRiverMake):
-    raw_model = MinerModel.ICERIVER.KS3M
-
-    expected_fans = 4
-    expected_chips = 18
+    expected_fans = 0
