@@ -623,6 +623,8 @@ class MinerFactory:
                 return MinerTypes.WHATSMINER
         if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
+        if "<TITLE>用户界面</TITLE>" in web_text:
+            return MinerTypes.ICERIVER
         if "AxeOS" in web_text:
             return MinerTypes.BITAXE
         if "cloud-box" in web_text:
@@ -637,8 +639,6 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
-        if "<TITLE>用户界面</TITLE>" in web_text:
-            return MinerTypes.ICERIVER
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         commands = ["version", "devdetails"]
