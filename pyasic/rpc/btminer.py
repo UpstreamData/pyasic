@@ -22,8 +22,8 @@ import hashlib
 import json
 import logging
 import re
-from typing import Literal, Union
 import struct
+from typing import Literal, Union
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes

@@ -18,11 +18,11 @@ from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.bfgminer import BFGMinerRPCAPI
-from pyasic.data.pools import PoolMetrics, PoolUrl
 
 BFGMINER_DATA_LOC = DataLocations(
     **{

@@ -14,15 +14,15 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import Optional, List
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, HashUnit
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.cgminer import CGMinerRPCAPI
-from pyasic.data.pools import PoolMetrics, PoolUrl
 
 CGMINER_DATA_LOC = DataLocations(
     **{
