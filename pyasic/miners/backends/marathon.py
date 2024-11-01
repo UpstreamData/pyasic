@@ -326,7 +326,7 @@ class MaraMiner(MaraFirmware):
                 pool_info.get("status") == "Alive"
                 and pool_info.get("priority", float("inf")) < highest_priority
             ):
-                highest_priority = pool_info.get["priority"]
+                highest_priority = pool_info.get("priority")
                 active_pool_index = pool_info["index"]
 
         pools_data = []
