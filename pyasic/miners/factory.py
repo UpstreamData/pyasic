@@ -628,6 +628,8 @@ class MinerFactory:
                 return MinerTypes.WHATSMINER
         if "Braiins OS" in web_text:
             return MinerTypes.BRAIINS_OS
+        if "Luxor Firmware" in web_text:
+            return MinerTypes.LUX_OS
         if "<TITLE>用户界面</TITLE>" in web_text:
             return MinerTypes.ICERIVER
         if "AxeOS" in web_text:
