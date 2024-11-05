@@ -13,5 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .A11 import *
-from .A11M import *
+
+from pyasic.miners.backends.innosilicon import Innosilicon
+from pyasic.miners.device.models import A11
+
+
+class InnosiliconA11(Innosilicon, A11):
+    pass

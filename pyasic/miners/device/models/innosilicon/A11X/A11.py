@@ -13,5 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .A11 import *
-from .A11M import *
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import InnosiliconMake
+
+
+class A11(InnosiliconMake):
+    raw_model = MinerModel.INNOSILICON.A11
+
+    expected_hashboards = 4

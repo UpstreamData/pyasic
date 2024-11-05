@@ -343,6 +343,7 @@ MINER_CLASSES = {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
         "T3H+": InnosiliconT3HPlus,
         "A10X": InnosiliconA10X,
+        "A11": InnosiliconA11,
         "A11MX": InnosiliconA11MX,
     },
     MinerTypes.GOLDSHELL: {
