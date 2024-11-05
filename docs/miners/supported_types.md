@@ -36,6 +36,7 @@ details {
             <summary>X7 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
+                    <li><a href="../antminer/X7#k7-stock">K7 (Stock)</a></li>
                 </ul>
         </details>
         <details>
@@ -52,6 +53,7 @@ details {
             <summary>X15 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X15#z15-stock">Z15 (Stock)</a></li>
+                    <li><a href="../antminer/X15#z15-pro-stock">Z15 Pro (Stock)</a></li>
                 </ul>
         </details>
         <details>
@@ -281,6 +283,7 @@ details {
                     <li><a href="../whatsminer/M5X#m50-vh60-stock">M50 VH60 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50-vh70-stock">M50 VH70 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50-vh80-stock">M50 VH80 (Stock)</a></li>
+                    <li><a href="../whatsminer/M5X#m50-vh90-stock">M50 VH90 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50-vj10-stock">M50 VJ10 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50-vj20-stock">M50 VJ20 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50-vj30-stock">M50 VJ30 (Stock)</a></li>
@@ -407,6 +410,7 @@ details {
         <details>
             <summary>A11X Series:</summary>
                 <ul>
+                    <li><a href="../innosilicon/A11X#a11-stock">A11 (Stock)</a></li>
                     <li><a href="../innosilicon/A11X#a11mx-stock">A11MX (Stock)</a></li>
                 </ul>
         </details>
@@ -520,6 +524,7 @@ details {
                     <li><a href="../antminer/X19#s19-no-pic-vnish">S19 No PIC (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-vnish">S19 Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-vnish">S19j (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-vnish">S19a (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-vnish">S19a Pro (VNish)</a></li>

@@ -71,6 +71,13 @@
         show_root_heading: false
         heading_level: 4
 
+## M50 VH90 (Stock)
+::: pyasic.miners.whatsminer.btminer.M5X.M50.BTMinerM50VH90
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M50 VJ10 (Stock)
 ::: pyasic.miners.whatsminer.btminer.M5X.M50.BTMinerM50VJ10
     handler: python
