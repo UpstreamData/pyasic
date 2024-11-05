@@ -10,6 +10,7 @@ class AntminerModels(str, Enum):
     DR5 = "DR5"
     KS5 = "KS5"
     L7 = "L7"
+    K7 = "K7"
     E9Pro = "E9Pro"
     S9 = "S9"
     S9i = "S9i"

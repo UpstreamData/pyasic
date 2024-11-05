@@ -13,5 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .K7 import K7
-from .L7 import L7
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.device.models import K7
+
+
+class BMMinerK7(AntminerModern, K7):
+    pass
