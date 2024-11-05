@@ -56,6 +56,15 @@ LUXMINER_DATA_LOC = DataLocations(
         str(DataOptions.POOLS): DataFunction(
             "_get_pools", [RPCAPICommand("rpc_pools", "pools")]
         ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver", [RPCAPICommand("rpc_version", "version")]
+        ),
+        str(DataOptions.API_VERSION): DataFunction(
+            "_get_api_ver", [RPCAPICommand("rpc_version", "version")]
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "_get_fault_light", [RPCAPICommand("rpc_config", "config")]
+        ),
     }
 )
 
@@ -68,25 +77,9 @@ class LUXMiner(LuxOSFirmware):
 
     data_locations = LUXMINER_DATA_LOC
 
-    async def _get_session(self) -> Optional[str]:
-        try:
-            data = await self.rpc.session()
-            if not data["SESSION"][0]["SessionID"] == "":
-                return data["SESSION"][0]["SessionID"]
-        except APIError:
-            pass
-
-        try:
-            data = await self.rpc.logon()
-            return data["SESSION"][0]["SessionID"]
-        except (LookupError, APIError):
-            return
-
     async def fault_light_on(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.ledset(session_id, "red", "blink")
+            await self.rpc.ledset("red", "blink")
             return True
         except (APIError, LookupError):
             pass
@@ -94,9 +87,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def fault_light_off(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.ledset(session_id, "red", "off")
+            await self.rpc.ledset("red", "off")
             return True
         except (APIError, LookupError):
             pass
@@ -107,9 +98,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def restart_luxminer(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.resetminer(session_id)
+            await self.rpc.resetminer()
             return True
         except (APIError, LookupError):
             pass
@@ -117,9 +106,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def stop_mining(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.curtail(session_id)
+            await self.rpc.sleep()
             return True
         except (APIError, LookupError):
             pass
@@ -127,25 +114,27 @@ class LUXMiner(LuxOSFirmware):
 
     async def resume_mining(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.wakeup(session_id)
+            await self.rpc.wakeup()
             return True
         except (APIError, LookupError):
             pass
 
     async def reboot(self) -> bool:
         try:
-            session_id = await self._get_session()
-            if session_id:
-                await self.rpc.rebootdevice(session_id)
+            await self.rpc.rebootdevice()
             return True
         except (APIError, LookupError):
             pass
         return False
 
     async def get_config(self) -> MinerConfig:
-        return self.config
+        data = await self.rpc.multicommand("tempctrl", "fans", "pools", "groups")
+        return MinerConfig.from_luxos(
+            rpc_tempctrl=data.get("tempctrl", [{}])[0],
+            rpc_fans=data.get("fans", [{}])[0],
+            rpc_pools=data.get("pools", [{}])[0],
+            rpc_groups=data.get("groups", [{}])[0],
+        )
 
     async def upgrade_firmware(self) -> bool:
         """
@@ -168,20 +157,17 @@ class LUXMiner(LuxOSFirmware):
     ##################################################
 
     async def _get_mac(self, rpc_config: dict = None) -> Optional[str]:
-        mac = None
         if rpc_config is None:
             try:
                 rpc_config = await self.rpc.config()
             except APIError:
-                return None
+                pass
 
         if rpc_config is not None:
             try:
-                mac = rpc_config["CONFIG"][0]["MACAddr"]
+                return rpc_config["CONFIG"][0]["MACAddr"].upper()
             except KeyError:
-                return None
-
-        return mac
+                pass
 
     async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:
@@ -199,59 +185,47 @@ class LUXMiner(LuxOSFirmware):
                 pass
 
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
-        hashboards = []
+        hashboards = [
+            HashBoard(idx, expected_chips=self.expected_chips)
+            for idx in range(self.expected_hashboards)
+        ]
 
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
             except APIError:
                 pass
-
         if rpc_stats is not None:
             try:
-                board_offset = -1
-                boards = rpc_stats["STATS"]
-                if len(boards) > 1:
-                    for board_num in range(1, 16, 5):
-                        for _b_num in range(5):
-                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
-
-                            if b and not b == 0 and board_offset == -1:
-                                board_offset = board_num
-                    if board_offset == -1:
-                        board_offset = 1
-
-                    for i in range(
-                        board_offset, board_offset + self.expected_hashboards
-                    ):
-                        hashboard = HashBoard(
-                            slot=i - board_offset, expected_chips=self.expected_chips
+                # TODO: bugged on S9 because of index issues, fix later.
+                board_stats = rpc_stats["STATS"][1]
+                for idx in range(3):
+                    board_n = idx + 1
+                    hashboards[idx].hashrate = AlgoHashRate.SHA256(
+                        float(board_stats[f"chain_rate{board_n}"]), HashUnit.SHA256.GH
+                    ).into(self.algo.unit.default)
+                    hashboards[idx].chips = int(board_stats[f"chain_acn{board_n}"])
+                    chip_temp_data = list(
+                        filter(
+                            lambda x: not x == 0,
+                            map(int, board_stats[f"temp_chip{board_n}"].split("-")),
                         )
-
-                        chip_temp = boards[1].get(f"temp{i}")
-                        if chip_temp:
-                            hashboard.chip_temp = round(chip_temp)
-
-                        temp = boards[1].get(f"temp2_{i}")
-                        if temp:
-                            hashboard.temp = round(temp)
-
-                        hashrate = boards[1].get(f"chain_rate{i}")
-                        if hashrate:
-                            hashboard.hashrate = AlgoHashRate.SHA256(
-                                hashrate, HashUnit.SHA256.GH
-                            ).into(self.algo.unit.default)
-
-                        chips = boards[1].get(f"chain_acn{i}")
-                        if chips:
-                            hashboard.chips = chips
-                            hashboard.missing = False
-                        if (not chips) or (not chips > 0):
-                            hashboard.missing = True
-                        hashboards.append(hashboard)
-            except (LookupError, ValueError, TypeError):
+                    )
+                    hashboards[idx].chip_temp = (
+                        sum([chip_temp_data[0], chip_temp_data[3]]) / 2
+                    )
+                    board_temp_data = list(
+                        filter(
+                            lambda x: not x == 0,
+                            map(int, board_stats[f"temp_pcb{board_n}"].split("-")),
+                        )
+                    )
+                    hashboards[idx].temp = (
+                        sum([board_temp_data[1], board_temp_data[2]]) / 2
+                    )
+                    hashboards[idx].missing = False
+            except LookupError:
                 pass
-
         return hashboards
 
     async def _get_wattage(self, rpc_power: dict = None) -> Optional[int]:
@@ -316,6 +290,45 @@ class LUXMiner(LuxOSFirmware):
         if rpc_stats is not None:
             try:
                 return int(rpc_stats["STATS"][1]["Elapsed"])
+            except LookupError:
+                pass
+
+    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                return rpc_version["VERSION"][0]["Miner"]
+            except LookupError:
+                pass
+
+    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                return rpc_version["VERSION"][0]["API"]
+            except LookupError:
+                pass
+
+    async def _get_fault_light(self, rpc_config: dict = None) -> Optional[bool]:
+        if rpc_config is None:
+            try:
+                rpc_config = await self.rpc.config()
+            except APIError:
+                pass
+
+        if rpc_config is not None:
+            try:
+                return not rpc_config["CONFIG"][0]["RedLed"] == "off"
             except LookupError:
                 pass
 

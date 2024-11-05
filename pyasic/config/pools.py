@@ -223,6 +223,10 @@ class Pool(MinerConfigValue):
         )
 
     @classmethod
+    def from_luxos(cls, rpc_pools: dict) -> "Pool":
+        return cls.from_api(rpc_pools)
+
+    @classmethod
     def from_iceriver(cls, web_pool: dict) -> "Pool":
         return cls(
             url=web_pool["addr"],
@@ -523,6 +527,9 @@ class PoolConfig(MinerConfigValue):
     def as_bitaxe(self, user_suffix: str = None) -> dict:
         return self.groups[0].as_bitaxe(user_suffix=user_suffix)
 
+    def as_luxos(self, user_suffix: str = None) -> dict:
+        return {}
+
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":
         try:
@@ -589,3 +596,20 @@ class PoolConfig(MinerConfigValue):
     @classmethod
     def from_iceriver(cls, web_userpanel: dict) -> "PoolConfig":
         return cls(groups=[PoolGroup.from_iceriver(web_userpanel)])
+
+    @classmethod
+    def from_luxos(cls, rpc_groups: dict, rpc_pools: dict) -> "PoolConfig":
+        return cls(
+            groups=[
+                PoolGroup(
+                    pools=[
+                        Pool.from_luxos(pool)
+                        for pool in rpc_pools["POOLS"]
+                        if pool["GROUP"] == group["GROUP"]
+                    ],
+                    name=group["Name"],
+                    quota=group["Quota"],
+                )
+                for group in rpc_groups["GROUPS"]
+            ]
+        )

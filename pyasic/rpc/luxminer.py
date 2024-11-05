@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import Literal
+from typing import Literal, Optional, Union
 
+from pyasic import APIError
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 
@@ -32,6 +33,48 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
     rely on it to send the command for them.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session_token = None
+
+    async def send_privileged_command(
+        self, command: Union[str, bytes], *args, **kwargs
+    ) -> dict:
+        if self.session_token is None:
+            await self.auth()
+        return await self.send_command(
+            command,
+            self.session_token,
+            *args,
+            **kwargs,
+        )
+
+    async def send_command(
+        self,
+        command: Union[str, bytes],
+        *args,
+        **kwargs,
+    ) -> dict:
+        if kwargs.get("parameters") is not None and len(args) == 0:
+            return await super().send_command(command, **kwargs)
+        return await super().send_command(command, parameters=",".join(args), **kwargs)
+
+    async def auth(self) -> Optional[str]:
+        try:
+            data = await self.session()
+            if not data["SESSION"][0]["SessionID"] == "":
+                self.session_token = data["SESSION"][0]["SessionID"]
+                return self.session_token
+        except APIError:
+            pass
+
+        try:
+            data = await self.logon()
+            self.session_token = data["SESSION"][0]["SessionID"]
+            return self.session_token
+        except (LookupError, APIError):
+            pass
+
     async def addgroup(self, name: str, quota: int) -> dict:
         """Add a pool group.
         <details>
@@ -45,7 +88,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             Confirmation of adding a pool group.
         </details>
         """
-        return await self.send_command("addgroup", parameters=f"{name},{quota}")
+        return await self.send_command("addgroup", name, quota)
 
     async def addpool(
         self, url: str, user: str, pwd: str = "", group_id: str = None
@@ -67,7 +110,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         pool_data = [url, user, pwd]
         if group_id is not None:
             pool_data.append(group_id)
-        return await self.send_command("addpool", parameters=",".join(pool_data))
+        return await self.send_command("addpool", *pool_data)
 
     async def asc(self, n: int) -> dict:
         """Get data for ASC device n.
@@ -81,7 +124,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             The data for ASC device n.
         </details>
         """
-        return await self.send_command("asc", parameters=n)
+        return await self.send_command("asc", n)
 
     async def asccount(self) -> dict:
         """Get data on the number of ASC devices and their info.
@@ -108,7 +151,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
                 * Access (Y/N) <- you have access to use the command
         </details>
         """
-        return await self.send_command("check", parameters=command)
+        return await self.send_command("check", command)
 
     async def coin(self) -> dict:
         """Get information on the current coin.
@@ -137,19 +180,38 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("config")
 
-    async def curtail(self, session_id: str) -> dict:
-        """Put the miner into sleep mode.  Requires a session_id from logon.
+    async def curtail(self) -> dict:
+        """Put the miner into sleep mode.
         <details>
             <summary>Expand</summary>
-
-        Parameters:
-            session_id: Session id from the logon command.
 
         Returns:
             A confirmation of putting the miner to sleep.
         </details>
         """
-        return await self.send_command("curtail", parameters=session_id)
+        return await self.send_privileged_command("curtail", "sleep")
+
+    async def sleep(self) -> dict:
+        """Put the miner into sleep mode.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            A confirmation of putting the miner to sleep.
+        </details>
+        """
+        return await self.send_privileged_command("curtail", "sleep")
+
+    async def wakeup(self) -> dict:
+        """Wake the miner up from sleep mode.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            A confirmation of waking the miner up.
+        </details>
+        """
+        return await self.send_privileged_command("curtail", "wakeup")
 
     async def devdetails(self) -> dict:
         """Get data on all devices with their static details.
@@ -185,7 +247,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of diabling the pool.
         </details>
         """
-        return await self.send_command("disablepool", parameters=n)
+        return await self.send_command("disablepool", n)
 
     async def edevs(self) -> dict:
         """Alias for devs"""
@@ -203,7 +265,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of enabling pool n.
         </details>
         """
-        return await self.send_command("enablepool", parameters=n)
+        return await self.send_command("enablepool", n)
 
     async def estats(self) -> dict:
         """Alias for stats"""
@@ -220,13 +282,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("fans")
 
-    async def fanset(self, session_id: str, speed: int, min_fans: int = None) -> dict:
-        """Set fan control.  Requires a session_id from logon.
+    async def fanset(
+        self, speed: int = None, min_fans: int = None, power_off_speed: int = None
+    ) -> dict:
+        """Set fan control.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             speed: The fan speed to set.  Use -1 to set automatically.
             min_fans: The minimum number of fans to use. Optional.
 
@@ -234,10 +297,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting fan control values.
         </details>
         """
-        fanset_data = [str(session_id), str(speed)]
+        fanset_data = []
+        if speed is not None:
+            fanset_data.append(f"speed={speed}")
         if min_fans is not None:
-            fanset_data.append(str(min_fans))
-        return await self.send_command("fanset", parameters=",".join(fanset_data))
+            fanset_data.append(f"min_fans={min_fans}")
+        if power_off_speed is not None:
+            fanset_data.append(f"power_off_speed={power_off_speed}")
+        return await self.send_privileged_command("fanset", *fanset_data)
 
     async def frequencyget(self, board_n: int, chip_n: int = None) -> dict:
         """Get frequency data for a board and chips.
@@ -255,17 +322,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         frequencyget_data = [str(board_n)]
         if chip_n is not None:
             frequencyget_data.append(str(chip_n))
-        return await self.send_command(
-            "frequencyget", parameters=",".join(frequencyget_data)
-        )
+        return await self.send_command("frequencyget", *frequencyget_data)
 
-    async def frequencyset(self, session_id: str, board_n: int, freq: int) -> dict:
-        """Set frequency.  Requires a session_id from logon.
+    async def frequencyset(self, board_n: int, freq: int) -> dict:
+        """Set frequency.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board number to set frequency on.
             freq: The frequency to set.
 
@@ -273,26 +337,21 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting frequency values.
         </details>
         """
-        return await self.send_command(
-            "frequencyset", parameters=f"{session_id},{board_n},{freq}"
-        )
+        return await self.send_privileged_command("frequencyset", board_n, freq)
 
-    async def frequencystop(self, session_id: str, board_n: int) -> dict:
-        """Stop set frequency.  Requires a session_id from logon.
+    async def frequencystop(self, board_n: int) -> dict:
+        """Stop set frequency.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board number to set frequency on.
 
         Returns:
             A confirmation of stopping frequencyset value.
         </details>
         """
-        return await self.send_command(
-            "frequencystop", parameters=f"{session_id},{board_n}"
-        )
+        return await self.send_privileged_command("frequencystop", board_n)
 
     async def groupquota(self, group_n: int, quota: int) -> dict:
         """Set a group's quota.
@@ -307,7 +366,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting quota value.
         </details>
         """
-        return await self.send_command("groupquota", parameters=f"{group_n},{quota}")
+        return await self.send_command("groupquota", group_n, quota)
 
     async def groups(self) -> dict:
         """Get pool group data.
@@ -336,19 +395,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         healthchipget_data = [str(board_n)]
         if chip_n is not None:
             healthchipget_data.append(str(chip_n))
-        return await self.send_command(
-            "healthchipget", parameters=",".join(healthchipget_data)
-        )
+        return await self.send_command("healthchipget", *healthchipget_data)
 
-    async def healthchipset(
-        self, session_id: str, board_n: int, chip_n: int = None
-    ) -> dict:
-        """Select the next chip to have its health checked.  Requires a session_id from logon.
+    async def healthchipset(self, board_n: int, chip_n: int = None) -> dict:
+        """Select the next chip to have its health checked.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board number to next get chip health of.
             chip_n: The chip number to next get chip health of.  Optional.
 
@@ -356,12 +410,10 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             Confirmation of selecting the next health check chip.
         </details>
         """
-        healthchipset_data = [session_id, str(board_n)]
+        healthchipset_data = [str(board_n)]
         if chip_n is not None:
             healthchipset_data.append(str(chip_n))
-        return await self.send_command(
-            "healthchipset", parameters=",".join(healthchipset_data)
-        )
+        return await self.send_privileged_command("healthchipset", *healthchipset_data)
 
     async def healthctrl(self) -> dict:
         """Get health check config.
@@ -374,15 +426,12 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("healthctrl")
 
-    async def healthctrlset(
-        self, session_id: str, num_readings: int, amplified_factor: float
-    ) -> dict:
-        """Set health control config.  Requires a session_id from logon.
+    async def healthctrlset(self, num_readings: int, amplified_factor: float) -> dict:
+        """Set health control config.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             num_readings: The minimum number of readings for evaluation.
             amplified_factor: Performance factor of the evaluation.
 
@@ -390,9 +439,8 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting health control config.
         </details>
         """
-        return await self.send_command(
-            "healthctrlset",
-            parameters=f"{session_id},{num_readings},{amplified_factor}",
+        return await self.send_privileged_command(
+            "healthctrlset", num_readings, amplified_factor
         )
 
     async def kill(self) -> dict:
@@ -419,16 +467,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
 
     async def ledset(
         self,
-        session_id: str,
         color: Literal["red"],
         state: Literal["on", "off", "blink"],
     ) -> dict:
-        """Set led.  Requires a session_id from logon.
+        """Set led.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             color: The color LED to set.  Can be "red".
             state: The state to set the LED to.  Can be "on", "off", or "blink".
 
@@ -436,9 +482,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting LED.
         </details>
         """
-        return await self.send_command(
-            "ledset", parameters=f"{session_id},{color},{state}"
-        )
+        return await self.send_privileged_command("ledset", color, state)
 
     async def limits(self) -> dict:
         """Get max and min values of config parameters.
@@ -451,8 +495,8 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("limits")
 
-    async def logoff(self, session_id: str) -> dict:
-        """Log off of a session.  Requires a session id from an active session.
+    async def logoff(self) -> dict:
+        """Log off of a session.
         <details>
             <summary>Expand</summary>
 
@@ -463,7 +507,9 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             Confirmation of logging off a session.
         </details>
         """
-        return await self.send_command("logoff", parameters=session_id)
+        res = await self.send_privileged_command("logoff")
+        self.session_token = None
+        return res
 
     async def logon(self) -> dict:
         """Get or create a session.
@@ -510,13 +556,12 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("profiles")
 
-    async def profileset(self, session_id: str, board_n: int, profile: str) -> dict:
-        """Set active profile for a board.  Requires a session_id from logon.
+    async def profileset(self, board_n: int, profile: str) -> dict:
+        """Set active profile for a board.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board to set the profile on.
             profile: The profile name to use.
 
@@ -524,17 +569,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting the profile on board_n.
         </details>
         """
-        return await self.send_command(
-            "profileset", parameters=f"{session_id},{board_n},{profile}"
-        )
+        return await self.send_privileged_command("profileset", board_n, profile)
 
-    async def reboot(self, session_id: str, board_n: int, delay_s: int = None) -> dict:
-        """Reboot a board.  Requires a session_id from logon.
+    async def reboot(self, board_n: int, delay_s: int = None) -> dict:
+        """Reboot a board.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board to reboot.
             delay_s: The number of seconds to delay until startup.  If it is 0, the board will just stop.  Optional.
 
@@ -542,24 +584,21 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of rebooting board_n.
         </details>
         """
-        reboot_data = [session_id, str(board_n)]
+        reboot_data = [str(board_n)]
         if delay_s is not None:
             reboot_data.append(str(delay_s))
-        return await self.send_command("reboot", parameters=",".join(reboot_data))
+        return await self.send_privileged_command("reboot", *reboot_data)
 
-    async def rebootdevice(self, session_id: str) -> dict:
-        """Reboot the miner.  Requires a session_id from logon.
+    async def rebootdevice(self) -> dict:
+        """Reboot the miner.
         <details>
             <summary>Expand</summary>
-
-        Parameters:
-            session_id: Session id from the logon command.
 
         Returns:
             A confirmation of rebooting the miner.
         </details>
         """
-        return await self.send_command("rebootdevice", parameters=session_id)
+        return await self.send_privileged_command("rebootdevice")
 
     async def removegroup(self, group_id: str) -> dict:
         """Remove a pool group.
@@ -575,19 +614,16 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("removegroup", parameters=group_id)
 
-    async def resetminer(self, session_id: str) -> dict:
-        """Restart the mining process.  Requires a session_id from logon.
+    async def resetminer(self) -> dict:
+        """Restart the mining process.
         <details>
             <summary>Expand</summary>
-
-        Parameters:
-            session_id: Session id from the logon command.
 
         Returns:
             A confirmation of restarting the mining process.
         </details>
         """
-        return await self.send_command("resetminer", parameters=session_id)
+        return await self.send_privileged_command("resetminer")
 
     async def removepool(self, pool_id: int) -> dict:
         """Remove a pool.
@@ -614,7 +650,9 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("session")
 
-    async def tempctrlset(self, target: int, hot: int, dangerous: int) -> dict:
+    async def tempctrlset(
+        self, target: int = None, hot: int = None, dangerous: int = None
+    ) -> dict:
         """Set temp control values.
         <details>
             <summary>Expand</summary>
@@ -629,7 +667,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         </details>
         """
         return await self.send_command(
-            "tempctrlset", parameters=f"{target},{hot},{dangerous}"
+            "tempctrlset", target or "", hot or "", dangerous or ""
         )
 
     async def stats(self) -> dict:
@@ -668,7 +706,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of switching to the pool.
         </details>
         """
-        return await self.send_command("switchpool", parameters=str(pool_id))
+        return await self.send_command("switchpool", pool_id)
 
     async def tempctrl(self) -> dict:
         """Get temperature control data.
@@ -716,15 +754,14 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             Board voltage values.
         </details>
         """
-        return await self.send_command("frequencyget", parameters=str(board_n))
+        return await self.send_command("frequencyget", board_n)
 
-    async def voltageset(self, session_id: str, board_n: int, voltage: float) -> dict:
+    async def voltageset(self, board_n: int, voltage: float) -> dict:
         """Set voltage values.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            session_id: Session id from the logon command.
             board_n: The board to set the voltage on.
             voltage: The voltage to use.
 
@@ -732,23 +769,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             A confirmation of setting the voltage.
         </details>
         """
-        return await self.send_command(
-            "voltageset", parameters=f"{session_id},{board_n},{voltage}"
-        )
-
-    async def wakeup(self, session_id: str) -> dict:
-        """Take the miner out of sleep mode.  Requires a session_id from logon.
-        <details>
-            <summary>Expand</summary>
-
-        Parameters:
-            session_id: Session id from the logon command.
-
-        Returns:
-            A confirmation of resuming mining.
-        </details>
-        """
-        return await self.send_command("wakeup", parameters=session_id)
+        return await self.send_privileged_command("voltageset", board_n, voltage)
 
     async def upgraderun(self):
         """
