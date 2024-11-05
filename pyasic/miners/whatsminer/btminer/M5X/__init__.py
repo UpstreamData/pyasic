@@ -25,6 +25,7 @@ from .M50 import (
     BTMinerM50VH60,
     BTMinerM50VH70,
     BTMinerM50VH80,
+    BTMinerM50VH90,
     BTMinerM50VJ10,
     BTMinerM50VJ20,
     BTMinerM50VJ30,

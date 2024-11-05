@@ -224,6 +224,7 @@ class WhatsminerModels(str, Enum):
     M50VH60 = "M50 VH60"
     M50VH70 = "M50 VH70"
     M50VH80 = "M50 VH80"
+    M50VH90 = "M50 VH90"
     M50VJ10 = "M50 VJ10"
     M50VJ20 = "M50 VJ20"
     M50VJ30 = "M50 VJ30"

@@ -26,6 +26,7 @@ from pyasic.miners.device.models import (
     M50VH60,
     M50VH70,
     M50VH80,
+    M50VH90,
     M50VJ10,
     M50VJ20,
     M50VJ30,
@@ -69,6 +70,10 @@ class BTMinerM50VH70(M5X, M50VH70):
 
 
 class BTMinerM50VH80(M5X, M50VH80):
+    pass
+
+
+class BTMinerM50VH90(M5X, M50VH90):
     pass
 
 

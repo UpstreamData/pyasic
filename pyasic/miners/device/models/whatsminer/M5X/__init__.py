@@ -25,6 +25,7 @@ from .M50 import (
     M50VH60,
     M50VH70,
     M50VH80,
+    M50VH90,
     M50VJ10,
     M50VJ20,
     M50VJ30,
