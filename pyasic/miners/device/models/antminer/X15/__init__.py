@@ -13,4 +13,4 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .Z15 import Z15
+from .Z15 import Z15, Z15Pro

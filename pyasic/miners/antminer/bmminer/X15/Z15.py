@@ -13,17 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from pyasic.device.models import MinerModel
-from pyasic.miners.device.makes import AntMinerMake
+
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.device.models import Z15Pro
 
 
-class Z15(AntMinerMake):
-    raw_model = MinerModel.ANTMINER.Z15
-
-    expected_chips = 3
-
-
-class Z15Pro(AntMinerMake):
-    raw_model = MinerModel.ANTMINER.Z15Pro
-
-    expected_chips = 6
+class BMMinerZ15Pro(AntminerModern, Z15Pro):
+    pass
