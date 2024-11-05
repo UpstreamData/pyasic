@@ -237,13 +237,17 @@ class VNish(VNishFirmware, BMMiner):
 
     async def _is_mining(self, web_summary: dict = None) -> Optional[bool]:
         if web_summary is None:
-            web_summary = await self.web.summary()
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                pass
 
         if web_summary is not None:
             try:
                 is_mining = not web_summary["miner"]["miner_status"]["miner_state"] in [
                     "stopped",
                     "shutting-down",
+                    "failure",
                 ]
                 return is_mining
             except LookupError:
