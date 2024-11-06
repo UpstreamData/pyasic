@@ -8,6 +8,9 @@ class Scheme(Enum):
     STRATUM_V1 = "stratum+tcp"
     STRATUM_V2 = "stratum2+tcp"
     STRATUM_V1_SSL = "stratum+ssl"
+    
+    def __json__(self):
+        return self.value
 
 
 @dataclass
