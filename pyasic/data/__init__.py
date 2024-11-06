@@ -23,7 +23,7 @@ from typing import Any, List, Union
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
-from pyasic.data.pools import PoolMetrics
+from pyasic.data.pools import PoolMetrics, Scheme
 
 from .boards import HashBoard
 from .device import DeviceInfo
@@ -154,7 +154,11 @@ class MinerData:
 
     @staticmethod
     def dict_factory(x):
-        return {k: v for (k, v) in x if not k.startswith("_")}
+        return {
+            k: v.value if isinstance(v, Scheme) else v
+            for (k, v) in x
+            if not k.startswith("_")
+        }
 
     def __post_init__(self):
         self._datetime = datetime.now(timezone.utc).astimezone()
