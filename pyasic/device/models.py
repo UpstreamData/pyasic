@@ -355,6 +355,9 @@ class IceRiverModels(str, Enum):
     KS3 = "KS3"
     KS3L = "KS3L"
     KS3M = "KS3M"
+    KS5 = "KS5"
+    KS5L = "KS5L"
+    KS5M = "KS5M"
 
     def __str__(self):
         return self.value

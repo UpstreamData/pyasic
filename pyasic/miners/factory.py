@@ -473,6 +473,9 @@ MINER_CLASSES = {
         "KS3": IceRiverKS3,
         "KS3L": IceRiverKS3L,
         "KS3M": IceRiverKS3M,
+        "KS5": IceRiverKS5,
+        "KS5L": IceRiverKS5L,
+        "KS5M": IceRiverKS5M,
     },
 }
 
