@@ -688,6 +688,9 @@ details {
                     <li><a href="../iceriver/KSX#ks3-stock">KS3 (Stock)</a></li>
                     <li><a href="../iceriver/KSX#ks3l-stock">KS3L (Stock)</a></li>
                     <li><a href="../iceriver/KSX#ks3m-stock">KS3M (Stock)</a></li>
+                    <li><a href="../iceriver/KSX#ks5-stock">KS5 (Stock)</a></li>
+                    <li><a href="../iceriver/KSX#ks5l-stock">KS5L (Stock)</a></li>
+                    <li><a href="../iceriver/KSX#ks5m-stock">KS5M (Stock)</a></li>
                 </ul>
         </details>
     </ul>

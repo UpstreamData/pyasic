@@ -43,3 +43,24 @@
         show_root_heading: false
         heading_level: 4
 
+## KS5 (Stock)
+::: pyasic.miners.iceriver.iceminer.KSX.KS5.IceRiverKS5
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## KS5L (Stock)
+::: pyasic.miners.iceriver.iceminer.KSX.KS5.IceRiverKS5L
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## KS5M (Stock)
+::: pyasic.miners.iceriver.iceminer.KSX.KS5.IceRiverKS5M
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
