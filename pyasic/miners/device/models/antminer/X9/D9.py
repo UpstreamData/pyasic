@@ -13,8 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import AntMinerMake
 
-from .D9 import D9
-from .E9 import E9Pro
-from .S9 import S9, S9i, S9j
-from .T9 import T9
+
+class D9(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.D9
+
+    expected_chips = 126

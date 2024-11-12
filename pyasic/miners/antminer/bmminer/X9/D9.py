@@ -14,7 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .D9 import D9
-from .E9 import E9Pro
-from .S9 import S9, S9i, S9j
-from .T9 import T9
+from pyasic.miners.backends import AntminerModern
+from pyasic.miners.device.models import D9
+
+
+class BMMinerD9(AntminerModern, D9):
+    pass
