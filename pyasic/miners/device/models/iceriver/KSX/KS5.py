@@ -21,6 +21,7 @@ class KS5(IceRiverMake):
     raw_model = MinerModel.ICERIVER.KS5
 
     expected_fans = 4
+    expected_chips = 92
 
 
 class KS5L(IceRiverMake):
