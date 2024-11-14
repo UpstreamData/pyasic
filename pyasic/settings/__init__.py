@@ -31,6 +31,7 @@ _settings = {  # defaults
     "default_whatsminer_rpc_password": "admin",
     "default_innosilicon_web_password": "admin",
     "default_antminer_web_password": "root",
+    "default_hammer_web_password": "root",
     "default_bosminer_web_password": "root",
     "default_vnish_web_password": "admin",
     "default_goldshell_web_password": "123456789",

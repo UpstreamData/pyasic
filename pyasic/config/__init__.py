@@ -156,6 +156,9 @@ class MinerConfig:
             **self.pools.as_luxos(user_suffix=user_suffix),
         }
 
+    def as_hammer(self, *args, **kwargs) -> dict:
+        return self.as_am_modern(*args, **kwargs)
+
     @classmethod
     def from_dict(cls, dict_conf: dict) -> "MinerConfig":
         """Constructs a MinerConfig object from a dictionary."""
@@ -276,3 +279,7 @@ class MinerConfig:
             ),
             pools=PoolConfig.from_luxos(rpc_pools=rpc_pools, rpc_groups=rpc_groups),
         )
+
+    @classmethod
+    def from_hammer(cls, *args, **kwargs) -> "MinerConfig":
+        return cls.from_am_modern(*args, **kwargs)

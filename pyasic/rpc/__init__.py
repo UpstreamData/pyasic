@@ -17,6 +17,7 @@ from .bfgminer import BFGMinerRPCAPI
 from .bmminer import BMMinerRPCAPI
 from .bosminer import BOSMinerRPCAPI
 from .btminer import BTMinerRPCAPI
+from .ccminer import CCMinerRPCAPI
 from .cgminer import CGMinerRPCAPI
 from .gcminer import GCMinerRPCAPI
 from .luxminer import LUXMinerRPCAPI

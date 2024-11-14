@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2024 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,13 +13,22 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .antminer import AntminerModernWebAPI, AntminerOldWebAPI
-from .auradine import AuradineWebAPI
-from .base import BaseWebAPI
-from .braiins_os import BOSerWebAPI, BOSMinerWebAPI
-from .epic import ePICWebAPI
-from .goldshell import GoldshellWebAPI
-from .hammer import HammerWebAPI
-from .iceriver import IceRiverWebAPI
-from .innosilicon import InnosiliconWebAPI
-from .vnish import VNishWebAPI
+
+from pyasic.rpc.bmminer import BMMinerRPCAPI
+
+
+class CCMinerRPCAPI(BMMinerRPCAPI):
+    """An abstraction of the CCMiner API.
+
+    Each method corresponds to an API command in CCMiner.
+
+    This class abstracts use of the CCMiner API, as well as the
+    methods for sending commands to it.  The `self.send_command()`
+    function handles sending a command to the miner asynchronously, and
+    as such is the base for many of the functions in this class, which
+    rely on it to send the command for them.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.port = 8359
