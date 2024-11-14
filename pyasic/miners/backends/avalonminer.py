@@ -184,7 +184,7 @@ class AvalonMiner(CGMiner):
         if rpc_devs is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_devs["DEVS"][0]["MHS 1m"], HashUnit.SHA256.MH
+                    rate=rpc_devs["DEVS"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
@@ -217,7 +217,7 @@ class AvalonMiner(CGMiner):
                 try:
                     board_hr = parsed_stats["MGHS"][board]
                     hashboards[board].hashrate = AlgoHashRate.SHA256(
-                        float(board_hr), HashUnit.SHA256.GH
+                        rate=float(board_hr), unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                 except LookupError:
                     pass
@@ -253,7 +253,7 @@ class AvalonMiner(CGMiner):
                 unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
                 parsed_stats = self.parse_stats(unparsed_stats)
                 return AlgoHashRate.SHA256(
-                    float(parsed_stats["GHSmm"][0]), HashUnit.SHA256.GH
+                    rate=float(parsed_stats["GHSmm"][0]), unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass

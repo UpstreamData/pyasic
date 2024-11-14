@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from enum import IntEnum
 
+from .base import MinerAlgoType
+
 
 class SHA256Unit(IntEnum):
     H = 1
@@ -58,7 +60,7 @@ class SHA256Unit(IntEnum):
 
 
 # make this json serializable
-class _SHA256Algo(str):
+class _SHA256Algo(MinerAlgoType):
     unit = SHA256Unit
 
     def __repr__(self):

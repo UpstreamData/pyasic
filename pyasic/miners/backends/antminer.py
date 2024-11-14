@@ -261,7 +261,7 @@ class AntminerModern(BMMiner):
             try:
                 for board in rpc_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = AlgoHashRate.SHA256(
-                        board["rate_real"], HashUnit.SHA256.GH
+                        rate=board["rate_real"], unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                     hashboards[board["index"]].chips = board["asic_num"]
                     board_temp_data = list(
@@ -318,7 +318,7 @@ class AntminerModern(BMMiner):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -625,7 +625,7 @@ class AntminerOld(CGMiner):
                     hashrate = boards[1].get(f"chain_rate{i}")
                     if hashrate:
                         hashboard.hashrate = AlgoHashRate.SHA256(
-                            float(hashrate), HashUnit.SHA256.GH
+                            rate=float(hashrate), unit=HashUnit.SHA256.GH
                         ).into(self.algo.unit.default)
 
                     chips = boards[1].get(f"chain_acn{i}")

@@ -17,6 +17,7 @@ tomli = { version = ">=2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 aiofiles = ">=23.2.1"
 betterproto = "2.0.0b7"
+pydantic = "^2.9.2"
 
 [tool.poetry.group.dev]
 optional = true

@@ -14,14 +14,14 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import dataclass
 from typing import Any
 
-from .hashrate import AlgoHashRate
+from pydantic import BaseModel
+
+from .hashrate import AlgoHashRateType
 
 
-@dataclass
-class HashBoard:
+class HashBoard(BaseModel):
     """A Dataclass to standardize hashboard data.
 
     Attributes:
@@ -39,7 +39,7 @@ class HashBoard:
     """
 
     slot: int = 0
-    hashrate: AlgoHashRate = None
+    hashrate: AlgoHashRateType = None
     temp: int = None
     chip_temp: int = None
     chips: int = None

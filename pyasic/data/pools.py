@@ -3,6 +3,8 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlparse
 
+from pydantic import BaseModel, computed_field, model_serializer
+
 
 class Scheme(Enum):
     STRATUM_V1 = "stratum+tcp"
@@ -10,12 +12,15 @@ class Scheme(Enum):
     STRATUM_V1_SSL = "stratum+ssl"
 
 
-@dataclass
-class PoolUrl:
+class PoolUrl(BaseModel):
     scheme: Scheme
     host: str
     port: int
     pubkey: Optional[str] = None
+
+    @model_serializer
+    def serialize(self):
+        return str(self)
 
     def __str__(self) -> str:
         if self.scheme == Scheme.STRATUM_V2 and self.pubkey:
@@ -36,8 +41,7 @@ class PoolUrl:
         return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
 
-@dataclass
-class PoolMetrics:
+class PoolMetrics(BaseModel):
     """A dataclass to standardize pool metrics returned from miners.
     Attributes:
 
@@ -63,28 +67,20 @@ class PoolMetrics:
     alive: bool = None
     index: int = None
     user: str = None
-    pool_rejected_percent: float = field(init=False)
-    pool_stale_percent: float = field(init=False)
 
+    @computed_field  # type: ignore[misc]
     @property
     def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of rejected shares"""
         return self._calculate_percentage(self.rejected, self.accepted + self.rejected)
 
-    @pool_rejected_percent.setter
-    def pool_rejected_percent(self, val):
-        pass
-
+    @computed_field  # type: ignore[misc]
     @property
     def pool_stale_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of stale shares."""
         return self._calculate_percentage(
             self.get_failures, self.accepted + self.rejected
         )
-
-    @pool_stale_percent.setter
-    def pool_stale_percent(self, val):
-        pass
 
     @staticmethod
     def _calculate_percentage(value: int, total: int) -> float:

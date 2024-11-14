@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TypeVar, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 
-@dataclass
 class StandardTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="standard")
 
@@ -13,7 +13,6 @@ class StandardTuneAlgo(MinerConfigValue):
         return VOptAlgo().as_epic()
 
 
-@dataclass
 class VOptAlgo(MinerConfigValue):
     mode: str = field(init=False, default="voltage_optimizer")
 
@@ -21,7 +20,6 @@ class VOptAlgo(MinerConfigValue):
         return "VoltageOptimizer"
 
 
-@dataclass
 class BoardTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="board_tune")
 
@@ -29,7 +27,6 @@ class BoardTuneAlgo(MinerConfigValue):
         return "BoardTune"
 
 
-@dataclass
 class ChipTuneAlgo(MinerConfigValue):
     mode: str = field(init=False, default="chip_tune")
 
@@ -37,7 +34,6 @@ class ChipTuneAlgo(MinerConfigValue):
         return "ChipTune"
 
 
-@dataclass
 class TunerAlgo(MinerConfigOption):
     standard = StandardTuneAlgo
     voltage_optimizer = VOptAlgo
@@ -45,11 +41,11 @@ class TunerAlgo(MinerConfigOption):
     chip_tune = ChipTuneAlgo
 
     @classmethod
-    def default(cls):
+    def default(cls) -> TunerAlgoType:
         return cls.standard()
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None):
+    def from_dict(cls, dict_conf: dict | None) -> TunerAlgoType:
         mode = dict_conf.get("mode")
         if mode is None:
             return cls.default()
@@ -57,3 +53,6 @@ class TunerAlgo(MinerConfigOption):
         cls_attr = getattr(cls, mode)
         if cls_attr is not None:
             return cls_attr().from_dict(dict_conf)
+
+
+TunerAlgoType = TypeVar("TunerAlgoType", bound=Union[*[v.value for v in TunerAlgo]])

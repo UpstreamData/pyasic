@@ -20,7 +20,6 @@ from dataclasses import dataclass
 from pyasic.config.base import MinerConfigValue
 
 
-@dataclass
 class ScalingShutdown(MinerConfigValue):
     enabled: bool = False
     duration: int = None
@@ -35,7 +34,9 @@ class ScalingShutdown(MinerConfigValue):
     def from_bosminer(cls, power_scaling_conf: dict):
         sd_enabled = power_scaling_conf.get("shutdown_enabled")
         if sd_enabled is not None:
-            return cls(sd_enabled, power_scaling_conf.get("shutdown_duration"))
+            return cls(
+                enabled=sd_enabled, duration=power_scaling_conf.get("shutdown_duration")
+            )
         return None
 
     @classmethod
@@ -43,9 +44,12 @@ class ScalingShutdown(MinerConfigValue):
         sd_enabled = power_scaling_conf.get("shutdownEnabled")
         if sd_enabled is not None:
             try:
-                return cls(sd_enabled, power_scaling_conf["shutdownDuration"]["hours"])
+                return cls(
+                    enabled=sd_enabled,
+                    duration=power_scaling_conf["shutdownDuration"]["hours"],
+                )
             except KeyError:
-                return cls(sd_enabled)
+                return cls(enabled=sd_enabled)
         return None
 
     def as_bosminer(self) -> dict:
@@ -60,7 +64,6 @@ class ScalingShutdown(MinerConfigValue):
         return {"enable_shutdown": self.enabled, "shutdown_duration": self.duration}
 
 
-@dataclass
 class ScalingConfig(MinerConfigValue):
     step: int = None
     minimum: int = None

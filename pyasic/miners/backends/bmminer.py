@@ -125,7 +125,7 @@ class BMMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                    rate=rpc_summary["SUMMARY"][0]["GHS 5s"], unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -184,7 +184,7 @@ class BMMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = AlgoHashRate.SHA256(
-                                hashrate, HashUnit.SHA256.GH
+                                rate=hashrate, unit=HashUnit.SHA256.GH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
@@ -246,7 +246,7 @@ class BMMiner(StockFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                    rayete=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

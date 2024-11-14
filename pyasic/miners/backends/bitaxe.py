@@ -94,7 +94,7 @@ class BitAxe(BaseMiner):
         if web_system_info is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    web_system_info["hashRate"], HashUnit.SHA256.GH
+                    rate=web_system_info["hashRate"], unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except KeyError:
                 pass
@@ -124,7 +124,7 @@ class BitAxe(BaseMiner):
                 return [
                     HashBoard(
                         hashrate=AlgoHashRate.SHA256(
-                            web_system_info["hashRate"], HashUnit.SHA256.GH
+                            rate=web_system_info["hashRate"], unit=HashUnit.SHA256.GH
                         ).into(self.algo.unit.default),
                         chip_temp=web_system_info.get("temp"),
                         temp=web_system_info.get("vrTemp"),

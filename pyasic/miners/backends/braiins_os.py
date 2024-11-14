@@ -363,7 +363,7 @@ class BOSMiner(BraiinsOSFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                    rate=rpc_summary["SUMMARY"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
@@ -435,7 +435,7 @@ class BOSMiner(BraiinsOSFirmware):
                 for board in rpc_devs["DEVS"]:
                     _id = board["ID"] - offset
                     hashboards[_id].hashrate = AlgoHashRate.SHA256(
-                        board["MHS 1m"], HashUnit.SHA256.MH
+                        rate=board["MHS 1m"], unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
             except (IndexError, KeyError):
                 pass
@@ -481,7 +481,7 @@ class BOSMiner(BraiinsOSFirmware):
             fans = []
             for n in range(self.expected_fans):
                 try:
-                    fans.append(Fan(rpc_fans["FANS"][n]["RPM"]))
+                    fans.append(Fan(speed=rpc_fans["FANS"][n]["RPM"]))
                 except (IndexError, KeyError):
                     pass
             return fans
@@ -548,10 +548,10 @@ class BOSMiner(BraiinsOSFirmware):
                         hr_list.append(expected_hashrate)
 
                 if len(hr_list) == 0:
-                    return AlgoHashRate.SHA256(0)
+                    return AlgoHashRate.SHA256(rate=0)
                 else:
                     return AlgoHashRate.SHA256(
-                        (sum(hr_list) / len(hr_list)) * self.expected_hashboards
+                        rate=(sum(hr_list) / len(hr_list)) * self.expected_hashboards
                     )
             except (IndexError, KeyError):
                 pass
@@ -890,7 +890,7 @@ class BOSer(BraiinsOSFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                    rate=rpc_summary["SUMMARY"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
@@ -907,8 +907,8 @@ class BOSer(BraiinsOSFirmware):
         if grpc_miner_details is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    grpc_miner_details["stickerHashrate"]["gigahashPerSecond"],
-                    HashUnit.SHA256.GH,
+                    rate=grpc_miner_details["stickerHashrate"]["gigahashPerSecond"],
+                    unit=HashUnit.SHA256.GH,
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -941,10 +941,10 @@ class BOSer(BraiinsOSFirmware):
                 if board.get("stats") is not None:
                     if not board["stats"]["realHashrate"]["last5S"] == {}:
                         hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                            board["stats"]["realHashrate"]["last5S"][
+                            rate=board["stats"]["realHashrate"]["last5S"][
                                 "gigahashPerSecond"
                             ],
-                            HashUnit.SHA256.GH,
+                            unit=HashUnit.SHA256.GH,
                         ).into(self.algo.unit.default)
                 hashboards[idx].missing = False
 
@@ -993,7 +993,7 @@ class BOSer(BraiinsOSFirmware):
             fans = []
             for n in range(self.expected_fans):
                 try:
-                    fans.append(Fan(grpc_cooling_state["fans"][n]["rpm"]))
+                    fans.append(Fan(speed=grpc_cooling_state["fans"][n]["rpm"]))
                 except (IndexError, KeyError):
                     pass
             return fans

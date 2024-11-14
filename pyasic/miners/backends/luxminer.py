@@ -179,7 +179,7 @@ class LUXMiner(LuxOSFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                    rate=rpc_summary["SUMMARY"][0]["GHS 5s"], unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -202,7 +202,8 @@ class LUXMiner(LuxOSFirmware):
                 for idx in range(3):
                     board_n = idx + 1
                     hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                        float(board_stats[f"chain_rate{board_n}"]), HashUnit.SHA256.GH
+                        rate=float(board_stats[f"chain_rate{board_n}"]),
+                        unit=HashUnit.SHA256.GH,
                     ).into(self.algo.unit.default)
                     hashboards[idx].chips = int(board_stats[f"chain_acn{board_n}"])
                     chip_temp_data = list(
@@ -253,7 +254,7 @@ class LUXMiner(LuxOSFirmware):
         if rpc_fans is not None:
             for fan in range(self.expected_fans):
                 try:
-                    fans.append(Fan(rpc_fans["FANS"][fan]["RPM"]))
+                    fans.append(Fan(speed=rpc_fans["FANS"][fan]["RPM"]))
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
@@ -275,7 +276,7 @@ class LUXMiner(LuxOSFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

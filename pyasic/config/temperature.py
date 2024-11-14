@@ -20,11 +20,10 @@ from dataclasses import dataclass
 from pyasic.config.base import MinerConfigValue
 
 
-@dataclass
 class TemperatureConfig(MinerConfigValue):
-    target: int = None
-    hot: int = None
-    danger: int = None
+    target: int | None = None
+    hot: int | None = None
+    danger: int | None = None
 
     @classmethod
     def default(cls):

@@ -234,9 +234,9 @@ class ePIC(ePICFirmware):
                 if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
-                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
-                        HashUnit.SHA256.TH
-                    )
+                    return AlgoHashRate.SHA256(
+                        rate=hashrate, unit=HashUnit.SHA256.MH
+                    ).into(HashUnit.SHA256.TH)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -260,9 +260,9 @@ class ePIC(ePICFirmware):
                             ideal = hb["Hashrate"][1] / 100
 
                         hashrate += hb["Hashrate"][0] / ideal
-                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
-                        self.algo.unit.default
-                    )
+                    return AlgoHashRate.SHA256(
+                        rate=hashrate, unit=HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -293,7 +293,7 @@ class ePIC(ePICFirmware):
         if web_summary is not None:
             for fan in web_summary["Fans Rpm"]:
                 try:
-                    fans.append(Fan(web_summary["Fans Rpm"][fan]))
+                    fans.append(Fan(speed=web_summary["Fans Rpm"][fan]))
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
@@ -353,7 +353,7 @@ class ePIC(ePICFirmware):
                     # Update the Hashboard object
                     hb_list[hb["Index"]].missing = False
                     hb_list[hb["Index"]].hashrate = AlgoHashRate.SHA256(
-                        hashrate, HashUnit.SHA256.MH
+                        rate=hashrate, unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = hb["Temperature"]

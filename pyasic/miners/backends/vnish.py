@@ -208,7 +208,7 @@ class VNish(VNishFirmware, BMMiner):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                    rate=rpc_summary["SUMMARY"][0]["GHS 5s"], unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass

@@ -1,3 +1,4 @@
+from pyasic.device.algorithm.base import MinerAlgoType
 from pyasic.device.algorithm.sha256 import SHA256Algo
 
 

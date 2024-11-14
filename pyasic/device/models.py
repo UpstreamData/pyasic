@@ -1,7 +1,11 @@
 from enum import Enum
 
 
-class AntminerModels(str, Enum):
+class MinerModelType(str, Enum):
+    pass
+
+
+class AntminerModels(MinerModelType):
     D3 = "D3"
     HS3 = "HS3"
     L3Plus = "L3+"
@@ -58,7 +62,7 @@ class AntminerModels(str, Enum):
         return self.value
 
 
-class WhatsminerModels(str, Enum):
+class WhatsminerModels(MinerModelType):
     M20V10 = "M20 V10"
     M20SV10 = "M20S V10"
     M20SV20 = "M20S V20"
@@ -279,7 +283,7 @@ class WhatsminerModels(str, Enum):
         return self.value
 
 
-class AvalonminerModels(str, Enum):
+class AvalonminerModels(MinerModelType):
     Avalon721 = "Avalon 721"
     Avalon741 = "Avalon 741"
     Avalon761 = "Avalon 761"
@@ -298,7 +302,7 @@ class AvalonminerModels(str, Enum):
         return self.value
 
 
-class InnosiliconModels(str, Enum):
+class InnosiliconModels(MinerModelType):
     T3HPlus = "T3H+"
     A10X = "A10X"
     A11 = "A11"
@@ -308,7 +312,7 @@ class InnosiliconModels(str, Enum):
         return self.value
 
 
-class GoldshellModels(str, Enum):
+class GoldshellModels(MinerModelType):
     CK5 = "CK5"
     HS5 = "HS5"
     KD5 = "KD5"
@@ -320,7 +324,7 @@ class GoldshellModels(str, Enum):
         return self.value
 
 
-class ePICModels(str, Enum):
+class ePICModels(MinerModelType):
     BM520i = "BlockMiner 520i"
     BM720i = "BlockMiner 720i"
 
@@ -328,7 +332,7 @@ class ePICModels(str, Enum):
         return self.value
 
 
-class AuradineModels(str, Enum):
+class AuradineModels(MinerModelType):
     AT1500 = "AT1500"
     AT2860 = "AT2860"
     AT2880 = "AT2880"
@@ -341,7 +345,7 @@ class AuradineModels(str, Enum):
         return self.value
 
 
-class BitAxeModels(str, Enum):
+class BitAxeModels(MinerModelType):
     BM1366 = "Ultra"
     BM1368 = "Supra"
     BM1397 = "Max"
@@ -351,7 +355,7 @@ class BitAxeModels(str, Enum):
         return self.value
 
 
-class IceRiverModels(str, Enum):
+class IceRiverModels(MinerModelType):
     KS0 = "KS0"
     KS1 = "KS1"
     KS2 = "KS2"
@@ -366,7 +370,7 @@ class IceRiverModels(str, Enum):
         return self.value
 
 
-class HammerModels(str, Enum):
+class HammerModels(MinerModelType):
     D10 = "D10"
 
     def __str__(self):
