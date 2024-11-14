@@ -465,6 +465,7 @@ MINER_CLASSES = {
         "BM1368": BitAxeSupra,
         "BM1366": BitAxeUltra,
         "BM1397": BitAxeMax,
+        "BM1370": BitAxeGamma,
     },
     MinerTypes.ICERIVER: {
         None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),

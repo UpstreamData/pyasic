@@ -344,6 +344,7 @@ class BitAxeModels(str, Enum):
     BM1366 = "Ultra"
     BM1368 = "Supra"
     BM1397 = "Max"
+    BM1370 = "Gamma"
 
     def __str__(self):
         return self.value
