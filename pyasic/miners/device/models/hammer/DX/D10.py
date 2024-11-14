@@ -19,3 +19,5 @@ from pyasic.miners.device.makes import HammerMake
 
 class D10(HammerMake):
     raw_model = MinerModel.HAMMER.D10
+
+    expected_chips = 108

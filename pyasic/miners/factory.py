@@ -561,6 +561,7 @@ class MinerFactory:
                 MinerTypes.MARATHON: self.get_miner_model_marathon,
                 MinerTypes.BITAXE: self.get_miner_model_bitaxe,
                 MinerTypes.ICERIVER: self.get_miner_model_iceriver,
+                MinerTypes.HAMMER: self.get_miner_model_hammer,
             }
             fn = miner_model_fns.get(miner_type)
 
