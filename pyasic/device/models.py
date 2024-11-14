@@ -364,6 +364,13 @@ class IceRiverModels(str, Enum):
         return self.value
 
 
+class HammerModels(str, Enum):
+    D10 = "D10"
+
+    def __str__(self):
+        return self.value
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -374,3 +381,4 @@ class MinerModel:
     EPIC = ePICModels
     BITAXE = BitAxeModels
     ICERIVER = IceRiverModels
+    HAMMER = HammerModels

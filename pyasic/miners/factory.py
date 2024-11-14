@@ -32,13 +32,12 @@ from pyasic.miners.antminer import *
 from pyasic.miners.auradine import *
 from pyasic.miners.avalonminer import *
 from pyasic.miners.backends import *
-from pyasic.miners.backends.bitaxe import BitAxe
-from pyasic.miners.backends.unknown import UnknownMiner
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
+from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
 from pyasic.miners.innosilicon import *
 from pyasic.miners.whatsminer import *
@@ -59,6 +58,7 @@ class MinerTypes(enum.Enum):
     MARATHON = 11
     BITAXE = 12
     ICERIVER = 13
+    HAMMER = 14
 
 
 MINER_CLASSES = {
@@ -478,6 +478,10 @@ MINER_CLASSES = {
         "KS5L": IceRiverKS5L,
         "KS5M": IceRiverKS5M,
     },
+    MinerTypes.HAMMER: {
+        None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
+        "HAMMER D10": HammerD10,
+    },
 }
 
 
@@ -627,6 +631,10 @@ class MinerFactory:
             "www-authenticate", ""
         ):
             return MinerTypes.ANTMINER
+        if web_resp.status_code == 401 and 'realm="blackMiner' in web_resp.headers.get(
+            "www-authenticate", ""
+        ):
+            return MinerTypes.HAMMER
         if len(web_resp.history) > 0:
             history_resp = web_resp.history[0]
             if (
@@ -1129,6 +1137,21 @@ class MinerFactory:
                 return miner_ver.upper()
             except httpx.HTTPError:
                 pass
+
+    async def get_miner_model_hammer(self, ip: str) -> str | None:
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_hammer_web_password", "root")
+        )
+        web_json_data = await self.send_web_command(
+            ip, "/cgi-bin/get_system_info.cgi", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["minertype"]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
 
 
 miner_factory = MinerFactory()

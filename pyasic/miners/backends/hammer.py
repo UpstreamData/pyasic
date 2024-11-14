@@ -17,11 +17,10 @@
 from typing import List, Optional
 
 from pyasic import MinerConfig
-from pyasic.data import AlgoHashRate, HashBoard, HashUnit
+from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
-from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -29,6 +28,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
+from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.ccminer import CCMinerRPCAPI
 from pyasic.web.hammer import HammerWebAPI
 
@@ -49,6 +49,10 @@ HAMMER_DATA_LOC = DataLocations(
         str(DataOptions.HOSTNAME): DataFunction(
             "_get_hostname",
             [WebAPICommand("web_get_system_info", "get_system_info")],
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [RPCAPICommand("rpc_stats", "stats")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
@@ -86,7 +90,7 @@ HAMMER_DATA_LOC = DataLocations(
 )
 
 
-class BlackMiner(BaseMiner):
+class BlackMiner(StockFirmware):
     """Handler for Hammer miners."""
 
     _rpc_cls = CCMinerRPCAPI
@@ -126,6 +130,186 @@ class BlackMiner(BaseMiner):
         if data:
             return True
         return False
+
+    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                self.api_ver = rpc_version["VERSION"][0]["API"]
+            except LookupError:
+                pass
+
+        return self.api_ver
+
+    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+        if rpc_version is None:
+            try:
+                rpc_version = await self.rpc.version()
+            except APIError:
+                pass
+
+        if rpc_version is not None:
+            try:
+                self.fw_ver = rpc_version["VERSION"][0]["CompileTime"]
+            except LookupError:
+                pass
+
+        return self.fw_ver
+
+    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+        # get hr from API
+        if rpc_summary is None:
+            try:
+                rpc_summary = await self.rpc.summary()
+            except APIError:
+                pass
+
+        if rpc_summary is not None:
+            try:
+                return AlgoHashRate.SHA256(
+                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                ).into(self.algo.unit.default)
+            except (LookupError, ValueError, TypeError):
+                pass
+
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+        hashboards = []
+
+        if rpc_stats is None:
+            try:
+                rpc_stats = await self.rpc.stats()
+            except APIError:
+                pass
+
+        if rpc_stats is not None:
+            try:
+                board_offset = -1
+                boards = rpc_stats["STATS"]
+                if len(boards) > 1:
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
+
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
+
+                    real_slots = []
+
+                    for i in range(board_offset, board_offset + 4):
+                        try:
+                            key = f"chain_acs{i}"
+                            if boards[1].get(key, "") != "":
+                                real_slots.append(i)
+                        except LookupError:
+                            pass
+
+                    if len(real_slots) < 3:
+                        real_slots = list(
+                            range(board_offset, board_offset + self.expected_hashboards)
+                        )
+
+                    for i in real_slots:
+                        hashboard = HashBoard(
+                            slot=i - board_offset, expected_chips=self.expected_chips
+                        )
+
+                        chip_temp = boards[1].get(f"temp{i}")
+                        if chip_temp:
+                            hashboard.chip_temp = round(chip_temp)
+
+                        temp = boards[1].get(f"temp2_{i}")
+                        if temp:
+                            hashboard.temp = round(temp)
+
+                        hashrate = boards[1].get(f"chain_rate{i}")
+                        if hashrate:
+                            hashboard.hashrate = AlgoHashRate.SHA256(
+                                hashrate, HashUnit.SHA256.GH
+                            ).into(self.algo.unit.default)
+
+                        chips = boards[1].get(f"chain_acn{i}")
+                        if chips:
+                            hashboard.chips = chips
+                            hashboard.missing = False
+                        if (not chips) or (not chips > 0):
+                            hashboard.missing = True
+                        hashboards.append(hashboard)
+            except (LookupError, ValueError, TypeError):
+                pass
+
+        return hashboards
+
+    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+        if rpc_stats is None:
+            try:
+                rpc_stats = await self.rpc.stats()
+            except APIError:
+                pass
+
+        fans = [Fan() for _ in range(self.expected_fans)]
+        if rpc_stats is not None:
+            try:
+                fan_offset = -1
+
+                for fan_num in range(1, 8, 4):
+                    for _f_num in range(4):
+                        f = rpc_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
+                        if f and not f == 0 and fan_offset == -1:
+                            fan_offset = fan_num
+                if fan_offset == -1:
+                    fan_offset = 1
+
+                for fan in range(self.expected_fans):
+                    fans[fan].speed = rpc_stats["STATS"][1].get(
+                        f"fan{fan_offset+fan}", 0
+                    )
+            except LookupError:
+                pass
+
+        return fans
+
+    async def _get_expected_hashrate(
+        self, rpc_stats: dict = None
+    ) -> Optional[AlgoHashRate]:
+        # X19 method, not sure compatibility
+        if rpc_stats is None:
+            try:
+                rpc_stats = await self.rpc.stats()
+            except APIError:
+                pass
+
+        if rpc_stats is not None:
+            try:
+                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
+                try:
+                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
+                except KeyError:
+                    rate_unit = "GH"
+                return AlgoHashRate.SHA256(
+                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                ).into(self.algo.unit.default)
+            except LookupError:
+                pass
+
+    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        if rpc_stats is None:
+            try:
+                rpc_stats = await self.rpc.stats()
+            except APIError:
+                pass
+
+        if rpc_stats is not None:
+            try:
+                return int(rpc_stats["STATS"][1]["Elapsed"])
+            except LookupError:
+                pass
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
         if web_get_system_info is None:
@@ -179,42 +363,6 @@ class BlackMiner(BaseMiner):
             except LookupError:
                 pass
         return errors
-
-    async def _get_hashboards(self) -> List[HashBoard]:
-        hashboards = [
-            HashBoard(idx, expected_chips=self.expected_chips)
-            for idx in range(self.expected_hashboards)
-        ]
-
-        try:
-            rpc_stats = await self.web.stats(new_api=True)
-        except APIError:
-            return hashboards
-
-        if rpc_stats is not None:
-            try:
-                for board in rpc_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = AlgoHashRate.SHA256(
-                        board["rate_real"], HashUnit.SHA256.GH
-                    ).into(self.algo.unit.default)
-                    hashboards[board["index"]].chips = board["asic_num"]
-                    board_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_pcb"])
-                    )
-                    hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                        board_temp_data
-                    )
-                    chip_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_chip"])
-                    )
-                    hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
-                        chip_temp_data
-                    )
-                    hashboards[board["index"]].serial_number = board["sn"]
-                    hashboards[board["index"]].missing = False
-            except LookupError:
-                pass
-        return hashboards
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None
