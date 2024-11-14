@@ -80,6 +80,10 @@ VNISH_DATA_LOC = DataLocations(
             "_is_mining",
             [WebAPICommand("web_summary", "summary")],
         ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
+        ),
     }
 )
 
