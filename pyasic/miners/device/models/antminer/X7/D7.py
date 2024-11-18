@@ -13,6 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .D7 import D7
-from .K7 import K7
-from .L7 import L7
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import AntMinerMake
+
+
+class D7(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.D7
+
+    expected_fans = 4
+    expected_chips = 70

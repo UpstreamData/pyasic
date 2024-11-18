@@ -13,5 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from .D7 import BMMinerD7
 from .K7 import BMMinerK7
 from .L7 import BMMinerL7
