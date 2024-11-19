@@ -933,11 +933,11 @@ class BOSer(BraiinsOSFirmware):
                 if board.get("chipsCount") is not None:
                     hashboards[idx].chips = board["chipsCount"]
                 if board.get("boardTemp") is not None:
-                    hashboards[idx].temp = board["boardTemp"]["degreeC"]
+                    hashboards[idx].temp = int(board["boardTemp"]["degreeC"])
                 if board.get("highestChipTemp") is not None:
-                    hashboards[idx].chip_temp = board["highestChipTemp"]["temperature"][
-                        "degreeC"
-                    ]
+                    hashboards[idx].chip_temp = int(
+                        board["highestChipTemp"]["temperature"]["degreeC"]
+                    )
                 if board.get("stats") is not None:
                     if not board["stats"]["realHashrate"]["last5S"] == {}:
                         hashboards[idx].hashrate = AlgoHashRate.SHA256(
