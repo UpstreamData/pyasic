@@ -16,7 +16,7 @@
 
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 from .hashrate import AlgoHashRateType
 
@@ -49,6 +49,10 @@ class HashBoard(BaseModel):
     tuned: bool = None
     active: bool = None
     voltage: float = None
+
+    @field_serializer("hashrate")
+    def serialize_hashrate(self, hashrate: AlgoHashRateType) -> float:
+        return float(hashrate)
 
     def get(self, __key: str, default: Any = None):
         try:

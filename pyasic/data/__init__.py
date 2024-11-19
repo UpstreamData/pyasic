@@ -19,7 +19,7 @@ import time
 from datetime import datetime, timezone
 from typing import Any, List, Union
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_serializer
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
@@ -77,7 +77,7 @@ class MinerData(BaseModel):
     # general
     ip: str
     raw_datetime: datetime = Field(
-        exclude=True, default_factory=datetime.now(timezone.utc).astimezone
+        exclude=True, default_factory=datetime.now(timezone.utc).astimezone, repr=False
     )
 
     # about
@@ -88,7 +88,7 @@ class MinerData(BaseModel):
     hostname: str = None
 
     # hashrate
-    raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None)
+    raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None, repr=False)
 
     # expected
     expected_hashrate: float = None
@@ -102,7 +102,7 @@ class MinerData(BaseModel):
     # power
     wattage: int = None
     voltage: float = None
-    raw_wattage_limit: int = Field(exclude=True, default=None)
+    raw_wattage_limit: int = Field(exclude=True, default=None, repr=False)
 
     # fans
     fans: List[Fan] = Field(default_factory=list)
@@ -208,6 +208,16 @@ class MinerData(BaseModel):
             if len(hr_data) > 0:
                 return sum(hr_data, start=type(hr_data[0])(rate=0))
         return self.raw_hashrate
+
+    @field_serializer("hashrate")
+    def serialize_hashrate(self, hashrate: AlgoHashRateType) -> float:
+        return float(hashrate)
+
+    @field_serializer("expected_hashrate")
+    def serialize_expected_hashrate(
+        self, expected_hashrate: AlgoHashRateType, _info
+    ) -> float:
+        return float(expected_hashrate)
 
     @hashrate.setter
     def hashrate(self, val):
