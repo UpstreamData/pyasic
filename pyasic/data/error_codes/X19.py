@@ -13,12 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.data.error_codes.base import BaseMinerError
 
-from dataclasses import asdict, dataclass, fields
 
-
-@dataclass
-class X19Error:
+class X19Error(BaseMinerError):
     """A Dataclass to handle error codes of X19 miners.
 
     Attributes:
@@ -28,10 +26,3 @@ class X19Error:
 
     error_message: str
     error_code: int = 0
-
-    @classmethod
-    def fields(cls):
-        return fields(cls)
-
-    def asdict(self):
-        return asdict(self)

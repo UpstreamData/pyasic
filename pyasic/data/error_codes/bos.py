@@ -14,11 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import asdict, dataclass, fields
+from pyasic.data.error_codes.base import BaseMinerError
 
 
-@dataclass
-class BraiinsOSError:
+class BraiinsOSError(BaseMinerError):
     """A Dataclass to handle error codes of BraiinsOS+ miners.
 
     Attributes:
@@ -28,10 +27,3 @@ class BraiinsOSError:
 
     error_message: str
     error_code: int = 0
-
-    @classmethod
-    def fields(cls):
-        return fields(cls)
-
-    def asdict(self):
-        return asdict(self)

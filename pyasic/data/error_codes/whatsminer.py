@@ -13,12 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pydantic import computed_field
 
-from dataclasses import asdict, dataclass, field, fields
+from pyasic.data.error_codes.base import BaseMinerError
 
 
-@dataclass
-class WhatsminerError:
+class WhatsminerError(BaseMinerError):
     """A Dataclass to handle error codes of Whatsminers.
 
     Attributes:
@@ -27,14 +27,10 @@ class WhatsminerError:
     """
 
     error_code: int
-    error_message: str = field(init=False)
 
-    @classmethod
-    def fields(cls):
-        return fields(cls)
-
+    @computed_field  # type: ignore[misc]
     @property
-    def error_message(self):  # noqa - Skip PyCharm inspection
+    def error_message(self) -> str:  # noqa - Skip PyCharm inspection
         if len(str(self.error_code)) == 6 and not str(self.error_code)[:1] == "1":
             err_type = int(str(self.error_code)[:2])
             err_subtype = int(str(self.error_code)[2:3])
@@ -73,13 +69,6 @@ class WhatsminerError:
                 return "Unknown error type."
         except KeyError:
             return "Unknown error type."
-
-    @error_message.setter
-    def error_message(self, val):
-        pass
-
-    def asdict(self):
-        return asdict(self)
 
 
 ERROR_CODES = {

@@ -165,7 +165,7 @@ class MinerData(BaseModel):
 
     def __floordiv__(self, other):
         cp = copy.deepcopy(self)
-        for key in self:
+        for key in self.fields():
             item = getattr(self, key)
             if isinstance(item, int):
                 setattr(cp, key, item // other)
@@ -177,7 +177,7 @@ class MinerData(BaseModel):
         if not isinstance(other, MinerData):
             raise TypeError("Cannot add MinerData to non MinerData type.")
         cp = copy.deepcopy(self)
-        for key in self:
+        for key in self.fields():
             item = getattr(self, key)
             other_item = getattr(other, key)
             if item is None:
@@ -379,7 +379,7 @@ class MinerData(BaseModel):
         field_data = []
 
         tags = ["ip", "mac", "model", "hostname"]
-        for attribute in self:
+        for attribute in self.fields():
             if attribute in tags:
                 escaped_data = self.get(attribute, "Unknown").replace(" ", "\\ ")
                 tag_data.append(f"{attribute}={escaped_data}")
