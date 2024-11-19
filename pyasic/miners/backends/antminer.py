@@ -183,13 +183,13 @@ class AntminerModern(BMMiner):
 
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = MiningModeConfig.sleep
+        cfg.miner_mode = MiningModeConfig.sleep()
         await self.send_config(cfg)
         return True
 
     async def resume_mining(self) -> bool:
         cfg = await self.get_config()
-        cfg.miner_mode = MiningModeConfig.normal
+        cfg.miner_mode = MiningModeConfig.normal()
         await self.send_config(cfg)
         return True
 

@@ -99,7 +99,7 @@ class MaraMiner(MaraFirmware):
 
     async def set_power_limit(self, wattage: int) -> bool:
         cfg = await self.get_config()
-        cfg.mining_mode = MiningModeConfig.power_tuning(wattage)
+        cfg.mining_mode = MiningModeConfig.power_tuning(power=wattage)
         await self.send_config(cfg)
         return True
 
