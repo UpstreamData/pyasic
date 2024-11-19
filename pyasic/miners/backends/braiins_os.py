@@ -1085,7 +1085,7 @@ class BOSer(BraiinsOSFirmware):
         for group in grpc_pool_groups["poolGroups"]:
             for idx, pool_info in enumerate(group["pools"]):
                 pool_data = PoolMetrics(
-                    url=pool_info["url"],
+                    url=PoolUrl.from_str(pool_info["url"]),
                     user=pool_info["user"],
                     index=idx,
                     accepted=pool_info["stats"].get("acceptedShares", 0),
