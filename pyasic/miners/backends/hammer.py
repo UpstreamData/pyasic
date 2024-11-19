@@ -275,42 +275,6 @@ class BlackMiner(StockFirmware):
 
         return fans
 
-    async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
-        # X19 method, not sure compatibility
-        if rpc_stats is None:
-            try:
-                rpc_stats = await self.rpc.stats()
-            except APIError:
-                pass
-
-        if rpc_stats is not None:
-            try:
-                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
-                try:
-                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
-                except KeyError:
-                    rate_unit = "GH"
-                return AlgoHashRate.SHA256(
-                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
-                ).into(self.algo.unit.default)
-            except LookupError:
-                pass
-
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
-        if rpc_stats is None:
-            try:
-                rpc_stats = await self.rpc.stats()
-            except APIError:
-                pass
-
-        if rpc_stats is not None:
-            try:
-                return int(rpc_stats["STATS"][1]["Elapsed"])
-            except LookupError:
-                pass
-
     async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
         if web_get_system_info is None:
             try:
@@ -357,7 +321,7 @@ class BlackMiner(StockFirmware):
                 for item in web_summary["SUMMARY"][0]["status"]:
                     try:
                         if not item["status"] == "s":
-                            errors.append(X19Error(item["msg"]))
+                            errors.append(X19Error(error_message=item["msg"]))
                     except KeyError:
                         continue
             except LookupError:

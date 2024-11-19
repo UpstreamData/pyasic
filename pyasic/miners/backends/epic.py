@@ -417,7 +417,7 @@ class ePIC(ePICFirmware):
             try:
                 error = web_summary["Status"]["Last Error"]
                 if error is not None:
-                    errors.append(X19Error(str(error)))
+                    errors.append(X19Error(error_message=str(error)))
                 return errors
             except KeyError:
                 pass

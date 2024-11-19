@@ -324,7 +324,7 @@ class Auradine(StockFirmware):
                     hashboards[b_id].hashrate = AlgoHashRate.SHA256(
                         rate=board["MHS 5s"], unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
-                    hashboards[b_id].temp = round(float(float(board["Temperature"])), 2)
+                    hashboards[b_id].temp = round(float(board["Temperature"]))
                     hashboards[b_id].missing = False
             except LookupError:
                 pass

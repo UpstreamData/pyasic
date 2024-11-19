@@ -91,13 +91,13 @@ class MinerData(BaseModel):
     raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None, repr=False)
 
     # expected
-    expected_hashrate: float | None = None
+    expected_hashrate: AlgoHashRateType | None = None
     expected_hashboards: int | None = None
     expected_chips: int | None = None
     expected_fans: int | None = None
 
     # temperature
-    env_temp: float | None = None
+    env_temp: int | None = None
 
     # power
     wattage: int | None = None
@@ -170,7 +170,7 @@ class MinerData(BaseModel):
             if isinstance(item, int):
                 setattr(cp, key, item // other)
             if isinstance(item, float):
-                setattr(cp, key, round(item / other, 2))
+                setattr(cp, key, item / other)
         return cp
 
     def __add__(self, other):

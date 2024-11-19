@@ -512,7 +512,9 @@ class BOSMiner(BraiinsOSFirmware):
                         ]:
                             _error = board["Status"].split(" {")[0]
                             _error = _error[0].lower() + _error[1:]
-                            errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
+                            errors.append(
+                                BraiinsOSError(error_message=f"Slot {_id} {_error}")
+                            )
                 return errors
             except (KeyError, IndexError):
                 pass
@@ -543,7 +545,7 @@ class BOSMiner(BraiinsOSFirmware):
                 hr_list = []
 
                 for board in rpc_devs["DEVS"]:
-                    expected_hashrate = round(float(board["Nominal MHS"] / 1000000), 2)
+                    expected_hashrate = float(board["Nominal MHS"] / 1000000)
                     if expected_hashrate:
                         hr_list.append(expected_hashrate)
 
@@ -1024,7 +1026,9 @@ class BOSer(BraiinsOSFirmware):
                         ]:
                             _error = board["Status"].split(" {")[0]
                             _error = _error[0].lower() + _error[1:]
-                            errors.append(BraiinsOSError(f"Slot {_id} {_error}"))
+                            errors.append(
+                                BraiinsOSError(error_message=f"Slot {_id} {_error}")
+                            )
                 return errors
             except LookupError:
                 pass

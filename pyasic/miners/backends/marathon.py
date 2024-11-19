@@ -182,10 +182,10 @@ class MaraMiner(MaraFirmware):
                         rate=hb["hashrate_average"], unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                     hashboards[idx].temp = round(
-                        sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"]), 2
+                        sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"])
                     )
                     hashboards[idx].chip_temp = round(
-                        sum(hb["temperature_chip"]) / len(hb["temperature_chip"]), 2
+                        sum(hb["temperature_chip"]) / len(hb["temperature_chip"])
                     )
                     hashboards[idx].chips = hb["asic_num"]
                     hashboards[idx].serial_number = hb["serial_number"]

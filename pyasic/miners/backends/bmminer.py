@@ -246,7 +246,7 @@ class BMMiner(StockFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    rayete=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
+                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

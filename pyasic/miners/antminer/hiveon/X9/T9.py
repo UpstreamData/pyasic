@@ -172,4 +172,4 @@ class HiveonT9(Hiveon, T9):
                         pass
 
             if not env_temp_list == []:
-                return round(float(sum(env_temp_list) / len(env_temp_list)), 2)
+                return round(sum(env_temp_list) / len(env_temp_list))

@@ -239,7 +239,7 @@ class AntminerModern(BMMiner):
                 for item in web_summary["SUMMARY"][0]["status"]:
                     try:
                         if not item["status"] == "s":
-                            errors.append(X19Error(item["msg"]))
+                            errors.append(X19Error(error_message=item["msg"]))
                     except KeyError:
                         continue
             except LookupError:
