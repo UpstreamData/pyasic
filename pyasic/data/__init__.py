@@ -81,39 +81,39 @@ class MinerData(BaseModel):
     )
 
     # about
-    device_info: DeviceInfo = None
-    mac: str = None
-    api_ver: str = None
-    fw_ver: str = None
-    hostname: str = None
+    device_info: DeviceInfo | None = None
+    mac: str | None = None
+    api_ver: str | None = None
+    fw_ver: str | None = None
+    hostname: str | None = None
 
     # hashrate
     raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None, repr=False)
 
     # expected
-    expected_hashrate: float = None
-    expected_hashboards: int = None
-    expected_chips: int = None
-    expected_fans: int = None
+    expected_hashrate: float | None = None
+    expected_hashboards: int | None = None
+    expected_chips: int | None = None
+    expected_fans: int | None = None
 
     # temperature
-    env_temp: float = None
+    env_temp: float | None = None
 
     # power
-    wattage: int = None
-    voltage: float = None
-    raw_wattage_limit: int = Field(exclude=True, default=None, repr=False)
+    wattage: int | None = None
+    voltage: float | None = None
+    raw_wattage_limit: int | None = Field(exclude=True, default=None, repr=False)
 
     # fans
     fans: List[Fan] = Field(default_factory=list)
-    fan_psu: int = None
+    fan_psu: int | None = None
 
     # boards
     hashboards: List[HashBoard] = Field(default_factory=list)
 
     # config
-    config: MinerConfig = None
-    fault_light: Union[bool, None] = None
+    config: MinerConfig | None = None
+    fault_light: bool | None = None
 
     # errors
     errors: List[
@@ -127,7 +127,7 @@ class MinerData(BaseModel):
 
     # mining state
     is_mining: bool = True
-    uptime: int = None
+    uptime: int | None = None
 
     # pools
     pools: list[PoolMetrics] = Field(default_factory=list)
@@ -210,14 +210,16 @@ class MinerData(BaseModel):
         return self.raw_hashrate
 
     @field_serializer("hashrate")
-    def serialize_hashrate(self, hashrate: AlgoHashRateType) -> float:
-        return float(hashrate)
+    def serialize_hashrate(self, hashrate: AlgoHashRateType | None) -> float:
+        if hashrate is not None:
+            return float(hashrate)
 
     @field_serializer("expected_hashrate")
     def serialize_expected_hashrate(
-        self, expected_hashrate: AlgoHashRateType, _info
+        self, expected_hashrate: AlgoHashRateType | None, _info
     ) -> float:
-        return float(expected_hashrate)
+        if expected_hashrate is not None:
+            return float(expected_hashrate)
 
     @hashrate.setter
     def hashrate(self, val):

@@ -39,20 +39,21 @@ class HashBoard(BaseModel):
     """
 
     slot: int = 0
-    hashrate: AlgoHashRateType = None
-    temp: int = None
-    chip_temp: int = None
-    chips: int = None
-    expected_chips: int = None
-    serial_number: str = None
+    hashrate: AlgoHashRateType | None = None
+    temp: int | None = None
+    chip_temp: int | None = None
+    chips: int | None = None
+    expected_chips: int | None = None
+    serial_number: str | None = None
     missing: bool = True
-    tuned: bool = None
-    active: bool = None
-    voltage: float = None
+    tuned: bool | None = None
+    active: bool | None = None
+    voltage: float | None = None
 
     @field_serializer("hashrate")
-    def serialize_hashrate(self, hashrate: AlgoHashRateType) -> float:
-        return float(hashrate)
+    def serialize_hashrate(self, hashrate: AlgoHashRateType | None) -> float:
+        if hashrate is not None:
+            return float(hashrate)
 
     def get(self, __key: str, default: Any = None):
         try:
