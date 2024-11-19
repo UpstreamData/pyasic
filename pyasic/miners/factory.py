@@ -866,10 +866,11 @@ class MinerFactory:
             return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
         except LookupError:
             if miner_type in MINER_CLASSES:
-                warnings.warn(
-                    f"Partially supported miner found: {miner_model}, please open an issue with miner data "
-                    f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
-                )
+                if miner_model is not None:
+                    warnings.warn(
+                        f"Partially supported miner found: {miner_model}, please open an issue with miner data "
+                        f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
+                    )
                 return MINER_CLASSES[miner_type][None](ip)
             return UnknownMiner(str(ip))
 
