@@ -437,6 +437,10 @@ class ePIC(ePICFirmware):
                     web_summary.get("Session") is not None
                     and web_summary.get("Stratum") is not None
                 ):
+                    url = web_summary["Stratum"].get("Current Pool")
+                    # TODO: when scheme gets put in, update this
+                    if url is not None:
+                        url = PoolUrl.from_str(f"stratum+tcp://{url}")
                     pool_data.append(
                         PoolMetrics(
                             accepted=web_summary["Session"].get("Accepted"),
@@ -445,9 +449,7 @@ class ePIC(ePICFirmware):
                             remote_failures=0,
                             active=web_summary["Stratum"].get("IsPoolConnected"),
                             alive=web_summary["Stratum"].get("IsPoolConnected"),
-                            url=PoolUrl.from_str(
-                                web_summary["Stratum"].get("Current Pool")
-                            ),
+                            url=url,
                             user=web_summary["Stratum"].get("Current User"),
                             index=web_summary["Stratum"].get("Config Id"),
                         )
