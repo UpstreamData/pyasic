@@ -356,7 +356,7 @@ class ePIC(ePICFirmware):
                         rate=float(hashrate), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
-                    hb_list[hb["Index"]].temp = hb["Temperature"]
+                    hb_list[hb["Index"]].temp = int(hb["Temperature"])
                     hb_list[hb["Index"]].tuned = tuned
                     hb_list[hb["Index"]].active = active
                     hb_list[hb["Index"]].voltage = hb["Input Voltage"]
