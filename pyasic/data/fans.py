@@ -14,12 +14,12 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import dataclass
 from typing import Any
 
+from pydantic import BaseModel
 
-@dataclass
-class Fan:
+
+class Fan(BaseModel):
     """A Dataclass to standardize fan data.
 
     Attributes:

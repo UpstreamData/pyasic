@@ -1,5 +1,6 @@
 from enum import Enum
 
+from pyasic.data.hashrate.base import AlgoHashRateType
 from pyasic.data.hashrate.sha256 import SHA256HashRate
 from pyasic.device.algorithm.sha256 import SHA256Unit
 

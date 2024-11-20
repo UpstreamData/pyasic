@@ -20,7 +20,7 @@ from typing import List, Optional
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
-from pyasic.data.pools import PoolMetrics
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -234,9 +234,9 @@ class ePIC(ePICFirmware):
                 if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
-                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
-                        HashUnit.SHA256.TH
-                    )
+                    return AlgoHashRate.SHA256(
+                        rate=float(hashrate), unit=HashUnit.SHA256.MH
+                    ).into(HashUnit.SHA256.TH)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -260,9 +260,9 @@ class ePIC(ePICFirmware):
                             ideal = hb["Hashrate"][1] / 100
 
                         hashrate += hb["Hashrate"][0] / ideal
-                    return AlgoHashRate.SHA256(hashrate, HashUnit.SHA256.MH).into(
-                        self.algo.unit.default
-                    )
+                    return AlgoHashRate.SHA256(
+                        rate=float(hashrate), unit=HashUnit.SHA256.MH
+                    ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -293,7 +293,7 @@ class ePIC(ePICFirmware):
         if web_summary is not None:
             for fan in web_summary["Fans Rpm"]:
                 try:
-                    fans.append(Fan(web_summary["Fans Rpm"][fan]))
+                    fans.append(Fan(speed=web_summary["Fans Rpm"][fan]))
                 except (LookupError, ValueError, TypeError):
                     fans.append(Fan())
         return fans
@@ -353,10 +353,10 @@ class ePIC(ePICFirmware):
                     # Update the Hashboard object
                     hb_list[hb["Index"]].missing = False
                     hb_list[hb["Index"]].hashrate = AlgoHashRate.SHA256(
-                        hashrate, HashUnit.SHA256.MH
+                        rate=float(hashrate), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
-                    hb_list[hb["Index"]].temp = hb["Temperature"]
+                    hb_list[hb["Index"]].temp = int(hb["Temperature"])
                     hb_list[hb["Index"]].tuned = tuned
                     hb_list[hb["Index"]].active = active
                     hb_list[hb["Index"]].voltage = hb["Input Voltage"]
@@ -417,7 +417,7 @@ class ePIC(ePICFirmware):
             try:
                 error = web_summary["Status"]["Last Error"]
                 if error is not None:
-                    errors.append(X19Error(str(error)))
+                    errors.append(X19Error(error_message=str(error)))
                 return errors
             except KeyError:
                 pass
@@ -437,6 +437,10 @@ class ePIC(ePICFirmware):
                     web_summary.get("Session") is not None
                     and web_summary.get("Stratum") is not None
                 ):
+                    url = web_summary["Stratum"].get("Current Pool")
+                    # TODO: when scheme gets put in, update this
+                    if url is not None:
+                        url = PoolUrl.from_str(f"stratum+tcp://{url}")
                     pool_data.append(
                         PoolMetrics(
                             accepted=web_summary["Session"].get("Accepted"),
@@ -445,7 +449,7 @@ class ePIC(ePICFirmware):
                             remote_failures=0,
                             active=web_summary["Stratum"].get("IsPoolConnected"),
                             alive=web_summary["Stratum"].get("IsPoolConnected"),
-                            url=web_summary["Stratum"].get("Current Pool"),
+                            url=url,
                             user=web_summary["Stratum"].get("Current User"),
                             index=web_summary["Stratum"].get("Config Id"),
                         )

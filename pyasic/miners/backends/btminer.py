@@ -274,7 +274,7 @@ class BTMiner(StockFirmware):
                 cfg.mining_mode = MiningModeConfig.normal()
                 return cfg
 
-            cfg.mining_mode = MiningModeConfig.power_tuning(power_lim)
+            cfg.mining_mode = MiningModeConfig.power_tuning(power=power_lim)
             self.config = cfg
             return self.config
 
@@ -404,7 +404,8 @@ class BTMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["MHS 1m"], HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -434,7 +435,7 @@ class BTMiner(StockFirmware):
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
                     hashboards[board["ASC"]].hashrate = AlgoHashRate.SHA256(
-                        board["MHS 1m"], HashUnit.SHA256.MH
+                        rate=float(board["MHS 1m"]), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
@@ -498,8 +499,8 @@ class BTMiner(StockFirmware):
             try:
                 if self.expected_fans > 0:
                     fans = [
-                        Fan(rpc_summary["SUMMARY"][0].get("Fan Speed In", 0)),
-                        Fan(rpc_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
+                        Fan(speed=rpc_summary["SUMMARY"][0].get("Fan Speed In", 0)),
+                        Fan(speed=rpc_summary["SUMMARY"][0].get("Fan Speed Out", 0)),
                     ]
             except LookupError:
                 pass
@@ -584,7 +585,7 @@ class BTMiner(StockFirmware):
                 expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return AlgoHashRate.SHA256(
-                        expected_hashrate, HashUnit.SHA256.GH
+                        rate=float(expected_hashrate), unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
 
             except LookupError:

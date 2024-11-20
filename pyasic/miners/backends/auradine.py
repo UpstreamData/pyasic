@@ -293,7 +293,8 @@ class Auradine(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["MHS 5s"], HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -322,9 +323,9 @@ class Auradine(StockFirmware):
                 for board in rpc_devs["DEVS"]:
                     b_id = board["ID"] - 1
                     hashboards[b_id].hashrate = AlgoHashRate.SHA256(
-                        board["MHS 5s"], HashUnit.SHA256.MH
+                        rate=float(board["MHS 5s"]), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
-                    hashboards[b_id].temp = round(float(float(board["Temperature"])), 2)
+                    hashboards[b_id].temp = round(float(board["Temperature"]))
                     hashboards[b_id].missing = False
             except LookupError:
                 pass
@@ -390,7 +391,7 @@ class Auradine(StockFirmware):
         if web_fan is not None:
             try:
                 for fan in web_fan["Fan"]:
-                    fans.append(Fan(round(fan["Speed"])))
+                    fans.append(Fan(speed=round(fan["Speed"])))
             except LookupError:
                 pass
         return fans

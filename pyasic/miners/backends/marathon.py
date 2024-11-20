@@ -99,7 +99,7 @@ class MaraMiner(MaraFirmware):
 
     async def set_power_limit(self, wattage: int) -> bool:
         cfg = await self.get_config()
-        cfg.mining_mode = MiningModeConfig.power_tuning(wattage)
+        cfg.mining_mode = MiningModeConfig.power_tuning(power=wattage)
         await self.send_config(cfg)
         return True
 
@@ -179,13 +179,13 @@ class MaraMiner(MaraFirmware):
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
                     hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                        hb["hashrate_average"], HashUnit.SHA256.GH
+                        rate=float(hb["hashrate_average"]), unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                     hashboards[idx].temp = round(
-                        sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"]), 2
+                        sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"])
                     )
                     hashboards[idx].chip_temp = round(
-                        sum(hb["temperature_chip"]) / len(hb["temperature_chip"]), 2
+                        sum(hb["temperature_chip"]) / len(hb["temperature_chip"])
                     )
                     hashboards[idx].chips = hb["asic_num"]
                     hashboards[idx].serial_number = hb["serial_number"]
@@ -243,7 +243,7 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    web_brief["hashrate_realtime"], HashUnit.SHA256.TH
+                    rate=float(web_brief["hashrate_realtime"]), unit=HashUnit.SHA256.TH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -259,7 +259,7 @@ class MaraMiner(MaraFirmware):
             fans = []
             for n in range(self.expected_fans):
                 try:
-                    fans.append(Fan(web_fans["fans"][n]["current_speed"]))
+                    fans.append(Fan(speed=web_fans["fans"][n]["current_speed"]))
                 except (IndexError, KeyError):
                     pass
             return fans
@@ -291,7 +291,7 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    web_brief["hashrate_ideal"], HashUnit.SHA256.GH
+                    rate=float(web_brief["hashrate_ideal"]), unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

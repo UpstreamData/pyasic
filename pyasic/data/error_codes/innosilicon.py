@@ -14,11 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import asdict, dataclass, field, fields
+
+from pydantic import computed_field
+
+from pyasic.data.error_codes.base import BaseMinerError
 
 
-@dataclass
-class InnosiliconError:
+class InnosiliconError(BaseMinerError):
     """A Dataclass to handle error codes of Innosilicon miners.
 
     Attributes:
@@ -27,24 +29,13 @@ class InnosiliconError:
     """
 
     error_code: int
-    error_message: str = field(init=False)
 
-    @classmethod
-    def fields(cls):
-        return fields(cls)
-
+    @computed_field  # type: ignore[misc]
     @property
-    def error_message(self):  # noqa - Skip PyCharm inspection
+    def error_message(self) -> str:  # noqa - Skip PyCharm inspection
         if self.error_code in ERROR_CODES:
             return ERROR_CODES[self.error_code]
         return "Unknown error type."
-
-    @error_message.setter
-    def error_message(self, val):
-        pass
-
-    def asdict(self):
-        return asdict(self)
 
 
 ERROR_CODES = {

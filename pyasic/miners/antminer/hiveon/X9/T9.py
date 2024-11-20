@@ -126,7 +126,7 @@ class HiveonT9(Hiveon, T9):
                 except (KeyError, IndexError):
                     pass
             hashboards[board].hashrate = AlgoHashRate.SHA256(
-                hashrate, HashUnit.SHA256.GH
+                rate=float(hashrate), unit=HashUnit.SHA256.GH
             ).into(self.algo.unit.default)
             hashboards[board].chips = chips
 
@@ -172,4 +172,4 @@ class HiveonT9(Hiveon, T9):
                         pass
 
             if not env_temp_list == []:
-                return round(float(sum(env_temp_list) / len(env_temp_list)), 2)
+                return round(sum(env_temp_list) / len(env_temp_list))

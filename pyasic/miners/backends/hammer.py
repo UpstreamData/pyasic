@@ -172,7 +172,8 @@ class BlackMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rpc_summary["SUMMARY"][0]["GHS 5s"], HashUnit.SHA256.GH
+                    rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
+                    unit=HashUnit.SHA256.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -231,7 +232,7 @@ class BlackMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = AlgoHashRate.SHA256(
-                                float(hashrate), HashUnit.SHA256.GH
+                                rate=float(hashrate), unit=HashUnit.SHA256.GH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
@@ -274,42 +275,6 @@ class BlackMiner(StockFirmware):
                 pass
 
         return fans
-
-    async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
-        # X19 method, not sure compatibility
-        if rpc_stats is None:
-            try:
-                rpc_stats = await self.rpc.stats()
-            except APIError:
-                pass
-
-        if rpc_stats is not None:
-            try:
-                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
-                try:
-                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
-                except KeyError:
-                    rate_unit = "GH"
-                return AlgoHashRate.SHA256(
-                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
-                ).into(self.algo.unit.default)
-            except LookupError:
-                pass
-
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
-        if rpc_stats is None:
-            try:
-                rpc_stats = await self.rpc.stats()
-            except APIError:
-                pass
-
-        if rpc_stats is not None:
-            try:
-                return int(rpc_stats["STATS"][1]["Elapsed"])
-            except LookupError:
-                pass
 
     async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
         if web_get_system_info is None:
@@ -357,7 +322,7 @@ class BlackMiner(StockFirmware):
                 for item in web_summary["SUMMARY"][0]["status"]:
                     try:
                         if not item["status"] == "s":
-                            errors.append(X19Error(item["msg"]))
+                            errors.append(X19Error(error_message=item["msg"]))
                     except KeyError:
                         continue
             except LookupError:
@@ -400,7 +365,7 @@ class BlackMiner(StockFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    expected_rate, HashUnit.SHA256.from_str(rate_unit)
+                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

@@ -15,14 +15,15 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from typing import TypeVar, Union
+
+from pydantic import Field
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
 
-@dataclass
 class FanModeNormal(MinerConfigValue):
-    mode: str = field(init=False, default="normal")
+    mode: str = Field(init=False, default="normal")
     minimum_fans: int = 1
     minimum_speed: int = 0
 
@@ -87,9 +88,8 @@ class FanModeNormal(MinerConfigValue):
         return {"fanset": {"speed": -1, "min_fans": self.minimum_fans}}
 
 
-@dataclass
 class FanModeManual(MinerConfigValue):
-    mode: str = field(init=False, default="manual")
+    mode: str = Field(init=False, default="manual")
     speed: int = 100
     minimum_fans: int = 1
 
@@ -151,9 +151,8 @@ class FanModeManual(MinerConfigValue):
         return {"fanset": {"speed": self.speed, "min_fans": self.minimum_fans}}
 
 
-@dataclass
 class FanModeImmersion(MinerConfigValue):
-    mode: str = field(init=False, default="immersion")
+    mode: str = Field(init=False, default="immersion")
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "FanModeImmersion":
@@ -273,7 +272,7 @@ class FanModeConfig(MinerConfigOption):
         keys = temperature_conf.keys()
         if "auto" in keys:
             if "minimumRequiredFans" in keys:
-                return cls.normal(temperature_conf["minimumRequiredFans"])
+                return cls.normal(minimum_fans=temperature_conf["minimumRequiredFans"])
             return cls.normal()
         if "manual" in keys:
             conf = {}
@@ -300,7 +299,9 @@ class FanModeConfig(MinerConfigOption):
             mode = web_config["general-config"]["environment-profile"]
             if mode == "AirCooling":
                 if web_config["advance-config"]["override-fan-control"]:
-                    return cls.manual(web_config["advance-config"]["fan-fixed-percent"])
+                    return cls.manual(
+                        speed=web_config["advance-config"]["fan-fixed-percent"]
+                    )
                 return cls.normal()
             return cls.immersion()
         except LookupError:
@@ -333,3 +334,6 @@ class FanModeConfig(MinerConfigOption):
         except LookupError:
             pass
         return cls.default()
+
+
+FanMode = TypeVar("FanMode", bound=Union[*[v.value for v in FanModeConfig]])

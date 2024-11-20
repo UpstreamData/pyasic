@@ -13,25 +13,25 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from dataclasses import asdict, dataclass, field
 
-from pyasic.config.fans import FanModeConfig
-from pyasic.config.mining import MiningModeConfig
+from pydantic import BaseModel, Field
+
+from pyasic.config.fans import FanMode, FanModeConfig
+from pyasic.config.mining import MiningMode, MiningModeConfig
 from pyasic.config.mining.scaling import ScalingConfig
 from pyasic.config.pools import PoolConfig
 from pyasic.config.temperature import TemperatureConfig
 from pyasic.misc import merge_dicts
 
 
-@dataclass
-class MinerConfig:
+class MinerConfig(BaseModel):
     """Represents the configuration for a miner including pool configuration,
     fan mode, temperature settings, mining mode, and power scaling."""
 
-    pools: PoolConfig = field(default_factory=PoolConfig.default)
-    fan_mode: FanModeConfig = field(default_factory=FanModeConfig.default)
-    temperature: TemperatureConfig = field(default_factory=TemperatureConfig.default)
-    mining_mode: MiningModeConfig = field(default_factory=MiningModeConfig.default)
+    pools: PoolConfig = Field(default_factory=PoolConfig.default)
+    fan_mode: FanMode = Field(default_factory=FanModeConfig.default)
+    temperature: TemperatureConfig = Field(default_factory=TemperatureConfig.default)
+    mining_mode: MiningMode = Field(default_factory=MiningModeConfig.default)
 
     def __getitem__(self, item):
         try:
@@ -41,7 +41,7 @@ class MinerConfig:
 
     def as_dict(self) -> dict:
         """Converts the MinerConfig object to a dictionary."""
-        return asdict(self)
+        return self.model_dump()
 
     def as_am_modern(self, user_suffix: str = None) -> dict:
         """Generates the configuration in the format suitable for modern Antminers."""
@@ -107,7 +107,7 @@ class MinerConfig:
         }
 
     def as_boser(self, user_suffix: str = None) -> dict:
-        """ "Generates the configuration in the format suitable for BOSer."""
+        """Generates the configuration in the format suitable for BOSer."""
         return {
             **self.fan_mode.as_boser(),
             **self.temperature.as_boser(),

@@ -163,7 +163,7 @@ class GoldshellMiner(BFGMiner):
                         try:
                             b_id = board["ID"]
                             hashboards[b_id].hashrate = AlgoHashRate.SHA256(
-                                board["MHS 20s"], HashUnit.SHA256.MH
+                                rate=float(board["MHS 20s"]), unit=HashUnit.SHA256.MH
                             ).into(self.algo.unit.default)
                             hashboards[b_id].temp = board["tstemp-2"]
                             hashboards[b_id].missing = False

@@ -14,14 +14,14 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from dataclasses import dataclass
 from typing import Any
 
-from .hashrate import AlgoHashRate
+from pydantic import BaseModel, field_serializer
+
+from .hashrate import AlgoHashRateType
 
 
-@dataclass
-class HashBoard:
+class HashBoard(BaseModel):
     """A Dataclass to standardize hashboard data.
 
     Attributes:
@@ -39,16 +39,21 @@ class HashBoard:
     """
 
     slot: int = 0
-    hashrate: AlgoHashRate = None
-    temp: int = None
-    chip_temp: int = None
-    chips: int = None
-    expected_chips: int = None
-    serial_number: str = None
+    hashrate: AlgoHashRateType | None = None
+    temp: int | None = None
+    chip_temp: int | None = None
+    chips: int | None = None
+    expected_chips: int | None = None
+    serial_number: str | None = None
     missing: bool = True
-    tuned: bool = None
-    active: bool = None
-    voltage: float = None
+    tuned: bool | None = None
+    active: bool | None = None
+    voltage: float | None = None
+
+    @field_serializer("hashrate")
+    def serialize_hashrate(self, hashrate: AlgoHashRateType | None) -> float:
+        if hashrate is not None:
+            return float(hashrate)
 
     def get(self, __key: str, default: Any = None):
         try:

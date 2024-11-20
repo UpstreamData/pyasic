@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
+from pyasic.data.hashrate.base import AlgoHashRateType
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.algorithm.sha256 import SHA256Unit
 
 
-@dataclass
-class SHA256HashRate:
+class SHA256HashRate(AlgoHashRateType):
     rate: float
     unit: SHA256Unit = MinerAlgo.SHA256.unit.default
 
@@ -25,28 +23,38 @@ class SHA256HashRate:
 
     def __add__(self, other: SHA256HashRate | int | float) -> SHA256HashRate:
         if isinstance(other, SHA256HashRate):
-            return SHA256HashRate(self.rate + other.into(self.unit).rate, self.unit)
-        return SHA256HashRate(self.rate + other, self.unit)
+            return SHA256HashRate(
+                rate=self.rate + other.into(self.unit).rate, unit=self.unit
+            )
+        return SHA256HashRate(rate=self.rate + other, unit=self.unit)
 
     def __sub__(self, other: SHA256HashRate | int | float) -> SHA256HashRate:
         if isinstance(other, SHA256HashRate):
-            return SHA256HashRate(self.rate - other.into(self.unit).rate, self.unit)
-        return SHA256HashRate(self.rate - other, self.unit)
+            return SHA256HashRate(
+                rate=self.rate - other.into(self.unit).rate, unit=self.unit
+            )
+        return SHA256HashRate(rate=self.rate - other, unit=self.unit)
 
     def __truediv__(self, other: SHA256HashRate | int | float):
         if isinstance(other, SHA256HashRate):
-            return SHA256HashRate(self.rate / other.into(self.unit).rate, self.unit)
-        return SHA256HashRate(self.rate / other, self.unit)
+            return SHA256HashRate(
+                rate=self.rate / other.into(self.unit).rate, unit=self.unit
+            )
+        return SHA256HashRate(rate=self.rate / other, unit=self.unit)
 
     def __floordiv__(self, other: SHA256HashRate | int | float):
         if isinstance(other, SHA256HashRate):
-            return SHA256HashRate(self.rate // other.into(self.unit).rate, self.unit)
-        return SHA256HashRate(self.rate // other, self.unit)
+            return SHA256HashRate(
+                rate=self.rate // other.into(self.unit).rate, unit=self.unit
+            )
+        return SHA256HashRate(rate=self.rate // other, unit=self.unit)
 
     def __mul__(self, other: SHA256HashRate | int | float):
         if isinstance(other, SHA256HashRate):
-            return SHA256HashRate(self.rate * other.into(self.unit).rate, self.unit)
-        return SHA256HashRate(self.rate * other, self.unit)
+            return SHA256HashRate(
+                rate=self.rate * other.into(self.unit).rate, unit=self.unit
+            )
+        return SHA256HashRate(rate=self.rate * other, unit=self.unit)
 
     def into(self, other: SHA256Unit) -> SHA256HashRate:
         return SHA256HashRate(
