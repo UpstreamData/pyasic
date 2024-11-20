@@ -20,6 +20,8 @@ from dataclasses import asdict
 
 from pyasic.miners.factory import MINER_CLASSES
 
+from .backends_tests import *
+
 
 class MinersTest(unittest.TestCase):
     def test_miner_type_creation(self):
