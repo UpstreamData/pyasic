@@ -363,7 +363,8 @@ class BOSMiner(BraiinsOSFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
@@ -435,7 +436,7 @@ class BOSMiner(BraiinsOSFirmware):
                 for board in rpc_devs["DEVS"]:
                     _id = board["ID"] - offset
                     hashboards[_id].hashrate = AlgoHashRate.SHA256(
-                        rate=board["MHS 1m"], unit=HashUnit.SHA256.MH
+                        rate=float(board["MHS 1m"]), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
             except (IndexError, KeyError):
                 pass
@@ -550,11 +551,14 @@ class BOSMiner(BraiinsOSFirmware):
                         hr_list.append(expected_hashrate)
 
                 if len(hr_list) == 0:
-                    return AlgoHashRate.SHA256(rate=0)
+                    return AlgoHashRate.SHA256(rate=float(0))
                 else:
                     return AlgoHashRate.SHA256(
-                        rate=(sum(hr_list) / len(hr_list)) * self.expected_hashboards
-                    )
+                        rate=float(
+                            (sum(hr_list) / len(hr_list)) * self.expected_hashboards
+                        ),
+                        unit=HashUnit.SHA256.MH,
+                    ).into(self.algo.unit.default)
             except (IndexError, KeyError):
                 pass
 
@@ -892,7 +896,8 @@ class BOSer(BraiinsOSFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
@@ -909,7 +914,9 @@ class BOSer(BraiinsOSFirmware):
         if grpc_miner_details is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=grpc_miner_details["stickerHashrate"]["gigahashPerSecond"],
+                    rate=float(
+                        grpc_miner_details["stickerHashrate"]["gigahashPerSecond"]
+                    ),
                     unit=HashUnit.SHA256.GH,
                 ).into(self.algo.unit.default)
             except LookupError:
@@ -943,9 +950,11 @@ class BOSer(BraiinsOSFirmware):
                 if board.get("stats") is not None:
                     if not board["stats"]["realHashrate"]["last5S"] == {}:
                         hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                            rate=board["stats"]["realHashrate"]["last5S"][
-                                "gigahashPerSecond"
-                            ],
+                            rate=float(
+                                board["stats"]["realHashrate"]["last5S"][
+                                    "gigahashPerSecond"
+                                ]
+                            ),
                             unit=HashUnit.SHA256.GH,
                         ).into(self.algo.unit.default)
                 hashboards[idx].missing = False

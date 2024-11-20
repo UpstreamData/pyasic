@@ -184,7 +184,7 @@ class AvalonMiner(CGMiner):
         if rpc_devs is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_devs["DEVS"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_devs["DEVS"][0]["MHS 1m"]), unit=HashUnit.SHA256.MH
                 ).into(self.algo.unit.default)
             except (KeyError, IndexError, ValueError, TypeError):
                 pass

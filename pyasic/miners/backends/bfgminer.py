@@ -121,7 +121,8 @@ class BFGMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["MHS 20s"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 20s"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -167,7 +168,7 @@ class BFGMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = AlgoHashRate.SHA256(
-                                rate=hashrate, unit=HashUnit.SHA256.GH
+                                rate=float(hashrate), unit=HashUnit.SHA256.GH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
@@ -260,7 +261,7 @@ class BFGMiner(StockFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
+                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

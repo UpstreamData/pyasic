@@ -124,7 +124,8 @@ class CGMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["GHS 5s"], unit=HashUnit.SHA256.GH
+                    rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
+                    unit=HashUnit.SHA256.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass

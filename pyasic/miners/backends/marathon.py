@@ -179,7 +179,7 @@ class MaraMiner(MaraFirmware):
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
                     hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                        rate=hb["hashrate_average"], unit=HashUnit.SHA256.GH
+                        rate=float(hb["hashrate_average"]), unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
                     hashboards[idx].temp = round(
                         sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"])
@@ -243,7 +243,7 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=web_brief["hashrate_realtime"], unit=HashUnit.SHA256.TH
+                    rate=float(web_brief["hashrate_realtime"]), unit=HashUnit.SHA256.TH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -291,7 +291,7 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=web_brief["hashrate_ideal"], unit=HashUnit.SHA256.GH
+                    rate=float(web_brief["hashrate_ideal"]), unit=HashUnit.SHA256.GH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

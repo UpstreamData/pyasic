@@ -172,7 +172,8 @@ class BlackMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["GHS 5s"], unit=HashUnit.SHA256.GH
+                    rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
+                    unit=HashUnit.SHA256.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -364,7 +365,7 @@ class BlackMiner(StockFirmware):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
+                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

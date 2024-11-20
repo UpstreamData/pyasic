@@ -318,7 +318,7 @@ class AntminerModern(BMMiner):
                 except KeyError:
                     rate_unit = "GH"
                 return AlgoHashRate.SHA256(
-                    rate=expected_rate, unit=HashUnit.SHA256.from_str(rate_unit)
+                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

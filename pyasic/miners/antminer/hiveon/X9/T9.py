@@ -126,7 +126,7 @@ class HiveonT9(Hiveon, T9):
                 except (KeyError, IndexError):
                     pass
             hashboards[board].hashrate = AlgoHashRate.SHA256(
-                rate=hashrate, unit=HashUnit.SHA256.GH
+                rate=float(hashrate), unit=HashUnit.SHA256.GH
             ).into(self.algo.unit.default)
             hashboards[board].chips = chips
 

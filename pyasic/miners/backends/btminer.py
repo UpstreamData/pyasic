@@ -404,7 +404,8 @@ class BTMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["MHS 1m"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -434,7 +435,7 @@ class BTMiner(StockFirmware):
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
                     hashboards[board["ASC"]].hashrate = AlgoHashRate.SHA256(
-                        rate=board["MHS 1m"], unit=HashUnit.SHA256.MH
+                        rate=float(board["MHS 1m"]), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
@@ -584,7 +585,7 @@ class BTMiner(StockFirmware):
                 expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return AlgoHashRate.SHA256(
-                        rate=expected_hashrate, unit=HashUnit.SHA256.GH
+                        rate=float(expected_hashrate), unit=HashUnit.SHA256.GH
                     ).into(self.algo.unit.default)
 
             except LookupError:

@@ -293,7 +293,8 @@ class Auradine(StockFirmware):
         if rpc_summary is not None:
             try:
                 return AlgoHashRate.SHA256(
-                    rate=rpc_summary["SUMMARY"][0]["MHS 5s"], unit=HashUnit.SHA256.MH
+                    rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
+                    unit=HashUnit.SHA256.MH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -322,7 +323,7 @@ class Auradine(StockFirmware):
                 for board in rpc_devs["DEVS"]:
                     b_id = board["ID"] - 1
                     hashboards[b_id].hashrate = AlgoHashRate.SHA256(
-                        rate=board["MHS 5s"], unit=HashUnit.SHA256.MH
+                        rate=float(board["MHS 5s"]), unit=HashUnit.SHA256.MH
                     ).into(self.algo.unit.default)
                     hashboards[b_id].temp = round(float(board["Temperature"]))
                     hashboards[b_id].missing = False
