@@ -187,7 +187,7 @@ class LUXMiner(LuxOSFirmware):
 
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = [
-            HashBoard(idx, expected_chips=self.expected_chips)
+            HashBoard(slot=idx, expected_chips=self.expected_chips)
             for idx in range(self.expected_hashboards)
         ]
 

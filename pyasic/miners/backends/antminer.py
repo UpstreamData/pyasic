@@ -248,7 +248,7 @@ class AntminerModern(BMMiner):
 
     async def _get_hashboards(self) -> List[HashBoard]:
         hashboards = [
-            HashBoard(idx, expected_chips=self.expected_chips)
+            HashBoard(slot=idx, expected_chips=self.expected_chips)
             for idx in range(self.expected_hashboards)
         ]
 
