@@ -20,7 +20,7 @@ from typing import List, Optional
 from pyasic.config import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.error_codes import MinerErrorData, X19Error
-from pyasic.data.pools import PoolMetrics
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -445,7 +445,9 @@ class ePIC(ePICFirmware):
                             remote_failures=0,
                             active=web_summary["Stratum"].get("IsPoolConnected"),
                             alive=web_summary["Stratum"].get("IsPoolConnected"),
-                            url=web_summary["Stratum"].get("Current Pool"),
+                            url=PoolUrl.from_str(
+                                web_summary["Stratum"].get("Current Pool")
+                            ),
                             user=web_summary["Stratum"].get("Current User"),
                             index=web_summary["Stratum"].get("Config Id"),
                         )
