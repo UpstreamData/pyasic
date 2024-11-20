@@ -24,9 +24,10 @@ from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
 from pyasic.device import MinerModel
-from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.algorithm import MinerAlgo, MinerAlgoType
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake
+from pyasic.device.models import MinerModelType
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
@@ -43,9 +44,10 @@ class MinerProtocol(Protocol):
     ssh: _ssh_cls = None
 
     make: MinerMake = None
-    raw_model: MinerModel = None
+    raw_model: MinerModelType = None
     firmware: MinerFirmware = None
-    algo = MinerAlgo.SHA256
+    # TODO: change to None
+    algo: MinerAlgoType = MinerAlgo.SHA256
 
     expected_hashboards: int = 3
     expected_chips: int = None

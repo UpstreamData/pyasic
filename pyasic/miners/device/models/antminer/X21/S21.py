@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -22,6 +23,8 @@ class S21(AntMinerMake):
 
     expected_chips = 108
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S21Pro(AntMinerMake):
@@ -29,3 +32,5 @@ class S21Pro(AntMinerMake):
 
     expected_chips = 65
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256

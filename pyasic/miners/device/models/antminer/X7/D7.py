@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -22,3 +23,5 @@ class D7(AntMinerMake):
 
     expected_fans = 4
     expected_chips = 70
+    expected_hashboards = 3
+    algo = MinerAlgo.X11

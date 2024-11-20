@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -21,9 +22,15 @@ class Z15(AntMinerMake):
     raw_model = MinerModel.ANTMINER.Z15
 
     expected_chips = 3
+    expected_hashboards = 3
+    expected_fans = 2
+    algo = MinerAlgo.EQUIHASH
 
 
 class Z15Pro(AntMinerMake):
     raw_model = MinerModel.ANTMINER.Z15Pro
 
     expected_chips = 6
+    expected_hashboards = 3
+    expected_fans = 2
+    algo = MinerAlgo.EQUIHASH

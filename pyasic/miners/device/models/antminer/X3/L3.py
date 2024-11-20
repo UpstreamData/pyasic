@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -21,3 +22,6 @@ class L3Plus(AntMinerMake):
     raw_model = MinerModel.ANTMINER.L3Plus
 
     expected_chips = 72
+    expected_hashboards = 4
+    expected_fans = 2
+    algo = MinerAlgo.SCRYPT

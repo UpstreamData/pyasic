@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -22,3 +23,5 @@ class KS3(AntMinerMake):
 
     expected_chips = 92
     expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.KHEAVYHASH

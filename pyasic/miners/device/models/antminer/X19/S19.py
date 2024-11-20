@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -22,6 +23,8 @@ class S19(AntMinerMake):
 
     expected_chips = 76
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19NoPIC(AntMinerMake):
@@ -29,6 +32,8 @@ class S19NoPIC(AntMinerMake):
 
     expected_chips = 88
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19Pro(AntMinerMake):
@@ -36,6 +41,8 @@ class S19Pro(AntMinerMake):
 
     expected_chips = 114
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19i(AntMinerMake):
@@ -43,6 +50,8 @@ class S19i(AntMinerMake):
 
     expected_chips = 80
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19Plus(AntMinerMake):
@@ -50,6 +59,8 @@ class S19Plus(AntMinerMake):
 
     expected_chips = 80
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19ProPlus(AntMinerMake):
@@ -57,6 +68,8 @@ class S19ProPlus(AntMinerMake):
 
     expected_chips = 120
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19XP(AntMinerMake):
@@ -64,6 +77,8 @@ class S19XP(AntMinerMake):
 
     expected_chips = 110
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19a(AntMinerMake):
@@ -71,6 +86,8 @@ class S19a(AntMinerMake):
 
     expected_chips = 72
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19aPro(AntMinerMake):
@@ -78,6 +95,8 @@ class S19aPro(AntMinerMake):
 
     expected_chips = 100
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19j(AntMinerMake):
@@ -85,6 +104,8 @@ class S19j(AntMinerMake):
 
     expected_chips = 114
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19jNoPIC(AntMinerMake):
@@ -92,6 +113,8 @@ class S19jNoPIC(AntMinerMake):
 
     expected_chips = 88
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19jPro(AntMinerMake):
@@ -99,6 +122,8 @@ class S19jPro(AntMinerMake):
 
     expected_chips = 126
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19jProNoPIC(AntMinerMake):
@@ -106,6 +131,8 @@ class S19jProNoPIC(AntMinerMake):
 
     expected_chips = 126
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19jProPlus(AntMinerMake):
@@ -113,6 +140,8 @@ class S19jProPlus(AntMinerMake):
 
     expected_chips = 120
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19jProPlusNoPIC(AntMinerMake):
@@ -120,6 +149,8 @@ class S19jProPlusNoPIC(AntMinerMake):
 
     expected_chips = 120
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19kPro(AntMinerMake):
@@ -127,6 +158,8 @@ class S19kPro(AntMinerMake):
 
     expected_chips = 77
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19kProNoPIC(AntMinerMake):
@@ -134,6 +167,8 @@ class S19kProNoPIC(AntMinerMake):
 
     expected_chips = 77
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19L(AntMinerMake):
@@ -141,6 +176,8 @@ class S19L(AntMinerMake):
 
     expected_chips = 76
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class S19Hydro(AntMinerMake):
@@ -149,6 +186,7 @@ class S19Hydro(AntMinerMake):
     expected_chips = 104
     expected_hashboards = 4
     expected_fans = 0
+    algo = MinerAlgo.SHA256
 
 
 class S19ProHydro(AntMinerMake):
@@ -157,6 +195,7 @@ class S19ProHydro(AntMinerMake):
     expected_chips = 180
     expected_hashboards = 4
     expected_fans = 0
+    algo = MinerAlgo.SHA256
 
 
 class S19ProPlusHydro(AntMinerMake):
@@ -165,6 +204,7 @@ class S19ProPlusHydro(AntMinerMake):
     expected_chips = 180
     expected_hashboards = 4
     expected_fans = 0
+    algo = MinerAlgo.SHA256
 
 
 class S19KPro(AntMinerMake):
@@ -172,3 +212,5 @@ class S19KPro(AntMinerMake):
 
     expected_chips = 77
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256

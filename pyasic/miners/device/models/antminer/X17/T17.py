@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -22,6 +23,8 @@ class T17(AntMinerMake):
 
     expected_chips = 30
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class T17Plus(AntMinerMake):
@@ -29,6 +32,8 @@ class T17Plus(AntMinerMake):
 
     expected_chips = 44
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class T17e(AntMinerMake):
@@ -36,3 +41,5 @@ class T17e(AntMinerMake):
 
     expected_chips = 78
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
