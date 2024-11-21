@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Self
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from .unit.base import AlgoHashRateUnitType
 
