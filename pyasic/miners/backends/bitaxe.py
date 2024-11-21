@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pyasic import APIError, MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
-from pyasic.device import MinerFirmware
+from pyasic.device.firmware import MinerFirmware
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.web.bitaxe import BitAxeWebAPI

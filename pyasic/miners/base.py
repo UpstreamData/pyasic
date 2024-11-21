@@ -23,7 +23,6 @@ from pyasic.data import AlgoHashRate, Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
-from pyasic.device import MinerModel
 from pyasic.device.algorithm import MinerAlgo, MinerAlgoType
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake

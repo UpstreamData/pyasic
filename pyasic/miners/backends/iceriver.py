@@ -3,7 +3,7 @@ from typing import List, Optional
 from pyasic import MinerConfig
 from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device import MinerAlgo
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import StockFirmware
