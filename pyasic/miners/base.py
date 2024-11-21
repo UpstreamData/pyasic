@@ -47,9 +47,9 @@ class MinerProtocol(Protocol):
     firmware: MinerFirmware = None
     algo: MinerAlgoType = None
 
-    expected_hashboards: int = 3
+    expected_hashboards: int = None
     expected_chips: int = None
-    expected_fans: int = 2
+    expected_fans: int = None
 
     data_locations: DataLocations = None
 
