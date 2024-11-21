@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.kheavyhash import KHeavyHashUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.kheavyhash import KHeavyHashUnit
+
+from .unit import HashUnit
 
 
 class KHeavyHashHashRate(AlgoHashRateType):
     rate: float
-    unit: KHeavyHashUnit = MinerAlgo.KHEAVYHASH.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: KHeavyHashUnit = HashUnit.KHEAVYHASH.default
 
     def __add__(self, other: KHeavyHashHashRate | int | float) -> KHeavyHashHashRate:
         if isinstance(other, KHeavyHashHashRate):

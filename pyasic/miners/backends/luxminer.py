@@ -17,8 +17,9 @@ import logging
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import LuxOSFirmware
@@ -178,9 +179,9 @@ class LUXMiner(LuxOSFirmware):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=HashUnit.SHA256.GH,
+                    unit=self.algo.unit.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -202,9 +203,9 @@ class LUXMiner(LuxOSFirmware):
                 board_stats = rpc_stats["STATS"][1]
                 for idx in range(3):
                     board_n = idx + 1
-                    hashboards[idx].hashrate = AlgoHashRate.SHA256(
+                    hashboards[idx].hashrate = self.algo.hashrate(
                         rate=float(board_stats[f"chain_rate{board_n}"]),
-                        unit=HashUnit.SHA256.GH,
+                        unit=self.algo.unit.GH,
                     ).into(self.algo.unit.default)
                     hashboards[idx].chips = int(board_stats[f"chain_acn{board_n}"])
                     chip_temp_data = list(
@@ -276,8 +277,8 @@ class LUXMiner(LuxOSFirmware):
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
-                return AlgoHashRate.SHA256(
-                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
+                return self.algo.hashrate(
+                    rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

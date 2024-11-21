@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.ethash import EtHashUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.ethash import EtHashUnit
+
+from .unit import HashUnit
 
 
 class EtHashHashRate(AlgoHashRateType):
     rate: float
-    unit: EtHashUnit = MinerAlgo.ETHASH.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: EtHashUnit = HashUnit.ETHASH.default
 
     def __add__(self, other: EtHashHashRate | int | float) -> EtHashHashRate:
         if isinstance(other, EtHashHashRate):

@@ -15,8 +15,9 @@
 from typing import List, Optional, Tuple
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.miners.base import BaseMiner
 from pyasic.rpc.unknown import UnknownRPCAPI
 

@@ -18,7 +18,7 @@ from typing import Any
 
 from pydantic import BaseModel, field_serializer
 
-from .hashrate import AlgoHashRateType
+from pyasic.device.algorithm.hashrate import AlgoHashRateType
 
 
 class HashBoard(BaseModel):

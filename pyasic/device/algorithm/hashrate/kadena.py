@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.kadena import KadenaUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.kadena import KadenaUnit
+
+from .unit import HashUnit
 
 
 class KadenaHashRate(AlgoHashRateType):
     rate: float
-    unit: KadenaUnit = MinerAlgo.KADENA.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: KadenaUnit = HashUnit.KADENA.default
 
     def __add__(self, other: KadenaHashRate | int | float) -> KadenaHashRate:
         if isinstance(other, KadenaHashRate):

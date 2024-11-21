@@ -17,8 +17,9 @@
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -120,9 +121,9 @@ class BFGMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 20s"]),
-                    unit=HashUnit.SHA256.MH,
+                    unit=self.algo.unit.MH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -167,8 +168,8 @@ class BFGMiner(StockFirmware):
 
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
-                            hashboard.hashrate = AlgoHashRate.SHA256(
-                                rate=float(hashrate), unit=HashUnit.SHA256.GH
+                            hashboard.hashrate = self.algo.hashrate(
+                                rate=float(hashrate), unit=self.algo.unit.GH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
@@ -260,8 +261,8 @@ class BFGMiner(StockFirmware):
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
-                return AlgoHashRate.SHA256(
-                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
+                return self.algo.hashrate(
+                    rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass

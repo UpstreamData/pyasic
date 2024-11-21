@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.eaglesong import EaglesongUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.eaglesong import EaglesongUnit
+
+from .unit import HashUnit
 
 
 class EaglesongHashRate(AlgoHashRateType):
     rate: float
-    unit: EaglesongUnit = MinerAlgo.EAGLESONG.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: EaglesongUnit = HashUnit.EAGLESONG.default
 
     def __add__(self, other: EaglesongHashRate | int | float) -> EaglesongHashRate:
         if isinstance(other, EaglesongHashRate):

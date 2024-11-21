@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.equihash import EquihashUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.equihash import EquihashUnit
+
+from .unit import HashUnit
 
 
 class EquihashHashRate(AlgoHashRateType):
     rate: float
-    unit: EquihashUnit = MinerAlgo.ETHASH.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: EquihashUnit = HashUnit.ETHASH.default
 
     def __add__(self, other: EquihashHashRate | int | float) -> EquihashHashRate:
         if isinstance(other, EquihashHashRate):

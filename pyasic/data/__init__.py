@@ -24,12 +24,12 @@ from pydantic import BaseModel, Field, computed_field, field_serializer
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data.pools import PoolMetrics, Scheme
+from pyasic.device.algorithm.hashrate import AlgoHashRateType
 
 from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .fans import Fan
-from .hashrate import AlgoHashRate, AlgoHashRateType, HashUnit
 
 
 class MinerData(BaseModel):
@@ -49,7 +49,6 @@ class MinerData(BaseModel):
         fw_ver: The current firmware version on the miner as a str.
         hostname: The network hostname of the miner as a str.
         hashrate: The hashrate of the miner in TH/s as a float.  Calculated automatically.
-        _hashrate: Backup for hashrate found via API instead of hashboards.
         expected_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
         hashboards: A list of [`HashBoard`][pyasic.data.HashBoard]s on the miner with their statistics.
         temperature_avg: The average temperature across the boards.  Calculated automatically.

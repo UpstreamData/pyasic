@@ -17,8 +17,8 @@
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, HashUnit
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -123,9 +123,9 @@ class CGMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=HashUnit.SHA256.GH,
+                    unit=self.algo.unit.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass

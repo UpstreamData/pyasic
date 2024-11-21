@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.scrypt import ScryptUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.scrypt import ScryptUnit
+
+from .unit import HashUnit
 
 
 class ScryptHashRate(AlgoHashRateType):
     rate: float
-    unit: ScryptUnit = MinerAlgo.SCRYPT.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: ScryptUnit = HashUnit.SCRYPT.default
 
     def __add__(self, other: ScryptHashRate | int | float) -> ScryptHashRate:
         if isinstance(other, ScryptHashRate):

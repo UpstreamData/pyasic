@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 from pyasic import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -131,7 +131,7 @@ class IceRiver(StockFirmware):
         if web_userpanel is not None:
             try:
                 base_unit = web_userpanel["userpanel"]["data"]["unit"]
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(
                         web_userpanel["userpanel"]["data"]["rtpow"].replace(
                             base_unit, ""
@@ -187,9 +187,9 @@ class IceRiver(StockFirmware):
                     idx = int(board["no"] - 1)
                     hb_list[idx].chip_temp = round(board["outtmp"])
                     hb_list[idx].temp = round(board["intmp"])
-                    hb_list[idx].hashrate = AlgoHashRate.SHA256(
+                    hb_list[idx].hashrate = self.algo.hashrate(
                         rate=float(board["rtpow"].replace("G", "")),
-                        unit=HashUnit.SHA256.GH,
+                        unit=self.algo.unit.GH,
                     ).into(self.algo.unit.default)
                     hb_list[idx].chips = int(board["chipnum"])
                     hb_list[idx].missing = False

@@ -17,7 +17,7 @@
 from typing import Optional
 
 from pyasic import MinerConfig
-from pyasic.data import AlgoHashRate, HashUnit
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.data import (
@@ -207,9 +207,9 @@ class VNish(VNishFirmware, BMMiner):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=HashUnit.SHA256.GH,
+                    unit=self.algo.unit.GH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass

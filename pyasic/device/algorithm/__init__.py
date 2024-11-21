@@ -4,6 +4,8 @@ from .eaglesong import EaglesongAlgo
 from .equihash import EquihashAlgo
 from .ethash import EtHashAlgo
 from .handshake import HandshakeAlgo
+from .hashrate import *
+from .hashrate.unit import *
 from .kadena import KadenaAlgo
 from .kheavyhash import KHeavyHashAlgo
 from .scrypt import ScryptAlgo

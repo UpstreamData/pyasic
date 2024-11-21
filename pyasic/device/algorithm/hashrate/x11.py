@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.x11 import X11Unit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.x11 import X11Unit
+
+from .unit import HashUnit
 
 
 class X11HashRate(AlgoHashRateType):
     rate: float
-    unit: X11Unit = MinerAlgo.X11.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: X11Unit = HashUnit.X11.default
 
     def __add__(self, other: X11HashRate | int | float) -> X11HashRate:
         if isinstance(other, X11HashRate):

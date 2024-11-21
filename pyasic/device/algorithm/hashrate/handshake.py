@@ -1,25 +1,14 @@
 from __future__ import annotations
 
-from pyasic.data.hashrate.base import AlgoHashRateType
-from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.algorithm.handshake import HandshakeUnit
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.unit.handshake import HandshakeUnit
+
+from .unit import HashUnit
 
 
 class HandshakeHashRate(AlgoHashRateType):
     rate: float
-    unit: HandshakeUnit = MinerAlgo.HANDSHAKE.unit.default
-
-    def __float__(self):
-        return float(self.rate)
-
-    def __int__(self):
-        return int(self.rate)
-
-    def __repr__(self):
-        return f"{self.rate} {str(self.unit)}"
-
-    def __round__(self, n: int = None):
-        return round(self.rate, n)
+    unit: HandshakeUnit = HashUnit.HANDSHAKE.default
 
     def __add__(self, other: HandshakeHashRate | int | float) -> HandshakeHashRate:
         if isinstance(other, HandshakeHashRate):

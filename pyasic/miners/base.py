@@ -19,11 +19,12 @@ import warnings
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, MinerData
+from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
-from pyasic.device.algorithm import MinerAlgo, MinerAlgoType
+from pyasic.device.algorithm import MinerAlgoType
+from pyasic.device.algorithm.hashrate import AlgoHashRate
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake
 from pyasic.device.models import MinerModelType

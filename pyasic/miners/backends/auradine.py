@@ -18,7 +18,8 @@ from enum import Enum
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -292,9 +293,9 @@ class Auradine(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
-                    unit=HashUnit.SHA256.MH,
+                    unit=self.algo.unit.MH,
                 ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -322,8 +323,8 @@ class Auradine(StockFirmware):
             try:
                 for board in rpc_devs["DEVS"]:
                     b_id = board["ID"] - 1
-                    hashboards[b_id].hashrate = AlgoHashRate.SHA256(
-                        rate=float(board["MHS 5s"]), unit=HashUnit.SHA256.MH
+                    hashboards[b_id].hashrate = self.algo.hashrate(
+                        rate=float(board["MHS 5s"]), unit=self.algo.unit.MH
                     ).into(self.algo.unit.default)
                     hashboards[b_id].temp = round(float(board["Temperature"]))
                     hashboards[b_id].missing = False

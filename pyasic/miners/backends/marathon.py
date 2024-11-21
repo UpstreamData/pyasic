@@ -2,8 +2,9 @@ from typing import List, Optional
 
 from pyasic import MinerConfig
 from pyasic.config import MiningModeConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import MaraFirmware
@@ -178,8 +179,8 @@ class MaraMiner(MaraFirmware):
             try:
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
-                    hashboards[idx].hashrate = AlgoHashRate.SHA256(
-                        rate=float(hb["hashrate_average"]), unit=HashUnit.SHA256.GH
+                    hashboards[idx].hashrate = self.algo.hashrate(
+                        rate=float(hb["hashrate_average"]), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
                     hashboards[idx].temp = round(
                         sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"])
@@ -242,8 +243,8 @@ class MaraMiner(MaraFirmware):
 
         if web_brief is not None:
             try:
-                return AlgoHashRate.SHA256(
-                    rate=float(web_brief["hashrate_realtime"]), unit=HashUnit.SHA256.TH
+                return self.algo.hashrate(
+                    rate=float(web_brief["hashrate_realtime"]), unit=self.algo.unit.TH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -290,8 +291,8 @@ class MaraMiner(MaraFirmware):
 
         if web_brief is not None:
             try:
-                return AlgoHashRate.SHA256(
-                    rate=float(web_brief["hashrate_ideal"]), unit=HashUnit.SHA256.GH
+                return self.algo.hashrate(
+                    rate=float(web_brief["hashrate_ideal"]), unit=self.algo.unit.GH
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
