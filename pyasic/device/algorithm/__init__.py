@@ -1,6 +1,26 @@
-from pyasic.device.algorithm.base import MinerAlgoType
-from pyasic.device.algorithm.sha256 import SHA256Algo
+from .base import MinerAlgoType
+from .blake256 import Blake256Algo
+from .eaglesong import EaglesongAlgo
+from .equihash import EquihashAlgo
+from .ethash import EtHashAlgo
+from .handshake import HandshakeAlgo
+from .hashrate import *
+from .hashrate.unit import *
+from .kadena import KadenaAlgo
+from .kheavyhash import KHeavyHashAlgo
+from .scrypt import ScryptAlgo
+from .sha256 import SHA256Algo
+from .x11 import X11Algo
 
 
 class MinerAlgo:
     SHA256 = SHA256Algo
+    SCRYPT = ScryptAlgo
+    KHEAVYHASH = KHeavyHashAlgo
+    KADENA = KadenaAlgo
+    HANDSHAKE = HandshakeAlgo
+    X11 = X11Algo
+    BLAKE256 = Blake256Algo
+    EAGLESONG = EaglesongAlgo
+    ETHASH = EtHashAlgo
+    EQUIHASH = EquihashAlgo

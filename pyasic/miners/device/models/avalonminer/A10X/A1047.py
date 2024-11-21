@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AvalonMinerMake
 
@@ -21,3 +22,6 @@ class Avalon1047(AvalonMinerMake):
     raw_model = MinerModel.AVALONMINER.Avalon1047
 
     expected_chips = 80
+    expected_hashboards = 3
+    expected_fans = 2
+    algo = MinerAlgo.SHA256

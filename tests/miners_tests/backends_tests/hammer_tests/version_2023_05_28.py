@@ -398,6 +398,6 @@ class TestHammerMiners(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.api_ver, "3.1")
             self.assertEqual(result.fw_ver, "2023-05-28 17-20-35 CST")
             self.assertEqual(result.hostname, "Hammer")
-            self.assertEqual(round(result.hashrate), 5)
+            self.assertEqual(round(result.hashrate), 4686)
             self.assertEqual(result.fans, [Fan(speed=4650), Fan(speed=4500)])
             self.assertEqual(result.total_chips, result.expected_chips)

@@ -18,9 +18,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -234,9 +235,9 @@ class ePIC(ePICFirmware):
                 if web_summary["HBs"] is not None:
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
-                    return AlgoHashRate.SHA256(
-                        rate=float(hashrate), unit=HashUnit.SHA256.MH
-                    ).into(HashUnit.SHA256.TH)
+                    return self.algo.hashrate(
+                        rate=float(hashrate), unit=self.algo.unit.MH
+                    ).into(self.algo.unit.TH)
             except (LookupError, ValueError, TypeError):
                 pass
 
@@ -260,8 +261,8 @@ class ePIC(ePICFirmware):
                             ideal = hb["Hashrate"][1] / 100
 
                         hashrate += hb["Hashrate"][0] / ideal
-                    return AlgoHashRate.SHA256(
-                        rate=float(hashrate), unit=HashUnit.SHA256.MH
+                    return self.algo.hashrate(
+                        rate=float(hashrate), unit=self.algo.unit.MH
                     ).into(self.algo.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
@@ -352,8 +353,8 @@ class ePIC(ePICFirmware):
                     hashrate = hb["Hashrate"][0]
                     # Update the Hashboard object
                     hb_list[hb["Index"]].missing = False
-                    hb_list[hb["Index"]].hashrate = AlgoHashRate.SHA256(
-                        rate=float(hashrate), unit=HashUnit.SHA256.MH
+                    hb_list[hb["Index"]].hashrate = self.algo.hashrate(
+                        rate=float(hashrate), unit=self.algo.unit.MH
                     ).into(self.algo.unit.default)
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = int(hb["Temperature"])

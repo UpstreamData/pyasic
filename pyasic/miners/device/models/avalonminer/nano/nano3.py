@@ -1,4 +1,5 @@
-from pyasic.device import MinerModel
+from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AvalonMinerMake
 
 
@@ -8,3 +9,4 @@ class AvalonNano3(AvalonMinerMake):
     expected_hashboards = 1
     expected_chips = 10
     expected_fans = 1
+    algo = MinerAlgo.SHA256

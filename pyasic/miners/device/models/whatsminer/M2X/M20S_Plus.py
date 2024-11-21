@@ -13,9 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
 
 class M20SPlusV30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M20SPlusV30
+
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256

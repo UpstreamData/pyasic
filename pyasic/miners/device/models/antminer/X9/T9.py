@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import AntMinerMake
 
@@ -21,3 +22,6 @@ class T9(AntMinerMake):
     raw_model = MinerModel.ANTMINER.T9
 
     expected_chips = 54
+    expected_hashboards = 3
+    expected_fans = 2
+    algo = MinerAlgo.SHA256

@@ -1,8 +1,9 @@
 from typing import List, Optional
 
 from pyasic import APIError, MinerConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
-from pyasic.device import MinerFirmware
+from pyasic.data import Fan, HashBoard
+from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.firmware import MinerFirmware
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.web.bitaxe import BitAxeWebAPI
@@ -93,8 +94,8 @@ class BitAxe(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return AlgoHashRate.SHA256(
-                    rate=float(web_system_info["hashRate"]), unit=HashUnit.SHA256.GH
+                return self.algo.hashrate(
+                    rate=float(web_system_info["hashRate"]), unit=self.algo.unit.GH
                 ).into(self.algo.unit.default)
             except KeyError:
                 pass
@@ -123,9 +124,9 @@ class BitAxe(BaseMiner):
             try:
                 return [
                     HashBoard(
-                        hashrate=AlgoHashRate.SHA256(
+                        hashrate=self.algo.hashrate(
                             rate=float(web_system_info["hashRate"]),
-                            unit=HashUnit.SHA256.GH,
+                            unit=self.algo.unit.GH,
                         ).into(self.algo.unit.default),
                         chip_temp=web_system_info.get("temp"),
                         temp=web_system_info.get("vrTemp"),

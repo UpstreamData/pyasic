@@ -21,9 +21,10 @@ from typing import List, Optional
 import aiofiles
 
 from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -403,9 +404,9 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return AlgoHashRate.SHA256(
+                return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
-                    unit=HashUnit.SHA256.MH,
+                    unit=self.algo.unit.MH,
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -434,8 +435,8 @@ class BTMiner(StockFirmware):
                         self.expected_hashboards += 1
                     hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
                     hashboards[board["ASC"]].temp = round(board["Temperature"])
-                    hashboards[board["ASC"]].hashrate = AlgoHashRate.SHA256(
-                        rate=float(board["MHS 1m"]), unit=HashUnit.SHA256.MH
+                    hashboards[board["ASC"]].hashrate = self.algo.hashrate(
+                        rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
                     ).into(self.algo.unit.default)
                     hashboards[board["ASC"]].chips = board["Effective Chips"]
                     hashboards[board["ASC"]].serial_number = board["PCB SN"]
@@ -584,8 +585,8 @@ class BTMiner(StockFirmware):
             try:
                 expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
-                    return AlgoHashRate.SHA256(
-                        rate=float(expected_hashrate), unit=HashUnit.SHA256.GH
+                    return self.algo.hashrate(
+                        rate=float(expected_hashrate), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
 
             except LookupError:

@@ -16,12 +16,13 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import AlgoHashRate, Fan, HashBoard, HashUnit
+from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
@@ -260,8 +261,8 @@ class AntminerModern(BMMiner):
         if rpc_stats is not None:
             try:
                 for board in rpc_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = AlgoHashRate.SHA256(
-                        rate=board["rate_real"], unit=HashUnit.SHA256.GH
+                    hashboards[board["index"]].hashrate = self.algo.hashrate(
+                        rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
                     hashboards[board["index"]].chips = board["asic_num"]
                     board_temp_data = list(
@@ -317,8 +318,8 @@ class AntminerModern(BMMiner):
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "GH"
-                return AlgoHashRate.SHA256(
-                    rate=float(expected_rate), unit=HashUnit.SHA256.from_str(rate_unit)
+                return self.algo.hashrate(
+                    rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
                 ).into(self.algo.unit.default)
             except LookupError:
                 pass
@@ -624,8 +625,8 @@ class AntminerOld(CGMiner):
 
                     hashrate = boards[1].get(f"chain_rate{i}")
                     if hashrate:
-                        hashboard.hashrate = AlgoHashRate.SHA256(
-                            rate=float(hashrate), unit=HashUnit.SHA256.GH
+                        hashboard.hashrate = self.algo.hashrate(
+                            rate=float(hashrate), unit=self.algo.unit.GH
                         ).into(self.algo.unit.default)
 
                     chips = boards[1].get(f"chain_acn{i}")

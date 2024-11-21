@@ -18,7 +18,8 @@ from typing import List, Optional
 
 import asyncssh
 
-from pyasic.data import AlgoHashRate, HashBoard, HashUnit
+from pyasic.data import HashBoard
+from pyasic.device.algorithm import AlgoHashRate, HashUnit
 from pyasic.errors import APIError
 from pyasic.miners.backends import Hiveon
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
