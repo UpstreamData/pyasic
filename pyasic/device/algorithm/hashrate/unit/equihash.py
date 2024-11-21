@@ -32,26 +32,3 @@ class EquihashUnit(AlgoHashRateUnitType):
             return "ESol/s"
         if self.value == self.ZH:
             return "ZSol/s"
-
-    @classmethod
-    def from_str(cls, value: str):
-        if value == "H":
-            return cls.H
-        elif value == "KH":
-            return cls.KH
-        elif value == "MH":
-            return cls.MH
-        elif value == "GH":
-            return cls.GH
-        elif value == "TH":
-            return cls.TH
-        elif value == "PH":
-            return cls.PH
-        elif value == "EH":
-            return cls.EH
-        elif value == "ZH":
-            return cls.ZH
-        return cls.default
-
-    def __repr__(self):
-        return str(self)
