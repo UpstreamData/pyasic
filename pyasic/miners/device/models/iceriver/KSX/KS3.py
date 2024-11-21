@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import IceRiverMake
 
@@ -21,12 +22,16 @@ class KS3(IceRiverMake):
     raw_model = MinerModel.ICERIVER.KS3
 
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.KHEAVYHASH
 
 
 class KS3L(IceRiverMake):
     raw_model = MinerModel.ICERIVER.KS3L
 
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.KHEAVYHASH
 
 
 class KS3M(IceRiverMake):
@@ -34,3 +39,5 @@ class KS3M(IceRiverMake):
 
     expected_fans = 4
     expected_chips = 18
+    expected_hashboards = 3
+    algo = MinerAlgo.KHEAVYHASH
