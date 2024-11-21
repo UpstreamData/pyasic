@@ -45,8 +45,7 @@ class MinerProtocol(Protocol):
     make: MinerMake = None
     raw_model: MinerModelType = None
     firmware: MinerFirmware = None
-    # TODO: change to None
-    algo: MinerAlgoType = MinerAlgo.SHA256
+    algo: MinerAlgoType = None
 
     expected_hashboards: int = 3
     expected_chips: int = None

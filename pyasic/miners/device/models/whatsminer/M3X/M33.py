@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
 
@@ -22,6 +23,8 @@ class M33V10(WhatsMinerMake):
 
     expected_chips = 33
     expected_fans = 0
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class M33V20(WhatsMinerMake):
@@ -29,6 +32,8 @@ class M33V20(WhatsMinerMake):
 
     expected_chips = 62
     expected_fans = 0
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class M33V30(WhatsMinerMake):
@@ -36,3 +41,5 @@ class M33V30(WhatsMinerMake):
 
     expected_chips = 66
     expected_fans = 0
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
