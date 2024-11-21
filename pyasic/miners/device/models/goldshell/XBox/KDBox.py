@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import GoldshellMake
 
@@ -22,6 +23,8 @@ class KDBoxII(GoldshellMake):
 
     expected_chips = 36
     expected_hashboards = 1
+    expected_fans = 2
+    algo = MinerAlgo.KADENA
 
 
 class KDBoxPro(GoldshellMake):
@@ -29,3 +32,5 @@ class KDBoxPro(GoldshellMake):
 
     expected_chips = 16
     expected_hashboards = 1
+    expected_fans = 2
+    algo = MinerAlgo.KADENA

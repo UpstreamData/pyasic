@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import GoldshellMake
 
@@ -23,3 +24,4 @@ class HS5(GoldshellMake):
     expected_hashboards = 4
     expected_chips = 46
     expected_fans = 4
+    algo = MinerAlgo.HANDSHAKE
