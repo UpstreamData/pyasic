@@ -5,13 +5,8 @@ from .hashrate import ScryptHashRate
 from .hashrate.unit import ScryptUnit
 
 
-# make this json serializable
-class _ScryptAlgo(MinerAlgoType):
-    hashrate = ScryptHashRate
-    unit = ScryptUnit
+class ScryptAlgo(MinerAlgoType):
+    hashrate: type[ScryptHashRate] = ScryptHashRate
+    unit: type[ScryptUnit] = ScryptUnit
 
-    def __repr__(self):
-        return "ScryptAlgo"
-
-
-ScryptAlgo = _ScryptAlgo("Scrypt")
+    name = "Scrypt"

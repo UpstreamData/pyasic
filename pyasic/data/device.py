@@ -12,7 +12,7 @@ class DeviceInfo(BaseModel):
     make: MinerMake | None = None
     model: MinerModelType | None = None
     firmware: MinerFirmware | None = None
-    algo: MinerAlgoType | None = None
+    algo: type[MinerAlgoType] | None = None
 
     @field_serializer("make")
     def serialize_make(self, make: MinerMake, _info):

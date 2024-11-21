@@ -6,12 +6,8 @@ from .hashrate.unit import Blake256Unit
 
 
 # make this json serializable
-class _Blake256Algo(MinerAlgoType):
-    hashrate = Blake256HashRate
-    unit = Blake256Unit
+class Blake256Algo(MinerAlgoType):
+    hashrate: type[Blake256HashRate] = Blake256HashRate
+    unit: type[Blake256Unit] = Blake256Unit
 
-    def __repr__(self):
-        return "Blake256Algo"
-
-
-Blake256Algo = _Blake256Algo("Blake256")
+    name = "Blake256"

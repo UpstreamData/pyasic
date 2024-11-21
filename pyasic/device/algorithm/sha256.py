@@ -6,12 +6,8 @@ from .hashrate.unit import SHA256Unit
 
 
 # make this json serializable
-class _SHA256Algo(MinerAlgoType):
-    hashrate = SHA256HashRate
-    unit = SHA256Unit
+class SHA256Algo(MinerAlgoType):
+    hashrate: type[SHA256HashRate] = SHA256HashRate
+    unit: type[SHA256Unit] = SHA256Unit
 
-    def __repr__(self):
-        return "SHA256Algo"
-
-
-SHA256Algo = _SHA256Algo("SHA256")
+    name = "SHA256"

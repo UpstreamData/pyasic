@@ -6,12 +6,8 @@ from .hashrate.unit import EquihashUnit
 
 
 # make this json serializable
-class _EquihashAlgo(MinerAlgoType):
-    hashrate = EquihashHashRate
-    unit = EquihashUnit
+class EquihashAlgo(MinerAlgoType):
+    hashrate: type[EquihashHashRate] = EquihashHashRate
+    unit: type[EquihashUnit] = EquihashUnit
 
-    def __repr__(self):
-        return "EquihashAlgo"
-
-
-EquihashAlgo = _EquihashAlgo("Equihash")
+    name = "Equihash"

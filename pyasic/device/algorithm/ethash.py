@@ -5,13 +5,8 @@ from .hashrate import EtHashHashRate
 from .hashrate.unit import EtHashUnit
 
 
-# make this json serializable
-class _EtHashAlgo(MinerAlgoType):
-    hashrate = EtHashHashRate
-    unit = EtHashUnit
+class EtHashAlgo(MinerAlgoType):
+    hashrate: type[EtHashHashRate] = EtHashHashRate
+    unit: type[EtHashUnit] = EtHashUnit
 
-    def __repr__(self):
-        return "EtHashAlgo"
-
-
-EtHashAlgo = _EtHashAlgo("EtHash")
+    name = "EtHash"

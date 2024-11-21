@@ -46,7 +46,7 @@ class MinerProtocol(Protocol):
     make: MinerMake = None
     raw_model: MinerModelType = None
     firmware: MinerFirmware = None
-    algo: MinerAlgoType = None
+    algo: type[MinerAlgoType] = None
 
     expected_hashboards: int = None
     expected_chips: int = None
@@ -496,7 +496,6 @@ class MinerProtocol(Protocol):
                 function = getattr(self, getattr(self.data_locations, data_name).cmd)
                 miner_data[data_name] = await function(**args_to_send)
             except Exception as e:
-                raise e
                 raise APIError(
                     f"Failed to call {data_name} on {self} while getting data."
                 ) from e

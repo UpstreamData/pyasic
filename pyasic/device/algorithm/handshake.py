@@ -6,12 +6,8 @@ from .hashrate.unit import HandshakeUnit
 
 
 # make this json serializable
-class _HandshakeAlgo(MinerAlgoType):
-    hashrate = HandshakeHashRate
-    unit = HandshakeUnit
+class HandshakeAlgo(MinerAlgoType):
+    hashrate: type[HandshakeHashRate] = HandshakeHashRate
+    unit: type[HandshakeUnit] = HandshakeUnit
 
-    def __repr__(self):
-        return "HandshakeAlgo"
-
-
-HandshakeAlgo = _HandshakeAlgo("Handshake")
+    name = "Handshake"

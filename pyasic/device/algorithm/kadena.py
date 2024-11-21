@@ -6,12 +6,8 @@ from .hashrate.unit import KadenaUnit
 
 
 # make this json serializable
-class _KadenaAlgo(MinerAlgoType):
-    hashrate = KadenaHashRate
-    unit = KadenaUnit
+class KadenaAlgo(MinerAlgoType):
+    hashrate: type[KadenaHashRate] = KadenaHashRate
+    unit: type[KadenaUnit] = KadenaUnit
 
-    def __repr__(self):
-        return "KadenaAlgo"
-
-
-KadenaAlgo = _KadenaAlgo("Kadena")
+    name = "Kadena"

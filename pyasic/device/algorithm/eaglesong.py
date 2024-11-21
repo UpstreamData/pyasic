@@ -6,12 +6,8 @@ from .hashrate.unit import EaglesongUnit
 
 
 # make this json serializable
-class _EaglesongAlgo(MinerAlgoType):
-    hashrate = EaglesongHashRate
-    unit = EaglesongUnit
+class EaglesongAlgo(MinerAlgoType):
+    hashrate: type[EaglesongHashRate] = EaglesongHashRate
+    unit: type[EaglesongUnit] = EaglesongUnit
 
-    def __repr__(self):
-        return "EaglesongAlgo"
-
-
-EaglesongAlgo = _EaglesongAlgo("Eaglesong")
+    name = "Eaglesong"

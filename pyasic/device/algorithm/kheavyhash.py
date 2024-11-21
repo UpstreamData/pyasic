@@ -6,12 +6,8 @@ from .hashrate.unit import KHeavyHashUnit
 
 
 # make this json serializable
-class _KHeavyHashAlgo(MinerAlgoType):
-    hashrate = KHeavyHashHashRate
-    unit = KHeavyHashUnit
+class KHeavyHashAlgo(MinerAlgoType):
+    hashrate: type[KHeavyHashHashRate] = KHeavyHashHashRate
+    unit: type[KHeavyHashUnit] = KHeavyHashUnit
 
-    def __repr__(self):
-        return "KHeavyHashAlgo"
-
-
-KHeavyHashAlgo = _KHeavyHashAlgo("KHeavyHash")
+    name = "KHeavyHash"
