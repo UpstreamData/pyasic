@@ -23,4 +23,5 @@ class Avalon1047(AvalonMinerMake):
 
     expected_chips = 80
     expected_hashboards = 3
+    expected_fans = 2
     algo = MinerAlgo.SHA256

@@ -147,9 +147,17 @@ class M31SPlusVE50(WhatsMinerMake):
 class M31SPlusVE60(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M31SPlusVE60
 
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
+
 
 class M31SPlusVE80(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M31SPlusVE80
+
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class M31SPlusVF20(WhatsMinerMake):
@@ -163,6 +171,10 @@ class M31SPlusVF20(WhatsMinerMake):
 
 class M31SPlusVF30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M31SPlusVF30
+
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
 
 
 class M31SPlusVG20(WhatsMinerMake):

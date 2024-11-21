@@ -118,3 +118,7 @@ class M31SVE20(WhatsMinerMake):
 
 class M31SVE30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M31SVE30
+
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
