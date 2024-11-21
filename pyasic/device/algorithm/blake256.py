@@ -15,7 +15,7 @@ class Blake256Unit(IntEnum):
     EH = int(PH) * 1000
     ZH = int(EH) * 1000
 
-    default = MH
+    default = TH
 
     def __str__(self):
         if self.value == self.H:

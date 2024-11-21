@@ -15,7 +15,7 @@ class EtHashUnit(IntEnum):
     EH = int(PH) * 1000
     ZH = int(EH) * 1000
 
-    default = GH
+    default = MH
 
     def __str__(self):
         if self.value == self.H:

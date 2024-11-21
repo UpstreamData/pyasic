@@ -19,21 +19,21 @@ class EquihashUnit(IntEnum):
 
     def __str__(self):
         if self.value == self.H:
-            return "H/s"
+            return "Sol/s"
         if self.value == self.KH:
-            return "KH/s"
+            return "KSol/s"
         if self.value == self.MH:
-            return "MH/s"
+            return "MSol/s"
         if self.value == self.GH:
-            return "GH/s"
+            return "GSol/s"
         if self.value == self.TH:
-            return "TH/s"
+            return "TSol/s"
         if self.value == self.PH:
-            return "PH/s"
+            return "PSol/s"
         if self.value == self.EH:
-            return "EH/s"
+            return "ESol/s"
         if self.value == self.ZH:
-            return "ZH/s"
+            return "ZSol/s"
 
     @classmethod
     def from_str(cls, value: str):

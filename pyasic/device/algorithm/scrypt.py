@@ -15,7 +15,7 @@ class ScryptUnit(IntEnum):
     EH = int(PH) * 1000
     ZH = int(EH) * 1000
 
-    default = MH
+    default = GH
 
     def __str__(self):
         if self.value == self.H:
