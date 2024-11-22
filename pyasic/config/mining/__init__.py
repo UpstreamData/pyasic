@@ -148,6 +148,9 @@ class MiningModeHPM(MinerConfigValue):
 
 
 class MiningModePowerTune(MinerConfigValue):
+    class Config:
+        arbitrary_types_allowed = True
+
     mode: str = field(init=False, default="power_tuning")
     power: int | None = None
     algo: TunerAlgoType = field(default_factory=TunerAlgo.default)
@@ -244,6 +247,9 @@ class MiningModePowerTune(MinerConfigValue):
 
 
 class MiningModeHashrateTune(MinerConfigValue):
+    class Config:
+        arbitrary_types_allowed = True
+
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int = None
     algo: TunerAlgoType = field(default_factory=TunerAlgo.default)
@@ -642,4 +648,15 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
 
-MiningMode = TypeVar("MiningMode", bound=Union[*[v.value for v in MiningModeConfig]])
+MiningMode = TypeVar(
+    "MiningMode",
+    bound=Union[
+        MiningModeConfig.normal,
+        MiningModeConfig.high,
+        MiningModeConfig.low,
+        MiningModeConfig.sleep,
+        MiningModeConfig.manual,
+        MiningModeConfig.power_tuning,
+        MiningModeConfig.hashrate_tuning,
+    ],
+)

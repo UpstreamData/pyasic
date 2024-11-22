@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Self
+from typing_extensions import Self
 
 from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.device.algorithm.hashrate.unit.kadena import KadenaUnit

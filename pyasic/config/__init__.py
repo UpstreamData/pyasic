@@ -28,6 +28,9 @@ class MinerConfig(BaseModel):
     """Represents the configuration for a miner including pool configuration,
     fan mode, temperature settings, mining mode, and power scaling."""
 
+    class Config:
+        arbitrary_types_allowed = True
+
     pools: PoolConfig = Field(default_factory=PoolConfig.default)
     fan_mode: FanMode = Field(default_factory=FanModeConfig.default)
     temperature: TemperatureConfig = Field(default_factory=TemperatureConfig.default)

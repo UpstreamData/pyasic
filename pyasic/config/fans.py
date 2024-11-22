@@ -336,4 +336,7 @@ class FanModeConfig(MinerConfigOption):
         return cls.default()
 
 
-FanMode = TypeVar("FanMode", bound=Union[*[v.value for v in FanModeConfig]])
+FanMode = TypeVar(
+    "FanMode",
+    bound=Union[FanModeConfig.normal, FanModeConfig.manual, FanModeConfig.immersion],
+)

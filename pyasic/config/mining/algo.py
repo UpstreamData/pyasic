@@ -55,4 +55,12 @@ class TunerAlgo(MinerConfigOption):
             return cls_attr().from_dict(dict_conf)
 
 
-TunerAlgoType = TypeVar("TunerAlgoType", bound=Union[*[v.value for v in TunerAlgo]])
+TunerAlgoType = TypeVar(
+    "TunerAlgoType",
+    bound=Union[
+        TunerAlgo.standard,
+        TunerAlgo.voltage_optimizer,
+        TunerAlgo.board_tune,
+        TunerAlgo.chip_tune,
+    ],
+)
