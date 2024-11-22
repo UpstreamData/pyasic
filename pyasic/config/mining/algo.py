@@ -58,9 +58,9 @@ class TunerAlgo(MinerConfigOption):
 TunerAlgoType = TypeVar(
     "TunerAlgoType",
     bound=Union[
-        TunerAlgo.standard,
-        TunerAlgo.voltage_optimizer,
-        TunerAlgo.board_tune,
-        TunerAlgo.chip_tune,
+        StandardTuneAlgo,
+        VOptAlgo,
+        BoardTuneAlgo,
+        ChipTuneAlgo,
     ],
 )

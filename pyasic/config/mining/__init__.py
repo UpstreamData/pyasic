@@ -651,12 +651,12 @@ class MiningModeConfig(MinerConfigOption):
 MiningMode = TypeVar(
     "MiningMode",
     bound=Union[
-        MiningModeConfig.normal,
-        MiningModeConfig.high,
-        MiningModeConfig.low,
-        MiningModeConfig.sleep,
-        MiningModeConfig.manual,
-        MiningModeConfig.power_tuning,
-        MiningModeConfig.hashrate_tuning,
+        MiningModeNormal,
+        MiningModeHPM,
+        MiningModeLPM,
+        MiningModeSleep,
+        MiningModeManual,
+        MiningModePowerTune,
+        MiningModeHashrateTune,
     ],
 )

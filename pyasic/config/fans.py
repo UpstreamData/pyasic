@@ -338,5 +338,5 @@ class FanModeConfig(MinerConfigOption):
 
 FanMode = TypeVar(
     "FanMode",
-    bound=Union[FanModeConfig.normal, FanModeConfig.manual, FanModeConfig.immersion],
+    bound=Union[FanModeNormal, FanModeManual, FanModeImmersion],
 )
