@@ -598,44 +598,52 @@ class AntminerOld(CGMiner):
                 pass
 
         if rpc_stats is not None:
-            board_offset = -1
-            boards = rpc_stats["STATS"]
-            if len(boards) > 1:
-                for board_num in range(1, 16, 5):
-                    for _b_num in range(5):
-                        b = boards[1].get(f"chain_acn{board_num + _b_num}")
+            try:
+                board_offset = -1
+                boards = rpc_stats["STATS"]
+                if len(boards) > 1:
+                    for board_num in range(1, 16, 5):
+                        for _b_num in range(5):
+                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
 
-                        if b and not b == 0 and board_offset == -1:
-                            board_offset = board_num
-                if board_offset == -1:
-                    board_offset = 1
+                            if b and not b == 0 and board_offset == -1:
+                                board_offset = board_num
+                    if board_offset == -1:
+                        board_offset = 1
 
-                for i in range(board_offset, board_offset + self.expected_hashboards):
-                    hashboard = HashBoard(
-                        slot=i - board_offset, expected_chips=self.expected_chips
-                    )
+                    for i in range(
+                        board_offset, board_offset + self.expected_hashboards
+                    ):
+                        hashboard = HashBoard(
+                            slot=i - board_offset, expected_chips=self.expected_chips
+                        )
 
-                    chip_temp = boards[1].get(f"temp{i}")
-                    if chip_temp:
-                        hashboard.chip_temp = round(chip_temp)
+                        chip_temp = boards[1].get(f"temp{i}")
+                        if chip_temp:
+                            hashboard.chip_temp = round(chip_temp)
 
-                    temp = boards[1].get(f"temp2_{i}")
-                    if temp:
-                        hashboard.temp = round(temp)
+                        temp = boards[1].get(f"temp2_{i}")
+                        if temp:
+                            hashboard.temp = round(temp)
 
-                    hashrate = boards[1].get(f"chain_rate{i}")
-                    if hashrate:
-                        hashboard.hashrate = self.algo.hashrate(
-                            rate=float(hashrate), unit=self.algo.unit.GH
-                        ).into(self.algo.unit.default)
+                        hashrate = boards[1].get(f"chain_rate{i}")
+                        if hashrate:
+                            hashboard.hashrate = self.algo.hashrate(
+                                rate=float(hashrate), unit=self.algo.unit.GH
+                            ).into(self.algo.unit.default)
 
-                    chips = boards[1].get(f"chain_acn{i}")
-                    if chips:
-                        hashboard.chips = chips
-                        hashboard.missing = False
-                    if (not chips) or (not chips > 0):
-                        hashboard.missing = True
-                    hashboards.append(hashboard)
+                        chips = boards[1].get(f"chain_acn{i}")
+                        if chips:
+                            hashboard.chips = chips
+                            hashboard.missing = False
+                        if (not chips) or (not chips > 0):
+                            hashboard.missing = True
+                        hashboards.append(hashboard)
+            except LookupError:
+                return [
+                    HashBoard(slot=i, expected_chips=self.expected_chips)
+                    for i in range(self.expected_hashboards)
+                ]
 
         return hashboards
 
