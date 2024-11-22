@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
 
 from typing import Any
 
@@ -40,8 +41,8 @@ class HashBoard(BaseModel):
 
     slot: int = 0
     hashrate: AlgoHashRateType | None = None
-    temp: int | None = None
-    chip_temp: int | None = None
+    temp: float | None = None
+    chip_temp: float | None = None
     chips: int | None = None
     expected_chips: int | None = None
     serial_number: str | None = None
