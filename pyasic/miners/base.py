@@ -529,7 +529,11 @@ class MinerProtocol(Protocol):
             expected_fans=self.expected_fans,
             hashboards=[
                 HashBoard(slot=i, expected_chips=self.expected_chips)
-                for i in range(self.expected_hashboards)
+                for i in range(
+                    self.expected_hashboards
+                    if self.expected_hashboards is not None
+                    else 0
+                )
             ],
         )
 
