@@ -76,6 +76,8 @@ class LUXMiner(LuxOSFirmware):
     _rpc_cls = LUXMinerRPCAPI
     rpc: LUXMinerRPCAPI
 
+    supports_shutdown = True
+
     data_locations = LUXMINER_DATA_LOC
 
     async def fault_light_on(self) -> bool:
