@@ -3,6 +3,7 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, computed_field, model_serializer
+from typing_extensions import Self
 
 
 class Scheme(Enum):
@@ -28,8 +29,10 @@ class PoolUrl(BaseModel):
             return f"{self.scheme.value}://{self.host}:{self.port}"
 
     @classmethod
-    def from_str(cls, url: str) -> "PoolUrl":
+    def from_str(cls, url: str) -> Self | None:
         parsed_url = urlparse(url)
+        if not parsed_url.hostname:
+            return None
         if not parsed_url.scheme.strip() == "":
             scheme = Scheme(parsed_url.scheme)
         else:
@@ -57,15 +60,15 @@ class PoolMetrics(BaseModel):
     pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    url: PoolUrl
-    accepted: int = None
-    rejected: int = None
-    get_failures: int = None
-    remote_failures: int = None
-    active: bool = None
-    alive: bool = None
-    index: int = None
-    user: str = None
+    url: PoolUrl | None
+    accepted: int | None = None
+    rejected: int | None = None
+    get_failures: int | None = None
+    remote_failures: int | None = None
+    active: bool | None = None
+    alive: bool | None = None
+    index: int | None = None
+    user: str | None = None
 
     @computed_field  # type: ignore[misc]
     @property
