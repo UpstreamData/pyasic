@@ -22,3 +22,10 @@
         show_root_heading: false
         heading_level: 4
 
+## Gamma (Stock)
+::: pyasic.miners.bitaxe.espminer.BM.BM1370.BitAxeGamma
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+

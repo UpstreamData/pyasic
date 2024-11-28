@@ -37,12 +37,14 @@ details {
                 <ul>
                     <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
                     <li><a href="../antminer/X7#k7-stock">K7 (Stock)</a></li>
+                    <li><a href="../antminer/X7#d7-stock">D7 (Stock)</a></li>
                 </ul>
         </details>
         <details>
             <summary>X9 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X9#e9pro-stock">E9Pro (Stock)</a></li>
+                    <li><a href="../antminer/X9#d9-stock">D9 (Stock)</a></li>
                     <li><a href="../antminer/X9#s9-stock">S9 (Stock)</a></li>
                     <li><a href="../antminer/X9#s9i-stock">S9i (Stock)</a></li>
                     <li><a href="../antminer/X9#s9j-stock">S9j (Stock)</a></li>
@@ -581,6 +583,12 @@ details {
                     <li><a href="../antminer/X9#t9-stock">T9 (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19j-pro-stock">S19j Pro (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
@@ -672,6 +680,7 @@ details {
                     <li><a href="../bitaxe/BM#supra-stock">Supra (Stock)</a></li>
                     <li><a href="../bitaxe/BM#ultra-stock">Ultra (Stock)</a></li>
                     <li><a href="../bitaxe/BM#max-stock">Max (Stock)</a></li>
+                    <li><a href="../bitaxe/BM#gamma-stock">Gamma (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -691,6 +700,17 @@ details {
                     <li><a href="../iceriver/KSX#ks5-stock">KS5 (Stock)</a></li>
                     <li><a href="../iceriver/KSX#ks5l-stock">KS5L (Stock)</a></li>
                     <li><a href="../iceriver/KSX#ks5m-stock">KS5M (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Hammer Miners:</summary>
+    <ul>
+        <details>
+            <summary>DX Series:</summary>
+                <ul>
+                    <li><a href="../hammer/DX#d10-stock">D10 (Stock)</a></li>
                 </ul>
         </details>
     </ul>

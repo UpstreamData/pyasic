@@ -53,6 +53,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware BitAxe Miners"
         case MinerTypes.ICERIVER:
             return "Stock Firmware IceRiver Miners"
+        case MinerTypes.HAMMER:
+            return "Stock Firmware Hammer Miners"
 
 
 def create_url_str(mtype: str):
