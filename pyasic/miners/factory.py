@@ -630,6 +630,7 @@ class MinerFactory:
 
     @staticmethod
     def _parse_web_type(web_text: str, web_resp: httpx.Response) -> MinerTypes | None:
+        print(web_resp.headers)
         if web_resp.status_code == 401 and 'realm="antMiner' in web_resp.headers.get(
             "www-authenticate", ""
         ):
@@ -862,6 +863,10 @@ class MinerFactory:
         miner_model: str | None,
         miner_type: MinerTypes | None,
     ) -> AnyMiner | None:
+        # special case since hiveon miners return web results copying the antminer stock FW
+        if "HIVEON" in str(miner_model).upper() and miner_type == MinerTypes.ANTMINER:
+            miner_model = str(miner_model).upper().replace(" HIVEON", "")
+            miner_type = MinerTypes.HIVEON
         try:
             return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
         except LookupError:
