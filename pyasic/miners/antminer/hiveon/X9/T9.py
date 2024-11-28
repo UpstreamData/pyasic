@@ -78,17 +78,6 @@ class HiveonT9(Hiveon, T9):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_mac(self):
-        try:
-            mac = (
-                (await self.send_ssh_command("cat /sys/class/net/eth0/address"))
-                .strip()
-                .upper()
-            )
-            return mac
-        except (TypeError, ValueError, asyncssh.Error, OSError, AttributeError):
-            pass
-
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
@@ -132,23 +121,6 @@ class HiveonT9(Hiveon, T9):
             hashboards[board].chips = chips
 
         return hashboards
-
-    async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
-        if not rpc_stats:
-            try:
-                rpc_stats = await self.rpc.stats()
-            except APIError:
-                pass
-
-        if rpc_stats:
-            boards = rpc_stats.get("STATS")
-            try:
-                wattage_raw = boards[1]["chain_power"]
-            except (KeyError, IndexError):
-                pass
-            else:
-                # parse wattage position out of raw data
-                return round(float(wattage_raw.split(" ")[0]))
 
     async def _get_env_temp(self, rpc_stats: dict = None) -> Optional[float]:
         env_temp_list = []

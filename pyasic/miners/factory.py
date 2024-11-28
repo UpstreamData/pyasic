@@ -426,6 +426,7 @@ MINER_CLASSES = {
     MinerTypes.HIVEON: {
         None: Hiveon,
         "ANTMINER T9": HiveonT9,
+        "ANTMINER S19JPRO": HiveonS19jPro,
     },
     MinerTypes.LUX_OS: {
         None: LUXMiner,
