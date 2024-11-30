@@ -138,6 +138,15 @@ class VNishWebAPI(BaseWebAPI):
     async def settings(self) -> dict:
         return await self.send_command("settings")
 
+    async def set_power_limit(self, wattage: int) -> bool:
+        # Can only set power limit to tuned preset
+        settings = await self.settings()
+        settings["miner"]["overclock"]["preset"] = str(wattage)
+        new_settings = {"miner": {"overclock": settings["miner"]["overclock"]}}
+
+        # response will always be {"restart_required":false,"reboot_required":false} even if unsuccessful
+        return await self.send_command("settings", privileged=True, **new_settings)
+
     async def autotune_presets(self) -> dict:
         return await self.send_command("autotune/presets")
 
