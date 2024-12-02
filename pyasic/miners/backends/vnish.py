@@ -98,6 +98,11 @@ class VNish(VNishFirmware, BMMiner):
 
     data_locations = VNISH_DATA_LOC
 
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        await self.web.post_settings(
+            miner_settings=config.as_vnish(user_suffix=user_suffix)
+        )
+
     async def restart_backend(self) -> bool:
         data = await self.web.restart_vnish()
         if data:

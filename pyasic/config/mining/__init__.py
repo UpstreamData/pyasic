@@ -357,6 +357,9 @@ class ManualBoardSettings(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_vnish(self) -> dict:
+        return {"freq": self.freq}
+
 
 class MiningModeManual(MinerConfigValue):
     mode: str = field(init=False, default="manual")
@@ -377,6 +380,12 @@ class MiningModeManual(MinerConfigValue):
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
+
+    def as_vnish(self) -> dict:
+        return {
+            "chains": [b.as_vnish() for b in self.boards.values()],
+            "globals": {"freq": self.global_freq, "volt": self.global_volt},
+        }
 
     @classmethod
     def from_vnish(cls, web_overclock_settings: dict) -> "MiningModeManual":

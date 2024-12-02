@@ -16,7 +16,7 @@
 
 from pydantic import BaseModel, Field
 
-from pyasic.config.fans import FanMode, FanModeConfig
+from pyasic.config.fans import FanMode, FanModeConfig, FanModeNormal
 from pyasic.config.mining import MiningMode, MiningModeConfig
 from pyasic.config.mining.scaling import ScalingConfig
 from pyasic.config.pools import PoolConfig
@@ -158,6 +158,19 @@ class MinerConfig(BaseModel):
             **self.mining_mode.as_luxos(),
             **self.pools.as_luxos(user_suffix=user_suffix),
         }
+
+    def as_vnish(self, user_suffix: str = None) -> dict:
+        main_cfg = {
+            "miner": {
+                **self.fan_mode.as_vnish(),
+                **self.temperature.as_vnish(),
+                **self.mining_mode.as_vnish(),
+                **self.pools.as_vnish(user_suffix=user_suffix),
+            }
+        }
+        if isinstance(self.fan_mode, FanModeNormal):
+            main_cfg["miner"]["cooling"]["mode"]["param"] = self.temperature.target
+        return main_cfg
 
     def as_hammer(self, *args, **kwargs) -> dict:
         return self.as_am_modern(*args, **kwargs)

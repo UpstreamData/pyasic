@@ -146,6 +146,15 @@ class Pool(MinerConfigValue):
             url=self.url, user=self.user, password=self.password, enabled=True
         )
 
+    def as_vnish(self, user_suffix: str = None) -> dict:
+        if user_suffix is not None:
+            return {
+                "url": self.url,
+                "user": f"{self.user}{user_suffix}",
+                "pass": self.password,
+            }
+        return {"url": self.url, "user": self.user, "pass": self.password}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
         return cls(
@@ -338,6 +347,9 @@ class PoolGroup(MinerConfigValue):
             pools=[p.as_boser() for p in self.pools],
         )
 
+    def as_vnish(self, user_suffix: str = None) -> dict:
+        return {"pools": [p.as_vnish(user_suffix=user_suffix) for p in self.pools]}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "PoolGroup":
         cls_conf = {}
@@ -529,6 +541,9 @@ class PoolConfig(MinerConfigValue):
 
     def as_luxos(self, user_suffix: str = None) -> dict:
         return {}
+
+    def as_vnish(self, user_suffix: str = None) -> dict:
+        return self.groups[0].as_vnish(user_suffix=user_suffix)
 
     @classmethod
     def from_api(cls, api_pools: dict) -> "PoolConfig":

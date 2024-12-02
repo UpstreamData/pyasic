@@ -143,3 +143,6 @@ class VNishWebAPI(BaseWebAPI):
 
     async def find_miner(self) -> dict:
         return await self.send_command("find-miner", privileged=True)
+
+    async def post_settings(self, miner_settings: dict):
+        return await self.send_command("settings", post=True, **miner_settings)

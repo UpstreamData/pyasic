@@ -87,6 +87,18 @@ class FanModeNormal(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"fanset": {"speed": -1, "min_fans": self.minimum_fans}}
 
+    def as_vnish(self) -> dict:
+        return {
+            "cooling": {
+                "fan_min_count": self.minimum_fans,
+                "fan_min_duty": self.minimum_speed,
+                "mode": {
+                    "name": "auto",
+                    "param": None,  # Target temp, must be set later...
+                },
+            }
+        }
+
 
 class FanModeManual(MinerConfigValue):
     mode: str = Field(init=False, default="manual")
@@ -150,6 +162,18 @@ class FanModeManual(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"fanset": {"speed": self.speed, "min_fans": self.minimum_fans}}
 
+    def as_vnish(self) -> dict:
+        return {
+            "cooling": {
+                "fan_min_count": self.minimum_fans,
+                "fan_min_duty": self.speed,
+                "mode": {
+                    "name": "manual",
+                    "param": self.speed,  # Speed value
+                },
+            }
+        }
+
 
 class FanModeImmersion(MinerConfigValue):
     mode: str = Field(init=False, default="immersion")
@@ -174,6 +198,9 @@ class FanModeImmersion(MinerConfigValue):
 
     def as_luxos(self) -> dict:
         return {"fanset": {"speed": 0, "min_fans": 0}}
+
+    def as_vnish(self) -> dict:
+        return {"cooling": {"mode": {"name": "immers"}}}
 
 
 class FanModeConfig(MinerConfigOption):

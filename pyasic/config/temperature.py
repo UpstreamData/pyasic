@@ -56,6 +56,9 @@ class TemperatureConfig(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"tempctrlset": [self.target or "", self.hot or "", self.danger or ""]}
 
+    def as_vnish(self) -> dict:
+        return {"misc": {"restart_temp": self.danger}}
+
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "TemperatureConfig":
         return cls(
@@ -96,8 +99,15 @@ class TemperatureConfig(MinerConfigValue):
     @classmethod
     def from_vnish(cls, web_settings: dict) -> "TemperatureConfig":
         try:
+            dangerous_temp = web_settings["misc"]["restart_temp"]
+        except KeyError:
+            dangerous_temp = None
+        try:
             if web_settings["miner"]["cooling"]["mode"]["name"] == "auto":
-                return cls(target=web_settings["miner"]["cooling"]["mode"]["param"])
+                return cls(
+                    target=web_settings["miner"]["cooling"]["mode"]["param"],
+                    danger=dangerous_temp,
+                )
         except KeyError:
             pass
         return cls()
