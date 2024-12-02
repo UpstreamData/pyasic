@@ -631,7 +631,6 @@ class MinerFactory:
 
     @staticmethod
     def _parse_web_type(web_text: str, web_resp: httpx.Response) -> MinerTypes | None:
-        print(web_resp.headers)
         if web_resp.status_code == 401 and 'realm="antMiner' in web_resp.headers.get(
             "www-authenticate", ""
         ):
