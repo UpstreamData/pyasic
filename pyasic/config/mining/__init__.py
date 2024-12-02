@@ -383,7 +383,7 @@ class MiningModeManual(MinerConfigValue):
 
     def as_vnish(self) -> dict:
         return {
-            "chains": [b.as_vnish() for b in self.boards.values()],
+            "chains": [b.as_vnish() for b in self.boards.values() if b.freq != 0],
             "globals": {"freq": self.global_freq, "volt": self.global_volt},
         }
 
