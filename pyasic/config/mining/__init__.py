@@ -382,9 +382,10 @@ class MiningModeManual(MinerConfigValue):
         return {"miner-mode": 0}
 
     def as_vnish(self) -> dict:
+        chains = [b.as_vnish() for b in self.boards.values() if b.freq != 0]
         return {
             "overclock": {
-                "chains": [b.as_vnish() for b in self.boards.values() if b.freq != 0],
+                "chains": chains if chains != [] else None,
                 "globals": {
                     "freq": int(self.global_freq),
                     "volt": int(self.global_volt),
