@@ -19,6 +19,7 @@ from pyasic import APIError
 from pyasic.miners.backends import BMMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import HiveonFirmware
+from pyasic.web.hiveon import HiveonWebAPI
 
 HIVEON_DATA_LOC = DataLocations(
     **{
@@ -64,6 +65,9 @@ HIVEON_DATA_LOC = DataLocations(
 
 class Hiveon(HiveonFirmware, BMMiner):
     data_locations = HIVEON_DATA_LOC
+
+    web: HiveonWebAPI
+    _web_cls = HiveonWebAPI
 
     async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
         if not rpc_stats:
