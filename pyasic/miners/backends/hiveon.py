@@ -62,7 +62,7 @@ HIVEON_DATA_LOC = DataLocations(
 )
 
 
-class Hiveon(BMMiner, HiveonFirmware):
+class Hiveon(HiveonFirmware, BMMiner):
     data_locations = HIVEON_DATA_LOC
 
     async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
