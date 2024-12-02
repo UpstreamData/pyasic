@@ -201,7 +201,7 @@ class Pool(MinerConfigValue):
     @classmethod
     def from_vnish(cls, web_pool: dict) -> "Pool":
         return cls(
-            url=web_pool["url"],
+            url="stratum+tcp://" + web_pool["url"],
             user=web_pool["user"],
             password=web_pool["pass"],
         )
