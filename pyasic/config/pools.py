@@ -36,124 +36,93 @@ class Pool(MinerConfigValue):
     user: str
     password: str
 
-    def as_am_modern(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
-            }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+    def as_am_modern(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
 
-    def as_wm(self, idx: int = 1, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                f"pool_{idx}": self.url,
-                f"worker_{idx}": f"{self.user}{user_suffix}",
-                f"passwd_{idx}": self.password,
-            }
+    def as_wm(self, idx: int = 1, user_suffix: str | None = None) -> dict:
         return {
             f"pool_{idx}": self.url,
-            f"worker_{idx}": self.user,
+            f"worker_{idx}": f"{self.user}{user_suffix or ''}",
             f"passwd_{idx}": self.password,
         }
 
-    def as_am_old(self, idx: int = 1, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                f"_ant_pool{idx}url": self.url,
-                f"_ant_pool{idx}user": f"{self.user}{user_suffix}",
-                f"_ant_pool{idx}pw": self.password,
-            }
+    def as_am_old(self, idx: int = 1, user_suffix: str | None = None) -> dict:
         return {
             f"_ant_pool{idx}url": self.url,
-            f"_ant_pool{idx}user": self.user,
+            f"_ant_pool{idx}user": f"{self.user}{user_suffix or ''}",
             f"_ant_pool{idx}pw": self.password,
         }
 
-    def as_goldshell(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
-            }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+    def as_goldshell(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
 
-    def as_avalon(self, user_suffix: str = None) -> str:
-        if user_suffix is not None:
-            return ",".join([self.url, f"{self.user}{user_suffix}", self.password])
-        return ",".join([self.url, self.user, self.password])
+    def as_avalon(self, user_suffix: str | None = None) -> str:
+        return ",".join([self.url, f"{self.user}{user_suffix or ''}", self.password])
 
-    def as_inno(self, idx: int = 1, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                f"Pool{idx}": self.url,
-                f"UserName{idx}": f"{self.user}{user_suffix}",
-                f"Password{idx}": self.password,
-            }
+    def as_inno(self, idx: int = 1, user_suffix: str | None = None) -> dict:
         return {
             f"Pool{idx}": self.url,
-            f"UserName{idx}": self.user,
+            f"UserName{idx}": f"{self.user}{user_suffix or ''}",
             f"Password{idx}": self.password,
         }
 
-    def as_bosminer(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "password": self.password,
-            }
-        return {"url": self.url, "user": self.user, "password": self.password}
+    def as_bosminer(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "password": self.password,
+        }
 
-    def as_auradine(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
-            }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+    def as_auradine(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
 
-    def as_epic(self, user_suffix: str = None):
-        if user_suffix is not None:
-            return {
-                "pool": self.url,
-                "login": f"{self.user}{user_suffix}",
-                "password": self.password,
-            }
-        return {"pool": self.url, "login": self.user, "password": self.password}
+    def as_epic(self, user_suffix: str | None = None):
+        return {
+            "pool": self.url,
+            "login": f"{self.user}{user_suffix or ''}",
+            "password": self.password,
+        }
 
-    def as_mara(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
-            }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+    def as_mara(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
 
-    def as_bitaxe(self, user_suffix: str = None) -> dict:
+    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
         return {
             "stratumURL": self.url,
-            "stratumUser": f"{self.user}{user_suffix}",
+            "stratumUser": f"{self.user}{user_suffix or ''}",
             "stratumPassword": self.password,
         }
 
-    def as_boser(self) -> PoolConfiguration:
+    def as_boser(self, user_suffix: str | None = None) -> PoolConfiguration:
         return PoolConfiguration(
-            url=self.url, user=self.user, password=self.password, enabled=True
+            url=self.url,
+            user=f"{self.user}{user_suffix or ''}",
+            password=self.password,
+            enabled=True,
         )
 
-    def as_vnish(self, user_suffix: str = None) -> dict:
-        if user_suffix is not None:
-            return {
-                "url": self.url,
-                "user": f"{self.user}{user_suffix}",
-                "pass": self.password,
-            }
-        return {"url": self.url, "user": self.user, "pass": self.password}
+    def as_vnish(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "Pool":
@@ -255,7 +224,7 @@ class PoolGroup(MinerConfigValue):
                 random.choice(string.ascii_uppercase + string.digits) for _ in range(6)
             )  # generate random pool group name in case it isn't set
 
-    def as_am_modern(self, user_suffix: str = None) -> list:
+    def as_am_modern(self, user_suffix: str | None = None) -> list:
         pools = []
         idx = 0
         while idx < 3:
@@ -266,7 +235,7 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_wm(self, user_suffix: str = None) -> dict:
+    def as_wm(self, user_suffix: str | None = None) -> dict:
         pools = {}
         idx = 0
         while idx < 3:
@@ -279,7 +248,7 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_am_old(self, user_suffix: str = None) -> dict:
+    def as_am_old(self, user_suffix: str | None = None) -> dict:
         pools = {}
         idx = 0
         while idx < 3:
@@ -294,15 +263,15 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_goldshell(self, user_suffix: str = None) -> list:
+    def as_goldshell(self, user_suffix: str | None = None) -> list:
         return [pool.as_goldshell(user_suffix) for pool in self.pools]
 
-    def as_avalon(self, user_suffix: str = None) -> str:
+    def as_avalon(self, user_suffix: str | None = None) -> str:
         if len(self.pools) > 0:
             return self.pools[0].as_avalon(user_suffix=user_suffix)
         return Pool(url="", user="", password="").as_avalon()
 
-    def as_inno(self, user_suffix: str = None) -> dict:
+    def as_inno(self, user_suffix: str | None = None) -> dict:
         pools = {}
         idx = 0
         while idx < 3:
@@ -315,7 +284,7 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
-    def as_bosminer(self, user_suffix: str = None) -> dict:
+    def as_bosminer(self, user_suffix: str | None = None) -> dict:
         if len(self.pools) > 0:
             conf = {
                 "name": self.name,
@@ -328,26 +297,26 @@ class PoolGroup(MinerConfigValue):
             return conf
         return {"name": "Group", "pool": []}
 
-    def as_auradine(self, user_suffix: str = None) -> list:
+    def as_auradine(self, user_suffix: str | None = None) -> list:
         return [p.as_auradine(user_suffix=user_suffix) for p in self.pools]
 
-    def as_epic(self, user_suffix: str = None) -> list:
+    def as_epic(self, user_suffix: str | None = None) -> list:
         return [p.as_epic(user_suffix=user_suffix) for p in self.pools]
 
-    def as_mara(self, user_suffix: str = None) -> list:
+    def as_mara(self, user_suffix: str | None = None) -> list:
         return [p.as_mara(user_suffix=user_suffix) for p in self.pools]
 
-    def as_bitaxe(self, user_suffix: str = None) -> dict:
+    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
         return self.pools[0].as_bitaxe(user_suffix=user_suffix)
 
-    def as_boser(self, user_suffix: str = None) -> PoolGroupConfiguration:
+    def as_boser(self, user_suffix: str | None = None) -> PoolGroupConfiguration:
         return PoolGroupConfiguration(
             name=self.name,
             quota=Quota(value=self.quota),
             pools=[p.as_boser() for p in self.pools],
         )
 
-    def as_vnish(self, user_suffix: str = None) -> dict:
+    def as_vnish(self, user_suffix: str | None = None) -> dict:
         return {"pools": [p.as_vnish(user_suffix=user_suffix) for p in self.pools]}
 
     @classmethod
@@ -462,44 +431,44 @@ class PoolConfig(MinerConfigValue):
             group_pools.append(pool)
         return cls(groups=[PoolGroup(pools=group_pools)])
 
-    def as_am_modern(self, user_suffix: str = None) -> dict:
+    def as_am_modern(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_am_modern(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_am_modern()}
 
-    def as_wm(self, user_suffix: str = None) -> dict:
+    def as_wm(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_wm(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_wm()}
 
-    def as_am_old(self, user_suffix: str = None) -> dict:
+    def as_am_old(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return self.groups[0].as_am_old(user_suffix=user_suffix)
         return PoolGroup().as_am_old()
 
-    def as_goldshell(self, user_suffix: str = None) -> dict:
+    def as_goldshell(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_goldshell(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_goldshell()}
 
-    def as_avalon(self, user_suffix: str = None) -> dict:
+    def as_avalon(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_avalon(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_avalon()}
 
-    def as_inno(self, user_suffix: str = None) -> dict:
+    def as_inno(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return self.groups[0].as_inno(user_suffix=user_suffix)
         return PoolGroup().as_inno()
 
-    def as_bosminer(self, user_suffix: str = None) -> dict:
+    def as_bosminer(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {
                 "group": [g.as_bosminer(user_suffix=user_suffix) for g in self.groups]
             }
         return {"group": [PoolGroup().as_bosminer()]}
 
-    def as_boser(self, user_suffix: str = None) -> dict:
+    def as_boser(self, user_suffix: str | None = None) -> dict:
         return {
             "set_pool_groups": SetPoolGroupsRequest(
                 save_action=SaveAction.SAVE_AND_APPLY,
@@ -507,7 +476,7 @@ class PoolConfig(MinerConfigValue):
             )
         }
 
-    def as_auradine(self, user_suffix: str = None) -> dict:
+    def as_auradine(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {
                 "updatepools": {
@@ -516,7 +485,7 @@ class PoolConfig(MinerConfigValue):
             }
         return {"updatepools": {"pools": PoolGroup().as_auradine()}}
 
-    def as_epic(self, user_suffix: str = None) -> dict:
+    def as_epic(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {
                 "pools": {
@@ -533,18 +502,18 @@ class PoolConfig(MinerConfigValue):
             }
         }
 
-    def as_mara(self, user_suffix: str = None) -> dict:
+    def as_mara(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_mara(user_suffix=user_suffix)}
         return {"pools": []}
 
-    def as_bitaxe(self, user_suffix: str = None) -> dict:
+    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
         return self.groups[0].as_bitaxe(user_suffix=user_suffix)
 
-    def as_luxos(self, user_suffix: str = None) -> dict:
+    def as_luxos(self, user_suffix: str | None = None) -> dict:
         return {}
 
-    def as_vnish(self, user_suffix: str = None) -> dict:
+    def as_vnish(self, user_suffix: str | None = None) -> dict:
         return self.groups[0].as_vnish(user_suffix=user_suffix)
 
     @classmethod
