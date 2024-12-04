@@ -95,6 +95,7 @@ class VNish(VNishFirmware, BMMiner):
     web: VNishWebAPI
 
     supports_shutdown = True
+    supports_presets = True
 
     data_locations = VNISH_DATA_LOC
 
