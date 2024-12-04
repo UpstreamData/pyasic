@@ -402,7 +402,9 @@ class PoolGroup(MinerConfigValue):
 
     @classmethod
     def from_vnish(cls, web_settings_pools: dict) -> "PoolGroup":
-        return cls(pools=[Pool.from_vnish(p) for p in web_settings_pools])
+        return cls(
+            pools=[Pool.from_vnish(p) for p in web_settings_pools if p["url"] != ""]
+        )
 
     @classmethod
     def from_boser(cls, grpc_pool_group: dict) -> "PoolGroup":
