@@ -12,3 +12,19 @@ class MiningPreset(MinerConfigValue):
         if self.name is not None:
             return {"preset": self.name}
         return {}
+
+    @classmethod
+    def from_vnish(cls, web_preset: dict):
+        name = web_preset["name"]
+        hr_power_split = web_preset["pretty"].split("~")
+        power = hr_power_split[0].replace("watt", "").strip()
+        hashrate = hr_power_split[1].replace("TH", "").strip()
+        tuned = web_preset["status"] == "tuned"
+        modded_psu = web_preset["modded_psu_required"]
+        return cls(
+            name=name,
+            power=power,
+            hashrate=hashrate,
+            tuned=tuned,
+            modded_psu=modded_psu,
+        )

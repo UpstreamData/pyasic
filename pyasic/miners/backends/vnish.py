@@ -266,7 +266,8 @@ class VNish(VNishFirmware, BMMiner):
     async def get_config(self) -> MinerConfig:
         try:
             web_settings = await self.web.settings()
+            web_presets = await self.web.autotune_presets()
         except APIError:
             return self.config
-        self.config = MinerConfig.from_vnish(web_settings)
+        self.config = MinerConfig.from_vnish(web_settings, web_presets)
         return self.config
