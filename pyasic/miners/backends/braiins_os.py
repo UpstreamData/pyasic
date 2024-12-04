@@ -623,7 +623,7 @@ class BOSMiner(BraiinsOSFirmware):
                 pass
         return pools_data
 
-    async def upgrade_firmware(self, file: Path):
+    async def upgrade_firmware(self, file: Path) -> str:
         """
         Upgrade the firmware of the BOSMiner device.
 
@@ -631,7 +631,7 @@ class BOSMiner(BraiinsOSFirmware):
             file (Path): The local file path of the firmware to be uploaded.
 
         Returns:
-            str: Confirmation message after upgrading the firmware.
+            Confirmation message after upgrading the firmware.
         """
         try:
             logging.info("Starting firmware upgrade process.")

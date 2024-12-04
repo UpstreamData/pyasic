@@ -560,17 +560,21 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_normal_power")
 
-    async def update_firmware(self, firmware: bytes):
+    async def update_firmware(self, firmware: bytes) -> bool:
         """Upgrade the firmware running on the miner and using the firmware passed in bytes.
+        <details>
+            <summary>Expand</summary>
+
+        Set the LED on the miner using the API, only works after
+        changing the password of the miner using the Whatsminer tool.
 
         Parameters:
             firmware (bytes): The firmware binary data to be uploaded.
-
         Returns:
-            bool: A boolean indicating the success of the firmware upgrade.
-
+            A boolean indicating the success of the firmware upgrade.
         Raises:
             APIError: If the miner is not ready for firmware update.
+        </details>
         """
         ready = await self.send_privileged_command("upgrade_firmware")
         if not ready.get("Msg") == "ready":
@@ -796,10 +800,8 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
         Parameters:
             complete: check whether pre power on is complete.
-            msg: ## the message to check.
-                * `wait for adjust temp`
-                * `adjust complete`
-                * `adjust continue`
+            msg: the message to check.
+
         Returns:
             A reply informing of the status of pre power on.
         </details>

@@ -692,7 +692,7 @@ class BTMiner(StockFirmware):
                 pass
         return pools_data
 
-    async def upgrade_firmware(self, file: Path):
+    async def upgrade_firmware(self, file: Path) -> str:
         """
         Upgrade the firmware of the Whatsminer device.
 

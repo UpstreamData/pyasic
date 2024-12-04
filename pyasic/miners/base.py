@@ -98,6 +98,11 @@ class MinerProtocol(Protocol):
         return self.rpc
 
     async def check_light(self) -> bool:
+        """Get the status of the fault light as a boolean.
+
+        Returns:
+            A boolean value representing the fault light status.
+        """
         return await self.get_fault_light()
 
     async def fault_light_on(self) -> bool:
