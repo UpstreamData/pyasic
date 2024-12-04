@@ -346,11 +346,26 @@ class MiningModeHashrateTune(MinerConfigValue):
 
 
 class MiningModePreset(MinerConfigValue):
+    mode: str = field(init=False, default="preset")
+
     active_preset: MiningPreset
     available_presets: list[MiningPreset] = field(default_factory=list)
 
     def as_vnish(self) -> dict:
         return {"overclock": {**self.active_preset.as_vnish()}}
+
+    @classmethod
+    def from_vnish(
+        cls, web_overclock_settings: dict, web_presets: list[dict]
+    ) -> "MiningModePreset":
+        active_preset = None
+        for preset in web_presets:
+            if preset["name"] == web_overclock_settings["preset"]:
+                active_preset = preset
+        return cls(
+            active_preset=MiningPreset.from_vnish(active_preset),
+            available_presets=[MiningPreset.from_vnish(p) for p in web_presets],
+        )
 
 
 class ManualBoardSettings(MinerConfigValue):
@@ -571,7 +586,7 @@ class MiningModeConfig(MinerConfigOption):
                 )
 
     @classmethod
-    def from_vnish(cls, web_settings: dict):
+    def from_vnish(cls, web_settings: dict, web_presets: list[dict]):
         try:
             mode_settings = web_settings["miner"]["overclock"]
         except KeyError:
@@ -580,7 +595,7 @@ class MiningModeConfig(MinerConfigOption):
         if mode_settings["preset"] == "disabled":
             return MiningModeManual.from_vnish(mode_settings)
         else:
-            return cls.power_tuning(power=int(mode_settings["preset"]))
+            return MiningModePreset.from_vnish(mode_settings, web_presets)
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict):
