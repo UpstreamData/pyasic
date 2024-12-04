@@ -36,6 +36,7 @@ from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
 )
 
 from .algo import TunerAlgo, TunerAlgoType
+from .presets import MiningPreset
 from .scaling import ScalingConfig
 
 
@@ -344,6 +345,14 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"autotunerset": {"enabled": True}}
 
 
+class MiningModePreset(MinerConfigValue):
+    active_preset: MiningPreset
+    available_presets: list[MiningPreset] = field(default_factory=list)
+
+    def as_vnish(self) -> dict:
+        return {"overclock": {**self.active_preset.as_vnish()}}
+
+
 class ManualBoardSettings(MinerConfigValue):
     freq: float
     volt: float
@@ -444,6 +453,7 @@ class MiningModeConfig(MinerConfigOption):
     sleep = MiningModeSleep
     power_tuning = MiningModePowerTune
     hashrate_tuning = MiningModeHashrateTune
+    preset = MiningModePreset
     manual = MiningModeManual
 
     @classmethod
@@ -673,5 +683,6 @@ MiningMode = TypeVar(
         MiningModeManual,
         MiningModePowerTune,
         MiningModeHashrateTune,
+        MiningModePreset,
     ],
 )
