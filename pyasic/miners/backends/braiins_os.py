@@ -746,7 +746,7 @@ class BOSer(BraiinsOSFirmware):
     """Handler for new versions of BraiinsOS+ (post-gRPC)"""
 
     _rpc_cls = BOSMinerRPCAPI
-    web: BOSMinerRPCAPI
+    rpc: BOSMinerRPCAPI
     _web_cls = BOSerWebAPI
     web: BOSerWebAPI
 
