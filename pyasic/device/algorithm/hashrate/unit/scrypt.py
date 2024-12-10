@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from enum import IntEnum
+from .base import AlgoHashRateUnitType
 
 
-class ScryptUnit(IntEnum):
+class ScryptUnit(AlgoHashRateUnitType):
     H = 1
     KH = int(H) * 1000
     MH = int(KH) * 1000
