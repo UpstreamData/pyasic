@@ -13,6 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import AvalonMinerMake
 
-from .A1126 import CGMinerAvalon1126Pro
-from .A1166 import CGMinerAvalon1166Pro
+
+class Avalon1126Pro(AvalonMinerMake):
+    raw_model = MinerModel.AVALONMINER.Avalon1126Pro
+
+    expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256

@@ -296,6 +296,7 @@ class AvalonminerModels(MinerModelType):
     Avalon1047 = "Avalon 1047"
     Avalon1066 = "Avalon 1066"
     Avalon1166Pro = "Avalon 1166 Pro"
+    Avalon1126Pro = "Avalon 1126 Pro"
     Avalon1246 = "Avalon 1246"
     AvalonNano3 = "Avalon Nano 3"
 

@@ -378,6 +378,7 @@ details {
         <details>
             <summary>A11X Series:</summary>
                 <ul>
+                    <li><a href="../avalonminer/A11X#avalon-1126-pro-stock">Avalon 1126 Pro (Stock)</a></li>
                     <li><a href="../avalonminer/A11X#avalon-1166-pro-stock">Avalon 1166 Pro (Stock)</a></li>
                 </ul>
         </details>

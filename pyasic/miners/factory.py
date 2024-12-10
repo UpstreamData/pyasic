@@ -340,6 +340,7 @@ MINER_CLASSES = {
         "AVALONMINER 1026": CGMinerAvalon1026,
         "AVALONMINER 1047": CGMinerAvalon1047,
         "AVALONMINER 1066": CGMinerAvalon1066,
+        "AVALONMINER 1126PRO": CGMinerAvalon1126Pro,
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,

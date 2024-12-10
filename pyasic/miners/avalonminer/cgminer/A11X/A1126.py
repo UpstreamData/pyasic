@@ -14,5 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A1126 import CGMinerAvalon1126Pro
-from .A1166 import CGMinerAvalon1166Pro
+from pyasic.miners.backends import AvalonMiner
+from pyasic.miners.device.models import Avalon1126Pro
+
+
+class CGMinerAvalon1126Pro(AvalonMiner, Avalon1126Pro):
+    pass
