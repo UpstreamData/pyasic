@@ -25,7 +25,7 @@ from .cgminer import CGMiner
 from .epic import ePIC
 from .goldshell import GoldshellMiner
 from .hammer import BlackMiner
-from .hiveon import Hiveon
+from .hiveon import HiveonModern, HiveonOld
 from .iceriver import IceRiver
 from .innosilicon import Innosilicon
 from .luxminer import LUXMiner

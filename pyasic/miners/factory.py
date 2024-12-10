@@ -424,7 +424,7 @@ MINER_CLASSES = {
         "BLOCKMINER 720I": ePICBlockMiner720i,
     },
     MinerTypes.HIVEON: {
-        None: Hiveon,
+        None: HiveonModern,
         "ANTMINER T9": HiveonT9,
         "ANTMINER S19JPRO": HiveonS19jPro,
     },

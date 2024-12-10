@@ -21,7 +21,7 @@ import asyncssh
 from pyasic.data import HashBoard
 from pyasic.device.algorithm import AlgoHashRate, HashUnit
 from pyasic.errors import APIError
-from pyasic.miners.backends import Hiveon
+from pyasic.miners.backends import HiveonOld
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.models import T9
 
@@ -71,7 +71,7 @@ HIVEON_T9_DATA_LOC = DataLocations(
 )
 
 
-class HiveonT9(Hiveon, T9):
+class HiveonT9(HiveonOld, T9):
     data_locations = HIVEON_T9_DATA_LOC
 
     ##################################################

@@ -14,9 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.miners.backends import Hiveon
+from pyasic.miners.backends import HiveonModern
 from pyasic.miners.device.models import T19
 
 
-class HiveonT19(Hiveon, T19):
+class HiveonT19(HiveonModern, T19):
     pass

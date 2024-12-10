@@ -299,3 +299,7 @@ class MinerConfig(BaseModel):
     @classmethod
     def from_hammer(cls, *args, **kwargs) -> "MinerConfig":
         return cls.from_am_modern(*args, **kwargs)
+
+    @classmethod
+    def from_hiveon_modern(cls, web_conf: dict) -> "MinerConfig":
+        return cls.from_am_modern(web_conf)
