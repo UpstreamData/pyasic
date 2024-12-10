@@ -21,6 +21,7 @@ from pyasic.miners.device.makes import AvalonMinerMake
 class Avalon1126Pro(AvalonMinerMake):
     raw_model = MinerModel.AVALONMINER.Avalon1126Pro
 
+    expected_chips = 120
     expected_fans = 4
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
