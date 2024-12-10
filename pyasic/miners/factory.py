@@ -864,7 +864,7 @@ class MinerFactory:
         miner_type: MinerTypes | None,
     ) -> AnyMiner | None:
         # special case since hiveon miners return web results copying the antminer stock FW
-        if "HIVEON" in str(miner_model).upper() and miner_type == MinerTypes.ANTMINER:
+        if "HIVEON" in str(miner_model).upper():
             miner_model = str(miner_model).upper().replace(" HIVEON", "")
             miner_type = MinerTypes.HIVEON
         try:
