@@ -427,6 +427,7 @@ MINER_CLASSES = {
         None: HiveonModern,
         "ANTMINER T9": HiveonT9,
         "ANTMINER S19JPRO": HiveonS19jPro,
+        "ANTMINER S19": HiveonS19,
     },
     MinerTypes.LUX_OS: {
         None: LUXMiner,
@@ -873,7 +874,7 @@ class MinerFactory:
             if miner_type in MINER_CLASSES:
                 if miner_model is not None:
                     warnings.warn(
-                        f"Partially supported miner found: {miner_model}, please open an issue with miner data "
+                        f"Partially supported miner found: {miner_model}, type: {miner_type}, please open an issue with miner data "
                         f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
                     )
                 return MINER_CLASSES[miner_type][None](ip)
