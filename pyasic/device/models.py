@@ -22,6 +22,7 @@ class AntminerModels(MinerModelType):
     S9j = "S9j"
     T9 = "T9"
     D9 = "D9"
+    L9 = "L9"
     Z15 = "Z15"
     Z15Pro = "Z15 Pro"
     S17 = "S17"

@@ -49,6 +49,7 @@ details {
                     <li><a href="../antminer/X9#s9i-stock">S9i (Stock)</a></li>
                     <li><a href="../antminer/X9#s9j-stock">S9j (Stock)</a></li>
                     <li><a href="../antminer/X9#t9-stock">T9 (Stock)</a></li>
+                    <li><a href="../antminer/X9#l9-stock">L9 (Stock)</a></li>
                 </ul>
         </details>
         <details>
@@ -580,13 +581,14 @@ details {
         <details>
             <summary>X9 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X9#t9-stock">T9 (Stock)</a></li>
+                    <li><a href="../antminer/X9#t9-hive">T9 (Hive)</a></li>
                 </ul>
         </details>
         <details>
             <summary>X19 Series:</summary>
                 <ul>
-                    <li><a href="../antminer/X19#s19j-pro-stock">S19j Pro (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-hive">S19j Pro (Hive)</a></li>
+                    <li><a href="../antminer/X19#s19-hive">S19 (Hive)</a></li>
                 </ul>
         </details>
     </ul>
