@@ -86,7 +86,7 @@ class ScalingConfig(MinerConfigValue):
             return cls._from_bosminer_power(toml_conf)
         if mode == "hashrate":
             # not implemented yet
-            pass
+            return cls(**{})
 
     @classmethod
     def _from_bosminer_power(cls, toml_conf: dict):
@@ -111,7 +111,7 @@ class ScalingConfig(MinerConfigValue):
             return cls._from_boser_power(grpc_miner_conf)
         if mode == "hashrate":
             # not implemented yet
-            pass
+            return cls(**{})
 
     @classmethod
     def _from_boser_power(cls, grpc_miner_conf: dict):
