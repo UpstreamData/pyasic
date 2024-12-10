@@ -13,10 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4.2.2
       - name: Publish GH release
-        uses: softprops/action-gh-release@v0.1.14
+        uses: softprops/action-gh-release@v2.1.0
       - name: Build using poetry and publish to PyPi
-        uses: JRubics/poetry-publish@v1.11
+        uses: JRubics/poetry-publish@v2.0
         with:
           pypi_token: ${{ secrets.PYPI_API_KEY }}
