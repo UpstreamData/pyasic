@@ -252,9 +252,9 @@ class MiningModeHashrateTune(MinerConfigValue):
         arbitrary_types_allowed = True
 
     mode: str = field(init=False, default="hashrate_tuning")
-    hashrate: int = None
+    hashrate: int | None = None
     algo: TunerAlgoType = field(default_factory=TunerAlgo.default)
-    scaling: ScalingConfig = None
+    scaling: ScalingConfig | None = None
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
