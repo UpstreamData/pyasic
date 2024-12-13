@@ -427,6 +427,7 @@ MINER_CLASSES = {
         "ANTMINER S21": ePICS21,
         "ANTMINER S21 PRO": ePICS21Pro,
         "ANTMINER T21": ePICT21,
+        "ANTMINER S19J PRO DUAL": ePICS19jProDual,
         "BLOCKMINER 520I": ePICBlockMiner520i,
         "BLOCKMINER 720I": ePICBlockMiner720i,
     },

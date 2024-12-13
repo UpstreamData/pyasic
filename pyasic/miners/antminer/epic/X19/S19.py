@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import ePIC
+from pyasic.device.models import MinerModel
 from pyasic.miners.device.models import (
     S19,
     S19XP,
@@ -52,3 +53,11 @@ class ePICS19kPro(ePIC, S19kPro):
 
 class ePICS19XP(ePIC, S19XP):
     pass
+
+class ePICS19jProDual(ePIC, S19jPro):
+    S19jPro.raw_model = MinerModel.EPIC.S19jProDual
+    S19jPro.expected_fans *= 2
+    S19jPro.expected_hashboards *= 2
+    pass
+
+
