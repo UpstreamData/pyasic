@@ -329,6 +329,7 @@ class GoldshellModels(MinerModelType):
 class ePICModels(MinerModelType):
     BM520i = "BlockMiner 520i"
     BM720i = "BlockMiner 720i"
+    S19jProDual = "S19j Pro Dual"
 
     def __str__(self):
         return self.value
