@@ -275,7 +275,16 @@ class VNish(VNishFirmware, BMMiner):
         return self.config
 
     async def set_power_limit(self, wattage: int) -> bool:
+        config = await self.get_config()
+        tuned_presets = [
+            preset.power
+            for preset in config.mining_mode.available_presets
+            if preset.tuned
+        ]
+
         # Can only set power limit to tuned preset
+        if wattage not in tuned_presets:
+            return False
         try:
             await self.web.set_power_limit(wattage)
             updated_settings = await self.web.settings()
