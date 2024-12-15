@@ -276,17 +276,16 @@ class VNish(VNishFirmware, BMMiner):
 
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
-        tuned_presets = [
+        valid_presets = [
             preset.power
             for preset in config.mining_mode.available_presets
-            if preset.tuned
+            if preset.tuned and preset.power <= wattage
         ]
+        new_wattage = max(valid_presets)
 
-        # Can only set power limit to tuned preset
-        if wattage not in tuned_presets:
-            return False
+        # Set power to highest preset <= wattage
         try:
-            await self.web.set_power_limit(wattage)
+            await self.web.set_power_limit(new_wattage)
             updated_settings = await self.web.settings()
         except APIError:
             raise
@@ -294,7 +293,7 @@ class VNish(VNishFirmware, BMMiner):
             logging.warning(f"{self} - Failed to set power limit: {e}")
             return False
 
-        if int(updated_settings["miner"]["overclock"]["preset"]) == wattage:
+        if int(updated_settings["miner"]["overclock"]["preset"]) == new_wattage:
             return True
         else:
             return False
