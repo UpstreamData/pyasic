@@ -97,6 +97,7 @@ class VNish(VNishFirmware, BMMiner):
 
     supports_shutdown = True
     supports_presets = True
+    supports_autotuning = True
 
     data_locations = VNISH_DATA_LOC
 
