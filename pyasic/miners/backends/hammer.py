@@ -229,7 +229,7 @@ class BlackMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.GH
+                                rate=float(hashrate), unit=self.algo.unit.MH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
@@ -356,11 +356,11 @@ class BlackMiner(StockFirmware):
 
         if rpc_stats is not None:
             try:
-                expected_rate = rpc_stats["STATS"][1]["total_rateideal"]
+                expected_rate = self.expected_hashrate
                 try:
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
-                    rate_unit = "GH"
+                    rate_unit = "MH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
                 ).into(self.algo.unit.default)
