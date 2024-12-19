@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+import logging
 from typing import Optional
 
 from pyasic import MinerConfig
@@ -96,6 +97,7 @@ class VNish(VNishFirmware, BMMiner):
 
     supports_shutdown = True
     supports_presets = True
+    supports_autotuning = True
 
     data_locations = VNISH_DATA_LOC
 
@@ -272,3 +274,27 @@ class VNish(VNishFirmware, BMMiner):
             return self.config
         self.config = MinerConfig.from_vnish(web_settings, web_presets)
         return self.config
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        config = await self.get_config()
+        valid_presets = [
+            preset.power
+            for preset in config.mining_mode.available_presets
+            if preset.tuned and preset.power <= wattage
+        ]
+        new_wattage = max(valid_presets)
+
+        # Set power to highest preset <= wattage
+        try:
+            await self.web.set_power_limit(new_wattage)
+            updated_settings = await self.web.settings()
+        except APIError:
+            raise
+        except Exception as e:
+            logging.warning(f"{self} - Failed to set power limit: {e}")
+            return False
+
+        if int(updated_settings["miner"]["overclock"]["preset"]) == new_wattage:
+            return True
+        else:
+            return False

@@ -96,7 +96,7 @@ class MinerData(BaseModel):
     expected_fans: int | None = None
 
     # temperature
-    env_temp: int | None = None
+    env_temp: float | None = None
 
     # power
     wattage: int | None = None
