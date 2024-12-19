@@ -55,9 +55,6 @@ class ePICS19XP(ePIC, S19XP):
     pass
 
 class ePICS19jProDual(ePIC, S19jPro):
-    S19jPro.raw_model = MinerModel.EPIC.S19jProDual
-    S19jPro.expected_fans *= 2
-    S19jPro.expected_hashboards *= 2
-    pass
-
-
+    raw_model = MinerModel.EPIC.S19jProDual
+    expected_fans = S19jPro.expected_fans * 2
+    expected_hashboards = S19jPro.expected_hashboards * 2
