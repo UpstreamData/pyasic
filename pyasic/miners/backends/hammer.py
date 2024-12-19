@@ -221,13 +221,9 @@ class BlackMiner(StockFirmware):
                         hashboard = HashBoard(
                             slot=i - board_offset, expected_chips=self.expected_chips
                         )
-
-                        chip_temp = boards[1].get(f"temp{i}")
-                        if chip_temp:
-                            hashboard.chip_temp = round(chip_temp)
-
-                        temp = boards[1].get(f"temp2_{i}")
+                        temp = boards[1].get(f"temp{i}")
                         if temp:
+                            hashboard.chip_temp = round(temp)
                             hashboard.temp = round(temp)
 
                         hashrate = boards[1].get(f"chain_rate{i}")
