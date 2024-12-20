@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
@@ -27,35 +29,35 @@ class AlgoHashRateType(BaseModel, ABC):
         return round(self.rate, n)
 
     def __add__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate + other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate + other, unit=self.unit)
 
     def __sub__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate - other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate - other, unit=self.unit)
 
     def __truediv__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate / other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate / other, unit=self.unit)
 
     def __floordiv__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate // other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate // other, unit=self.unit)
 
     def __mul__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate * other.into(self.unit).rate, unit=self.unit
             )
