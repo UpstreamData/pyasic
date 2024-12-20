@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel
 from typing_extensions import Self
 
-from .unit.base import AlgoHashRateUnitType
+from .unit.base import AlgoHashRateUnitType, GenericUnit
 
 
 class AlgoHashRateType(BaseModel, ABC):
@@ -62,3 +62,10 @@ class AlgoHashRateType(BaseModel, ABC):
                 rate=self.rate * other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate * other, unit=self.unit)
+
+
+class GenericHashrate(AlgoHashRateType):
+    def into(self, other: GenericUnit):
+        return self.__class__(
+            rate=self.rate / (other.value / self.unit.value), unit=other
+        )
