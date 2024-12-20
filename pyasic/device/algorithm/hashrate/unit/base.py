@@ -54,6 +54,9 @@ class AlgoHashRateUnitType(IntEnum):
     def __repr__(self):
         return str(self)
 
+    def model_dump(self):
+        return {"value": self.value, "suffix": str(self)}
+
 
 class GenericUnit(AlgoHashRateUnitType):
     H = 1

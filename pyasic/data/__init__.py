@@ -13,19 +13,20 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
 import copy
 import time
 from datetime import datetime, timezone
 from typing import Any, List, Union
 
-from pydantic import BaseModel, Field, computed_field, field_serializer
+from pydantic import BaseModel, Field, computed_field
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data.pools import PoolMetrics, Scheme
 from pyasic.device.algorithm.hashrate import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import GenericHashrate
 
+from ..device.algorithm.hashrate.unit.base import GenericUnit
 from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
@@ -135,9 +136,6 @@ class MinerData(BaseModel):
     def fields(cls):
         return list(cls.model_fields.keys())
 
-    def __post_init__(self):
-        self.raw_datetime = datetime.now(timezone.utc).astimezone()
-
     def get(self, __key: str, default: Any = None):
         try:
             val = self.__getitem__(__key)
@@ -198,27 +196,15 @@ class MinerData(BaseModel):
 
     @computed_field  # type: ignore[misc]
     @property
-    def hashrate(self) -> AlgoHashRateType:
+    def hashrate(self) -> AlgoHashRateType | None:
         if len(self.hashboards) > 0:
             hr_data = []
             for item in self.hashboards:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return sum(hr_data, start=type(hr_data[0])(rate=0))
+                return sum(hr_data, start=self.hashboards[0].hashrate.__class__(rate=0))
         return self.raw_hashrate
-
-    @field_serializer("hashrate")
-    def serialize_hashrate(self, hashrate: AlgoHashRateType | None) -> float:
-        if hashrate is not None:
-            return float(hashrate)
-
-    @field_serializer("expected_hashrate")
-    def serialize_expected_hashrate(
-        self, expected_hashrate: AlgoHashRateType | None, _info
-    ) -> float:
-        if expected_hashrate is not None:
-            return float(expected_hashrate)
 
     @hashrate.setter
     def hashrate(self, val):
@@ -226,7 +212,7 @@ class MinerData(BaseModel):
 
     @computed_field  # type: ignore[misc]
     @property
-    def wattage_limit(self) -> int:
+    def wattage_limit(self) -> int | None:
         if self.config is not None:
             if isinstance(self.config.mining_mode, MiningModePowerTune):
                 return self.config.mining_mode.power

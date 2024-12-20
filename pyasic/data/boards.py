@@ -51,11 +51,6 @@ class HashBoard(BaseModel):
     active: bool | None = None
     voltage: float | None = None
 
-    @field_serializer("hashrate")
-    def serialize_hashrate(self, hashrate: AlgoHashRateType | None) -> float:
-        if hashrate is not None:
-            return float(hashrate)
-
     def get(self, __key: str, default: Any = None):
         try:
             val = self.__getitem__(__key)
