@@ -203,7 +203,7 @@ class MinerData(BaseModel):
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return sum(hr_data, start=self.hashboards[0].hashrate.__class__(rate=0))
+                return sum(hr_data, start=self.device_info.algo.hashrate(rate=0))
         return self.raw_hashrate
 
     @hashrate.setter
