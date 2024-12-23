@@ -1,18 +1,41 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from typing_extensions import Self
 
-from .unit.base import AlgoHashRateUnitType
+from .unit.base import AlgoHashRateUnitType, GenericUnit
 
 
 class AlgoHashRateType(BaseModel, ABC):
     unit: AlgoHashRateUnitType
     rate: float
 
+    @field_serializer("unit")
+    def serialize_unit(self, unit: AlgoHashRateUnitType):
+        return unit.model_dump()
+
     @abstractmethod
     def into(self, other: "AlgoHashRateUnitType"):
         pass
+
+    def auto_unit(self):
+        if 1 < self.rate // int(self.unit.H) < 1000:
+            return self.into(self.unit.H)
+        if 1 < self.rate // int(self.unit.MH) < 1000:
+            return self.into(self.unit.MH)
+        if 1 < self.rate // int(self.unit.GH) < 1000:
+            return self.into(self.unit.GH)
+        if 1 < self.rate // int(self.unit.TH) < 1000:
+            return self.into(self.unit.TH)
+        if 1 < self.rate // int(self.unit.PH) < 1000:
+            return self.into(self.unit.PH)
+        if 1 < self.rate // int(self.unit.EH) < 1000:
+            return self.into(self.unit.EH)
+        if 1 < self.rate // int(self.unit.ZH) < 1000:
+            return self.into(self.unit.ZH)
+        return self
 
     def __float__(self):
         return float(self.rate)
@@ -27,36 +50,46 @@ class AlgoHashRateType(BaseModel, ABC):
         return round(self.rate, n)
 
     def __add__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate + other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate + other, unit=self.unit)
 
     def __sub__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate - other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate - other, unit=self.unit)
 
     def __truediv__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate / other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate / other, unit=self.unit)
 
     def __floordiv__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate // other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate // other, unit=self.unit)
 
     def __mul__(self, other: Self | int | float) -> Self:
-        if isinstance(other, self.__class__):
+        if isinstance(other, AlgoHashRateType):
             return self.__class__(
                 rate=self.rate * other.into(self.unit).rate, unit=self.unit
             )
         return self.__class__(rate=self.rate * other, unit=self.unit)
+
+
+class GenericHashrate(AlgoHashRateType):
+    rate: float = 0
+    unit: GenericUnit = GenericUnit.H
+
+    def into(self, other: GenericUnit):
+        return self.__class__(
+            rate=self.rate / (other.value / self.unit.value), unit=other
+        )
