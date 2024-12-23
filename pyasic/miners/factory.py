@@ -35,6 +35,7 @@ from pyasic.miners.backends import *
 from pyasic.miners.base import AnyMiner
 from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
+from pyasic.miners.braiins import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
@@ -390,6 +391,8 @@ MINER_CLASSES = {
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
         "ANTMINER T21": BOSMinerT21,
+        "BRAIINS MINI MINER BMM 100": BraiinsBMM100,
+        "BRAIINS MINI MINER BMM 101": BraiinsBMM101,
     },
     MinerTypes.VNISH: {
         None: VNish,

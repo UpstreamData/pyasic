@@ -379,6 +379,11 @@ class HammerModels(MinerModelType):
         return self.value
 
 
+class BraiinsModels(MinerModelType):
+    BMM100 = "BMM100"
+    BMM101 = "BMM101"
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -390,3 +395,4 @@ class MinerModel:
     BITAXE = BitAxeModels
     ICERIVER = IceRiverModels
     HAMMER = HammerModels
+    BRAIINS = BraiinsModels
