@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from pyasic.device.models import MinerModel
 from pyasic.miners.backends import ePIC
 from pyasic.miners.device.models import (
     S19,
@@ -52,3 +53,9 @@ class ePICS19kPro(ePIC, S19kPro):
 
 class ePICS19XP(ePIC, S19XP):
     pass
+
+
+class ePICS19jProDual(ePIC, S19jPro):
+    raw_model = MinerModel.EPIC.S19jProDual
+    expected_fans = S19jPro.expected_fans * 2
+    expected_hashboards = S19jPro.expected_hashboards * 2
