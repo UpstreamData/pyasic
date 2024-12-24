@@ -14,49 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.device.makes import MinerMake
-from pyasic.miners.base import BaseMiner
+from pyasic.miners.backends import BOSer
+from pyasic.miners.device.models import BMM100, BMM101
 
 
-class WhatsMinerMake(BaseMiner):
-    make = MinerMake.WHATSMINER
+class BraiinsBMM100(BOSer, BMM100):
+    pass
 
 
-class AntMinerMake(BaseMiner):
-    make = MinerMake.ANTMINER
-
-
-class AvalonMinerMake(BaseMiner):
-    make = MinerMake.AVALONMINER
-
-
-class InnosiliconMake(BaseMiner):
-    make = MinerMake.INNOSILICON
-
-
-class GoldshellMake(BaseMiner):
-    make = MinerMake.GOLDSHELL
-
-
-class AuradineMake(BaseMiner):
-    make = MinerMake.AURADINE
-
-
-class ePICMake(BaseMiner):
-    make = MinerMake.EPIC
-
-
-class BitAxeMake(BaseMiner):
-    make = MinerMake.BITAXE
-
-
-class IceRiverMake(BaseMiner):
-    make = MinerMake.ICERIVER
-
-
-class HammerMake(BaseMiner):
-    make = MinerMake.HAMMER
-
-
-class BraiinsMake(BaseMiner):
-    make = MinerMake.BRAIINS
+class BraiinsBMM101(BOSer, BMM101):
+    pass
