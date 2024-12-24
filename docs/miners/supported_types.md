@@ -90,6 +90,7 @@ details {
                     <li><a href="../antminer/X19#s19-pro-hydro-stock">S19 Pro Hydro (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-pro_1-hydro-stock">S19 Pro+ Hydro (Stock)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-stock">S19K Pro (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j-xp-stock">S19j XP (Stock)</a></li>
                     <li><a href="../antminer/X19#t19-stock">T19 (Stock)</a></li>
                 </ul>
         </details>
@@ -494,6 +495,13 @@ details {
                 <ul>
                     <li><a href="../antminer/X21#s21-bos_1">S21 (BOS+)</a></li>
                     <li><a href="../antminer/X21#t21-bos_1">T21 (BOS+)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>BMM Series:</summary>
+                <ul>
+                    <li><a href="../braiins/BMM#bmm100-bos_1">BMM100 (BOS+)</a></li>
+                    <li><a href="../braiins/BMM#bmm101-bos_1">BMM101 (BOS+)</a></li>
                 </ul>
         </details>
     </ul>

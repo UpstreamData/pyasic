@@ -26,6 +26,7 @@ from pyasic.miners.device.models import (
     S19j,
     S19jNoPIC,
     S19jPro,
+    S19jXP,
     S19KPro,
     S19Plus,
     S19Pro,
@@ -96,4 +97,8 @@ class BMMinerS19ProPlusHydro(AntminerModern, S19ProPlusHydro):
 
 
 class BMMinerS19KPro(AntminerModern, S19KPro):
+    pass
+
+
+class BMMinerS19jXP(AntminerModern, S19jXP):
     pass
