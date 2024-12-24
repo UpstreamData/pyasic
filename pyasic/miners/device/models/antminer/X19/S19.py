@@ -214,3 +214,11 @@ class S19KPro(AntMinerMake):
     expected_fans = 4
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
+
+
+class S19jXP(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S19jXP
+
+    expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
