@@ -356,7 +356,9 @@ class BlackMiner(StockFirmware):
 
         if rpc_stats is not None:
             try:
-                expected_rate = self.expected_hashrate
+                expected_rate = rpc_stats["STATS"][1].get("total_rateideal")
+                if expected_rate is None:
+                    expected_rate = self.sticker_hashrate
                 try:
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:

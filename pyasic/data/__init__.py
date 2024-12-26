@@ -51,6 +51,7 @@ class MinerData(BaseModel):
         hostname: The network hostname of the miner as a str.
         hashrate: The hashrate of the miner in TH/s as a float.  Calculated automatically.
         expected_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
+        sticker_hashrate: The factory sticker hashrate of the miner as a float.
         hashboards: A list of [`HashBoard`][pyasic.data.HashBoard]s on the miner with their statistics.
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
@@ -89,6 +90,9 @@ class MinerData(BaseModel):
 
     # hashrate
     raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None, repr=False)
+
+    # sticker
+    sticker_hashrate: AlgoHashRateType | None = None
 
     # expected
     expected_hashrate: AlgoHashRateType | None = None
