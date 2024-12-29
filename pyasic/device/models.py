@@ -376,6 +376,7 @@ class IceRiverModels(MinerModelType):
 
 class HammerModels(MinerModelType):
     D10 = "D10"
+    D1 = "VolcMiner D1"
 
     def __str__(self):
         return self.value

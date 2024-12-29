@@ -493,6 +493,7 @@ MINER_CLASSES = {
     MinerTypes.HAMMER: {
         None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
         "HAMMER D10": HammerD10,
+        "VOLCMINER D1": HammerD1,
     },
 }
 
