@@ -21,7 +21,7 @@ from .braiins import *
 from .epic import *
 from .goldshell import *
 from .hammer import *
-from .volcminer import *
 from .iceriver import *
 from .innosilicon import *
+from .volcminer import *
 from .whatsminer import *

@@ -39,9 +39,9 @@ from pyasic.miners.braiins import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
-from pyasic.miners.volcminer import *
 from pyasic.miners.iceriver import *
 from pyasic.miners.innosilicon import *
+from pyasic.miners.volcminer import *
 from pyasic.miners.whatsminer import *
 
 
