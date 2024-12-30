@@ -629,7 +629,7 @@ class MinerFactory:
                         mtype = MinerTypes.MARATHON
                 if mtype == MinerTypes.HAMMER:
                     res = await self.get_miner_model_hammer(ip)
-                    if "Hammer" in res:
+                    if "HAMMER" in res.upper():
                         mtype = MinerTypes.HAMMER
                     else:
                         mtype = MinerTypes.VOLCMINER
