@@ -375,8 +375,14 @@ class IceRiverModels(MinerModelType):
 
 
 class HammerModels(MinerModelType):
-    D10 = "Hammer D10"
-    D1 = "VolcMiner D1"
+    D10 = "D10"
+
+    def __str__(self):
+        return self.value
+
+
+class VolcMinerModels(MinerModelType):
+    D1 = "D1"
 
     def __str__(self):
         return self.value
@@ -398,4 +404,5 @@ class MinerModel:
     BITAXE = BitAxeModels
     ICERIVER = IceRiverModels
     HAMMER = HammerModels
+    VOLCMINER = VolcMinerModels
     BRAIINS = BraiinsModels

@@ -58,5 +58,9 @@ class HammerMake(BaseMiner):
     make = MinerMake.HAMMER
 
 
+class VolcMinerMake(BaseMiner):
+    make = MinerMake.VOLCMINER
+
+
 class BraiinsMake(BaseMiner):
     make = MinerMake.BRAIINS

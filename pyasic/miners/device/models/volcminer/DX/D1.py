@@ -15,11 +15,11 @@
 # ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
-from pyasic.miners.device.makes import HammerMake
+from pyasic.miners.device.makes import VolcMinerMake
 
 
-class D1(HammerMake):
-    raw_model = MinerModel.HAMMER.D1
+class D1(VolcMinerMake):
+    raw_model = MinerModel.VOLCMINER.D1
 
     expected_chips = 105
     expected_hashboards = 3
