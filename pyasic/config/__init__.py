@@ -292,7 +292,7 @@ class MinerConfig(BaseModel):
         rpc_pools: dict,
         rpc_groups: dict,
         rpc_config: dict,
-        rpc_profiles: list[dict],
+        rpc_profiles: dict,
     ) -> "MinerConfig":
         return cls(
             temperature=TemperatureConfig.from_luxos(rpc_tempctrl=rpc_tempctrl),
