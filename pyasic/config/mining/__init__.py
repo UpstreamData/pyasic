@@ -367,6 +367,22 @@ class MiningModePreset(MinerConfigValue):
             available_presets=[MiningPreset.from_vnish(p) for p in web_presets],
         )
 
+    @classmethod
+    def from_luxos(
+        cls, rpc_config: dict, rpc_profiles: list[dict]
+    ) -> "MiningModePreset":
+        active_preset = None
+        active_profile = rpc_config["CONFIG"][0]["Profile"]
+        for profile in rpc_profiles["PROFILES"]:
+            if profile["Profile Name"] == active_profile:
+                active_preset = profile
+        return cls(
+            active_preset=MiningPreset.from_luxos(active_preset),
+            available_presets=[
+                MiningPreset.from_luxos(p) for p in rpc_profiles["PROFILES"]
+            ],
+        )
+
 
 class ManualBoardSettings(MinerConfigValue):
     freq: float
@@ -686,6 +702,10 @@ class MiningModeConfig(MinerConfigOption):
         except LookupError:
             pass
         return cls.default()
+
+    @classmethod
+    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict):
+        return MiningModePreset.from_luxos(rpc_config, rpc_profiles)
 
 
 MiningMode = TypeVar(

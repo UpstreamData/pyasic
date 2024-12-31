@@ -6,7 +6,9 @@ class MiningPreset(MinerConfigValue):
     power: int | None = None
     hashrate: int | None = None
     tuned: bool | None = None
-    modded_psu: bool = False
+    modded_psu: bool | None = None
+    frequency: int | None = None
+    voltage: float | None = None
 
     def as_vnish(self) -> dict:
         if self.name is not None:
@@ -31,4 +33,15 @@ class MiningPreset(MinerConfigValue):
             hashrate=hashrate,
             tuned=tuned,
             modded_psu=modded_psu,
+        )
+
+    @classmethod
+    def from_luxos(cls, profile: dict):
+        return cls(
+            name=profile["Profile Name"],
+            power=profile["Watts"],
+            hashrate=round(profile["Hashrate"]),
+            tuned=profile["IsTuned"],
+            frequency=profile["Frequency"],
+            voltage=profile["Voltage"],
         )

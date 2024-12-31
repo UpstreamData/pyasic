@@ -77,6 +77,7 @@ class LUXMiner(LuxOSFirmware):
     rpc: LUXMinerRPCAPI
 
     supports_shutdown = True
+    supports_presets = True
 
     data_locations = LUXMINER_DATA_LOC
 
@@ -131,12 +132,16 @@ class LUXMiner(LuxOSFirmware):
         return False
 
     async def get_config(self) -> MinerConfig:
-        data = await self.rpc.multicommand("tempctrl", "fans", "pools", "groups")
+        data = await self.rpc.multicommand(
+            "tempctrl", "fans", "pools", "groups", "config", "profiles"
+        )
         return MinerConfig.from_luxos(
             rpc_tempctrl=data.get("tempctrl", [{}])[0],
             rpc_fans=data.get("fans", [{}])[0],
             rpc_pools=data.get("pools", [{}])[0],
             rpc_groups=data.get("groups", [{}])[0],
+            rpc_config=data.get("config", [{}])[0],
+            rpc_profiles=data.get("profiles", [{}])[0],
         )
 
     async def upgrade_firmware(self) -> bool:
