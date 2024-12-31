@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2024 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,15 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import VolcMinerMake
 
-from .antminer import *
-from .auradine import *
-from .avalonminer import *
-from .braiins import *
-from .epic import *
-from .goldshell import *
-from .hammer import *
-from .iceriver import *
-from .innosilicon import *
-from .volcminer import *
-from .whatsminer import *
+
+class D1(VolcMinerMake):
+    raw_model = MinerModel.VOLCMINER.D1
+
+    expected_chips = 105
+    expected_hashboards = 3
+    expected_fans = 4
+    algo = MinerAlgo.SCRYPT

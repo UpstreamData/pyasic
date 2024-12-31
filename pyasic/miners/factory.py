@@ -41,6 +41,7 @@ from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
 from pyasic.miners.innosilicon import *
+from pyasic.miners.volcminer import *
 from pyasic.miners.whatsminer import *
 
 
@@ -60,6 +61,7 @@ class MinerTypes(enum.Enum):
     BITAXE = 12
     ICERIVER = 13
     HAMMER = 14
+    VOLCMINER = 15
 
 
 MINER_CLASSES = {
@@ -494,6 +496,10 @@ MINER_CLASSES = {
         None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
         "HAMMER D10": HammerD10,
     },
+    MinerTypes.VOLCMINER: {
+        None: type("VolcMinerUnknown", (BlackMiner, VolcMinerMake), {}),
+        "VOLCMINER D1": VolcMinerD1,
+    },
 }
 
 
@@ -573,6 +579,7 @@ class MinerFactory:
                 MinerTypes.BITAXE: self.get_miner_model_bitaxe,
                 MinerTypes.ICERIVER: self.get_miner_model_iceriver,
                 MinerTypes.HAMMER: self.get_miner_model_hammer,
+                MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -620,6 +627,12 @@ class MinerFactory:
                     res = await self.send_web_command(ip, "/kaonsu/v1/brief", auth=auth)
                     if res is not None:
                         mtype = MinerTypes.MARATHON
+                if mtype == MinerTypes.HAMMER:
+                    res = await self.get_miner_model_hammer(ip)
+                    if "HAMMER" in res.upper():
+                        mtype = MinerTypes.HAMMER
+                    else:
+                        mtype = MinerTypes.VOLCMINER
                 return mtype
 
     @staticmethod
@@ -1159,6 +1172,21 @@ class MinerFactory:
     async def get_miner_model_hammer(self, ip: str) -> str | None:
         auth = httpx.DigestAuth(
             "root", settings.get("default_hammer_web_password", "root")
+        )
+        web_json_data = await self.send_web_command(
+            ip, "/cgi-bin/get_system_info.cgi", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["minertype"]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_volcminer(self, ip: str) -> str | None:
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_volcminer_web_password", "root")
         )
         web_json_data = await self.send_web_command(
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
