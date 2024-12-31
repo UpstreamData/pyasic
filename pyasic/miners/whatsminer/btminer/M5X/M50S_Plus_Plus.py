@@ -19,6 +19,7 @@ from pyasic.miners.device.models.whatsminer import (  # noqa - ignore _module im
     M50SPlusPlusVK10,
     M50SPlusPlusVK20,
     M50SPlusPlusVK30,
+    M50SPlusPlusVL30,
 )
 
 
@@ -31,4 +32,8 @@ class BTMinerM50SPlusPlusVK20(M50SPlusPlusVK20, M5X):
 
 
 class BTMinerM50SPlusPlusVK30(M50SPlusPlusVK30, M5X):
+    pass
+
+
+class BTMinerM50SPlusPlusVL30(M50SPlusPlusVL30, M5X):
     pass

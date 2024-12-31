@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from .hashrate.base import AlgoHashRateType
-from .hashrate.unit.base import AlgoHashRateUnitType
+from .hashrate.base import AlgoHashRateType, GenericHashrate
+from .hashrate.unit.base import AlgoHashRateUnitType, GenericUnit
 
 
 class MinerAlgoMeta(type):
@@ -14,3 +14,10 @@ class MinerAlgoMeta(type):
 class MinerAlgoType(metaclass=MinerAlgoMeta):
     hashrate: type[AlgoHashRateType]
     unit: type[AlgoHashRateUnitType]
+
+
+class GenericAlgo(MinerAlgoType):
+    hashrate: type[GenericHashrate] = GenericHashrate
+    unit: type[GenericUnit] = GenericUnit
+
+    name = "Generic (Unknown)"

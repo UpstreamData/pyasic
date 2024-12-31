@@ -306,6 +306,7 @@ details {
                     <li><a href="../whatsminer/M5X#m50s_1_1-vk10-stock">M50S++ VK10 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50s_1_1-vk20-stock">M50S++ VK20 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m50s_1_1-vk30-stock">M50S++ VK30 (Stock)</a></li>
+                    <li><a href="../whatsminer/M5X#m50s_1_1-vl30-stock">M50S++ VL30 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m53-vh30-stock">M53 VH30 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m53s-vh30-stock">M53S VH30 (Stock)</a></li>
                     <li><a href="../whatsminer/M5X#m53s-vj40-stock">M53S VJ40 (Stock)</a></li>
@@ -566,6 +567,7 @@ details {
                     <li><a href="../antminer/X19#s19j-pro_1-epic">S19j Pro+ (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-epic">S19k Pro (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19-xp-epic">S19 XP (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro-dual-epic">S19j Pro Dual (ePIC)</a></li>
                 </ul>
         </details>
         <details>

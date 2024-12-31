@@ -252,6 +252,7 @@ class WhatsminerModels(MinerModelType):
     M50SPlusPlusVK10 = "M50S++ VK10"
     M50SPlusPlusVK20 = "M50S++ VK20"
     M50SPlusPlusVK30 = "M50S++ VK30"
+    M50SPlusPlusVL30 = "M50S++ VL30"
     M53VH30 = "M53 VH30"
     M53SVH30 = "M53S VH30"
     M53SVJ40 = "M53S VJ40"

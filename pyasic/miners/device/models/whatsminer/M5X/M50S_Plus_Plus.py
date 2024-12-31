@@ -42,3 +42,11 @@ class M50SPlusPlusVK30(WhatsMinerMake):
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
+
+
+class M50SPlusPlusVL30(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M50SPlusPlusVL30
+
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256

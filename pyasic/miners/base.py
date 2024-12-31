@@ -24,6 +24,7 @@ from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
 from pyasic.device.algorithm import MinerAlgoType
+from pyasic.device.algorithm.base import GenericAlgo
 from pyasic.device.algorithm.hashrate import AlgoHashRate
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake
@@ -46,7 +47,7 @@ class MinerProtocol(Protocol):
     make: MinerMake = None
     raw_model: MinerModelType = None
     firmware: MinerFirmware = None
-    algo: type[MinerAlgoType] = None
+    algo: type[MinerAlgoType] = GenericAlgo
 
     expected_hashboards: int = None
     expected_chips: int = None

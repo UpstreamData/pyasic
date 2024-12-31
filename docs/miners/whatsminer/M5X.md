@@ -204,6 +204,13 @@
         show_root_heading: false
         heading_level: 4
 
+## M50S++ VL30 (Stock)
+::: pyasic.miners.whatsminer.btminer.M5X.M50S_Plus_Plus.BTMinerM50SPlusPlusVL30
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
 ## M53 VH30 (Stock)
 ::: pyasic.miners.whatsminer.btminer.M5X.M53.BTMinerM53VH30
     handler: python

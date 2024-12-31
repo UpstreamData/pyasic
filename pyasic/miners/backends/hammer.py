@@ -229,7 +229,7 @@ class BlackMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.MH
+                                rate=float(hashrate), unit=self.algo.unit.GH
                             ).into(self.algo.unit.default)
 
                         chips = boards[1].get(f"chain_acn{i}")
