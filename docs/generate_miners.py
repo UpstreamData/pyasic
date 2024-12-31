@@ -55,6 +55,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware IceRiver Miners"
         case MinerTypes.HAMMER:
             return "Stock Firmware Hammer Miners"
+        case MinerTypes.VOLCMINER:
+            return "Stock Firmware Volcminers"
 
 
 def create_url_str(mtype: str):
@@ -69,7 +71,13 @@ def create_url_str(mtype: str):
 
 HEADER_FORMAT = "# pyasic\n## {} Models\n\n"
 MINER_HEADER_FORMAT = "## {}\n"
-DATA_FORMAT = """::: {}
+DATA_FORMAT = """
+- [{}] Shutdowns
+- [{}] Power Modes
+- [{}] Setpoints
+- [{}] Presets
+
+    ::: {}
     handler: python
     options:
         show_root_heading: false
@@ -80,6 +88,8 @@ SUPPORTED_TYPES_HEADER = """# pyasic
 ## Supported Miners
 
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
+
+Keep in mind that some functionality is only supported for specific miners or firmwares, please check the page for your miner to make sure the functionality you need is supported.
 
 ##### pyasic currently supports the following miners and subtypes:
 <style>
@@ -138,9 +148,18 @@ async def create_directory_structure(directory, data):
             with open(file_path, "w") as file:
                 file.write(HEADER_FORMAT.format(key))
                 for item in value:
-                    header = await item("1.1.1.1").get_model()
+                    obj = item("1.1.1.1")
+                    header = obj.model
                     file.write(MINER_HEADER_FORMAT.format(header))
-                    file.write(DATA_FORMAT.format(path(item)))
+                    file.write(
+                        DATA_FORMAT.format(
+                            "x" if obj.supports_shutdown else " ",
+                            "x" if obj.supports_power_modes else " ",
+                            "x" if obj.supports_autotuning else " ",
+                            "x" if obj.supports_presets else " ",
+                            path(item),
+                        )
+                    )
 
 
 async def create_supported_types(directory):

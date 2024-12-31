@@ -3,6 +3,8 @@
 
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
 
+Keep in mind that some functionality is only supported for specific miners or firmwares, please check the page for your miner to make sure the functionality you need is supported.
+
 ##### pyasic currently supports the following miners and subtypes:
 <style>
 details {
@@ -725,6 +727,17 @@ details {
             <summary>DX Series:</summary>
                 <ul>
                     <li><a href="../hammer/DX#d10-stock">D10 (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Volcminers:</summary>
+    <ul>
+        <details>
+            <summary>DX Series:</summary>
+                <ul>
+                    <li><a href="../volcminer/DX#d1-stock">D1 (Stock)</a></li>
                 </ul>
         </details>
     </ul>

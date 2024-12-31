@@ -26,6 +26,8 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
@@ -79,6 +81,7 @@ nav:
         - Antminer X17: "miners/antminer/X17.md"
         - Antminer X19: "miners/antminer/X19.md"
         - Antminer X21: "miners/antminer/X21.md"
+        - Braiins Mini Miners: "miners/braiins/BMM.md"
         - Avalon Nano: "miners/avalonminer/nano.md"
         - Avalon 7X: "miners/avalonminer/A7X.md"
         - Avalon 8X: "miners/avalonminer/A8X.md"
@@ -103,6 +106,7 @@ nav:
         - BitAxe BM: "miners/bitaxe/BM.md"
         - Hammer DX: "miners/hammer/DX.md"
         - Iceriver KSX: "miners/iceriver/KSX.md"
+        - Volcminer DX: "miners/volcminer/DX.md"
     - Base Miner: "miners/base_miner.md"
 - Settings:
       - Settings: "settings/settings.md"

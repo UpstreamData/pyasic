@@ -2,1008 +2,1872 @@
 ## M3X Models
 
 ## M30 V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30.BTMinerM30V10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30.BTMinerM30V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30 V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30.BTMinerM30V20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30.BTMinerM30V20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30K V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30K.BTMinerM30KV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30K.BTMinerM30KV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30L V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30L.BTMinerM30LV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30L.BTMinerM30LV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S V80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SV80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VE70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVE70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VF10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VF20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VF30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVF30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VG10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VG20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VG40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVG40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VH60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVH60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S VI20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVI20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S.BTMinerM30SVI20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V90 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV90
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV90
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ V100 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV100
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusV100
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE90 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE90
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE90
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VE100 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE100
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVE100
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VF20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVF20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVF20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VF30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVF30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVF30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VG20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VG40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VG50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VG60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVG60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S+ VH60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus.BTMinerM30SPlusVH60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VE30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VE40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VE50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVE50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VF40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVF40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVF40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VG40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VG50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVG50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH90 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH90
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH90
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VH100 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH100
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVH100
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VJ20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVJ20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVJ20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30S++ VJ30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVJ30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M30S_Plus_Plus.BTMinerM30SPlusPlusVJ30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31 V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31.BTMinerM31V10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31.BTMinerM31V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31 V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31.BTMinerM31V20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31.BTMinerM31V20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31H V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31H.BTMinerM31HV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31H.BTMinerM31HV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31H V40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31H.BTMinerM31HV40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31H.BTMinerM31HV40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M30L V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31L.BTMinerM31LV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31L.BTMinerM31LV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V70 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV70
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV70
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S V90 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV90
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SV90
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S VE10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S VE20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S VE30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S.BTMinerM31SVE30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31SE V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31SE V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31SE V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31SE.BTMinerM31SEV30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V90 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV90
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV90
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ V100 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV100
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusV100
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE50 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE50
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE50
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE60 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE60
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE60
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VE80 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE80
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVE80
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VF20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVF20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVF20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VF30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVF30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVF30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VG20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVG20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVG20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M31S+ VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M31S_Plus.BTMinerM31SPlusVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M32 V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M32 V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M32.BTMinerM32V20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33 V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33 V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33 V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33.BTMinerM33V30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S.BTMinerM33SVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S.BTMinerM33SVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S+ VG20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVG20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVG20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S+ VH20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVH20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVH20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S+ VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus.BTMinerM33SPlusVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S++ VH20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVH20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVH20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S++ VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M33S++ VG40 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVG40
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M33S_Plus_Plus.BTMinerM33SPlusPlusVG40
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M34S+ VE10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M34S_Plus.BTMinerM34SPlusVE10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M34S_Plus.BTMinerM34SPlusVE10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M36S VE10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M36S.BTMinerM36SVE10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M36S.BTMinerM36SVE10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M36S+ VG30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M36S_Plus.BTMinerM36SPlusVG30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M36S_Plus.BTMinerM36SPlusVG30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M36S++ VH30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M36S_Plus_Plus.BTMinerM36SPlusPlusVH30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M36S_Plus_Plus.BTMinerM36SPlusPlusVH30
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M39 V10 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V10
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M39 V20 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V20
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V20
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
 ## M39 V30 (Stock)
-::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V30
+
+- [x] Shutdowns
+- [x] Power Modes
+- [x] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M3X.M39.BTMinerM39V30
     handler: python
     options:
         show_root_heading: false

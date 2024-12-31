@@ -2,7 +2,13 @@
 ## DX Models
 
 ## D10 (Stock)
-::: pyasic.miners.hammer.blackminer.DX.D10.HammerD10
+
+- [ ] Shutdowns
+- [ ] Power Modes
+- [ ] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.hammer.blackminer.DX.D10.HammerD10
     handler: python
     options:
         show_root_heading: false
