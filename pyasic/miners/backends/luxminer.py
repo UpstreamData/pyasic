@@ -160,6 +160,30 @@ class LUXMiner(LuxOSFirmware):
 
         return False
 
+    async def set_power_limit(self, wattage: int) -> bool:
+        config = await self.get_config()
+        valid_presets = {
+            preset.name: preset.power
+            for preset in config.mining_mode.available_presets
+            if preset.power <= wattage
+        }
+
+        # Set power to highest preset <= wattage
+        new_preset = max(valid_presets, key=valid_presets.get)
+
+        try:
+            result = await self.rpc.profileset(new_preset)
+        except APIError:
+            raise
+        except Exception as e:
+            logging.warning(f"{self} - Failed to set power limit: {e}")
+            return False
+
+        if result["PROFILE"][0]["Profile"] == new_preset:
+            return True
+        else:
+            return False
+
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
