@@ -556,20 +556,19 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("profiles")
 
-    async def profileset(self, board_n: int, profile: str) -> dict:
-        """Set active profile for a board.
+    async def profileset(self, profile: str) -> dict:
+        """Set active profile for the system.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            board_n: The board to set the profile on.
             profile: The profile name to use.
 
         Returns:
-            A confirmation of setting the profile on board_n.
+            A confirmation of setting the profile.
         </details>
         """
-        return await self.send_privileged_command("profileset", board_n, profile)
+        return await self.send_privileged_command("profileset", profile)
 
     async def reboot(self, board_n: int, delay_s: int = None) -> dict:
         """Reboot a board.
