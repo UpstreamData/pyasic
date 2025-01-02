@@ -426,21 +426,22 @@ class BTMiner(StockFirmware):
         if rpc_devs is not None:
             try:
                 for board in rpc_devs["DEVS"]:
-                    if len(hashboards) < board["ASC"] + 1:
+                    asc = board.get("ASC")
+                    if asc is None:
+                        asc = board["Slot"]
+                    if len(hashboards) < asc + 1:
                         hashboards.append(
-                            HashBoard(
-                                slot=board["ASC"], expected_chips=self.expected_chips
-                            )
+                            HashBoard(slot=asc, expected_chips=self.expected_chips)
                         )
                         self.expected_hashboards += 1
-                    hashboards[board["ASC"]].chip_temp = round(board["Chip Temp Avg"])
-                    hashboards[board["ASC"]].temp = round(board["Temperature"])
-                    hashboards[board["ASC"]].hashrate = self.algo.hashrate(
+                    hashboards[asc].chip_temp = round(board["Chip Temp Avg"])
+                    hashboards[asc].temp = round(board["Temperature"])
+                    hashboards[asc].hashrate = self.algo.hashrate(
                         rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
                     ).into(self.algo.unit.default)
-                    hashboards[board["ASC"]].chips = board["Effective Chips"]
-                    hashboards[board["ASC"]].serial_number = board["PCB SN"]
-                    hashboards[board["ASC"]].missing = False
+                    hashboards[asc].chips = board["Effective Chips"]
+                    hashboards[asc].serial_number = board["PCB SN"]
+                    hashboards[asc].missing = False
             except LookupError:
                 pass
 
