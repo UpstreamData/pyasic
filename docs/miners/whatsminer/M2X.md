@@ -1,14 +1,40 @@
 # pyasic
 ## M2X Models
 
-## M20 V10 (Stock)
+## M20P V10 (Stock)
 
 - [x] Shutdowns
 - [x] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20V10
+    ::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV10
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M20P V30 (Stock)
+
+- [x] Shutdowns
+- [x] Power Modes
+- [ ] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV30
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4
+
+## M20S+ V30 (Stock)
+
+- [x] Shutdowns
+- [x] Power Modes
+- [ ] Setpoints
+- [ ] Presets
+
+    ::: pyasic.miners.whatsminer.btminer.M2X.M20S_Plus.BTMinerM20SPlusV30
     handler: python
     options:
         show_root_heading: false
@@ -53,53 +79,27 @@
         show_root_heading: false
         heading_level: 4
 
-## M20P V10 (Stock)
+## M20 V10 (Stock)
 
 - [x] Shutdowns
 - [x] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV10
+    ::: pyasic.miners.whatsminer.btminer.M2X.M20.BTMinerM20V10
     handler: python
     options:
         show_root_heading: false
         heading_level: 4
 
-## M20P V30 (Stock)
+## M21S+ V20 (Stock)
 
 - [x] Shutdowns
 - [x] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.whatsminer.btminer.M2X.M20P.BTMinerM20PV30
-    handler: python
-    options:
-        show_root_heading: false
-        heading_level: 4
-
-## M20S+ V30 (Stock)
-
-- [x] Shutdowns
-- [x] Power Modes
-- [ ] Setpoints
-- [ ] Presets
-
-    ::: pyasic.miners.whatsminer.btminer.M2X.M20S_Plus.BTMinerM20SPlusV30
-    handler: python
-    options:
-        show_root_heading: false
-        heading_level: 4
-
-## M21 V10 (Stock)
-
-- [x] Shutdowns
-- [x] Power Modes
-- [ ] Setpoints
-- [ ] Presets
-
-    ::: pyasic.miners.whatsminer.btminer.M2X.M21.BTMinerM21V10
+    ::: pyasic.miners.whatsminer.btminer.M2X.M21S_Plus.BTMinerM21SPlusV20
     handler: python
     options:
         show_root_heading: false
@@ -144,14 +144,14 @@
         show_root_heading: false
         heading_level: 4
 
-## M21S+ V20 (Stock)
+## M21 V10 (Stock)
 
 - [x] Shutdowns
 - [x] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.whatsminer.btminer.M2X.M21S_Plus.BTMinerM21SPlusV20
+    ::: pyasic.miners.whatsminer.btminer.M2X.M21.BTMinerM21V10
     handler: python
     options:
         show_root_heading: false
