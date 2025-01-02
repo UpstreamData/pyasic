@@ -1,19 +1,3 @@
-# ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
-#                                                                              -
-#  Licensed under the Apache License, Version 2.0 (the "License");             -
-#  you may not use this file except in compliance with the License.            -
-#  You may obtain a copy of the License at                                     -
-#                                                                              -
-#      http://www.apache.org/licenses/LICENSE-2.0                              -
-#                                                                              -
-#  Unless required by applicable law or agreed to in writing, software         -
-#  distributed under the License is distributed on an "AS IS" BASIS,           -
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
-#  See the License for the specific language governing permissions and         -
-#  limitations under the License.                                              -
-# ------------------------------------------------------------------------------
-
 from .M30 import M30V10, M30V20
 from .M30K import M30KV10
 from .M30L import M30LV10
@@ -47,6 +31,7 @@ from .M30S import (
     M30SVH50,
     M30SVH60,
     M30SVI20,
+    M30SVJ30,
 )
 from .M30S_Plus import (
     M30SPlusV10,
@@ -80,6 +65,10 @@ from .M30S_Plus import (
     M30SPlusVH40,
     M30SPlusVH50,
     M30SPlusVH60,
+    M30SPlusVH70,
+    M30SPlusVI30,
+    M30SPlusVJ30,
+    M30SPlusVJ40,
 )
 from .M30S_Plus_Plus import (
     M30SPlusPlusV10,
@@ -101,8 +90,15 @@ from .M30S_Plus_Plus import (
     M30SPlusPlusVH80,
     M30SPlusPlusVH90,
     M30SPlusPlusVH100,
+    M30SPlusPlusVH110,
+    M30SPlusPlusVI30,
     M30SPlusPlusVJ20,
     M30SPlusPlusVJ30,
+    M30SPlusPlusVJ50,
+    M30SPlusPlusVJ60,
+    M30SPlusPlusVJ70,
+    M30SPlusPlusVK30,
+    M30SPlusPlusVK40,
 )
 from .M31 import M31V10, M31V20
 from .M31H import M31HV10, M31HV40
@@ -145,10 +141,9 @@ from .M31S_Plus import (
 )
 from .M31SE import M31SEV10, M31SEV20, M31SEV30
 from .M32 import M32V10, M32V20
-from .M32S import M32S
 from .M33 import M33V10, M33V20, M33V30
 from .M33S import M33SVG30
-from .M33S_Plus import M33SPlusVG20, M33SPlusVH20, M33SPlusVH30
+from .M33S_Plus import M33SPlusVG20, M33SPlusVG30, M33SPlusVH20, M33SPlusVH30
 from .M33S_Plus_Plus import M33SPlusPlusVG40, M33SPlusPlusVH20, M33SPlusPlusVH30
 from .M34S_Plus import M34SPlusVE10
 from .M36S import M36SVE10

@@ -32,4 +32,4 @@ from .luxminer import LUXMiner
 from .marathon import MaraMiner
 from .unknown import UnknownMiner
 from .vnish import VNish
-from .whatsminer import M2X, M3X, M5X, M6X
+from .whatsminer import M2X, M3X, M5X, M6X, M7X

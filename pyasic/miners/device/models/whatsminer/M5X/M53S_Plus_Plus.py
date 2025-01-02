@@ -1,18 +1,3 @@
-# ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
-#                                                                              -
-#  Licensed under the Apache License, Version 2.0 (the "License");             -
-#  you may not use this file except in compliance with the License.            -
-#  You may obtain a copy of the License at                                     -
-#                                                                              -
-#      http://www.apache.org/licenses/LICENSE-2.0                              -
-#                                                                              -
-#  Unless required by applicable law or agreed to in writing, software         -
-#  distributed under the License is distributed on an "AS IS" BASIS,           -
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
-#  See the License for the specific language governing permissions and         -
-#  limitations under the License.                                              -
-# ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
@@ -21,6 +6,52 @@ from pyasic.miners.device.makes import WhatsMinerMake
 class M53SPlusPlusVK10(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M53SPlusPlusVK10
 
+    expected_chips = 198
     expected_fans = 0
-    expected_hashboards = 3
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
+class M53SPlusPlusVK20(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M53SPlusPlusVK20
+
+    expected_chips = 192
+    expected_fans = 0
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
+class M53SPlusPlusVK30(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M53SPlusPlusVK30
+
+    expected_chips = 240
+    expected_fans = 0
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
+class M53SPlusPlusVK50(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M53SPlusPlusVK50
+
+    expected_chips = 186
+    expected_fans = 0
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
+class M53SPlusPlusVL10(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M53SPlusPlusVL10
+
+    expected_chips = 128
+    expected_fans = 0
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
+class M53SPlusPlusVL30(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M53SPlusPlusVL30
+
+    expected_chips = 174
+    expected_fans = 0
+    expected_hashboards = 4
     algo = MinerAlgo.SHA256
