@@ -8,9 +8,9 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.avalonminer.cgminer.nano.nano3.CGMinerAvalonNano3
+::: pyasic.miners.avalonminer.cgminer.nano.nano3.CGMinerAvalonNano3
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

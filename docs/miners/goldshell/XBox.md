@@ -8,11 +8,11 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.goldshell.bfgminer.XBox.KDBox.GoldshellKDBoxII
+::: pyasic.miners.goldshell.bfgminer.XBox.KDBox.GoldshellKDBoxII
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## KD Box Pro (Stock)
 
@@ -21,9 +21,9 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.goldshell.bfgminer.XBox.KDBox.GoldshellKDBoxPro
+::: pyasic.miners.goldshell.bfgminer.XBox.KDBox.GoldshellKDBoxPro
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

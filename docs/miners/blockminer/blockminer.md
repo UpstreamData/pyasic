@@ -8,11 +8,11 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMiner520i
+::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMiner520i
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## BlockMiner 720i (ePIC)
 
@@ -21,9 +21,9 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMiner720i
+::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMiner720i
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

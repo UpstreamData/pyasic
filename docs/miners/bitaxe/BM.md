@@ -8,11 +8,11 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.bitaxe.espminer.BM.BM1368.BitAxeSupra
+::: pyasic.miners.bitaxe.espminer.BM.BM1368.BitAxeSupra
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## Ultra (Stock)
 
@@ -21,11 +21,11 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.bitaxe.espminer.BM.BM1366.BitAxeUltra
+::: pyasic.miners.bitaxe.espminer.BM.BM1366.BitAxeUltra
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## Max (Stock)
 
@@ -34,11 +34,11 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.bitaxe.espminer.BM.BM1397.BitAxeMax
+::: pyasic.miners.bitaxe.espminer.BM.BM1397.BitAxeMax
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## Gamma (Stock)
 
@@ -47,9 +47,9 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.bitaxe.espminer.BM.BM1370.BitAxeGamma
+::: pyasic.miners.bitaxe.espminer.BM.BM1370.BitAxeGamma
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

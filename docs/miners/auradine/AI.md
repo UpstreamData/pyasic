@@ -8,11 +8,11 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.auradine.flux.AI.AI2.AuradineFluxAI2500
+::: pyasic.miners.auradine.flux.AI.AI2.AuradineFluxAI2500
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## AI3680 (Stock)
 
@@ -21,9 +21,9 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.auradine.flux.AI.AI3.AuradineFluxAI3680
+::: pyasic.miners.auradine.flux.AI.AI3.AuradineFluxAI3680
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

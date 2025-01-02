@@ -8,11 +8,11 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.braiins.braiins.BMM.BMM.BraiinsBMM100
+::: pyasic.miners.braiins.braiins.BMM.BMM.BraiinsBMM100
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## BMM101 (BOS+)
 
@@ -21,9 +21,9 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.braiins.braiins.BMM.BMM.BraiinsBMM101
+::: pyasic.miners.braiins.braiins.BMM.BMM.BraiinsBMM101
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 

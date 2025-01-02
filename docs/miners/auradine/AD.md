@@ -8,11 +8,11 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.auradine.flux.AD.AT1.AuradineFluxAT1500
+::: pyasic.miners.auradine.flux.AD.AT1.AuradineFluxAT1500
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## AT2860 (Stock)
 
@@ -21,11 +21,11 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.auradine.flux.AD.AT2.AuradineFluxAT2860
+::: pyasic.miners.auradine.flux.AD.AT2.AuradineFluxAT2860
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 ## AT2880 (Stock)
 
@@ -34,9 +34,9 @@
 - [x] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.auradine.flux.AD.AT2.AuradineFluxAT2880
+::: pyasic.miners.auradine.flux.AD.AT2.AuradineFluxAT2880
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
