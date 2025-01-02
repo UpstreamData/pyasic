@@ -1,19 +1,3 @@
-# ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
-#                                                                              -
-#  Licensed under the Apache License, Version 2.0 (the "License");             -
-#  you may not use this file except in compliance with the License.            -
-#  You may obtain a copy of the License at                                     -
-#                                                                              -
-#      http://www.apache.org/licenses/LICENSE-2.0                              -
-#                                                                              -
-#  Unless required by applicable law or agreed to in writing, software         -
-#  distributed under the License is distributed on an "AS IS" BASIS,           -
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
-#  See the License for the specific language governing permissions and         -
-#  limitations under the License.                                              -
-# ------------------------------------------------------------------------------
-
 from .M30 import BTMinerM30V10, BTMinerM30V20
 from .M30K import BTMinerM30KV10
 from .M30L import BTMinerM30LV10
@@ -47,6 +31,7 @@ from .M30S import (
     BTMinerM30SVH50,
     BTMinerM30SVH60,
     BTMinerM30SVI20,
+    BTMinerM30SVJ30,
 )
 from .M30S_Plus import (
     BTMinerM30SPlusV10,
@@ -80,6 +65,10 @@ from .M30S_Plus import (
     BTMinerM30SPlusVH40,
     BTMinerM30SPlusVH50,
     BTMinerM30SPlusVH60,
+    BTMinerM30SPlusVH70,
+    BTMinerM30SPlusVI30,
+    BTMinerM30SPlusVJ30,
+    BTMinerM30SPlusVJ40,
 )
 from .M30S_Plus_Plus import (
     BTMinerM30SPlusPlusV10,
@@ -101,8 +90,15 @@ from .M30S_Plus_Plus import (
     BTMinerM30SPlusPlusVH80,
     BTMinerM30SPlusPlusVH90,
     BTMinerM30SPlusPlusVH100,
+    BTMinerM30SPlusPlusVH110,
+    BTMinerM30SPlusPlusVI30,
     BTMinerM30SPlusPlusVJ20,
     BTMinerM30SPlusPlusVJ30,
+    BTMinerM30SPlusPlusVJ50,
+    BTMinerM30SPlusPlusVJ60,
+    BTMinerM30SPlusPlusVJ70,
+    BTMinerM30SPlusPlusVK30,
+    BTMinerM30SPlusPlusVK40,
 )
 from .M31 import BTMinerM31V10, BTMinerM31V20
 from .M31H import BTMinerM31HV10, BTMinerM31HV40
@@ -145,10 +141,14 @@ from .M31S_Plus import (
 )
 from .M31SE import BTMinerM31SEV10, BTMinerM31SEV20, BTMinerM31SEV30
 from .M32 import BTMinerM32V10, BTMinerM32V20
-from .M32S import BTMinerM32S
 from .M33 import BTMinerM33V10, BTMinerM33V20, BTMinerM33V30
 from .M33S import BTMinerM33SVG30
-from .M33S_Plus import BTMinerM33SPlusVG20, BTMinerM33SPlusVH20, BTMinerM33SPlusVH30
+from .M33S_Plus import (
+    BTMinerM33SPlusVG20,
+    BTMinerM33SPlusVG30,
+    BTMinerM33SPlusVH20,
+    BTMinerM33SPlusVH30,
+)
 from .M33S_Plus_Plus import (
     BTMinerM33SPlusPlusVG40,
     BTMinerM33SPlusPlusVH20,

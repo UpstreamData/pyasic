@@ -1,18 +1,3 @@
-# ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
-#                                                                              -
-#  Licensed under the Apache License, Version 2.0 (the "License");             -
-#  you may not use this file except in compliance with the License.            -
-#  You may obtain a copy of the License at                                     -
-#                                                                              -
-#      http://www.apache.org/licenses/LICENSE-2.0                              -
-#                                                                              -
-#  Unless required by applicable law or agreed to in writing, software         -
-#  distributed under the License is distributed on an "AS IS" BASIS,           -
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
-#  See the License for the specific language governing permissions and         -
-#  limitations under the License.                                              -
-# ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import WhatsMinerMake
@@ -75,6 +60,7 @@ class M30SV60(WhatsMinerMake):
 class M30SV70(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SV70
 
+    expected_chips = None
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
@@ -137,6 +123,7 @@ class M30SVE50(WhatsMinerMake):
 class M30SVE60(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SVE60
 
+    expected_chips = None
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
@@ -145,6 +132,7 @@ class M30SVE60(WhatsMinerMake):
 class M30SVE70(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SVE70
 
+    expected_chips = None
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
@@ -234,6 +222,7 @@ class M30SVH20(WhatsMinerMake):
 class M30SVH30(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SVH30
 
+    expected_chips = None
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
@@ -260,6 +249,7 @@ class M30SVH50(WhatsMinerMake):
 class M30SVH60(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SVH60
 
+    expected_chips = 70
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
@@ -269,6 +259,15 @@ class M30SVI20(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M30SVI20
 
     expected_chips = 70
+    expected_fans = 2
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
+
+
+class M30SVJ30(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M30SVJ30
+
+    expected_chips = 105
     expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256

@@ -1,29 +1,19 @@
-# ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
-#                                                                              -
-#  Licensed under the Apache License, Version 2.0 (the "License");             -
-#  you may not use this file except in compliance with the License.            -
-#  You may obtain a copy of the License at                                     -
-#                                                                              -
-#      http://www.apache.org/licenses/LICENSE-2.0                              -
-#                                                                              -
-#  Unless required by applicable law or agreed to in writing, software         -
-#  distributed under the License is distributed on an "AS IS" BASIS,           -
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    -
-#  See the License for the specific language governing permissions and         -
-#  limitations under the License.                                              -
-# ------------------------------------------------------------------------------
-
 from pyasic.miners.backends import M3X
-from pyasic.miners.device.models import M39V10, M39V20, M39V30
+from pyasic.miners.device.models import M39V10
 
 
 class BTMinerM39V10(M3X, M39V10):
     pass
 
 
+from pyasic.miners.device.models import M39V20
+
+
 class BTMinerM39V20(M3X, M39V20):
     pass
+
+
+from pyasic.miners.device.models import M39V30
 
 
 class BTMinerM39V30(M3X, M39V30):

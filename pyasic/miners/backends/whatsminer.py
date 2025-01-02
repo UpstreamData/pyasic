@@ -16,6 +16,10 @@
 from pyasic.miners.backends.btminer import BTMiner
 
 
+class M7X(BTMiner):
+    supports_autotuning = True
+
+
 class M6X(BTMiner):
     supports_autotuning = True
 
