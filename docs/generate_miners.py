@@ -77,11 +77,11 @@ DATA_FORMAT = """
 - [{}] Setpoints
 - [{}] Presets
 
-    ::: {}
+::: {}
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
 """
 SUPPORTED_TYPES_HEADER = """# pyasic

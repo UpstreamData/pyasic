@@ -8,9 +8,9 @@
 - [ ] Setpoints
 - [ ] Presets
 
-    ::: pyasic.miners.volcminer.blackminer.DX.D1.VolcMinerD1
+::: pyasic.miners.volcminer.blackminer.DX.D1.VolcMinerD1
     handler: python
     options:
         show_root_heading: false
-        heading_level: 4
+        heading_level: 0
 
