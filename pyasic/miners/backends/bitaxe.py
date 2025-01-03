@@ -14,6 +14,10 @@ BITAXE_DATA_LOC = DataLocations(
             "_get_hashrate",
             [WebAPICommand("web_system_info", "system/info")],
         ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "_get_expected_hashrate",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
             [WebAPICommand("web_system_info", "system/info")],
@@ -96,6 +100,29 @@ class BitAxe(BaseMiner):
             try:
                 return self.algo.hashrate(
                     rate=float(web_system_info["hashRate"]), unit=self.algo.unit.GH
+                ).into(self.algo.unit.default)
+            except KeyError:
+                pass
+
+    async def _get_expected_hashrate(
+        self, web_system_info: dict = None
+    ) -> Optional[AlgoHashRate]:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                expected_hashrate = (
+                    web_system_info.get("smallCoreCount")
+                    * web_system_info.get("asicCount")
+                    * web_system_info.get("frequency")
+                )
+
+                return self.algo.hashrate(
+                    rate=float(expected_hashrate), unit=self.algo.unit.MH
                 ).into(self.algo.unit.default)
             except KeyError:
                 pass
