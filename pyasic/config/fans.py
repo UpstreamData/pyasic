@@ -308,6 +308,12 @@ class FanModeConfig(MinerConfigOption):
             if "minimumRequiredFans" in keys:
                 conf["minimum_fans"] = int(temperature_conf["minimumRequiredFans"])
             return cls.manual(**conf)
+        if "disabled" in keys:
+            conf = {}
+            if "fanSpeedRatio" in temperature_conf["disabled"].keys():
+                conf["speed"] = int(temperature_conf["disabled"]["fanSpeedRatio"])
+            return cls.manual(**conf)
+        return cls.default()
 
     @classmethod
     def from_auradine(cls, web_fan: dict):
