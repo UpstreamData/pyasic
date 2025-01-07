@@ -160,6 +160,13 @@ class LUXMiner(LuxOSFirmware):
 
         return False
 
+    async def atm_enabled(self) -> Optional[bool]:
+        try:
+            result = await self.rpc.atm()
+            return result["ATM"][0]["Enabled"]
+        except (APIError, LookupError):
+            pass
+
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
         valid_presets = {
@@ -169,10 +176,17 @@ class LUXMiner(LuxOSFirmware):
         }
 
         # Set power to highest preset <= wattage
+        # If ATM enabled, must disable it before setting power limit
         new_preset = max(valid_presets, key=valid_presets.get)
 
+        re_enable_atm = False
         try:
+            if await self.atm_enabled():
+                re_enable_atm = True
+                await self.rpc.atmset("enabled=false")
             result = await self.rpc.profileset(new_preset)
+            if re_enable_atm:
+                await self.rpc.atmset("enabled=true")
         except APIError:
             raise
         except Exception as e:
