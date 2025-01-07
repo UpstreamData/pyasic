@@ -137,6 +137,50 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asccount")
 
+    async def atm(self) -> dict:
+        """Get data for Advanced Thermal Management (ATM) configuration.
+        <details>
+            <summary>Expand</summary>
+
+        Returns:
+            A dictionary containing ATM configuration data:
+            - ATM: List containing a configuration object with:
+                - Enabled: Boolean indicating if ATM is enabled
+                - MaxProfile: Maximum frequency profile (e.g., "395MHz")
+                - MinProfile: Minimum frequency profile (e.g., "145MHz")
+                - PostRampMinutes: Minutes before ATM starts working after ramping
+                - StartupMinutes: Minutes before ATM starts working at systm startup
+                - TempWindow: Temperature window, before "Hot" in which ATM will change profiles
+            - STATUS: List containing a status object with:
+                - Code: Status code (e.g., 339)
+                - Description: Miner version
+                - Msg: Status message "ATM configuration values"
+                - STATUS: Status indicator
+                - When: Timestamp
+        </details>
+        """
+        return await self.send_command("atm")
+
+    async def atmset(self, command: str) -> dict:
+        """Sets the ATM configuration.
+        <details>
+            <summary>Expand</summary>
+
+        Parameters:
+            command: comma-separated list of key-value pairs, in the format key=value
+
+        Returns:
+            A dictionary containing status information about the ATM configuration update:
+            - STATUS: List containing a status object with:
+                - Code: Status code (e.g., 340)
+                - Description: Miner version
+                - Msg: Confirmation message "Advanced Thermal Management configuration updated"
+                - STATUS: Status indicator
+                - When: Timestamp
+        </details>
+        """
+        return await self.send_privileged_command("atmset", command)
+
     async def check(self, command: str) -> dict:
         """Check if the command `command` exists in LUXMiner.
         <details>
