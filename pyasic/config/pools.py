@@ -364,7 +364,7 @@ class PoolGroup(MinerConfigValue):
         if toml_group_conf.get("pool") is not None:
             return cls(
                 name=toml_group_conf["name"],
-                quota=toml_group_conf.get("quota"),
+                quota=toml_group_conf.get("quota", 1),
                 pools=[Pool.from_bosminer(p) for p in toml_group_conf["pool"]],
             )
         return cls()
