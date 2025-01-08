@@ -161,13 +161,28 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("atm")
 
-    async def atmset(self, command: str) -> dict:
+    async def atmset(
+        self,
+        enabled: bool = None,
+        startup_minutes: int = None,
+        post_ramp_minutes: int = None,
+        temp_window: int = None,
+        min_profile: str = None,
+        max_profile: str = None,
+        prevent_oc: bool = None,
+    ) -> dict:
         """Sets the ATM configuration.
         <details>
             <summary>Expand</summary>
 
         Parameters:
-            command: comma-separated list of key-value pairs, in the format key=value
+            enabled: Enable or disable ATM
+            startup_minutes: Minimum time (minutes) before ATM starts at system startup
+            post_ramp_minutes: Minimum time (minutes) before ATM starts after ramping
+            temp_window: Number of degrees below "Hot" temperature where ATM begins adjusting profiles
+            min_profile: Lowest profile to use (e.g. "145MHz", "+1", "-2"). Empty string for unbounded
+            max_profile: Highest profile to use (e.g. "395MHz", "+1", "-2")
+            prevent_oc: When turning off ATM, revert to default profile if in higher profile
 
         Returns:
             A dictionary containing status information about the ATM configuration update:
@@ -179,7 +194,22 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
                 - When: Timestamp
         </details>
         """
-        return await self.send_privileged_command("atmset", command)
+        atmset_data = []
+        if enabled is not None:
+            atmset_data.append(f"enabled={str(enabled).lower()}")
+        if startup_minutes is not None:
+            atmset_data.append(f"startup_minutes={startup_minutes}")
+        if post_ramp_minutes is not None:
+            atmset_data.append(f"post_ramp_minutes={post_ramp_minutes}")
+        if temp_window is not None:
+            atmset_data.append(f"temp_window={temp_window}")
+        if min_profile is not None:
+            atmset_data.append(f"min_profile={min_profile}")
+        if max_profile is not None:
+            atmset_data.append(f"max_profile={max_profile}")
+        if prevent_oc is not None:
+            atmset_data.append(f"prevent_oc={str(prevent_oc).lower()}")
+        return await self.send_privileged_command("atmset", *atmset_data)
 
     async def check(self, command: str) -> dict:
         """Check if the command `command` exists in LUXMiner.
