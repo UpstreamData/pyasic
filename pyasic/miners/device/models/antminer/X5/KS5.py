@@ -25,3 +25,12 @@ class KS5(AntMinerMake):
     expected_hashboards = 3
     expected_fans = 4
     algo = MinerAlgo.KHEAVYHASH
+
+
+class KS5Pro(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.KS5
+
+    expected_chips = 92
+    expected_hashboards = 3
+    expected_fans = 4
+    algo = MinerAlgo.KHEAVYHASH

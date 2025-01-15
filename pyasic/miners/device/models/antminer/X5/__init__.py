@@ -14,4 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .DR5 import DR5
-from .KS5 import KS5
+from .KS5 import KS5, KS5Pro

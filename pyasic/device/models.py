@@ -13,6 +13,7 @@ class AntminerModels(MinerModelType):
     KS3 = "KS3"
     DR5 = "DR5"
     KS5 = "KS5"
+    KS5Pro = "KS5Pro"
     L7 = "L7"
     K7 = "K7"
     D7 = "D7"
