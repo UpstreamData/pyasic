@@ -14,5 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import VNishS21
-from .T21 import VNishT21
+from pyasic.miners.backends import VNish
+from pyasic.miners.device.models import T21
+
+
+class VNishT21(VNish, T21):
+    pass

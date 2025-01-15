@@ -563,6 +563,7 @@ MINER_CLASSES = {
         "ANTMINER S19 PRO HYD.": VNishS19ProHydro,
         "ANTMINER S19K PRO": VNishS19kPro,
         "ANTMINER T19": VNishT19,
+        "ANTMINER T21": VNishT21,
         "ANTMINER S21": VNishS21,
     },
     MinerTypes.EPIC: {
