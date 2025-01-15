@@ -121,17 +121,18 @@ BACKEND_TYPE_CLOSER = """
 </details>"""
 
 m_data = {}
-
+done = []
 
 for m in MINER_CLASSES:
-    for t in MINER_CLASSES[m]:
-        if t is not None:
+    for t in sorted(MINER_CLASSES[m], key=lambda x: x or ""):
+        if t is not None and MINER_CLASSES[m][t] not in done:
             miner = MINER_CLASSES[m][t]
             if make(miner) not in m_data:
                 m_data[make(miner)] = {}
             if model_type(miner) not in m_data[make(miner)]:
                 m_data[make(miner)][model_type(miner)] = []
             m_data[make(miner)][model_type(miner)].append(miner)
+            done.append(miner)
 
 
 async def create_directory_structure(directory, data):
