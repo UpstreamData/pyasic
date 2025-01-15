@@ -704,6 +704,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-vnish">S21 (VNish)</a></li>
+                    <li><a href="../antminer/X21#t21-vnish">T21 (VNish)</a></li>
                 </ul>
         </details>
     </ul>
