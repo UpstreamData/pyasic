@@ -574,9 +574,6 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         <details>
             <summary>Expand</summary>
 
-        Parameters:
-            session_id: Session id from the logon command.
-
         Returns:
             Confirmation of logging off a session.
         </details>
@@ -844,7 +841,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("voltageset", board_n, voltage)
 
-    async def upgraderun(self):
+    async def updaterun(self) -> dict:
         """
         Send the 'updaterun' command to the miner.
 
