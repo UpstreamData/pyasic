@@ -22,7 +22,7 @@ from pyasic.config.base import MinerConfigValue
 
 class ScalingShutdown(MinerConfigValue):
     enabled: bool = False
-    duration: int = None
+    duration: int | None = None
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "ScalingShutdown":
@@ -65,9 +65,9 @@ class ScalingShutdown(MinerConfigValue):
 
 
 class ScalingConfig(MinerConfigValue):
-    step: int = None
-    minimum: int = None
-    shutdown: ScalingShutdown = None
+    step: int | None = None
+    minimum: int | None = None
+    shutdown: ScalingShutdown | None = None
 
     @classmethod
     def from_dict(cls, dict_conf: dict | None) -> "ScalingConfig":
@@ -81,7 +81,7 @@ class ScalingConfig(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict, mode: str = None):
+    def from_bosminer(cls, toml_conf: dict, mode: str | None = None):
         if mode == "power":
             return cls._from_bosminer_power(toml_conf)
         if mode == "hashrate":
@@ -106,7 +106,7 @@ class ScalingConfig(MinerConfigValue):
             return cls(step=power_step, minimum=min_power, shutdown=sd_mode)
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict, mode: str = None):
+    def from_boser(cls, grpc_miner_conf: dict, mode: str | None = None):
         if mode == "power":
             return cls._from_boser_power(grpc_miner_conf)
         if mode == "hashrate":
