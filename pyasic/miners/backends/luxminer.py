@@ -151,7 +151,7 @@ class LUXMiner(LuxOSFirmware):
             bool: True if the firmware upgrade was successfully initiated, False otherwise.
         """
         try:
-            await self.rpc.upgraderun()
+            await self.rpc.updaterun()
             logging.info(f"{self.ip}: Firmware upgrade initiated successfully.")
             return True
 

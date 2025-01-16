@@ -268,11 +268,11 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("mode")
 
-    async def set_mode(self, **kwargs) -> dict:
+    async def set_mode(self, **kwargs: Any) -> dict:
         """Set the operational mode of the Auradine miner.
 
         Args:
-            **kwargs: Mode settings specified as keyword arguments.
+            **kwargs (Any): Mode settings specified as keyword arguments.
 
         Returns:
             dict: A dictionary indicating the result of the mode setting operation.
@@ -287,11 +287,11 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("network")
 
-    async def set_network(self, **kwargs) -> dict:
+    async def set_network(self, **kwargs: Any) -> dict:
         """Set the network configuration of the Auradine miner.
 
         Args:
-            **kwargs: Network settings specified as keyword arguments.
+            **kwargs (Any): Network settings specified as keyword arguments.
 
         Returns:
             dict: A dictionary indicating the result of the network configuration.
