@@ -782,6 +782,8 @@ class MinerFactory:
                         mtype = MinerTypes.MARATHON
                 if mtype == MinerTypes.HAMMER:
                     res = await self.get_miner_model_hammer(ip)
+                    if res is None:
+                        return MinerTypes.HAMMER
                     if "HAMMER" in res.upper():
                         mtype = MinerTypes.HAMMER
                     else:
