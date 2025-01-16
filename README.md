@@ -50,6 +50,13 @@ poetry install --with dev
 pre-commit install
 ```
 
+##### Building Documentation Locally
+```
+poetry install --with docs
+python docs/generate_miners.py
+poetry run mkdocs serve
+```
+
 ---
 ## Getting started
 
