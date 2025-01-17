@@ -47,6 +47,10 @@ LUXMINER_DATA_LOC = DataLocations(
             "_get_wattage",
             [RPCAPICommand("rpc_power", "power")],
         ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "_get_wattage_limit",
+            [],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [RPCAPICommand("rpc_fans", "fans")],
@@ -286,6 +290,15 @@ class LUXMiner(LuxOSFirmware):
         if rpc_power is not None:
             try:
                 return rpc_power["POWER"][0]["Watts"]
+            except (LookupError, ValueError, TypeError):
+                pass
+
+    async def _get_wattage_limit(self) -> Optional[int]:
+        config = await self.get_config()
+
+        if config is not None:
+            try:
+                return int(config.mining_mode.active_preset.power)
             except (LookupError, ValueError, TypeError):
                 pass
 
