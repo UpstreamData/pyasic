@@ -371,17 +371,24 @@ class MiningModePreset(MinerConfigValue):
     def from_luxos(
         cls, rpc_config: dict, rpc_profiles: list[dict]
     ) -> "MiningModePreset":
-        active_preset = None
-        active_profile = rpc_config["CONFIG"][0]["Profile"]
-        for profile in rpc_profiles["PROFILES"]:
-            if profile["Profile Name"] == active_profile:
-                active_preset = profile
+        active_preset = cls.get_active_preset_from_luxos(rpc_config, rpc_profiles)
         return cls(
             active_preset=MiningPreset.from_luxos(active_preset),
             available_presets=[
                 MiningPreset.from_luxos(p) for p in rpc_profiles["PROFILES"]
             ],
         )
+
+    @classmethod
+    def get_active_preset_from_luxos(
+        cls, rpc_config: dict, rpc_profiles: list[dict]
+    ) -> dict:
+        active_preset = None
+        active_profile = rpc_config["CONFIG"][0]["Profile"]
+        for profile in rpc_profiles["PROFILES"]:
+            if profile["Profile Name"] == active_profile:
+                active_preset = profile
+        return active_preset
 
 
 class ManualBoardSettings(MinerConfigValue):
@@ -705,7 +712,11 @@ class MiningModeConfig(MinerConfigOption):
 
     @classmethod
     def from_luxos(cls, rpc_config: dict, rpc_profiles: dict):
-        return MiningModePreset.from_luxos(rpc_config, rpc_profiles)
+        preset_info = MiningModePreset.from_luxos(rpc_config, rpc_profiles)
+        return cls.preset(
+            active_preset=preset_info.active_preset,
+            available_presets=preset_info.available_presets,
+        )
 
 
 MiningMode = TypeVar(
