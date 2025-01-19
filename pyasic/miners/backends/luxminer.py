@@ -17,6 +17,7 @@ import logging
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
+from pyasic.config.mining_mode import MiningModePreset
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device.algorithm import AlgoHashRate
@@ -24,7 +25,6 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import LuxOSFirmware
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
-from pyasic.config.mining_mode import MiningModePreset
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
