@@ -24,6 +24,7 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import LuxOSFirmware
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
+from pyasic.config.mining_mode import MiningModePreset
 
 LUXMINER_DATA_LOC = DataLocations(
     **{
@@ -49,7 +50,10 @@ LUXMINER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [],
+            [
+                RPCAPICommand("rpc_config", "config"),
+                RPCAPICommand("rpc_profiles", "profiles"),
+            ],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
@@ -293,14 +297,16 @@ class LUXMiner(LuxOSFirmware):
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage_limit(self) -> Optional[int]:
-        config = await self.get_config()
-
-        if config is not None:
-            try:
-                return int(config.mining_mode.active_preset.power)
-            except (LookupError, ValueError, TypeError):
-                pass
+    async def _get_wattage_limit(
+        self, rpc_config: dict = None, rpc_profiles: list[dict] = None
+    ) -> Optional[int]:
+        try:
+            active_preset = MiningModePreset.get_active_preset_from_luxos(
+                rpc_config, rpc_profiles
+            )
+            return active_preset.power
+        except (LookupError, ValueError, TypeError):
+            pass
 
     async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
         if rpc_fans is None:
