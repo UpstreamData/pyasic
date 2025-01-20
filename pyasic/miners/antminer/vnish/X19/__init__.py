@@ -18,6 +18,7 @@ from .S19 import (
     VNishS19,
     VNishS19a,
     VNishS19aPro,
+    VNishS19i,
     VNishS19j,
     VNishS19jPro,
     VNishS19kPro,
