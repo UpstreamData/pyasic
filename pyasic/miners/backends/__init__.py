@@ -28,6 +28,7 @@ from .hammer import BlackMiner
 from .hiveon import HiveonModern, HiveonOld
 from .iceriver import IceRiver
 from .innosilicon import Innosilicon
+from .luckyminer import LuckyMiner
 from .luxminer import LUXMiner
 from .marathon import MaraMiner
 from .unknown import UnknownMiner

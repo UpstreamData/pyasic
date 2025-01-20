@@ -143,12 +143,12 @@ class MinerConfig(BaseModel):
             **self.pools.as_mara(user_suffix=user_suffix),
         }
 
-    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
+    def as_espminer(self, user_suffix: str | None = None) -> dict:
         return {
-            **self.fan_mode.as_bitaxe(),
-            **self.temperature.as_bitaxe(),
-            **self.mining_mode.as_bitaxe(),
-            **self.pools.as_bitaxe(user_suffix=user_suffix),
+            **self.fan_mode.as_espminer(),
+            **self.temperature.as_espminer(),
+            **self.mining_mode.as_espminer(),
+            **self.pools.as_espminer(user_suffix=user_suffix),
         }
 
     def as_luxos(self, user_suffix: str | None = None) -> dict:
@@ -272,10 +272,10 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_bitaxe(cls, web_system_info: dict) -> "MinerConfig":
+    def from_espminer(cls, web_system_info: dict) -> "MinerConfig":
         return cls(
-            pools=PoolConfig.from_bitaxe(web_system_info),
-            fan_mode=FanModeConfig.from_bitaxe(web_system_info),
+            pools=PoolConfig.from_espminer(web_system_info),
+            fan_mode=FanModeConfig.from_espminer(web_system_info),
         )
 
     @classmethod

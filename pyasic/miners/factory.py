@@ -41,6 +41,7 @@ from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
 from pyasic.miners.innosilicon import *
+from pyasic.miners.luckyminer import *
 from pyasic.miners.volcminer import *
 from pyasic.miners.whatsminer import *
 
@@ -62,6 +63,7 @@ class MinerTypes(enum.Enum):
     ICERIVER = 13
     HAMMER = 14
     VOLCMINER = 15
+    LUCKYMINER = 16
 
 
 MINER_CLASSES = {
@@ -559,7 +561,7 @@ MINER_CLASSES = {
         "ANTMINER S19NOPIC": VNishS19NoPIC,
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
-        "ANTMINER S19I": VNishS19j,
+        "ANTMINER S19I": VNishS19i,
         "ANTMINER S19J PRO": VNishS19jPro,
         "ANTMINER S19J PRO A": VNishS19jPro,
         "ANTMINER S19J PRO BB": VNishS19jPro,
@@ -633,6 +635,10 @@ MINER_CLASSES = {
         "BM1366": BitAxeUltra,
         "BM1397": BitAxeMax,
         "BM1370": BitAxeGamma,
+    },
+    MinerTypes.LUCKYMINER: {
+        None: LuckyMiner,
+        "BM1366": LuckyMinerLV08,
     },
     MinerTypes.ICERIVER: {
         None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),
@@ -731,6 +737,7 @@ class MinerFactory:
                 MinerTypes.AURADINE: self.get_miner_model_auradine,
                 MinerTypes.MARATHON: self.get_miner_model_marathon,
                 MinerTypes.BITAXE: self.get_miner_model_bitaxe,
+                MinerTypes.LUCKYMINER: self.get_miner_model_luckyminer,
                 MinerTypes.ICERIVER: self.get_miner_model_iceriver,
                 MinerTypes.HAMMER: self.get_miner_model_hammer,
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
@@ -833,6 +840,8 @@ class MinerFactory:
             return MinerTypes.ICERIVER
         if "AxeOS" in web_text:
             return MinerTypes.BITAXE
+        if "Lucky miner" in web_text:
+            return MinerTypes.LUCKYMINER
         if "cloud-box" in web_text:
             return MinerTypes.GOLDSHELL
         if "AnthillOS" in web_text:
@@ -1281,6 +1290,18 @@ class MinerFactory:
             pass
 
     async def get_miner_model_bitaxe(self, ip: str) -> str | None:
+        web_json_data = await self.send_web_command(ip, "/api/system/info")
+
+        try:
+            miner_model = web_json_data["ASICModel"]
+            if miner_model == "":
+                return None
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_luckyminer(self, ip: str) -> str | None:
         web_json_data = await self.send_web_command(ip, "/api/system/info")
 
         try:

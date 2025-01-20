@@ -50,6 +50,10 @@ class BitAxeMake(BaseMiner):
     make = MinerMake.BITAXE
 
 
+class LuckyMinerMake(BaseMiner):
+    make = MinerMake.LUCKYMINER
+
+
 class IceRiverMake(BaseMiner):
     make = MinerMake.ICERIVER
 

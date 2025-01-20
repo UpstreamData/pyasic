@@ -61,8 +61,8 @@ class MinerConfigOption(Enum):
     def as_mara(self) -> dict:
         return self.value.as_mara()
 
-    def as_bitaxe(self) -> dict:
-        return self.value.as_bitaxe()
+    def as_espminer(self) -> dict:
+        return self.value.as_espminer()
 
     def as_luxos(self) -> dict:
         return self.value.as_luxos()
@@ -125,7 +125,7 @@ class MinerConfigValue(BaseModel):
     def as_mara(self) -> dict:
         return {}
 
-    def as_bitaxe(self) -> dict:
+    def as_espminer(self) -> dict:
         return {}
 
     def as_luxos(self) -> dict:

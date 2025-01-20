@@ -102,7 +102,7 @@ class Pool(MinerConfigValue):
             "pass": self.password,
         }
 
-    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
+    def as_espminer(self, user_suffix: str | None = None) -> dict:
         return {
             "stratumURL": self.url,
             "stratumUser": f"{self.user}{user_suffix or ''}",
@@ -192,7 +192,7 @@ class Pool(MinerConfigValue):
         )
 
     @classmethod
-    def from_bitaxe(cls, web_system_info: dict) -> "Pool":
+    def from_espminer(cls, web_system_info: dict) -> "Pool":
         url = f"stratum+tcp://{web_system_info['stratumURL']}:{web_system_info['stratumPort']}"
         return cls(
             url=url,
@@ -306,8 +306,8 @@ class PoolGroup(MinerConfigValue):
     def as_mara(self, user_suffix: str | None = None) -> list:
         return [p.as_mara(user_suffix=user_suffix) for p in self.pools]
 
-    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
-        return self.pools[0].as_bitaxe(user_suffix=user_suffix)
+    def as_espminer(self, user_suffix: str | None = None) -> dict:
+        return self.pools[0].as_espminer(user_suffix=user_suffix)
 
     def as_boser(self, user_suffix: str | None = None) -> PoolGroupConfiguration:
         return PoolGroupConfiguration(
@@ -395,8 +395,8 @@ class PoolGroup(MinerConfigValue):
         return cls(pools=[Pool.from_mara(pool_conf) for pool_conf in web_config_pools])
 
     @classmethod
-    def from_bitaxe(cls, web_system_info: dict) -> "PoolGroup":
-        return cls(pools=[Pool.from_bitaxe(web_system_info)])
+    def from_espminer(cls, web_system_info: dict) -> "PoolGroup":
+        return cls(pools=[Pool.from_espminer(web_system_info)])
 
     @classmethod
     def from_iceriver(cls, web_userpanel: dict) -> "PoolGroup":
@@ -507,8 +507,8 @@ class PoolConfig(MinerConfigValue):
             return {"pools": self.groups[0].as_mara(user_suffix=user_suffix)}
         return {"pools": []}
 
-    def as_bitaxe(self, user_suffix: str | None = None) -> dict:
-        return self.groups[0].as_bitaxe(user_suffix=user_suffix)
+    def as_espminer(self, user_suffix: str | None = None) -> dict:
+        return self.groups[0].as_espminer(user_suffix=user_suffix)
 
     def as_luxos(self, user_suffix: str | None = None) -> dict:
         return {}
@@ -576,8 +576,8 @@ class PoolConfig(MinerConfigValue):
         return cls(groups=[PoolGroup.from_mara(web_config["pools"])])
 
     @classmethod
-    def from_bitaxe(cls, web_system_info: dict) -> "PoolConfig":
-        return cls(groups=[PoolGroup.from_bitaxe(web_system_info)])
+    def from_espminer(cls, web_system_info: dict) -> "PoolConfig":
+        return cls(groups=[PoolGroup.from_espminer(web_system_info)])
 
     @classmethod
     def from_iceriver(cls, web_userpanel: dict) -> "PoolConfig":

@@ -694,6 +694,7 @@ details {
                     <li><a href="../antminer/X19#s19-no-pic-vnish">S19 No PIC (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-vnish">S19 Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-vnish">S19j (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19i-vnish">S19i (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
@@ -854,6 +855,17 @@ details {
                     <li><a href="../bitaxe/BM#ultra-stock">Ultra (Stock)</a></li>
                     <li><a href="../bitaxe/BM#max-stock">Max (Stock)</a></li>
                     <li><a href="../bitaxe/BM#gamma-stock">Gamma (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Lucky Miners:</summary>
+    <ul>
+        <details>
+            <summary>LV Series:</summary>
+                <ul>
+                    <li><a href="../luckyminer/LV#lv08-stock">LV08 (Stock)</a></li>
                 </ul>
         </details>
     </ul>

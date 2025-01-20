@@ -507,6 +507,13 @@ class BitAxeModels(MinerModelType):
         return self.value
 
 
+class LuckyMinerModels(MinerModelType):
+    BM1366 = "LV08"
+
+    def __str__(self):
+        return self.value
+
+
 class IceRiverModels(MinerModelType):
     KS0 = "KS0"
     KS1 = "KS1"
@@ -550,6 +557,7 @@ class MinerModel:
     AURADINE = AuradineModels
     EPIC = ePICModels
     BITAXE = BitAxeModels
+    LUCKYMINER = LuckyMinerModels
     ICERIVER = IceRiverModels
     HAMMER = HammerModels
     VOLCMINER = VolcMinerModels

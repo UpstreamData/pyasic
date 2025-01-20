@@ -51,6 +51,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Mara Firmware Miners"
         case MinerTypes.BITAXE:
             return "Stock Firmware BitAxe Miners"
+        case MinerTypes.LUCKYMINER:
+            return "Stock Firmware Lucky Miners"
         case MinerTypes.ICERIVER:
             return "Stock Firmware IceRiver Miners"
         case MinerTypes.HAMMER:

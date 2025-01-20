@@ -81,7 +81,7 @@ class FanModeNormal(MinerConfigValue):
             },
         }
 
-    def as_bitaxe(self) -> dict:
+    def as_espminer(self) -> dict:
         return {"autoFanspeed": 1}
 
     def as_luxos(self) -> dict:
@@ -156,7 +156,7 @@ class FanModeManual(MinerConfigValue):
             },
         }
 
-    def as_bitaxe(self) -> dict:
+    def as_espminer(self) -> dict:
         return {"autoFanspeed": 0, "fanspeed": self.speed}
 
     def as_luxos(self) -> dict:
@@ -342,7 +342,7 @@ class FanModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_bitaxe(cls, web_system_info: dict):
+    def from_espminer(cls, web_system_info: dict):
         if web_system_info["autofanspeed"] == 1:
             return cls.normal()
         else:

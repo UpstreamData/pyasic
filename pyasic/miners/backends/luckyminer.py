@@ -1,7 +1,7 @@
 from pyasic.miners.backends.espminer import ESPMiner
 
 
-class BitAxe(ESPMiner):
-    """Handler for BitAxe"""
+class LuckyMiner(ESPMiner):
+    """Handler for LuckyMiner"""
 
     pass

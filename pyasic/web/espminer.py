@@ -10,7 +10,7 @@ from pyasic import APIError, settings
 from pyasic.web.base import BaseWebAPI
 
 
-class BitAxeWebAPI(BaseWebAPI):
+class ESPMinerWebAPI(BaseWebAPI):
     async def send_command(
         self,
         command: str | bytes,
