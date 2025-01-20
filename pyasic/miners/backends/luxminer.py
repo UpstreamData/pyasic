@@ -17,7 +17,7 @@ import logging
 from typing import List, Optional
 
 from pyasic.config import MinerConfig
-from pyasic.config.mining_mode import MiningModePreset
+from pyasic.config.mining import MiningModePreset
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device.algorithm import AlgoHashRate
