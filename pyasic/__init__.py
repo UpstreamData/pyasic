@@ -13,6 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import importlib.metadata
+
 from pyasic import settings
 from pyasic.config import MinerConfig
 from pyasic.data import MinerData
@@ -22,3 +24,5 @@ from pyasic.network import MinerNetwork
 from pyasic.rpc import *
 from pyasic.ssh import *
 from pyasic.web import *
+
+__version__ = importlib.metadata.version("pyasic")
