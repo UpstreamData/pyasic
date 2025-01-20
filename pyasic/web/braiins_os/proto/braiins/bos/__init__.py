@@ -39,7 +39,7 @@ class ApiVersionServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ApiVersion":
         return await self._unary_unary(
             "/braiins.bos.ApiVersionService/GetApiVersion",

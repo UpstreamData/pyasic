@@ -1706,7 +1706,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "StartResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/Start",
@@ -1723,7 +1723,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "StopResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/Stop",
@@ -1740,7 +1740,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "PauseMiningResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/PauseMining",
@@ -1757,7 +1757,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ResumeMiningResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/ResumeMining",
@@ -1774,7 +1774,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "RestartResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/Restart",
@@ -1791,7 +1791,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "RebootResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/Reboot",
@@ -1808,7 +1808,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "LocateDeviceStatusResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/SetLocateDeviceStatus",
@@ -1825,7 +1825,7 @@ class ActionsServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "LocateDeviceStatusResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ActionsService/GetLocateDeviceStatus",
@@ -1844,7 +1844,7 @@ class AuthenticationServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "LoginResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.AuthenticationService/Login",
@@ -1861,7 +1861,7 @@ class AuthenticationServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPasswordResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.AuthenticationService/SetPassword",
@@ -1880,7 +1880,7 @@ class CoolingServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetCoolingStateResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.CoolingService/GetCoolingState",
@@ -1897,7 +1897,7 @@ class CoolingServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetImmersionModeResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.CoolingService/SetImmersionMode",
@@ -1916,7 +1916,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetTunerStateResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/GetTunerState",
@@ -1933,7 +1933,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "ListTargetProfilesResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/ListTargetProfiles",
@@ -1950,7 +1950,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPowerTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetDefaultPowerTarget",
@@ -1967,7 +1967,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPowerTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetPowerTarget",
@@ -1984,7 +1984,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPowerTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/IncrementPowerTarget",
@@ -2001,7 +2001,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPowerTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/DecrementPowerTarget",
@@ -2018,7 +2018,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetHashrateTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetDefaultHashrateTarget",
@@ -2035,7 +2035,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetHashrateTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetHashrateTarget",
@@ -2052,7 +2052,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetHashrateTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/IncrementHashrateTarget",
@@ -2069,7 +2069,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetHashrateTargetResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/DecrementHashrateTarget",
@@ -2086,7 +2086,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetDpsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetDPS",
@@ -2103,7 +2103,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "PerformanceMode":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/SetPerformanceMode",
@@ -2120,7 +2120,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "PerformanceMode":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/GetActivePerformanceMode",
@@ -2137,7 +2137,7 @@ class PerformanceServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "RemoveTunedProfilesResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PerformanceService/RemoveTunedProfiles",
@@ -2156,7 +2156,7 @@ class PoolServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetPoolGroupsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PoolService/GetPoolGroups",
@@ -2173,7 +2173,7 @@ class PoolServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "CreatePoolGroupResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PoolService/CreatePoolGroup",
@@ -2190,7 +2190,7 @@ class PoolServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "UpdatePoolGroupResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PoolService/UpdatePoolGroup",
@@ -2207,7 +2207,7 @@ class PoolServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "RemovePoolGroupResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PoolService/RemovePoolGroup",
@@ -2224,7 +2224,7 @@ class PoolServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetPoolGroupsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.PoolService/SetPoolGroups",
@@ -2243,7 +2243,7 @@ class ConfigurationServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetMinerConfigurationResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ConfigurationService/GetMinerConfiguration",
@@ -2260,7 +2260,7 @@ class ConfigurationServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetConstraintsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.ConfigurationService/GetConstraints",
@@ -2279,7 +2279,7 @@ class LicenseServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetLicenseStateResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.LicenseService/GetLicenseState",
@@ -2298,7 +2298,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> AsyncIterator[GetMinerStatusResponse]:
         async for response in self._unary_stream(
             "/braiins.bos.v1.MinerService/GetMinerStatus",
@@ -2316,7 +2316,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetMinerDetailsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/GetMinerDetails",
@@ -2333,7 +2333,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetMinerStatsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/GetMinerStats",
@@ -2350,7 +2350,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetErrorsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/GetErrors",
@@ -2367,7 +2367,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetHashboardsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/GetHashboards",
@@ -2384,7 +2384,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> AsyncIterator[GetSupportArchiveResponse]:
         async for response in self._unary_stream(
             "/braiins.bos.v1.MinerService/GetSupportArchive",
@@ -2402,7 +2402,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "EnableHashboardsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/EnableHashboards",
@@ -2419,7 +2419,7 @@ class MinerServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "DisableHashboardsResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.MinerService/DisableHashboards",
@@ -2438,7 +2438,7 @@ class NetworkServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetNetworkConfigurationResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.NetworkService/GetNetworkConfiguration",
@@ -2455,7 +2455,7 @@ class NetworkServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "SetNetworkConfigurationResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.NetworkService/SetNetworkConfiguration",
@@ -2472,7 +2472,7 @@ class NetworkServiceStub(betterproto.ServiceStub):
         *,
         timeout: Optional[float] = None,
         deadline: Optional["Deadline"] = None,
-        metadata: Optional["MetadataLike"] = None
+        metadata: Optional["MetadataLike"] = None,
     ) -> "GetNetworkInfoResponse":
         return await self._unary_unary(
             "/braiins.bos.v1.NetworkService/GetNetworkInfo",
