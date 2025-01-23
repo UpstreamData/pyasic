@@ -14,5 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import BOSMinerS21
+from .S21 import BOSMinerS21, BOSMinerS21Pro
 from .T21 import BOSMinerT21

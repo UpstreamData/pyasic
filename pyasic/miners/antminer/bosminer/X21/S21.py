@@ -15,8 +15,12 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import BOSer
-from pyasic.miners.device.models import S21
+from pyasic.miners.device.models import S21, S21Pro
 
 
 class BOSMinerS21(BOSer, S21):
+    pass
+
+
+class BOSMinerS21Pro(BOSer, S21Pro):
     pass
