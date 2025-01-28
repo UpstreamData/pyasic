@@ -13,5 +13,5 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .S21 import BMMinerS21, BMMinerS21Pro
+from .S21 import BMMinerS21, BMMinerS21Pro, BMMinerS21Hydro
 from .T21 import BMMinerT21
