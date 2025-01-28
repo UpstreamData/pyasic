@@ -2,6 +2,7 @@ import asyncio
 import importlib
 import os
 import warnings
+from pathlib import Path
 
 from pyasic.miners.factory import MINER_CLASSES, MinerTypes
 
@@ -59,6 +60,7 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware Hammer Miners"
         case MinerTypes.VOLCMINER:
             return "Stock Firmware Volcminers"
+    raise TypeError("Unknown miner backend, cannot generate docs")
 
 
 def create_url_str(mtype: str):
@@ -137,14 +139,14 @@ for m in MINER_CLASSES:
             done.append(miner)
 
 
-async def create_directory_structure(directory, data):
+def create_directory_structure(directory, data):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
     for key, value in data.items():
         subdirectory = os.path.join(directory, key)
         if isinstance(value, dict):
-            await create_directory_structure(subdirectory, value)
+            create_directory_structure(subdirectory, value)
         elif isinstance(value, list):
             file_path = os.path.join(subdirectory + ".md")
 
@@ -165,7 +167,7 @@ async def create_directory_structure(directory, data):
                     )
 
 
-async def create_supported_types(directory):
+def create_supported_types(directory):
     with open(os.path.join(directory, "supported_types.md"), "w") as file:
         file.write(SUPPORTED_TYPES_HEADER)
         for mback in MINER_CLASSES:
@@ -182,7 +184,7 @@ async def create_supported_types(directory):
             for mtype in backend_types:
                 file.write(MINER_TYPE_HEADER.format(mtype))
                 for minstance in backend_types[mtype]:
-                    model = await minstance("1.1.1.1").get_model()
+                    model = minstance("1.1.1.1").model
                     file.write(
                         MINER_DETAILS.format(
                             make(minstance), mtype, create_url_str(model), model
@@ -192,6 +194,7 @@ async def create_supported_types(directory):
             file.write(BACKEND_TYPE_CLOSER)
 
 
-root_directory = os.path.join(os.getcwd(), "miners")
-asyncio.run(create_directory_structure(root_directory, m_data))
-asyncio.run(create_supported_types(root_directory))
+if __name__ == "__main__":
+    root_directory = Path(__file__).parent.joinpath("miners")
+    create_directory_structure(root_directory, m_data)
+    create_supported_types(root_directory)
