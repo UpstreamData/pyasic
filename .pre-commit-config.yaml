@@ -1,6 +1,8 @@
 ci:
   skip:
     - poetry-lock
+    - unittest
+    - generate-docs
 repos:
 -   repo: https://github.com/python-poetry/poetry
     rev: 2.0.1
@@ -36,6 +38,12 @@ repos:
         name: unittest
         entry: python -m unittest discover
         language: system
-        'types': [python]
+        types: [ python ]
         args: ["-p '*test.py'"] # Probably this option is absolutely not needed.
+        pass_filenames: false
+    -   id: generate-docs
+        name: generate-docs
+        entry: python docs/generate_miners.py
+        language: system
+        types: [ python ]
         pass_filenames: false

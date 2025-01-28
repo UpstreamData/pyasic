@@ -652,6 +652,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-bos_1">S21 (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-bos_1">S21 Pro (BOS+)</a></li>
                     <li><a href="../antminer/X21#t21-bos_1">T21 (BOS+)</a></li>
                 </ul>
         </details>
