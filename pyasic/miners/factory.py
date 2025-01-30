@@ -888,6 +888,7 @@ class MinerFactory:
             await writer.drain()
 
             # loop to receive all the data
+            timeouts_remaining = 5
             while True:
                 try:
                     d = await asyncio.wait_for(reader.read(4096), timeout=1)
@@ -895,7 +896,9 @@ class MinerFactory:
                         break
                     data += d
                 except asyncio.TimeoutError:
-                    pass
+                    timeouts_remaining -= 1
+                    if not timeouts_remaining:
+                        break
                 except ConnectionResetError:
                     return
         except asyncio.CancelledError:
