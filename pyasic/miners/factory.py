@@ -898,6 +898,7 @@ class MinerFactory:
                 except asyncio.TimeoutError:
                     timeouts_remaining -= 1
                     if not timeouts_remaining:
+                        logger.warning(f"{ip}: Socket ping timeout.")
                         break
                 except ConnectionResetError:
                     return
