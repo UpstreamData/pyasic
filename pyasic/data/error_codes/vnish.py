@@ -13,20 +13,16 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.data.error_codes.base import BaseMinerError
 
-from typing import TypeVar
 
-from .bos import BraiinsOSError
-from .innosilicon import InnosiliconError
-from .vnish import VnishError
-from .whatsminer import WhatsminerError
-from .X19 import X19Error
+class VnishError(BaseMinerError):
+    """A Dataclass to handle error codes of Vnish miners.
 
-MinerErrorData = TypeVar(
-    "MinerErrorData",
-    WhatsminerError,
-    BraiinsOSError,
-    X19Error,
-    InnosiliconError,
-    VnishError,
-)
+    Attributes:
+        error_message: The error message as a string.
+        error_code: The error code as an int.  0 if the message is not assigned a code.
+    """
+
+    error_message: str
+    error_code: int = 0
