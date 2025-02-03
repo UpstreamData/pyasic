@@ -27,6 +27,7 @@ from pyasic.miners.device.models import (
     S19jNoPIC,
     S19jPro,
     S19KPro,
+    S19NoPIC,
     S19Plus,
     S19Pro,
     S19ProHydro,
@@ -36,6 +37,10 @@ from pyasic.miners.device.models import (
 
 
 class HiveonS19(HiveonModern, S19):
+    pass
+
+
+class HiveonS19NoPIC(HiveonModern, S19NoPIC):
     pass
 
 
