@@ -641,7 +641,8 @@ MINER_CLASSES = {
     },
     MinerTypes.LUCKYMINER: {
         None: LuckyMiner,
-        "BM1366": LuckyMinerLV08,
+        "LV08": LuckyMinerLV08,
+        "LV07": LuckyMinerLV07,
     },
     MinerTypes.ICERIVER: {
         None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),
@@ -1312,7 +1313,7 @@ class MinerFactory:
         web_json_data = await self.send_web_command(ip, "/api/system/info")
 
         try:
-            miner_model = web_json_data["ASICModel"]
+            miner_model = web_json_data["minerModel"]
             if miner_model == "":
                 return None
 

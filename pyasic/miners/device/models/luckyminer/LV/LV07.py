@@ -3,8 +3,8 @@ from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import LuckyMinerMake
 
 
-class LV08(LuckyMinerMake):
-    raw_model = MinerModel.LUCKYMINER.LV08
+class LV07(LuckyMinerMake):
+    raw_model = MinerModel.LUCKYMINER.LV07
 
     expected_hashboards = 1
     expected_chips = 1

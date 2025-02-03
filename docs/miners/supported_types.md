@@ -869,6 +869,7 @@ details {
             <summary>LV Series:</summary>
                 <ul>
                     <li><a href="../luckyminer/LV#lv08-stock">LV08 (Stock)</a></li>
+                    <li><a href="../luckyminer/LV#lv07-stock">LV07 (Stock)</a></li>
                 </ul>
         </details>
     </ul>

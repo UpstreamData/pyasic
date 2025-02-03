@@ -509,7 +509,8 @@ class BitAxeModels(MinerModelType):
 
 
 class LuckyMinerModels(MinerModelType):
-    BM1366 = "LV08"
+    LV07 = "LV07"
+    LV08 = "LV08"
 
     def __str__(self):
         return self.value
