@@ -915,3 +915,14 @@ details {
         </details>
     </ul>
 </details>
+<details>
+<summary>Stock Firmware Elphapex Miners:</summary>
+    <ul>
+        <details>
+            <summary>DGX Series:</summary>
+                <ul>
+                    <li><a href="../elphapex/DGX#dg1_1-stock">DG1+ (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
