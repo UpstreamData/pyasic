@@ -24,9 +24,7 @@ from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data.pools import PoolMetrics, Scheme
 from pyasic.device.algorithm.hashrate import AlgoHashRateType
-from pyasic.device.algorithm.hashrate.base import GenericHashrate
 
-from ..device.algorithm.hashrate.unit.base import GenericUnit
 from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error

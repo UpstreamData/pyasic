@@ -8,7 +8,6 @@ from pyasic import APIError, MinerData
 from pyasic.data import Fan, HashBoard
 from pyasic.device.algorithm.hashrate.unit.scrypt import ScryptUnit
 from pyasic.miners.elphapex import ElphapexDG1Plus
-from pyasic.miners.hammer import HammerD10
 
 data = {
     ElphapexDG1Plus: {
