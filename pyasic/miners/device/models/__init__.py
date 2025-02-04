@@ -18,6 +18,7 @@ from .antminer import *
 from .auradine import *
 from .avalonminer import *
 from .braiins import *
+from .elphapex import *
 from .epic import *
 from .goldshell import *
 from .hammer import *

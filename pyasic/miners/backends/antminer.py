@@ -75,6 +75,10 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
             "_get_fault_light",
             [WebAPICommand("web_get_blink_status", "get_blink_status")],
         ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [],
+        ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
             [WebAPICommand("web_get_conf", "get_miner_conf")],

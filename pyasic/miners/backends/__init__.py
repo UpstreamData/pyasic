@@ -22,6 +22,7 @@ from .bmminer import BMMiner
 from .braiins_os import BOSer, BOSMiner
 from .btminer import BTMiner
 from .cgminer import CGMiner
+from .elphapex import ElphapexMiner
 from .epic import ePIC
 from .goldshell import GoldshellMiner
 from .hammer import BlackMiner

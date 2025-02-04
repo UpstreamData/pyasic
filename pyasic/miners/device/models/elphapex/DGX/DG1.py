@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2024 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,25 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import ElphapexMake, HammerMake
 
-from enum import Enum
 
+class DG1Plus(ElphapexMake):
+    raw_model = MinerModel.ELPHAPEX.DG1Plus
 
-class MinerMake(str, Enum):
-    WHATSMINER = "WhatsMiner"
-    ANTMINER = "AntMiner"
-    AVALONMINER = "AvalonMiner"
-    INNOSILICON = "Innosilicon"
-    GOLDSHELL = "Goldshell"
-    AURADINE = "Auradine"
-    EPIC = "ePIC"
-    BITAXE = "BitAxe"
-    LUCKYMINER = "LuckyMiner"
-    ICERIVER = "IceRiver"
-    HAMMER = "Hammer"
-    VOLCMINER = "VolcMiner"
-    ELPHAPEX = "Elphapex"
-    BRAIINS = "Braiins"
-
-    def __str__(self):
-        return self.value
+    expected_chips = 204
+    expected_hashboards = 4
+    expected_fans = 4
+    algo = MinerAlgo.SCRYPT

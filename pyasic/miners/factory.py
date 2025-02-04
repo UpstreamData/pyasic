@@ -37,6 +37,7 @@ from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
 from pyasic.miners.braiins import *
 from pyasic.miners.device.makes import *
+from pyasic.miners.elphapex import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
@@ -64,6 +65,7 @@ class MinerTypes(enum.Enum):
     HAMMER = 14
     VOLCMINER = 15
     LUCKYMINER = 16
+    ELPHAPEX = 17
 
 
 MINER_CLASSES = {
@@ -664,6 +666,10 @@ MINER_CLASSES = {
         None: type("VolcMinerUnknown", (BlackMiner, VolcMinerMake), {}),
         "VOLCMINER D1": VolcMinerD1,
     },
+    MinerTypes.ELPHAPEX: {
+        None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
+        "DG1+1": ElphapexDG1Plus,
+    },
 }
 
 
@@ -745,6 +751,7 @@ class MinerFactory:
                 MinerTypes.ICERIVER: self.get_miner_model_iceriver,
                 MinerTypes.HAMMER: self.get_miner_model_hammer,
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
+                MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -828,6 +835,10 @@ class MinerFactory:
             "www-authenticate", ""
         ):
             return MinerTypes.HAMMER
+        if web_resp.status_code == 401 and 'realm="Daoge' in web_resp.headers.get(
+            "www-authenticate", ""
+        ):
+            return MinerTypes.ELPHAPEX
         if len(web_resp.history) > 0:
             history_resp = web_resp.history[0]
             if (
@@ -1372,6 +1383,21 @@ class MinerFactory:
     async def get_miner_model_volcminer(self, ip: str) -> str | None:
         auth = httpx.DigestAuth(
             "root", settings.get("default_volcminer_web_password", "root")
+        )
+        web_json_data = await self.send_web_command(
+            ip, "/cgi-bin/get_system_info.cgi", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["minertype"]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_elphapex(self, ip: str) -> str | None:
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_elphapex_web_password", "root")
         )
         web_json_data = await self.send_web_command(
             ip, "/cgi-bin/get_system_info.cgi", auth=auth

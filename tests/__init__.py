@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from tests.config_tests import TestConfig
-from tests.miners_tests import MinersTest, TestHammerMiners
+from tests.miners_tests import MinersTest, TestElphapexMiners, TestHammerMiners
 from tests.network_tests import NetworkTest
 from tests.rpc_tests import *
 

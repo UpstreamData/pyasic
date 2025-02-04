@@ -550,6 +550,10 @@ class BraiinsModels(MinerModelType):
     BMM101 = "BMM101"
 
 
+class ElphapexModels(MinerModelType):
+    DG1Plus = "DG1+"
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -563,4 +567,5 @@ class MinerModel:
     ICERIVER = IceRiverModels
     HAMMER = HammerModels
     VOLCMINER = VolcMinerModels
+    ELPHAPEX = ElphapexModels
     BRAIINS = BraiinsModels
