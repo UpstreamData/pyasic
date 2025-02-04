@@ -18,10 +18,8 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
-from pathlib import Path
 from typing import Any
 
-import aiofiles
 import httpx
 
 from pyasic import settings

@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
-from pyasic.miners.device.makes import ElphapexMake, HammerMake
+from pyasic.miners.device.makes import ElphapexMake
 
 
 class DG1Plus(ElphapexMake):

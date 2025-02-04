@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import TypeVar, Union
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue

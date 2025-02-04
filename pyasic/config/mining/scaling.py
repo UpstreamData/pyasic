@@ -15,8 +15,6 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from pyasic.config.base import MinerConfigValue
 
 
