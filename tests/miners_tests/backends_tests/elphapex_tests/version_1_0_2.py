@@ -9,6 +9,25 @@ from pyasic.data import Fan, HashBoard
 from pyasic.device.algorithm.hashrate.unit.scrypt import ScryptUnit
 from pyasic.miners.elphapex import ElphapexDG1Plus
 
+POOLS = [
+    {
+        "url": "stratum+tcp://stratum.pool.io:3333",
+        "user": "pool_username.real_worker",
+        "pwd": "123",
+    },
+    {
+        "url": "stratum+tcp://stratum.pool.io:3334",
+        "user": "pool_username.real_worker",
+        "pwd": "123",
+    },
+    {
+        "url": "stratum+tcp://stratum.pool.io:3335",
+        "user": "pool_username.real_worker",
+        "pwd": "123",
+    },
+]
+
+
 data = {
     ElphapexDG1Plus: {
         "web_get_system_info": {
@@ -190,6 +209,81 @@ data = {
             "fc-work-mode": 0,
             "fc-freq": "1850",
         },
+        "web_pools": {
+            "STATUS": {
+                "STATUS": "S",
+                "when": 5411762,
+                "timestamp": 1738768594,
+                "api_version": "1.0.0",
+                "Msg": "pools",
+            },
+            "Device Total Rejected": 8888,
+            "POOLS": [
+                {
+                    "diffs": 0,
+                    "diffr": 524288,
+                    "index": 0,
+                    "user": "pool_username.real_worker",
+                    "lsdiff": 524288,
+                    "lstime": "00:00:18",
+                    "diffa": 524288,
+                    "accepted": 798704,
+                    "diff1": 0,
+                    "stale": 0,
+                    "diff": "",
+                    "rejected": 3320,
+                    "status": "Unreachable",
+                    "getworks": 802024,
+                    "priority": 0,
+                    "url": "stratum+tcp://stratum.pool.io:3333",
+                },
+                {
+                    "diffs": 0,
+                    "diffr": 524288,
+                    "index": 1,
+                    "user": "pool_username.real_worker",
+                    "lsdiff": 524288,
+                    "lstime": "00:00:00",
+                    "diffa": 524288,
+                    "accepted": 604803,
+                    "diff1": 0,
+                    "stale": 0,
+                    "diff": "",
+                    "rejected": 2492,
+                    "status": "Alive",
+                    "getworks": 607295,
+                    "priority": 1,
+                    "url": "stratum+tcp://stratum.pool.io:3334",
+                },
+                {
+                    "diffs": 0,
+                    "diffr": 524288,
+                    "index": 2,
+                    "user": "pool_username.real_worker",
+                    "lsdiff": 524288,
+                    "lstime": "00:00:05",
+                    "diffa": 524288,
+                    "accepted": 691522,
+                    "diff1": 0,
+                    "stale": 0,
+                    "diff": "",
+                    "rejected": 3076,
+                    "status": "Unreachable",
+                    "getworks": 694598,
+                    "priority": 2,
+                    "url": "stratum+tcp://stratum.pool.io:3335",
+                },
+            ],
+            "Device Rejected%": 0.41999999999999998,
+            "Device Total Work": 2103917,
+            "INFO": {
+                "miner_version": "DG1+_SW_V1.0.2",
+                "CompileTime": "",
+                "dev_sn": "28HY245192N000245C23B",
+                "type": "DG1+",
+                "hw_version": "DG1+_HW_V1.0",
+            },
+        },
     }
 }
 
@@ -240,3 +334,6 @@ class TestElphapexMiners(unittest.IsolatedAsyncioTestCase):
                 [Fan(speed=5340), Fan(speed=5400), Fan(speed=5400), Fan(speed=5400)],
             )
             self.assertEqual(result.total_chips, result.expected_chips)
+            self.assertEqual(
+                set([str(p.url) for p in result.pools]), set(p["url"] for p in POOLS)
+            )

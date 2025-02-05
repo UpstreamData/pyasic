@@ -18,6 +18,7 @@ from typing import List, Optional
 from pyasic import APIError
 from pyasic.data import Fan, HashBoard, X19Error
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.miners.data import (
     DataFunction,
@@ -73,6 +74,10 @@ ELPHAPEX_DATA_LOC = DataLocations(
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [WebAPICommand("web_summary", "summary")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [WebAPICommand("web_pools", "pools")],
         ),
     }
 )
@@ -317,3 +322,43 @@ class ElphapexMiner(StockFirmware):
                     pass
 
         return fans
+
+    async def _get_pools(self, web_pools: list = None) -> List[PoolMetrics]:
+        if web_pools is None:
+            try:
+                web_pools = await self.web.pools()
+            except APIError:
+                return []
+
+        active_pool_index = None
+        highest_priority = float("inf")
+
+        for pool_info in web_pools["POOLS"]:
+            if (
+                pool_info.get("status") == "Alive"
+                and pool_info.get("priority", float("inf")) < highest_priority
+            ):
+                highest_priority = pool_info["priority"]
+                active_pool_index = pool_info["index"]
+
+        pools_data = []
+        if web_pools is not None:
+            try:
+                for pool_info in web_pools["POOLS"]:
+                    url = pool_info.get("url")
+                    pool_url = PoolUrl.from_str(url) if url else None
+                    pool_data = PoolMetrics(
+                        accepted=pool_info.get("accepted"),
+                        rejected=pool_info.get("rejected"),
+                        get_failures=pool_info.get("stale"),
+                        remote_failures=pool_info.get("discarded"),
+                        active=pool_info.get("index") == active_pool_index,
+                        alive=pool_info.get("status") == "Alive",
+                        url=pool_url,
+                        user=pool_info.get("user"),
+                        index=pool_info.get("index"),
+                    )
+                    pools_data.append(pool_data)
+            except LookupError:
+                pass
+        return pools_data

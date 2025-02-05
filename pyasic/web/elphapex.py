@@ -214,3 +214,11 @@ class ElphapexWebAPI(BaseWebAPI):
             dict: A dictionary indicating whether the LED is currently blinking.
         """
         return await self.send_command("get_blink_status")
+
+    async def pools(self) -> dict:
+        """Check the status of the miner's pools.
+
+        Returns:
+            dict: A dictionary containing the pool status as information.
+        """
+        return await self.send_command("pools")
