@@ -56,6 +56,16 @@ class MinerConfig(BaseModel):
             **self.temperature.as_am_modern(),
         }
 
+    def as_elphapex(self, user_suffix: str | None = None) -> dict:
+        """Generates the configuration in the format suitable for modern Elphapex."""
+        return {
+            **self.fan_mode.as_elphapex(),
+            "fc-freq-level": "100",
+            **self.mining_mode.as_elphapex(),
+            **self.pools.as_elphapex(user_suffix=user_suffix),
+            **self.temperature.as_elphapex(),
+        }
+
     def as_wm(self, user_suffix: str | None = None) -> dict:
         """Generates the configuration in the format suitable for Whatsminers."""
         return {
@@ -197,6 +207,15 @@ class MinerConfig(BaseModel):
             pools=PoolConfig.from_am_modern(web_conf),
             mining_mode=MiningModeConfig.from_am_modern(web_conf),
             fan_mode=FanModeConfig.from_am_modern(web_conf),
+        )
+
+    @classmethod
+    def from_elphapex(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for modern Antminers."""
+        return cls(
+            pools=PoolConfig.from_elphapex(web_conf),
+            mining_mode=MiningModeConfig.from_elphapex(web_conf),
+            fan_mode=FanModeConfig.from_elphapex(web_conf),
         )
 
     @classmethod

@@ -52,6 +52,9 @@ class MiningModeNormal(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_elphapex(self) -> dict:
+        return {"miner-mode": 0}
+
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
@@ -87,6 +90,9 @@ class MiningModeSleep(MinerConfigValue):
             return {"miner-mode": "1"}
         return {"miner-mode": 1}
 
+    def as_elphapex(self) -> dict:
+        return {"miner-mode": 1}
+
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
@@ -119,6 +125,9 @@ class MiningModeLPM(MinerConfigValue):
             return {"miner-mode": "3"}
         return {"miner-mode": 3}
 
+    def as_elphapex(self) -> dict:
+        return {"miner-mode": 3}
+
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
@@ -139,6 +148,9 @@ class MiningModeHPM(MinerConfigValue):
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
     def as_wm(self) -> dict:
@@ -172,6 +184,9 @@ class MiningModePowerTune(MinerConfigValue):
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
     def as_wm(self) -> dict:
@@ -271,6 +286,9 @@ class MiningModeHashrateTune(MinerConfigValue):
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
     def as_bosminer(self) -> dict:
@@ -404,6 +422,9 @@ class ManualBoardSettings(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_elphapex(self) -> dict:
+        return {"miner-mode": 0}
+
     def as_vnish(self) -> dict:
         return {"freq": self.freq}
 
@@ -426,6 +447,9 @@ class MiningModeManual(MinerConfigValue):
     def as_am_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
     def as_vnish(self) -> dict:
@@ -515,6 +539,20 @@ class MiningModeConfig(MinerConfigOption):
     def from_am_modern(cls, web_conf: dict):
         if web_conf.get("bitmain-work-mode") is not None:
             work_mode = web_conf["bitmain-work-mode"]
+            if work_mode == "":
+                return cls.default()
+            if int(work_mode) == 0:
+                return cls.normal()
+            elif int(work_mode) == 1:
+                return cls.sleep()
+            elif int(work_mode) == 3:
+                return cls.low()
+        return cls.default()
+
+    @classmethod
+    def from_elphapex(cls, web_conf: dict):
+        if web_conf.get("fc-work-mode") is not None:
+            work_mode = web_conf["fc-work-mode"]
             if work_mode == "":
                 return cls.default()
             if int(work_mode) == 0:

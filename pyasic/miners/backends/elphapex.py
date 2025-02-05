@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from typing import List, Optional
 
-from pyasic import APIError
+from pyasic import APIError, MinerConfig
 from pyasic.data import Fan, HashBoard, X19Error
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics, PoolUrl
@@ -90,6 +90,16 @@ class ElphapexMiner(StockFirmware):
     web: ElphapexWebAPI
 
     data_locations = ELPHAPEX_DATA_LOC
+
+    async def get_config(self) -> MinerConfig:
+        data = await self.web.get_miner_conf()
+        if data:
+            self.config = MinerConfig.from_elphapex(data)
+        return self.config
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
+        await self.web.set_miner_conf(config.as_elphapex(user_suffix=user_suffix))
 
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
