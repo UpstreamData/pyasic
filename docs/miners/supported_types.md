@@ -554,6 +554,12 @@ details {
                     <li><a href="../avalonminer/nano#avalon-nano-3-stock">Avalon Nano 3 (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>A15X Series:</summary>
+                <ul>
+                    <li><a href="../avalonminer/A15X#avalon-1566-stock">Avalon 1566 (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>

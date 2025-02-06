@@ -14,11 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
-from .A15X import *
-from .nano import *
+from pyasic.miners.backends import AvalonMiner
+from pyasic.miners.device.models import Avalon1566
+
+
+class CGMinerAvalon1566(AvalonMiner, Avalon1566):
+    pass

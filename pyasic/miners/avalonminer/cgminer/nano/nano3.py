@@ -61,6 +61,10 @@ AVALON_NANO_DATA_LOC = DataLocations(
             "_get_wattage_limit",
             [RPCAPICommand("rpc_stats", "stats")],
         ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_wattage",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [RPCAPICommand("rpc_stats", "stats")],

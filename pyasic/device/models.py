@@ -448,6 +448,7 @@ class AvalonminerModels(MinerModelType):
     Avalon1166Pro = "Avalon 1166 Pro"
     Avalon1126Pro = "Avalon 1126 Pro"
     Avalon1246 = "Avalon 1246"
+    Avalon1566 = "Avalon 1566"
     AvalonNano3 = "Avalon Nano 3"
 
     def __str__(self):

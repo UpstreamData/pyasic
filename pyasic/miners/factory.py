@@ -504,6 +504,7 @@ MINER_CLASSES = {
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,
+        "AVALONMINER 15-194": CGMinerAvalon1566,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
@@ -1160,9 +1161,9 @@ class MinerFactory:
             miner_model = sock_json_data["VERSION"][0]["PROD"].upper()
             if "-" in miner_model:
                 miner_model = miner_model.split("-")[0]
-            if miner_model in ["AVALONNANO", "AVALON0O"]:
-                nano_subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
-                miner_model = f"AVALONMINER {nano_subtype}"
+            if miner_model in ["AVALONNANO", "AVALON0O", "AVALONMINER 15"]:
+                subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
+                miner_model = f"AVALONMINER {subtype}"
             return miner_model
         except (TypeError, LookupError):
             pass
