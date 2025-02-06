@@ -22,6 +22,6 @@ class Avalon1566(AvalonMinerMake):
     raw_model = MinerModel.AVALONMINER.Avalon1566
 
     expected_chips = 160
-    expected_fans = 4
+    expected_fans = 2
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
