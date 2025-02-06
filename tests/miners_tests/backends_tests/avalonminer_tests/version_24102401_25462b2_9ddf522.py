@@ -7,7 +7,6 @@ from unittest.mock import patch
 from pyasic import APIError, MinerData
 from pyasic.data import Fan, HashBoard
 from pyasic.device.algorithm import SHA256Unit
-from pyasic.device.algorithm.hashrate.unit.scrypt import ScryptUnit
 from pyasic.miners.avalonminer import CGMinerAvalon1566
 
 POOLS = [
