@@ -29,6 +29,16 @@ POOLS = [
 
 data = {
     MSKMinerS19NoPIC: {
+        "web_info_v1": {
+            # needs updates with real data
+            "network_info": {
+                "result": {
+                    "address": "192.168.1.10",
+                    "macaddr": "12:34:56:78:90:12",
+                    "netmask": "255.255.255.0",
+                }
+            }
+        },
         "rpc_version": {
             "STATUS": [
                 {
@@ -479,6 +489,7 @@ class TestMSKMiners(unittest.IsolatedAsyncioTestCase):
                 if gathered_data[item] is not None:
                     setattr(result, item, gathered_data[item])
 
+            self.assertEqual(result.mac, "12:34:56:78:90:12")
             self.assertEqual(result.api_ver, "3.1")
             self.assertEqual(result.fw_ver, "10 Dec 2024 14:34:31 GMT")
             self.assertEqual(round(result.hashrate.into(SHA256Unit.TH)), 100)
