@@ -21,4 +21,5 @@ from .epic import *
 from .hiveon import *
 from .luxos import *
 from .marathon import *
+from .mskminer import *
 from .vnish import *

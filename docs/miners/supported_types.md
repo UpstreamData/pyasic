@@ -775,6 +775,17 @@ details {
     </ul>
 </details>
 <details>
+<summary>MSKMiner Firmware Miners:</summary>
+    <ul>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19-no-pic-stock">S19 No PIC (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
 <summary>LuxOS Firmware Miners:</summary>
     <ul>
         <details>

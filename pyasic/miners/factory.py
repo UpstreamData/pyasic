@@ -66,6 +66,7 @@ class MinerTypes(enum.Enum):
     VOLCMINER = 15
     LUCKYMINER = 16
     ELPHAPEX = 17
+    MSKMINER = 18
 
 
 MINER_CLASSES = {
@@ -601,6 +602,10 @@ MINER_CLASSES = {
         "ANTMINER S19": HiveonS19,
         "ANTMINER S19X88": HiveonS19NoPIC,
     },
+    MinerTypes.MSKMINER: {
+        None: MSKMiner,
+        "S19-88": MSKMinerS19NoPIC,
+    },
     MinerTypes.LUX_OS: {
         None: LUXMiner,
         "ANTMINER S9": LUXMinerS9,
@@ -870,6 +875,8 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
+        if "<title>Antminer</title>" in web_text:
+            return MinerTypes.MSKMINER
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         commands = ["version", "devdetails"]
@@ -946,6 +953,8 @@ class MinerFactory:
             return MinerTypes.HIVEON
         if "KAONSU" in upper_data:
             return MinerTypes.MARATHON
+        if "RWGLR" in upper_data:
+            return MinerTypes.MSKMINER
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
         if (
@@ -1409,6 +1418,13 @@ class MinerFactory:
 
             return miner_model
         except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_mskminer(self, ip: str) -> str | None:
+        sock_json_data = await self.send_api_command(ip, "version")
+        try:
+            return sock_json_data["VERSION"][0]["Type"].split(" ")[0]
+        except LookupError:
             pass
 
 

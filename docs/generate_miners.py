@@ -62,6 +62,8 @@ def backend_str(backend: MinerTypes) -> str:
             return "Stock Firmware Volcminers"
         case MinerTypes.ELPHAPEX:
             return "Stock Firmware Elphapex Miners"
+        case MinerTypes.MSKMINER:
+            return "MSKMiner Firmware Miners"
     raise TypeError("Unknown miner backend, cannot generate docs")
 
 
