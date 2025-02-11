@@ -24,7 +24,14 @@ class MiningPreset(MinerConfigValue):
             hashrate = None
         else:
             power = hr_power_split[0].replace("watt", "").strip()
-            hashrate = hr_power_split[1].replace("TH", "").replace(" LC", "").strip()
+            hashrate = (
+                hr_power_split[1]
+                .replace("TH", "")
+                .replace("GH", "")
+                .replace("MH", "")
+                .replace(" LC", "")
+                .strip()
+            )
         tuned = web_preset["status"] == "tuned"
         modded_psu = web_preset["modded_psu_required"]
         return cls(
