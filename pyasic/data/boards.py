@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, field_serializer
+from pydantic import BaseModel
 
 from pyasic.device.algorithm.hashrate import AlgoHashRateType
 

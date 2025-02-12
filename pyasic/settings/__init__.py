@@ -40,6 +40,8 @@ _settings = {  # defaults
     "default_epic_web_password": "letmein",
     "default_hive_web_password": "root",
     "default_iceriver_web_password": "12345678",
+    "default_elphapex_web_password": "root",
+    "default_mskminer_web_password": "root",
     "default_antminer_ssh_password": "miner",
     "default_bosminer_ssh_password": "root",
 }

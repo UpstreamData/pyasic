@@ -37,6 +37,7 @@ from pyasic.miners.bitaxe import *
 from pyasic.miners.blockminer import *
 from pyasic.miners.braiins import *
 from pyasic.miners.device.makes import *
+from pyasic.miners.elphapex import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
@@ -64,6 +65,8 @@ class MinerTypes(enum.Enum):
     HAMMER = 14
     VOLCMINER = 15
     LUCKYMINER = 16
+    ELPHAPEX = 17
+    MSKMINER = 18
 
 
 MINER_CLASSES = {
@@ -502,6 +505,7 @@ MINER_CLASSES = {
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,
+        "AVALONMINER 15-194": CGMinerAvalon1566,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
@@ -596,6 +600,11 @@ MINER_CLASSES = {
         "ANTMINER T9": HiveonT9,
         "ANTMINER S19JPRO": HiveonS19jPro,
         "ANTMINER S19": HiveonS19,
+        "ANTMINER S19X88": HiveonS19NoPIC,
+    },
+    MinerTypes.MSKMINER: {
+        None: MSKMiner,
+        "S19-88": MSKMinerS19NoPIC,
     },
     MinerTypes.LUX_OS: {
         None: LUXMiner,
@@ -640,7 +649,8 @@ MINER_CLASSES = {
     },
     MinerTypes.LUCKYMINER: {
         None: LuckyMiner,
-        "BM1366": LuckyMinerLV08,
+        "LV08": LuckyMinerLV08,
+        "LV07": LuckyMinerLV07,
     },
     MinerTypes.ICERIVER: {
         None: type("IceRiverUnknown", (IceRiver, IceRiverMake), {}),
@@ -661,6 +671,10 @@ MINER_CLASSES = {
     MinerTypes.VOLCMINER: {
         None: type("VolcMinerUnknown", (BlackMiner, VolcMinerMake), {}),
         "VOLCMINER D1": VolcMinerD1,
+    },
+    MinerTypes.ELPHAPEX: {
+        None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
+        "DG1+": ElphapexDG1Plus,
     },
 }
 
@@ -743,6 +757,7 @@ class MinerFactory:
                 MinerTypes.ICERIVER: self.get_miner_model_iceriver,
                 MinerTypes.HAMMER: self.get_miner_model_hammer,
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
+                MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
             }
             fn = miner_model_fns.get(miner_type)
 
@@ -826,6 +841,10 @@ class MinerFactory:
             "www-authenticate", ""
         ):
             return MinerTypes.HAMMER
+        if web_resp.status_code == 401 and 'realm="Daoge' in web_resp.headers.get(
+            "www-authenticate", ""
+        ):
+            return MinerTypes.ELPHAPEX
         if len(web_resp.history) > 0:
             history_resp = web_resp.history[0]
             if (
@@ -856,6 +875,8 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
+        if "<title>Antminer</title>" in web_text:
+            return MinerTypes.MSKMINER
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         commands = ["version", "devdetails"]
@@ -888,6 +909,7 @@ class MinerFactory:
             await writer.drain()
 
             # loop to receive all the data
+            timeouts_remaining = max(1, int(settings.get("factory_get_timeout", 3)))
             while True:
                 try:
                     d = await asyncio.wait_for(reader.read(4096), timeout=1)
@@ -895,7 +917,10 @@ class MinerFactory:
                         break
                     data += d
                 except asyncio.TimeoutError:
-                    pass
+                    timeouts_remaining -= 1
+                    if not timeouts_remaining:
+                        logger.warning(f"{ip}: Socket ping timeout.")
+                        break
                 except ConnectionResetError:
                     return
         except asyncio.CancelledError:
@@ -928,6 +953,8 @@ class MinerFactory:
             return MinerTypes.HIVEON
         if "KAONSU" in upper_data:
             return MinerTypes.MARATHON
+        if "RWGLR" in upper_data:
+            return MinerTypes.MSKMINER
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
         if (
@@ -1143,9 +1170,9 @@ class MinerFactory:
             miner_model = sock_json_data["VERSION"][0]["PROD"].upper()
             if "-" in miner_model:
                 miner_model = miner_model.split("-")[0]
-            if miner_model in ["AVALONNANO", "AVALON0O"]:
-                nano_subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
-                miner_model = f"AVALONMINER {nano_subtype}"
+            if miner_model in ["AVALONNANO", "AVALON0O", "AVALONMINER 15"]:
+                subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
+                miner_model = f"AVALONMINER {subtype}"
             return miner_model
         except (TypeError, LookupError):
             pass
@@ -1307,7 +1334,7 @@ class MinerFactory:
         web_json_data = await self.send_web_command(ip, "/api/system/info")
 
         try:
-            miner_model = web_json_data["ASICModel"]
+            miner_model = web_json_data["minerModel"]
             if miner_model == "":
                 return None
 
@@ -1376,6 +1403,28 @@ class MinerFactory:
 
             return miner_model
         except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_elphapex(self, ip: str) -> str | None:
+        auth = httpx.DigestAuth(
+            "root", settings.get("default_elphapex_web_password", "root")
+        )
+        web_json_data = await self.send_web_command(
+            ip, "/cgi-bin/get_system_info.cgi", auth=auth
+        )
+
+        try:
+            miner_model = web_json_data["minertype"]
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
+    async def get_miner_model_mskminer(self, ip: str) -> str | None:
+        sock_json_data = await self.send_api_command(ip, "version")
+        try:
+            return sock_json_data["VERSION"][0]["Type"].split(" ")[0]
+        except LookupError:
             pass
 
 

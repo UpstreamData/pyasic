@@ -13,10 +13,95 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from typing import Optional
 
+from pyasic import APIError
 from pyasic.miners.backends import AvalonMiner
+from pyasic.miners.data import (
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.miners.device.models import AvalonNano3
+from pyasic.web.avalonminer import AvalonMinerWebAPI
+
+AVALON_NANO_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "_get_mac",
+            [WebAPICommand("web_minerinfo", "get_minerinfo")],
+        ),
+        str(DataOptions.API_VERSION): DataFunction(
+            "_get_api_ver",
+            [RPCAPICommand("rpc_version", "version")],
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver",
+            [RPCAPICommand("rpc_version", "version")],
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "_get_hashrate",
+            [RPCAPICommand("rpc_devs", "devs")],
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "_get_expected_hashrate",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
+            "_get_env_temp",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.WATTAGE_LIMIT): DataFunction(
+            "_get_wattage_limit",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_wattage",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.FANS): DataFunction(
+            "_get_fans",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.FAULT_LIGHT): DataFunction(
+            "_get_fault_light",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
+        ),
+    }
+)
 
 
 class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
-    pass
+    _web_cls = AvalonMinerWebAPI
+    web: AvalonMinerWebAPI
+
+    data_locations = AVALON_NANO_DATA_LOC
+
+    async def _get_mac(self, web_minerinfo: dict) -> Optional[dict]:
+        if web_minerinfo is None:
+            try:
+                web_minerinfo = await self.web.minerinfo()
+            except APIError:
+                pass
+
+        if web_minerinfo is not None:
+            try:
+                mac = web_minerinfo.get("mac")
+                if mac is not None:
+                    return mac.upper()
+            except (KeyError, ValueError):
+                pass

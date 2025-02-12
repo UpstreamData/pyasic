@@ -18,9 +18,15 @@ from typing import TypeVar
 
 from .bos import BraiinsOSError
 from .innosilicon import InnosiliconError
+from .vnish import VnishError
 from .whatsminer import WhatsminerError
 from .X19 import X19Error
 
 MinerErrorData = TypeVar(
-    "MinerErrorData", WhatsminerError, BraiinsOSError, X19Error, InnosiliconError
+    "MinerErrorData",
+    WhatsminerError,
+    BraiinsOSError,
+    X19Error,
+    InnosiliconError,
+    VnishError,
 )

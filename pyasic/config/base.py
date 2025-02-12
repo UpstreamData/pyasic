@@ -67,6 +67,9 @@ class MinerConfigOption(Enum):
     def as_luxos(self) -> dict:
         return self.value.as_luxos()
 
+    def as_elphapex(self) -> dict:
+        return self.value.as_elphapex()
+
     def __call__(self, *args, **kwargs):
         return self.value(*args, **kwargs)
 
@@ -129,6 +132,9 @@ class MinerConfigValue(BaseModel):
         return {}
 
     def as_luxos(self) -> dict:
+        return {}
+
+    def as_elphapex(self) -> dict:
         return {}
 
     def __getitem__(self, item):

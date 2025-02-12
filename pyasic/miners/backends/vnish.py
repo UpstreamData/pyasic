@@ -15,9 +15,10 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from pyasic import MinerConfig
+from pyasic.data.error_codes import MinerErrorData, VnishError
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
@@ -84,6 +85,10 @@ VNISH_DATA_LOC = DataLocations(
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
             [RPCAPICommand("rpc_pools", "pools")],
+        ),
+        str(DataOptions.ERRORS): DataFunction(
+            "_get_errors",
+            [WebAPICommand("web_summary", "summary")],
         ),
     }
 )
@@ -265,6 +270,24 @@ class VNish(VNishFirmware, BMMiner):
                 return is_mining
             except LookupError:
                 pass
+
+    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+        errors = []
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                return errors
+
+        if web_summary is not None:
+            chains = web_summary.get("miner", {}).get("chains", [])
+            for chain in chains:
+                state = chain.get("status", {}).get("state")
+                description = chain.get("status", {}).get("description", "")
+                if state == "failure":
+                    errors.append(VnishError(error_message=description))
+
+        return errors
 
     async def get_config(self) -> MinerConfig:
         try:

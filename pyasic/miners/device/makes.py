@@ -68,3 +68,7 @@ class VolcMinerMake(BaseMiner):
 
 class BraiinsMake(BaseMiner):
     make = MinerMake.BRAIINS
+
+
+class ElphapexMake(BaseMiner):
+    make = MinerMake.ELPHAPEX

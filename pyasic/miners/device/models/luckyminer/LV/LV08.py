@@ -4,7 +4,7 @@ from pyasic.miners.device.makes import LuckyMinerMake
 
 
 class LV08(LuckyMinerMake):
-    raw_model = MinerModel.LUCKYMINER.BM1366
+    raw_model = MinerModel.LUCKYMINER.LV08
 
     expected_hashboards = 1
     expected_chips = 1

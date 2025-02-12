@@ -448,6 +448,7 @@ class AvalonminerModels(MinerModelType):
     Avalon1166Pro = "Avalon 1166 Pro"
     Avalon1126Pro = "Avalon 1126 Pro"
     Avalon1246 = "Avalon 1246"
+    Avalon1566 = "Avalon 1566"
     AvalonNano3 = "Avalon Nano 3"
 
     def __str__(self):
@@ -509,7 +510,8 @@ class BitAxeModels(MinerModelType):
 
 
 class LuckyMinerModels(MinerModelType):
-    BM1366 = "LV08"
+    LV07 = "LV07"
+    LV08 = "LV08"
 
     def __str__(self):
         return self.value
@@ -549,6 +551,10 @@ class BraiinsModels(MinerModelType):
     BMM101 = "BMM101"
 
 
+class ElphapexModels(MinerModelType):
+    DG1Plus = "DG1+"
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -562,4 +568,5 @@ class MinerModel:
     ICERIVER = IceRiverModels
     HAMMER = HammerModels
     VOLCMINER = VolcMinerModels
+    ELPHAPEX = ElphapexModels
     BRAIINS = BraiinsModels

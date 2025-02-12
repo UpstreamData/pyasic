@@ -25,6 +25,7 @@ from .S19 import (
     HiveonS19jPro,
     HiveonS19KPro,
     HiveonS19L,
+    HiveonS19NoPIC,
     HiveonS19Plus,
     HiveonS19Pro,
     HiveonS19ProHydro,

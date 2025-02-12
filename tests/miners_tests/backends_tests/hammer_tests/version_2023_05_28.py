@@ -16,12 +16,12 @@ POOLS = [
         "pwd": "123",
     },
     {
-        "url": "stratum+tcp://stratum.pool.io:3333",
+        "url": "stratum+tcp://stratum.pool.io:3334",
         "user": "pool_username.real_worker",
         "pwd": "123",
     },
     {
-        "url": "stratum+tcp://stratum.pool.io:3333",
+        "url": "stratum+tcp://stratum.pool.io:3335",
         "user": "pool_username.real_worker",
         "pwd": "123",
     },

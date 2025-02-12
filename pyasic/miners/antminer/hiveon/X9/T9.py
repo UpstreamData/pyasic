@@ -16,8 +16,6 @@
 
 from typing import List, Optional
 
-import asyncssh
-
 from pyasic.data import HashBoard
 from pyasic.device.algorithm import AlgoHashRate, HashUnit
 from pyasic.errors import APIError

@@ -554,6 +554,12 @@ details {
                     <li><a href="../avalonminer/nano#avalon-nano-3-stock">Avalon Nano 3 (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>A15X Series:</summary>
+                <ul>
+                    <li><a href="../avalonminer/A15X#avalon-1566-stock">Avalon 1566 (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
@@ -763,6 +769,18 @@ details {
                 <ul>
                     <li><a href="../antminer/X19#s19j-pro-hive">S19j Pro (Hive)</a></li>
                     <li><a href="../antminer/X19#s19-hive">S19 (Hive)</a></li>
+                    <li><a href="../antminer/X19#s19-no-pic-hive">S19 No PIC (Hive)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>MSKMiner Firmware Miners:</summary>
+    <ul>
+        <details>
+            <summary>X19 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X19#s19-no-pic-stock">S19 No PIC (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -868,6 +886,7 @@ details {
             <summary>LV Series:</summary>
                 <ul>
                     <li><a href="../luckyminer/LV#lv08-stock">LV08 (Stock)</a></li>
+                    <li><a href="../luckyminer/LV#lv07-stock">LV07 (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -909,6 +928,17 @@ details {
             <summary>DX Series:</summary>
                 <ul>
                     <li><a href="../volcminer/DX#d1-stock">D1 (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>
+<details>
+<summary>Stock Firmware Elphapex Miners:</summary>
+    <ul>
+        <details>
+            <summary>DGX Series:</summary>
+                <ul>
+                    <li><a href="../elphapex/DGX#dg1_1-stock">DG1+ (Stock)</a></li>
                 </ul>
         </details>
     </ul>
