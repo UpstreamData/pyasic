@@ -769,6 +769,7 @@ details {
                 <ul>
                     <li><a href="../antminer/X19#s19j-pro-hive">S19j Pro (Hive)</a></li>
                     <li><a href="../antminer/X19#s19-hive">S19 (Hive)</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-hive">S19K Pro (Hive)</a></li>
                     <li><a href="../antminer/X19#s19-no-pic-hive">S19 No PIC (Hive)</a></li>
                 </ul>
         </details>

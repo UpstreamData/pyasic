@@ -23,7 +23,7 @@ from .S19 import (
     HiveonS19j,
     HiveonS19jNoPIC,
     HiveonS19jPro,
-    HiveonS19KPro,
+    HiveonS19kPro,
     HiveonS19L,
     HiveonS19NoPIC,
     HiveonS19Plus,

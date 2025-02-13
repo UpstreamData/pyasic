@@ -43,6 +43,13 @@ class Pool(MinerConfigValue):
             "pass": self.password,
         }
 
+    def as_hiveon_modern(self, user_suffix: str | None = None) -> dict:
+        return {
+            "url": self.url,
+            "user": f"{self.user}{user_suffix or ''}",
+            "pass": self.password,
+        }
+
     def as_elphapex(self, user_suffix: str | None = None) -> dict:
         return {
             "url": self.url,
@@ -154,6 +161,12 @@ class Pool(MinerConfigValue):
         )
 
     @classmethod
+    def from_hiveon_modern(cls, web_pool: dict) -> "Pool":
+        return cls(
+            url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
+        )
+
+    @classmethod
     def from_elphapex(cls, web_pool: dict) -> "Pool":
         return cls(
             url=web_pool["url"], user=web_pool["user"], password=web_pool["pass"]
@@ -245,6 +258,17 @@ class PoolGroup(MinerConfigValue):
                 pools.append(self.pools[idx].as_am_modern(user_suffix=user_suffix))
             else:
                 pools.append(Pool(url="", user="", password="").as_am_modern())
+            idx += 1
+        return pools
+
+    def as_hiveon_modern(self, user_suffix: str | None = None) -> list:
+        pools = []
+        idx = 0
+        while idx < 3:
+            if len(self.pools) > idx:
+                pools.append(self.pools[idx].as_hiveon_modern(user_suffix=user_suffix))
+            else:
+                pools.append(Pool(url="", user="", password="").as_hiveon_modern())
             idx += 1
         return pools
 
@@ -376,6 +400,13 @@ class PoolGroup(MinerConfigValue):
         return cls(pools=pools)
 
     @classmethod
+    def from_hiveon_modern(cls, web_pool_list: list) -> "PoolGroup":
+        pools = []
+        for pool in web_pool_list:
+            pools.append(Pool.from_hiveon_modern(pool))
+        return cls(pools=pools)
+
+    @classmethod
     def from_elphapex(cls, web_pool_list: list) -> "PoolGroup":
         pools = []
         for pool in web_pool_list:
@@ -466,6 +497,11 @@ class PoolConfig(MinerConfigValue):
         if len(self.groups) > 0:
             return {"pools": self.groups[0].as_am_modern(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_am_modern()}
+
+    def as_hiveon_modern(self, user_suffix: str | None = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": self.groups[0].as_hiveon_modern(user_suffix=user_suffix)}
+        return {"pools": PoolGroup().as_hiveon_modern()}
 
     def as_elphapex(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
@@ -569,9 +605,21 @@ class PoolConfig(MinerConfigValue):
 
     @classmethod
     def from_am_modern(cls, web_conf: dict) -> "PoolConfig":
-        pool_data = web_conf["pools"]
+        try:
+            pool_data = web_conf["pools"]
+        except KeyError:
+            return cls(groups=[])
 
         return cls(groups=[PoolGroup.from_am_modern(pool_data)])
+
+    @classmethod
+    def from_hiveon_modern(cls, web_conf: dict) -> "PoolConfig":
+        try:
+            pool_data = web_conf["pools"]
+        except KeyError:
+            return cls(groups=[])
+
+        return cls(groups=[PoolGroup.from_hiveon_modern(pool_data)])
 
     @classmethod
     def from_elphapex(cls, web_conf: dict) -> "PoolConfig":

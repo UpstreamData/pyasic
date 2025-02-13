@@ -600,6 +600,7 @@ MINER_CLASSES = {
         "ANTMINER T9": HiveonT9,
         "ANTMINER S19JPRO": HiveonS19jPro,
         "ANTMINER S19": HiveonS19,
+        "ANTMINER S19K PRO": HiveonS19kPro,
         "ANTMINER S19X88": HiveonS19NoPIC,
     },
     MinerTypes.MSKMINER: {

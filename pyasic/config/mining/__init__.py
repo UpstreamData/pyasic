@@ -52,6 +52,11 @@ class MiningModeNormal(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
@@ -86,6 +91,11 @@ class MiningModeSleep(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "1"}
+        return {"miner-mode": 1}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "1"}
         return {"miner-mode": 1}
@@ -125,6 +135,11 @@ class MiningModeLPM(MinerConfigValue):
             return {"miner-mode": "3"}
         return {"miner-mode": 3}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "3"}
+        return {"miner-mode": 3}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 3}
 
@@ -146,6 +161,11 @@ class MiningModeHPM(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -182,6 +202,11 @@ class MiningModePowerTune(MinerConfigValue):
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -284,6 +309,11 @@ class MiningModeHashrateTune(MinerConfigValue):
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -422,6 +452,11 @@ class ManualBoardSettings(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
@@ -537,6 +572,20 @@ class MiningModeConfig(MinerConfigOption):
 
     @classmethod
     def from_am_modern(cls, web_conf: dict):
+        if web_conf.get("bitmain-work-mode") is not None:
+            work_mode = web_conf["bitmain-work-mode"]
+            if work_mode == "":
+                return cls.default()
+            if int(work_mode) == 0:
+                return cls.normal()
+            elif int(work_mode) == 1:
+                return cls.sleep()
+            elif int(work_mode) == 3:
+                return cls.low()
+        return cls.default()
+
+    @classmethod
+    def from_hiveon_modern(cls, web_conf: dict):
         if web_conf.get("bitmain-work-mode") is not None:
             work_mode = web_conf["bitmain-work-mode"]
             if work_mode == "":

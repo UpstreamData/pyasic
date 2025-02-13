@@ -100,5 +100,5 @@ class HiveonS19ProPlusHydro(HiveonModern, S19ProPlusHydro):
     pass
 
 
-class HiveonS19KPro(HiveonModern, S19KPro):
+class HiveonS19kPro(HiveonModern, S19KPro):
     pass

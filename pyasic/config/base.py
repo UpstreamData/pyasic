@@ -28,6 +28,9 @@ class MinerConfigOption(Enum):
     def as_am_modern(self) -> dict:
         return self.value.as_am_modern()
 
+    def as_hiveon_modern(self) -> dict:
+        return self.value.as_hiveon_modern()
+
     def as_am_old(self) -> dict:
         return self.value.as_am_old()
 
@@ -93,6 +96,9 @@ class MinerConfigValue(BaseModel):
         return self.model_dump()
 
     def as_am_modern(self) -> dict:
+        return {}
+
+    def as_hiveon_modern(self) -> dict:
         return {}
 
     def as_am_old(self) -> dict:
