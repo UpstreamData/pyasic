@@ -4,12 +4,12 @@ version = "0.71.12"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
-repository = "https://github.com/olegudff/pyasic-umhost"
+repository = "https://github.com/UpstreamData/pyasic"
 
 homepage = "https://docs.pyasic.org"
-source = "https://github.com/olegudff/pyasic-umhost"
+source = "https://github.com/UpstreamData/pyasic"
 documentation = "https://docs.pyasic.org"
-issues = "https://github.com/olegudff/pyasic-umhost/issues"
+issues = "https://github.com/UpstreamData/pyasic/issues"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "Apache 2.0"
 license-files = ["LICEN[CS]E.*"]
