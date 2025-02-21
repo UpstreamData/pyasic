@@ -15,7 +15,7 @@ class Scheme(Enum):
 class PoolUrl(BaseModel):
     scheme: Scheme
     host: str
-    port: int
+    port: Optional[int] = None
     pubkey: Optional[str] = None
 
     @model_serializer
@@ -23,72 +23,69 @@ class PoolUrl(BaseModel):
         return str(self)
 
     def __str__(self) -> str:
+        port_str = f":{self.port}" if self.port is not None else ""
         if self.scheme == Scheme.STRATUM_V2 and self.pubkey:
-            return f"{self.scheme.value}://{self.host}:{self.port}/{self.pubkey}"
+            return f"{self.scheme.value}://{self.host}{port_str}/{self.pubkey}"
         else:
-            return f"{self.scheme.value}://{self.host}:{self.port}"
+            return f"{self.scheme.value}://{self.host}{port_str}"
 
     @classmethod
     def from_str(cls, url: str) -> Self | None:
         parsed_url = urlparse(url)
         if not parsed_url.hostname:
             return None
-        if not parsed_url.scheme.strip() == "":
-            scheme = Scheme(parsed_url.scheme)
-        else:
-            scheme = Scheme.STRATUM_V1
+        # Если схема отсутствует, используем схему по умолчанию
+        scheme = Scheme(parsed_url.scheme) if parsed_url.scheme.strip() != "" else Scheme.STRATUM_V1
         host = parsed_url.hostname
-        port = parsed_url.port
+        port = parsed_url.port  # может быть None, если порт не указан
         pubkey = parsed_url.path.lstrip("/") if scheme == Scheme.STRATUM_V2 else None
         return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
 
 class PoolMetrics(BaseModel):
-    """A dataclass to standardize pool metrics returned from miners.
+    """
+    A dataclass to standardize pool metrics returned from miners.
     Attributes:
-
-    accepted: Number of accepted shares.
-    rejected: Number of rejected shares.
-    get_failures: Number of failures in obtaining work from the pool.
-    remote_failures: Number of failures communicating with the pool server.
-    active: Indicates if the miner is connected to the stratum server.
-    Alive : Indicates if a pool is alive.
-    url: URL of the pool.
-    index: Index of the pool.
-    user: Username for the pool.
-    pool_rejected_percent: Percentage of rejected shares by the pool.
-    pool_stale_percent: Percentage of stale shares by the pool.
+        accepted: Number of accepted shares.
+        rejected: Number of rejected shares.
+        get_failures: Number of failures in obtaining work from the pool.
+        remote_failures: Number of failures communicating with the pool server.
+        active: Indicates if the miner is connected to the stratum server.
+        alive: Indicates if a pool is alive.
+        url: URL of the pool.
+        index: Index of the pool.
+        user: Username for the pool.
+        pool_rejected_percent: Percentage of rejected shares by the pool.
+        pool_stale_percent: Percentage of stale shares by the pool.
     """
 
-    url: PoolUrl | None
-    accepted: int | None = None
-    rejected: int | None = None
-    get_failures: int | None = None
-    remote_failures: int | None = None
-    active: bool | None = None
-    alive: bool | None = None
-    index: int | None = None
-    user: str | None = None
+    url: Optional[PoolUrl]
+    accepted: Optional[int] = None
+    rejected: Optional[int] = None
+    get_failures: Optional[int] = None
+    remote_failures: Optional[int] = None
+    active: Optional[bool] = None
+    alive: Optional[bool] = None
+    index: Optional[int] = None
+    user: Optional[str] = None
 
     @computed_field  # type: ignore[misc]
     @property
-    def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
-        """Calculate and return the percentage of rejected shares"""
-        return self._calculate_percentage(self.rejected, self.accepted + self.rejected)
+    def pool_rejected_percent(self) -> float:
+        """Calculate and return the percentage of rejected shares."""
+        total = (self.accepted or 0) + (self.rejected or 0)
+        return self._calculate_percentage(self.rejected, total)
 
     @computed_field  # type: ignore[misc]
     @property
-    def pool_stale_percent(self) -> float:  # noqa - Skip PyCharm inspection
+    def pool_stale_percent(self) -> float:
         """Calculate and return the percentage of stale shares."""
-        return self._calculate_percentage(
-            self.get_failures, self.accepted + self.rejected
-        )
+        total = (self.accepted or 0) + (self.rejected or 0)
+        return self._calculate_percentage(self.get_failures, total)
 
     @staticmethod
-    def _calculate_percentage(value: int, total: int) -> float:
+    def _calculate_percentage(value: Optional[int], total: int) -> float:
         """Calculate the percentage."""
-        if value is None or total is None:
-            return 0
-        if total == 0:
+        if value is None or total == 0:
             return 0
         return (value / total) * 100
