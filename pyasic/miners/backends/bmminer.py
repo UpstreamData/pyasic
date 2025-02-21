@@ -294,7 +294,6 @@ class BMMiner(StockFirmware):
                     pools_data.append(pool_data)
             return pools_data
         except Exception:
-            # Если произошла ошибка при получении данных, возвращаем список с одним элементом, где все поля None
             return [PoolMetrics(
                 accepted=None,
                 rejected=None,
