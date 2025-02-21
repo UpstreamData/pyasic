@@ -1,5 +1,5 @@
-site_name: pyasic-umhost
-repo_url: https://github.com/olegudff/pyasic-umhost
+site_name: pyasic
+repo_url: https://github.com/UpstreamData/pyasic
 site_url: !ENV SITE_URL
 theme:
   name: material
