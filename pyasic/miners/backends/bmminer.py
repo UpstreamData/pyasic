@@ -276,7 +276,10 @@ class BMMiner(StockFirmware):
                 pools = rpc_pools.get("POOLS", [])
                 for pool_info in pools:
                     url = pool_info.get("URL")
-                    pool_url = PoolUrl.from_str(url) if url else None
+                    try:
+                        pool_url = PoolUrl.from_str(url) if url else None
+                    except Exception:
+                        pool_url = None
                     pool_data = PoolMetrics(
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
