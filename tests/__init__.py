@@ -20,5 +20,5 @@ from tests.network_tests import NetworkTest
 from tests.rpc_tests import *
 
 if __name__ == "__main__":
-    # `coverage run --source pyasic -m unittest discover` will give code coverage data
+    # `coverage run --source pyasic-umhost -m unittest discover` will give code coverage data
     unittest.main()

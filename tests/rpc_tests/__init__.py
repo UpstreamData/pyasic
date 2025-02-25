@@ -82,7 +82,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
             }
         ).encode("utf-8")
 
-    @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
+    @patch("pyasic-umhost.rpc.base.BaseMinerRPCAPI._send_bytes")
     async def test_command_error_raises_api_error(self, mock_send_bytes):
         if self.api is None:
             return
@@ -91,7 +91,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(APIError):
             await self.api.send_command("summary")
 
-    @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
+    @patch("pyasic-umhost.rpc.base.BaseMinerRPCAPI._send_bytes")
     async def test_command_error_ignored_by_flag(self, mock_send_bytes):
         if self.api is None:
             return
@@ -106,7 +106,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
                 f"Expected ignore_errors flag to ignore error in {self.api_str} API"
             )
 
-    @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
+    @patch("pyasic-umhost.rpc.base.BaseMinerRPCAPI._send_bytes")
     async def test_all_read_command_success(self, mock_send_bytes):
         if self.api is None:
             return

@@ -201,7 +201,7 @@ class BOSMiner(BraiinsOSFirmware):
             {
                 "format": {
                     "version": "2.0",
-                    "generator": "pyasic",
+                    "generator": "pyasic-umhost",
                     "model": f"{self.make.replace('Miner', 'miner')} {self.raw_model.replace('j', 'J')}",
                     "timestamp": int(time.time()),
                 },

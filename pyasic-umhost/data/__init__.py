@@ -50,7 +50,7 @@ class MinerData(BaseModel):
         hashrate: The hashrate of the miner in TH/s as a float.  Calculated automatically.
         expected_hashrate: The factory nominal hashrate of the miner in TH/s as a float.
         sticker_hashrate: The factory sticker hashrate of the miner as a float.
-        hashboards: A list of [`HashBoard`][pyasic.data.HashBoard]s on the miner with their statistics.
+        hashboards: A list of [`HashBoard`][pyasic-umhost.data.HashBoard]s on the miner with their statistics.
         temperature_avg: The average temperature across the boards.  Calculated automatically.
         env_temp: The environment temps as a float.
         wattage: Current power draw of the miner as an int.
@@ -65,7 +65,7 @@ class MinerData(BaseModel):
         percent_expected_hashrate: The percent of total hashrate out of the expected hashrate.  Calculated automatically.
         percent_expected_wattage: The percent of total wattage out of the expected wattage.  Calculated automatically.
         nominal: Whether the number of chips in the miner is nominal.  Calculated automatically.
-        config: The parsed config of the miner, using [`MinerConfig`][pyasic.config.MinerConfig].
+        config: The parsed config of the miner, using [`MinerConfig`][pyasic-umhost.config.MinerConfig].
         errors: A list of errors on the miner.
         fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.

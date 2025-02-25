@@ -77,7 +77,7 @@ def create_url_str(mtype: str):
     )
 
 
-HEADER_FORMAT = "# pyasic\n## {} Models\n\n"
+HEADER_FORMAT = "# pyasic-umhost\n## {} Models\n\n"
 MINER_HEADER_FORMAT = "## {}\n"
 DATA_FORMAT = """
 - [{}] Shutdowns
@@ -92,14 +92,14 @@ DATA_FORMAT = """
         heading_level: 0
 
 """
-SUPPORTED_TYPES_HEADER = """# pyasic
+SUPPORTED_TYPES_HEADER = """# pyasic-umhost
 ## Supported Miners
 
 Supported miner types are here on this list.  If your miner (or miner version) is not on this list, please feel free to [open an issue on GitHub](https://github.com/UpstreamData/pyasic/issues) to get it added.
 
 Keep in mind that some functionality is only supported for specific miners or firmwares, please check the page for your miner to make sure the functionality you need is supported.
 
-##### pyasic currently supports the following miners and subtypes:
+##### pyasic-umhost currently supports the following miners and subtypes:
 <style>
 details {
     margin:0px;
