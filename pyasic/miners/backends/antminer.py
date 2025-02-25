@@ -252,40 +252,72 @@ class AntminerModern(BMMiner):
         return errors
 
     async def _get_hashboards(self) -> List[HashBoard]:
-        hashboards = [
-            HashBoard(slot=idx, expected_chips=self.expected_chips)
-            for idx in range(self.expected_hashboards)
-        ]
-
+        boards_list = []
         try:
             rpc_stats = await self.rpc.stats(new_api=True)
         except APIError:
-            return hashboards
+            # Если данные не получены, возвращаем пустой список
+            return boards_list
 
-        if rpc_stats is not None:
-            try:
-                for board in rpc_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = self.algo.hashrate(
+        if not rpc_stats:
+            return boards_list
+
+        try:
+            # Извлекаем информацию по платам из цепочки
+            chain = rpc_stats.get("STATS", [])[0].get("chain", [])
+            for board in chain:
+                # Если по каким-то причинам отсутствует индекс – пропускаем запись
+                if "index" not in board:
+                    continue
+
+                # Создаём базовый объект hashboard с указанным индексом и ожидаемым числом чипов
+                hb = HashBoard(
+                    slot=board["index"],
+                    expected_chips=self.expected_chips,
+                    missing=True  # будем помечать как "не найденную" до успешного заполнения данных
+                )
+
+                # Заполняем hashrate, если доступен
+                if "rate_real" in board and board["rate_real"] is not None:
+                    hb.hashrate = self.algo.hashrate(
                         rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
-                    hashboards[board["index"]].chips = board["asic_num"]
-                    board_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_pcb"])
-                    )
-                    hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                        board_temp_data
-                    )
-                    chip_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_chip"])
-                    )
-                    hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
-                        chip_temp_data
-                    )
-                    hashboards[board["index"]].serial_number = board["sn"]
-                    hashboards[board["index"]].missing = False
-            except LookupError:
-                pass
-        return hashboards
+
+                # Заполняем число ASIC'ов (чипов), если данные есть
+                if "asic_num" in board and board["asic_num"] is not None:
+                    hb.chips = board["asic_num"]
+
+                # Температура PCB (если присутствуют ненулевые значения)
+                temp_pcb = board.get("temp_pcb")
+                if temp_pcb:
+                    valid_temps = [temp for temp in temp_pcb if temp != 0]
+                    if valid_temps:
+                        hb.temp = sum(valid_temps) / len(valid_temps)
+
+                # Температура чипов (если присутствуют ненулевые значения)
+                temp_chip = board.get("temp_chip")
+                if temp_chip:
+                    valid_chip_temps = [temp for temp in temp_chip if temp != 0]
+                    if valid_chip_temps:
+                        hb.chip_temp = sum(valid_chip_temps) / len(valid_chip_temps)
+
+                # Серийный номер, если он присутствует
+                if "sn" in board:
+                    hb.serial_number = board["sn"]
+
+                # Если хотя бы одно из ключевых полей получено (например, hashrate или chips),
+                # считаем, что данные по плате имеются, и помечаем, что плата не отсутствует.
+                if hb.hashrate is not None or hb.chips is not None:
+                    hb.missing = False
+
+                # Добавляем плату в список только если данные получены (т.е. плата не помечена как missing)
+                if not hb.missing:
+                    boards_list.append(hb)
+        except Exception:
+            # При ошибке обработки возвращаем те платы, которые уже удалось собрать
+            return boards_list
+
+        return boards_list
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None

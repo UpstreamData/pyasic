@@ -18,7 +18,7 @@ import ipaddress
 import warnings
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
-from pyasic.config import MinerConfig
+from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
@@ -125,10 +125,10 @@ class MinerProtocol(Protocol):
 
     async def get_config(self) -> MinerConfig:
         # Not a data gathering function, since this is used for configuration
-        """Get the mining configuration of the miner and return it as a [`MinerConfig`][pyasic-umhost.config.MinerConfig].
+        """Get the mining configuration of the miner and return it as a [`MinerConfig`][pyasic.config.MinerConfig].
 
         Returns:
-            A [`MinerConfig`][pyasic-umhost.config.MinerConfig] containing the pool information and mining configuration.
+            A [`MinerConfig`][pyasic.config.MinerConfig] containing the pool information and mining configuration.
         """
         return MinerConfig()
 
@@ -152,7 +152,7 @@ class MinerProtocol(Protocol):
         """Set the mining configuration of the miner.
 
         Parameters:
-            config: A [`MinerConfig`][pyasic-umhost.config.MinerConfig] containing the mining config you want to switch the miner to.
+            config: A [`MinerConfig`][pyasic.config.MinerConfig] containing the mining config you want to switch the miner to.
             user_suffix: A suffix to append to the username when sending to the miner.
         """
         return None
@@ -276,10 +276,10 @@ class MinerProtocol(Protocol):
         return await self._get_hashrate()
 
     async def get_hashboards(self) -> List[HashBoard]:
-        """Get hashboard data from the miner in the form of [`HashBoard`][pyasic-umhost.data.HashBoard].
+        """Get hashboard data from the miner in the form of [`HashBoard`][pyasic.data.HashBoard].
 
         Returns:
-            A [`HashBoard`][pyasic-umhost.data.HashBoard] instance containing hashboard data from the miner.
+            A [`HashBoard`][pyasic.data.HashBoard] instance containing hashboard data from the miner.
         """
         return await self._get_hashboards()
 
@@ -535,7 +535,7 @@ class MinerProtocol(Protocol):
         include: List[Union[str, DataOptions]] = None,
         exclude: List[Union[str, DataOptions]] = None,
     ) -> MinerData:
-        """Get data from the miner in the form of [`MinerData`][pyasic-umhost.data.MinerData].
+        """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
         Parameters:
             allow_warning: Allow warning when an API command fails.
@@ -543,7 +543,7 @@ class MinerProtocol(Protocol):
             exclude: Names of data items to exclude.  Exclusion happens after considering included items.
 
         Returns:
-            A [`MinerData`][pyasic-umhost.data.MinerData] instance containing data from the miner.
+            A [`MinerData`][pyasic.data.MinerData] instance containing data from the miner.
         """
         data = MinerData(
             ip=str(self.ip),
