@@ -107,13 +107,13 @@ class AvalonMiner(CGMiner):
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             if wattage < 3:
-               limit = wattage
+                limit = wattage
             elif wattage > 100:
-               limit = 2
+                limit = 2
             elif wattage > 80:
-               limit = 1
+                limit = 1
             else:
-               limit = 0
+                limit = 0
             data = await self.rpc.ascset(0, "worklevel,set", 1)
         except APIError:
             return False
