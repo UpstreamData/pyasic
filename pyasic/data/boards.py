@@ -51,6 +51,12 @@ class HashBoard(BaseModel):
     active: bool | None = None
     voltage: float | None = None
 
+    @classmethod
+    def fields(cls) -> set:
+        all_fields = set(cls.model_fields.keys())
+        all_fields.update(set(cls.model_computed_fields.keys()))
+        return all_fields
+
     def get(self, __key: str, default: Any = None):
         try:
             val = self.__getitem__(__key)
@@ -65,3 +71,61 @@ class HashBoard(BaseModel):
             return getattr(self, item)
         except AttributeError:
             raise KeyError(f"{item}")
+
+    def as_influxdb(self, key_root: str) -> str:
+
+        def serialize_int(key: str, value: int) -> str:
+            return f"{key}={value}"
+
+        def serialize_float(key: str, value: float) -> str:
+            return f"{key}={value}"
+
+        def serialize_str(key: str, value: str) -> str:
+            return f'{key}="{value}"'
+
+        def serialize_algo_hash_rate(key: str, value: AlgoHashRateType) -> str:
+            return f"{key}={float(value)}"
+
+        def serialize_bool(key: str, value: bool):
+            return f"{key}={value}"
+
+        serialization_map_instance = {
+            AlgoHashRateType: serialize_algo_hash_rate,
+        }
+        serialization_map = {
+            int: serialize_int,
+            float: serialize_float,
+            str: serialize_str,
+            bool: serialize_bool,
+        }
+
+        include = [
+            "hashrate",
+            "temp",
+            "chip_temp",
+            "chips",
+            "expected_chips",
+            "tuned",
+            "active",
+            "voltage",
+        ]
+
+        field_data = []
+        for field in include:
+            field_val = getattr(self, field)
+            serialization_func = serialization_map.get(
+                type(field_val), lambda _k, _v: None
+            )
+            serialized = serialization_func(f"{key_root}.{field}", field_val)
+            if serialized is not None:
+                field_data.append(serialized)
+                continue
+            for datatype in serialization_map_instance:
+                if serialized is None:
+                    if isinstance(field_val, datatype):
+                        serialized = serialization_map_instance[datatype](
+                            f"{key_root}.{field}", field_val
+                        )
+            if serialized is not None:
+                field_data.append(serialized)
+        return ",".join(field_data)

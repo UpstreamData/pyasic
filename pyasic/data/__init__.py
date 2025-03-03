@@ -16,7 +16,7 @@
 import copy
 import time
 from datetime import datetime, timezone
-from typing import Any, List, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, computed_field
 
@@ -28,6 +28,7 @@ from pyasic.device.algorithm.hashrate import AlgoHashRateType
 from .boards import HashBoard
 from .device import DeviceInfo
 from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
+from .error_codes.base import BaseMinerError
 from .fans import Fan
 
 
@@ -107,25 +108,18 @@ class MinerData(BaseModel):
     raw_wattage_limit: int | None = Field(exclude=True, default=None, repr=False)
 
     # fans
-    fans: List[Fan] = Field(default_factory=list)
+    fans: list[Fan] = Field(default_factory=list)
     fan_psu: int | None = None
 
     # boards
-    hashboards: List[HashBoard] = Field(default_factory=list)
+    hashboards: list[HashBoard] = Field(default_factory=list)
 
     # config
     config: MinerConfig | None = None
     fault_light: bool | None = None
 
     # errors
-    errors: List[
-        Union[
-            WhatsminerError,
-            BraiinsOSError,
-            X19Error,
-            InnosiliconError,
-        ]
-    ] = Field(default_factory=list)
+    errors: list[BaseMinerError] = Field(default_factory=list)
 
     # mining state
     is_mining: bool = True
@@ -135,8 +129,10 @@ class MinerData(BaseModel):
     pools: list[PoolMetrics] = Field(default_factory=list)
 
     @classmethod
-    def fields(cls):
-        return list(cls.model_fields.keys())
+    def fields(cls) -> set:
+        all_fields = set(cls.model_fields.keys())
+        all_fields.update(set(cls.model_computed_fields.keys()))
+        return all_fields
 
     def get(self, __key: str, default: Any = None):
         try:
@@ -307,25 +303,25 @@ class MinerData(BaseModel):
 
     @computed_field  # type: ignore[misc]
     @property
-    def make(self) -> str:
+    def make(self) -> str | None:
         if self.device_info.make is not None:
             return str(self.device_info.make)
 
     @computed_field  # type: ignore[misc]
     @property
-    def model(self) -> str:
+    def model(self) -> str | None:
         if self.device_info.model is not None:
             return str(self.device_info.model)
 
     @computed_field  # type: ignore[misc]
     @property
-    def firmware(self) -> str:
+    def firmware(self) -> str | None:
         if self.device_info.firmware is not None:
             return str(self.device_info.firmware)
 
     @computed_field  # type: ignore[misc]
     @property
-    def algo(self) -> str:
+    def algo(self) -> str | None:
         if self.device_info.algo is not None:
             return str(self.device_info.algo)
 
@@ -374,54 +370,114 @@ class MinerData(BaseModel):
         Returns:
             A influxdb line protocol version of this class.
         """
-        tag_data = [measurement_name]
+
+        def serialize_int(key: str, value: int) -> str:
+            return f"{key}={value}"
+
+        def serialize_float(key: str, value: float) -> str:
+            return f"{key}={value}"
+
+        def serialize_str(key: str, value: str) -> str:
+            return f'{key}="{value}"'
+
+        def serialize_algo_hash_rate(key: str, value: AlgoHashRateType) -> str:
+            return f"{key}={float(value)}"
+
+        def serialize_list(key: str, value: list[Any]) -> str | None:
+            if len(value) == 0:
+                return None
+            return ",".join(
+                list(
+                    filter(
+                        lambda x: x is not None,
+                        [
+                            serialization_map.get(type(v), lambda _k, _v: None)(
+                                f"{key}.{i}", v
+                            )
+                            for i, v in enumerate(value)
+                        ],
+                    )
+                )
+            )
+
+        def serialize_fan(key: str, value: Fan) -> str:
+            return f"{key}.speed={value.speed}"
+
+        def serialize_hashboard(key: str, value: HashBoard) -> str:
+            return value.as_influxdb(key)
+
+        def serialize_bool(key: str, value: bool):
+            return f"{key}={value}"
+
+        def serialize_pool_metrics(key: str, value: PoolMetrics):
+            return value.as_influxdb(key)
+
+        include = [
+            "uptime",
+            "expected_hashrate",
+            "hashrate",
+            "hashboards",
+            "temperature_avg",
+            "env_temp",
+            "wattage",
+            "wattage_limit",
+            "voltage",
+            "fans",
+            "expected_fans",
+            "fan_psu",
+            "total_chips",
+            "expected_chips",
+            "efficiency",
+            "is_mining",
+            "errors",
+            "pools",
+        ]
+
+        serialization_map_instance = {
+            AlgoHashRateType: serialize_algo_hash_rate,
+        }
+        serialization_map = {
+            int: serialize_int,
+            float: serialize_float,
+            str: serialize_str,
+            bool: serialize_bool,
+            list: serialize_list,
+            Fan: serialize_fan,
+            HashBoard: serialize_hashboard,
+            PoolMetrics: serialize_pool_metrics,
+        }
+
+        tag_data = [
+            measurement_name,
+            f"ip={str(self.ip)}",
+            f"mac={str(self.mac)}",
+            f"make={str(self.make)}",
+            f"model={str(self.model)}",
+            f"firmware={str(self.firmware)}",
+            f"algo={str(self.algo)}",
+        ]
         field_data = []
 
-        tags = ["ip", "mac", "model", "hostname"]
-        for attribute in self.fields():
-            if attribute in tags:
-                escaped_data = self.get(attribute, "Unknown").replace(" ", "\\ ")
-                tag_data.append(f"{attribute}={escaped_data}")
+        for field in include:
+            field_val = getattr(self, field)
+            serialization_func = serialization_map.get(
+                type(field_val), lambda _k, _v: None
+            )
+            serialized = serialization_func(field, field_val)
+            if serialized is not None:
+                field_data.append(serialized)
                 continue
-            elif str(attribute).startswith("_"):
-                continue
-            elif isinstance(self[attribute], str):
-                field_data.append(f'{attribute}="{self[attribute]}"')
-                continue
-            elif isinstance(self[attribute], bool):
-                field_data.append(f"{attribute}={str(self[attribute]).lower()}")
-                continue
-            elif isinstance(self[attribute], int):
-                field_data.append(f"{attribute}={self[attribute]}")
-                continue
-            elif isinstance(self[attribute], float):
-                field_data.append(f"{attribute}={self[attribute]}")
-                continue
-            elif attribute == "errors":
-                for idx, item in enumerate(self[attribute]):
-                    field_data.append(f'error_{idx+1}="{item.error_message}"')
-            elif attribute == "hashboards":
-                for idx, item in enumerate(self[attribute]):
-                    field_data.append(
-                        f"hashboard_{idx+1}_hashrate={item.get('hashrate', 0.0)}"
-                    )
-                    field_data.append(
-                        f"hashboard_{idx+1}_temperature={item.get('temp', 0)}"
-                    )
-                    field_data.append(
-                        f"hashboard_{idx+1}_chip_temperature={item.get('chip_temp', 0)}"
-                    )
-                    field_data.append(f"hashboard_{idx+1}_chips={item.get('chips', 0)}")
-                    field_data.append(
-                        f"hashboard_{idx+1}_expected_chips={item.get('expected_chips', 0)}"
-                    )
-            elif attribute == "fans":
-                for idx, item in enumerate(self[attribute]):
-                    if item.speed is not None:
-                        field_data.append(f"fan_{idx+1}={item.speed}")
+            for datatype in serialization_map_instance:
+                if serialized is None:
+                    if isinstance(field_val, datatype):
+                        serialized = serialization_map_instance[datatype](
+                            field, field_val
+                        )
+            if serialized is not None:
+                field_data.append(serialized)
 
         tags_str = ",".join(tag_data)
         field_str = ",".join(field_data)
-        timestamp = str(self.timestamp * 1e9)
+        timestamp = str(self.timestamp * 10**9)
 
         return " ".join([tags_str, field_str, timestamp])

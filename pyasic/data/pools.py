@@ -92,3 +92,49 @@ class PoolMetrics(BaseModel):
         if total == 0:
             return 0
         return (value / total) * 100
+
+    def as_influxdb(self, key_root: str) -> str:
+
+        def serialize_int(key: str, value: int) -> str:
+            return f"{key}={value}"
+
+        def serialize_float(key: str, value: float) -> str:
+            return f"{key}={value}"
+
+        def serialize_str(key: str, value: str) -> str:
+            return f'{key}="{value}"'
+
+        def serialize_pool_url(key: str, value: str) -> str:
+            return f'{key}="{str(value)}"'
+
+        def serialize_bool(key: str, value: bool):
+            return f"{key}={value}"
+
+        serialization_map = {
+            int: serialize_int,
+            float: serialize_float,
+            str: serialize_str,
+            bool: serialize_bool,
+            PoolUrl: serialize_pool_url,
+        }
+
+        include = [
+            "url",
+            "accepted",
+            "rejected",
+            "active",
+            "alive",
+            "user",
+        ]
+
+        field_data = []
+        for field in include:
+            field_val = getattr(self, field)
+            serialization_func = serialization_map.get(
+                type(field_val), lambda _k, _v: None
+            )
+            serialized = serialization_func(f"{key_root}.{field}", field_val)
+            if serialized is not None:
+                field_data.append(serialized)
+
+        return ",".join(field_data)

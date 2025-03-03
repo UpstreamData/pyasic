@@ -16,3 +16,13 @@ class BaseMinerError(BaseModel):
             A dictionary version of this class.
         """
         return self.asdict()
+
+    def as_influxdb(self, root_key: str) -> str:
+        field_data = []
+
+        if self.error_code is not None:
+            field_data.append(f"{root_key}.error_code={self.error_code}")
+        if self.error_message is not None:
+            field_data.append(f'{root_key}.error_code="{self.error_message}"')
+
+        return ",".join(field_data)
