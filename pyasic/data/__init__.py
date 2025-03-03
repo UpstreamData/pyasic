@@ -407,7 +407,7 @@ class MinerData(BaseModel):
             return value.as_influxdb(key)
 
         def serialize_bool(key: str, value: bool):
-            return f"{key}={value}"
+            return f"{key}={str(value).lower()}"
 
         def serialize_pool_metrics(key: str, value: PoolMetrics):
             return value.as_influxdb(key)

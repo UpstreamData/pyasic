@@ -108,7 +108,7 @@ class PoolMetrics(BaseModel):
             return f'{key}="{str(value)}"'
 
         def serialize_bool(key: str, value: bool):
-            return f"{key}={value}"
+            return f"{key}={str(value).lower()}"
 
         serialization_map = {
             int: serialize_int,
