@@ -381,7 +381,7 @@ class MinerData(BaseModel):
             return f'{key}="{value}"'
 
         def serialize_algo_hash_rate(key: str, value: AlgoHashRateType) -> str:
-            return f"{key}={float(value)}"
+            return f"{key}={round(float(value), 2)}"
 
         def serialize_list(key: str, value: list[Any]) -> str | None:
             if len(value) == 0:

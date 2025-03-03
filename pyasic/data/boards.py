@@ -84,7 +84,7 @@ class HashBoard(BaseModel):
             return f'{key}="{value}"'
 
         def serialize_algo_hash_rate(key: str, value: AlgoHashRateType) -> str:
-            return f"{key}={float(value)}"
+            return f"{key}={round(float(value), 2)}"
 
         def serialize_bool(key: str, value: bool):
             return f"{key}={value}"
