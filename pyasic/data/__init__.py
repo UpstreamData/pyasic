@@ -361,7 +361,9 @@ class MinerData(BaseModel):
         data_list = [str(data[item]) for item in data]
         return ",".join(data_list)
 
-    def as_influxdb(self, measurement_name: str = "miner_data") -> str:
+    def as_influxdb(
+        self, measurement_name: str = "miner_data", level_delimiter: str = "."
+    ) -> str:
         """Get this dataclass as [influxdb line protocol](https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/).
 
         Parameters:
@@ -392,7 +394,8 @@ class MinerData(BaseModel):
                         lambda x: x is not None,
                         [
                             serialization_map.get(type(v), lambda _k, _v: None)(
-                                f"{key}.{i}", v
+                                level_delimiter.join([key, i]),
+                                v,
                             )
                             for i, v in enumerate(value)
                         ],
@@ -401,16 +404,16 @@ class MinerData(BaseModel):
             )
 
         def serialize_fan(key: str, value: Fan) -> str:
-            return f"{key}.speed={value.speed}"
+            return f"{key}{level_delimiter}speed={value.speed}"
 
         def serialize_hashboard(key: str, value: HashBoard) -> str:
-            return value.as_influxdb(key)
+            return value.as_influxdb(key, level_delimiter=level_delimiter)
 
         def serialize_bool(key: str, value: bool):
             return f"{key}={str(value).lower()}"
 
         def serialize_pool_metrics(key: str, value: PoolMetrics):
-            return value.as_influxdb(key)
+            return value.as_influxdb(key, level_delimiter=level_delimiter)
 
         include = [
             "uptime",

@@ -72,7 +72,7 @@ class HashBoard(BaseModel):
         except AttributeError:
             raise KeyError(f"{item}")
 
-    def as_influxdb(self, key_root: str) -> str:
+    def as_influxdb(self, key_root: str, level_delimiter: str = ".") -> str:
 
         def serialize_int(key: str, value: int) -> str:
             return f"{key}={value}"
@@ -116,7 +116,9 @@ class HashBoard(BaseModel):
             serialization_func = serialization_map.get(
                 type(field_val), lambda _k, _v: None
             )
-            serialized = serialization_func(f"{key_root}.{field}", field_val)
+            serialized = serialization_func(
+                f"{key_root}{level_delimiter}{field}", field_val
+            )
             if serialized is not None:
                 field_data.append(serialized)
                 continue
@@ -124,7 +126,7 @@ class HashBoard(BaseModel):
                 if serialized is None:
                     if isinstance(field_val, datatype):
                         serialized = serialization_map_instance[datatype](
-                            f"{key_root}.{field}", field_val
+                            f"{key_root}{level_delimiter}{field}", field_val
                         )
             if serialized is not None:
                 field_data.append(serialized)

@@ -93,7 +93,7 @@ class PoolMetrics(BaseModel):
             return 0
         return (value / total) * 100
 
-    def as_influxdb(self, key_root: str) -> str:
+    def as_influxdb(self, key_root: str, level_delimiter: str = ".") -> str:
 
         def serialize_int(key: str, value: int) -> str:
             return f"{key}={value}"
@@ -133,7 +133,9 @@ class PoolMetrics(BaseModel):
             serialization_func = serialization_map.get(
                 type(field_val), lambda _k, _v: None
             )
-            serialized = serialization_func(f"{key_root}.{field}", field_val)
+            serialized = serialization_func(
+                f"{key_root}{level_delimiter}{field}", field_val
+            )
             if serialized is not None:
                 field_data.append(serialized)
 
