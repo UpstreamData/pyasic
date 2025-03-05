@@ -416,9 +416,7 @@ class MiningModePreset(MinerConfigValue):
         )
 
     @classmethod
-    def from_luxos(
-        cls, rpc_config: dict, rpc_profiles: list[dict]
-    ) -> "MiningModePreset":
+    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict) -> "MiningModePreset":
         active_preset = cls.get_active_preset_from_luxos(rpc_config, rpc_profiles)
         return cls(
             active_preset=active_preset,
