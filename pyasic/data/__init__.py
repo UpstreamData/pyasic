@@ -394,7 +394,7 @@ class MinerData(BaseModel):
                         lambda x: x is not None,
                         [
                             serialization_map.get(type(v), lambda _k, _v: None)(
-                                level_delimiter.join([key, i]),
+                                f"{key}{level_delimiter}{i}",
                                 v,
                             )
                             for i, v in enumerate(value)
