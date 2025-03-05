@@ -476,8 +476,8 @@ class MinerData(BaseModel):
             if serialized is not None:
                 field_data.append(serialized)
 
-        tags_str = ",".join(tag_data)
-        field_str = ",".join(field_data)
+        tags_str = ",".join(tag_data).replace(" ", "\\ ")
+        field_str = ",".join(field_data).replace(" ", "\\ ")
         timestamp = str(self.timestamp * 10**9)
 
         return " ".join([tags_str, field_str, timestamp])
