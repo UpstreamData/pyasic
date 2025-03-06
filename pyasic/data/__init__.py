@@ -388,20 +388,30 @@ class MinerData(BaseModel):
         def serialize_list(key: str, value: list[Any]) -> str | None:
             if len(value) == 0:
                 return None
-            return ",".join(
-                list(
-                    filter(
-                        lambda x: x is not None,
-                        [
-                            serialization_map.get(type(v), lambda _k, _v: None)(
-                                f"{key}{level_delimiter}{i}",
-                                v,
-                            )
-                            for i, v in enumerate(value)
-                        ],
-                    )
+
+            list_field_data = []
+            for idx, list_field_val in enumerate(value):
+                item_serialization_func = serialization_map.get(
+                    type(list_field_val), lambda _k, _v: None
                 )
-            )
+                item_serialized = item_serialization_func(
+                    f"{key}{level_delimiter}{idx}", list_field_val
+                )
+                if item_serialized is not None:
+                    list_field_data.append(item_serialized)
+                    continue
+                for dt in serialization_map_instance:
+                    if item_serialized is None:
+                        if isinstance(list_field_val, dt):
+                            item_serialized = serialization_map_instance[dt](
+                                f"{key}{level_delimiter}{idx}", list_field_val
+                            )
+                if item_serialized is not None:
+                    list_field_data.append(item_serialized)
+            return ",".join(list_field_data)
+
+        def serialize_miner_error(key: str, value: BaseMinerError):
+            return value.as_influxdb(key, level_delimiter=level_delimiter)
 
         def serialize_fan(key: str, value: Fan) -> str:
             return f"{key}{level_delimiter}speed={value.speed}"
@@ -438,6 +448,7 @@ class MinerData(BaseModel):
 
         serialization_map_instance = {
             AlgoHashRateType: serialize_algo_hash_rate,
+            BaseMinerError: serialize_miner_error,
         }
         serialization_map = {
             int: serialize_int,
