@@ -14,8 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import Any
-
+from typing import Any, Optional
 from pydantic import BaseModel
 
 
@@ -24,9 +23,11 @@ class Fan(BaseModel):
 
     Attributes:
         speed: The speed of the fan.
+        max_speed: The maximum speed of the fan.
     """
 
     speed: int = None
+    max_speed: Optional[int] = None
 
     def get(self, __key: str, default: Any = None):
         try:

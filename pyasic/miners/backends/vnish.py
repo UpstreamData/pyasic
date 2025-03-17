@@ -18,6 +18,7 @@ import logging
 from typing import List, Optional
 
 from pyasic import MinerConfig
+from pyasic.data import Fan
 from pyasic.data.error_codes import MinerErrorData, VnishError
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
@@ -72,7 +73,7 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [WebAPICommand("web_summary", "summary")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -252,6 +253,35 @@ class VNish(VNishFirmware, BMMiner):
                 return fw_ver
             except LookupError:
                 return fw_ver
+
+    async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
+        """
+        Получает данные о вентиляторах с майнера VNish.
+
+        Ожидается, что API возвращает JSON с разделом "cooling", где есть список вентиляторов.
+        """
+        fans_list = []
+
+        # Если данные не переданы, получаем их через вызов web.summary()
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                return fans_list
+
+        # Проверяем наличие раздела "cooling" в полученных данных
+        try:
+            cooling = web_summary["miner"]["cooling"]
+            fans_data = cooling.get("fans", [])
+            for fan_obj in fans_data:
+                rpm = fan_obj.get("rpm", 0)
+                max_rpm = fan_obj.get("max_rpm", None)
+                fans_list.append(Fan(speed=rpm, max_speed=max_rpm))
+        except KeyError:
+            # Если раздел отсутствует, возвращаем пустой список
+            pass
+
+        return fans_list
 
     async def _is_mining(self, web_summary: dict = None) -> Optional[bool]:
         if web_summary is None:
