@@ -441,6 +441,7 @@ class MinerData(BaseModel):
             "total_chips",
             "expected_chips",
             "efficiency",
+            "fault_light",
             "is_mining",
             "errors",
             "pools",
