@@ -89,7 +89,7 @@ class BOSerWebAPI(BaseWebAPI):
         for cmd in tasks:
             try:
                 result[cmd] = await tasks[cmd]
-            except (GRPCError, APIError):
+            except (GRPCError, APIError, ConnectionError):
                 pass
 
         return result
@@ -121,7 +121,7 @@ class BOSerWebAPI(BaseWebAPI):
                         metadata = [("authorization", await self.auth())]
                         return (await endpoint(message, metadata=metadata)).to_pydict()
                     raise e
-        except GRPCError as e:
+        except (GRPCError, ConnectionError) as e:
             raise APIError(f"gRPC command failed - {endpoint}") from e
 
     async def auth(self) -> str | None:
