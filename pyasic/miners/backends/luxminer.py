@@ -152,7 +152,7 @@ class LUXMiner(LuxOSFirmware):
             rpc_profiles=data.get("profiles", [{}])[0],
         )
 
-    async def upgrade_firmware(self) -> bool:
+    async def upgrade_firmware(self, *args, **kwargs) -> bool:
         """
         Upgrade the firmware on a LuxOS miner by calling the 'updaterun' API command.
         Returns:

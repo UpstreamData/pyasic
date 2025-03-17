@@ -64,7 +64,7 @@ class AvalonMinerWebAPI(BaseWebAPI):
                 resp = await client.get(url)
                 raw_data = resp.text.replace("minerinfoCallback(", "").replace(");", "")
                 return json.loads(raw_data)
-        except httpx.HTTPError:
+        except (httpx.HTTPError, json.JSONDecodeError):
             pass
         return {}
 
