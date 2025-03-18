@@ -340,9 +340,6 @@ class ePIC(ePICFirmware):
             tuned = tuned and web_summary["Status"]["Operating State"] == "Mining"
             active = active and web_summary["Status"]["Operating State"] == "Mining"
 
-        if web_capabilities is not None and self.expected_hashboards is None:
-            self.expected_hashboards = web_capabilities.get("Max HBs", 3)
-
         hb_list = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
