@@ -59,3 +59,9 @@ class ePICS19jProDual(ePIC, S19jPro):
     raw_model = MinerModel.EPIC.S19jProDual
     expected_fans = S19jPro.expected_fans * 2
     expected_hashboards = S19jPro.expected_hashboards * 2
+
+
+class ePICS19kProDual(ePIC, S19kPro):
+    raw_model = MinerModel.EPIC.S19kProDual
+    expected_fans = S19kPro.expected_fans * 2
+    expected_hashboards = S19kPro.expected_hashboards * 2
