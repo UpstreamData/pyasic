@@ -303,6 +303,9 @@ class Auradine(StockFirmware):
     async def _get_hashboards(
         self, rpc_devs: dict = None, web_ipreport: dict = None
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -382,6 +385,9 @@ class Auradine(StockFirmware):
                 pass
 
     async def _get_fans(self, web_fan: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_fan is None:
             try:
                 web_fan = await self.web.get_fan()

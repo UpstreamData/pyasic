@@ -141,6 +141,9 @@ class ESPMiner(BaseMiner):
                 pass
 
     async def _get_hashboards(self, web_system_info: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -169,6 +172,9 @@ class ESPMiner(BaseMiner):
         return []
 
     async def _get_fans(self, web_system_info: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()

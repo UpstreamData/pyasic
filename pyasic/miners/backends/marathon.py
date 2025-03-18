@@ -164,6 +164,9 @@ class MaraMiner(MaraFirmware):
                 pass
 
     async def _get_hashboards(self, web_hashboards: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -250,6 +253,9 @@ class MaraMiner(MaraFirmware):
                 pass
 
     async def _get_fans(self, web_fans: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_fans is None:
             try:
                 web_fans = await self.web.fans()

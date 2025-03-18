@@ -376,6 +376,9 @@ class BOSMiner(BraiinsOSFirmware):
         rpc_devdetails: dict = None,
         rpc_devs: dict = None,
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -473,6 +476,9 @@ class BOSMiner(BraiinsOSFirmware):
                 pass
 
     async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if rpc_fans is None:
             try:
                 rpc_fans = await self.rpc.fans()
@@ -926,6 +932,9 @@ class BOSer(BraiinsOSFirmware):
                 pass
 
     async def _get_hashboards(self, grpc_hashboards: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -997,6 +1006,9 @@ class BOSer(BraiinsOSFirmware):
                 pass
 
     async def _get_fans(self, grpc_cooling_state: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if grpc_cooling_state is None:
             try:
                 grpc_cooling_state = await self.web.get_cooling_state()

@@ -283,6 +283,9 @@ class ePIC(ePICFirmware):
                 pass
 
     async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -302,6 +305,9 @@ class ePIC(ePICFirmware):
     async def _get_hashboards(
         self, web_summary: dict = None, web_capabilities: dict = None
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
