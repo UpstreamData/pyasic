@@ -190,7 +190,7 @@ class Pool(MinerConfigValue):
         return cls(
             url=toml_pool_conf["url"],
             user=toml_pool_conf["user"],
-            password=toml_pool_conf["password"],
+            password=toml_pool_conf.get("password", ""),
         )
 
     @classmethod

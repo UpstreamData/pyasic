@@ -82,6 +82,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"autotunerset": {"enabled": False}}
 
+    def as_bosminer(self) -> dict:
+        return {"autotuning": {"enabled": True}}
+
 
 class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
@@ -692,6 +695,7 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.hashrate_tuning(
                     scaling=ScalingConfig.from_bosminer(toml_conf, mode="hashrate"),
                 )
+        return cls.default()
 
     @classmethod
     def from_vnish(cls, web_settings: dict, web_presets: list[dict]):
