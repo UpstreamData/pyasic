@@ -34,7 +34,7 @@
 - [ ] Setpoints
 - [ ] Presets
 
-::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMinerELITEv1
+::: pyasic.miners.blockminer.epic.blockminer.blockminer.ePICBlockMinerELITE1
     handler: python
     options:
         show_root_heading: false
