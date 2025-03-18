@@ -19,3 +19,12 @@ class BlockMiner720i(ePICMake):
     expected_fans = 4
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
+
+
+class BlockMinerELITEv1(ePICMake):
+    raw_model = MinerModel.EPIC.eLITEv1
+
+    expected_chips = 105
+    expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SCRYPT
