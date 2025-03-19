@@ -103,6 +103,7 @@ details {
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-stock">S21+ (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-stock">S21 Hydro (Stock)</a></li>
