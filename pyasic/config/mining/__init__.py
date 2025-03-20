@@ -363,7 +363,8 @@ class MiningModeHashrateTune(MinerConfigValue):
                 enable=True,
                 **sd_cfg,
                 target=DpsTarget(
-                    hashrate_target=DpsHashrateTarget(**hashrate_target_kwargs)                ),
+                    hashrate_target=DpsHashrateTarget(**hashrate_target_kwargs)
+                ),
             )
 
         return cfg
