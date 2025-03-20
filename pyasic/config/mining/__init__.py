@@ -258,18 +258,17 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        power_target=DpsPowerTarget(
-                            power_step=Power(self.scaling.step),
-                            min_power_target=Power(self.scaling.minimum),
-                        )
-                    ),
+            cfg["set_dps"] = SetDpsRequest(
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(
+                    power_target=DpsPowerTarget(
+                        power_step=Power(self.scaling.step),
+                        min_power_target=Power(self.scaling.minimum),
+                    )
                 ),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
@@ -350,18 +349,17 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        hashrate_target=DpsHashrateTarget(
-                            hashrate_step=TeraHashrate(self.scaling.step),
-                            min_hashrate_target=TeraHashrate(self.scaling.minimum),
-                        )
-                    ),
+            cfg["set_dps"] = SetDpsRequest(
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(
+                    hashrate_target=DpsHashrateTarget(
+                        hashrate_step=TeraHashrate(self.scaling.step),
+                        min_hashrate_target=TeraHashrate(self.scaling.minimum),
+                    )
                 ),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
