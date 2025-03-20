@@ -258,7 +258,9 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            power_target_kwargs = {"power_step": Power(self.scaling.step)}
+            power_target_kwargs = {}
+            if self.scaling.step is not None:
+                power_target_kwargs["power_step"] = Power(self.scaling.step)
             if self.scaling.minimum is not None:
                 power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
             cfg["set_dps"] = SetDpsRequest(
@@ -328,7 +330,6 @@ class MiningModeHashrateTune(MinerConfigValue):
             conf["hashrate_target"] = self.hashrate
         return {"autotuning": conf}
 
-    @property
     def as_boser(self) -> dict:
         cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
@@ -348,15 +349,21 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
+            hashrate_target_kwargs = {}
+            if self.scaling.step is not None:
+                hashrate_target_kwargs["hashrate_step"] = TeraHashrate(
+                    self.scaling.step
+                )
+            if self.scaling.minimum is not None:
+                hashrate_target_kwargs["min_hashrate_target"] = TeraHashrate(
+                    self.scaling.minimum
+                )
             cfg["set_dps"] = SetDpsRequest(
+                save_action=SaveAction.SAVE_AND_APPLY,
                 enable=True,
                 **sd_cfg,
                 target=DpsTarget(
-                    hashrate_target=DpsHashrateTarget(
-                        hashrate_step=TeraHashrate(self.scaling.step),
-                        min_hashrate_target=TeraHashrate(self.scaling.minimum),
-                    )
-                ),
+                    hashrate_target=DpsHashrateTarget(**hashrate_target_kwargs)                ),
             )
 
         return cfg
