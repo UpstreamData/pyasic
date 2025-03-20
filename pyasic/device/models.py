@@ -58,6 +58,7 @@ class AntminerModels(MinerModelType):
     S19jXP = "S19j XP"
     T19 = "T19"
     S21 = "S21"
+    S21Plus = "S21+"
     S21Pro = "S21 Pro"
     S21Hydro = "S21 Hydro"
     T21 = "T21"
@@ -480,7 +481,9 @@ class GoldshellModels(MinerModelType):
 class ePICModels(MinerModelType):
     BM520i = "BlockMiner 520i"
     BM720i = "BlockMiner 720i"
+    eLITE1 = "BlockMiner eLITE 1.0"
     S19jProDual = "S19j Pro Dual"
+    S19kProDual = "S19k Pro Dual"
 
     def __str__(self):
         return self.value

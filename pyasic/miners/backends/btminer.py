@@ -412,6 +412,9 @@ class BTMiner(StockFirmware):
                 pass
 
     async def _get_hashboards(self, rpc_devs: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=i, expected_chips=self.expected_chips)
             for i in range(self.expected_hashboards)
@@ -490,6 +493,9 @@ class BTMiner(StockFirmware):
     async def _get_fans(
         self, rpc_summary: dict = None, rpc_get_psu: dict = None
     ) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()

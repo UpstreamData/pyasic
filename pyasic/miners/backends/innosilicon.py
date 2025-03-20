@@ -211,6 +211,9 @@ class Innosilicon(CGMiner):
     async def _get_hashboards(
         self, rpc_stats: dict = None, web_get_all: dict = None
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -304,6 +307,9 @@ class Innosilicon(CGMiner):
                         return wattage
 
     async def _get_fans(self, web_get_all: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_get_all:
             web_get_all = web_get_all["all"]
 

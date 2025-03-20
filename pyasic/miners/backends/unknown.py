@@ -97,7 +97,7 @@ class UnknownMiner(BaseMiner):
         return None
 
     async def _get_fans(self) -> List[Fan]:
-        return [Fan(), Fan(), Fan(), Fan()]
+        return []
 
     async def _get_fan_psu(self) -> Optional[int]:
         return None

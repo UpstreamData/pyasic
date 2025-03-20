@@ -52,6 +52,11 @@ class MiningModeNormal(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
@@ -77,6 +82,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"autotunerset": {"enabled": False}}
 
+    def as_bosminer(self) -> dict:
+        return {"autotuning": {"enabled": True}}
+
 
 class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
@@ -86,6 +94,11 @@ class MiningModeSleep(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "1"}
+        return {"miner-mode": 1}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "1"}
         return {"miner-mode": 1}
@@ -125,6 +138,11 @@ class MiningModeLPM(MinerConfigValue):
             return {"miner-mode": "3"}
         return {"miner-mode": 3}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "3"}
+        return {"miner-mode": 3}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 3}
 
@@ -146,6 +164,11 @@ class MiningModeHPM(MinerConfigValue):
         return cls()
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -182,6 +205,11 @@ class MiningModePowerTune(MinerConfigValue):
         return cls(**cls_conf)
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -230,18 +258,16 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        power_target=DpsPowerTarget(
-                            power_step=Power(self.scaling.step),
-                            min_power_target=Power(self.scaling.minimum),
-                        )
-                    ),
-                ),
+            power_target_kwargs = {"power_step": Power(self.scaling.step)}
+            if self.scaling.minimum is not None:
+                power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
+            cfg["set_dps"] = SetDpsRequest(
+                save_action=SaveAction.SAVE_AND_APPLY,
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(power_target=DpsPowerTarget(**power_target_kwargs)),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
@@ -288,6 +314,11 @@ class MiningModeHashrateTune(MinerConfigValue):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
 
+    def as_hiveon_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
     def as_elphapex(self) -> dict:
         return {"miner-mode": 0}
 
@@ -317,18 +348,17 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        hashrate_target=DpsHashrateTarget(
-                            hashrate_step=TeraHashrate(self.scaling.step),
-                            min_hashrate_target=TeraHashrate(self.scaling.minimum),
-                        )
-                    ),
+            cfg["set_dps"] = SetDpsRequest(
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(
+                    hashrate_target=DpsHashrateTarget(
+                        hashrate_step=TeraHashrate(self.scaling.step),
+                        min_hashrate_target=TeraHashrate(self.scaling.minimum),
+                    )
                 ),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
@@ -386,12 +416,10 @@ class MiningModePreset(MinerConfigValue):
         )
 
     @classmethod
-    def from_luxos(
-        cls, rpc_config: dict, rpc_profiles: list[dict]
-    ) -> "MiningModePreset":
+    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict) -> "MiningModePreset":
         active_preset = cls.get_active_preset_from_luxos(rpc_config, rpc_profiles)
         return cls(
-            active_preset=MiningPreset.from_luxos(active_preset),
+            active_preset=active_preset,
             available_presets=[
                 MiningPreset.from_luxos(p) for p in rpc_profiles["PROFILES"]
             ],
@@ -399,14 +427,14 @@ class MiningModePreset(MinerConfigValue):
 
     @classmethod
     def get_active_preset_from_luxos(
-        cls, rpc_config: dict, rpc_profiles: list[dict]
-    ) -> dict:
+        cls, rpc_config: dict, rpc_profiles: dict
+    ) -> MiningPreset:
         active_preset = None
         active_profile = rpc_config["CONFIG"][0]["Profile"]
         for profile in rpc_profiles["PROFILES"]:
             if profile["Profile Name"] == active_profile:
                 active_preset = profile
-        return active_preset
+        return MiningPreset.from_luxos(active_preset)
 
 
 class ManualBoardSettings(MinerConfigValue):
@@ -418,6 +446,11 @@ class ManualBoardSettings(MinerConfigValue):
         return cls(freq=dict_conf["freq"], volt=dict_conf["volt"])
 
     def as_am_modern(self) -> dict:
+        if settings.get("antminer_mining_mode_as_str", False):
+            return {"miner-mode": "0"}
+        return {"miner-mode": 0}
+
+    def as_hiveon_modern(self) -> dict:
         if settings.get("antminer_mining_mode_as_str", False):
             return {"miner-mode": "0"}
         return {"miner-mode": 0}
@@ -550,6 +583,20 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
+    def from_hiveon_modern(cls, web_conf: dict):
+        if web_conf.get("bitmain-work-mode") is not None:
+            work_mode = web_conf["bitmain-work-mode"]
+            if work_mode == "":
+                return cls.default()
+            if int(work_mode) == 0:
+                return cls.normal()
+            elif int(work_mode) == 1:
+                return cls.sleep()
+            elif int(work_mode) == 3:
+                return cls.low()
+        return cls.default()
+
+    @classmethod
     def from_elphapex(cls, web_conf: dict):
         if web_conf.get("fc-work-mode") is not None:
             work_mode = web_conf["fc-work-mode"]
@@ -645,6 +692,7 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.hashrate_tuning(
                     scaling=ScalingConfig.from_bosminer(toml_conf, mode="hashrate"),
                 )
+        return cls.default()
 
     @classmethod
     def from_vnish(cls, web_settings: dict, web_presets: list[dict]):
