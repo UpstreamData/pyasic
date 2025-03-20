@@ -265,9 +265,7 @@ class MiningModePowerTune(MinerConfigValue):
                 save_action=SaveAction.SAVE_AND_APPLY,
                 enable=True,
                 **sd_cfg,
-                target=DpsTarget(
-                    power_target=DpsPowerTarget(**power_target_kwargs)
-                ),
+                target=DpsTarget(power_target=DpsPowerTarget(**power_target_kwargs)),
             )
 
         return cfg
