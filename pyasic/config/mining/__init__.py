@@ -258,15 +258,14 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
+            power_target_kwargs = {"power_step": Power(self.scaling.step)}
+            if self.scaling.minimum is not None:
+                power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
             cfg["set_dps"] = SetDpsRequest(
+                save_action=SaveAction.SAVE_AND_APPLY,
                 enable=True,
                 **sd_cfg,
-                target=DpsTarget(
-                    power_target=DpsPowerTarget(
-                        power_step=Power(self.scaling.step),
-                        min_power_target=Power(self.scaling.minimum),
-                    )
-                ),
+                target=DpsTarget(power_target=DpsPowerTarget(**power_target_kwargs)),
             )
 
         return cfg
