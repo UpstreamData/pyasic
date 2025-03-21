@@ -79,7 +79,7 @@ profile = "black"
 
 [tool.poetry]
 name = "pyasic-umhost"
-version = "0.0.3"
+version = "0.0.4"
 description = "Fork pyasic"
 
 packages = [
