@@ -82,6 +82,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_luxos(self) -> dict:
         return {"autotunerset": {"enabled": False}}
 
+    def as_bosminer(self) -> dict:
+        return {"autotuning": {"enabled": True}}
+
 
 class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
@@ -255,18 +258,16 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        power_target=DpsPowerTarget(
-                            power_step=Power(self.scaling.step),
-                            min_power_target=Power(self.scaling.minimum),
-                        )
-                    ),
-                ),
+            power_target_kwargs = {"power_step": Power(self.scaling.step)}
+            if self.scaling.minimum is not None:
+                power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
+            cfg["set_dps"] = SetDpsRequest(
+                save_action=SaveAction.SAVE_AND_APPLY,
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(power_target=DpsPowerTarget(**power_target_kwargs)),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
@@ -347,18 +348,17 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            cfg["set_dps"] = (
-                SetDpsRequest(
-                    enable=True,
-                    **sd_cfg,
-                    target=DpsTarget(
-                        hashrate_target=DpsHashrateTarget(
-                            hashrate_step=TeraHashrate(self.scaling.step),
-                            min_hashrate_target=TeraHashrate(self.scaling.minimum),
-                        )
-                    ),
+            cfg["set_dps"] = SetDpsRequest(
+                enable=True,
+                **sd_cfg,
+                target=DpsTarget(
+                    hashrate_target=DpsHashrateTarget(
+                        hashrate_step=TeraHashrate(self.scaling.step),
+                        min_hashrate_target=TeraHashrate(self.scaling.minimum),
+                    )
                 ),
             )
+
         return cfg
 
     def as_auradine(self) -> dict:
@@ -692,6 +692,7 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.hashrate_tuning(
                     scaling=ScalingConfig.from_bosminer(toml_conf, mode="hashrate"),
                 )
+        return cls.default()
 
     @classmethod
     def from_vnish(cls, web_settings: dict, web_presets: list[dict]):

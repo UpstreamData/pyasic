@@ -79,6 +79,9 @@ class IceRiver(StockFirmware):
         return MinerConfig.from_iceriver(web_userpanel)
 
     async def _get_fans(self, web_userpanel: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
@@ -170,6 +173,9 @@ class IceRiver(StockFirmware):
                 pass
 
     async def _get_hashboards(self, web_userpanel: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()

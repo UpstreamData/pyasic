@@ -145,6 +145,9 @@ class GoldshellMiner(BFGMiner):
     async def _get_hashboards(
         self, rpc_devs: dict = None, rpc_devdetails: dict = None
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()

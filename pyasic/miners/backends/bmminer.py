@@ -133,6 +133,9 @@ class BMMiner(StockFirmware):
                 pass
 
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = []
 
         if rpc_stats is None:
@@ -202,6 +205,9 @@ class BMMiner(StockFirmware):
         return hashboards
 
     async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()

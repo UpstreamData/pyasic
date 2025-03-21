@@ -21,7 +21,7 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRate, ScryptAlgo
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -138,6 +138,8 @@ class ePIC(ePICFirmware):
                 await self.web.set_ptune_algo(conf["ptune"])
 
             ## Pools
+            if self.algo == ScryptAlgo:
+                conf["pools"]["coin"] = "Ltc"
             await self.web.set_pools(conf["pools"])
         except APIError:
             pass
@@ -283,6 +285,9 @@ class ePIC(ePICFirmware):
                 pass
 
     async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -302,6 +307,9 @@ class ePIC(ePICFirmware):
     async def _get_hashboards(
         self, web_summary: dict = None, web_capabilities: dict = None
     ) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()

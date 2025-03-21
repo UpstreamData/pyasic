@@ -209,6 +209,9 @@ class ElphapexMiner(StockFirmware):
         return errors
 
     async def _get_hashboards(self, web_stats: dict | None = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=idx, expected_chips=self.expected_chips)
             for idx in range(self.expected_hashboards)
@@ -317,6 +320,9 @@ class ElphapexMiner(StockFirmware):
                 pass
 
     async def _get_fans(self, web_stats: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if web_stats is None:
             try:
                 web_stats = await self.web.stats()

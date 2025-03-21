@@ -240,6 +240,9 @@ class LUXMiner(LuxOSFirmware):
                 pass
 
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+        if self.expected_hashboards is None:
+            return []
+
         hashboards = [
             HashBoard(slot=idx, expected_chips=self.expected_chips)
             for idx in range(self.expected_hashboards)
@@ -309,6 +312,9 @@ class LUXMiner(LuxOSFirmware):
             pass
 
     async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
         if rpc_fans is None:
             try:
                 rpc_fans = await self.rpc.fans()

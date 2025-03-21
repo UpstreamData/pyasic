@@ -103,6 +103,7 @@ details {
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-stock">S21+ (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-stock">S21 Hydro (Stock)</a></li>
@@ -736,6 +737,7 @@ details {
                     <li><a href="../antminer/X19#s19k-pro-epic">S19k Pro (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19-xp-epic">S19 XP (ePIC)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-dual-epic">S19j Pro Dual (ePIC)</a></li>
+                    <li><a href="../antminer/X19#s19k-pro-dual-epic">S19k Pro Dual (ePIC)</a></li>
                 </ul>
         </details>
         <details>
@@ -751,6 +753,7 @@ details {
                 <ul>
                     <li><a href="../blockminer/blockminer#blockminer-520i-epic">BlockMiner 520i (ePIC)</a></li>
                     <li><a href="../blockminer/blockminer#blockminer-720i-epic">BlockMiner 720i (ePIC)</a></li>
+                    <li><a href="../blockminer/blockminer#blockminer-elite-1.0-epic">BlockMiner eLITE 1.0 (ePIC)</a></li>
                 </ul>
         </details>
     </ul>

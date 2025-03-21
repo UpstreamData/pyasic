@@ -123,6 +123,7 @@ MINER_CLASSES = {
         "ANTMINER S21+": BMMinerS21Plus,
         "ANTMINER BHB68601": BMMinerS21,  # ???
         "ANTMINER BHB68606": BMMinerS21,  # ???
+        "ANTMINER S21+": BMMinerS21Plus,
         "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
         "ANTMINER S21 HYD.": BMMinerS21Hydro,
@@ -596,8 +597,10 @@ MINER_CLASSES = {
         "ANTMINER S21 PRO": ePICS21Pro,
         "ANTMINER T21": ePICT21,
         "ANTMINER S19J PRO DUAL": ePICS19jProDual,
+        "ANTMINER S19K PRO DUAL": ePICS19kProDual,
         "BLOCKMINER 520I": ePICBlockMiner520i,
         "BLOCKMINER 720I": ePICBlockMiner720i,
+        "BLOCKMINER ELITE 1.0": ePICBlockMinerELITE1,
     },
     MinerTypes.HIVEON: {
         None: HiveonModern,
