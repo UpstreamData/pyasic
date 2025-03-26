@@ -86,6 +86,7 @@ class LUXMiner(LuxOSFirmware):
 
     supports_shutdown = True
     supports_presets = True
+    supports_autotuning = True
 
     data_locations = LUXMINER_DATA_LOC
 
