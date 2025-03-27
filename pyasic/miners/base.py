@@ -140,6 +140,23 @@ class MinerProtocol(Protocol):
         """
         return False
 
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        """
+        Updates the password on an S19 miner.
+
+        This method changes the password on an S19 miner by sending the appropriate API request
+        through either the RPC or Web interface. It performs the necessary authentication and command
+        execution to update the miner's password.
+
+        Returns:
+            bool: True if the password update operation was successful, otherwise False.
+
+        Raises:
+            APIError: If an error occurs during the API request for password update.
+        """
+        return False
+
+
     async def restart_backend(self) -> bool:
         """Restart the mining process of the miner (bosminer, bmminer, cgminer, etc) and return success as a boolean.
 

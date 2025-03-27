@@ -186,6 +186,13 @@ class AntminerModern(BMMiner):
             return True
         return False
 
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        data = await self.web.update_pwd(cur_pwd=cur_pwd, new_pwd=new_pwd)
+        if data:
+            if data.get("code") == "P000":
+                return True
+        return False
+
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
         cfg.mining_mode = MiningModeConfig.sleep()

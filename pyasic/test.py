@@ -5,13 +5,20 @@ import json
 import datetime
 
 async def main():
-    ip = '10.7.11.101'
+    ip = '10.2.110.188'
     try:
         miner = await get_miner(ip)
-        data = await miner.get_data()
+        update_pwd = await miner.update_pwd(cur_pwd="root", new_pwd="admin")
 
+        if update_pwd:
+            print("update_pwd is true")
+        else:
+            print("update_pwd is false")
 
-        print(data)
+        # data = await miner.get_data()
+        #
+        #
+        # print(data)
 
         # def custom_serializer(o):
         #     if isinstance(o, datetime.datetime):
