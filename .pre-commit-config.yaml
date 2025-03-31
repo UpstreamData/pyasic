@@ -5,7 +5,7 @@ ci:
     - generate-docs
 repos:
 -   repo: https://github.com/python-poetry/poetry
-    rev: 2.1.1
+    rev: 2.1.2
     hooks:
       - id: poetry-check
       - id: poetry-lock
