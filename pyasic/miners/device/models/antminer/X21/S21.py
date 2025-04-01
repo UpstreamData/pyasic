@@ -40,7 +40,6 @@ class S21PlusHydro(AntMinerMake):
 
     expected_chips = 95
     expected_hashboards = 3
-    expected_fans = 0
     algo = MinerAlgo.SHA256
 
 class S21Pro(AntMinerMake):
