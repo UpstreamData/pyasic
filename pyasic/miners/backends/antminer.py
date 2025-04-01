@@ -287,18 +287,18 @@ class AntminerModern(BMMiner):
                           board_temp_data
                         )
                     else:
-                      board_temp_data = list(
-                          filter(lambda x: not x == 0, board["temp_pcb"])
-                      )
-                      hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                          board_temp_data
-                      )
-                      chip_temp_data = list(
-                          filter(lambda x: not x == 0, board["temp_chip"])
-                      )
-                      hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
-                          chip_temp_data
-                      ) if len(chip_temp_data) > 0 else 0
+                        board_temp_data = list(
+                            filter(lambda x: not x == 0, board["temp_pcb"])
+                        )
+                        hashboards[board["index"]].temp = sum(board_temp_data) / len(
+                            board_temp_data
+                        )
+                        chip_temp_data = list(
+                            filter(lambda x: not x == 0, board["temp_chip"])
+                        )
+                        hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
+                            chip_temp_data
+                        ) if len(chip_temp_data) > 0 else 0
 
                     hashboards[board["index"]].serial_number = board["sn"]
                     hashboards[board["index"]].missing = False
