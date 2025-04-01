@@ -205,7 +205,7 @@ class BMMiner(StockFirmware):
         return hashboards
 
     async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
-        if self.expected_fans is None:
+        if self.expected_fans is (None or 0):
             return []
 
         if rpc_stats is None:
