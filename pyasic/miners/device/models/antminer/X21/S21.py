@@ -35,6 +35,13 @@ class S21Plus(AntMinerMake):
     expected_hashboards = 3
     algo = MinerAlgo.SHA256
 
+class S21PlusHydro(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S21PlusHydro
+
+    expected_chips = 95
+    expected_hashboards = 3
+    expected_fans = 0
+    algo = MinerAlgo.SHA256
 
 class S21Pro(AntMinerMake):
     raw_model = MinerModel.ANTMINER.S21Pro
