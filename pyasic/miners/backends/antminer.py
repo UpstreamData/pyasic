@@ -273,7 +273,7 @@ class AntminerModern(BMMiner):
                     ).into(self.algo.unit.default)
                     hashboards[board["index"]].chips = board["asic_num"]
 
-                    if 'Hyd' in self.model:
+                    if 'S21+ Hyd' in self.model:
                         hashboards[board["index"]].inlet_temp =  board["temp_pcb"][0]
                         hashboards[board["index"]].outlet_temp = board["temp_pcb"][2]
                         hashboards[board["index"]].chip_temp = board["temp_pic"][0]
