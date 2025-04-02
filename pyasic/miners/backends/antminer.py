@@ -277,22 +277,27 @@ class AntminerModern(BMMiner):
                         hashboards[board["index"]].inlet_temp =  board["temp_pcb"][0]
                         hashboards[board["index"]].outlet_temp = board["temp_pcb"][2]
                         hashboards[board["index"]].chip_temp = board["temp_pic"][0]
-                        board_temp_data = [board["temp_pic"][1],
-                                               board["temp_pic"][2],
-                                               board["temp_pic"][3],
-                                               board["temp_pcb"][1],
-                                               board["temp_pcb"][3],
-                        ]
+                        board_temp_data = list(
+                            filter(lambda x: not x == 0,
+                                   [board["temp_pic"][1],
+                                    board["temp_pic"][2],
+                                    board["temp_pic"][3],
+                                    board["temp_pcb"][1],
+                                    board["temp_pcb"][3]
+                                    ]
+                                    )
+                        )
                         hashboards[board["index"]].temp = sum(board_temp_data) / len(
                           board_temp_data
-                        )
+                        ) if len(board_temp_data) > 0 else 0
+
                     else:
                         board_temp_data = list(
                             filter(lambda x: not x == 0, board["temp_pcb"])
                         )
                         hashboards[board["index"]].temp = sum(board_temp_data) / len(
                             board_temp_data
-                        )
+                        ) if len(board_temp_data) > 0 else 0
                         chip_temp_data = list(
                             filter(lambda x: not x == 0, board["temp_chip"])
                         )
