@@ -130,6 +130,12 @@ class BTMiner(StockFirmware):
     supports_shutdown = True
     supports_power_modes = True
 
+    @staticmethod
+    def _normalize_summary(rpc_summary: dict) -> dict:
+        if "SUMMARY" not in rpc_summary:
+            rpc_summary["SUMMARY"] = [rpc_summary["Msg"]]
+        return rpc_summary
+
     async def _reset_rpc_pwd_to_admin(self, pwd: str):
         try:
             data = await self.rpc.update_pwd(pwd, "admin")
@@ -316,6 +322,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 mac = rpc_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
             except LookupError:
@@ -375,6 +382,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 self.fw_ver = rpc_summary["SUMMARY"][0]["Firmware Version"].replace(
                     "'", ""
                 )
@@ -408,6 +416,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
                     unit=self.algo.unit.MH,
@@ -463,6 +472,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return rpc_summary["SUMMARY"][0]["Env Temp"]
             except LookupError:
                 pass
@@ -475,7 +485,10 @@ class BTMiner(StockFirmware):
                 pass
 
         if rpc_summary is not None:
+            if "SUMMARY" not in rpc_summary:
+                rpc_summary['SUMMARY'] = [rpc_summary["Msg"]]
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 wattage = rpc_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
             except LookupError:
@@ -490,6 +503,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return rpc_summary["SUMMARY"][0]["Power Limit"]
             except LookupError:
                 pass
@@ -509,6 +523,7 @@ class BTMiner(StockFirmware):
         fans = [Fan() for _ in range(self.expected_fans)]
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 if self.expected_fans > 0:
                     fans = [
                         Fan(speed=rpc_summary["SUMMARY"][0].get("Fan Speed In", 0)),
@@ -530,6 +545,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return int(rpc_summary["SUMMARY"][0]["Power Fanspeed"])
             except LookupError:
                 pass
@@ -575,6 +591,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 for i in range(rpc_summary["SUMMARY"][0]["Error Code Count"]):
                     err = rpc_summary["SUMMARY"][0].get(f"Error Code {i}")
                     if err:
@@ -594,6 +611,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
                 if expected_hashrate:
                     return self.algo.hashrate(
@@ -669,6 +687,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
