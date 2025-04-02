@@ -272,18 +272,47 @@ class AntminerModern(BMMiner):
                         rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
                     hashboards[board["index"]].chips = board["asic_num"]
-                    board_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_pcb"])
-                    )
-                    hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                        board_temp_data
-                    )
-                    chip_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_chip"])
-                    )
-                    hashboards[board["index"]].chip_temp = sum(chip_temp_data) / len(
-                        chip_temp_data
-                    )
+
+                    if "S21+ Hyd" in self.model:
+                        hashboards[board["index"]].inlet_temp = board["temp_pcb"][0]
+                        hashboards[board["index"]].outlet_temp = board["temp_pcb"][2]
+                        hashboards[board["index"]].chip_temp = board["temp_pic"][0]
+                        board_temp_data = list(
+                            filter(
+                                lambda x: not x == 0,
+                                [
+                                    board["temp_pic"][1],
+                                    board["temp_pic"][2],
+                                    board["temp_pic"][3],
+                                    board["temp_pcb"][1],
+                                    board["temp_pcb"][3],
+                                ],
+                            )
+                        )
+                        hashboards[board["index"]].temp = (
+                            sum(board_temp_data) / len(board_temp_data)
+                            if len(board_temp_data) > 0
+                            else 0
+                        )
+
+                    else:
+                        board_temp_data = list(
+                            filter(lambda x: not x == 0, board["temp_pcb"])
+                        )
+                        hashboards[board["index"]].temp = (
+                            sum(board_temp_data) / len(board_temp_data)
+                            if len(board_temp_data) > 0
+                            else 0
+                        )
+                        chip_temp_data = list(
+                            filter(lambda x: not x == 0, board["temp_chip"])
+                        )
+                        hashboards[board["index"]].chip_temp = (
+                            sum(chip_temp_data) / len(chip_temp_data)
+                            if len(chip_temp_data) > 0
+                            else 0
+                        )
+
                     hashboards[board["index"]].serial_number = board["sn"]
                     hashboards[board["index"]].missing = False
             except LookupError:
