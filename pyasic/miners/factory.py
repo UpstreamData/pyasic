@@ -1168,6 +1168,16 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
+        sock_json_data = await self.send_api_command(ip, "get_version")
+
+        try:
+            miner_model = sock_json_data["Msg"]["miner_type"].replace("_", "")
+            miner_model = miner_model[:-1] + "0"
+
+            return miner_model
+        except (TypeError, LookupError):
+            pass
+
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
         try:
