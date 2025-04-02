@@ -334,7 +334,11 @@ class BTMiner(StockFirmware):
                     try:
                         rpc_ver = rpc_get_version["Msg"]
                         if not isinstance(rpc_ver, str):
-                            rpc_ver = rpc_ver["rpc_ver"]
+                            for ver_str in ("api_ver", "rpc_ver"):
+                                if ver_str in rpc_ver:
+                                    rpc_ver = rpc_ver[ver_str]
+                            if not isinstance(rpc_ver, str):
+                                raise KeyError("no valid key for rpc_ver")
                         self.api_ver = rpc_ver.replace("whatsminer v", "")
                     except (KeyError, TypeError):
                         pass
