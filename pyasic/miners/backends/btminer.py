@@ -441,7 +441,7 @@ class BTMiner(StockFirmware):
                             HashBoard(slot=asc, expected_chips=self.expected_chips)
                         )
                         self.expected_hashboards += 1
-                    hashboards[asc].chip_temp = round(board["Chip Temp Avg"])
+                    hashboards[asc].chip_temp = round(board.get("Chip Temp Avg")) if "Chip Temp Avg" in board else None
                     hashboards[asc].temp = round(board["Temperature"])
                     hashboards[asc].hashrate = self.algo.hashrate(
                         rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
