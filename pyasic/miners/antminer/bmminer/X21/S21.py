@@ -25,8 +25,10 @@ class BMMinerS21(AntminerModern, S21):
 class BMMinerS21Plus(AntminerModern, S21Plus):
     pass
 
+
 class BMMinerS21PlusHydro(AntminerModern, S21PlusHydro):
     pass
+
 
 class BMMinerS21Pro(AntminerModern, S21Pro):
     pass
