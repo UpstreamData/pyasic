@@ -29,7 +29,7 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
-from pyasic.web.whatsminer import WhatsminerWebAPI
+
 
 BTMINER_DATA_LOC = DataLocations(
     **{
