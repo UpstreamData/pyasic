@@ -20,11 +20,14 @@ import enum
 import ipaddress
 import json
 import re
+import typing
 import warnings
-from typing import Any, AsyncGenerator, Callable
+from typing import Any, AsyncGenerator, Callable, Union
 
 import anyio
 import httpx
+from httpx import Request, Response, Cookies
+from httpx._auth import Auth, FunctionAuth
 
 from pyasic import settings
 from pyasic.logger import logger
@@ -773,6 +776,7 @@ class MinerFactory:
                         task, timeout=settings.get("factory_get_timeout", 3)
                     )
                 except asyncio.TimeoutError:
+                    logger.info("get miner model for %s timed out", miner_type)
                     pass
             miner = self._select_miner_from_classes(
                 ip,
@@ -980,20 +984,29 @@ class MinerFactory:
         self,
         ip: str,
         location: str,
-        auth: httpx.DigestAuth = None,
-    ) -> dict | None:
-        async with httpx.AsyncClient(transport=settings.transport()) as session:
+        auth: httpx.Auth = None,
+        return_raw: bool = False,
+        protocol: str = "http",
+        verify: bool = True,
+        follow_redirects: bool =False,
+    ) -> Union[dict, str, None]:
+        async with httpx.AsyncClient(
+                transport=settings.transport(verify=verify),
+                follow_redirects=follow_redirects,
+        ) as session:
             try:
                 data = await session.get(
-                    f"http://{ip}{location}",
+                    f"{protocol}://{ip}{location}",
                     auth=auth,
                     timeout=settings.get("factory_get_timeout", 3),
                 )
-            except (httpx.HTTPError, asyncio.TimeoutError):
+            except (httpx.HTTPError, asyncio.TimeoutError) as e:
                 logger.info(f"{ip}: Web command timeout.")
                 return
         if data is None:
             return
+        if return_raw:
+            return data.text
         try:
             json_data = data.json()
         except (json.JSONDecodeError, asyncio.TimeoutError):
@@ -1158,6 +1171,15 @@ class MinerFactory:
         except (TypeError, LookupError):
             pass
 
+    @staticmethod
+    def _parse_web_miner_model(miner_type: MinerTypes, payload: str) -> str | None:
+        if miner_type == MinerTypes.WHATSMINER:
+            return re.findall(
+                r'<td[^>]*>\s*WhatsMiner\s+([A-Za-z0-9_]+)\s*</td>',
+                payload,
+            )[0]
+        return None
+
     async def get_miner_model_whatsminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         try:
@@ -1169,7 +1191,6 @@ class MinerFactory:
             pass
 
         sock_json_data = await self.send_api_command(ip, "get_version")
-
         try:
             miner_model = sock_json_data["Msg"]["miner_type"].replace("_", "")
             miner_model = miner_model[:-1] + "0"
@@ -1177,6 +1198,40 @@ class MinerFactory:
             return miner_model
         except (TypeError, LookupError):
             pass
+
+        auth_cookies = None
+
+        async with httpx.AsyncClient(transport=settings.transport(verify=False)) as session:
+            try:
+                auth = await session.post(
+                    f"https://{ip}/cgi-bin/luci/",
+                    data={
+                        "luci_username": "admin",
+                        "luci_password": settings.get("default_whatsminer_web_password", "admin"),
+                    },
+                )
+                if auth.status_code != 302:
+                    logger.info(f"{ip}: Web command auth failed.")
+                else:
+                    auth_cookies = auth.cookies
+            except (httpx.HTTPError, asyncio.TimeoutError) as e:
+                logger.info(f"{ip}: Web command timeout or has error: %s", str(e))
+
+        def set_auth_cookie(request: Request) -> Request:
+            if auth_cookies is not None:
+                Cookies(auth_cookies).set_cookie_header(request=request)
+            return request
+
+        raw_payload = await self.send_web_command(
+            ip, "/cgi-bin/luci/admin/status/overview", auth=FunctionAuth(set_auth_cookie),
+            return_raw=True,
+            protocol="https",
+            verify=False,
+            follow_redirects=True,
+        )
+
+        miner_model = self._parse_web_miner_model(MinerTypes.WHATSMINER, raw_payload)
+        return miner_model.replace("_", "")[:-1] + "0" if miner_model else None
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
