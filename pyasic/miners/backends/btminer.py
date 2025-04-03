@@ -613,8 +613,12 @@ class BTMiner(StockFirmware):
         if rpc_summary is not None:
             try:
                 rpc_summary = self._normalize_summary(rpc_summary)
-                expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
-                if expected_hashrate:
+                if "Factory GHS" in rpc_summary["SUMMARY"][0]:
+                    expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
+                else:
+                    edevs = await self.rpc.edevs()
+                    expected_hashrate = sum(dev['Factory GHS'] for dev in edevs["DEVS"])
+                if expected_hashrate and expected_hashrate > 0:
                     return self.algo.hashrate(
                         rate=float(expected_hashrate), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
