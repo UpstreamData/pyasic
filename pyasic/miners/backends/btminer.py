@@ -242,11 +242,12 @@ class BTMiner(StockFirmware):
         status = None
         try:
             data = await self.rpc.multicommand("pools", "summary", "status")
-            for pools_key in ("pools", "POOLS"):
-                if pools_key in data:
-                    pools = data[pools_key][0]
-            if pools is None:
-                raise LookupError("No pools data found in response.")
+            if "POOLS" in data:
+                pools = {"POOLS": data["POOLS"]}
+            elif "pools" in data:
+                pools = data["pools"][0]
+            else:
+                raise LookupError("No pools data found")
             summary = data["summary"][0]
             status = data["status"][0]
         except APIError as e:
