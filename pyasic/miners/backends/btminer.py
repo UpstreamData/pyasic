@@ -242,7 +242,11 @@ class BTMiner(StockFirmware):
         status = None
         try:
             data = await self.rpc.multicommand("pools", "summary", "status")
-            pools = data["pools"][0]
+            for pools_key in ("pools", "POOLS"):
+                if pools_key in data:
+                    pools = data[pools_key][0]
+            if pools is None:
+                raise LookupError("No pools data found in response.")
             summary = data["summary"][0]
             status = data["status"][0]
         except APIError as e:
@@ -254,7 +258,6 @@ class BTMiner(StockFirmware):
             cfg = MinerConfig.from_api(pools)
         else:
             cfg = MinerConfig()
-
         is_mining = await self._is_mining(status)
         if not is_mining:
             cfg.mining_mode = MiningModeConfig.sleep()
