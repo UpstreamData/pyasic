@@ -83,6 +83,10 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
             "_is_mining",
             [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],
@@ -426,6 +430,23 @@ class AntminerModern(BMMiner):
             except LookupError:
                 pass
 
+    async def _is_sleep(self, web_get_conf: dict = None) -> Optional[bool]:
+        if web_get_conf is None:
+            try:
+                web_get_conf = await self.web.get_miner_conf()
+            except APIError:
+                pass
+
+        if web_get_conf is not None:
+            try:
+                if str(web_get_conf["bitmain-work-mode"]).isdigit():
+                    return (
+                        True if int(web_get_conf["bitmain-work-mode"]) == 1 else False
+                    )
+                return False
+            except LookupError:
+                pass
+
     async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
         if rpc_stats is None:
             try:
@@ -502,6 +523,10 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
+            [WebAPICommand("web_get_conf", "get_miner_conf")],
+        ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
             [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
         str(DataOptions.UPTIME): DataFunction(
@@ -714,6 +739,32 @@ class AntminerOld(CGMiner):
                 return True
             else:
                 return False
+
+    async def _is_sleep(self, web_get_conf: dict = None) -> bool:
+        """
+        Определяет, находится ли майнер в режиме "sleep" на основе параметра "bitmain-work-mode".
+
+        Если значение "bitmain-work-mode" равно 1, возвращается True, иначе False.
+        В случае ошибки получения конфигурации или отсутствия нужного ключа возвращается False.
+
+        :param web_get_conf: (необязательный) словарь с конфигурацией майнера.
+        :return: True, если режим равен 1, иначе False.
+        """
+        # if web_get_conf is None:
+        #     try:
+        #         web_get_conf = await self.web.get_miner_conf()
+        #     except APIError:
+        #         return False
+        #
+        # try:
+        #     mode_str = str(web_get_conf["bitmain-work-mode"])
+        #     if mode_str.isdigit():
+        #         mode = int(mode_str)
+        #         return True if mode == "1" else False
+        #     return False
+        # except (KeyError, LookupError, ValueError):
+        #     return False
+        return True
 
     async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
         if rpc_stats is None:

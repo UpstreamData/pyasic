@@ -107,6 +107,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_is_mining",
             [RPCAPICommand("rpc_status", "status")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
@@ -655,6 +659,9 @@ class BTMiner(StockFirmware):
                 return True if rpc_status["Msg"]["mineroff"] == "false" else False
             except LookupError:
                 pass
+
+    async def _is_sleep(self) -> Optional[bool]:
+        return False
 
     async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
         if rpc_summary is None:

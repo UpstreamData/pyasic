@@ -97,6 +97,10 @@ BOSMINER_DATA_LOC = DataLocations(
             "_is_mining",
             [RPCAPICommand("rpc_devdetails", "devdetails")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [RPCAPICommand("rpc_devdetails", "devdetails")],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],

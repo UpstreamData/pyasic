@@ -71,6 +71,7 @@ class MinerData(BaseModel):
         fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
         is_mining: Whether the miner is mining.
+        is_sleep: Whether the miner is sleep.
         pools: A list of PoolMetrics instances, each representing metrics for a pool.
     """
 
@@ -123,6 +124,7 @@ class MinerData(BaseModel):
 
     # mining state
     is_mining: bool = True
+    is_sleep: bool = True
     uptime: int | None = None
 
     # pools
@@ -443,6 +445,7 @@ class MinerData(BaseModel):
             "efficiency",
             "fault_light",
             "is_mining",
+            "is_sleep",
             "errors",
             "pools",
         ]

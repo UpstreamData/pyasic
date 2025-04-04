@@ -83,6 +83,10 @@ VNISH_DATA_LOC = DataLocations(
             "_is_mining",
             [WebAPICommand("web_summary", "summary")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [WebAPICommand("web_summary", "summary")],
+        ),
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
             [RPCAPICommand("rpc_pools", "pools")],
@@ -147,6 +151,31 @@ class VNish(VNishFirmware, BMMiner):
             except KeyError:
                 pass
         return False
+
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        """
+        Обновляет пароль на устройстве VNish.
+
+        Отправляет запрос на изменение пароля с использованием метода update_pwd веб-интерфейса,
+        передавая текущий пароль (cur_pwd) и новый пароль (new_pwd). В случае успешного изменения
+        пароля майнер возвращает ответ вида:
+            {"restart_required": <bool>, "reboot_required": <bool>}
+        Если же произошла ошибка, ответ содержит ключ "err" с описанием ошибки.
+
+        Args:
+            cur_pwd (str): Текущий пароль устройства.
+            new_pwd (str): Новый пароль для установки.
+
+        Returns:
+            bool: True, если пароль изменён успешно, иначе False.
+        """
+        data = await self.web.update_pwd(cur_pwd=cur_pwd, new_pwd=new_pwd)
+        if data and isinstance(data, dict):
+            if "err" in data:
+                return False
+            return True
+        return False
+
 
     async def _get_mac(self, web_summary: dict = None) -> str:
         if web_summary is not None:
@@ -300,6 +329,28 @@ class VNish(VNishFirmware, BMMiner):
                 return is_mining
             except LookupError:
                 pass
+
+    async def _is_sleep(self, web_summary: dict = None) -> bool:
+        """
+        Проверяет, находится ли майнер в режиме "sleep" по данным web_summary.
+
+        Если значение web_summary["miner"]["miner_status"]["miner_state"] равно "stopped",
+        функция возвращает True, иначе – False. Если не удаётся получить данные или найти нужный ключ,
+        функция возвращает False.
+
+        :param web_summary: (необязательный) словарь с данными о состоянии майнера.
+        :return: True, если состояние равно "stopped", иначе False.
+        """
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                return False
+
+        try:
+            return web_summary["miner"]["miner_status"]["miner_state"] == "stopped"
+        except (KeyError, LookupError):
+            return False
 
     async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
         errors = []

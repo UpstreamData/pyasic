@@ -881,8 +881,6 @@ class MinerFactory:
             return MinerTypes.INNOSILICON
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
-        if "<title>Antminer</title>" in web_text:
-            return MinerTypes.MSKMINER
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
         commands = ["version", "devdetails"]

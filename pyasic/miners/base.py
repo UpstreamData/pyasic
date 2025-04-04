@@ -380,6 +380,14 @@ class MinerProtocol(Protocol):
         """
         return await self._is_mining()
 
+    async def is_sleep(self) -> Optional[bool]:
+        """Check whether the miner is sleep.
+
+        Returns:
+            A boolean value representing if the miner is sleep.
+        """
+        return await self._is_sleep()
+
     async def get_uptime(self) -> Optional[int]:
         """Get the uptime of the miner in seconds.
 
@@ -442,6 +450,9 @@ class MinerProtocol(Protocol):
         pass
 
     async def _is_mining(self) -> Optional[bool]:
+        pass
+
+    async def _is_sleep(self) -> Optional[bool]:
         pass
 
     async def _get_uptime(self) -> Optional[int]:
