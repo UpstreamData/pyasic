@@ -30,6 +30,7 @@ from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPIC
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI
 
+
 BTMINER_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
@@ -129,6 +130,12 @@ class BTMiner(StockFirmware):
 
     supports_shutdown = True
     supports_power_modes = True
+
+    @staticmethod
+    def _normalize_summary(rpc_summary: dict) -> dict:
+        if "SUMMARY" not in rpc_summary:
+            rpc_summary["SUMMARY"] = [rpc_summary["Msg"]]
+        return rpc_summary
 
     async def _reset_rpc_pwd_to_admin(self, pwd: str):
         try:
@@ -235,7 +242,12 @@ class BTMiner(StockFirmware):
         status = None
         try:
             data = await self.rpc.multicommand("pools", "summary", "status")
-            pools = data["pools"][0]
+            if "POOLS" in data:
+                pools = {"POOLS": data["POOLS"]}
+            elif "pools" in data:
+                pools = data["pools"][0]
+            else:
+                raise LookupError("No pools data found")
             summary = data["summary"][0]
             status = data["status"][0]
         except APIError as e:
@@ -247,7 +259,6 @@ class BTMiner(StockFirmware):
             cfg = MinerConfig.from_api(pools)
         else:
             cfg = MinerConfig()
-
         is_mining = await self._is_mining(status)
         if not is_mining:
             cfg.mining_mode = MiningModeConfig.sleep()
@@ -316,6 +327,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 mac = rpc_summary["SUMMARY"][0]["MAC"]
                 return str(mac).upper()
             except LookupError:
@@ -334,7 +346,11 @@ class BTMiner(StockFirmware):
                     try:
                         rpc_ver = rpc_get_version["Msg"]
                         if not isinstance(rpc_ver, str):
-                            rpc_ver = rpc_ver["rpc_ver"]
+                            for ver_str in ("api_ver", "rpc_ver"):
+                                if ver_str in rpc_ver:
+                                    rpc_ver = rpc_ver[ver_str]
+                            if not isinstance(rpc_ver, str):
+                                raise KeyError("no valid key for rpc_ver")
                         self.api_ver = rpc_ver.replace("whatsminer v", "")
                     except (KeyError, TypeError):
                         pass
@@ -371,6 +387,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 self.fw_ver = rpc_summary["SUMMARY"][0]["Firmware Version"].replace(
                     "'", ""
                 )
@@ -404,6 +421,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
                     unit=self.algo.unit.MH,
@@ -437,7 +455,11 @@ class BTMiner(StockFirmware):
                             HashBoard(slot=asc, expected_chips=self.expected_chips)
                         )
                         self.expected_hashboards += 1
-                    hashboards[asc].chip_temp = round(board["Chip Temp Avg"])
+                    hashboards[asc].chip_temp = (
+                        round(board.get("Chip Temp Avg"))
+                        if "Chip Temp Avg" in board
+                        else None
+                    )
                     hashboards[asc].temp = round(board["Temperature"])
                     hashboards[asc].hashrate = self.algo.hashrate(
                         rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
@@ -459,6 +481,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return rpc_summary["SUMMARY"][0]["Env Temp"]
             except LookupError:
                 pass
@@ -471,7 +494,10 @@ class BTMiner(StockFirmware):
                 pass
 
         if rpc_summary is not None:
+            if "SUMMARY" not in rpc_summary:
+                rpc_summary["SUMMARY"] = [rpc_summary["Msg"]]
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 wattage = rpc_summary["SUMMARY"][0]["Power"]
                 return wattage if not wattage == -1 else None
             except LookupError:
@@ -486,6 +512,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return rpc_summary["SUMMARY"][0]["Power Limit"]
             except LookupError:
                 pass
@@ -505,6 +532,7 @@ class BTMiner(StockFirmware):
         fans = [Fan() for _ in range(self.expected_fans)]
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 if self.expected_fans > 0:
                     fans = [
                         Fan(speed=rpc_summary["SUMMARY"][0].get("Fan Speed In", 0)),
@@ -526,6 +554,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return int(rpc_summary["SUMMARY"][0]["Power Fanspeed"])
             except LookupError:
                 pass
@@ -571,6 +600,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 for i in range(rpc_summary["SUMMARY"][0]["Error Code Count"]):
                     err = rpc_summary["SUMMARY"][0].get(f"Error Code {i}")
                     if err:
@@ -590,8 +620,13 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
-                if expected_hashrate:
+                rpc_summary = self._normalize_summary(rpc_summary)
+                if "Factory GHS" in rpc_summary["SUMMARY"][0]:
+                    expected_hashrate = rpc_summary["SUMMARY"][0]["Factory GHS"]
+                else:
+                    edevs = await self.rpc.edevs()
+                    expected_hashrate = sum(dev["Factory GHS"] for dev in edevs["DEVS"])
+                if expected_hashrate and expected_hashrate > 0:
                     return self.algo.hashrate(
                         rate=float(expected_hashrate), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
@@ -665,6 +700,7 @@ class BTMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                rpc_summary = self._normalize_summary(rpc_summary)
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass

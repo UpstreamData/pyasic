@@ -204,7 +204,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         split_commands = []
 
         for command in list(commands):
-            if command.startswith("get_") or command == "status":
+            if command.startswith("get_") or command in ("status", "summary"):
                 commands.remove(command)
                 # send seperately and append later
                 split_commands.append(command)
