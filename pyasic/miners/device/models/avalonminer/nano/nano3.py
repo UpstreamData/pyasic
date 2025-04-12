@@ -11,6 +11,7 @@ class AvalonNano3(AvalonMinerMake):
     expected_fans = 1
     algo = MinerAlgo.SHA256
 
+
 class AvalonNano3s(AvalonMinerMake):
     raw_model = MinerModel.AVALONMINER.AvalonNano3s
 

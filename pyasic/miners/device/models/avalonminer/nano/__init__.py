@@ -1,4 +1,1 @@
-from .nano3 import (
-    AvalonNano3,
-    AvalonNano3s
-)
+from .nano3 import AvalonNano3, AvalonNano3s
