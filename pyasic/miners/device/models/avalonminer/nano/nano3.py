@@ -10,3 +10,11 @@ class AvalonNano3(AvalonMinerMake):
     expected_chips = 10
     expected_fans = 1
     algo = MinerAlgo.SHA256
+
+class AvalonNano3s(AvalonMinerMake):
+    raw_model = MinerModel.AVALONMINER.AvalonNano3s
+
+    expected_hashboards = 1
+    expected_chips = 10
+    expected_fans = 1
+    algo = MinerAlgo.SHA256

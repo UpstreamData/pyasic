@@ -14,4 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .nano3 import CGMinerAvalonNano3
+from .nano3 import (
+    CGMinerAvalonNano3,
+    CGMinerAvalonNano3s
+)

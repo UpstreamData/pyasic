@@ -24,7 +24,10 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.miners.device.models import AvalonNano3
+from pyasic.miners.device.models import (
+    AvalonNano3,
+    AvalonNano3s
+)
 from pyasic.web.avalonminer import AvalonMinerWebAPI
 
 AVALON_NANO_DATA_LOC = DataLocations(
@@ -86,6 +89,27 @@ AVALON_NANO_DATA_LOC = DataLocations(
 
 
 class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
+    _web_cls = AvalonMinerWebAPI
+    web: AvalonMinerWebAPI
+
+    data_locations = AVALON_NANO_DATA_LOC
+
+    async def _get_mac(self, web_minerinfo: dict) -> Optional[dict]:
+        if web_minerinfo is None:
+            try:
+                web_minerinfo = await self.web.minerinfo()
+            except APIError:
+                pass
+
+        if web_minerinfo is not None:
+            try:
+                mac = web_minerinfo.get("mac")
+                if mac is not None:
+                    return mac.upper()
+            except (KeyError, ValueError):
+                pass
+
+class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
     _web_cls = AvalonMinerWebAPI
     web: AvalonMinerWebAPI
 
