@@ -506,6 +506,7 @@ MINER_CLASSES = {
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,
+        "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
     },
     MinerTypes.INNOSILICON: {
