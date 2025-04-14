@@ -24,7 +24,7 @@ from pyasic.miners.data import (
     RPCAPICommand,
     WebAPICommand,
 )
-from pyasic.miners.device.models import AvalonNano3
+from pyasic.miners.device.models import AvalonNano3, AvalonNano3s
 from pyasic.web.avalonminer import AvalonMinerWebAPI
 
 AVALON_NANO_DATA_LOC = DataLocations(
@@ -105,3 +105,7 @@ class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
                     return mac.upper()
             except (KeyError, ValueError):
                 pass
+
+
+class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
+    pass

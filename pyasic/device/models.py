@@ -59,6 +59,7 @@ class AntminerModels(MinerModelType):
     T19 = "T19"
     S21 = "S21"
     S21Plus = "S21+"
+    S21PlusHydro = "S21+ Hydro"
     S21Pro = "S21 Pro"
     S21Hydro = "S21 Hydro"
     T21 = "T21"
@@ -451,6 +452,7 @@ class AvalonminerModels(MinerModelType):
     Avalon1246 = "Avalon 1246"
     Avalon1566 = "Avalon 1566"
     AvalonNano3 = "Avalon Nano 3"
+    AvalonNano3s = "Avalon Nano 3s"
 
     def __str__(self):
         return self.value

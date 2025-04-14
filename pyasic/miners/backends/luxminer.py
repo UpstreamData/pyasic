@@ -86,6 +86,7 @@ class LUXMiner(LuxOSFirmware):
 
     supports_shutdown = True
     supports_presets = True
+    supports_autotuning = True
 
     data_locations = LUXMINER_DATA_LOC
 
@@ -191,10 +192,10 @@ class LUXMiner(LuxOSFirmware):
         try:
             if await self.atm_enabled():
                 re_enable_atm = True
-                await self.rpc.atmset("enabled=false")
+                await self.rpc.atmset(enabled=False)
             result = await self.rpc.profileset(new_preset)
             if re_enable_atm:
-                await self.rpc.atmset("enabled=true")
+                await self.rpc.atmset(enabled=True)
         except APIError:
             raise
         except Exception as e:
