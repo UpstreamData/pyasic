@@ -623,6 +623,7 @@ MINER_CLASSES = {
         "ANTMINER S19 XP": LUXMinerS19XP,
         "ANTMINER T19": LUXMinerT19,
         "ANTMINER S21": LUXMinerS21,
+        "ANTMINER T21": LUXMinerT21,
     },
     MinerTypes.AURADINE: {
         None: type("AuradineUnknown", (Auradine, AuradineMake), {}),
