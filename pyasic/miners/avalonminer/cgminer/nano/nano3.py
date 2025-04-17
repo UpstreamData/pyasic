@@ -143,6 +143,7 @@ AVALON_NANO3S_DATA_LOC = DataLocations(
     }
 )
 
+
 class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
     _web_cls = AvalonMinerWebAPI
     web: AvalonMinerWebAPI
@@ -201,7 +202,7 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:    
+    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
         hashboards = await AvalonMiner._get_hashboards(self, rpc_stats)
 
         if rpc_stats is None:
@@ -217,7 +218,7 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
                 parsed_stats = self.parse_stats(unparsed_stats)
             except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
-                
+
             for board in range(len(hashboards)):
                 try:
                     board_hr = parsed_stats["GHSspd"][board]
