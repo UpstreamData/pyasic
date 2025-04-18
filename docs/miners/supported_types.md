@@ -554,8 +554,6 @@ details {
             <summary>nano Series:</summary>
                 <ul>
                     <li><a href="../avalonminer/nano#avalon-nano-3-stock">Avalon Nano 3 (Stock)</a></li>
-                </ul>
-                <ul>
                     <li><a href="../avalonminer/nano#avalon-nano-3s-stock">Avalon Nano 3s (Stock)</a></li>
                 </ul>
         </details>
@@ -818,6 +816,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-luxos">S21 (LuxOS)</a></li>
+                    <li><a href="../antminer/X21#t21-luxos">T21 (LuxOS)</a></li>
                 </ul>
         </details>
     </ul>
