@@ -284,10 +284,22 @@ class MinerData(BaseModel):
     @computed_field  # type: ignore[misc]
     @property
     def efficiency(self) -> int | None:
+        efficiency = self._efficiency(0)
+        if efficiency is None:
+            return None
+        else:
+            return int(efficiency)
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def efficiency_fract(self) -> float | None:
+        self._efficiency(2)
+
+    def _efficiency(self, ndigits: int) -> float | None:
         if self.hashrate is None or self.wattage is None:
             return None
         try:
-            return round(self.wattage / float(self.hashrate))
+            return round(self.wattage / float(self.hashrate), ndigits)
         except ZeroDivisionError:
             return 0
 
