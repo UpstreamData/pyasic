@@ -414,8 +414,8 @@ class MiningModePreset(MinerConfigValue):
     def from_vnish(
         cls, web_overclock_settings: dict, web_presets: list[dict], perf_summary: dict
     ) -> "MiningModePreset":
-        active_preset = perf_summary['current_preset']
-        
+        active_preset = perf_summary["current_preset"]
+
         if active_preset is None:
             for preset in web_presets:
                 if preset["name"] == web_overclock_settings["preset"]:
@@ -706,7 +706,9 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_vnish(cls, web_settings: dict, web_presets: list[dict], perf_summary: dict):
+    def from_vnish(
+        cls, web_settings: dict, web_presets: list[dict], perf_summary: dict
+    ):
         try:
             mode_settings = web_settings["miner"]["overclock"]
         except KeyError:

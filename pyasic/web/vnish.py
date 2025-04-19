@@ -125,7 +125,7 @@ class VNishWebAPI(BaseWebAPI):
 
     async def summary(self) -> dict:
         return await self.send_command("summary")
-    
+
     async def perf_summary(self) -> dict:
         return await self.send_command("perf-summary")
 
