@@ -23,7 +23,7 @@ Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with
 ## Installation
 
 It is recommended to install `pyasic` in a [virtual environment](https://realpython.com/python-virtual-environments-a-primer/#what-other-popular-options-exist-aside-from-venv) to isolate it from the rest of your system. Options include:
-  - [pypoetry](https://python-poetry.org/): the reccommended way, since pyasic already uses it by default
+  - [pypoetry](https://python-poetry.org/): the reccommended way, since pyasic already uses it by default. Use version 2.0+
 
 ```
     poetry install

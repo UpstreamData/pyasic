@@ -293,9 +293,10 @@ class VNish(VNishFirmware, BMMiner):
         try:
             web_settings = await self.web.settings()
             web_presets = await self.web.autotune_presets()
+            perf_summary = await self.web.perf_summary()
         except APIError:
             return self.config
-        self.config = MinerConfig.from_vnish(web_settings, web_presets)
+        self.config = MinerConfig.from_vnish(web_settings, web_presets, perf_summary)
         return self.config
 
     async def set_power_limit(self, wattage: int) -> bool:
