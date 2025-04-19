@@ -70,6 +70,7 @@ class MinerData(BaseModel):
         errors: A list of errors on the miner.
         fault_light: Whether the fault light is on as a boolean.
         efficiency: Efficiency of the miner in J/TH (Watts per TH/s).  Calculated automatically.
+        efficiency_fract: Same as efficiency, but is not rounded to integer.  Calculated automatically.
         is_mining: Whether the miner is mining.
         pools: A list of PoolMetrics instances, each representing metrics for a pool.
     """
@@ -293,7 +294,7 @@ class MinerData(BaseModel):
     @computed_field  # type: ignore[misc]
     @property
     def efficiency_fract(self) -> float | None:
-        self._efficiency(2)
+        return self._efficiency(2)
 
     def _efficiency(self, ndigits: int) -> float | None:
         if self.hashrate is None or self.wattage is None:
@@ -301,7 +302,7 @@ class MinerData(BaseModel):
         try:
             return round(self.wattage / float(self.hashrate), ndigits)
         except ZeroDivisionError:
-            return 0
+            return 0.0
 
     @computed_field  # type: ignore[misc]
     @property
