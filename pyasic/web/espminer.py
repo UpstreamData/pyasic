@@ -21,7 +21,7 @@ class ESPMinerWebAPI(BaseWebAPI):
     ) -> dict:
         url = f"http://{self.ip}:{self.port}/api/{command}"
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for retry_cnt in range(settings.get("get_data_retries", 1)):
+            for _ in range(settings.get("get_data_retries", 1)):
                 try:
                     if parameters.get("post", False):
                         parameters.pop("post")
