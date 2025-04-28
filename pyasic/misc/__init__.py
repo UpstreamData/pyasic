@@ -103,7 +103,7 @@ def validate_command_output(data: dict) -> tuple[bool, str | None]:
             # make sure not to try to turn id into a dict
             if key == "id":
                 continue
-            if "STATUS" in data[key][0].keys():
+            if len(data[key]) > 0 and "STATUS" in data[key][0].keys():
                 if data[key][0]["STATUS"][0]["STATUS"] not in ["S", "I"]:
                     # this is an error
                     return False, f"{key}: " + data[key][0]["STATUS"][0]["Msg"]

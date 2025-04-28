@@ -571,7 +571,6 @@ class MinerProtocol(Protocol):
         for item in gathered_data:
             if gathered_data[item] is not None:
                 setattr(data, item, gathered_data[item])
-
         return data
 
 

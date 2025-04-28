@@ -56,6 +56,26 @@ class AlgoHashRateType(BaseModel, ABC):
             )
         return self.__class__(rate=self.rate + other, unit=self.unit)
 
+    def __gt__(self, other):
+        if isinstance(other, AlgoHashRateType):
+            return self.rate > other.into(self.unit).rate
+        raise ValueError("cannot compare with non AlgoHashRateType")
+
+    def __lt__(self, other):
+        if isinstance(other, AlgoHashRateType):
+            return self.rate < other.into(self.unit).rate
+        raise ValueError("cannot compare with non AlgoHashRateType")
+
+    def __le__(self, other):
+        if isinstance(other, AlgoHashRateType):
+            return self.rate <= other.into(self.unit).rate
+        raise ValueError("cannot compare with non AlgoHashRateType")
+
+    def __ge__(self, other):
+        if isinstance(other, AlgoHashRateType):
+            return self.rate >= other.into(self.unit).rate
+        raise ValueError("cannot compare with non AlgoHashRateType")
+
     def __sub__(self, other: Self | int | float) -> Self:
         if isinstance(other, AlgoHashRateType):
             return self.__class__(

@@ -195,14 +195,22 @@ class MinerData(BaseModel):
     @computed_field  # type: ignore[misc]
     @property
     def hashrate(self) -> AlgoHashRateType | None:
+        raw_hashrate = self.raw_hashrate
+        calc_hashrate = None
         if len(self.hashboards) > 0:
             hr_data = []
             for item in self.hashboards:
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return sum(hr_data, start=self.device_info.algo.hashrate(rate=0))
-        return self.raw_hashrate
+                calc_hashrate = sum(
+                    hr_data, start=self.device_info.algo.hashrate(rate=0)
+                )
+        if raw_hashrate is not None and calc_hashrate is not None:
+            return (
+                raw_hashrate if raw_hashrate > calc_hashrate else calc_hashrate
+            )  # always return the larger one
+        return raw_hashrate if raw_hashrate is not None else calc_hashrate
 
     @hashrate.setter
     def hashrate(self, val):
