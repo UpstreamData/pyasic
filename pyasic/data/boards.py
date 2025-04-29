@@ -37,6 +37,7 @@ class HashBoard(BaseModel):
         tuned: Whether the board is tuned as a bool.
         active: Whether the board is currently tuning as a bool.
         voltage: Current input voltage of the board as a float.
+        chip_frequency: Current chip frequency of the board as a float.
     """
 
     slot: int = 0
@@ -50,6 +51,7 @@ class HashBoard(BaseModel):
     tuned: bool | None = None
     active: bool | None = None
     voltage: float | None = None
+    chip_frequency: float | None = None
 
     @classmethod
     def fields(cls) -> set:

@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
@@ -286,6 +287,7 @@ class AntminerModern(BMMiner):
                     )
                     hashboards[board["index"]].serial_number = board["sn"]
                     hashboards[board["index"]].missing = False
+                    hashboards[board["index"]].chip_frequency = board["freq_avg"]
             except LookupError:
                 pass
         return hashboards
@@ -403,6 +405,26 @@ class AntminerModern(BMMiner):
             except LookupError:
                 pass
 
+    @staticmethod
+    def _parse_last_share_to_timestamp(last_share_time: str) -> int:
+        """
+        Parse the last share time from the string format to a timestamp.
+        :params last_share_time: The last share time string in the format "HH:MM:SS" or "0"
+        '0' means no shares have been submitted.
+        """
+        if last_share_time != "0":
+            try:
+                # Assuming the last share is in the format "YYYY-MM-DD HH:MM:SS"
+                now = datetime.now()
+                last_share_datetime = datetime.strptime(last_share_time, "%H:%M:%S")
+                last_share_datetime = last_share_datetime.replace(
+                    year=now.year, month=now.month, day=now.day
+                )
+                return int(last_share_datetime.timestamp())
+            except ValueError:
+                logging.warning(f"Failed to parse last share time: {last_share_time}")
+        return 0
+
     async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
         if rpc_pools is None:
             try:
@@ -418,6 +440,9 @@ class AntminerModern(BMMiner):
                     url = pool_info.get("URL")
                     pool_url = PoolUrl.from_str(url) if url else None
                     pool_data = PoolMetrics(
+                        last_share_ts=self._parse_last_share_to_timestamp(
+                            pool_info.get("Last Share Time", "0")
+                        ),
                         accepted=pool_info.get("Accepted"),
                         rejected=pool_info.get("Rejected"),
                         get_failures=pool_info.get("Get Failures"),

@@ -69,6 +69,7 @@ class PoolMetrics(BaseModel):
     alive: bool | None = None
     index: int | None = None
     user: str | None = None
+    last_share_ts: int | None = None
 
     @computed_field  # type: ignore[misc]
     @property
