@@ -58,7 +58,7 @@ class VNishWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict | None:
         post = privileged or not parameters == {}
         if self.token is None:
             await self.auth()
