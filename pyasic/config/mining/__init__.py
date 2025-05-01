@@ -412,7 +412,10 @@ class MiningModePreset(MinerConfigValue):
 
     @classmethod
     def from_vnish(
-        cls, web_overclock_settings: dict, web_presets: list[dict], web_perf_summary: dict
+        cls,
+        web_overclock_settings: dict,
+        web_presets: list[dict],
+        web_perf_summary: dict,
     ) -> "MiningModePreset":
         active_preset = web_perf_summary.get("current_preset")
 
@@ -717,7 +720,9 @@ class MiningModeConfig(MinerConfigOption):
         if mode_settings["preset"] == "disabled":
             return MiningModeManual.from_vnish(mode_settings)
         else:
-            return MiningModePreset.from_vnish(mode_settings, web_presets, web_perf_summary)
+            return MiningModePreset.from_vnish(
+                mode_settings, web_presets, web_perf_summary
+            )
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict):
