@@ -412,12 +412,18 @@ class MiningModePreset(MinerConfigValue):
 
     @classmethod
     def from_vnish(
-        cls, web_overclock_settings: dict, web_presets: list[dict]
+        cls,
+        web_overclock_settings: dict,
+        web_presets: list[dict],
+        web_perf_summary: dict,
     ) -> "MiningModePreset":
-        active_preset = None
-        for preset in web_presets:
-            if preset["name"] == web_overclock_settings["preset"]:
-                active_preset = preset
+        active_preset = web_perf_summary.get("current_preset")
+
+        if active_preset is None:
+            for preset in web_presets:
+                if preset["name"] == web_overclock_settings["preset"]:
+                    active_preset = preset
+
         return cls(
             active_preset=MiningPreset.from_vnish(active_preset),
             available_presets=[MiningPreset.from_vnish(p) for p in web_presets],
@@ -703,7 +709,9 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_vnish(cls, web_settings: dict, web_presets: list[dict]):
+    def from_vnish(
+        cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
+    ):
         try:
             mode_settings = web_settings["miner"]["overclock"]
         except KeyError:
@@ -712,7 +720,9 @@ class MiningModeConfig(MinerConfigOption):
         if mode_settings["preset"] == "disabled":
             return MiningModeManual.from_vnish(mode_settings)
         else:
-            return MiningModePreset.from_vnish(mode_settings, web_presets)
+            return MiningModePreset.from_vnish(
+                mode_settings, web_presets, web_perf_summary
+            )
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict):
