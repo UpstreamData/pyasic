@@ -267,6 +267,14 @@ class MinerProtocol(Protocol):
         """
         return await self._get_hostname()
 
+    async def get_serial_number(self) -> Optional[str]:
+        """Get the serial number of the miner and return it as a string.
+
+        Returns:
+            A string representing the serial number of the miner.
+        """
+        return await self._get_serial_number()
+
     async def get_hashrate(self) -> Optional[AlgoHashRate]:
         """Get the hashrate of the miner and return it as a float in TH/s.
 
@@ -389,6 +397,9 @@ class MinerProtocol(Protocol):
         pass
 
     async def _get_hostname(self) -> Optional[str]:
+        pass
+
+    async def _get_serial_number(self) -> Optional[str]:
         pass
 
     async def _get_hashrate(self) -> Optional[AlgoHashRate]:
