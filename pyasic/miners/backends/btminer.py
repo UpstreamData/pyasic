@@ -55,6 +55,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_get_hostname",
             [RPCAPICommand("rpc_get_miner_info", "get_miner_info")],
         ),
+        str(DataOptions.SERIAL_NUMBER): DataFunction(
+            "_get_serial_number",
+            [RPCAPICommand("rpc_get_miner_info", "get_miner_info")],
+        ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
             [RPCAPICommand("rpc_summary", "summary")],
@@ -411,6 +415,24 @@ class BTMiner(StockFirmware):
                 return None
 
         return hostname
+
+    async def _get_serial_number(
+        self, rpc_get_miner_info: dict = None
+    ) -> Optional[str]:
+        serial_number = None
+        if rpc_get_miner_info is None:
+            try:
+                rpc_get_miner_info = await self.rpc.get_miner_info()
+            except APIError:
+                return None  # only one way to get this
+
+        if rpc_get_miner_info is not None:
+            try:
+                serial_number = rpc_get_miner_info["Msg"]["minersn"]
+            except KeyError:
+                return None
+
+        return serial_number
 
     async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
         if rpc_summary is None:

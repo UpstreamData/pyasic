@@ -24,6 +24,7 @@ class DataOptions(Enum):
     API_VERSION = "api_ver"
     FW_VERSION = "fw_ver"
     HOSTNAME = "hostname"
+    SERIAL_NUMBER = "serial_number"
     HASHRATE = "hashrate"
     EXPECTED_HASHRATE = "expected_hashrate"
     HASHBOARDS = "hashboards"
