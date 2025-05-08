@@ -484,7 +484,10 @@ class BTMiner(StockFirmware):
                     )
                     hashboards[asc].temp = round(board["Temperature"])
                     hashboards[asc].hashrate = self.algo.hashrate(
-                        rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
+                        # the unit has changed to TH/s since 2024
+                        #   and will all be TH/s in the future
+                        rate=float(board["MHS 1m"]),
+                        unit=self.algo.unit.TH,
                     ).into(self.algo.unit.default)
                     hashboards[asc].chips = board["Effective Chips"]
                     hashboards[asc].serial_number = board["PCB SN"]
