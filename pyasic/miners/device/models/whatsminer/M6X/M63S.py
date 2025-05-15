@@ -30,6 +30,15 @@ class M63SVK30(WhatsMinerMake):
     algo = MinerAlgo.SHA256
 
 
+class M63SVK50(WhatsMinerMake):
+    raw_model = MinerModel.WHATSMINER.M63SVK50
+
+    expected_chips = 300
+    expected_fans = 0
+    expected_hashboards = 4
+    algo = MinerAlgo.SHA256
+
+
 class M63SVK60(WhatsMinerMake):
     raw_model = MinerModel.WHATSMINER.M63SVK60
 

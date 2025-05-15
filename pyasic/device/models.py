@@ -392,6 +392,7 @@ class WhatsminerModels(MinerModelType):
     M63SVK10 = "M63S VK10"
     M63SVK20 = "M63S VK20"
     M63SVK30 = "M63S VK30"
+    M63SVK50 = "M63S VK50"
     M63SVK60 = "M63S VK60"
     M63SVL10 = "M63S VL10"
     M63SVL50 = "M63S VL50"

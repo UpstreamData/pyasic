@@ -20,6 +20,13 @@ class BTMinerM63SVK30(M6X, M63SVK30):
     pass
 
 
+from pyasic.miners.device.models import M63SVK50
+
+
+class BTMinerM63SVK50(M6X, M63SVK50):
+    pass
+
+
 from pyasic.miners.device.models import M63SVK60
 
 

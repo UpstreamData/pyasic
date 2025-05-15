@@ -61,6 +61,7 @@ from .M63S import (
     BTMinerM63SVK10,
     BTMinerM63SVK20,
     BTMinerM63SVK30,
+    BTMinerM63SVK50,
     BTMinerM63SVK60,
     BTMinerM63SVL10,
     BTMinerM63SVL50,
