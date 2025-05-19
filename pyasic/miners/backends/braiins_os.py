@@ -853,7 +853,7 @@ class BOSer(BraiinsOSFirmware):
         try:
             result = await self.web.set_power_target(
                 wattage,
-                save_action=SaveAction(SaveAction.SAVE_AND_FORCE_APPLY),
+                save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
             )
         except APIError:
             return False
