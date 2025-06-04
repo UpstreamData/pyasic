@@ -16,3 +16,4 @@
 from .X5 import *
 from .XBox import *
 from .XMax import *
+from .Byte import *

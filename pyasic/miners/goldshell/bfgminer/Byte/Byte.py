@@ -13,7 +13,20 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .X5 import *
-from .XBox import *
-from .XMax import *
-from .Byte import *
+from pyasic.config import MinerConfig
+from pyasic.errors import APIError
+from pyasic.miners.backends import GoldshellMiner
+from pyasic.miners.device.models import Byte
+
+
+class GoldshellByte(GoldshellMiner, Byte):
+    
+    async def get_config(self) -> MinerConfig:
+        # get pool data
+        try:
+            pools = await self.web.pools()
+        except APIError:
+            return self.config
+
+        self.config = MinerConfig.from_goldshell_byte(pools)
+        return self.config
