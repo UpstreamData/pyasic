@@ -21,7 +21,7 @@ from pyasic.miners.device.makes import GoldshellMake
 class Byte(GoldshellMake):
     raw_model = MinerModel.GOLDSHELL.Byte
 
-    expected_chips = 84
-    expected_fans = 4
-    expected_hashboards = 3
+    expected_chips = 0
+    expected_fans = 0
+    expected_hashboards = 0
     algo = MinerAlgo.SCRYPT # todo: also aleo
