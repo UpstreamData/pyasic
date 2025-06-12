@@ -24,6 +24,9 @@ from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.data import DataOptions
 from pyasic.miners.device.models import Byte
 
+ALGORITHM_SCRIPT_NAME = "scrypt(LTC)"
+EXPECTED_CHIPS_PER_SCRYPT_BOARD = 5
+
 
 class GoldshellByte(GoldshellMiner, Byte):
 
@@ -39,14 +42,23 @@ class GoldshellByte(GoldshellMiner, Byte):
             try:
                 self.cgdev = await self.web.send_command("cgminer?cgminercmd=devs")
                 print(self.cgdev)
-
-                for minfo in self.cgdev.get("minfos", []):
-                    for _ in minfo.get("infos", []):
-                        self.expected_hashboards += 1
             except APIError:
                 pass
 
+        script_board_count = 0
+
+        for minfo in self.cgdev.get("minfos", []):
+
+            for _ in minfo.get("infos", []):
+                
+                self.expected_hashboards += 1
+
+                if minfo.get("name") == ALGORITHM_SCRIPT_NAME:
+                    script_board_count += 1
+
         data = await super().get_data(allow_warning, include, exclude)
+
+        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * script_board_count)
 
         return data
     
@@ -114,8 +126,13 @@ class GoldshellByte(GoldshellMiner, Byte):
                             hashboards[b_id].hashrate = self.algo.hashrate(
                                 rate=float(board["MHS 20s"]), unit=self.algo.unit.MH
                             ).into(self.algo.unit.default)
+                            hashboards[b_id].chip_temp = board["tstemp-1"]
                             hashboards[b_id].temp = board["tstemp-2"]
                             hashboards[b_id].missing = False
+
+                            if board.get("pool") == ALGORITHM_SCRIPT_NAME:
+                                hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_SCRYPT_BOARD
+
                         except KeyError:
                             pass
             else:
