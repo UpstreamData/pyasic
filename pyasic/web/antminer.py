@@ -196,13 +196,8 @@ class AntminerModernWebAPI(BaseWebAPI):
         Returns:
             dict: Ответ устройства в формате JSON.
         """
-        payload = {
-            "curPwd": cur_pwd,
-            "newPwd": new_pwd,
-            "confirmPwd": new_pwd
-        }
+        payload = {"curPwd": cur_pwd, "newPwd": new_pwd, "confirmPwd": new_pwd}
         return await self.send_command("passwd", **payload)
-
 
     async def get_system_info(self) -> dict:
         """Retrieve system information from the miner.

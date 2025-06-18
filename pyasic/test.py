@@ -1,11 +1,12 @@
 import asyncio
+import datetime
+import json
 
 from pyasic import get_miner, settings
-import json
-import datetime
+
 
 async def main():
-    ip = '10.2.108.10'
+    ip = "10.2.108.10"
     try:
         # cur_pwd = "root"
         # new_pwd = "admin"
@@ -20,7 +21,6 @@ async def main():
 
         data = await miner.get_data()
 
-
         # print(data)
 
         def custom_serializer(o):
@@ -34,6 +34,7 @@ async def main():
         print(json.dumps(data, default=custom_serializer, indent=4))
     except Exception as e:
         print(f"Error:: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

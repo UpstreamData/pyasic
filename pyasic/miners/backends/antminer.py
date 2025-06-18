@@ -276,9 +276,7 @@ class AntminerModern(BMMiner):
 
             # Создаём плату с флагом missing=True по умолчанию
             hb = HashBoard(
-                slot=board["index"],
-                expected_chips=self.expected_chips,
-                missing=True
+                slot=board["index"], expected_chips=self.expected_chips, missing=True
             )
 
             # Hashrate
@@ -332,7 +330,6 @@ class AntminerModern(BMMiner):
                 boards_list.append(hb)
 
         return boards_list
-
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None

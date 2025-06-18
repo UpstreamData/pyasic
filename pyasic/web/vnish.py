@@ -109,13 +109,7 @@ class VNishWebAPI(BaseWebAPI):
         return await self.send_command("system/reboot", privileged=True)
 
     async def update_pwd(self, cur_pwd: str, new_pwd: str) -> dict:
-        payload = {
-            "password":
-                {
-                    "current": cur_pwd,
-                    "pw": new_pwd
-                }
-        }
+        payload = {"password": {"current": cur_pwd, "pw": new_pwd}}
         return await self.send_command("settings", **payload)
 
     async def pause_mining(self) -> dict:

@@ -300,15 +300,16 @@ class BMMiner(StockFirmware):
                     pools_data.append(pool_data)
             return pools_data
         except Exception:
-            return [PoolMetrics(
-                accepted=None,
-                rejected=None,
-                get_failures=None,
-                remote_failures=None,
-                active=None,
-                alive=None,
-                url=None,
-                user=None,
-                index=None,
-            )]
-
+            return [
+                PoolMetrics(
+                    accepted=None,
+                    rejected=None,
+                    get_failures=None,
+                    remote_failures=None,
+                    active=None,
+                    alive=None,
+                    url=None,
+                    user=None,
+                    index=None,
+                )
+            ]
