@@ -283,13 +283,17 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_vnish(cls, web_settings: dict, web_presets: list[dict]) -> "MinerConfig":
+    def from_vnish(
+        cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
+    ) -> "MinerConfig":
         """Constructs a MinerConfig object from web settings for VNish miners."""
         return cls(
             pools=PoolConfig.from_vnish(web_settings),
             fan_mode=FanModeConfig.from_vnish(web_settings),
             temperature=TemperatureConfig.from_vnish(web_settings),
-            mining_mode=MiningModeConfig.from_vnish(web_settings, web_presets),
+            mining_mode=MiningModeConfig.from_vnish(
+                web_settings, web_presets, web_perf_summary
+            ),
         )
 
     @classmethod

@@ -58,7 +58,7 @@ class VNishWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict | None:
         post = privileged or not parameters == {}
         if self.token is None:
             await self.auth()
@@ -135,6 +135,9 @@ class VNishWebAPI(BaseWebAPI):
 
     async def summary(self) -> dict:
         return await self.send_command("summary")
+
+    async def perf_summary(self) -> dict:
+        return await self.send_command("perf-summary")
 
     async def chips(self) -> dict:
         return await self.send_command("chips")

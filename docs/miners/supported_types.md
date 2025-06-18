@@ -104,6 +104,7 @@ details {
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21_1-stock">S21+ (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-stock">S21+ Hydro (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-stock">S21 Hydro (Stock)</a></li>
@@ -553,6 +554,7 @@ details {
             <summary>nano Series:</summary>
                 <ul>
                     <li><a href="../avalonminer/nano#avalon-nano-3-stock">Avalon Nano 3 (Stock)</a></li>
+                    <li><a href="../avalonminer/nano#avalon-nano-3s-stock">Avalon Nano 3s (Stock)</a></li>
                 </ul>
         </details>
         <details>
@@ -661,6 +663,9 @@ details {
                 <ul>
                     <li><a href="../antminer/X21#s21-bos_1">S21 (BOS+)</a></li>
                     <li><a href="../antminer/X21#s21-pro-bos_1">S21 Pro (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21_1-bos_1">S21+ (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-bos_1">S21+ Hydro (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21-hydro-bos_1">S21 Hydro (BOS+)</a></li>
                     <li><a href="../antminer/X21#t21-bos_1">T21 (BOS+)</a></li>
                 </ul>
         </details>
@@ -719,6 +724,10 @@ details {
                 <ul>
                     <li><a href="../antminer/X21#t21-vnish">T21 (VNish)</a></li>
                     <li><a href="../antminer/X21#s21-vnish">S21 (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21_1-vnish">S21+ (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-vnish">S21+ Hydro (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-vnish">S21 Pro (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21-hydro-vnish">S21 Hydro (VNish)</a></li>
                 </ul>
         </details>
     </ul>
@@ -814,6 +823,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-luxos">S21 (LuxOS)</a></li>
+                    <li><a href="../antminer/X21#t21-luxos">T21 (LuxOS)</a></li>
                 </ul>
         </details>
     </ul>

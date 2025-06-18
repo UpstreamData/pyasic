@@ -258,7 +258,9 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            power_target_kwargs = {"power_step": Power(self.scaling.step)}
+            power_target_kwargs = {}
+            if self.scaling.step is not None:
+                power_target_kwargs["power_step"] = Power(self.scaling.step)
             if self.scaling.minimum is not None:
                 power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
             cfg["set_dps"] = SetDpsRequest(
@@ -328,7 +330,6 @@ class MiningModeHashrateTune(MinerConfigValue):
             conf["hashrate_target"] = self.hashrate
         return {"autotuning": conf}
 
-    @property
     def as_boser(self) -> dict:
         cfg = {
             "set_performance_mode": SetPerformanceModeRequest(
@@ -348,14 +349,21 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
+            hashrate_target_kwargs = {}
+            if self.scaling.step is not None:
+                hashrate_target_kwargs["hashrate_step"] = TeraHashrate(
+                    self.scaling.step
+                )
+            if self.scaling.minimum is not None:
+                hashrate_target_kwargs["min_hashrate_target"] = TeraHashrate(
+                    self.scaling.minimum
+                )
             cfg["set_dps"] = SetDpsRequest(
+                save_action=SaveAction.SAVE_AND_APPLY,
                 enable=True,
                 **sd_cfg,
                 target=DpsTarget(
-                    hashrate_target=DpsHashrateTarget(
-                        hashrate_step=TeraHashrate(self.scaling.step),
-                        min_hashrate_target=TeraHashrate(self.scaling.minimum),
-                    )
+                    hashrate_target=DpsHashrateTarget(**hashrate_target_kwargs)
                 ),
             )
 
@@ -404,12 +412,18 @@ class MiningModePreset(MinerConfigValue):
 
     @classmethod
     def from_vnish(
-        cls, web_overclock_settings: dict, web_presets: list[dict]
+        cls,
+        web_overclock_settings: dict,
+        web_presets: list[dict],
+        web_perf_summary: dict,
     ) -> "MiningModePreset":
-        active_preset = None
-        for preset in web_presets:
-            if preset["name"] == web_overclock_settings["preset"]:
-                active_preset = preset
+        active_preset = web_perf_summary.get("current_preset")
+
+        if active_preset is None:
+            for preset in web_presets:
+                if preset["name"] == web_overclock_settings["preset"]:
+                    active_preset = preset
+
         return cls(
             active_preset=MiningPreset.from_vnish(active_preset),
             available_presets=[MiningPreset.from_vnish(p) for p in web_presets],
@@ -695,7 +709,9 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_vnish(cls, web_settings: dict, web_presets: list[dict]):
+    def from_vnish(
+        cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
+    ):
         try:
             mode_settings = web_settings["miner"]["overclock"]
         except KeyError:
@@ -704,7 +720,9 @@ class MiningModeConfig(MinerConfigOption):
         if mode_settings["preset"] == "disabled":
             return MiningModeManual.from_vnish(mode_settings)
         else:
-            return MiningModePreset.from_vnish(mode_settings, web_presets)
+            return MiningModePreset.from_vnish(
+                mode_settings, web_presets, web_perf_summary
+            )
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict):

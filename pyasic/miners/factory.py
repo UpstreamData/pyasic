@@ -122,6 +122,7 @@ MINER_CLASSES = {
         "ANTMINER BHB68601": BMMinerS21,  # ???
         "ANTMINER BHB68606": BMMinerS21,  # ???
         "ANTMINER S21+": BMMinerS21Plus,
+        "ANTMINER S21+ HYD.": BMMinerS21PlusHydro,
         "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
         "ANTMINER S21 HYD.": BMMinerS21Hydro,
@@ -507,6 +508,7 @@ MINER_CLASSES = {
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,
+        "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
     },
     MinerTypes.INNOSILICON: {
@@ -554,6 +556,9 @@ MINER_CLASSES = {
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
         "ANTMINER S21 PRO": BOSMinerS21Pro,
+        "ANTMINER S21+": BOSMinerS21Plus,
+        "ANTMINER S21+ HYD.": BOSMinerS21PlusHydro,
+        "ANTMINER S21 HYD.": BOSMinerS21Hydro,
         "ANTMINER T21": BOSMinerT21,
         "BRAIINS MINI MINER BMM 100": BraiinsBMM100,
         "BRAIINS MINI MINER BMM 101": BraiinsBMM101,
@@ -581,6 +586,10 @@ MINER_CLASSES = {
         "ANTMINER T19": VNishT19,
         "ANTMINER T21": VNishT21,
         "ANTMINER S21": VNishS21,
+        "ANTMINER S21+": VNishS21Plus,
+        "ANTMINER S21+ HYD.": VNishS21PlusHydro,
+        "ANTMINER S21 PRO": VNishS21Pro,
+        "ANTMINER S21 HYD.": VNishS21Hydro,
     },
     MinerTypes.EPIC: {
         None: ePIC,
@@ -623,6 +632,7 @@ MINER_CLASSES = {
         "ANTMINER S19 XP": LUXMinerS19XP,
         "ANTMINER T19": LUXMinerT19,
         "ANTMINER S21": LUXMinerS21,
+        "ANTMINER T21": LUXMinerT21,
     },
     MinerTypes.AURADINE: {
         None: type("AuradineUnknown", (Auradine, AuradineMake), {}),

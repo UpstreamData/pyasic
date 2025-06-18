@@ -15,8 +15,24 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.device.models import S21
+from pyasic.miners.device.models import S21, S21Hydro, S21Plus, S21PlusHydro, S21Pro
 
 
 class VNishS21(VNish, S21):
+    pass
+
+
+class VNishS21Plus(VNish, S21Plus):
+    pass
+
+
+class VNishS21PlusHydro(VNish, S21PlusHydro):
+    pass
+
+
+class VNishS21Pro(VNish, S21Pro):
+    pass
+
+
+class VNishS21Hydro(VNish, S21Hydro):
     pass

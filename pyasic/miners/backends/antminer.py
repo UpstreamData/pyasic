@@ -263,72 +263,76 @@ class AntminerModern(BMMiner):
         return errors
 
     async def _get_hashboards(self) -> List[HashBoard]:
-        boards_list = []
+        boards_list: List[HashBoard] = []
         try:
             rpc_stats = await self.rpc.stats(new_api=True)
         except APIError:
-            # Если данные не получены, возвращаем пустой список
             return boards_list
 
-        if not rpc_stats:
-            return boards_list
+        chain = rpc_stats.get("STATS", [])[0].get("chain", [])
+        for board in chain:
+            if "index" not in board:
+                continue
 
-        try:
-            # Извлекаем информацию по платам из цепочки
-            chain = rpc_stats.get("STATS", [])[0].get("chain", [])
-            for board in chain:
-                # Если по каким-то причинам отсутствует индекс – пропускаем запись
-                if "index" not in board:
-                    continue
+            # Создаём плату с флагом missing=True по умолчанию
+            hb = HashBoard(
+                slot=board["index"],
+                expected_chips=self.expected_chips,
+                missing=True
+            )
 
-                # Создаём базовый объект hashboard с указанным индексом и ожидаемым числом чипов
-                hb = HashBoard(
-                    slot=board["index"],
-                    expected_chips=self.expected_chips,
-                    missing=True  # будем помечать как "не найденную" до успешного заполнения данных
-                )
+            # Hashrate
+            rate_real = board.get("rate_real")
+            if rate_real is not None:
+                hb.hashrate = self.algo.hashrate(
+                    rate=rate_real, unit=self.algo.unit.GH
+                ).into(self.algo.unit.default)
 
-                # Заполняем hashrate, если доступен
-                if "rate_real" in board and board["rate_real"] is not None:
-                    hb.hashrate = self.algo.hashrate(
-                        rate=board["rate_real"], unit=self.algo.unit.GH
-                    ).into(self.algo.unit.default)
+            # Количество чипов
+            asic_num = board.get("asic_num")
+            if asic_num is not None:
+                hb.chips = asic_num
 
-                # Заполняем число ASIC'ов (чипов), если данные есть
-                if "asic_num" in board and board["asic_num"] is not None:
-                    hb.chips = board["asic_num"]
+            # Температуры
+            temp_pcb = board.get("temp_pcb") or []
+            temp_chip = board.get("temp_chip") or []
 
-                # Температура PCB (если присутствуют ненулевые значения)
-                temp_pcb = board.get("temp_pcb")
-                if temp_pcb:
-                    valid_temps = [temp for temp in temp_pcb if temp != 0]
-                    if valid_temps:
-                        hb.temp = sum(valid_temps) / len(valid_temps)
+            if "S21+ Hyd" in getattr(self, "model", ""):
+                # Для S21+ Hyd — отдельные inlet/outlet и chip_temp
+                if len(temp_pcb) >= 3:
+                    hb.inlet_temp = temp_pcb[0]
+                    hb.outlet_temp = temp_pcb[2]
+                # Предполагаем, что поле temp_pic есть в данных
+                pic = board.get("temp_pic") or []
+                if pic:
+                    hb.chip_temp = pic[0]
+                # Собираем остальные для общей temp
+                extras = [v for v in (pic[1:] + temp_pcb[1:4]) if v]
+                if extras:
+                    hb.temp = sum(extras) / len(extras)
+            else:
+                # Обычный расчёт — усредняем непустые PCB и CHIP
+                pcb_vals = [v for v in temp_pcb if v]
+                if pcb_vals:
+                    hb.temp = sum(pcb_vals) / len(pcb_vals)
+                chip_vals = [v for v in temp_chip if v]
+                if chip_vals:
+                    hb.chip_temp = sum(chip_vals) / len(chip_vals)
 
-                # Температура чипов (если присутствуют ненулевые значения)
-                temp_chip = board.get("temp_chip")
-                if temp_chip:
-                    valid_chip_temps = [temp for temp in temp_chip if temp != 0]
-                    if valid_chip_temps:
-                        hb.chip_temp = sum(valid_chip_temps) / len(valid_chip_temps)
+            # Серийный номер
+            serial = board.get("sn")
+            if serial:
+                hb.serial_number = serial
 
-                # Серийный номер, если он присутствует
-                if "sn" in board:
-                    hb.serial_number = board["sn"]
+            # Если хоть одна метрика установлена — плата есть
+            if hb.hashrate is not None or hb.chips is not None:
+                hb.missing = False
 
-                # Если хотя бы одно из ключевых полей получено (например, hashrate или chips),
-                # считаем, что данные по плате имеются, и помечаем, что плата не отсутствует.
-                if hb.hashrate is not None or hb.chips is not None:
-                    hb.missing = False
-
-                # Добавляем плату в список только если данные получены (т.е. плата не помечена как missing)
-                if not hb.missing:
-                    boards_list.append(hb)
-        except Exception:
-            # При ошибке обработки возвращаем те платы, которые уже удалось собрать
-            return boards_list
+            if not hb.missing:
+                boards_list.append(hb)
 
         return boards_list
+
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None
