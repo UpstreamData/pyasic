@@ -13,7 +13,6 @@ async def main():
 
         print(f"Miner: {miner}")
 
-
         # resume = await miner.resume_mining()
         # print(f"Resume mining: {resume}")
 
@@ -25,9 +24,6 @@ async def main():
 
         print(f"Is mining: {miningMode}")
         print(f"Sleep mode:  {sleepMode}")
-
-
-
 
         # cur_pwd = "root"
         # new_pwd = "admin"
