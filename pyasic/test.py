@@ -2,12 +2,14 @@ import asyncio
 import datetime
 import json
 
-from pyasic import get_miner, settings
+from pyasic import get_miner
 
 
 async def main():
-    ip = "10.9.120.55"
+    ip = "10.9.190.2"
     try:
+
+        # settings.update("default_antminer_web_password", "admin")
 
         miner = await get_miner(ip=ip)
 
@@ -20,11 +22,33 @@ async def main():
         # stop = await miner.stop_mining()
         # print(f"Stop mining: {stop}")
 
+        errors = await miner.get_errors()
+
+        dataMiner = await miner.get_data()
+        Hashboards = await miner.get_hashboards()
+
         miningMode = await miner.is_mining()
         sleepMode = await miner.is_sleep()
 
+        # print(f"Hashboards: {Hashboards}")
+        # print(f"Miner : {dataMiner}")
+        print(f"Errors: {errors}")
         print(f"Is mining: {miningMode}")
         print(f"Sleep mode:  {sleepMode}")
+
+        # Перевод в сон
+        try:
+            goSleep = await miner.stop_mining()
+            print(f"GoSleep: {goSleep}")
+        except Exception as e:
+            print(f"GoSleep Error: {e}")
+
+        # Вывод из сна
+        # try:
+        #     goResume = await miner.resume_mining()
+        #     print(f"GoResume: {goResume}")
+        # except Exception as e:
+        #     print(f"GoResume: Error {e}")
 
 
 
