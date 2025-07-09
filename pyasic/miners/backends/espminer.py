@@ -124,13 +124,13 @@ class ESPMiner(BaseMiner):
                 frequency = web_system_info.get("frequency")
 
                 if asic_count is None:
-                    print("Warning: 'asicCount' not found in system info dict.")
+                    print("[espminer]: asicCount not found in system info dict.")
                     return None
                 if frequency is None:
-                    print("Warning: 'frequency' not found in system info dict.")
+                    print("[espminer]: frequency not found in system info dict.")
                     return None
                 if small_core_count is None:
-                    print("Warning: 'smallCoreCount' not found in system info dict.")
+                    print("[espminer]: smallCoreCount not found in system info dict.")
                     return None
 
                 expected_hashrate = (
@@ -150,7 +150,7 @@ class ESPMiner(BaseMiner):
             try:
                 web_system_info = await self.web.system_info()
             except APIError:
-                pass
+                pass   
 
         if web_system_info is not None:
             try:
