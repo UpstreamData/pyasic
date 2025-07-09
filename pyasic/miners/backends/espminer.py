@@ -115,10 +115,28 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
+
+                # Right now the issue is that one of these values is returning None, but according to the docs, they should be there.
+                # https://osmu.wiki/bitaxe/api/
+
+                small_core_count = web_system_info.get("smallCoreCount")
+                asic_count = web_system_info.get("asicCount")
+                frequency = web_system_info.get("frequency")
+
+                if asic_count is None:
+                    print("Warning: 'asicCount' not found in system info dict.")
+                    return None
+                if frequency is None:
+                    print("Warning: 'frequency' not found in system info dict.")
+                    return None
+                if small_core_count is None:
+                    print("Warning: 'smallCoreCount' not found in system info dict.")
+                    return None
+
                 expected_hashrate = (
-                    web_system_info.get("smallCoreCount")
-                    * web_system_info.get("asicCount")
-                    * web_system_info.get("frequency")
+                    small_core_count
+                    * asic_count
+                    * frequency
                 )
 
                 return self.algo.hashrate(
