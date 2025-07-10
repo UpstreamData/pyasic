@@ -24,20 +24,20 @@ bosminer_api_pools = {
     "POOLS": [
         {
             "POOL": 0,
-            "URL": "stratum+tcp://pyasic.testpool_1.pool:3333",
+            "URL": "stratum+tcp://pyasic-umhost.testpool_1.pool:3333",
             "Status": "Alive",
             "Quota": 1,
-            "User": "pyasic.test",
-            "Stratum URL": "pyasic.testpool_1.pool:3333",
+            "User": "pyasic-umhost.test",
+            "Stratum URL": "pyasic-umhost.testpool_1.pool:3333",
             "AsicBoost": True,
         },
         {
             "POOL": 1,
-            "URL": "stratum+tcp://pyasic.testpool_2.pool:3333",
+            "URL": "stratum+tcp://pyasic-umhost.testpool_2.pool:3333",
             "Status": "Alive",
             "Quota": 1,
-            "User": "pyasic.test",
-            "Stratum URL": "pyasic.testpool_2.pool:3333",
+            "User": "pyasic-umhost.test",
+            "Stratum URL": "pyasic-umhost.testpool_2.pool:3333",
             "AsicBoost": True,
         },
     ],
@@ -55,19 +55,19 @@ x19_api_pools = {
     "POOLS": [
         {
             "POOL": 0,
-            "URL": "stratum+tcp://pyasic.testpool_1.pool:3333",
+            "URL": "stratum+tcp://pyasic-umhost.testpool_1.pool:3333",
             "Status": "Alive",
             "Quota": 1,
-            "User": "pyasic.test",
-            "Stratum URL": "pyasic.testpool_1.pool:3333",
+            "User": "pyasic-umhost.test",
+            "Stratum URL": "pyasic-umhost.testpool_1.pool:3333",
         },
         {
             "POOL": 1,
-            "URL": "stratum+tcp://pyasic.testpool_2.pool:3333",
+            "URL": "stratum+tcp://pyasic-umhost.testpool_2.pool:3333",
             "Status": "Alive",
             "Quota": 1,
-            "User": "pyasic.test",
-            "Stratum URL": "pyasic.testpool_2.pool:3333",
+            "User": "pyasic-umhost.test",
+            "Stratum URL": "pyasic-umhost.testpool_2.pool:3333",
         },
     ],
     "id": 1,
@@ -76,13 +76,13 @@ x19_api_pools = {
 x19_web_pools = {
     "pools": [
         {
-            "url": "stratum+tcp://pyasic.testpool_1.pool:3333",
-            "user": "pyasic.test",
+            "url": "stratum+tcp://pyasic-umhost.testpool_1.pool:3333",
+            "user": "pyasic-umhost.test",
             "pass": "123",
         },
         {
-            "url": "stratum+tcp://pyasic.testpool_2.pool:3333",
-            "user": "pyasic.test",
+            "url": "stratum+tcp://pyasic-umhost.testpool_2.pool:3333",
+            "user": "pyasic-umhost.test",
             "pass": "123",
         },
     ],
@@ -105,7 +105,7 @@ bosminer_config_pools = {
     "format": {
         "version": "1.2+",
         "model": "Antminer S9",
-        "generator": "pyasic",
+        "generator": "pyasic-umhost",
     },
     "group": [
         {
@@ -114,14 +114,14 @@ bosminer_config_pools = {
             "pool": [
                 {
                     "enabled": True,
-                    "url": "stratum+tcp://pyasic.testpool_1.pool:3333",
-                    "user": "pyasic.test",
+                    "url": "stratum+tcp://pyasic-umhost.testpool_1.pool:3333",
+                    "user": "pyasic-umhost.test",
                     "password": "123",
                 },
                 {
                     "enabled": True,
-                    "url": "stratum+tcp://pyasic.testpool_2.pool:3333",
-                    "user": "pyasic.test",
+                    "url": "stratum+tcp://pyasic-umhost.testpool_2.pool:3333",
+                    "user": "pyasic-umhost.test",
                     "password": "123",
                 },
             ],

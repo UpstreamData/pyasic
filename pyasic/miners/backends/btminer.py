@@ -107,6 +107,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_is_mining",
             [RPCAPICommand("rpc_status", "status")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
@@ -655,6 +659,37 @@ class BTMiner(StockFirmware):
                 return True if rpc_status["Msg"]["mineroff"] == "false" else False
             except LookupError:
                 pass
+
+    async def _is_sleep(self, rpc_status: dict = None) -> bool:
+        # 1) Если нет переданных данных, запрашиваем статус у API
+        if rpc_status is None:
+            try:
+                rpc_status = await self.rpc.status()
+            except APIError:
+                # при ошибке запроса считаем, что спящего режима нет
+                return False
+
+        # 2) Пытаемся достать btmineroff
+        try:
+            btmineroff = rpc_status.get("Msg", {}).get("btmineroff")
+        except AttributeError:
+            # rpc_status не тот формат — возвращаем False
+            return False
+
+        # 3) Обрабатываем разные типы и значения
+        if isinstance(btmineroff, bool):
+            # если вдруг API вернул уже булево
+            return btmineroff
+
+        if isinstance(btmineroff, str):
+            val = btmineroff.strip().lower()
+            if val == "true":
+                return True
+            if val == "false":
+                return False
+
+        # 4) Во всех остальных случаях (None, число, неожиданный текст) — считаем False
+        return False
 
     async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
         if rpc_summary is None:

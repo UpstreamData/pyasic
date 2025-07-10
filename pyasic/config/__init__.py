@@ -17,6 +17,7 @@
 from pydantic import BaseModel, Field
 
 from pyasic.config.fans import FanMode, FanModeConfig, FanModeNormal
+from pyasic.config.frequency import FreqLevel
 from pyasic.config.mining import MiningMode, MiningModeConfig
 from pyasic.config.mining.scaling import ScalingConfig
 from pyasic.config.pools import PoolConfig
@@ -35,6 +36,7 @@ class MinerConfig(BaseModel):
     fan_mode: FanMode = Field(default_factory=FanModeConfig.default)
     temperature: TemperatureConfig = Field(default_factory=TemperatureConfig.default)
     mining_mode: MiningMode = Field(default_factory=MiningModeConfig.default)
+    freq_level: FreqLevel = Field(default_factory=FreqLevel.default)
 
     def __getitem__(self, item):
         try:
@@ -50,7 +52,7 @@ class MinerConfig(BaseModel):
         """Generates the configuration in the format suitable for modern Antminers."""
         return {
             **self.fan_mode.as_am_modern(),
-            "freq-level": "100",
+            **self.freq_level.as_am_modern(),
             **self.mining_mode.as_am_modern(),
             **self.pools.as_am_modern(user_suffix=user_suffix),
             **self.temperature.as_am_modern(),
@@ -203,6 +205,7 @@ class MinerConfig(BaseModel):
             mining_mode=MiningModeConfig.from_dict(dict_conf.get("mining_mode")),
             fan_mode=FanModeConfig.from_dict(dict_conf.get("fan_mode")),
             temperature=TemperatureConfig.from_dict(dict_conf.get("temperature")),
+            freq_level=FreqLevel.from_dict(dict_conf.get("freq_level")),
         )
 
     @classmethod
@@ -217,6 +220,7 @@ class MinerConfig(BaseModel):
             pools=PoolConfig.from_am_modern(web_conf),
             mining_mode=MiningModeConfig.from_am_modern(web_conf),
             fan_mode=FanModeConfig.from_am_modern(web_conf),
+            freq_level=FreqLevel.from_am_modern(web_conf),
         )
 
     @classmethod

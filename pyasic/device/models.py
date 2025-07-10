@@ -59,6 +59,7 @@ class AntminerModels(MinerModelType):
     T19 = "T19"
     S21 = "S21"
     S21Plus = "S21+"
+    S21XP = "S21 XP"
     S21PlusHydro = "S21+ Hydro"
     S21Pro = "S21 Pro"
     S21Hydro = "S21 Hydro"
@@ -482,8 +483,8 @@ class GoldshellModels(MinerModelType):
 
 class ePICModels(MinerModelType):
     BM520i = "BlockMiner 520i"
-    BM720i = "BlockMiner 720i"
     eLITE1 = "BlockMiner eLITE 1.0"
+    BM720i = "BlockMiner 720i"
     S19jProDual = "S19j Pro Dual"
     S19kProDual = "S19k Pro Dual"
 

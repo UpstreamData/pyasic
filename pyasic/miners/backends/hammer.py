@@ -79,6 +79,10 @@ HAMMER_DATA_LOC = DataLocations(
             "_is_mining",
             [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [WebAPICommand("web_get_conf", "get_miner_conf")],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],

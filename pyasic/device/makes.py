@@ -18,18 +18,18 @@ from enum import Enum
 
 
 class MinerMake(str, Enum):
-    WHATSMINER = "WhatsMiner"
-    ANTMINER = "AntMiner"
-    AVALONMINER = "AvalonMiner"
+    WHATSMINER = "Whatsminer"
+    ANTMINER = "Antminer"
+    AVALONMINER = "Avalonminer"
     INNOSILICON = "Innosilicon"
     GOLDSHELL = "Goldshell"
     AURADINE = "Auradine"
     EPIC = "ePIC"
     BITAXE = "BitAxe"
-    LUCKYMINER = "LuckyMiner"
+    LUCKYMINER = "Luckyminer"
     ICERIVER = "IceRiver"
     HAMMER = "Hammer"
-    VOLCMINER = "VolcMiner"
+    VOLCMINER = "Volcminer"
     ELPHAPEX = "Elphapex"
     BRAIINS = "Braiins"
 

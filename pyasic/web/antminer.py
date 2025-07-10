@@ -177,6 +177,28 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> dict:
+        """
+        Обновляет пароль на устройстве Antminer.
+
+        Отправляет POST-запрос на CGI-скрипт passwd.cgi с передачей JSON-параметров:
+            {
+                "curPwd": <текущий пароль>,
+                "newPwd": <новый пароль>,
+                "confirmPwd": <новый пароль>
+            }
+        Ожидается, что в случае успешного изменения пароля устройство вернет JSON-ответ с ключом "stats", равным "success".
+
+        Args:
+            cur_pwd (str): Текущий пароль устройства.
+            new_pwd (str): Новый пароль, который будет установлен.
+
+        Returns:
+            dict: Ответ устройства в формате JSON.
+        """
+        payload = {"curPwd": cur_pwd, "newPwd": new_pwd, "confirmPwd": new_pwd}
+        return await self.send_command("passwd", **payload)
+
     async def get_system_info(self) -> dict:
         """Retrieve system information from the miner.
 
