@@ -6,26 +6,28 @@ from pyasic import get_miner, settings
 
 
 async def main():
-    ip = "10.9.120.55"
+    ip = "10.9.113.10"
     try:
 
         miner = await get_miner(ip=ip)
 
         print(f"Miner: {miner}")
 
+        miningMode = await miner.is_mining()
+        sleepMode = await miner.is_sleep()
+        errors = await miner.get_errors()
+        minerData = await miner.get_data()
+
+        print(f"Is mining: {miningMode}")
+        print(f"Sleep mode:  {sleepMode}")
+        print(f"Errors: {errors}")
+        print(f"MinerData: {minerData}")
 
         # resume = await miner.resume_mining()
         # print(f"Resume mining: {resume}")
 
-        # stop = await miner.stop_mining()
-        # print(f"Stop mining: {stop}")
-
-        miningMode = await miner.is_mining()
-        sleepMode = await miner.is_sleep()
-
-        print(f"Is mining: {miningMode}")
-        print(f"Sleep mode:  {sleepMode}")
-
+        stop = await miner.stop_mining()
+        print(f"Stop mining: {stop}")
 
 
 
