@@ -1,8 +1,11 @@
 from pydantic import BaseModel, Field
+
 from pyasic.config.base import MinerConfigValue
+
 
 class FreqLevel(MinerConfigValue):
     """Уровень частоты (bitmain-freq-level / freq-level)."""
+
     level: str = Field(default="100")  # теперь Pydantic сам его примет
 
     @classmethod
