@@ -96,3 +96,6 @@ class ESPMinerWebAPI(BaseWebAPI):
 
     async def update_settings(self, **config):
         return await self.send_command("system", patch=True, **config)
+
+    async def asic_info(self):
+        return await self.send_command("system/asic")
