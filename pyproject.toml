@@ -1,5 +1,5 @@
 [project]
-name = "pyasic"
+name = "ha-pyasic"
 #EBE
 #version = "0.72.10"
 version = "9.9.1"
