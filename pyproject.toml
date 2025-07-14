@@ -1,8 +1,8 @@
 [project]
 name = "ha-pyasic"
+version = "9.9.1"
 #EBE
 #version = "0.72.10"
-version = "9.9.1"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "bbemoll", email = "dev@bemoll.com"}]
