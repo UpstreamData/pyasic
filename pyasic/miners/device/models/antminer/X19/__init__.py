@@ -38,5 +38,7 @@ from .S19 import (
     S19ProHydro,
     S19ProPlus,
     S19ProPlusHydro,
+#EBE_20250707
+    S19XPHydro,
 )
 from .T19 import T19

@@ -1,15 +1,23 @@
 [project]
 name = "pyasic"
-version = "0.72.10"
+#EBE
+#version = "0.72.10"
+version = "9.9.1"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
-repository = "https://github.com/UpstreamData/pyasic"
+#EBE
+#repository = "https://github.com/UpstreamData/pyasic"
+repository = "https://github.com/bbemoll/ha-pyasic"
 
 homepage = "https://docs.pyasic.org"
-source = "https://github.com/UpstreamData/pyasic"
+#EBE
+#source = "https://github.com/UpstreamData/pyasic"
+source = "https://github.com/bbemoll/ha-pyasic"
 documentation = "https://docs.pyasic.org"
-issues = "https://github.com/UpstreamData/pyasic/issues"
+#EBE
+#issues = "https://github.com/UpstreamData/pyasic/issues"
+issues = "https://github.com/bbemoll/ha-pyasic/issues"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "Apache 2.0"
 license-files = ["LICEN[CS]E.*"]
