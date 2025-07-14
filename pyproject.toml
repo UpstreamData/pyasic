@@ -5,16 +5,18 @@ name = "pyasic"
 version = "9.9.1"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
-authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
+authors = [{name = "bbemoll", email = "dev@bemoll.com"}]
 #EBE
 #repository = "https://github.com/UpstreamData/pyasic"
 repository = "https://github.com/bbemoll/ha-pyasic"
 
-homepage = "https://docs.pyasic.org"
+#homepage = "https://docs.pyasic.org"
+homepage = "https://github.com/bbemoll/ha-pyasic"
 #EBE
 #source = "https://github.com/UpstreamData/pyasic"
 source = "https://github.com/bbemoll/ha-pyasic"
-documentation = "https://docs.pyasic.org"
+#documentation = "https://docs.pyasic.org"
+documentation = "https://github.com/bbemoll/ha-pyasic"
 #EBE
 #issues = "https://github.com/UpstreamData/pyasic/issues"
 issues = "https://github.com/bbemoll/ha-pyasic/issues"
