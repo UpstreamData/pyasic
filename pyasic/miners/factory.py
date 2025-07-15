@@ -46,8 +46,6 @@ from pyasic.miners.luckyminer import *
 from pyasic.miners.volcminer import *
 from pyasic.miners.whatsminer import *
 
-import logging
-_LOGGER = logging.getLogger(__name__)
 
 class MinerTypes(enum.Enum):
     ANTMINER = 0
@@ -563,7 +561,6 @@ MINER_CLASSES = {
         "ANTMINER T21": BOSMinerT21,
         "BRAIINS MINI MINER BMM 100": BraiinsBMM100,
         "BRAIINS MINI MINER BMM 101": BraiinsBMM101,
-#EBE_20250707
         "ANTMINER S19 XP HYD.": BOSMinerS19XPHydro,
     },
     MinerTypes.VNISH: {
@@ -754,8 +751,6 @@ class MinerFactory:
             else:
                 if miner_type is not None:
                     break
-#EBE_20250707
-#        print(f"EBE_20250707 ./pyasic/factory.py: miner_type: {miner_type}")
 
         if miner_type is not None:
             miner_model = None
@@ -1451,6 +1446,4 @@ miner_factory = MinerFactory()
 
 # abstracted version of get miner that is easier to access
 async def get_miner(ip: ipaddress.ip_address | str) -> AnyMiner:
-#EBE_20250707
-#    print(f"EBE_20250707 entered into ./pyasic/factory.py")
     return await miner_factory.get_miner(ip)

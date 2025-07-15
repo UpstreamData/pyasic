@@ -63,7 +63,6 @@ class AntminerModels(MinerModelType):
     S21Pro = "S21 Pro"
     S21Hydro = "S21 Hydro"
     T21 = "T21"
-#EBE_20250707
     S19XPHydro = "S19 XP Hydro"
 
 

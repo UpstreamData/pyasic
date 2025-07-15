@@ -225,7 +225,6 @@ class S19jXP(AntMinerMake):
     algo = MinerAlgo.SHA256
 
 
-#EBE_20250707
 class S19XPHydro(AntMinerMake):
     raw_model = MinerModel.ANTMINER.S19XPHydro
 

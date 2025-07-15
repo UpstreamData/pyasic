@@ -13,11 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
-#print(f"entering pyasic.__init__")
-
-#EBE_20250707
-#import importlib.metadata
+import importlib.metadata
 
 from pyasic import settings
 from pyasic.config import MinerConfig
@@ -29,5 +25,4 @@ from pyasic.rpc import *
 from pyasic.ssh import *
 from pyasic.web import *
 
-#__version__ = importlib.metadata.version("pyasic")
-#print(f"pyasic.__init__: __version__:{__version__}")
+__version__ = importlib.metadata.version("pyasic")

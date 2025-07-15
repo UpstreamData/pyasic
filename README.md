@@ -12,13 +12,6 @@
 [![Read The Docs - Docs](https://img.shields.io/readthedocs/pyasic)](https://docs.pyasic.org)
 [![License - Apache 2.0](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 
-
-WARNING: This repository was forked from pyasic project to try and learn how to develop or make changes to HACS for Home Assistant.
-It has not been tested enough, nor planned or considered for real usage. Use it only at your own risk! In the worst case, it can damage your hardware! 
-
------------------------------------------------------------
-
-
 ---
 ## Intro
 
