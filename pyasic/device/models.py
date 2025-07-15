@@ -65,7 +65,6 @@ class AntminerModels(MinerModelType):
     T21 = "T21"
     S19XPHydro = "S19 XP Hydro"
 
-
     def __str__(self):
         return self.value
 
