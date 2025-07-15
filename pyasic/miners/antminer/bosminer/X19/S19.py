@@ -30,6 +30,7 @@ from pyasic.miners.device.models import (
     S19Plus,
     S19Pro,
     S19ProPlusHydro,
+    S19XPHydro,
 )
 
 
@@ -86,4 +87,8 @@ class BOSMinerS19XP(BOSer, S19XP):
 
 
 class BOSMinerS19ProPlusHydro(BOSer, S19ProPlusHydro):
+    pass
+
+
+class BOSMinerS19XPHydro(BOSer, S19XPHydro):
     pass
