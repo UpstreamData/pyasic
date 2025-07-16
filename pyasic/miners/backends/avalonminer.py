@@ -16,12 +16,15 @@
 
 import re
 from typing import List, Optional
+import logging
+from pathlib import Path
 
 from pyasic.data import Fan, HashBoard
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.web.avalon import AvalonWebAPI
 
 AVALON_DATA_LOC = DataLocations(
     **{
@@ -84,6 +87,8 @@ AVALON_DATA_LOC = DataLocations(
 class AvalonMiner(CGMiner):
     """Handler for Avalon Miners"""
 
+    _web_cls = AvalonWebAPI
+    web: AvalonWebAPI
     data_locations = AVALON_DATA_LOC
 
     async def fault_light_on(self) -> bool:
@@ -133,6 +138,36 @@ class AvalonMiner(CGMiner):
         except KeyError:
             return False
         return False
+
+    async def upgrade_firmware(self, file: Path) -> str:
+        """
+        Upgrade the firmware of an Avalon Miner.
+
+        Args:
+            file (Path): Path to the firmware file to be uploaded.
+
+        Returns:
+            str: Result of the upgrade process.
+        """
+        try:
+            if not file:
+                raise ValueError("File location must be provided for firmware upgrade.")
+
+            result = await self.web.update_firmware(file=file)
+
+            if 'Success' in result:
+                logging.info("Firmware upgrade process completed successfully for Avalon Miner.")
+                return "Firmware upgrade successful."
+            else:
+                logging.error(f"Firmware upgrade failed. Response: {result}")
+                return f"Firmware upgrade failed. Response: {result}"
+
+        except ValueError as e:
+            logging.error(f"Validation error occurred during the firmware upgrade process: {e}")
+            raise
+        except Exception as e:
+            logging.error(f"An unexpected error occurred during the firmware upgrade process: {e}", exc_info=True)
+            raise
 
     @staticmethod
     def parse_stats(stats):
