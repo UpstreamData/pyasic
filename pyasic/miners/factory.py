@@ -578,6 +578,7 @@ MINER_CLASSES = {
         "ANTMINER S19J": VNishS19j,
         "ANTMINER S19I": VNishS19i,
         "ANTMINER S19 XP": VNishS19XP,
+        "ANTMINER S19 XP HYD.": VNishS19XPHydro,
         "ANTMINER S19J PRO": VNishS19jPro,
         "ANTMINER S19J PRO A": VNishS19jPro,
         "ANTMINER S19J PRO BB": VNishS19jPro,

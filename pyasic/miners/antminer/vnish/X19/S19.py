@@ -29,6 +29,7 @@ from pyasic.miners.device.models import (
     S19Pro,
     S19ProA,
     S19ProHydro,
+    S19XPHydro,
 )
 
 
@@ -49,6 +50,10 @@ class VNishS19Hydro(VNish, S19Hydro):
 
 
 class VNishS19XP(VNish, S19XP):
+    pass
+
+
+class VNishS19XPHydro(VNish, S19XPHydro):
     pass
 
 
