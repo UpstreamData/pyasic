@@ -973,6 +973,7 @@ details {
                 <ul>
                     <li><a href="../elphapex/DGX#dg1_1-stock">DG1+ (Stock)</a></li>
                     <li><a href="../elphapex/DGX#dg1-stock">DG1 (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#dg1home-stock">DG1Home (Stock)</a></li>
                 </ul>
         </details>
     </ul>

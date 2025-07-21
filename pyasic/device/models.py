@@ -563,6 +563,7 @@ class BraiinsModels(MinerModelType):
 class ElphapexModels(MinerModelType):
     DG1 = "DG1"
     DG1Plus = "DG1+"
+    DG1Home = "DG1Home"
 
 
 class MinerModel:

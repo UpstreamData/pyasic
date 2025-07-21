@@ -700,6 +700,7 @@ MINER_CLASSES = {
         None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
         "DG1+": ElphapexDG1Plus,
         "DG1": ElphapexDG1,
+        "DG1-Home": ElphapexDG1Home,
     },
 }
 

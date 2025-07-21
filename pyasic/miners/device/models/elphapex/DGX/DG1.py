@@ -34,3 +34,12 @@ class DG1Plus(ElphapexMake):
     expected_hashboards = 4
     expected_fans = 4
     algo = MinerAlgo.SCRYPT
+
+
+class DG1Home(ElphapexMake):
+    raw_model = MinerModel.ELPHAPEX.DG1Home
+
+    expected_chips = 120
+    expected_hashboards = 4
+    expected_fans = 4
+    algo = MinerAlgo.SCRYPT
