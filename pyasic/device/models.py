@@ -54,6 +54,7 @@ class AntminerModels(MinerModelType):
     S19ProPlusHydro = "S19 Pro+ Hydro"
     S19KPro = "S19K Pro"
     S19kPro = "S19k Pro"
+    S19ProA = "S19 Pro A"
     S19kProNoPIC = "S19k Pro No PIC"
     S19jXP = "S19j XP"
     T19 = "T19"
@@ -558,6 +559,7 @@ class BraiinsModels(MinerModelType):
 
 
 class ElphapexModels(MinerModelType):
+    DG1 = "DG1"
     DG1Plus = "DG1+"
 
 

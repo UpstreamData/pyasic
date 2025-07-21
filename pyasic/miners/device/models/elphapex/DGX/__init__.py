@@ -1,1 +1,1 @@
-from .DG1 import DG1Plus
+from .DG1 import DG1, DG1Plus
