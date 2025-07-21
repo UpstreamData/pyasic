@@ -535,6 +535,7 @@ class IceRiverModels(MinerModelType):
     KS5 = "KS5"
     KS5L = "KS5L"
     KS5M = "KS5M"
+    AL3 = "AL3"
 
     def __str__(self):
         return self.value

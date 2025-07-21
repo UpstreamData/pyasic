@@ -935,6 +935,12 @@ details {
                     <li><a href="../iceriver/KSX#ks5m-stock">KS5M (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>ALX Series:</summary>
+                <ul>
+                    <li><a href="../iceriver/ALX#al3-stock">AL3 (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>

@@ -1,5 +1,6 @@
 from .base import MinerAlgoType
 from .blake256 import Blake256Algo
+from .blockflow import BlockFlowAlgo
 from .eaglesong import EaglesongAlgo
 from .equihash import EquihashAlgo
 from .ethash import EtHashAlgo
@@ -24,3 +25,4 @@ class MinerAlgo:
     EAGLESONG = EaglesongAlgo
     ETHASH = EtHashAlgo
     EQUIHASH = EquihashAlgo
+    BLOCKFLOW = BlockFlowAlgo

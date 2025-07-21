@@ -41,6 +41,7 @@ from pyasic.miners.elphapex import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
+from pyasic.miners.iceriver.iceminer.ALX import IceRiverAL3
 from pyasic.miners.innosilicon import *
 from pyasic.miners.luckyminer import *
 from pyasic.miners.volcminer import *
@@ -685,6 +686,7 @@ MINER_CLASSES = {
         "KS5": IceRiverKS5,
         "KS5L": IceRiverKS5L,
         "KS5M": IceRiverKS5M,
+        "10306": IceRiverAL3,
     },
     MinerTypes.HAMMER: {
         None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
