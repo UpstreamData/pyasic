@@ -43,6 +43,7 @@ class AntminerModels(MinerModelType):
     S19jNoPIC = "S19j No PIC"
     S19ProPlus = "S19 Pro+"
     S19jPro = "S19j Pro"
+    S19jPlus = "S19j+"
     S19jProNoPIC = "S19j Pro No PIC"
     S19jProPlus = "S19j Pro+"
     S19jProPlusNoPIC = "S19j Pro+ No PIC"

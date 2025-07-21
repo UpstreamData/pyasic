@@ -86,6 +86,7 @@ details {
                     <li><a href="../antminer/X19#s19j-no-pic-stock">S19j No PIC (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-pro_1-stock">S19 Pro+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-stock">S19j Pro (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j_1-stock">S19j+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19j-pro_1-stock">S19j Pro+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-xp-stock">S19 XP (Stock)</a></li>
                     <li><a href="../antminer/X19#s19a-stock">S19a (Stock)</a></li>

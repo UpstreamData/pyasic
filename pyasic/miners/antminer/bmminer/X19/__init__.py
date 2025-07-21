@@ -22,6 +22,7 @@ from .S19 import (
     BMMinerS19i,
     BMMinerS19j,
     BMMinerS19jNoPIC,
+    BMMinerS19jPlus,
     BMMinerS19jPro,
     BMMinerS19jProPlus,
     BMMinerS19jXP,
