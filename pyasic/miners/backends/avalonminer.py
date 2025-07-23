@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+import copy
 import re
+import time
 from typing import List, Optional
 
 from pyasic.data import Fan, HashBoard
@@ -22,6 +23,7 @@ from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
+from pyasic.rpc.avalonminer import AvalonMinerRPCAPI
 
 AVALON_DATA_LOC = DataLocations(
     **{
@@ -43,31 +45,31 @@ AVALON_DATA_LOC = DataLocations(
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -83,6 +85,9 @@ AVALON_DATA_LOC = DataLocations(
 
 class AvalonMiner(CGMiner):
     """Handler for Avalon Miners"""
+
+    _rpc_cls = AvalonMinerRPCAPI
+    rpc: AvalonMinerRPCAPI
 
     data_locations = AVALON_DATA_LOC
 
@@ -134,45 +139,94 @@ class AvalonMiner(CGMiner):
             return False
         return False
 
+    async def stop_mining(self) -> bool:
+        try:
+            # Shut off 5 seconds from now
+            timestamp = int(time.time()) + 5
+            data = await self.rpc.ascset(0, f"softoff", f"1:{timestamp}")
+        except APIError:
+            return False
+        if "success" in data["STATUS"][0]["Msg"]:
+            return True
+        return False
+
+    async def resume_mining(self) -> bool:
+        try:
+            # Shut off 5 seconds from now
+            timestamp = int(time.time()) + 5
+            data = await self.rpc.ascset(0, f"softon", f"1:{timestamp}")
+        except APIError:
+            return False
+        if "success" in data["STATUS"][0]["Msg"]:
+            return True
+        return False
+
     @staticmethod
-    def parse_stats(stats):
-        _stats_items = re.findall(".+?\\[*?]", stats)
-        stats_items = []
-        stats_dict = {}
-        for item in _stats_items:
-            if ": " in item:
-                data = item.replace("]", "").split("[")
-                data_list = [i.split(": ") for i in data[1].strip().split(", ")]
-                data_dict = {}
-                try:
-                    for key, val in [tuple(item) for item in data_list]:
-                        data_dict[key] = val
-                except ValueError:
-                    # --avalon args
-                    for arg_item in data_list:
-                        item_data = arg_item[0].split(" ")
-                        for idx, val in enumerate(item_data):
-                            if idx % 2 == 0 or idx == 0:
-                                data_dict[val] = item_data[idx + 1]
+    def parse_estats(data):
+        # Deep copy to preserve original structure
+        new_data = copy.deepcopy(data)
 
-                raw_data = [data[0].strip(), data_dict]
+        def convert_value(val, key):
+            val = val.strip()
+
+            if key == "SYSTEMSTATU":
+                return val
+
+            if " " in val:
+                parts = val.split()
+                result = []
+                for part in parts:
+                    if part.isdigit():
+                        result.append(int(part))
+                    else:
+                        try:
+                            result.append(float(part))
+                        except ValueError:
+                            result.append(part)
+                return result
             else:
-                raw_data = [
-                    value
-                    for value in item.replace("[", " ")
-                    .replace("]", " ")
-                    .split(" ")[:-1]
-                    if value != ""
-                ]
-                if len(raw_data) == 1:
-                    raw_data.append("")
-            if raw_data[0] == "":
-                raw_data = raw_data[1:]
+                if val.isdigit():
+                    return int(val)
+                try:
+                    return float(val)
+                except ValueError:
+                    return val
 
-            stats_dict[raw_data[0]] = raw_data[1:]
-            stats_items.append(raw_data)
+        def parse_info_block(info_str):
+            pattern = re.compile(r"(\w+)\[([^\]]*)\]")
+            return {
+                key: convert_value(val, key) for key, val in pattern.findall(info_str)
+            }
 
-        return stats_dict
+        for stat in new_data.get("STATS", []):
+            keys_to_replace = {}
+
+            for key, value in stat.items():
+                if "MM" in key:
+                    # Normalize key by removing suffix after colon
+                    norm_key = key.split(":")[0]
+
+                    mm_data = value
+                    if not isinstance(mm_data, str):
+                        continue
+                    if mm_data.startswith("'STATS':"):
+                        mm_data = mm_data[len("'STATS':") :]
+                    keys_to_replace[norm_key] = parse_info_block(mm_data)
+
+                elif key == "HBinfo":
+                    match = re.search(r"'(\w+)':\{(.+)\}", value)
+                    if match:
+                        hb_key = match.group(1)
+                        hb_data = match.group(2)
+                        keys_to_replace[key] = {hb_key: parse_info_block(hb_data)}
+
+            # Remove old keys and insert parsed versions
+            for k in list(stat.keys()):
+                if "MM" in k or k == "HBinfo":
+                    del stat[k]
+            stat.update(keys_to_replace)
+
+        return new_data
 
     ##################################################
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
@@ -211,7 +265,7 @@ class AvalonMiner(CGMiner):
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_estats: dict = None) -> List[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -220,164 +274,202 @@ class AvalonMiner(CGMiner):
             for i in range(self.expected_hashboards)
         ]
 
-        if rpc_stats is None:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
+                parsed_estats = self.parse_estats(rpc_estats)
             except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
 
             for board in range(self.expected_hashboards):
+
                 try:
-                    hashboards[board].chip_temp = int(parsed_stats["MTmax"][board])
+                    board_hr = parsed_estats["STATS"][0]["MM ID0"]["MGHS"]
+                    if isinstance(board_hr, list):
+                        hashboards[board].hashrate = self.algo.hashrate(
+                            rate=float(board_hr[board]), unit=self.algo.unit.GH
+                        ).into(self.algo.unit.default)
+                    else:
+                        hashboards[board].hashrate = self.algo.hashrate(
+                            rate=float(board_hr), unit=self.algo.unit.GH
+                        ).into(self.algo.unit.default)
+
                 except LookupError:
                     pass
 
                 try:
-                    board_hr = parsed_stats["MGHS"][board]
-                    hashboards[board].hashrate = self.algo.hashrate(
-                        rate=float(board_hr), unit=self.algo.unit.GH
-                    ).into(self.algo.unit.default)
+                    hashboards[board].chip_temp = int(
+                        parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
+                    )
                 except LookupError:
-                    pass
+                    try:
+                        hashboards[board].chip_temp = int(
+                            parsed_estats["STATS"][0]["MM ID0"]["Tmax"]
+                        )
+                    except LookupError:
+                        pass
 
                 try:
-                    hashboards[board].temp = int(parsed_stats["MTavg"][board])
+                    hashboards[board].temp = int(
+                        parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
+                    )
                 except LookupError:
-                    pass
+                    try:
+                        hashboards[board].temp = int(
+                            parsed_estats["STATS"][0]["MM ID0"]["Tavg"]
+                        )
+                    except LookupError:
+                        pass
 
                 try:
-                    chip_data = parsed_stats[f"PVT_T{board}"]
+                    hashboards[board].inlet_temp = int(
+                        parsed_estats["STATS"][0]["MM ID0"]["MTavg"][board]
+                    )
+                except LookupError:
+                    try:
+                        hashboards[board].inlet_temp = int(
+                            parsed_estats["STATS"][0]["MM ID0"]["HBITemp"]
+                        )
+                    except LookupError:
+                        pass
+
+                try:
+                    hashboards[board].outlet_temp = int(
+                        parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
+                    )
+                except LookupError:
+                    try:
+                        hashboards[board].outlet_temp = int(
+                            parsed_estats["STATS"][0]["MM ID0"]["HBOTemp"]
+                        )
+                    except LookupError:
+                        pass
+
+                try:
+                    chip_data = parsed_estats["STATS"][0]["MM ID0"][f"PVT_T{board}"]
                     hashboards[board].missing = False
                     if chip_data:
                         hashboards[board].chips = len(
                             [item for item in chip_data if not item == "0"]
                         )
                 except LookupError:
-                    pass
+                    try:
+                        chip_data = parsed_estats["STATS"][0]["HBinfo"][f"HB{board}"][
+                            f"PVT_T{board}"
+                        ]
+                        hashboards[board].missing = False
+                        if chip_data:
+                            hashboards[board].chips = len(
+                                [item for item in chip_data if not item == "0"]
+                            )
+                    except LookupError:
+                        pass
 
         return hashboards
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
+        self, rpc_estats: dict = None
     ) -> Optional[AlgoHashRate]:
-        if rpc_stats is None:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
                 return self.algo.hashrate(
-                    rate=float(parsed_stats["GHSmm"][0]), unit=self.algo.unit.GH
+                    rate=float(parsed_estats["GHSmm"]), unit=self.algo.unit.GH
                 ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_env_temp(self, rpc_stats: dict = None) -> Optional[float]:
-        if rpc_stats is None:
+    async def _get_env_temp(self, rpc_estats: dict = None) -> Optional[float]:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
-                return float(parsed_stats["Temp"][0])
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
+                return float(parsed_estats["Temp"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage_limit(self, rpc_stats: dict = None) -> Optional[int]:
-        if rpc_stats is None:
+    async def _get_wattage_limit(self, rpc_estats: dict = None) -> Optional[int]:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
-                return int(parsed_stats["MPO"][0])
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
+                return int(parsed_estats["MPO"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
-        if rpc_stats is None:
+    async def _get_wattage(self, rpc_estats: dict = None) -> Optional[int]:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
-                return int(parsed_stats["WALLPOWER"][0])
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
+                return int(parsed_estats["WALLPOWER"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_estats: dict = None) -> List[Fan]:
         if self.expected_fans is None:
             return []
 
-        if rpc_stats is None:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
         fans_data = [Fan() for _ in range(self.expected_fans)]
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
             except LookupError:
                 return fans_data
 
             for fan in range(self.expected_fans):
                 try:
-                    fans_data[fan].speed = int(parsed_stats[f"Fan{fan + 1}"][0])
+                    fans_data[fan].speed = int(parsed_estats[f"Fan{fan + 1}"])
                 except (IndexError, KeyError, ValueError, TypeError):
                     pass
         return fans_data
 
-    async def _get_fault_light(self, rpc_stats: dict = None) -> Optional[bool]:
+    async def _get_fault_light(self, rpc_estats: dict = None) -> Optional[bool]:
         if self.light:
             return self.light
-        if rpc_stats is None:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
-                led = int(parsed_stats["Led"][0])
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
+                led = int(parsed_estats["Led"])
                 return True if led == 1 else False
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
-
-        try:
-            data = await self.rpc.ascset(0, "led", "1-255")
-        except APIError:
-            return False
-        try:
-            if data["STATUS"][0]["Msg"] == "ASC 0 set info: LED[1]":
-                return True
-        except LookupError:
-            pass
         return False

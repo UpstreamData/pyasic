@@ -565,6 +565,12 @@ details {
                     <li><a href="../avalonminer/A15X#avalon-1566-stock">Avalon 1566 (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>Q Series:</summary>
+                <ul>
+                    <li><a href="../avalonminer/Q#avalon-q-home-stock">Avalon Q Home (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>

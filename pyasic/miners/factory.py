@@ -512,6 +512,7 @@ MINER_CLASSES = {
         "AVALONMINER NANO3": CGMinerAvalonNano3,
         "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
+        "AVALON Q": CGMinerAvalonQHome,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2025 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -14,12 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
-from .A15X import *
-from .nano import *
-from .Q import *
+from pyasic.miners.backends import AvalonMiner
+from pyasic.miners.device.models import AvalonQHome
+
+
+class CGMinerAvalonQHome(AvalonMiner, AvalonQHome):
+    pass
