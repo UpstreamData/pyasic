@@ -24,7 +24,7 @@ from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.data import DataOptions
 from pyasic.miners.device.models import Byte
 
-ALGORITHM_SCRIPT_NAME = "scrypt(LTC)"
+ALGORITHM_SCRYPT_NAME = "scrypt(LTC)"
 EXPECTED_CHIPS_PER_SCRYPT_BOARD = 5
 
 
@@ -45,20 +45,25 @@ class GoldshellByte(GoldshellMiner, Byte):
             except APIError:
                 pass
 
-        script_board_count = 0
+        scrypt_board_count = 0
+        total_wattage = 0
 
         for minfo in self.cgdev.get("minfos", []):
 
-            for _ in minfo.get("infos", []):
+            for info in minfo.get("infos", []):
                 
                 self.expected_hashboards += 1
 
-                if minfo.get("name") == ALGORITHM_SCRIPT_NAME:
-                    script_board_count += 1
+                total_wattage = float(info.get("power", 0))
+
+                if minfo.get("name") == ALGORITHM_SCRYPT_NAME:
+                    scrypt_board_count += 1
 
         data = await super().get_data(allow_warning, include, exclude)
 
-        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * script_board_count)
+        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count)
+        data.expected_fans = scrypt_board_count
+        data.wattage = total_wattage
 
         return data
     
@@ -128,9 +133,10 @@ class GoldshellByte(GoldshellMiner, Byte):
                             ).into(self.algo.unit.default)
                             hashboards[b_id].chip_temp = board["tstemp-1"]
                             hashboards[b_id].temp = board["tstemp-2"]
+                            hashboards[b_id].voltage = board["voltage"]
                             hashboards[b_id].missing = False
 
-                            if board.get("pool") == ALGORITHM_SCRIPT_NAME:
+                            if board.get("pool") == ALGORITHM_SCRYPT_NAME:
                                 hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_SCRYPT_BOARD
 
                         except KeyError:
