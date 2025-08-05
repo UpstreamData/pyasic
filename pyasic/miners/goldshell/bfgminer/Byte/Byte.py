@@ -15,20 +15,67 @@
 # ------------------------------------------------------------------------------
 from typing import List, Union
 from pyasic.config import MinerConfig
-from pyasic.data import MinerData
+from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
-from pyasic.miners.data import DataOptions
+from pyasic.miners.data import (
+    DataFunction,
+    DataLocations,
+    DataOptions,
+    RPCAPICommand,
+    WebAPICommand,
+)
 from pyasic.miners.device.models import Byte
 
 ALGORITHM_SCRYPT_NAME = "scrypt(LTC)"
 EXPECTED_CHIPS_PER_SCRYPT_BOARD = 5
 
+GOLDSHELL_BYTE_DATA_LOC = DataLocations(
+    **{
+        str(DataOptions.MAC): DataFunction(
+            "_get_mac",
+            [WebAPICommand("web_setting", "setting")],
+        ),
+        str(DataOptions.API_VERSION): DataFunction(
+            "_get_api_ver",
+            [RPCAPICommand("rpc_version", "version")],
+        ),
+        str(DataOptions.FW_VERSION): DataFunction(
+            "_get_fw_ver",
+            [WebAPICommand("web_status", "status")],
+        ),
+        str(DataOptions.HASHRATE): DataFunction(
+            "_get_hashrate",
+            [RPCAPICommand("rpc_summary", "summary")],
+        ),
+        str(DataOptions.EXPECTED_HASHRATE): DataFunction(
+            "_get_expected_hashrate",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
+        str(DataOptions.HASHBOARDS): DataFunction(
+            "_get_hashboards",
+            [
+                RPCAPICommand("rpc_devs", "devs"),
+                RPCAPICommand("rpc_devdetails", "devdetails"),
+            ],
+        ),
+        str(DataOptions.FANS): DataFunction(
+            "_get_fans",
+            [RPCAPICommand("rpc_devs", "devs")],
+        ),
+        str(DataOptions.POOLS): DataFunction(
+            "_get_pools",
+            [RPCAPICommand("rpc_pools", "pools")],
+        ),
+    }
+)
 
 class GoldshellByte(GoldshellMiner, Byte):
+
+    data_locations = GOLDSHELL_BYTE_DATA_LOC
 
     cgdev: dict | None = None
 
@@ -64,6 +111,10 @@ class GoldshellByte(GoldshellMiner, Byte):
         data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count)
         data.expected_fans = scrypt_board_count
         data.wattage = total_wattage
+        data.voltage = 0
+
+        for board in data.hashboards:
+            data.voltage += board.voltage
 
         return data
     
@@ -163,3 +214,33 @@ class GoldshellByte(GoldshellMiner, Byte):
                 logger.error(self, rpc_devdetails)
 
         return hashboards
+    
+    async def _get_fans(self, rpc_devs: dict = None) -> List[Fan]:
+        if self.expected_fans is None:
+            return []
+
+        if rpc_devs is None:
+            try:
+                rpc_devs = await self.rpc.devs()
+            except APIError:
+                pass
+
+        fans_data = []
+
+        if rpc_devs is not None:
+            if rpc_devs.get("DEVS"):
+                for board in rpc_devs["DEVS"]:
+                    if board.get("PGA") is not None:
+                        try:
+                            b_id = board["PGA"]
+                            fan_speed = board[f"fan{b_id}"]
+                            fans_data.append(fan_speed)
+
+                        except KeyError:
+                            pass
+            else:
+                logger.error(self, rpc_devs)
+
+        fans = [Fan(speed=d) if d else Fan() for d in fans_data]
+
+        return fans
