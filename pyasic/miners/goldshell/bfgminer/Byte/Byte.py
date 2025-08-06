@@ -94,6 +94,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         scrypt_board_count = 0
         total_wattage = 0
+        total_uptime_mins = 0
 
         for minfo in self.cgdev.get("minfos", []):
 
@@ -102,6 +103,7 @@ class GoldshellByte(GoldshellMiner, Byte):
                 self.expected_hashboards += 1
 
                 total_wattage = float(info.get("power", 0))
+                total_uptime_mins = int(info.get("time", 0))
 
                 if minfo.get("name") == ALGORITHM_SCRYPT_NAME:
                     scrypt_board_count += 1
@@ -111,6 +113,7 @@ class GoldshellByte(GoldshellMiner, Byte):
         data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count)
         data.expected_fans = scrypt_board_count
         data.wattage = total_wattage
+        data.uptime = total_uptime_mins
         data.voltage = 0
 
         for board in data.hashboards:
