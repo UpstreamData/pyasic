@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Union
+from typing import List, Optional, Union
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
@@ -41,7 +41,7 @@ GOLDSHELL_BYTE_DATA_LOC = DataLocations(
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
-            [RPCAPICommand("rpc_version", "version")],
+            [WebAPICommand("web_setting", "version")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_fw_ver",
@@ -131,6 +131,24 @@ class GoldshellByte(GoldshellMiner, Byte):
         self.config = MinerConfig.from_goldshell_byte(pools)
         return self.config
     
+    async def _get_api_ver(self, web_setting: dict = None) -> Optional[str]:
+        if web_setting is None:
+            try:
+                web_setting = await self.web.setting()
+            except APIError:
+                pass
+
+        if web_setting is not None:
+            try:
+                version = web_setting.get("version")
+                if version is not None:
+                    self.api_ver = version.strip("v")
+                    return self.api_ver
+            except KeyError:
+                pass
+
+        return self.api_ver
+    
     async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
         if rpc_pools is None:
             try:
@@ -188,6 +206,7 @@ class GoldshellByte(GoldshellMiner, Byte):
                             hashboards[b_id].chip_temp = board["tstemp-1"]
                             hashboards[b_id].temp = board["tstemp-2"]
                             hashboards[b_id].voltage = board["voltage"]
+                            hashboards[b_id].active = board["Status"] == "Alive"
                             hashboards[b_id].missing = False
 
                             if board.get("pool") == ALGORITHM_SCRYPT_NAME:
