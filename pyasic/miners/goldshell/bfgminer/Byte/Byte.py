@@ -31,7 +31,9 @@ from pyasic.miners.data import (
 from pyasic.miners.device.models import Byte
 
 ALGORITHM_SCRYPT_NAME = "scrypt(LTC)"
+ALGORITHM_ZKSNARK_NAME = "zkSNARK(ALEO)"
 EXPECTED_CHIPS_PER_SCRYPT_BOARD = 5
+EXPECTED_CHIPS_PER_ZKSNARK_BOARD = 3
 
 GOLDSHELL_BYTE_DATA_LOC = DataLocations(
     **{
@@ -93,25 +95,30 @@ class GoldshellByte(GoldshellMiner, Byte):
                 pass
 
         scrypt_board_count = 0
+        zksnark_board_count = 0
         total_wattage = 0
         total_uptime_mins = 0
 
         for minfo in self.cgdev.get("minfos", []):
+
+            algo_name = minfo.get("name")
 
             for info in minfo.get("infos", []):
                 
                 self.expected_hashboards += 1
 
                 total_wattage = float(info.get("power", 0))
-                total_uptime_mins = int(info.get("time", 0))
+                total_uptime_mins = int(info.get("time", 0))       
 
-                if minfo.get("name") == ALGORITHM_SCRYPT_NAME:
+                if algo_name == ALGORITHM_SCRYPT_NAME:
                     scrypt_board_count += 1
+                elif algo_name == ALGORITHM_ZKSNARK_NAME:
+                    zksnark_board_count += 1
 
         data = await super().get_data(allow_warning, include, exclude)
 
-        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count)
-        data.expected_fans = scrypt_board_count
+        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
+        data.expected_fans = self.expected_hashboards
         data.wattage = total_wattage
         data.uptime = total_uptime_mins
         data.voltage = 0
@@ -209,8 +216,12 @@ class GoldshellByte(GoldshellMiner, Byte):
                             hashboards[b_id].active = board["Status"] == "Alive"
                             hashboards[b_id].missing = False
 
-                            if board.get("pool") == ALGORITHM_SCRYPT_NAME:
+                            algo_name = board.get("pool")
+
+                            if algo_name == ALGORITHM_SCRYPT_NAME:
                                 hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_SCRYPT_BOARD
+                            elif algo_name == ALGORITHM_ZKSNARK_NAME:
+                                hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_ZKSNARK_BOARD
 
                         except KeyError:
                             pass
