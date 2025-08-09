@@ -18,7 +18,7 @@ from pyasic.config import MinerConfig
 from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
@@ -116,9 +116,15 @@ class GoldshellByte(GoldshellMiner, Byte):
                 elif algo_name == ALGORITHM_ZKSNARK_NAME:
                     zksnark_board_count += 1
 
-        data = await super().get_data(allow_warning, include, exclude)
+        self.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
 
-        data.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
+        if scrypt_board_count > 0:
+            self.algo = MinerAlgo.SCRYPT
+        elif zksnark_board_count > 0:
+            self.algo = MinerAlgo.ZKSNARK
+
+        data = await super().get_data(allow_warning, include, exclude)
+        data.expected_chips = self.expected_chips
         data.wattage = total_wattage
         data.uptime = total_uptime_mins
         data.voltage = 0

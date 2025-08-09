@@ -8,6 +8,7 @@ from .kheavyhash import KHeavyHashUnit
 from .scrypt import ScryptUnit
 from .sha256 import SHA256Unit
 from .x11 import X11Unit
+from .zksnark import ZkSnarkUnit
 
 
 class HashUnit:
@@ -21,3 +22,4 @@ class HashUnit:
     EAGLESONG = EaglesongUnit
     ETHASH = EtHashUnit
     EQUIHASH = EquihashUnit
+    ZKSNARK = ZkSnarkUnit
