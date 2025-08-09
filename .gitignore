@@ -7,8 +7,4 @@ pyvenv.cfg
 bin/
 lib/
 .idea/
-/.vs/pyasic/FileContentIndex
-/.vs/pyasic/v17
-/.vs/slnx.sqlite
-/.vs/VSWorkspaceState.json
-/.vs/slnx.sqlite-journal
+.vs/

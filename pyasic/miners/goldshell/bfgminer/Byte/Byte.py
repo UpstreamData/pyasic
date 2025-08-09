@@ -19,9 +19,7 @@ from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
-from pyasic.device.algorithm.base import GenericAlgo
 from pyasic.errors import APIError
-from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -119,11 +117,9 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         self.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
 
-        if scrypt_board_count > 0 and zksnark_board_count > 0:
-            self.algo = GenericAlgo
-        elif scrypt_board_count > 0:
+        if scrypt_board_count > 0 and zksnark_board_count == 0:
             self.algo = MinerAlgo.SCRYPT
-        elif zksnark_board_count > 0:
+        elif zksnark_board_count > 0 and scrypt_board_count == 0:
             self.algo = MinerAlgo.ZKSNARK
 
         data = await super().get_data(allow_warning, include, exclude)
@@ -174,17 +170,16 @@ class GoldshellByte(GoldshellMiner, Byte):
         total_hash_rate_mh = 0
 
         if rpc_devs is not None:
-            if rpc_devs.get("DEVS"):
-                for board in rpc_devs["DEVS"]:
+            for board in rpc_devs.get("DEVS", []):
 
-                    algo_name = board.get("pool")
+                algo_name = board.get("pool")
 
-                    if algo_name == ALGORITHM_SCRYPT_NAME:
-                        total_hash_rate_mh += self.algo.hashrate(
-                            rate=float(board.get("estimate_hash_rate", 0)), unit=self.algo.unit.H
-                        ).into(self.algo.unit.MH).rate
-                    elif algo_name == ALGORITHM_ZKSNARK_NAME:
-                        total_hash_rate_mh += float(board.get("theory_hash", 0))
+                if algo_name == ALGORITHM_SCRYPT_NAME:
+                    total_hash_rate_mh += self.algo.hashrate(
+                        rate=float(board.get("estimate_hash_rate", 0)), unit=self.algo.unit.H
+                    ).into(self.algo.unit.MH).rate
+                elif algo_name == ALGORITHM_ZKSNARK_NAME:
+                    total_hash_rate_mh += float(board.get("theory_hash", 0))
 
         hash_rate = self.algo.hashrate(
             rate=total_hash_rate_mh, unit=self.algo.unit.MH
@@ -202,9 +197,8 @@ class GoldshellByte(GoldshellMiner, Byte):
         total_hash_rate_mh = 0
 
         if rpc_devs is not None:
-            if rpc_devs.get("DEVS"):
-                for board in rpc_devs["DEVS"]:
-                    total_hash_rate_mh += float(board.get("MHS 20s", 0))
+            for board in rpc_devs.get("DEVS", []):
+                total_hash_rate_mh += float(board.get("MHS 20s", 0))
 
         hash_rate = self.algo.hashrate(
             rate=total_hash_rate_mh, unit=self.algo.unit.MH
@@ -255,24 +249,23 @@ class GoldshellByte(GoldshellMiner, Byte):
         ]
 
         if rpc_devs is not None:
-            if rpc_devs.get("DEVS"):
-                for board in rpc_devs["DEVS"]:
-                    b_id = board["PGA"]
-                    hashboards[b_id].hashrate = self.algo.hashrate(
-                        rate=float(board["MHS 20s"]), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
-                    hashboards[b_id].chip_temp = board["tstemp-1"]
-                    hashboards[b_id].temp = board["tstemp-2"]
-                    hashboards[b_id].voltage = board["voltage"]
-                    hashboards[b_id].active = board["Status"] == "Alive"
-                    hashboards[b_id].missing = False
+            for board in rpc_devs.get("DEVS", []):
+                b_id = board["PGA"]
+                hashboards[b_id].hashrate = self.algo.hashrate(
+                    rate=float(board["MHS 20s"]), unit=self.algo.unit.MH
+                ).into(self.algo.unit.default)
+                hashboards[b_id].chip_temp = board["tstemp-1"]
+                hashboards[b_id].temp = board["tstemp-2"]
+                hashboards[b_id].voltage = board["voltage"]
+                hashboards[b_id].active = board["Status"] == "Alive"
+                hashboards[b_id].missing = False
 
-                    algo_name = board.get("pool")
+                algo_name = board.get("pool")
 
-                    if algo_name == ALGORITHM_SCRYPT_NAME:
-                        hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_SCRYPT_BOARD
-                    elif algo_name == ALGORITHM_ZKSNARK_NAME:
-                        hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_ZKSNARK_BOARD
+                if algo_name == ALGORITHM_SCRYPT_NAME:
+                    hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_SCRYPT_BOARD
+                elif algo_name == ALGORITHM_ZKSNARK_NAME:
+                    hashboards[b_id].expected_chips = EXPECTED_CHIPS_PER_ZKSNARK_BOARD
 
         if rpc_devdetails is None:
             try:
@@ -281,16 +274,13 @@ class GoldshellByte(GoldshellMiner, Byte):
                 pass
 
         if rpc_devdetails is not None:
-            if rpc_devdetails.get("DEVS"):
-                for board in rpc_devdetails["DEVS"]:
-                    if board.get("DEVDETAILS") is not None:
-                        try:
-                            b_id = board["DEVDETAILS"]
-                            hashboards[b_id].chips = board["chips-nr"]
-                        except KeyError:
-                            pass
-            else:
-                logger.error(self, rpc_devdetails)
+            for board in rpc_devdetails.get("DEVS", []):
+                if board.get("DEVDETAILS") is not None:
+                    try:
+                        b_id = board["DEVDETAILS"]
+                        hashboards[b_id].chips = board["chips-nr"]
+                    except KeyError:
+                        pass
 
         return hashboards
     
@@ -307,18 +297,15 @@ class GoldshellByte(GoldshellMiner, Byte):
         fans_data = []
 
         if rpc_devs is not None:
-            if rpc_devs.get("DEVS"):
-                for board in rpc_devs["DEVS"]:
-                    if board.get("PGA") is not None:
-                        try:
-                            b_id = board["PGA"]
-                            fan_speed = board[f"fan{b_id}"]
-                            fans_data.append(fan_speed)
+            for board in rpc_devs.get("DEVS", []):
+                if board.get("PGA") is not None:
+                    try:
+                        b_id = board["PGA"]
+                        fan_speed = board[f"fan{b_id}"]
+                        fans_data.append(fan_speed)
 
-                        except KeyError:
-                            pass
-            else:
-                logger.error(self, rpc_devs)
+                    except KeyError:
+                        pass
 
         fans = [Fan(speed=d) if d else Fan() for d in fans_data]
 
