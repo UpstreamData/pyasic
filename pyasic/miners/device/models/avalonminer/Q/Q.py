@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2024 Upstream Data Inc                                            -
+#  Copyright 2022 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -15,31 +15,13 @@
 # ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
 from pyasic.device.models import MinerModel
-from pyasic.miners.device.makes import ElphapexMake
+from pyasic.miners.device.makes import AvalonMinerMake
 
 
-class DG1(ElphapexMake):
-    raw_model = MinerModel.ELPHAPEX.DG1
+class AvalonQHome(AvalonMinerMake):
+    raw_model = MinerModel.AVALONMINER.AvalonQHome
 
-    expected_chips = 144
-    expected_hashboards = 4
-    expected_fans = 4
-    algo = MinerAlgo.SCRYPT
-
-
-class DG1Plus(ElphapexMake):
-    raw_model = MinerModel.ELPHAPEX.DG1Plus
-
-    expected_chips = 204
-    expected_hashboards = 4
-    expected_fans = 4
-    algo = MinerAlgo.SCRYPT
-
-
-class DG1Home(ElphapexMake):
-    raw_model = MinerModel.ELPHAPEX.DG1Home
-
-    expected_chips = 120
-    expected_hashboards = 4
-    expected_fans = 4
-    algo = MinerAlgo.SCRYPT
+    expected_chips = 160
+    expected_fans = 2
+    expected_hashboards = 1
+    algo = MinerAlgo.SHA256

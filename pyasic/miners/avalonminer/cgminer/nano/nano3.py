@@ -49,31 +49,31 @@ AVALON_NANO_DATA_LOC = DataLocations(
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -102,35 +102,35 @@ AVALON_NANO3S_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [RPCAPICommand("rpc_estats", "estats")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -170,58 +170,58 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
 
     data_locations = AVALON_NANO3S_DATA_LOC
 
-    async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
-        if rpc_stats is None:
+    async def _get_wattage(self, rpc_estats: dict = None) -> Optional[int]:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
-                return int(parsed_stats["PS"][6])
+                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
+                parsed_estats = self.parse_estats(unparsed_estats)
+                return int(parsed_estats["PS"][6])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_hashrate(self, rpc_stats: dict = None) -> Optional[AlgoHashRate]:
-        if rpc_stats is None:
+    async def _get_hashrate(self, rpc_estats: dict = None) -> Optional[AlgoHashRate]:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
+                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
+                parsed_estats = self.parse_estats(unparsed_estats)
                 return self.algo.hashrate(
-                    rate=float(parsed_stats["GHSspd"][0]), unit=self.algo.unit.GH
+                    rate=float(parsed_estats["GHSspd"]), unit=self.algo.unit.GH
                 ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
-        hashboards = await AvalonMiner._get_hashboards(self, rpc_stats)
+    async def _get_hashboards(self, rpc_estats: dict = None) -> List[HashBoard]:
+        hashboards = await AvalonMiner._get_hashboards(self, rpc_estats)
 
-        if rpc_stats is None:
+        if rpc_estats is None:
             try:
-                rpc_stats = await self.rpc.stats()
+                rpc_estats = await self.rpc.estats()
             except APIError:
                 pass
 
-        if rpc_stats is not None:
+        if rpc_estats is not None:
 
             try:
-                unparsed_stats = rpc_stats["STATS"][0]["MM ID0"]
-                parsed_stats = self.parse_stats(unparsed_stats)
+                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
+                parsed_estats = self.parse_estats(unparsed_estats)
             except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
 
             for board in range(len(hashboards)):
                 try:
-                    board_hr = parsed_stats["GHSspd"][board]
+                    board_hr = parsed_estats["GHSspd"][board]
                     hashboards[board].hashrate = self.algo.hashrate(
                         rate=float(board_hr), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)

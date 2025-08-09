@@ -22,3 +22,4 @@ from .A11X import *
 from .A12X import *
 from .A15X import *
 from .nano import *
+from .Q import *

@@ -41,6 +41,7 @@ from pyasic.miners.elphapex import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
+from pyasic.miners.iceriver.iceminer.ALX import IceRiverAL3
 from pyasic.miners.innosilicon import *
 from pyasic.miners.luckyminer import *
 from pyasic.miners.volcminer import *
@@ -108,6 +109,8 @@ MINER_CLASSES = {
         "ANTMINER S19J88NOPIC": BMMinerS19jNoPIC,
         "ANTMINER S19PRO+": BMMinerS19ProPlus,
         "ANTMINER S19J PRO": BMMinerS19jPro,
+        "ANTMINER S19J+": BMMinerS19jPlus,
+        "ANTMINER S19J PRO+": BMMinerS19jProPlus,
         "ANTMINER S19 XP": BMMinerS19XP,
         "ANTMINER S19A": BMMinerS19a,
         "ANTMINER S19A PRO": BMMinerS19aPro,
@@ -509,6 +512,7 @@ MINER_CLASSES = {
         "AVALONMINER NANO3": CGMinerAvalonNano3,
         "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
+        "AVALON Q": CGMinerAvalonQHome,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
@@ -562,12 +566,14 @@ MINER_CLASSES = {
         "ANTMINER T21": BOSMinerT21,
         "BRAIINS MINI MINER BMM 100": BraiinsBMM100,
         "BRAIINS MINI MINER BMM 101": BraiinsBMM101,
+        "ANTMINER S19 XP HYD.": BOSMinerS19XPHydro,
     },
     MinerTypes.VNISH: {
         None: VNish,
-        "L3+": VnishL3Plus,
-        "ANTMINER L3+": VnishL3Plus,
-        "ANTMINER L7": VnishL7,
+        "L3+": VNishL3Plus,
+        "ANTMINER L3+": VNishL3Plus,
+        "ANTMINER L7": VNishL7,
+        "ANTMINER L9": VNishL9,
         "ANTMINER S17+": VNishS17Plus,
         "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
@@ -575,11 +581,15 @@ MINER_CLASSES = {
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
         "ANTMINER S19I": VNishS19i,
+        "ANTMINER S19 XP": VNishS19XP,
+        "ANTMINER S19 XP HYD.": VNishS19XPHydro,
         "ANTMINER S19J PRO": VNishS19jPro,
         "ANTMINER S19J PRO A": VNishS19jPro,
         "ANTMINER S19J PRO BB": VNishS19jPro,
         "ANTMINER S19A": VNishS19a,
+        "ANTMINER S19 HYD.": VNishS19Hydro,
         "ANTMINER S19A PRO": VNishS19aPro,
+        "ANTMINER S19 PRO A": VNishS19ProA,
         "ANTMINER S19 PRO HYD.": VNishS19ProHydro,
         "ANTMINER S19K PRO": VNishS19kPro,
         "ANTMINER T19": VNishT19,
@@ -678,6 +688,7 @@ MINER_CLASSES = {
         "KS5": IceRiverKS5,
         "KS5L": IceRiverKS5L,
         "KS5M": IceRiverKS5M,
+        "10306": IceRiverAL3,
     },
     MinerTypes.HAMMER: {
         None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
@@ -690,6 +701,8 @@ MINER_CLASSES = {
     MinerTypes.ELPHAPEX: {
         None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
         "DG1+": ElphapexDG1Plus,
+        "DG1": ElphapexDG1,
+        "DG1-Home": ElphapexDG1Home,
     },
 }
 

@@ -1,5 +1,6 @@
 from .base import AlgoHashRateType
 from .blake256 import Blake256HashRate
+from .blockflow import BlockFlowHashRate
 from .eaglesong import EaglesongHashRate
 from .equihash import EquihashHashRate
 from .ethash import EtHashHashRate
@@ -23,4 +24,5 @@ class AlgoHashRate:
     EAGLESONG = EaglesongHashRate
     ETHASH = EtHashHashRate
     EQUIHASH = EquihashHashRate
+    BLOCKFLOW = BlockFlowHashRate
     ZKSNARK = ZkSnarkHashRate

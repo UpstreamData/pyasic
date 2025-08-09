@@ -18,5 +18,5 @@ from pyasic.miners.backends import VNish
 from pyasic.miners.device.models import L7
 
 
-class VnishL7(VNish, L7):
+class VNishL7(VNish, L7):
     pass

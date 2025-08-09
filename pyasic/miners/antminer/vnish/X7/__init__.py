@@ -14,4 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .L7 import VnishL7
+from .L7 import VNishL7
