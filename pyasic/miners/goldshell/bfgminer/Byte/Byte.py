@@ -107,7 +107,7 @@ class GoldshellByte(GoldshellMiner, Byte):
                 self.expected_hashboards += 1
                 self.expected_fans += 1
 
-                total_wattage = float(info.get("power", 0))
+                total_wattage = int(float(info.get("power", 0)))
                 total_uptime_mins = int(info.get("time", 0))       
 
                 if algo_name == ALGORITHM_SCRYPT_NAME:
