@@ -138,7 +138,6 @@ class GoldshellByte(GoldshellMiner, Byte):
         return data
     
     async def get_config(self) -> MinerConfig:
-        # get pool data
         try:
             pools = await self.web.pools()
         except APIError:
