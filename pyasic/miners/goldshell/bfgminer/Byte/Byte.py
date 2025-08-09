@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from typing import List, Optional, Union
+
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
@@ -75,6 +76,7 @@ GOLDSHELL_BYTE_DATA_LOC = DataLocations(
     }
 )
 
+
 class GoldshellByte(GoldshellMiner, Byte):
 
     data_locations = GOLDSHELL_BYTE_DATA_LOC
@@ -103,19 +105,21 @@ class GoldshellByte(GoldshellMiner, Byte):
             algo_name = minfo.get("name")
 
             for info in minfo.get("infos", []):
-                
+
                 self.expected_hashboards += 1
                 self.expected_fans += 1
 
                 total_wattage = int(float(info.get("power", 0)))
-                total_uptime_mins = int(info.get("time", 0))       
+                total_uptime_mins = int(info.get("time", 0))
 
                 if algo_name == ALGORITHM_SCRYPT_NAME:
                     scrypt_board_count += 1
                 elif algo_name == ALGORITHM_ZKSNARK_NAME:
                     zksnark_board_count += 1
 
-        self.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
+        self.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (
+            EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count
+        )
 
         if scrypt_board_count > 0 and zksnark_board_count == 0:
             self.algo = MinerAlgo.SCRYPT
@@ -132,7 +136,7 @@ class GoldshellByte(GoldshellMiner, Byte):
             data.voltage += board.voltage
 
         return data
-    
+
     async def get_config(self) -> MinerConfig:
         try:
             pools = await self.web.pools()
@@ -141,7 +145,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         self.config = MinerConfig.from_goldshell_byte(pools)
         return self.config
-    
+
     async def _get_api_ver(self, web_setting: dict = None) -> Optional[str]:
         if web_setting is None:
             try:
@@ -159,8 +163,10 @@ class GoldshellByte(GoldshellMiner, Byte):
                 pass
 
         return self.api_ver
-    
-    async def _get_expected_hashrate(self, rpc_devs: dict = None) -> Optional[AlgoHashRate]:
+
+    async def _get_expected_hashrate(
+        self, rpc_devs: dict = None
+    ) -> Optional[AlgoHashRate]:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -175,9 +181,14 @@ class GoldshellByte(GoldshellMiner, Byte):
                 algo_name = board.get("pool")
 
                 if algo_name == ALGORITHM_SCRYPT_NAME:
-                    total_hash_rate_mh += self.algo.hashrate(
-                        rate=float(board.get("estimate_hash_rate", 0)), unit=self.algo.unit.H
-                    ).into(self.algo.unit.MH).rate
+                    total_hash_rate_mh += (
+                        self.algo.hashrate(
+                            rate=float(board.get("estimate_hash_rate", 0)),
+                            unit=self.algo.unit.H,
+                        )
+                        .into(self.algo.unit.MH)
+                        .rate
+                    )
                 elif algo_name == ALGORITHM_ZKSNARK_NAME:
                     total_hash_rate_mh += float(board.get("theory_hash", 0))
 
@@ -233,7 +244,7 @@ class GoldshellByte(GoldshellMiner, Byte):
             except LookupError:
                 pass
         return pools_data
-    
+
     async def _get_hashboards(
         self, rpc_devs: dict = None, rpc_devdetails: dict = None
     ) -> List[HashBoard]:
@@ -283,7 +294,7 @@ class GoldshellByte(GoldshellMiner, Byte):
                         pass
 
         return hashboards
-    
+
     async def _get_fans(self, rpc_devs: dict = None) -> List[Fan]:
         if self.expected_fans is None:
             return []
