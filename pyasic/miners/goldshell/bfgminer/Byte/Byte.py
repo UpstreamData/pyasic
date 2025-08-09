@@ -19,6 +19,7 @@ from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
 from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
+from pyasic.device.algorithm.base import GenericAlgo
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
@@ -118,7 +119,9 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         self.expected_chips = (EXPECTED_CHIPS_PER_SCRYPT_BOARD * scrypt_board_count) + (EXPECTED_CHIPS_PER_ZKSNARK_BOARD * zksnark_board_count)
 
-        if scrypt_board_count > 0:
+        if scrypt_board_count > 0 and zksnark_board_count > 0:
+            self.algo = GenericAlgo
+        elif scrypt_board_count > 0:
             self.algo = MinerAlgo.SCRYPT
         elif zksnark_board_count > 0:
             self.algo = MinerAlgo.ZKSNARK
