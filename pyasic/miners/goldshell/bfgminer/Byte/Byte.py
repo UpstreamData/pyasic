@@ -286,12 +286,8 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         if rpc_devdetails is not None:
             for board in rpc_devdetails.get("DEVS", []):
-                if board.get("DEVDETAILS") is not None:
-                    try:
-                        b_id = board["DEVDETAILS"]
-                        hashboards[b_id].chips = board["chips-nr"]
-                    except KeyError:
-                        pass
+                b_id = board["DEVDETAILS"]
+                hashboards[b_id].chips = board["chips-nr"]
 
         return hashboards
 
