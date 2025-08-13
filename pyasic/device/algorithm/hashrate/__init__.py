@@ -10,6 +10,7 @@ from .kheavyhash import KHeavyHashHashRate
 from .scrypt import ScryptHashRate
 from .sha256 import SHA256HashRate
 from .x11 import X11HashRate
+from .zksnark import ZkSnarkHashRate
 
 
 class AlgoHashRate:
@@ -24,3 +25,4 @@ class AlgoHashRate:
     ETHASH = EtHashHashRate
     EQUIHASH = EquihashHashRate
     BLOCKFLOW = BlockFlowHashRate
+    ZKSNARK = ZkSnarkHashRate

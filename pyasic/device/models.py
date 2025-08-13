@@ -479,6 +479,7 @@ class GoldshellModels(MinerModelType):
     KDMax = "KD Max"
     KDBoxII = "KD Box II"
     KDBoxPro = "KD Box Pro"
+    Byte = "Byte"
 
     def __str__(self):
         return self.value
