@@ -632,6 +632,16 @@ class PoolConfig(MinerConfigValue):
         return cls(groups=[PoolGroup.from_goldshell(web_pools)])
 
     @classmethod
+    def from_goldshell_byte(cls, web_pools: list) -> "PoolConfig":
+        return cls(
+            groups=[
+                PoolGroup.from_goldshell(g["pools"])
+                for g in web_pools
+                if len(g["pools"]) > 0
+            ]
+        )
+
+    @classmethod
     def from_inno(cls, web_pools: list) -> "PoolConfig":
         return cls(groups=[PoolGroup.from_inno(web_pools)])
 

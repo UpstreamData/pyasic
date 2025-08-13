@@ -12,6 +12,7 @@ from .kheavyhash import KHeavyHashAlgo
 from .scrypt import ScryptAlgo
 from .sha256 import SHA256Algo
 from .x11 import X11Algo
+from .zksnark import ZkSnarkAlgo
 
 
 class MinerAlgo:
@@ -26,3 +27,4 @@ class MinerAlgo:
     ETHASH = EtHashAlgo
     EQUIHASH = EquihashAlgo
     BLOCKFLOW = BlockFlowAlgo
+    ZKSNARK = ZkSnarkAlgo
