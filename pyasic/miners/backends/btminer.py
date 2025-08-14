@@ -829,6 +829,85 @@ class BTMinerV3(StockFirmware):
     supports_autotuning = True
     supports_power_modes = True
 
+    async def fault_light_off(self) -> bool:
+        try:
+            data = await self.rpc.set_system_led()
+        except APIError:
+            return False
+        if data:
+            if "code" in data.keys():
+                if data["code"] == 0:
+                    self.light = False
+                    return True
+        return False
+
+    async def fault_light_on(self) -> bool:
+        try:
+            data = await self.rpc.set_system_led(
+                leds=[
+                    {
+                        {"color": "red", "period": 60, "duration": 20, "start": 0},
+                    }
+                ],
+            )
+        except APIError:
+            return False
+        if data:
+            if "code" in data.keys():
+                if data["code"] == 0:
+                    self.light = True
+                    return True
+        return False
+
+    async def reboot(self) -> bool:
+        try:
+            data = await self.rpc.set_system_reboot()
+        except APIError:
+            return False
+        if data.get("msg"):
+            if data["msg"] == "ok":
+                return True
+        return False
+
+    async def restart_backend(self) -> bool:
+        try:
+            data = await self.rpc.set_miner_service("restart")
+        except APIError:
+            return False
+        if data.get("msg"):
+            if data["msg"] == "ok":
+                return True
+        return False
+
+    async def stop_mining(self) -> bool:
+        try:
+            data = await self.rpc.set_miner_service("stop")
+        except APIError:
+            return False
+        if data.get("msg"):
+            if data["msg"] == "ok":
+                return True
+        return False
+
+    async def resume_mining(self) -> bool:
+        try:
+            data = await self.rpc.set_miner_service("start")
+        except APIError:
+            return False
+        if data.get("msg"):
+            if data["msg"] == "ok":
+                return True
+        return False
+
+    async def set_power_limit(self, wattage: int) -> bool:
+        try:
+            await self.rpc.set_miner_power_limit(wattage)
+        except Exception as e:
+            logging.warning(f"{self} set_power_limit: {e}")
+            return False
+        else:
+            return True
+
     async def _get_mac(self, rpc_get_device_info: dict = None) -> str | None:
         if rpc_get_device_info is None:
             try:

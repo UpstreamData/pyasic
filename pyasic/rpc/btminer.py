@@ -1256,8 +1256,7 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
     async def get_fan_setting(self) -> dict | None:
         return await self.send_command("get.fan.setting")
 
-    async def set_system_reboot(self, *args, **kwargs) -> dict | None:
-        raise NotImplementedError
+    async def set_system_reboot(self) -> dict | None:
         return await self.send_command("set.system.reboot")
 
     async def set_system_factory_reset(self, *args, **kwargs) -> dict | None:
@@ -1272,8 +1271,11 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         raise NotImplementedError
         return await self.send_command("set.system.net_config")
 
-    async def set_system_led(self, *args, **kwargs) -> dict | None:
-        return await self.send_command("set.system.led", "auto")
+    async def set_system_led(self, leds: list | None = None) -> dict | None:
+        if leds is None:
+            return await self.send_command("set.system.led", parameters="auto")
+        else:
+            return await self.send_command("set.system.led", parameters=leds)
 
     async def set_system_time_randomized(self, *args, **kwargs) -> dict | None:
         raise NotImplementedError
@@ -1303,9 +1305,8 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         raise NotImplementedError
         return await self.send_command("set.system.ntp_server")
 
-    async def set_miner_service(self, *args, **kwargs) -> dict | None:
-        raise NotImplementedError
-        return await self.send_command("set.miner.service")
+    async def set_miner_service(self, value: str) -> dict | None:
+        return await self.send_command("set.miner.service", parameters=value)
 
     async def set_miner_power_mode(self, *args, **kwargs) -> dict | None:
         raise NotImplementedError
@@ -1340,9 +1341,8 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
             "set.miner.report", parameters={"gap": frequency}
         )
 
-    async def set_miner_power_limit(self, *args, **kwargs) -> dict | None:
-        raise NotImplementedError
-        return await self.send_command("set.miner.power_limit")
+    async def set_miner_power_limit(self, power: int) -> dict | None:
+        return await self.send_command("set.miner.power_limit", parameters=power)
 
     async def set_miner_upfreq_speed(self, *args, **kwargs) -> dict | None:
         raise NotImplementedError
