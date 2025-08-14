@@ -248,6 +248,11 @@ class MinerConfig(BaseModel):
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
+    def from_goldshell_list(cls, web_conf: list) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for Goldshell miners."""
+        return cls(pools=PoolConfig.from_goldshell(web_conf))
+
+    @classmethod
     def from_goldshell_byte(cls, web_conf: dict) -> "MinerConfig":
         """Constructs a MinerConfig object from web configuration for Goldshell Byte miners."""
         return cls(pools=PoolConfig.from_goldshell_byte(web_conf))

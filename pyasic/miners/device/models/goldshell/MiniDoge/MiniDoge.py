@@ -21,7 +21,7 @@ from pyasic.miners.device.makes import GoldshellMake
 class MiniDoge(GoldshellMake):
     raw_model = MinerModel.GOLDSHELL.MiniDoge
 
-    expected_chips = 0
+    expected_chips = 40
     expected_fans = 2
     expected_hashboards = 1
     algo = MinerAlgo.SCRYPT

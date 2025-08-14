@@ -13,9 +13,19 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from pyasic.config import MinerConfig
+from pyasic.errors import APIError
 from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.device.models import MiniDoge
 
 
 class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
-    pass
+
+    async def get_config(self) -> MinerConfig:
+        try:
+            pools = await self.web.pools()
+        except APIError:
+            return self.config
+
+        self.config = MinerConfig.from_goldshell_list(pools)
+        return self.config
