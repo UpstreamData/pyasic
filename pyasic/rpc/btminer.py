@@ -23,7 +23,8 @@ import json
 import logging
 import re
 import struct
-from typing import Literal, Union
+from asyncio import Future, StreamReader, StreamWriter
+from typing import Any, AsyncGenerator, Callable, Literal, Union
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -1100,3 +1101,277 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         </details>
         """
         return await self.send_command("get_error_code", allow_warning=False)
+
+
+class BTMinerV3RPCAPI(BaseMinerRPCAPI):
+    def __init__(self, ip: str, port: int = 4433, api_ver: str = "0.0.0"):
+        super().__init__(ip, port, api_ver=api_ver)
+
+        self.reader: StreamReader | None = None
+        self.writer: StreamWriter | None = None
+        self.reader_loop = None
+
+        self.salt = None
+
+        self.cmd_results = {}
+        self.cmd_callbacks = {"get.miner.report": set()}
+
+    async def connect(self):
+        self.reader, self.writer = await asyncio.open_connection(
+            str(self.ip), self.port
+        )
+        self.reader_loop = asyncio.create_task(self._read_loop())
+
+    async def disconnect(self):
+        self.writer.close()
+        await self.writer.wait_closed()
+        self.reader_loop.cancel()
+
+    async def send_command(
+        self, command: str, parameters: Any = None, **kwargs
+    ) -> dict:
+        if self.writer is None:
+            await self.connect()
+
+        while command in self.cmd_results:
+            wait_fut = self.cmd_results[command]
+            await wait_fut
+
+        result_fut = Future()
+        self.cmd_results[command] = result_fut
+
+        cmd = {"cmd": command}
+        if parameters is not None:
+            cmd["param"] = parameters
+
+        if command.startswith("set."):
+            salt = await self.get_salt()
+            ts = int(datetime.datetime.now().timestamp())
+            cmd["ts"] = ts
+            token_str = cmd["cmd"] + self.pwd + salt + str(ts)
+            token_hashed = bytearray(
+                base64.b64encode(hashlib.sha256(token_str.encode("utf-8")).digest())
+            )
+            token_hashed[8] = 0
+            cmd["account"] = "super"
+            cmd["token"] = token_hashed.decode("ascii")
+
+        # send the command
+        ser = json.dumps(cmd).encode("utf-8")
+        header = struct.pack("<I", len(ser))
+        await self._send_bytes(header + json.dumps(cmd).encode("utf-8"))
+
+        await result_fut
+        return result_fut.result()
+
+    async def _read_loop(self):
+        while True:
+            result = await self._read_bytes()
+            data = self._load_api_data(result)
+            command = data["desc"]
+            if command in self.cmd_callbacks:
+                callbacks: list[Callable] = self.cmd_callbacks[command]
+                await asyncio.gather(*[callback(data) for callback in callbacks])
+            elif command in self.cmd_results:
+                future: Future = self.cmd_results.pop(command)
+                future.set_result(data)
+            else:
+                logging.error(f"Received unexpected data for {self}: {data}")
+
+    async def _read_bytes(self, **kwargs) -> bytes:
+        header = await self.reader.readexactly(4)
+        length = struct.unpack("<I", header)[0]
+        return await self.reader.readexactly(length)
+
+    async def _send_bytes(self, data: bytes, **kwargs):
+        self.writer.write(data)
+        await self.writer.drain()
+
+    async def get_salt(self) -> str:
+        if self.salt is not None:
+            return self.salt
+        data = await self.send_command("get.device.info", "salt")
+        self.salt = data["msg"]["salt"]
+        return self.salt
+
+    async def get_miner_report(self) -> AsyncGenerator[dict]:
+        if self.writer is None:
+            await self.connect()
+
+        result = asyncio.Queue()
+
+        async def callback(data: dict):
+            await result.put(data)
+
+        cb_fn = callback
+
+        try:
+            self.cmd_callbacks["get.miner.report"].add(cb_fn)
+            while True:
+                yield await result.get()
+                if self.writer.is_closing():
+                    break
+        finally:
+            self.cmd_callbacks["get.miner.report"].remove(cb_fn)
+
+    async def get_system_setting(self) -> dict | None:
+        return await self.send_command("get.system.setting")
+
+    async def get_miner_status_summary(self) -> dict | None:
+        return await self.send_command("get.miner.status", parameters="summary")
+
+    async def get_miner_status_edevs(self) -> dict | None:
+        return await self.send_command("get.miner.status", parameters="edevs")
+
+    async def get_miner_history(self) -> dict | None:
+        data = await self.send_command(
+            "get.miner.history",
+            parameters={
+                "start": "1",
+                "stop": str(datetime.datetime.now().timestamp()),
+            },
+        )
+        ret = {}
+        result = data.get("msg")
+        if result is not None:
+            unparsed = result["Data"].strip()
+            for item in unparsed.split(" "):
+                list_item = item.split(",")
+                timestamp = int(list_item.pop(0))
+                ret[timestamp] = list_item
+        return ret
+
+    async def get_psu_command(self):
+        return await self.send_command("get.psu.command")
+
+    async def get_miner_setting(self) -> dict | None:
+        return await self.send_command("get.miner.setting")
+
+    async def get_device_info(self) -> dict | None:
+        return await self.send_command("get.device.info")
+
+    async def get_log_download(self) -> dict | None:
+        return await self.send_command("get.log.download")
+
+    async def get_fan_setting(self) -> dict | None:
+        return await self.send_command("get.fan.setting")
+
+    async def set_system_reboot(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.reboot")
+
+    async def set_system_factory_reset(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.factory_reset")
+
+    async def set_system_update_firmware(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.update_firmware")
+
+    async def set_system_net_config(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.net_config")
+
+    async def set_system_led(self, *args, **kwargs) -> dict | None:
+        return await self.send_command("set.system.led", "auto")
+
+    async def set_system_time_randomized(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.time_randomized")
+
+    async def set_system_timezone(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.timezone")
+
+    async def set_system_hostname(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.hostname")
+
+    async def set_system_webpools(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.webpools")
+
+    async def set_miner_target_freq(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.target_freq")
+
+    async def set_miner_heat_mode(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.heat_mode")
+
+    async def set_system_ntp_server(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.system.ntp_server")
+
+    async def set_miner_service(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.service")
+
+    async def set_miner_power_mode(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.power_mode")
+
+    async def set_miner_cointype(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.cointype")
+
+    async def set_miner_pools(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.pools")
+
+    async def set_miner_fastboot(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.fastboot")
+
+    async def set_miner_power_percent(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.power_percent")
+
+    async def set_miner_pre_power_on(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.pre_power_on")
+
+    async def set_miner_restore_setting(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.restore_setting")
+
+    async def set_miner_report(self, frequency: int = 1) -> dict | None:
+        return await self.send_command(
+            "set.miner.report", parameters={"gap": frequency}
+        )
+
+    async def set_miner_power_limit(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.power_limit")
+
+    async def set_miner_upfreq_speed(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.miner.upfreq_speed")
+
+    async def set_log_upload(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.log.upload")
+
+    async def set_user_change_passwd(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.user.change_passwd")
+
+    async def set_user_permission(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.user.permission")
+
+    async def set_fan_temp_offset(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.fan.temp_offset")
+
+    async def set_fan_poweroff_cool(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.fan.poweroff_cool")
+
+    async def set_fan_zero_speed(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.fan.zero_speed")
+
+    async def set_shell_debug(self, *args, **kwargs) -> dict | None:
+        raise NotImplementedError
+        return await self.send_command("set.shell.debug")

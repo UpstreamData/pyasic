@@ -1065,6 +1065,45 @@ class MinerFactory:
 
         return data
 
+    async def send_btminer_v3_api_command(self, ip, command):
+        try:
+            reader, writer = await asyncio.open_connection(ip, 4433)
+        except (ConnectionError, OSError):
+            return
+        cmd = {"cmd": command}
+
+        try:
+            # send the command
+            json_cmd = json.dumps(cmd).encode("utf-8")
+            length = len(json_cmd)
+            writer.write(length.to_bytes(4, byteorder="little"))
+            writer.write(json_cmd)
+            await writer.drain()
+
+            # receive all the data
+            resp_len = await reader.readexactly(4)
+            data = await reader.readexactly(
+                int.from_bytes(resp_len, byteorder="little")
+            )
+
+            writer.close()
+            await writer.wait_closed()
+        except asyncio.CancelledError:
+            writer.close()
+            await writer.wait_closed()
+            return
+        except (ConnectionError, OSError):
+            return
+        if data == b"Socket connect failed: Connection refused\n":
+            return
+
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return {}
+
+        return data
+
     @staticmethod
     async def _fix_api_data(data: bytes) -> str:
         if data.endswith(b"\x00"):
@@ -1184,10 +1223,18 @@ class MinerFactory:
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
             miner_model = miner_model[:-1] + "0"
-
             return miner_model
         except (TypeError, LookupError):
-            pass
+            sock_json_data_v3 = await self.send_btminer_v3_api_command(
+                ip, "get.device.info"
+            )
+            try:
+                miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace("_", "")
+                miner_model = miner_model[:-1] + "0"
+
+                return miner_model
+            except (TypeError, LookupError):
+                pass
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")
