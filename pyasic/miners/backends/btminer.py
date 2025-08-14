@@ -1012,8 +1012,6 @@ class BTMinerV3(StockFirmware):
         board_count = (
             rpc_get_device_info.get("msg", {}).get("hardware", {}).get("boards", 3)
         )
-        print(rpc_get_miner_status_edevs)
-        print(rpc_get_device_info)
         edevs = rpc_get_miner_status_edevs.get("msg", {}).get("edevs", [])
         for idx in range(board_count):
             board_data = edevs[idx] if idx < len(edevs) else {}

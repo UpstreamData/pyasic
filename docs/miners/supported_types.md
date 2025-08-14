@@ -601,12 +601,6 @@ details {
 <summary>Stock Firmware Goldshells:</summary>
     <ul>
         <details>
-            <summary>Byte Series:</summary>
-                <ul>
-                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
-                </ul>
-        </details>
-        <details>
             <summary>X5 Series:</summary>
                 <ul>
                     <li><a href="../goldshell/X5#ck5-stock">CK5 (Stock)</a></li>
@@ -625,6 +619,12 @@ details {
                 <ul>
                     <li><a href="../goldshell/XBox#kd-box-ii-stock">KD Box II (Stock)</a></li>
                     <li><a href="../goldshell/XBox#kd-box-pro-stock">KD Box Pro (Stock)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>Byte Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
                 </ul>
         </details>
     </ul>
