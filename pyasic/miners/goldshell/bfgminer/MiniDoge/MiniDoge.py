@@ -13,8 +13,9 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .Byte import *
-from .MiniDoge import *
-from .X5 import *
-from .XBox import *
-from .XMax import *
+from pyasic.miners.backends import GoldshellMiner
+from pyasic.miners.device.models import MiniDoge
+
+
+class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
+    pass

@@ -14,6 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .Byte import *
+from .MiniDoge import *
 from .X5 import *
 from .XBox import *
 from .XMax import *
