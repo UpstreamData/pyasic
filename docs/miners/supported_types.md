@@ -607,6 +607,12 @@ details {
                 </ul>
         </details>
         <details>
+            <summary>Mini Doge Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/MiniDoge#mini-doge-stock">Byte (Stock)</a></li>
+                </ul>
+        </details>
+        <details>
             <summary>X5 Series:</summary>
                 <ul>
                     <li><a href="../goldshell/X5#ck5-stock">CK5 (Stock)</a></li>
