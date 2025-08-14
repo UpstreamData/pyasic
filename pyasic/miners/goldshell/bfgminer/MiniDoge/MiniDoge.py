@@ -68,6 +68,10 @@ GOLDSHELL_MINI_DOGE_DATA_LOC = DataLocations(
             "_get_pools",
             [RPCAPICommand("rpc_pools", "pools")],
         ),
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [RPCAPICommand("rpc_stats", "stats")],
+        ),
     }
 )
 
@@ -157,3 +161,19 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
                 logger.error(self, rpc_devdetails)
 
         return hashboards
+    
+    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        if rpc_stats is None:
+            try:
+                rpc_stats = await self.rpc.stats()
+            except APIError:
+                pass
+
+        if rpc_stats is not None:
+            try:
+                uptime = rpc_stats["STATS"][1]["Elapsed"]
+                return uptime
+            except KeyError:
+                pass
+
+        return None
