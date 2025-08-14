@@ -13,11 +13,13 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import Optional
+from typing import List, Optional
 
 from pyasic.config import MinerConfig
+from pyasic.data.boards import HashBoard
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
+from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -102,3 +104,56 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
                 pass
 
         return None
+    
+    async def _get_hashboards(
+        self, rpc_devs: dict = None, rpc_devdetails: dict = None
+    ) -> List[HashBoard]:
+        if rpc_devs is None:
+            try:
+                rpc_devs = await self.rpc.devs()
+            except APIError:
+                pass
+
+        hashboards = [
+            HashBoard(slot=i, expected_chips=self.expected_chips)
+            for i in range(self.expected_hashboards)
+        ]
+
+        if rpc_devs is not None:
+            if rpc_devs.get("DEVS"):
+                for board in rpc_devs["DEVS"]:
+                    if board.get("ID") is not None:
+                        try:
+                            b_id = board["ID"]
+                            hashboards[b_id].hashrate = self.algo.hashrate(
+                                rate=float(board["MHS 20s"]), unit=self.algo.unit.MH
+                            ).into(self.algo.unit.default)
+                            hashboards[b_id].chip_temp = board["tstemp-0"]
+                            hashboards[b_id].temp = board["tstemp-1"]
+                            hashboards[b_id].voltage = board["voltage"]
+                            hashboards[b_id].active = board["Status"] == "Alive"
+                            hashboards[b_id].missing = False
+                        except KeyError:
+                            pass
+            else:
+                logger.error(self, rpc_devs)
+
+        if rpc_devdetails is None:
+            try:
+                rpc_devdetails = await self.rpc.devdetails()
+            except APIError:
+                pass
+
+        if rpc_devdetails is not None:
+            if rpc_devdetails.get("DEVS"):
+                for board in rpc_devdetails["DEVS"]:
+                    if board.get("ID") is not None:
+                        try:
+                            b_id = board["ID"]
+                            hashboards[b_id].chips = board["chips-nr"]
+                        except KeyError:
+                            pass
+            else:
+                logger.error(self, rpc_devdetails)
+
+        return hashboards
