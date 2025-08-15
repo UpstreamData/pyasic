@@ -1194,7 +1194,7 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         self.salt = data["msg"]["salt"]
         return self.salt
 
-    async def get_miner_report(self) -> AsyncGenerator[dict]:
+    async def get_miner_report(self) -> AsyncGenerator[dict, None]:
         if self.writer is None:
             await self.connect()
 
