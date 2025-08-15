@@ -741,6 +741,7 @@ details {
                     <li><a href="../antminer/X19#s19a-pro-vnish">S19a Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-a-vnish">S19 Pro A (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-vnish">S19k Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#t19-vnish">T19 (VNish)</a></li>
                 </ul>
