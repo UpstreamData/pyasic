@@ -18,6 +18,7 @@ import logging
 from pathlib import Path
 
 import aiofiles
+import semver
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
@@ -28,6 +29,35 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI, BTMinerV3RPCAPI
+
+
+class BTMiner(StockFirmware):
+    def __new__(cls, ip: str, version: str | None = None):
+        bases = cls.__bases__
+        bases = bases[1:]
+
+        def get_new(v: str | None):
+            if v is None:
+                return BTMinerV2
+            try:
+                semantic = semver.Version(
+                    major=int(v[0:4]),
+                    minor=int(v[4:6]),
+                    patch=int(v[6:8]),
+                )
+            except ValueError:
+                return BTMinerV2
+            if semantic.major > 2024 and semantic.minor > 11:
+                return BTMinerV3
+            return BTMinerV2
+
+        inject = get_new(version)
+
+        if inject not in bases:
+            bases = (inject,) + bases
+        cls = type(cls.__name__, bases, {})(ip=ip, version=version)
+        return cls
+
 
 BTMINER_DATA_LOC = DataLocations(
     **{
@@ -118,7 +148,7 @@ BTMINER_DATA_LOC = DataLocations(
 )
 
 
-class BTMiner(StockFirmware):
+class BTMinerV2(StockFirmware):
     """Base handler for BTMiner based miners."""
 
     _rpc_cls = BTMinerRPCAPI

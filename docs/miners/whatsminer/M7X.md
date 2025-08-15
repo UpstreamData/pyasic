@@ -5,7 +5,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M7X.M70.BTMinerM70VM30

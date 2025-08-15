@@ -789,21 +789,32 @@ class MinerFactory:
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
                 MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
             }
-            fn = miner_model_fns.get(miner_type)
+            version = None
+            miner_version_fns = {
+                MinerTypes.WHATSMINER: self.get_miner_version_whatsminer,
+            }
+            model_fn = miner_model_fns.get(miner_type)
+            version_fn = miner_version_fns.get(miner_type)
 
-            if fn is not None:
+            if model_fn is not None:
                 # noinspection PyArgumentList
-                task = asyncio.create_task(fn(ip))
+                task = asyncio.create_task(model_fn(ip))
                 try:
                     miner_model = await asyncio.wait_for(
                         task, timeout=settings.get("factory_get_timeout", 3)
                     )
                 except asyncio.TimeoutError:
                     pass
+            if version_fn is not None:
+                task = asyncio.create_task(version_fn(ip))
+                try:
+                    version = await asyncio.wait_for(
+                        task, timeout=settings.get("factory_get_timeout", 3)
+                    )
+                except asyncio.TimeoutError:
+                    pass
             miner = self._select_miner_from_classes(
-                ip,
-                miner_type=miner_type,
-                miner_model=miner_model,
+                ip, miner_type=miner_type, miner_model=miner_model, version=version
             )
             return miner
 
@@ -1145,13 +1156,14 @@ class MinerFactory:
         ip: ipaddress.ip_address,
         miner_model: str | None,
         miner_type: MinerTypes | None,
+        version: str | None = None,
     ) -> AnyMiner | None:
         # special case since hiveon miners return web results copying the antminer stock FW
         if "HIVEON" in str(miner_model).upper():
             miner_model = str(miner_model).upper().replace(" HIVEON", "")
             miner_type = MinerTypes.HIVEON
         try:
-            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, version)
         except LookupError:
             if miner_type in MINER_CLASSES:
                 if miner_model is not None:
@@ -1159,8 +1171,8 @@ class MinerFactory:
                         f"Partially supported miner found: {miner_model}, type: {miner_type}, please open an issue with miner data "
                         f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
                     )
-                return MINER_CLASSES[miner_type][None](ip)
-            return UnknownMiner(str(ip))
+                return MINER_CLASSES[miner_type][None](ip, version)
+            return UnknownMiner(str(ip), version)
 
     async def get_miner_model_antminer(self, ip: str) -> str | None:
         tasks = [
@@ -1238,6 +1250,14 @@ class MinerFactory:
                 return miner_model
             except (TypeError, LookupError):
                 pass
+
+    async def get_miner_version_whatsminer(self, ip: str) -> str | None:
+        sock_json_data = await self.send_api_command(ip, "get_version")
+        try:
+            version = sock_json_data["Msg"]["fw_ver"]
+            return version
+        except LookupError:
+            pass
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
         sock_json_data = await self.send_api_command(ip, "version")

@@ -576,7 +576,7 @@ class MinerProtocol(Protocol):
 
 
 class BaseMiner(MinerProtocol):
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, version: str | None = None) -> None:
         self.ip = ip
 
         if self.expected_chips is None and self.raw_model is not None:
