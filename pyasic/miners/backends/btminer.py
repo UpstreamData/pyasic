@@ -13,14 +13,14 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-
+import asyncio
 import logging
 from pathlib import Path
 
 import aiofiles
 import semver
 
-from pyasic.config import MinerConfig, MiningModeConfig
+from pyasic.config import MinerConfig, MiningModeConfig, PoolConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.data.pools import PoolMetrics, PoolUrl
@@ -47,14 +47,14 @@ class BTMiner(StockFirmware):
                 )
             except ValueError:
                 return BTMinerV2
-            if semantic.major > 2024 and semantic.minor > 11:
+            if semantic > semver.Version(major=2024, minor=11, patch=0):
                 return BTMinerV3
             return BTMinerV2
 
         inject = get_new(version)
 
-        if inject not in bases:
-            bases = (inject,) + bases
+        bases = (inject,) + bases
+
         cls = type(cls.__name__, bases, {})(ip=ip, version=version)
         return cls
 
@@ -858,6 +858,34 @@ class BTMinerV3(StockFirmware):
     supports_shutdown = True
     supports_autotuning = True
     supports_power_modes = True
+
+    async def get_config(self) -> MinerConfig:
+        pools = None
+        settings = None
+        device_info = None
+        try:
+            pools = await self.rpc.get_miner_status_pools()
+            settings = await self.rpc.get_miner_setting()
+            device_info = await self.rpc.get_device_info()
+        except APIError as e:
+            logging.warning(e)
+        except LookupError:
+            pass
+
+        self.config = MinerConfig.from_btminer_v3(
+            rpc_pools=pools, rpc_settings=settings, rpc_device_info=device_info
+        )
+
+        return self.config
+
+    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+        self.config = config
+
+        conf = config.as_btminer_v3(user_suffix=user_suffix)
+
+        await asyncio.gather(
+            *[self.rpc.send_command(k, parameters=v) for k, v in conf.values()]
+        )
 
     async def fault_light_off(self) -> bool:
         try:

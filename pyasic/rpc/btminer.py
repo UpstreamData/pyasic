@@ -1223,6 +1223,9 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
     async def get_miner_status_edevs(self) -> dict | None:
         return await self.send_command("get.miner.status", parameters="edevs")
 
+    async def get_miner_status_pools(self) -> dict | None:
+        return await self.send_command("get.miner.status", parameters="pools")
+
     async def get_miner_history(self) -> dict | None:
         data = await self.send_command(
             "get.miner.history",

@@ -78,7 +78,6 @@ GOLDSHELL_BYTE_DATA_LOC = DataLocations(
 
 
 class GoldshellByte(GoldshellMiner, Byte):
-
     data_locations = GOLDSHELL_BYTE_DATA_LOC
 
     cgdev: dict | None = None
@@ -101,11 +100,9 @@ class GoldshellByte(GoldshellMiner, Byte):
         total_uptime_mins = 0
 
         for minfo in self.cgdev.get("minfos", []):
-
             algo_name = minfo.get("name")
 
             for info in minfo.get("infos", []):
-
                 self.expected_hashboards += 1
                 self.expected_fans += 1
 
@@ -177,7 +174,6 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         if rpc_devs is not None:
             for board in rpc_devs.get("DEVS", []):
-
                 algo_name = board.get("pool")
 
                 if algo_name == ALGORITHM_SCRYPT_NAME:

@@ -60,7 +60,6 @@ class ElphapexWebAPI(BaseWebAPI):
         auth = httpx.DigestAuth(self.username, self.pwd)
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
-
                 if parameters:
                     data = await client.post(
                         url,

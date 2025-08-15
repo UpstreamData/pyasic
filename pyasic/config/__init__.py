@@ -85,6 +85,13 @@ class MinerConfig(BaseModel):
             **self.temperature.as_wm(),
         }
 
+    def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
+        """Generates the configuration in the format suitable for Whatsminers running BTMiner V3."""
+        return {
+            "set.miner.pools": self.pools.as_btminer_v3()
+            ** self.mining_mode.as_btminer_v3()
+        }
+
     def as_am_old(self, user_suffix: str | None = None) -> dict:
         """Generates the configuration in the format suitable for old versions of Antminers."""
         return {
@@ -355,3 +362,14 @@ class MinerConfig(BaseModel):
     @classmethod
     def from_hammer(cls, *args, **kwargs) -> "MinerConfig":
         return cls.from_am_modern(*args, **kwargs)
+
+    @classmethod
+    def from_btminer_v3(
+        cls, rpc_pools: dict, rpc_settings: dict, rpc_device_info: dict
+    ) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_btminer_v3(rpc_pools=rpc_pools["msg"]),
+            mining_mode=MiningModeConfig.from_btminer_v3(
+                rpc_device_info=rpc_device_info, rpc_settings=rpc_settings
+            ),
+        )

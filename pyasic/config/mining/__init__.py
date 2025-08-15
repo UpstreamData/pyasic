@@ -63,6 +63,9 @@ class MiningModeNormal(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_btminer_v3(self) -> dict:
+        return {"set.miner.service": "start", "set.miner.power_mode": self.mode}
+
     def as_auradine(self) -> dict:
         return {"mode": {"mode": self.mode}}
 
@@ -109,6 +112,9 @@ class MiningModeSleep(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_btminer_v3(self) -> dict:
+        return {"set.miner.service": "stop"}
+
     def as_auradine(self) -> dict:
         return {"mode": {"sleep": "on"}}
 
@@ -149,6 +155,9 @@ class MiningModeLPM(MinerConfigValue):
     def as_wm(self) -> dict:
         return {"mode": self.mode}
 
+    def as_btminer_v3(self) -> dict:
+        return {"set.miner.service": "start", "set.miner.power_mode": self.mode}
+
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "eco"}}
 
@@ -178,6 +187,9 @@ class MiningModeHPM(MinerConfigValue):
 
     def as_wm(self) -> dict:
         return {"mode": self.mode}
+
+    def as_btminer_v3(self) -> dict:
+        return {"set.miner.service": "start", "set.miner.power_mode": self.mode}
 
     def as_auradine(self) -> dict:
         return {"mode": {"mode": "turbo"}}
@@ -221,6 +233,9 @@ class MiningModePowerTune(MinerConfigValue):
         if self.power is not None:
             return {"mode": self.mode, self.mode: {"wattage": self.power}}
         return {}
+
+    def as_btminer_v3(self) -> dict:
+        return {"set.miner.service": "start", "set.miner.power_limit": self.power}
 
     def as_bosminer(self) -> dict:
         tuning_cfg = {"enabled": True, "mode": "power_target"}
@@ -786,6 +801,26 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.hashrate_tuning(hashrate=mode_data["Ths"])
             if mode_data.get("Power") is not None:
                 return cls.power_tuning(power=mode_data["Power"])
+        except LookupError:
+            return cls.default()
+
+    @classmethod
+    def from_btminer_v3(cls, rpc_device_info: dict, rpc_settings: dict):
+        try:
+            is_mining = rpc_device_info["msg"]["miner"]["working"] == "true"
+            if not is_mining:
+                return cls.sleep()
+            power_limit = rpc_settings["msg"]["power-limit"]
+            if not power_limit == 0:
+                return cls.power_tuning(power=power_limit)
+            power_mode = rpc_settings["msg"]["power-mode"]
+            if power_mode == "normal":
+                return cls.normal()
+            if power_mode == "high":
+                return cls.high()
+            if power_mode == "low":
+                return cls.low()
+
         except LookupError:
             return cls.default()
 
