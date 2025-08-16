@@ -91,6 +91,7 @@ MINER_CLASSES = {
         "ANTMINER S9J": BMMinerS9j,
         "ANTMINER T9": BMMinerT9,
         "ANTMINER L9": BMMinerL9,
+        "ANTMINER L9_I": BMMinerL9,
         "ANTMINER Z15": CGMinerZ15,
         "ANTMINER Z15 PRO": BMMinerZ15Pro,
         "ANTMINER S17": BMMinerS17,
