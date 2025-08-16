@@ -23,6 +23,7 @@ import json
 import logging
 import re
 import struct
+import warnings
 from asyncio import Future, StreamReader, StreamWriter
 from typing import Any, AsyncGenerator, Callable, Literal, Union
 
@@ -31,7 +32,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
 
 from pyasic import settings
-from pyasic.errors import APIError
+from pyasic.errors import APIError, APIWarning
 from pyasic.misc import api_min_version, validate_command_output
 from pyasic.rpc.base import BaseMinerRPCAPI
 
@@ -1107,39 +1108,27 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
     def __init__(self, ip: str, port: int = 4433, api_ver: str = "0.0.0"):
         super().__init__(ip, port, api_ver=api_ver)
 
-        self.reader: StreamReader | None = None
-        self.writer: StreamWriter | None = None
-        self.reader_loop = None
-
         self.salt = None
 
-        self.cmd_results = {}
-        self.cmd_callbacks = {"get.miner.report": set()}
+    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+        """Creates and sends multiple commands as one command to the miner.
 
-    async def connect(self):
-        self.reader, self.writer = await asyncio.open_connection(
-            str(self.ip), self.port
-        )
-        self.reader_loop = asyncio.create_task(self._read_loop())
+        Parameters:
+            *commands: The commands to send as a multicommand to the miner.
+            allow_warning: A boolean to supress APIWarnings.
 
-    async def disconnect(self):
-        self.writer.close()
-        await self.writer.wait_closed()
-        self.reader_loop.cancel()
+        """
+        commands = self._check_commands(*commands)
+        data = await self._send_split_multicommand(*commands)
+        data["multicommand"] = True
+        return data
 
     async def send_command(
         self, command: str, parameters: Any = None, **kwargs
     ) -> dict:
-        if self.writer is None:
-            await self.connect()
-
-        while command in self.cmd_results:
-            wait_fut = self.cmd_results[command]
-            await wait_fut
-
-        result_fut = Future()
-        self.cmd_results[command] = result_fut
-
+        if ":" in command:
+            parameters = command.split(":")[1]
+            command = command.split(":")[0]
         cmd = {"cmd": command}
         if parameters is not None:
             cmd["param"] = parameters
@@ -1159,33 +1148,80 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         # send the command
         ser = json.dumps(cmd).encode("utf-8")
         header = struct.pack("<I", len(ser))
-        await self._send_bytes(header + json.dumps(cmd).encode("utf-8"))
+        return json.loads(
+            await self._send_bytes(header + json.dumps(cmd).encode("utf-8"))
+        )
 
-        await result_fut
-        return result_fut.result()
+    async def _send_bytes(
+        self,
+        data: bytes,
+        *,
+        port: int = None,
+        timeout: int = 100,
+    ) -> bytes:
+        if port is None:
+            port = self.port
+        logging.debug(f"{self} - ([Hidden] Send Bytes) - Sending")
+        try:
+            # get reader and writer streams
+            reader, writer = await asyncio.open_connection(str(self.ip), port)
+        # handle OSError 121
+        except OSError as e:
+            if e.errno == 121:
+                logging.warning(
+                    f"{self} - ([Hidden] Send Bytes) - Semaphore timeout expired."
+                )
+            return b"{}"
 
-    async def _read_loop(self):
-        while True:
-            result = await self._read_bytes()
-            data = self._load_api_data(result)
-            command = data["desc"]
-            if command in self.cmd_callbacks:
-                callbacks: list[Callable] = self.cmd_callbacks[command]
-                await asyncio.gather(*[callback(data) for callback in callbacks])
-            elif command in self.cmd_results:
-                future: Future = self.cmd_results.pop(command)
-                future.set_result(data)
+        # send the command
+        try:
+            data_task = asyncio.create_task(self._read_bytes(reader, timeout=timeout))
+            logging.debug(f"{self} - ([Hidden] Send Bytes) - Writing")
+            writer.write(data)
+            logging.debug(f"{self} - ([Hidden] Send Bytes) - Draining")
+            await writer.drain()
+
+            await data_task
+            ret_data = data_task.result()
+        except TimeoutError:
+            logging.warning(f"{self} - ([Hidden] Send Bytes) - Read timeout expired.")
+            return b"{}"
+
+        # close the connection
+        logging.debug(f"{self} - ([Hidden] Send Bytes) - Closing")
+        writer.close()
+        await writer.wait_closed()
+
+        return ret_data
+
+    def _check_commands(self, *commands) -> list:
+        return_commands = []
+
+        for command in commands:
+            if command.startswith("get.") or command.startswith("set."):
+                return_commands.append(command)
             else:
-                logging.error(f"Received unexpected data for {self}: {data}")
+                warnings.warn(
+                    f"""Removing incorrect command: {command}
+If you are sure you want to use this command please use API.send_command("{command}", ignore_errors=True) instead.""",
+                    APIWarning,
+                )
+        return return_commands
 
-    async def _read_bytes(self, **kwargs) -> bytes:
-        header = await self.reader.readexactly(4)
-        length = struct.unpack("<I", header)[0]
-        return await self.reader.readexactly(length)
+    async def _read_bytes(self, reader: asyncio.StreamReader, timeout: int) -> bytes:
+        ret_data = b""
 
-    async def _send_bytes(self, data: bytes, **kwargs):
-        self.writer.write(data)
-        await self.writer.drain()
+        # loop to receive all the data
+        logging.debug(f"{self} - ([Hidden] Send Bytes) - Receiving")
+        try:
+            header = await reader.readexactly(4)
+            length = struct.unpack("<I", header)[0]
+            ret_data = await reader.readexactly(length)
+        except (asyncio.CancelledError, asyncio.TimeoutError) as e:
+            raise e
+        except Exception as e:
+            logging.warning(f"{self} - ([Hidden] Send Bytes) - API Command Error {e}")
+        return ret_data
 
     async def get_salt(self) -> str:
         if self.salt is not None:

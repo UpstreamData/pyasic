@@ -783,67 +783,67 @@ class BTMinerV2(StockFirmware):
 BTMINERV3_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
-            "_get_mac", [RPCAPICommand("rpc_get_device_info", "get_device_info")]
+            "_get_mac", [RPCAPICommand("rpc_get_device_info", "get.device.info")]
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_version",
-            [RPCAPICommand("rpc_get_device_info", "get_device_info")],
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
         ),
         str(DataOptions.FW_VERSION): DataFunction(
             "_get_firmware_version",
-            [RPCAPICommand("rpc_get_device_info", "get_device_info")],
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
         ),
         str(DataOptions.HOSTNAME): DataFunction(
-            "_get_hostname", [RPCAPICommand("rpc_get_device_info", "get_device_info")]
+            "_get_hostname", [RPCAPICommand("rpc_get_device_info", "get.device.info")]
         ),
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_light_flashing",
-            [RPCAPICommand("rpc_get_device_info", "get_device_info")],
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("rpc_get_device_info", "get_device_info")],
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.FAN_PSU): DataFunction(
-            "_get_psu_fans", [RPCAPICommand("rpc_get_device_info", "get_device_info")]
+            "_get_psu_fans", [RPCAPICommand("rpc_get_device_info", "get.device.info")]
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [
-                RPCAPICommand("rpc_get_device_info", "get_device_info"),
+                RPCAPICommand("rpc_get_device_info", "get.device.info"),
                 RPCAPICommand(
                     "rpc_get_miner_status_edevs",
-                    "get_miner_status_edevs",
+                    "get.miner.status:edevs",
                 ),
             ],
         ),
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.WATTAGE): DataFunction(
             "_get_wattage",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.HASHRATE): DataFunction(
             "_get_hashrate",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.EXPECTED_HASHRATE): DataFunction(
             "_get_expected_hashrate",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.ENVIRONMENT_TEMP): DataFunction(
             "_get_env_temp",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get_miner_status_summary")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
     }
 )
@@ -1082,7 +1082,9 @@ class BTMinerV3(StockFirmware):
                     temp=board_data.get("chip-temp-min"),
                     inlet_temp=board_data.get("chip-temp-min"),
                     outlet_temp=board_data.get("chip-temp-max"),
-                    serial_number=board_data.get(f"pcbsn{idx}"),
+                    serial_number=rpc_get_device_info.get("msg", {})
+                    .get("miner", {})
+                    .get(f"pcbsn{idx}"),
                     chips=board_data.get("effective-chips"),
                     expected_chips=self.expected_chips,
                     active=(board_data.get("hash-average") or 0) > 0,
@@ -1164,11 +1166,15 @@ class BTMinerV3(StockFirmware):
                 rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-        return (
+        res = (
             rpc_get_miner_status_summary.get("msg", {})
             .get("summary", {})
             .get("factory-hash")
         )
+
+        if res == (-0.001 * self.expected_hashboards):
+            return None
+        return res
 
     async def _get_env_temp(
         self, rpc_get_miner_status_summary: dict = None
