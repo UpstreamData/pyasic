@@ -39,6 +39,7 @@ details {
             <summary>X7 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
+                    <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
                     <li><a href="../antminer/X7#k7-stock">K7 (Stock)</a></li>
                     <li><a href="../antminer/X7#d7-stock">D7 (Stock)</a></li>
                 </ul>
