@@ -120,18 +120,28 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         auth = httpx.DigestAuth(self.username, self.pwd)
 
-        try:
-            url = f"http://{self.ip}/cgi-bin/{command}.cgi"
-            ret = await client.get(url, auth=auth)
-        except httpx.HTTPError:
-            pass
-        else:
-            if ret.status_code == 200:
-                try:
-                    json_data = ret.json()
-                    return {command: json_data}
-                except json.decoder.JSONDecodeError:
-                    pass
+        async def _send():
+            try:
+                url = f"http://{self.ip}/cgi-bin/{command}.cgi"
+                ret = await client.get(url, auth=auth)
+            except httpx.HTTPError:
+                pass
+            else:
+                if ret.status_code == 200:
+                    try:
+                        json_data = ret.json()
+                        if json_data.get("STATUS", {}).get("STATUS") not in ["S", "I"]:
+                            return None
+                        return {command: json_data}
+                    except json.decoder.JSONDecodeError:
+                        pass
+            return None
+
+        # retry 3 times
+        for i in range(3):
+            res = await _send()
+            if res is not None:
+                return res
         return {command: {}}
 
     async def get_miner_conf(self) -> dict:
