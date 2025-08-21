@@ -285,25 +285,20 @@ class AntminerModern(BMMiner):
 
             # Создаём HashBoard с missing=True по умолчанию
             hb = HashBoard(
-                slot=board["index"],
-                expected_chips=self.expected_chips,
-                missing=True
+                slot=board["index"], expected_chips=self.expected_chips, missing=True
             )
 
             # Hashrate
             rate_real = board.get("rate_real")
             if rate_real is not None:
-                hb.hashrate = (
-                    self.algo
-                    .hashrate(rate=rate_real, unit=self.algo.unit.GH)
-                    .into(self.algo.unit.default)
-                )
+                hb.hashrate = self.algo.hashrate(
+                    rate=rate_real, unit=self.algo.unit.GH
+                ).into(self.algo.unit.default)
 
             # Количество чипов
             asic_num = board.get("asic_num")
             if asic_num is not None:
                 hb.chips = asic_num
-
 
             # Серийный номер
             serial = board.get("sn")

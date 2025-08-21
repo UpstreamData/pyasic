@@ -29,8 +29,6 @@ async def main():
         # stop = await miner.stop_mining()
         # print(f"Stop mining: {stop}")
 
-
-
         # cur_pwd = "root"
         # new_pwd = "admin"
         # settings.update("default_antminer_web_password", "admin")
