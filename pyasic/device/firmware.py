@@ -20,7 +20,7 @@ from enum import Enum
 class MinerFirmware(str, Enum):
     STOCK = "Stock"
     BRAIINS_OS = "BOS+"
-    VNISH = "VNish"
+    VNISH = "Vnish"
     EPIC = "ePIC"
     HIVEON = "Hive"
     LUXOS = "LuxOS"

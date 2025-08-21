@@ -18,7 +18,7 @@ import ipaddress
 import warnings
 from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
 
-from pyasic.config import MinerConfig
+from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
@@ -137,6 +137,22 @@ class MinerProtocol(Protocol):
 
         Returns:
             A boolean value of the success of rebooting the miner.
+        """
+        return False
+
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        """
+        Updates the password on an S19 miner.
+
+        This method changes the password on an S19 miner by sending the appropriate API request
+        through either the RPC or Web interface. It performs the necessary authentication and command
+        execution to update the miner's password.
+
+        Returns:
+            bool: True if the password update operation was successful, otherwise False.
+
+        Raises:
+            APIError: If an error occurs during the API request for password update.
         """
         return False
 
@@ -363,6 +379,14 @@ class MinerProtocol(Protocol):
         """
         return await self._is_mining()
 
+    async def is_sleep(self) -> Optional[bool]:
+        """Check whether the miner is sleep.
+
+        Returns:
+            A boolean value representing if the miner is sleep.
+        """
+        return await self._is_sleep()
+
     async def get_uptime(self) -> Optional[int]:
         """Get the uptime of the miner in seconds.
 
@@ -425,6 +449,9 @@ class MinerProtocol(Protocol):
         pass
 
     async def _is_mining(self) -> Optional[bool]:
+        pass
+
+    async def _is_sleep(self) -> Optional[bool]:
         pass
 
     async def _get_uptime(self) -> Optional[int]:

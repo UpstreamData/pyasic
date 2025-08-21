@@ -469,7 +469,7 @@ data = {
 
 
 class TestAvalonMiners(unittest.IsolatedAsyncioTestCase):
-    @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
+    @patch("pyasic-umhost.rpc.base.BaseMinerRPCAPI._send_bytes")
     async def test_all_data_gathering(self, mock_send_bytes):
         mock_send_bytes.raises = APIError()
         for m_type in data:

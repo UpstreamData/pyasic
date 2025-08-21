@@ -35,6 +35,7 @@ class DataOptions(Enum):
     ERRORS = "errors"
     FAULT_LIGHT = "fault_light"
     IS_MINING = "is_mining"
+    IS_SLEEP = "is_sleep"
     UPTIME = "uptime"
     CONFIG = "config"
     POOLS = "pools"

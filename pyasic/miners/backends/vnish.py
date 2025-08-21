@@ -18,6 +18,7 @@ import logging
 from typing import List, Optional
 
 from pyasic import MinerConfig
+from pyasic.data import Fan
 from pyasic.data.error_codes import MinerErrorData, VnishError
 from pyasic.device.algorithm import AlgoHashRate
 from pyasic.errors import APIError
@@ -72,7 +73,7 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [WebAPICommand("web_summary", "summary")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -80,6 +81,10 @@ VNISH_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
+            [WebAPICommand("web_summary", "summary")],
+        ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
             [WebAPICommand("web_summary", "summary")],
         ),
         str(DataOptions.POOLS): DataFunction(
@@ -145,6 +150,30 @@ class VNish(VNishFirmware, BMMiner):
                 return data["success"]
             except KeyError:
                 pass
+        return False
+
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        """
+        Обновляет пароль на устройстве VNish.
+
+        Отправляет запрос на изменение пароля с использованием метода update_pwd веб-интерфейса,
+        передавая текущий пароль (cur_pwd) и новый пароль (new_pwd). В случае успешного изменения
+        пароля майнер возвращает ответ вида:
+            {"restart_required": <bool>, "reboot_required": <bool>}
+        Если же произошла ошибка, ответ содержит ключ "err" с описанием ошибки.
+
+        Args:
+            cur_pwd (str): Текущий пароль устройства.
+            new_pwd (str): Новый пароль для установки.
+
+        Returns:
+            bool: True, если пароль изменён успешно, иначе False.
+        """
+        data = await self.web.update_pwd(cur_pwd=cur_pwd, new_pwd=new_pwd)
+        if data and isinstance(data, dict):
+            if "err" in data:
+                return False
+            return True
         return False
 
     async def _get_mac(self, web_summary: dict = None) -> str:
@@ -253,6 +282,35 @@ class VNish(VNishFirmware, BMMiner):
             except LookupError:
                 return fw_ver
 
+    async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
+        """
+        Получает данные о вентиляторах с майнера VNish.
+
+        Ожидается, что API возвращает JSON с разделом "cooling", где есть список вентиляторов.
+        """
+        fans_list = []
+
+        # Если данные не переданы, получаем их через вызов web.summary()
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                return fans_list
+
+        # Проверяем наличие раздела "cooling" в полученных данных
+        try:
+            cooling = web_summary["miner"]["cooling"]
+            fans_data = cooling.get("fans", [])
+            for fan_obj in fans_data:
+                rpm = fan_obj.get("rpm", 0)
+                max_rpm = fan_obj.get("max_rpm", None)
+                fans_list.append(Fan(speed=rpm, max_speed=max_rpm))
+        except KeyError:
+            # Если раздел отсутствует, возвращаем пустой список
+            pass
+
+        return fans_list
+
     async def _is_mining(self, web_summary: dict = None) -> Optional[bool]:
         if web_summary is None:
             try:
@@ -270,6 +328,28 @@ class VNish(VNishFirmware, BMMiner):
                 return is_mining
             except LookupError:
                 pass
+
+    async def _is_sleep(self, web_summary: dict = None) -> bool:
+        """
+        Проверяет, находится ли майнер в режиме "sleep" по данным web_summary.
+
+        Если значение web_summary["miner"]["miner_status"]["miner_state"] равно "stopped",
+        функция возвращает True, иначе – False. Если не удаётся получить данные или найти нужный ключ,
+        функция возвращает False.
+
+        :param web_summary: (необязательный) словарь с данными о состоянии майнера.
+        :return: True, если состояние равно "stopped", иначе False.
+        """
+        if web_summary is None:
+            try:
+                web_summary = await self.web.summary()
+            except APIError:
+                return False
+
+        try:
+            return web_summary["miner"]["miner_status"]["miner_state"] == "stopped"
+        except (KeyError, LookupError):
+            return False
 
     async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
         errors = []

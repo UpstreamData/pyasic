@@ -136,6 +136,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_is_mining",
             [RPCAPICommand("rpc_status", "status")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_summary", "summary")],
@@ -692,7 +696,11 @@ class BTMinerV2(StockFirmware):
                 pass
         return False
 
-    async def _get_uptime(self, rpc_summary: dict = None) -> int | None:
+    async def _is_sleep(self) -> Optional[bool]:
+        return False
+
+    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()

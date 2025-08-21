@@ -83,6 +83,10 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
             "_is_mining",
             [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
+            [],
+        ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
             [RPCAPICommand("rpc_stats", "stats")],
@@ -186,6 +190,13 @@ class AntminerModern(BMMiner):
             return True
         return False
 
+    async def update_pwd(self, cur_pwd: str, new_pwd: str) -> bool:
+        data = await self.web.update_pwd(cur_pwd=cur_pwd, new_pwd=new_pwd)
+        if data:
+            if data.get("code") == "P000":
+                return True
+        return False
+
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
         cfg.mining_mode = MiningModeConfig.sleep()
@@ -252,72 +263,72 @@ class AntminerModern(BMMiner):
         return errors
 
     async def _get_hashboards(self) -> List[HashBoard]:
-        if self.expected_hashboards is None:
-            return []
-
-        hashboards = [
-            HashBoard(slot=idx, expected_chips=self.expected_chips)
-            for idx in range(self.expected_hashboards)
-        ]
-
+        boards_list = []
         try:
             rpc_stats = await self.rpc.stats(new_api=True)
         except APIError:
-            return hashboards
+            # Если данные не получены, возвращаем пустой список
+            return boards_list
 
-        if rpc_stats is not None:
-            try:
-                for board in rpc_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = self.algo.hashrate(
+        if not rpc_stats:
+            return boards_list
+
+        try:
+            # Извлекаем информацию по платам из цепочки
+            chain = rpc_stats.get("STATS", [])[0].get("chain", [])
+            for board in chain:
+                # Если по каким-то причинам отсутствует индекс – пропускаем запись
+                if "index" not in board:
+                    continue
+
+                # Создаём базовый объект hashboard с указанным индексом и ожидаемым числом чипов
+                hb = HashBoard(
+                    slot=board["index"],
+                    expected_chips=self.expected_chips,
+                    missing=True,  # будем помечать как "не найденную" до успешного заполнения данных
+                )
+
+                # Заполняем hashrate, если доступен
+                if "rate_real" in board and board["rate_real"] is not None:
+                    hb.hashrate = self.algo.hashrate(
                         rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
-                    hashboards[board["index"]].chips = board["asic_num"]
 
-                    if "S21+ Hyd" in self.model:
-                        hashboards[board["index"]].inlet_temp = board["temp_pcb"][0]
-                        hashboards[board["index"]].outlet_temp = board["temp_pcb"][2]
-                        hashboards[board["index"]].chip_temp = board["temp_pic"][0]
-                        board_temp_data = list(
-                            filter(
-                                lambda x: not x == 0,
-                                [
-                                    board["temp_pic"][1],
-                                    board["temp_pic"][2],
-                                    board["temp_pic"][3],
-                                    board["temp_pcb"][1],
-                                    board["temp_pcb"][3],
-                                ],
-                            )
-                        )
-                        hashboards[board["index"]].temp = (
-                            sum(board_temp_data) / len(board_temp_data)
-                            if len(board_temp_data) > 0
-                            else 0
-                        )
+                # Заполняем число ASIC'ов (чипов), если данные есть
+                if "asic_num" in board and board["asic_num"] is not None:
+                    hb.chips = board["asic_num"]
 
-                    else:
-                        board_temp_data = list(
-                            filter(lambda x: not x == 0, board["temp_pcb"])
-                        )
-                        hashboards[board["index"]].temp = (
-                            sum(board_temp_data) / len(board_temp_data)
-                            if len(board_temp_data) > 0
-                            else 0
-                        )
-                        chip_temp_data = list(
-                            filter(lambda x: not x == 0, board["temp_chip"])
-                        )
-                        hashboards[board["index"]].chip_temp = (
-                            sum(chip_temp_data) / len(chip_temp_data)
-                            if len(chip_temp_data) > 0
-                            else 0
-                        )
+                # Температура PCB (если присутствуют ненулевые значения)
+                temp_pcb = board.get("temp_pcb")
+                if temp_pcb:
+                    valid_temps = [temp for temp in temp_pcb if temp != 0]
+                    if valid_temps:
+                        hb.temp = sum(valid_temps) / len(valid_temps)
 
-                    hashboards[board["index"]].serial_number = board["sn"]
-                    hashboards[board["index"]].missing = False
-            except LookupError:
-                pass
-        return hashboards
+                # Температура чипов (если присутствуют ненулевые значения)
+                temp_chip = board.get("temp_chip")
+                if temp_chip:
+                    valid_chip_temps = [temp for temp in temp_chip if temp != 0]
+                    if valid_chip_temps:
+                        hb.chip_temp = sum(valid_chip_temps) / len(valid_chip_temps)
+
+                # Серийный номер, если он присутствует
+                if "sn" in board:
+                    hb.serial_number = board["sn"]
+
+                # Если хотя бы одно из ключевых полей получено (например, hashrate или chips),
+                # считаем, что данные по плате имеются, и помечаем, что плата не отсутствует.
+                if hb.hashrate is not None or hb.chips is not None:
+                    hb.missing = False
+
+                # Добавляем плату в список только если данные получены (т.е. плата не помечена как missing)
+                if not hb.missing:
+                    boards_list.append(hb)
+        except Exception:
+            # При ошибке обработки возвращаем те платы, которые уже удалось собрать
+            return boards_list
+
+        return boards_list
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None
@@ -419,6 +430,23 @@ class AntminerModern(BMMiner):
             except LookupError:
                 pass
 
+    async def _is_sleep(self, web_get_conf: dict = None) -> Optional[bool]:
+        if web_get_conf is None:
+            try:
+                web_get_conf = await self.web.get_miner_conf()
+            except APIError:
+                pass
+
+        if web_get_conf is not None:
+            try:
+                if str(web_get_conf["bitmain-work-mode"]).isdigit():
+                    return (
+                        True if int(web_get_conf["bitmain-work-mode"]) == 1 else False
+                    )
+                return False
+            except LookupError:
+                pass
+
     async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
         if rpc_stats is None:
             try:
@@ -495,6 +523,10 @@ ANTMINER_OLD_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
+            [WebAPICommand("web_get_conf", "get_miner_conf")],
+        ),
+        str(DataOptions.IS_SLEEP): DataFunction(
+            "_is_sleep",
             [WebAPICommand("web_get_conf", "get_miner_conf")],
         ),
         str(DataOptions.UPTIME): DataFunction(
@@ -597,9 +629,6 @@ class AntminerOld(CGMiner):
                 pass
 
     async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
-        if self.expected_fans is None:
-            return []
-
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -628,8 +657,6 @@ class AntminerOld(CGMiner):
         return fans_data
 
     async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
-        if self.expected_hashboards is None:
-            return []
         hashboards = []
 
         if rpc_stats is None:
@@ -712,6 +739,32 @@ class AntminerOld(CGMiner):
                 return True
             else:
                 return False
+
+    async def _is_sleep(self, web_get_conf: dict = None) -> bool:
+        """
+        Определяет, находится ли майнер в режиме "sleep" на основе параметра "bitmain-work-mode".
+
+        Если значение "bitmain-work-mode" равно 1, возвращается True, иначе False.
+        В случае ошибки получения конфигурации или отсутствия нужного ключа возвращается False.
+
+        :param web_get_conf: (необязательный) словарь с конфигурацией майнера.
+        :return: True, если режим равен 1, иначе False.
+        """
+        # if web_get_conf is None:
+        #     try:
+        #         web_get_conf = await self.web.get_miner_conf()
+        #     except APIError:
+        #         return False
+        #
+        # try:
+        #     mode_str = str(web_get_conf["bitmain-work-mode"])
+        #     if mode_str.isdigit():
+        #         mode = int(mode_str)
+        #         return True if mode == "1" else False
+        #     return False
+        # except (KeyError, LookupError, ValueError):
+        #     return False
+        return True
 
     async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
         if rpc_stats is None:

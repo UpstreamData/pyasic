@@ -25,4 +25,4 @@ from pyasic.rpc import *
 from pyasic.ssh import *
 from pyasic.web import *
 
-__version__ = importlib.metadata.version("pyasic")
+__version__ = importlib.metadata.version("pyasic-umhost")

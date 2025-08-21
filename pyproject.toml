@@ -1,6 +1,7 @@
 [project]
-name = "pyasic"
-version = "0.76.4"
+
+name = "pyasic-umhost"
+version = "0.0.7"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
@@ -77,3 +78,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 profile = "black"
+
+[tool.poetry]
+name = "pyasic-umhost"
+version = "0.0.7"
+description = "Fork pyasic"
+
+packages = [
+  { include = "pyasic" }
+]
