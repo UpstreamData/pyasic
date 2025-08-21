@@ -40,5 +40,6 @@ class KS5M(IceRiverMake):
     raw_model = MinerModel.ICERIVER.KS5M
 
     expected_fans = 4
+    expected_chips = 18
     expected_hashboards = 3
     algo = MinerAlgo.KHEAVYHASH

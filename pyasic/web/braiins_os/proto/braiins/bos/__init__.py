@@ -52,7 +52,6 @@ class ApiVersionServiceStub(betterproto.ServiceStub):
 
 
 class ApiVersionServiceBase(ServiceBase):
-
     async def get_api_version(
         self, api_version_request: "ApiVersionRequest"
     ) -> "ApiVersion":

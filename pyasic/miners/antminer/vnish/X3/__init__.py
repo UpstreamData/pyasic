@@ -14,4 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .L3 import VnishL3Plus
+from .L3 import VNishL3Plus

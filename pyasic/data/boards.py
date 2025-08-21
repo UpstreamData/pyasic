@@ -28,6 +28,8 @@ class HashBoard(BaseModel):
     Attributes:
         slot: The slot of the board as an int.
         hashrate: The hashrate of the board in TH/s as a float.
+        inlet_temp: Inlet temperature for hydro asics as an int
+        outlet_temp: Outlet temperature for hydro asics as an int
         temp: The temperature of the PCB as an int.
         chip_temp: The temperature of the chips as an int.
         chips: The chip count of the board as an int.
@@ -41,6 +43,8 @@ class HashBoard(BaseModel):
 
     slot: int = 0
     hashrate: AlgoHashRateType | None = None
+    inlet_temp: float | None = None
+    outlet_temp: float | None = None
     temp: float | None = None
     chip_temp: float | None = None
     chips: int | None = None
@@ -73,7 +77,6 @@ class HashBoard(BaseModel):
             raise KeyError(f"{item}")
 
     def as_influxdb(self, key_root: str, level_delimiter: str = ".") -> str:
-
         def serialize_int(key: str, value: int) -> str:
             return f"{key}={value}"
 

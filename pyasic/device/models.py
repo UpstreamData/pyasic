@@ -43,6 +43,7 @@ class AntminerModels(MinerModelType):
     S19jNoPIC = "S19j No PIC"
     S19ProPlus = "S19 Pro+"
     S19jPro = "S19j Pro"
+    S19jPlus = "S19j+"
     S19jProNoPIC = "S19j Pro No PIC"
     S19jProPlus = "S19j Pro+"
     S19jProPlusNoPIC = "S19j Pro+ No PIC"
@@ -54,15 +55,18 @@ class AntminerModels(MinerModelType):
     S19ProPlusHydro = "S19 Pro+ Hydro"
     S19KPro = "S19K Pro"
     S19kPro = "S19k Pro"
+    S19ProA = "S19 Pro A"
     S19kProNoPIC = "S19k Pro No PIC"
     S19jXP = "S19j XP"
     T19 = "T19"
     S21 = "S21"
     S21Plus = "S21+"
     S21XP = "S21 XP"
+    S21PlusHydro = "S21+ Hydro"
     S21Pro = "S21 Pro"
     S21Hydro = "S21 Hydro"
     T21 = "T21"
+    S19XPHydro = "S19 XP Hydro"
 
     def __str__(self):
         return self.value
@@ -452,6 +456,8 @@ class AvalonminerModels(MinerModelType):
     Avalon1246 = "Avalon 1246"
     Avalon1566 = "Avalon 1566"
     AvalonNano3 = "Avalon Nano 3"
+    AvalonNano3s = "Avalon Nano 3s"
+    AvalonQHome = "Avalon Q Home"
 
     def __str__(self):
         return self.value
@@ -474,6 +480,7 @@ class GoldshellModels(MinerModelType):
     KDMax = "KD Max"
     KDBoxII = "KD Box II"
     KDBoxPro = "KD Box Pro"
+    Byte = "Byte"
 
     def __str__(self):
         return self.value
@@ -531,6 +538,7 @@ class IceRiverModels(MinerModelType):
     KS5 = "KS5"
     KS5L = "KS5L"
     KS5M = "KS5M"
+    AL3 = "AL3"
 
     def __str__(self):
         return self.value
@@ -556,7 +564,9 @@ class BraiinsModels(MinerModelType):
 
 
 class ElphapexModels(MinerModelType):
+    DG1 = "DG1"
     DG1Plus = "DG1+"
+    DG1Home = "DG1Home"
 
 
 class MinerModel:

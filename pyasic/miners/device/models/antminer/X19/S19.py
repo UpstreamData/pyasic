@@ -126,6 +126,15 @@ class S19jPro(AntMinerMake):
     algo = MinerAlgo.SHA256
 
 
+class S19jPlus(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S19jPlus
+
+    expected_chips = 108
+    expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
+
+
 class S19jProNoPIC(AntMinerMake):
     raw_model = MinerModel.ANTMINER.S19jProNoPIC
 
@@ -216,10 +225,28 @@ class S19KPro(AntMinerMake):
     algo = MinerAlgo.SHA256
 
 
+class S19ProA(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S19ProA
+
+    expected_chips = 114
+    expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
+
+
 class S19jXP(AntMinerMake):
     raw_model = MinerModel.ANTMINER.S19jXP
 
     expected_chips = 110
     expected_fans = 4
+    expected_hashboards = 3
+    algo = MinerAlgo.SHA256
+
+
+class S19XPHydro(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S19XPHydro
+
+    expected_chips = 204
+    expected_fans = 0
     expected_hashboards = 3
     algo = MinerAlgo.SHA256

@@ -18,10 +18,28 @@ from pyasic.device.models import MinerModel
 from pyasic.miners.device.makes import ElphapexMake
 
 
+class DG1(ElphapexMake):
+    raw_model = MinerModel.ELPHAPEX.DG1
+
+    expected_chips = 144
+    expected_hashboards = 4
+    expected_fans = 4
+    algo = MinerAlgo.SCRYPT
+
+
 class DG1Plus(ElphapexMake):
     raw_model = MinerModel.ELPHAPEX.DG1Plus
 
     expected_chips = 204
+    expected_hashboards = 4
+    expected_fans = 4
+    algo = MinerAlgo.SCRYPT
+
+
+class DG1Home(ElphapexMake):
+    raw_model = MinerModel.ELPHAPEX.DG1Home
+
+    expected_chips = 120
     expected_hashboards = 4
     expected_fans = 4
     algo = MinerAlgo.SCRYPT

@@ -1,1 +1,1 @@
-from .DG1 import ElphapexDG1Plus
+from .DG1 import ElphapexDG1, ElphapexDG1Home, ElphapexDG1Plus

@@ -33,10 +33,7 @@ class MinersTest(unittest.TestCase):
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):
-                    miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
-                    self.assertTrue(
-                        isinstance(miner, MINER_CLASSES[miner_type][miner_model])
-                    )
+                    MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
 
     def test_miner_has_hashboards(self):
         warnings.filterwarnings("ignore")

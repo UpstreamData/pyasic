@@ -91,7 +91,6 @@ class PoolMetrics(BaseModel):
         return (value / total) * 100
 
     def as_influxdb(self, key_root: str, level_delimiter: str = ".") -> str:
-
         def serialize_int(key: str, value: int) -> str:
             return f"{key}={value}"
 

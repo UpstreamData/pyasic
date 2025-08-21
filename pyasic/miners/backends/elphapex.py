@@ -233,9 +233,10 @@ class ElphapexMiner(StockFirmware):
                     board_temp_data = list(
                         filter(lambda x: not x == 0, board["temp_pcb"])
                     )
-                    hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                        board_temp_data
-                    )
+                    if not len(board_temp_data) == 0:
+                        hashboards[board["index"]].temp = sum(board_temp_data) / len(
+                            board_temp_data
+                        )
                     chip_temp_data = list(
                         filter(lambda x: not x == "", board["temp_chip"])
                     )

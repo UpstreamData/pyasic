@@ -39,6 +39,7 @@ details {
             <summary>X7 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
+                    <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
                     <li><a href="../antminer/X7#k7-stock">K7 (Stock)</a></li>
                     <li><a href="../antminer/X7#d7-stock">D7 (Stock)</a></li>
                 </ul>
@@ -52,6 +53,7 @@ details {
                     <li><a href="../antminer/X9#s9i-stock">S9i (Stock)</a></li>
                     <li><a href="../antminer/X9#s9j-stock">S9j (Stock)</a></li>
                     <li><a href="../antminer/X9#t9-stock">T9 (Stock)</a></li>
+                    <li><a href="../antminer/X9#l9-stock">L9 (Stock)</a></li>
                     <li><a href="../antminer/X9#l9-stock">L9 (Stock)</a></li>
                 </ul>
         </details>
@@ -86,6 +88,8 @@ details {
                     <li><a href="../antminer/X19#s19j-no-pic-stock">S19j No PIC (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-pro_1-stock">S19 Pro+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-stock">S19j Pro (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j_1-stock">S19j+ (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-stock">S19j Pro+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-xp-stock">S19 XP (Stock)</a></li>
                     <li><a href="../antminer/X19#s19a-stock">S19a (Stock)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-stock">S19a Pro (Stock)</a></li>
@@ -104,6 +108,8 @@ details {
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21_1-stock">S21+ (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-stock">S21+ Hydro (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-stock">S21+ Hydro (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-stock">S21 Hydro (Stock)</a></li>
@@ -553,12 +559,19 @@ details {
             <summary>nano Series:</summary>
                 <ul>
                     <li><a href="../avalonminer/nano#avalon-nano-3-stock">Avalon Nano 3 (Stock)</a></li>
+                    <li><a href="../avalonminer/nano#avalon-nano-3s-stock">Avalon Nano 3s (Stock)</a></li>
                 </ul>
         </details>
         <details>
             <summary>A15X Series:</summary>
                 <ul>
                     <li><a href="../avalonminer/A15X#avalon-1566-stock">Avalon 1566 (Stock)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>Q Series:</summary>
+                <ul>
+                    <li><a href="../avalonminer/Q#avalon-q-home-stock">Avalon Q Home (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -611,6 +624,12 @@ details {
                     <li><a href="../goldshell/XBox#kd-box-pro-stock">KD Box Pro (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>Byte Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
@@ -654,6 +673,7 @@ details {
                     <li><a href="../antminer/X19#s19-xp-bos_1">S19 XP (BOS+)</a></li>
                     <li><a href="../antminer/X19#s19-pro_1-hydro-bos_1">S19 Pro+ Hydro (BOS+)</a></li>
                     <li><a href="../antminer/X19#t19-bos_1">T19 (BOS+)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-hydro-bos_1">S19 XP Hydro (BOS+)</a></li>
                 </ul>
         </details>
         <details>
@@ -661,6 +681,9 @@ details {
                 <ul>
                     <li><a href="../antminer/X21#s21-bos_1">S21 (BOS+)</a></li>
                     <li><a href="../antminer/X21#s21-pro-bos_1">S21 Pro (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21_1-bos_1">S21+ (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-bos_1">S21+ Hydro (BOS+)</a></li>
+                    <li><a href="../antminer/X21#s21-hydro-bos_1">S21 Hydro (BOS+)</a></li>
                     <li><a href="../antminer/X21#t21-bos_1">T21 (BOS+)</a></li>
                 </ul>
         </details>
@@ -690,6 +713,12 @@ details {
                 </ul>
         </details>
         <details>
+            <summary>X9 Series:</summary>
+                <ul>
+                    <li><a href="../antminer/X9#l9-vnish">L9 (VNish)</a></li>
+                </ul>
+        </details>
+        <details>
             <summary>X17 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X17#s17_1-vnish">S17+ (VNish)</a></li>
@@ -704,11 +733,16 @@ details {
                     <li><a href="../antminer/X19#s19-pro-vnish">S19 Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-vnish">S19j (VNish)</a></li>
                     <li><a href="../antminer/X19#s19i-vnish">S19i (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-vnish">S19 XP (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-xp-hydro-vnish">S19 XP Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19j-pro-vnish">S19j Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-vnish">S19a (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-hydro-vnish">S19 Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-vnish">S19a Pro (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-a-vnish">S19 Pro A (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-vnish">S19k Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#t19-vnish">T19 (VNish)</a></li>
@@ -719,6 +753,10 @@ details {
                 <ul>
                     <li><a href="../antminer/X21#t21-vnish">T21 (VNish)</a></li>
                     <li><a href="../antminer/X21#s21-vnish">S21 (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21_1-vnish">S21+ (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-vnish">S21+ Hydro (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-vnish">S21 Pro (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21-hydro-vnish">S21 Hydro (VNish)</a></li>
                 </ul>
         </details>
     </ul>
@@ -814,6 +852,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-luxos">S21 (LuxOS)</a></li>
+                    <li><a href="../antminer/X21#t21-luxos">T21 (LuxOS)</a></li>
                 </ul>
         </details>
     </ul>
@@ -912,6 +951,12 @@ details {
                     <li><a href="../iceriver/KSX#ks5m-stock">KS5M (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>ALX Series:</summary>
+                <ul>
+                    <li><a href="../iceriver/ALX#al3-stock">AL3 (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
@@ -943,6 +988,8 @@ details {
             <summary>DGX Series:</summary>
                 <ul>
                     <li><a href="../elphapex/DGX#dg1_1-stock">DG1+ (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#dg1-stock">DG1 (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#dg1home-stock">DG1Home (Stock)</a></li>
                 </ul>
         </details>
     </ul>

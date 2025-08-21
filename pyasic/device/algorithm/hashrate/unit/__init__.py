@@ -1,4 +1,5 @@
 from .blake256 import Blake256Unit
+from .blockflow import BlockFlowUnit
 from .eaglesong import EaglesongUnit
 from .equihash import EquihashUnit
 from .ethash import EtHashUnit
@@ -8,6 +9,7 @@ from .kheavyhash import KHeavyHashUnit
 from .scrypt import ScryptUnit
 from .sha256 import SHA256Unit
 from .x11 import X11Unit
+from .zksnark import ZkSnarkUnit
 
 
 class HashUnit:
@@ -21,3 +23,5 @@ class HashUnit:
     EAGLESONG = EaglesongUnit
     ETHASH = EtHashUnit
     EQUIHASH = EquihashUnit
+    BLOCKFLOW = BlockFlowUnit
+    ZKSNARK = ZkSnarkUnit

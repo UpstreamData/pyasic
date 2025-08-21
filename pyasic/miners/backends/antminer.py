@@ -294,6 +294,7 @@ class AntminerModern(BMMiner):
                         rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
 
+
                 # Заполняем число ASIC'ов (чипов), если данные есть
                 if "asic_num" in board and board["asic_num"] is not None:
                     hb.chips = board["asic_num"]
@@ -329,6 +330,7 @@ class AntminerModern(BMMiner):
             return boards_list
 
         return boards_list
+
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None

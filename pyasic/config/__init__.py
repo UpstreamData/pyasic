@@ -85,6 +85,13 @@ class MinerConfig(BaseModel):
             **self.temperature.as_wm(),
         }
 
+    def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
+        """Generates the configuration in the format suitable for Whatsminers running BTMiner V3."""
+        return {
+            "set.miner.pools": self.pools.as_btminer_v3()
+            ** self.mining_mode.as_btminer_v3()
+        }
+
     def as_am_old(self, user_suffix: str | None = None) -> dict:
         """Generates the configuration in the format suitable for old versions of Antminers."""
         return {
@@ -248,6 +255,11 @@ class MinerConfig(BaseModel):
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
+    def from_goldshell_byte(cls, web_conf: dict) -> "MinerConfig":
+        """Constructs a MinerConfig object from web configuration for Goldshell Byte miners."""
+        return cls(pools=PoolConfig.from_goldshell_byte(web_conf))
+
+    @classmethod
     def from_inno(cls, web_pools: list) -> "MinerConfig":
         """Constructs a MinerConfig object from web configuration for Innosilicon miners."""
         return cls(pools=PoolConfig.from_inno(web_pools))
@@ -283,13 +295,17 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_vnish(cls, web_settings: dict, web_presets: list[dict]) -> "MinerConfig":
+    def from_vnish(
+        cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
+    ) -> "MinerConfig":
         """Constructs a MinerConfig object from web settings for VNish miners."""
         return cls(
             pools=PoolConfig.from_vnish(web_settings),
             fan_mode=FanModeConfig.from_vnish(web_settings),
             temperature=TemperatureConfig.from_vnish(web_settings),
-            mining_mode=MiningModeConfig.from_vnish(web_settings, web_presets),
+            mining_mode=MiningModeConfig.from_vnish(
+                web_settings, web_presets, web_perf_summary
+            ),
         )
 
     @classmethod
@@ -346,3 +362,14 @@ class MinerConfig(BaseModel):
     @classmethod
     def from_hammer(cls, *args, **kwargs) -> "MinerConfig":
         return cls.from_am_modern(*args, **kwargs)
+
+    @classmethod
+    def from_btminer_v3(
+        cls, rpc_pools: dict, rpc_settings: dict, rpc_device_info: dict
+    ) -> "MinerConfig":
+        return cls(
+            pools=PoolConfig.from_btminer_v3(rpc_pools=rpc_pools["msg"]),
+            mining_mode=MiningModeConfig.from_btminer_v3(
+                rpc_device_info=rpc_device_info, rpc_settings=rpc_settings
+            ),
+        )

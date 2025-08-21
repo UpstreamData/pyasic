@@ -41,6 +41,7 @@ from pyasic.miners.elphapex import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
+from pyasic.miners.iceriver.iceminer.ALX import IceRiverAL3
 from pyasic.miners.innosilicon import *
 from pyasic.miners.luckyminer import *
 from pyasic.miners.volcminer import *
@@ -81,6 +82,7 @@ MINER_CLASSES = {
         "ANTMINER KS5": BMMinerKS5,
         "ANTMINER KS5 PRO": BMMinerKS5Pro,
         "ANTMINER L7": BMMinerL7,
+        "ANTMINER L7_I": BMMinerL7,
         "ANTMINER K7": BMMinerK7,
         "ANTMINER D7": BMMinerD7,
         "ANTMINER E9 PRO": BMMinerE9Pro,
@@ -90,6 +92,7 @@ MINER_CLASSES = {
         "ANTMINER S9J": BMMinerS9j,
         "ANTMINER T9": BMMinerT9,
         "ANTMINER L9": BMMinerL9,
+        "ANTMINER L9_I": BMMinerL9,
         "ANTMINER Z15": CGMinerZ15,
         "ANTMINER Z15 PRO": BMMinerZ15Pro,
         "ANTMINER S17": BMMinerS17,
@@ -108,6 +111,8 @@ MINER_CLASSES = {
         "ANTMINER S19J88NOPIC": BMMinerS19jNoPIC,
         "ANTMINER S19PRO+": BMMinerS19ProPlus,
         "ANTMINER S19J PRO": BMMinerS19jPro,
+        "ANTMINER S19J+": BMMinerS19jPlus,
+        "ANTMINER S19J PRO+": BMMinerS19jProPlus,
         "ANTMINER S19 XP": BMMinerS19XP,
         "ANTMINER S19A": BMMinerS19a,
         "ANTMINER S19A PRO": BMMinerS19aPro,
@@ -122,6 +127,8 @@ MINER_CLASSES = {
         "ANTMINER BHB68601": BMMinerS21,  # ???
         "ANTMINER BHB68606": BMMinerS21,  # ???
         "ANTMINER S21+": BMMinerS21Plus,
+        "ANTMINER S21+ HYD.": BMMinerS21PlusHydro,
+        "ANTMINER S21+ HYD": BMMinerS21PlusHydro,
         "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
         "ANTMINER S21 HYD.": BMMinerS21Hydro,
@@ -507,7 +514,9 @@ MINER_CLASSES = {
         "AVALONMINER 1166PRO": CGMinerAvalon1166Pro,
         "AVALONMINER 1246": CGMinerAvalon1246,
         "AVALONMINER NANO3": CGMinerAvalonNano3,
+        "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
+        "AVALON Q": CGMinerAvalonQHome,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
@@ -524,6 +533,7 @@ MINER_CLASSES = {
         "GOLDSHELL KDMAX": GoldshellKDMax,
         "GOLDSHELL KDBOXII": GoldshellKDBoxII,
         "GOLDSHELL KDBOXPRO": GoldshellKDBoxPro,
+        "GOLDSHELL BYTE": GoldshellByte,
     },
     MinerTypes.BRAIINS_OS: {
         None: BOSMiner,
@@ -554,15 +564,20 @@ MINER_CLASSES = {
         "ANTMINER T19": BOSMinerT19,
         "ANTMINER S21": BOSMinerS21,
         "ANTMINER S21 PRO": BOSMinerS21Pro,
+        "ANTMINER S21+": BOSMinerS21Plus,
+        "ANTMINER S21+ HYD.": BOSMinerS21PlusHydro,
+        "ANTMINER S21 HYD.": BOSMinerS21Hydro,
         "ANTMINER T21": BOSMinerT21,
         "BRAIINS MINI MINER BMM 100": BraiinsBMM100,
         "BRAIINS MINI MINER BMM 101": BraiinsBMM101,
+        "ANTMINER S19 XP HYD.": BOSMinerS19XPHydro,
     },
     MinerTypes.VNISH: {
         None: VNish,
-        "L3+": VnishL3Plus,
-        "ANTMINER L3+": VnishL3Plus,
-        "ANTMINER L7": VnishL7,
+        "L3+": VNishL3Plus,
+        "ANTMINER L3+": VNishL3Plus,
+        "ANTMINER L7": VNishL7,
+        "ANTMINER L9": VNishL9,
         "ANTMINER S17+": VNishS17Plus,
         "ANTMINER S17 PRO": VNishS17Pro,
         "ANTMINER S19": VNishS19,
@@ -570,17 +585,26 @@ MINER_CLASSES = {
         "ANTMINER S19 PRO": VNishS19Pro,
         "ANTMINER S19J": VNishS19j,
         "ANTMINER S19I": VNishS19i,
+        "ANTMINER S19 XP": VNishS19XP,
+        "ANTMINER S19 XP HYD.": VNishS19XPHydro,
         "ANTMINER S19J PRO": VNishS19jPro,
         "ANTMINER S19J PRO A": VNishS19jPro,
         "ANTMINER S19J PRO BB": VNishS19jPro,
         "ANTMINER S19J PRO+": VNishS19jPro,
         "ANTMINER S19A": VNishS19a,
+        "ANTMINER S19 HYD.": VNishS19Hydro,
         "ANTMINER S19A PRO": VNishS19aPro,
+        "ANTMINER S19 PRO A": VNishS19ProA,
         "ANTMINER S19 PRO HYD.": VNishS19ProHydro,
+        "ANTMINER S19 PRO HYDRO": VNishS19ProHydro,
         "ANTMINER S19K PRO": VNishS19kPro,
         "ANTMINER T19": VNishT19,
         "ANTMINER T21": VNishT21,
         "ANTMINER S21": VNishS21,
+        "ANTMINER S21+": VNishS21Plus,
+        "ANTMINER S21+ HYD.": VNishS21PlusHydro,
+        "ANTMINER S21 PRO": VNishS21Pro,
+        "ANTMINER S21 HYD.": VNishS21Hydro,
     },
     MinerTypes.EPIC: {
         None: ePIC,
@@ -623,6 +647,7 @@ MINER_CLASSES = {
         "ANTMINER S19 XP": LUXMinerS19XP,
         "ANTMINER T19": LUXMinerT19,
         "ANTMINER S21": LUXMinerS21,
+        "ANTMINER T21": LUXMinerT21,
     },
     MinerTypes.AURADINE: {
         None: type("AuradineUnknown", (Auradine, AuradineMake), {}),
@@ -669,6 +694,7 @@ MINER_CLASSES = {
         "KS5": IceRiverKS5,
         "KS5L": IceRiverKS5L,
         "KS5M": IceRiverKS5M,
+        "10306": IceRiverAL3,
     },
     MinerTypes.HAMMER: {
         None: type("HammerUnknown", (BlackMiner, HammerMake), {}),
@@ -681,6 +707,8 @@ MINER_CLASSES = {
     MinerTypes.ELPHAPEX: {
         None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
         "DG1+": ElphapexDG1Plus,
+        "DG1": ElphapexDG1,
+        "DG1-Home": ElphapexDG1Home,
     },
 }
 
@@ -765,21 +793,32 @@ class MinerFactory:
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
                 MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
             }
-            fn = miner_model_fns.get(miner_type)
+            version = None
+            miner_version_fns = {
+                MinerTypes.WHATSMINER: self.get_miner_version_whatsminer,
+            }
+            model_fn = miner_model_fns.get(miner_type)
+            version_fn = miner_version_fns.get(miner_type)
 
-            if fn is not None:
+            if model_fn is not None:
                 # noinspection PyArgumentList
-                task = asyncio.create_task(fn(ip))
+                task = asyncio.create_task(model_fn(ip))
                 try:
                     miner_model = await asyncio.wait_for(
                         task, timeout=settings.get("factory_get_timeout", 3)
                     )
                 except asyncio.TimeoutError:
                     pass
+            if version_fn is not None:
+                task = asyncio.create_task(version_fn(ip))
+                try:
+                    version = await asyncio.wait_for(
+                        task, timeout=settings.get("factory_get_timeout", 3)
+                    )
+                except asyncio.TimeoutError:
+                    pass
             miner = self._select_miner_from_classes(
-                ip,
-                miner_type=miner_type,
-                miner_model=miner_model,
+                ip, miner_type=miner_type, miner_model=miner_model, version=version
             )
             return miner
 
@@ -1044,6 +1083,45 @@ class MinerFactory:
 
         return data
 
+    async def send_btminer_v3_api_command(self, ip, command):
+        try:
+            reader, writer = await asyncio.open_connection(ip, 4433)
+        except (ConnectionError, OSError):
+            return
+        cmd = {"cmd": command}
+
+        try:
+            # send the command
+            json_cmd = json.dumps(cmd).encode("utf-8")
+            length = len(json_cmd)
+            writer.write(length.to_bytes(4, byteorder="little"))
+            writer.write(json_cmd)
+            await writer.drain()
+
+            # receive all the data
+            resp_len = await reader.readexactly(4)
+            data = await reader.readexactly(
+                int.from_bytes(resp_len, byteorder="little")
+            )
+
+            writer.close()
+            await writer.wait_closed()
+        except asyncio.CancelledError:
+            writer.close()
+            await writer.wait_closed()
+            return
+        except (ConnectionError, OSError):
+            return
+        if data == b"Socket connect failed: Connection refused\n":
+            return
+
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return {}
+
+        return data
+
     @staticmethod
     async def _fix_api_data(data: bytes) -> str:
         if data.endswith(b"\x00"):
@@ -1082,13 +1160,14 @@ class MinerFactory:
         ip: ipaddress.ip_address,
         miner_model: str | None,
         miner_type: MinerTypes | None,
+        version: str | None = None,
     ) -> AnyMiner | None:
         # special case since hiveon miners return web results copying the antminer stock FW
         if "HIVEON" in str(miner_model).upper():
             miner_model = str(miner_model).upper().replace(" HIVEON", "")
             miner_type = MinerTypes.HIVEON
         try:
-            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, version)
         except LookupError:
             if miner_type in MINER_CLASSES:
                 if miner_model is not None:
@@ -1096,8 +1175,8 @@ class MinerFactory:
                         f"Partially supported miner found: {miner_model}, type: {miner_type}, please open an issue with miner data "
                         f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
                     )
-                return MINER_CLASSES[miner_type][None](ip)
-            return UnknownMiner(str(ip))
+                return MINER_CLASSES[miner_type][None](ip, version)
+            return UnknownMiner(str(ip), version)
 
     async def get_miner_model_antminer(self, ip: str) -> str | None:
         tasks = [
@@ -1163,9 +1242,25 @@ class MinerFactory:
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
             miner_model = miner_model[:-1] + "0"
-
             return miner_model
         except (TypeError, LookupError):
+            sock_json_data_v3 = await self.send_btminer_v3_api_command(
+                ip, "get.device.info"
+            )
+            try:
+                miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace("_", "")
+                miner_model = miner_model[:-1] + "0"
+
+                return miner_model
+            except (TypeError, LookupError):
+                pass
+
+    async def get_miner_version_whatsminer(self, ip: str) -> str | None:
+        sock_json_data = await self.send_api_command(ip, "get_version")
+        try:
+            version = sock_json_data["Msg"]["fw_ver"]
+            return version
+        except LookupError:
             pass
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:

@@ -20,34 +20,36 @@ class ESPMinerWebAPI(BaseWebAPI):
         **parameters: Any,
     ) -> dict:
         url = f"http://{self.ip}:{self.port}/api/{command}"
-        try:
-            async with httpx.AsyncClient(
-                transport=settings.transport(),
-            ) as client:
-                if parameters.get("post", False):
-                    parameters.pop("post")
-                    data = await client.post(
-                        url,
-                        timeout=settings.get("api_function_timeout", 3),
-                        json=parameters,
-                    )
-                elif parameters.get("patch", False):
-                    parameters.pop("patch")
-                    data = await client.patch(
-                        url,
-                        timeout=settings.get("api_function_timeout", 3),
-                        json=parameters,
-                    )
-                else:
-                    data = await client.get(url)
-        except httpx.HTTPError:
-            pass
-        else:
-            if data.status_code == 200:
+        async with httpx.AsyncClient(transport=settings.transport()) as client:
+            for _ in range(settings.get("get_data_retries", 1)):
                 try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
+                    if parameters.get("post", False):
+                        parameters.pop("post")
+                        data = await client.post(
+                            url,
+                            timeout=settings.get("api_function_timeout", 3),
+                            json=parameters,
+                        )
+                    elif parameters.get("patch", False):
+                        parameters.pop("patch")
+                        data = await client.patch(
+                            url,
+                            timeout=settings.get("api_function_timeout", 3),
+                            json=parameters,
+                        )
+                    else:
+                        data = await client.get(
+                            url,
+                            timeout=settings.get("api_function_timeout", 5),
+                        )
+                except httpx.HTTPError:
                     pass
+                else:
+                    if data.status_code == 200:
+                        try:
+                            return data.json()
+                        except json.decoder.JSONDecodeError:
+                            pass
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -94,3 +96,6 @@ class ESPMinerWebAPI(BaseWebAPI):
 
     async def update_settings(self, **config):
         return await self.send_command("system", patch=True, **config)
+
+    async def asic_info(self):
+        return await self.send_command("system/asic")

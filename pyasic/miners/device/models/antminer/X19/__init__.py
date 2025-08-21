@@ -24,6 +24,7 @@ from .S19 import (
     S19i,
     S19j,
     S19jNoPIC,
+    S19jPlus,
     S19jPro,
     S19jProNoPIC,
     S19jProPlus,
@@ -35,8 +36,10 @@ from .S19 import (
     S19NoPIC,
     S19Plus,
     S19Pro,
+    S19ProA,
     S19ProHydro,
     S19ProPlus,
     S19ProPlusHydro,
+    S19XPHydro,
 )
 from .T19 import T19

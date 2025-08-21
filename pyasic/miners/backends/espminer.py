@@ -115,11 +115,18 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                expected_hashrate = (
-                    web_system_info.get("smallCoreCount")
-                    * web_system_info.get("asicCount")
-                    * web_system_info.get("frequency")
-                )
+                small_core_count = web_system_info.get("smallCoreCount")
+                asic_count = web_system_info.get("asicCount")
+                frequency = web_system_info.get("frequency")
+
+                if asic_count is None:
+                    try:
+                        asic_info = await self.web.asic_info()
+                        asic_count = asic_info.get("asicCount")
+                    except APIError:
+                        pass
+
+                expected_hashrate = small_core_count * asic_count * frequency
 
                 return self.algo.hashrate(
                     rate=float(expected_hashrate), unit=self.algo.unit.MH
