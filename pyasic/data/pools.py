@@ -35,7 +35,11 @@ class PoolUrl(BaseModel):
         if not parsed_url.hostname:
             return None
         # Если схема отсутствует, используем схему по умолчанию
-        scheme = Scheme(parsed_url.scheme) if parsed_url.scheme.strip() != "" else Scheme.STRATUM_V1
+        scheme = (
+            Scheme(parsed_url.scheme)
+            if parsed_url.scheme.strip() != ""
+            else Scheme.STRATUM_V1
+        )
         host = parsed_url.hostname
         port = parsed_url.port  # может быть None, если порт не указан
         pubkey = parsed_url.path.lstrip("/") if scheme == Scheme.STRATUM_V2 else None

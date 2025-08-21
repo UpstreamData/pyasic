@@ -156,7 +156,6 @@ class MinerProtocol(Protocol):
         """
         return False
 
-
     async def restart_backend(self) -> bool:
         """Restart the mining process of the miner (bosminer, bmminer, cgminer, etc) and return success as a boolean.
 

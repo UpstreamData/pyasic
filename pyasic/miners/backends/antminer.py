@@ -285,7 +285,7 @@ class AntminerModern(BMMiner):
                 hb = HashBoard(
                     slot=board["index"],
                     expected_chips=self.expected_chips,
-                    missing=True  # будем помечать как "не найденную" до успешного заполнения данных
+                    missing=True,  # будем помечать как "не найденную" до успешного заполнения данных
                 )
 
                 # Заполняем hashrate, если доступен
@@ -293,7 +293,6 @@ class AntminerModern(BMMiner):
                     hb.hashrate = self.algo.hashrate(
                         rate=board["rate_real"], unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
-
 
                 # Заполняем число ASIC'ов (чипов), если данные есть
                 if "asic_num" in board and board["asic_num"] is not None:
@@ -330,7 +329,6 @@ class AntminerModern(BMMiner):
             return boards_list
 
         return boards_list
-
 
     async def _get_fault_light(
         self, web_get_blink_status: dict = None

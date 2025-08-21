@@ -176,7 +176,6 @@ class VNish(VNishFirmware, BMMiner):
             return True
         return False
 
-
     async def _get_mac(self, web_summary: dict = None) -> str:
         if web_summary is not None:
             try:
