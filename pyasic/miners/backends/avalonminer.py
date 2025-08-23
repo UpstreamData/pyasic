@@ -305,10 +305,10 @@ class AvalonMiner(CGMiner):
                     hashboards[board].chip_temp = int(
                         parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
                     )
-                except LookupError:
+                except (LookupError, TypeError):
                     try:
                         hashboards[board].chip_temp = int(
-                            parsed_estats["STATS"][0]["MM ID0"]["Tmax"]
+                            parsed_estats["STATS"][0]["MM ID0"]["MTmax"]
                         )
                     except LookupError:
                         pass
@@ -317,10 +317,10 @@ class AvalonMiner(CGMiner):
                     hashboards[board].temp = int(
                         parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
                     )
-                except LookupError:
+                except (LookupError, TypeError):
                     try:
                         hashboards[board].temp = int(
-                            parsed_estats["STATS"][0]["MM ID0"]["Tavg"]
+                            parsed_estats["STATS"][0]["MM ID0"]["MTavg"]
                         )
                     except LookupError:
                         pass
@@ -329,7 +329,7 @@ class AvalonMiner(CGMiner):
                     hashboards[board].inlet_temp = int(
                         parsed_estats["STATS"][0]["MM ID0"]["MTavg"][board]
                     )
-                except LookupError:
+                except (LookupError, TypeError):
                     try:
                         hashboards[board].inlet_temp = int(
                             parsed_estats["STATS"][0]["MM ID0"]["HBITemp"]
@@ -341,7 +341,7 @@ class AvalonMiner(CGMiner):
                     hashboards[board].outlet_temp = int(
                         parsed_estats["STATS"][0]["MM ID0"]["MTmax"][board]
                     )
-                except LookupError:
+                except (LookupError, TypeError):
                     try:
                         hashboards[board].outlet_temp = int(
                             parsed_estats["STATS"][0]["MM ID0"]["HBOTemp"]
@@ -356,7 +356,7 @@ class AvalonMiner(CGMiner):
                         hashboards[board].chips = len(
                             [item for item in chip_data if not item == "0"]
                         )
-                except LookupError:
+                except (LookupError, TypeError):
                     try:
                         chip_data = parsed_estats["STATS"][0]["HBinfo"][f"HB{board}"][
                             f"PVT_T{board}"

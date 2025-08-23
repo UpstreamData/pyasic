@@ -178,8 +178,7 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
 
         if rpc_estats is not None:
             try:
-                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
-                parsed_estats = self.parse_estats(unparsed_estats)
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
                 return int(parsed_estats["PS"][6])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
@@ -193,8 +192,7 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
 
         if rpc_estats is not None:
             try:
-                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
-                parsed_estats = self.parse_estats(unparsed_estats)
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
                 return self.algo.hashrate(
                     rate=float(parsed_estats["GHSspd"]), unit=self.algo.unit.GH
                 ).into(self.algo.unit.default)
@@ -212,14 +210,13 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
 
         if rpc_estats is not None:
             try:
-                unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
-                parsed_estats = self.parse_estats(unparsed_estats)
+                parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
             except (IndexError, KeyError, ValueError, TypeError):
                 return hashboards
 
             for board in range(len(hashboards)):
                 try:
-                    board_hr = parsed_estats["GHSspd"][board]
+                    board_hr = parsed_estats["GHSspd"]
                     hashboards[board].hashrate = self.algo.hashrate(
                         rate=float(board_hr), unit=self.algo.unit.GH
                     ).into(self.algo.unit.default)
