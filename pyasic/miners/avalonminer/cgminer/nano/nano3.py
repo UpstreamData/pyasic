@@ -167,7 +167,6 @@ class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
 
 
 class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
-
     data_locations = AVALON_NANO3S_DATA_LOC
 
     async def _get_wattage(self, rpc_estats: dict = None) -> Optional[int]:
@@ -212,7 +211,6 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
                 pass
 
         if rpc_estats is not None:
-
             try:
                 unparsed_estats = rpc_estats["STATS"][0]["MM ID0"]
                 parsed_estats = self.parse_estats(unparsed_estats)

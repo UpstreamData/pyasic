@@ -107,6 +107,9 @@ class MinerConfigValue(BaseModel):
     def as_wm(self) -> dict:
         return {}
 
+    def as_btminer_v3(self) -> dict:
+        return {}
+
     def as_inno(self) -> dict:
         return {}
 

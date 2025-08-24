@@ -4,7 +4,7 @@
 ## Byte (Stock)
 
 - [x] Shutdowns
-- [ ] Power Modes
+- [x] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 

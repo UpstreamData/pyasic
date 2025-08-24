@@ -20,7 +20,7 @@ from .bfgminer import BFGMiner
 from .bitaxe import BitAxe
 from .bmminer import BMMiner
 from .braiins_os import BOSer, BOSMiner
-from .btminer import BTMiner
+from .btminer import BTMiner, BTMinerV2, BTMinerV3
 from .cgminer import CGMiner
 from .elphapex import ElphapexMiner
 from .epic import ePIC

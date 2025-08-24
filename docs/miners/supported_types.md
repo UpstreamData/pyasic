@@ -39,6 +39,7 @@ details {
             <summary>X7 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
+                    <li><a href="../antminer/X7#l7-stock">L7 (Stock)</a></li>
                     <li><a href="../antminer/X7#k7-stock">K7 (Stock)</a></li>
                     <li><a href="../antminer/X7#d7-stock">D7 (Stock)</a></li>
                 </ul>
@@ -52,6 +53,7 @@ details {
                     <li><a href="../antminer/X9#s9i-stock">S9i (Stock)</a></li>
                     <li><a href="../antminer/X9#s9j-stock">S9j (Stock)</a></li>
                     <li><a href="../antminer/X9#t9-stock">T9 (Stock)</a></li>
+                    <li><a href="../antminer/X9#l9-stock">L9 (Stock)</a></li>
                     <li><a href="../antminer/X9#l9-stock">L9 (Stock)</a></li>
                 </ul>
         </details>
@@ -106,6 +108,7 @@ details {
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-stock">S21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21_1-stock">S21+ (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21_1-hydro-stock">S21+ Hydro (Stock)</a></li>
                     <li><a href="../antminer/X21#s21_1-hydro-stock">S21+ Hydro (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
@@ -601,12 +604,6 @@ details {
 <summary>Stock Firmware Goldshells:</summary>
     <ul>
         <details>
-            <summary>Byte Series:</summary>
-                <ul>
-                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
-                </ul>
-        </details>
-        <details>
             <summary>Mini Doge Series:</summary>
                 <ul>
                     <li><a href="../goldshell/MiniDoge#mini-doge-stock">Byte (Stock)</a></li>
@@ -631,6 +628,12 @@ details {
                 <ul>
                     <li><a href="../goldshell/XBox#kd-box-ii-stock">KD Box II (Stock)</a></li>
                     <li><a href="../goldshell/XBox#kd-box-pro-stock">KD Box Pro (Stock)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>Byte Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -745,6 +748,7 @@ details {
                     <li><a href="../antminer/X19#s19-hydro-vnish">S19 Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-vnish">S19a Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-a-vnish">S19 Pro A (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-vnish">S19k Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#t19-vnish">T19 (VNish)</a></li>

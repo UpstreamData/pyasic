@@ -287,7 +287,6 @@ class AvalonMiner(CGMiner):
                 return hashboards
 
             for board in range(self.expected_hashboards):
-
                 try:
                     board_hr = parsed_estats["STATS"][0]["MM ID0"]["MGHS"]
                     if isinstance(board_hr, list):

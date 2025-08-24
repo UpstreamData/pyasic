@@ -82,6 +82,7 @@ MINER_CLASSES = {
         "ANTMINER KS5": BMMinerKS5,
         "ANTMINER KS5 PRO": BMMinerKS5Pro,
         "ANTMINER L7": BMMinerL7,
+        "ANTMINER L7_I": BMMinerL7,
         "ANTMINER K7": BMMinerK7,
         "ANTMINER D7": BMMinerD7,
         "ANTMINER E9 PRO": BMMinerE9Pro,
@@ -91,6 +92,7 @@ MINER_CLASSES = {
         "ANTMINER S9J": BMMinerS9j,
         "ANTMINER T9": BMMinerT9,
         "ANTMINER L9": BMMinerL9,
+        "ANTMINER L9_I": BMMinerL9,
         "ANTMINER Z15": CGMinerZ15,
         "ANTMINER Z15 PRO": BMMinerZ15Pro,
         "ANTMINER S17": BMMinerS17,
@@ -125,6 +127,7 @@ MINER_CLASSES = {
         "ANTMINER BHB68606": BMMinerS21,  # ???
         "ANTMINER S21+": BMMinerS21Plus,
         "ANTMINER S21+ HYD.": BMMinerS21PlusHydro,
+        "ANTMINER S21+ HYD": BMMinerS21PlusHydro,
         "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
         "ANTMINER S21 HYD.": BMMinerS21Hydro,
@@ -592,6 +595,7 @@ MINER_CLASSES = {
         "ANTMINER S19A PRO": VNishS19aPro,
         "ANTMINER S19 PRO A": VNishS19ProA,
         "ANTMINER S19 PRO HYD.": VNishS19ProHydro,
+        "ANTMINER S19 PRO HYDRO": VNishS19ProHydro,
         "ANTMINER S19K PRO": VNishS19kPro,
         "ANTMINER T19": VNishT19,
         "ANTMINER T21": VNishT21,
@@ -788,21 +792,32 @@ class MinerFactory:
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
                 MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
             }
-            fn = miner_model_fns.get(miner_type)
+            version = None
+            miner_version_fns = {
+                MinerTypes.WHATSMINER: self.get_miner_version_whatsminer,
+            }
+            model_fn = miner_model_fns.get(miner_type)
+            version_fn = miner_version_fns.get(miner_type)
 
-            if fn is not None:
+            if model_fn is not None:
                 # noinspection PyArgumentList
-                task = asyncio.create_task(fn(ip))
+                task = asyncio.create_task(model_fn(ip))
                 try:
                     miner_model = await asyncio.wait_for(
                         task, timeout=settings.get("factory_get_timeout", 3)
                     )
                 except asyncio.TimeoutError:
                     pass
+            if version_fn is not None:
+                task = asyncio.create_task(version_fn(ip))
+                try:
+                    version = await asyncio.wait_for(
+                        task, timeout=settings.get("factory_get_timeout", 3)
+                    )
+                except asyncio.TimeoutError:
+                    pass
             miner = self._select_miner_from_classes(
-                ip,
-                miner_type=miner_type,
-                miner_model=miner_model,
+                ip, miner_type=miner_type, miner_model=miner_model, version=version
             )
             return miner
 
@@ -1067,6 +1082,45 @@ class MinerFactory:
 
         return data
 
+    async def send_btminer_v3_api_command(self, ip, command):
+        try:
+            reader, writer = await asyncio.open_connection(ip, 4433)
+        except (ConnectionError, OSError):
+            return
+        cmd = {"cmd": command}
+
+        try:
+            # send the command
+            json_cmd = json.dumps(cmd).encode("utf-8")
+            length = len(json_cmd)
+            writer.write(length.to_bytes(4, byteorder="little"))
+            writer.write(json_cmd)
+            await writer.drain()
+
+            # receive all the data
+            resp_len = await reader.readexactly(4)
+            data = await reader.readexactly(
+                int.from_bytes(resp_len, byteorder="little")
+            )
+
+            writer.close()
+            await writer.wait_closed()
+        except asyncio.CancelledError:
+            writer.close()
+            await writer.wait_closed()
+            return
+        except (ConnectionError, OSError):
+            return
+        if data == b"Socket connect failed: Connection refused\n":
+            return
+
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return {}
+
+        return data
+
     @staticmethod
     async def _fix_api_data(data: bytes) -> str:
         if data.endswith(b"\x00"):
@@ -1105,13 +1159,14 @@ class MinerFactory:
         ip: ipaddress.ip_address,
         miner_model: str | None,
         miner_type: MinerTypes | None,
+        version: str | None = None,
     ) -> AnyMiner | None:
         # special case since hiveon miners return web results copying the antminer stock FW
         if "HIVEON" in str(miner_model).upper():
             miner_model = str(miner_model).upper().replace(" HIVEON", "")
             miner_type = MinerTypes.HIVEON
         try:
-            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip)
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, version)
         except LookupError:
             if miner_type in MINER_CLASSES:
                 if miner_model is not None:
@@ -1119,8 +1174,8 @@ class MinerFactory:
                         f"Partially supported miner found: {miner_model}, type: {miner_type}, please open an issue with miner data "
                         f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
                     )
-                return MINER_CLASSES[miner_type][None](ip)
-            return UnknownMiner(str(ip))
+                return MINER_CLASSES[miner_type][None](ip, version)
+            return UnknownMiner(str(ip), version)
 
     async def get_miner_model_antminer(self, ip: str) -> str | None:
         tasks = [
@@ -1186,9 +1241,25 @@ class MinerFactory:
         try:
             miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
             miner_model = miner_model[:-1] + "0"
-
             return miner_model
         except (TypeError, LookupError):
+            sock_json_data_v3 = await self.send_btminer_v3_api_command(
+                ip, "get.device.info"
+            )
+            try:
+                miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace("_", "")
+                miner_model = miner_model[:-1] + "0"
+
+                return miner_model
+            except (TypeError, LookupError):
+                pass
+
+    async def get_miner_version_whatsminer(self, ip: str) -> str | None:
+        sock_json_data = await self.send_api_command(ip, "get_version")
+        try:
+            version = sock_json_data["Msg"]["fw_ver"]
+            return version
+        except LookupError:
             pass
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:

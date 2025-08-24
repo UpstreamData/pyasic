@@ -1,6 +1,6 @@
 [project]
 name = "pyasic"
-version = "0.74.1"
+version = "0.76.4"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
@@ -52,6 +52,7 @@ dependencies = [
     "aiofiles>=23.2.1",
     "betterproto==2.0.0b7",
     "pydantic>=2.11.0",
+    "semver (>=3.0.4,<4.0.0)",
 ]
 
 [tool.poetry.group.dev]

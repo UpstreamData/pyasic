@@ -2485,7 +2485,6 @@ class NetworkServiceStub(betterproto.ServiceStub):
 
 
 class ActionsServiceBase(ServiceBase):
-
     async def start(self, start_request: "StartRequest") -> "StartResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -2630,7 +2629,6 @@ class ActionsServiceBase(ServiceBase):
 
 
 class AuthenticationServiceBase(ServiceBase):
-
     async def login(self, login_request: "LoginRequest") -> "LoginResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -2671,7 +2669,6 @@ class AuthenticationServiceBase(ServiceBase):
 
 
 class CoolingServiceBase(ServiceBase):
-
     async def get_cooling_state(
         self, get_cooling_state_request: "GetCoolingStateRequest"
     ) -> "GetCoolingStateResponse":
@@ -2716,7 +2713,6 @@ class CoolingServiceBase(ServiceBase):
 
 
 class PerformanceServiceBase(ServiceBase):
-
     async def get_tuner_state(
         self, get_tuner_state_request: "GetTunerStateRequest"
     ) -> "GetTunerStateResponse":
@@ -2986,7 +2982,6 @@ class PerformanceServiceBase(ServiceBase):
 
 
 class PoolServiceBase(ServiceBase):
-
     async def get_pool_groups(
         self, get_pool_groups_request: "GetPoolGroupsRequest"
     ) -> "GetPoolGroupsResponse":
@@ -3088,7 +3083,6 @@ class PoolServiceBase(ServiceBase):
 
 
 class ConfigurationServiceBase(ServiceBase):
-
     async def get_miner_configuration(
         self, get_miner_configuration_request: "GetMinerConfigurationRequest"
     ) -> "GetMinerConfigurationResponse":
@@ -3133,7 +3127,6 @@ class ConfigurationServiceBase(ServiceBase):
 
 
 class LicenseServiceBase(ServiceBase):
-
     async def get_license_state(
         self, get_license_state_request: "GetLicenseStateRequest"
     ) -> "GetLicenseStateResponse":
@@ -3159,7 +3152,6 @@ class LicenseServiceBase(ServiceBase):
 
 
 class MinerServiceBase(ServiceBase):
-
     async def get_miner_status(
         self, get_miner_status_request: "GetMinerStatusRequest"
     ) -> AsyncIterator[GetMinerStatusResponse]:
@@ -3325,7 +3317,6 @@ class MinerServiceBase(ServiceBase):
 
 
 class NetworkServiceBase(ServiceBase):
-
     async def get_network_configuration(
         self, get_network_configuration_request: "GetNetworkConfigurationRequest"
     ) -> "GetNetworkConfigurationResponse":

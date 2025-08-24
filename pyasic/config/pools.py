@@ -64,6 +64,13 @@ class Pool(MinerConfigValue):
             f"passwd_{idx}": self.password,
         }
 
+    def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
+        return {
+            f"pool": self.url,
+            f"worker": f"{self.user}{user_suffix or ''}",
+            f"passwd": self.password,
+        }
+
     def as_am_old(self, idx: int = 1, user_suffix: str | None = None) -> dict:
         return {
             f"_ant_pool{idx}url": self.url,
@@ -147,6 +154,10 @@ class Pool(MinerConfigValue):
     @classmethod
     def from_api(cls, api_pool: dict) -> "Pool":
         return cls(url=api_pool["URL"], user=api_pool["User"], password="x")
+
+    @classmethod
+    def from_btminer_v3(cls, api_pool: dict) -> "Pool":
+        return cls(url=api_pool["url"], user=api_pool["account"], password="x")
 
     @classmethod
     def from_epic(cls, api_pool: dict) -> "Pool":
@@ -296,6 +307,9 @@ class PoolGroup(MinerConfigValue):
             idx += 1
         return pools
 
+    def as_btminer_v3(self, user_suffix: str | None = None) -> list:
+        return [pool.as_btminer_v3(user_suffix) for pool in self.pools[:3]]
+
     def as_am_old(self, user_suffix: str | None = None) -> dict:
         pools = {}
         idx = 0
@@ -383,6 +397,13 @@ class PoolGroup(MinerConfigValue):
         pools = []
         for pool in api_pool_list:
             pools.append(Pool.from_api(pool))
+        return cls(pools=pools)
+
+    @classmethod
+    def from_btminer_v3(cls, api_pool_list: list) -> "PoolGroup":
+        pools = []
+        for pool in api_pool_list:
+            pools.append(Pool.from_btminer_v3(pool))
         return cls(pools=pools)
 
     @classmethod
@@ -513,6 +534,11 @@ class PoolConfig(MinerConfigValue):
             return {"pools": self.groups[0].as_wm(user_suffix=user_suffix)}
         return {"pools": PoolGroup().as_wm()}
 
+    def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
+        if len(self.groups) > 0:
+            return {"pools": self.groups[0].as_btminer_v3(user_suffix=user_suffix)}
+        return {"pools": PoolGroup().as_btminer_v3()}
+
     def as_am_old(self, user_suffix: str | None = None) -> dict:
         if len(self.groups) > 0:
             return self.groups[0].as_am_old(user_suffix=user_suffix)
@@ -597,6 +623,16 @@ class PoolConfig(MinerConfigValue):
         pool_data = sorted(pool_data, key=lambda x: int(x["POOL"]))
 
         return cls(groups=[PoolGroup.from_api(pool_data)])
+
+    @classmethod
+    def from_btminer_v3(cls, rpc_pools: dict) -> "PoolConfig":
+        try:
+            pool_data = rpc_pools["pools"]
+        except KeyError:
+            return PoolConfig.default()
+        pool_data = sorted(pool_data, key=lambda x: int(x["id"]))
+
+        return cls(groups=[PoolGroup.from_btminer_v3(pool_data)])
 
     @classmethod
     def from_epic(cls, web_conf: dict) -> "PoolConfig":

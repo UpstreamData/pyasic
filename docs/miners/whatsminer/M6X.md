@@ -5,7 +5,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus_Plus.BTMinerM60SPlusPlusVL30
@@ -18,7 +18,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus_Plus.BTMinerM60SPlusPlusVL40
@@ -31,7 +31,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVK30
@@ -44,7 +44,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVK40
@@ -57,7 +57,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVK50
@@ -70,7 +70,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVK60
@@ -83,7 +83,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVK70
@@ -96,7 +96,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVL10
@@ -109,7 +109,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVL30
@@ -122,7 +122,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVL40
@@ -135,7 +135,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVL50
@@ -148,7 +148,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S_Plus.BTMinerM60SPlusVL60
@@ -161,7 +161,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVK10
@@ -174,7 +174,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVK20
@@ -187,7 +187,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVK30
@@ -200,7 +200,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVK40
@@ -213,7 +213,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL10
@@ -226,7 +226,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL20
@@ -239,7 +239,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL30
@@ -252,7 +252,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL40
@@ -265,7 +265,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL50
@@ -278,7 +278,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL60
@@ -291,7 +291,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60S.BTMinerM60SVL70
@@ -304,7 +304,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VK10
@@ -317,7 +317,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VK20
@@ -330,7 +330,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VK30
@@ -343,7 +343,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VK40
@@ -356,7 +356,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VK6A
@@ -369,7 +369,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VL10
@@ -382,7 +382,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VL20
@@ -395,7 +395,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VL30
@@ -408,7 +408,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VL40
@@ -421,7 +421,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M60.BTMinerM60VL50
@@ -434,7 +434,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61S_Plus.BTMinerM61SPlusVL30
@@ -447,7 +447,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61S.BTMinerM61SVL10
@@ -460,7 +460,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61S.BTMinerM61SVL20
@@ -473,7 +473,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61S.BTMinerM61SVL30
@@ -486,7 +486,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VK10
@@ -499,7 +499,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VK20
@@ -512,7 +512,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VK30
@@ -525,7 +525,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VK40
@@ -538,7 +538,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VL10
@@ -551,7 +551,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VL30
@@ -564,7 +564,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VL40
@@ -577,7 +577,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VL50
@@ -590,7 +590,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M61.BTMinerM61VL60
@@ -603,7 +603,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M62S_Plus.BTMinerM62SPlusVK30
@@ -616,7 +616,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus_Plus.BTMinerM63SPlusPlusVL20
@@ -629,7 +629,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus.BTMinerM63SPlusVK30
@@ -642,7 +642,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus.BTMinerM63SPlusVL10
@@ -655,7 +655,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus.BTMinerM63SPlusVL20
@@ -668,7 +668,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus.BTMinerM63SPlusVL30
@@ -681,7 +681,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S_Plus.BTMinerM63SPlusVL50
@@ -694,7 +694,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVK10
@@ -707,7 +707,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVK20
@@ -720,7 +720,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVK30
@@ -733,7 +733,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVK60
@@ -746,7 +746,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVL10
@@ -759,7 +759,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVL50
@@ -772,7 +772,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63S.BTMinerM63SVL60
@@ -785,7 +785,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63.BTMinerM63VK10
@@ -798,7 +798,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63.BTMinerM63VK20
@@ -811,7 +811,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63.BTMinerM63VK30
@@ -824,7 +824,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63.BTMinerM63VL10
@@ -837,7 +837,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M63.BTMinerM63VL30
@@ -850,7 +850,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M64S.BTMinerM64SVL30
@@ -863,7 +863,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M64.BTMinerM64VL30
@@ -876,7 +876,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M64.BTMinerM64VL40
@@ -889,7 +889,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M65S_Plus.BTMinerM65SPlusVK30
@@ -902,7 +902,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M65S.BTMinerM65SVK20
@@ -915,7 +915,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M65S.BTMinerM65SVL60
@@ -928,7 +928,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus_Plus.BTMinerM66SPlusPlusVL20
@@ -941,7 +941,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVK30
@@ -954,7 +954,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVL10
@@ -967,7 +967,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVL20
@@ -980,7 +980,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVL30
@@ -993,7 +993,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVL40
@@ -1006,7 +1006,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S_Plus.BTMinerM66SPlusVL60
@@ -1019,7 +1019,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVK20
@@ -1032,7 +1032,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVK30
@@ -1045,7 +1045,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVK40
@@ -1058,7 +1058,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVK50
@@ -1071,7 +1071,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVK60
@@ -1084,7 +1084,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVL10
@@ -1097,7 +1097,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVL20
@@ -1110,7 +1110,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVL30
@@ -1123,7 +1123,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVL40
@@ -1136,7 +1136,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66S.BTMinerM66SVL50
@@ -1149,7 +1149,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66.BTMinerM66VK20
@@ -1162,7 +1162,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66.BTMinerM66VK30
@@ -1175,7 +1175,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66.BTMinerM66VL20
@@ -1188,7 +1188,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M66.BTMinerM66VL30
@@ -1201,7 +1201,7 @@
 
 - [x] Shutdowns
 - [x] Power Modes
-- [x] Setpoints
+- [ ] Setpoints
 - [ ] Presets
 
 ::: pyasic.miners.whatsminer.btminer.M6X.M67S.BTMinerM67SVK30
