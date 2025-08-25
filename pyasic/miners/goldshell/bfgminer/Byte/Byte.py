@@ -79,6 +79,8 @@ GOLDSHELL_BYTE_DATA_LOC = DataLocations(
 
 class GoldshellByte(GoldshellMiner, Byte):
     data_locations = GOLDSHELL_BYTE_DATA_LOC
+    supports_shutdown = False
+    supports_power_modes = False
 
     cgdev: dict | None = None
 
@@ -90,7 +92,7 @@ class GoldshellByte(GoldshellMiner, Byte):
     ) -> MinerData:
         if self.cgdev is None:
             try:
-                self.cgdev = await self.web.send_command("cgminer?cgminercmd=devs")
+                self.cgdev = await self.web.devs()
             except APIError:
                 pass
 

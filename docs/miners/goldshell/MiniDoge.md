@@ -3,7 +3,7 @@
 
 ## Mini Doge (Stock)
 
-- [x] Shutdowns
+- [ ] Shutdowns
 - [ ] Power Modes
 - [ ] Setpoints
 - [ ] Presets

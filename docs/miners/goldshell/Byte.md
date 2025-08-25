@@ -3,8 +3,8 @@
 
 ## Byte (Stock)
 
-- [x] Shutdowns
-- [x] Power Modes
+- [ ] Shutdowns
+- [ ] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 

@@ -77,8 +77,9 @@ GOLDSHELL_MINI_DOGE_DATA_LOC = DataLocations(
 
 
 class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
-
     data_locations = GOLDSHELL_MINI_DOGE_DATA_LOC
+    supports_shutdown = False
+    supports_power_modes = False
 
     async def get_config(self) -> MinerConfig:
         try:
