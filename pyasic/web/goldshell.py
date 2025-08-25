@@ -143,3 +143,6 @@ class GoldshellWebAPI(BaseWebAPI):
 
     async def status(self) -> dict:
         return await self.send_command("status")
+    
+    async def devs(self) -> dict:
+        return await self.send_command("cgminer?cgminercmd=devs")
