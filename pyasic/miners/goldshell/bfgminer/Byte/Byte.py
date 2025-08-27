@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2025 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -73,14 +73,23 @@ GOLDSHELL_BYTE_DATA_LOC = DataLocations(
             "_get_pools",
             [RPCAPICommand("rpc_pools", "pools")],
         ),
+        str(DataOptions.UPTIME): DataFunction(
+            "_get_uptime",
+            [WebAPICommand("web_devs", "devs")],
+        ),
+        str(DataOptions.WATTAGE): DataFunction(
+            "_get_wattage",
+            [WebAPICommand("web_devs", "devs")],
+        ),
     }
 )
 
 
 class GoldshellByte(GoldshellMiner, Byte):
     data_locations = GOLDSHELL_BYTE_DATA_LOC
-
-    cgdev: dict | None = None
+    supports_shutdown = False
+    supports_power_modes = False
+    web_devs: dict | None = None
 
     async def get_data(
         self,
@@ -88,26 +97,21 @@ class GoldshellByte(GoldshellMiner, Byte):
         include: List[Union[str, DataOptions]] = None,
         exclude: List[Union[str, DataOptions]] = None,
     ) -> MinerData:
-        if self.cgdev is None:
+        if self.web_devs is None:
             try:
-                self.cgdev = await self.web.send_command("cgminer?cgminercmd=devs")
+                self.web_devs = await self.web.devs()
             except APIError:
                 pass
 
         scrypt_board_count = 0
         zksnark_board_count = 0
-        total_wattage = 0
-        total_uptime_mins = 0
 
-        for minfo in self.cgdev.get("minfos", []):
+        for minfo in self.web_devs.get("minfos", []):
             algo_name = minfo.get("name")
 
-            for info in minfo.get("infos", []):
+            for _ in minfo.get("infos", []):
                 self.expected_hashboards += 1
                 self.expected_fans += 1
-
-                total_wattage = int(float(info.get("power", 0)))
-                total_uptime_mins = int(info.get("time", 0))
 
                 if algo_name == ALGORITHM_SCRYPT_NAME:
                     scrypt_board_count += 1
@@ -125,12 +129,6 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         data = await super().get_data(allow_warning, include, exclude)
         data.expected_chips = self.expected_chips
-        data.wattage = total_wattage
-        data.uptime = total_uptime_mins
-        data.voltage = 0
-
-        for board in data.hashboards:
-            data.voltage += board.voltage
 
         return data
 
@@ -313,3 +311,39 @@ class GoldshellByte(GoldshellMiner, Byte):
         fans = [Fan(speed=d) if d else Fan() for d in fans_data]
 
         return fans
+
+    async def _get_uptime(self, web_devs: dict = None) -> Optional[int]:
+        if web_devs is None:
+            try:
+                web_devs = await self.web.devs()
+            except APIError:
+                pass
+
+        if web_devs is not None:
+            try:
+                for minfo in self.web_devs.get("minfos", []):
+                    for info in minfo.get("infos", []):
+                        uptime = int(float(info["time"]))
+                        return uptime
+            except KeyError:
+                pass
+
+        return None
+
+    async def _get_wattage(self, web_devs: dict = None) -> Optional[int]:
+        if web_devs is None:
+            try:
+                web_devs = await self.web.devs()
+            except APIError:
+                pass
+
+        if web_devs is not None:
+            try:
+                for minfo in self.web_devs.get("minfos", []):
+                    for info in minfo.get("infos", []):
+                        wattage = int(float(info["power"]))
+                        return wattage
+            except KeyError:
+                pass
+
+        return None

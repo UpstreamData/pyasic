@@ -480,6 +480,7 @@ class GoldshellModels(MinerModelType):
     KDBoxII = "KD Box II"
     KDBoxPro = "KD Box Pro"
     Byte = "Byte"
+    MiniDoge = "Mini Doge"
 
     def __str__(self):
         return self.value

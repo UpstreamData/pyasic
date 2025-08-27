@@ -216,7 +216,7 @@ class BFGMiner(StockFirmware):
                     )
             except LookupError:
                 pass
-        fans = [Fan(speed=d) if d else Fan() for d in fans_data]
+        fans = [Fan(speed=d) for d in fans_data if d is not None]
 
         return fans
 
