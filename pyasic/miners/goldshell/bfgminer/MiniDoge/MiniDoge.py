@@ -30,7 +30,6 @@ from pyasic.miners.data import (
 )
 from pyasic.miners.device.models import MiniDoge
 
-
 GOLDSHELL_MINI_DOGE_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
@@ -99,7 +98,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
             except APIError:
                 pass
 
-        if rpc_devs is not None:  
+        if rpc_devs is not None:
             try:
                 hash_rate = rpc_devs["DEVS"][0]["estimate_hash_rate"]
                 return self.algo.hashrate(
@@ -109,7 +108,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
                 pass
 
         return None
-    
+
     async def _get_hashboards(
         self, rpc_devs: dict = None, rpc_devdetails: dict = None
     ) -> List[HashBoard]:
@@ -162,7 +161,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
                 logger.error(self, rpc_devdetails)
 
         return hashboards
-    
+
     async def _get_uptime(self, web_devs: dict = None) -> Optional[int]:
         if web_devs is None:
             try:
