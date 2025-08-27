@@ -103,8 +103,12 @@ class GoldshellWebAPI(BaseWebAPI):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
                 try:
+                    uri_commnand = command
+                    if command == "devs":
+                        uri_commnand = "cgminer?cgminercmd=devs"
+
                     response = await client.get(
-                        f"http://{self.ip}:{self.port}/mcb/{command}",
+                        f"http://{self.ip}:{self.port}/mcb/{uri_commnand}",
                         headers={"Authorization": "Bearer " + self.token},
                         timeout=settings.get("api_function_timeout", 5),
                     )
