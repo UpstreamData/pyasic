@@ -606,7 +606,7 @@ details {
         <details>
             <summary>Mini Doge Series:</summary>
                 <ul>
-                    <li><a href="../goldshell/MiniDoge#mini-doge-stock">Byte (Stock)</a></li>
+                    <li><a href="../goldshell/MiniDoge#mini-doge-stock">Mini Doge (Stock)</a></li>
                 </ul>
         </details>
         <details>
