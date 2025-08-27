@@ -13,8 +13,8 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .Byte import *
-from .MiniDoge import *
+from .byte import *
+from .mini_doge import *
 from .X5 import *
 from .XBox import *
 from .XMax import *
