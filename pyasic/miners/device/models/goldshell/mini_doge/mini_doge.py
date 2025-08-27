@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-#  Copyright 2022 Upstream Data Inc                                            -
+#  Copyright 2025 Upstream Data Inc                                            -
 #                                                                              -
 #  Licensed under the Apache License, Version 2.0 (the "License");             -
 #  you may not use this file except in compliance with the License.            -
@@ -13,8 +13,15 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .byte import *
-from .mini_doge import *
-from .X5 import *
-from .XBox import *
-from .XMax import *
+from pyasic.device.algorithm import MinerAlgo
+from pyasic.device.models import MinerModel
+from pyasic.miners.device.makes import GoldshellMake
+
+
+class MiniDoge(GoldshellMake):
+    raw_model = MinerModel.GOLDSHELL.MiniDoge
+
+    expected_chips = 40
+    expected_fans = 2
+    expected_hashboards = 1
+    algo = MinerAlgo.SCRYPT

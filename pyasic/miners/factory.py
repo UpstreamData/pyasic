@@ -533,6 +533,7 @@ MINER_CLASSES = {
         "GOLDSHELL KDBOXII": GoldshellKDBoxII,
         "GOLDSHELL KDBOXPRO": GoldshellKDBoxPro,
         "GOLDSHELL BYTE": GoldshellByte,
+        "GOLDSHELL MINIDOGE": GoldshellMiniDoge,
     },
     MinerTypes.BRAIINS_OS: {
         None: BOSMiner,
