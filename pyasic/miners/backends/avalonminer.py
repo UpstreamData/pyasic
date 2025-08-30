@@ -308,7 +308,7 @@ class AvalonMiner(CGMiner):
                 except (LookupError, TypeError):
                     try:
                         hashboards[board].chip_temp = int(
-                            parsed_estats["STATS"][0]["MM ID0"]["MTmax"]
+                            parsed_estats["STATS"][0]["MM ID0"].get("Tmax", parsed_estats["STATS"][0]["MM ID0"]["TMax"])
                         )
                     except LookupError:
                         pass
@@ -320,7 +320,7 @@ class AvalonMiner(CGMiner):
                 except (LookupError, TypeError):
                     try:
                         hashboards[board].temp = int(
-                            parsed_estats["STATS"][0]["MM ID0"]["MTavg"]
+                            parsed_estats["STATS"][0]["MM ID0"].get("Tavg", parsed_estats["STATS"][0]["MM ID0"]["TAvg"])
                         )
                     except LookupError:
                         pass
