@@ -253,10 +253,10 @@ If you are sure you want to use this command please use API.send_command("{comma
         # some json from the API returns with a null byte (\x00) on the end
         if data.endswith(b"\x00"):
             # handle the null byte
-            str_data = data.decode("utf-8")[:-1]
+            str_data = data.decode("utf-8", errors="replace")[:-1]
         else:
             # no null byte
-            str_data = data.decode("utf-8")
+            str_data = data.decode("utf-8", errors="replace")
         # fix an error with a btminer return having an extra comma that breaks json.loads()
         str_data = str_data.replace(",}", "}")
         # fix an error with a btminer return having a newline that breaks json.loads()
