@@ -604,12 +604,6 @@ details {
 <summary>Stock Firmware Goldshells:</summary>
     <ul>
         <details>
-            <summary>Mini Doge Series:</summary>
-                <ul>
-                    <li><a href="../goldshell/MiniDoge#mini-doge-stock">Mini Doge (Stock)</a></li>
-                </ul>
-        </details>
-        <details>
             <summary>X5 Series:</summary>
                 <ul>
                     <li><a href="../goldshell/X5#ck5-stock">CK5 (Stock)</a></li>
@@ -631,9 +625,15 @@ details {
                 </ul>
         </details>
         <details>
-            <summary>Byte Series:</summary>
+            <summary>byte Series:</summary>
                 <ul>
-                    <li><a href="../goldshell/Byte#byte-stock">Byte (Stock)</a></li>
+                    <li><a href="../goldshell/byte#byte-stock">Byte (Stock)</a></li>
+                </ul>
+        </details>
+        <details>
+            <summary>mini_doge Series:</summary>
+                <ul>
+                    <li><a href="../goldshell/mini_doge#mini-doge-stock">Mini Doge (Stock)</a></li>
                 </ul>
         </details>
     </ul>

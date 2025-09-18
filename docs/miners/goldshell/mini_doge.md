@@ -1,14 +1,14 @@
 # pyasic
-## byte Models
+## mini_doge Models
 
-## Byte (Stock)
+## Mini Doge (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-::: pyasic.miners.goldshell.bfgminer.byte.byte.GoldshellByte
+::: pyasic.miners.goldshell.bfgminer.mini_doge.mini_doge.GoldshellMiniDoge
     handler: python
     options:
         show_root_heading: false

@@ -1,14 +1,14 @@
 # pyasic
-## byte Models
+## Q Models
 
-## Byte (Stock)
+## Avalon Q Home (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-::: pyasic.miners.goldshell.bfgminer.byte.byte.GoldshellByte
+::: pyasic.miners.avalonminer.cgminer.Q.Q.CGMinerAvalonQHome
     handler: python
     options:
         show_root_heading: false

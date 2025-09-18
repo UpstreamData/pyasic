@@ -252,13 +252,13 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         except APIError as e:
             if not e.message == "can't access write cmd":
                 raise
-        try:
-            await self.open_api()
-        except Exception as e:
-            raise APIError("Failed to open whatsminer API.") from e
-        return await self._send_privileged_command(
-            command=command, ignore_errors=ignore_errors, timeout=timeout, **kwargs
-        )
+        # try:
+        #     await self.open_api()
+        # except Exception as e:
+        #     raise APIError("Failed to open whatsminer API.") from e
+        # return await self._send_privileged_command(
+        #     command=command, ignore_errors=ignore_errors, timeout=timeout, **kwargs
+        # )
 
     async def _send_privileged_command(
         self,
@@ -293,6 +293,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
         try:
             data = parse_btminer_priviledge_data(self.token, data)
+            print(data)
         except Exception as e:
             logging.info(f"{str(self.ip)}: {e}")
 
@@ -1109,6 +1110,7 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         super().__init__(ip, port, api_ver=api_ver)
 
         self.salt = None
+        self.pwd = "super"
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -1141,9 +1143,11 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
             token_hashed = bytearray(
                 base64.b64encode(hashlib.sha256(token_str.encode("utf-8")).digest())
             )
-            token_hashed[8] = 0
+            b_arr = bytearray(token_hashed)
+            b_arr[8] = 0
+            str_token = b_arr.split(b"\x00")[0].decode("utf-8")
             cmd["account"] = "super"
-            cmd["token"] = token_hashed.decode("ascii")
+            cmd["token"] = str_token
 
         # send the command
         ser = json.dumps(cmd).encode("utf-8")

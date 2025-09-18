@@ -1,14 +1,14 @@
 # pyasic
-## byte Models
+## ALX Models
 
-## Byte (Stock)
+## AL3 (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes
 - [ ] Setpoints
 - [ ] Presets
 
-::: pyasic.miners.goldshell.bfgminer.byte.byte.GoldshellByte
+::: pyasic.miners.iceriver.iceminer.ALX.AL3.IceRiverAL3
     handler: python
     options:
         show_root_heading: false
