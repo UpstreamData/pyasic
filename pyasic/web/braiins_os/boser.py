@@ -84,13 +84,13 @@ class BOSerWebAPI(BaseWebAPI):
             except AttributeError:
                 pass
 
-        await asyncio.gather(*[t for t in tasks.values()], return_exceptions=True)
+        results = await asyncio.gather(
+            *[t for t in tasks.values()], return_exceptions=True
+        )
 
-        for cmd in tasks:
-            try:
-                result[cmd] = await tasks[cmd]
-            except (GRPCError, APIError, ConnectionError):
-                pass
+        for cmd, task_result in zip(tasks.keys(), results):
+            if not isinstance(task_result, (GRPCError, APIError, ConnectionError)):
+                result[cmd] = task_result
 
         return result
 
