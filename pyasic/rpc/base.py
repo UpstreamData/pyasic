@@ -136,17 +136,16 @@ class BaseMinerRPCAPI:
                 self.send_command(cmd, allow_warning=allow_warning)
             )
 
-        await asyncio.gather(*[tasks[cmd] for cmd in tasks], return_exceptions=True)
+        results = await asyncio.gather(
+            *[tasks[cmd] for cmd in tasks], return_exceptions=True
+        )
 
         data = {}
-        for cmd in tasks:
-            try:
-                result = tasks[cmd].result()
+        for cmd, result in zip(tasks.keys(), results):
+            if not isinstance(result, (APIError, Exception)):
                 if result is None or result == {}:
                     result = {}
                 data[cmd] = [result]
-            except APIError:
-                pass
 
         return data
 
