@@ -20,6 +20,7 @@ from typing import List, Union
 
 
 class DataOptions(Enum):
+    SERIAL_NUMBER = "serial_number"
     MAC = "mac"
     API_VERSION = "api_ver"
     FW_VERSION = "fw_ver"

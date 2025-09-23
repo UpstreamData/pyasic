@@ -83,6 +83,7 @@ class MinerData(BaseModel):
 
     # about
     device_info: DeviceInfo | None = None
+    serial_number: str | None = None
     mac: str | None = None
     api_ver: str | None = None
     fw_ver: str | None = None

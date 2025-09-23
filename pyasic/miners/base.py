@@ -209,6 +209,14 @@ class MinerProtocol(Protocol):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
+    async def get_serial_number(self) -> Optional[str]:
+        """Get the serial number of the miner and return it as a string.
+
+        Returns:
+            A string representing the serial number of the miner.
+        """
+        return await self._get_serial_number()
+
     async def get_mac(self) -> Optional[str]:
         """Get the MAC address of the miner and return it as a string.
 
@@ -378,6 +386,9 @@ class MinerProtocol(Protocol):
             The pool information of the miner.
         """
         return await self._get_pools()
+
+    async def _get_serial_number(self) -> Optional[str]:
+        pass
 
     async def _get_mac(self) -> Optional[str]:
         pass

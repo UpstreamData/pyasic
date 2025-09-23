@@ -39,6 +39,10 @@ from pyasic.web.antminer import AntminerModernWebAPI, AntminerOldWebAPI
 
 ANTMINER_MODERN_DATA_LOC = DataLocations(
     **{
+        str(DataOptions.SERIAL_NUMBER): DataFunction(
+            "_get_serial_number",
+            [WebAPICommand("web_get_system_info", "get_system_info")],
+        ),
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
             [WebAPICommand("web_get_system_info", "get_system_info")],
@@ -357,6 +361,21 @@ class AntminerModern(BMMiner):
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
                 ).into(self.algo.unit.default)
+            except LookupError:
+                pass
+
+    async def _get_serial_number(
+        self, web_get_system_info: dict = None
+    ) -> Optional[str]:
+        if web_get_system_info is None:
+            try:
+                web_get_system_info = await self.web.get_system_info()
+            except APIError:
+                pass
+
+        if web_get_system_info is not None:
+            try:
+                return web_get_system_info["serinum"]
             except LookupError:
                 pass
 
