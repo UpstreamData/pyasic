@@ -5,13 +5,13 @@ ci:
     - generate-docs
 repos:
 -   repo: https://github.com/python-poetry/poetry
-    rev: 2.1.2
+    rev: 2.2.1
     hooks:
       - id: poetry-check
       - id: poetry-lock
       - id: poetry-install
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
     -   id: check-yaml
@@ -23,7 +23,7 @@ repos:
         exclude: ^mkdocs\.yml$
     -   id: check-added-large-files
 -   repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 25.9.0
     hooks:
     -   id: black
 -   repo: https://github.com/pycqa/isort
