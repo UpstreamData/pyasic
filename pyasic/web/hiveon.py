@@ -22,7 +22,7 @@ from typing import Any
 import aiofiles
 import httpx
 
-from pyasic import settings
+from pyasic import APIError, settings
 from pyasic.web.base import BaseWebAPI
 
 
@@ -34,12 +34,12 @@ class HiveonWebAPI(BaseWebAPI):
             ip (str): IP address of the Antminer device.
         """
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_hive_web_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_hive_web_password", "root")
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -48,7 +48,7 @@ class HiveonWebAPI(BaseWebAPI):
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
-            command (str | bytes): The CGI command to send.
+            command (str): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.
@@ -62,22 +62,26 @@ class HiveonWebAPI(BaseWebAPI):
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
                 if parameters:
-                    data = await client.post(
+                    response = await client.post(
                         url,
                         data=parameters,
                         auth=auth,
                         timeout=settings.get("api_function_timeout", 3),
                     )
                 else:
-                    data = await client.get(url, auth=auth)
-        except httpx.HTTPError:
-            pass
+                    response = await client.get(url, auth=auth)
+        except httpx.HTTPError as e:
+            raise APIError(f"HTTP error sending '{command}' to {self.ip}: {e}")
         else:
-            if data.status_code == 200:
+            if response.status_code == 200:
                 try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
+                    return response.json()
+                except json.decoder.JSONDecodeError as e:
+                    response_text = response.text if response.text else "empty response"
+                    raise APIError(
+                        f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                    )
+        raise APIError(f"Failed to send command to miner API: {url}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -204,10 +208,9 @@ class HiveonWebAPI(BaseWebAPI):
         async with aiofiles.open(file, "rb") as firmware:
             file_content = await firmware.read()
 
-        parameters = {
-            "file": (file.name, file_content, "application/octet-stream"),
-            "filename": file.name,
-            "keep_settings": keep_settings,
-        }
-
-        return await self.send_command(command="upgrade", **parameters)
+        return await self.send_command(
+            "upgrade",
+            file=(file.name, file_content, "application/octet-stream"),
+            filename=file.name,
+            keep_settings=keep_settings,
+        )

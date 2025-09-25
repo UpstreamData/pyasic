@@ -7,7 +7,7 @@ class TestFanConfig(unittest.TestCase):
     def test_serialize_and_deserialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of fan config",
+                msg="Test serialization and deserialization of fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -17,7 +17,7 @@ class TestFanConfig(unittest.TestCase):
     def test_bosminer_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of bosminer fan config",
+                msg="Test serialization and deserialization of bosminer fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -27,7 +27,7 @@ class TestFanConfig(unittest.TestCase):
     def test_am_modern_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of antminer modern fan config",
+                msg="Test serialization and deserialization of antminer modern fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -37,7 +37,7 @@ class TestFanConfig(unittest.TestCase):
     def test_epic_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of epic fan config",
+                msg="Test serialization and deserialization of epic fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -47,7 +47,7 @@ class TestFanConfig(unittest.TestCase):
     def test_vnish_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of vnish fan config",
+                msg="Test serialization and deserialization of vnish fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -57,7 +57,7 @@ class TestFanConfig(unittest.TestCase):
     def test_auradine_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of auradine fan config",
+                msg="Test serialization and deserialization of auradine fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()
@@ -67,7 +67,7 @@ class TestFanConfig(unittest.TestCase):
     def test_boser_deserialize_and_serialize(self):
         for fan_mode in FanModeConfig:
             with self.subTest(
-                msg=f"Test serialization and deserialization of boser fan config",
+                msg="Test serialization and deserialization of boser fan config",
                 fan_mode=fan_mode,
             ):
                 conf = fan_mode()

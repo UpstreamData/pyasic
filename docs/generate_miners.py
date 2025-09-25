@@ -1,8 +1,8 @@
-import asyncio
 import importlib
 import os
 import warnings
 from pathlib import Path
+from typing import Any
 
 from pyasic.miners.factory import MINER_CLASSES, MinerTypes
 
@@ -128,7 +128,7 @@ BACKEND_TYPE_CLOSER = """
     </ul>
 </details>"""
 
-m_data = {}
+m_data: dict[str, dict[str, list[type[Any]]]] = {}
 done = []
 
 for m in MINER_CLASSES:

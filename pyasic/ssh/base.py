@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Optional
 
 import asyncssh
 
@@ -8,9 +7,9 @@ import asyncssh
 class BaseSSH:
     def __init__(self, ip: str) -> None:
         self.ip = ip
-        self.pwd = None
-        self.username = "root"
-        self.port = 22
+        self.pwd: str | None = None
+        self.username: str = "root"
+        self.port: int = 22
 
     async def _get_connection(self) -> asyncssh.connect:
         """Create a new asyncssh connection"""
@@ -29,7 +28,7 @@ class BaseSSH:
         except Exception as e:
             raise ConnectionError from e
 
-    async def send_command(self, cmd: str) -> Optional[str]:
+    async def send_command(self, cmd: str) -> str | None:
         """Send an ssh command to the miner"""
         try:
             conn = await asyncio.wait_for(self._get_connection(), timeout=10)

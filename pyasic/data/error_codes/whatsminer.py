@@ -13,6 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+
 from pydantic import computed_field
 
 from pyasic.data.error_codes.base import BaseMinerError
@@ -28,50 +29,69 @@ class WhatsminerError(BaseMinerError):
 
     error_code: int
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def error_message(self) -> str:  # noqa - Skip PyCharm inspection
-        if len(str(self.error_code)) == 6 and not str(self.error_code)[:1] == "1":
-            err_type = int(str(self.error_code)[:2])
-            err_subtype = int(str(self.error_code)[2:3])
-            err_value = int(str(self.error_code)[3:])
+        error_str = str(self.error_code)
+
+        # Handle edge cases for short error codes
+        if len(error_str) < 3:
+            return "Unknown error type."
+
+        if len(error_str) == 6 and not error_str[:1] == "1":
+            err_type = int(error_str[:2])
+            err_subtype = int(error_str[2:3])
+            err_value = int(error_str[3:])
         else:
-            err_type = int(str(self.error_code)[:-2])
-            err_subtype = int(str(self.error_code)[-2:-1])
-            err_value = int(str(self.error_code)[-1:])
+            err_type = int(error_str[:-2])
+            err_subtype = int(error_str[-2:-1])
+            err_value = int(error_str[-1:])
         try:
-            select_err_type = ERROR_CODES[err_type]
+            select_err_type = ERROR_CODES.get(err_type)
+            if select_err_type is None:
+                return "Unknown error type."
+
             if err_subtype in select_err_type:
                 select_err_subtype = select_err_type[err_subtype]
-                if err_value in select_err_subtype:
-                    return select_err_subtype[err_value]
-                elif "n" in select_err_subtype:
-                    return select_err_subtype[
-                        "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
-                    ].replace("{n}", str(err_value))
+                if isinstance(select_err_subtype, dict):
+                    if err_value in select_err_subtype:
+                        result = select_err_subtype[err_value]
+                        return str(result) if not isinstance(result, str) else result
+                    elif "n" in select_err_subtype:
+                        template = select_err_subtype["n"]
+                        if isinstance(template, str):
+                            return template.replace("{n}", str(err_value))
+                        else:
+                            return "Unknown error type."
+                    else:
+                        return "Unknown error type."
                 else:
                     return "Unknown error type."
             elif "n" in select_err_type:
-                select_err_subtype = select_err_type[
-                    "n"  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
-                ]
-                if err_value in select_err_subtype:
-                    return select_err_subtype[err_value]
-                elif "c" in select_err_subtype:
-                    return (
-                        select_err_subtype["c"]
-                        .replace(  # noqa: picks up `select_err_subtype["n"]` as not being numeric?
-                            "{n}", str(err_subtype)
-                        )
-                        .replace("{c}", str(err_value))
-                    )
+                select_err_subtype = select_err_type["n"]
+                if isinstance(select_err_subtype, dict):
+                    if err_value in select_err_subtype:
+                        result = select_err_subtype[err_value]
+                        return str(result) if not isinstance(result, str) else result
+                    elif "c" in select_err_subtype:
+                        template = select_err_subtype["c"]
+                        if isinstance(template, str):
+                            return template.replace("{n}", str(err_subtype)).replace(
+                                "{c}", str(err_value)
+                            )
+                        else:
+                            return "Unknown error type."
+                    else:
+                        return "Unknown error type."
+                else:
+                    return "Unknown error type."
             else:
                 return "Unknown error type."
-        except KeyError:
+        except (KeyError, TypeError):
             return "Unknown error type."
 
 
-ERROR_CODES = {
+ERROR_CODES: dict[int, dict[int | str, str | dict[int | str, str]]] = {
     1: {  # Fan error
         0: {
             0: "Fan unknown.",

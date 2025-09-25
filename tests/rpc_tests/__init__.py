@@ -50,23 +50,39 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
         ).encode("utf-8")
 
     def get_success_value(self, command: str):
-        if self.api_str == "BTMiner" and command == "status":
-            return json.dumps(
-                {
-                    "STATUS": "S",
-                    "When": 1706287567,
-                    "Code": 131,
-                    "Msg": {
-                        "mineroff": "false",
-                        "mineroff_reason": "",
-                        "mineroff_time": "",
-                        "FirmwareVersion": "20230911.12.Rel",
-                        "power_mode": "",
-                        "hash_percent": "",
-                    },
-                    "Description": "",
-                }
-            ).encode("utf-8")
+        if self.api_str == "BTMiner":
+            if command == "status":
+                return json.dumps(
+                    {
+                        "STATUS": "S",
+                        "When": 1706287567,
+                        "Code": 131,
+                        "Msg": {
+                            "mineroff": "false",
+                            "mineroff_reason": "",
+                            "mineroff_time": "",
+                            "FirmwareVersion": "20230911.12.Rel",
+                            "power_mode": "",
+                            "hash_percent": "",
+                        },
+                        "Description": "",
+                    }
+                ).encode("utf-8")
+            elif command == "get_token":
+                # Return proper token response for BTMiner matching real miner format
+                return json.dumps(
+                    {
+                        "STATUS": "S",
+                        "When": int(time.time()),
+                        "Code": 134,
+                        "Msg": {
+                            "time": str(int(time.time())),
+                            "salt": "D6w5gVOb",  # Valid salt format (alphanumeric only)
+                            "newsalt": "zU4gvW30",  # Valid salt format (alphanumeric only)
+                        },
+                        "Description": "",
+                    }
+                ).encode("utf-8")
         return json.dumps(
             {
                 "STATUS": [
@@ -119,7 +135,33 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
                 command=command,
             ):
                 api_func = getattr(self.api, command)
-                mock_send_bytes.return_value = self.get_success_value(command)
+
+                # For BTMiner, we need to handle multiple calls for privileged commands
+                # Use a list to track calls and return different values
+                if self.api_str == "BTMiner":
+
+                    def btminer_side_effect(data):
+                        # Parse the command from the sent data
+                        try:
+                            # data is already bytes
+                            if isinstance(data, bytes):
+                                cmd_str = data.decode("utf-8")
+                                cmd_data = json.loads(cmd_str)
+                                if "cmd" in cmd_data:
+                                    sent_cmd = cmd_data["cmd"]
+                                    if sent_cmd == "get_token":
+                                        # Return proper token response
+                                        return self.get_success_value("get_token")
+                        except Exception:
+                            # If we can't parse it, it might be encrypted privileged command
+                            pass
+                        # Default return for the actual command
+                        return self.get_success_value(command)
+
+                    mock_send_bytes.side_effect = btminer_side_effect
+                else:
+                    mock_send_bytes.return_value = self.get_success_value(command)
+
                 try:
                     await api_func()
                 except APIError:

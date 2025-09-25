@@ -16,54 +16,53 @@
 import asyncio
 import ipaddress
 import warnings
-from typing import List, Optional, Protocol, Tuple, Type, TypeVar, Union
+from typing import Any, Protocol, TypeVar
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
 from pyasic.data.device import DeviceInfo
 from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics
-from pyasic.device.algorithm import MinerAlgoType
+from pyasic.device.algorithm import AlgoHashRateType, MinerAlgoType
 from pyasic.device.algorithm.base import GenericAlgo
-from pyasic.device.algorithm.hashrate import AlgoHashRate
 from pyasic.device.firmware import MinerFirmware
 from pyasic.device.makes import MinerMake
 from pyasic.device.models import MinerModelType
 from pyasic.errors import APIError
 from pyasic.logger import logger
-from pyasic.miners.data import DataLocations, DataOptions, RPCAPICommand, WebAPICommand
+from pyasic.miners.data import DataOptions, RPCAPICommand, WebAPICommand
 
 
 class MinerProtocol(Protocol):
-    _rpc_cls: Type = None
-    _web_cls: Type = None
-    _ssh_cls: Type = None
+    _rpc_cls: type[Any] | None = None
+    _web_cls: type[Any] | None = None
+    _ssh_cls: type[Any] | None = None
 
-    ip: str = None
-    rpc: _rpc_cls = None
-    web: _web_cls = None
-    ssh: _ssh_cls = None
+    ip: str | None = None
+    rpc: Any | None = None
+    web: Any | None = None
+    ssh: Any | None = None
 
-    make: MinerMake = None
-    raw_model: MinerModelType = None
-    firmware: MinerFirmware = None
+    make: MinerMake | None = None
+    raw_model: MinerModelType | None = None
+    firmware: MinerFirmware | None = None
     algo: type[MinerAlgoType] = GenericAlgo
 
-    expected_hashboards: int = None
-    expected_chips: int = None
-    expected_fans: int = None
+    expected_hashboards: int | None = None
+    expected_chips: int | None = None
+    expected_fans: int | None = None
 
-    data_locations: DataLocations = None
+    data_locations: Any | None = None
 
     supports_shutdown: bool = False
     supports_power_modes: bool = False
     supports_presets: bool = False
     supports_autotuning: bool = False
 
-    api_ver: str = None
-    fw_ver: str = None
-    light: bool = None
-    config: MinerConfig = None
+    api_ver: str | None = None
+    fw_ver: str | None = None
+    light: bool | None = None
+    config: MinerConfig | None = None
 
     def __repr__(self):
         return f"{self.model}: {str(self.ip)}"
@@ -80,9 +79,9 @@ class MinerProtocol(Protocol):
     @property
     def model(self) -> str:
         if self.raw_model is not None:
-            model_data = [self.raw_model]
+            model_data = [str(self.raw_model)]
         elif self.make is not None:
-            model_data = [self.make]
+            model_data = [str(self.make)]
         else:
             model_data = ["Unknown"]
         if self.firmware is not None:
@@ -148,7 +147,9 @@ class MinerProtocol(Protocol):
         """
         return False
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         """Set the mining configuration of the miner.
 
         Parameters:
@@ -187,9 +188,9 @@ class MinerProtocol(Protocol):
     async def upgrade_firmware(
         self,
         *,
-        file: str = None,
-        url: str = None,
-        version: str = None,
+        file: str | None = None,
+        url: str | None = None,
+        version: str | None = None,
         keep_settings: bool = True,
     ) -> bool:
         """Upgrade the firmware of the miner.
@@ -209,7 +210,7 @@ class MinerProtocol(Protocol):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def get_serial_number(self) -> Optional[str]:
+    async def get_serial_number(self) -> str | None:
         """Get the serial number of the miner and return it as a string.
 
         Returns:
@@ -217,7 +218,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_serial_number()
 
-    async def get_mac(self) -> Optional[str]:
+    async def get_mac(self) -> str | None:
         """Get the MAC address of the miner and return it as a string.
 
         Returns:
@@ -225,7 +226,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_mac()
 
-    async def get_model(self) -> Optional[str]:
+    async def get_model(self) -> str | None:
         """Get the model of the miner and return it as a string.
 
         Returns:
@@ -233,7 +234,7 @@ class MinerProtocol(Protocol):
         """
         return self.model
 
-    async def get_device_info(self) -> Optional[DeviceInfo]:
+    async def get_device_info(self) -> DeviceInfo | None:
         """Get device information, including model, make, and firmware.
 
         Returns:
@@ -241,7 +242,7 @@ class MinerProtocol(Protocol):
         """
         return self.device_info
 
-    async def get_api_ver(self) -> Optional[str]:
+    async def get_api_ver(self) -> str | None:
         """Get the API version of the miner and is as a string.
 
         Returns:
@@ -249,7 +250,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_api_ver()
 
-    async def get_fw_ver(self) -> Optional[str]:
+    async def get_fw_ver(self) -> str | None:
         """Get the firmware version of the miner and is as a string.
 
         Returns:
@@ -257,7 +258,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_fw_ver()
 
-    async def get_version(self) -> Tuple[Optional[str], Optional[str]]:
+    async def get_version(self) -> tuple[str | None, str | None]:
         """Get the API version and firmware version of the miner and return them as strings.
 
         Returns:
@@ -267,7 +268,7 @@ class MinerProtocol(Protocol):
         fw_ver = await self.get_fw_ver()
         return api_ver, fw_ver
 
-    async def get_hostname(self) -> Optional[str]:
+    async def get_hostname(self) -> str | None:
         """Get the hostname of the miner and return it as a string.
 
         Returns:
@@ -275,7 +276,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_hostname()
 
-    async def get_hashrate(self) -> Optional[AlgoHashRate]:
+    async def get_hashrate(self) -> AlgoHashRateType | None:
         """Get the hashrate of the miner and return it as a float in TH/s.
 
         Returns:
@@ -283,7 +284,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_hashrate()
 
-    async def get_hashboards(self) -> List[HashBoard]:
+    async def get_hashboards(self) -> list[HashBoard]:
         """Get hashboard data from the miner in the form of [`HashBoard`][pyasic.data.HashBoard].
 
         Returns:
@@ -291,7 +292,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_hashboards()
 
-    async def get_env_temp(self) -> Optional[float]:
+    async def get_env_temp(self) -> float | None:
         """Get environment temp from the miner as a float.
 
         Returns:
@@ -299,7 +300,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_env_temp()
 
-    async def get_wattage(self) -> Optional[int]:
+    async def get_wattage(self) -> int | None:
         """Get wattage from the miner as an int.
 
         Returns:
@@ -307,7 +308,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_wattage()
 
-    async def get_voltage(self) -> Optional[float]:
+    async def get_voltage(self) -> float | None:
         """Get output voltage of the PSU as a float.
 
         Returns:
@@ -315,7 +316,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_voltage()
 
-    async def get_wattage_limit(self) -> Optional[int]:
+    async def get_wattage_limit(self) -> int | None:
         """Get wattage limit from the miner as an int.
 
         Returns:
@@ -323,7 +324,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_wattage_limit()
 
-    async def get_fans(self) -> List[Fan]:
+    async def get_fans(self) -> list[Fan]:
         """Get fan data from the miner in the form [fan_1, fan_2, fan_3, fan_4].
 
         Returns:
@@ -331,7 +332,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_fans()
 
-    async def get_fan_psu(self) -> Optional[int]:
+    async def get_fan_psu(self) -> int | None:
         """Get PSU fan speed from the miner.
 
         Returns:
@@ -339,7 +340,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_fan_psu()
 
-    async def get_errors(self) -> List[MinerErrorData]:
+    async def get_errors(self) -> list[MinerErrorData]:
         """Get a list of the errors the miner is experiencing.
 
         Returns:
@@ -353,9 +354,10 @@ class MinerProtocol(Protocol):
         Returns:
             A boolean value where `True` represents on and `False` represents off.
         """
-        return await self._get_fault_light()
+        result = await self._get_fault_light()
+        return result if result is not None else False
 
-    async def get_expected_hashrate(self) -> Optional[AlgoHashRate]:
+    async def get_expected_hashrate(self) -> AlgoHashRateType | None:
         """Get the nominal hashrate from factory if available.
 
         Returns:
@@ -363,7 +365,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_expected_hashrate()
 
-    async def is_mining(self) -> Optional[bool]:
+    async def is_mining(self) -> bool | None:
         """Check whether the miner is mining.
 
         Returns:
@@ -371,7 +373,7 @@ class MinerProtocol(Protocol):
         """
         return await self._is_mining()
 
-    async def get_uptime(self) -> Optional[int]:
+    async def get_uptime(self) -> int | None:
         """Get the uptime of the miner in seconds.
 
         Returns:
@@ -379,7 +381,7 @@ class MinerProtocol(Protocol):
         """
         return await self._get_uptime()
 
-    async def get_pools(self) -> List[PoolMetrics]:
+    async def get_pools(self) -> list[PoolMetrics]:
         """Get the pools information from Miner.
 
         Returns:
@@ -387,68 +389,68 @@ class MinerProtocol(Protocol):
         """
         return await self._get_pools()
 
-    async def _get_serial_number(self) -> Optional[str]:
+    async def _get_serial_number(self) -> str | None:
         pass
 
-    async def _get_mac(self) -> Optional[str]:
-        pass
+    async def _get_mac(self) -> str | None:
+        return None
 
-    async def _get_api_ver(self) -> Optional[str]:
-        pass
+    async def _get_api_ver(self) -> str | None:
+        return None
 
-    async def _get_fw_ver(self) -> Optional[str]:
-        pass
+    async def _get_fw_ver(self) -> str | None:
+        return None
 
-    async def _get_hostname(self) -> Optional[str]:
-        pass
+    async def _get_hostname(self) -> str | None:
+        return None
 
-    async def _get_hashrate(self) -> Optional[AlgoHashRate]:
-        pass
+    async def _get_hashrate(self) -> AlgoHashRateType | None:
+        return None
 
-    async def _get_hashboards(self) -> List[HashBoard]:
+    async def _get_hashboards(self) -> list[HashBoard]:
         return []
 
-    async def _get_env_temp(self) -> Optional[float]:
-        pass
+    async def _get_env_temp(self) -> float | None:
+        return None
 
-    async def _get_wattage(self) -> Optional[int]:
-        pass
+    async def _get_wattage(self) -> int | None:
+        return None
 
-    async def _get_voltage(self) -> Optional[float]:
-        pass
+    async def _get_voltage(self) -> float | None:
+        return None
 
-    async def _get_wattage_limit(self) -> Optional[int]:
-        pass
+    async def _get_wattage_limit(self) -> int | None:
+        return None
 
-    async def _get_fans(self) -> List[Fan]:
+    async def _get_fans(self) -> list[Fan]:
         return []
 
-    async def _get_fan_psu(self) -> Optional[int]:
-        pass
+    async def _get_fan_psu(self) -> int | None:
+        return None
 
-    async def _get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> list[MinerErrorData]:
         return []
 
-    async def _get_fault_light(self) -> Optional[bool]:
-        pass
+    async def _get_fault_light(self) -> bool | None:
+        return None
 
-    async def _get_expected_hashrate(self) -> Optional[AlgoHashRate]:
-        pass
+    async def _get_expected_hashrate(self) -> AlgoHashRateType | None:
+        return None
 
-    async def _is_mining(self) -> Optional[bool]:
-        pass
+    async def _is_mining(self) -> bool | None:
+        return None
 
-    async def _get_uptime(self) -> Optional[int]:
-        pass
+    async def _get_uptime(self) -> int | None:
+        return None
 
-    async def _get_pools(self) -> List[PoolMetrics]:
-        pass
+    async def _get_pools(self) -> list[PoolMetrics]:
+        return []
 
     async def _get_data(
         self,
         allow_warning: bool,
-        include: List[Union[str, DataOptions]] = None,
-        exclude: List[Union[str, DataOptions]] = None,
+        include: list[str | DataOptions] | None = None,
+        exclude: list[str | DataOptions] | None = None,
     ) -> dict:
         # handle include
         if include is not None:
@@ -470,7 +472,7 @@ class MinerProtocol(Protocol):
         for data_name in include:
             try:
                 # get kwargs needed for the _get_xyz function
-                fn_args = getattr(self.data_locations, data_name).kwargs
+                fn_args = getattr(self.data_locations, str(data_name)).kwargs
 
                 # keep track of which RPC/Web commands need to be sent
                 for arg in fn_args:
@@ -483,13 +485,21 @@ class MinerProtocol(Protocol):
                 continue
 
         # create tasks for all commands that need to be sent, or no-op with sleep(0) -> None
-        if len(rpc_multicommand) > 0:
+        if (
+            len(rpc_multicommand) > 0
+            and self.rpc is not None
+            and hasattr(self.rpc, "multicommand")
+        ):
             rpc_command_task = asyncio.create_task(
                 self.rpc.multicommand(*rpc_multicommand, allow_warning=allow_warning)
             )
         else:
             rpc_command_task = asyncio.create_task(asyncio.sleep(0))
-        if len(web_multicommand) > 0:
+        if (
+            len(web_multicommand) > 0
+            and self.web is not None
+            and hasattr(self.web, "multicommand")
+        ):
             web_command_task = asyncio.create_task(
                 self.web.multicommand(*web_multicommand, allow_warning=allow_warning)
             )
@@ -511,7 +521,7 @@ class MinerProtocol(Protocol):
 
         for data_name in include:
             try:
-                fn_args = getattr(self.data_locations, data_name).kwargs
+                fn_args = getattr(self.data_locations, str(data_name)).kwargs
                 args_to_send = {k.name: None for k in fn_args}
                 for arg in fn_args:
                     try:
@@ -532,7 +542,9 @@ class MinerProtocol(Protocol):
             except LookupError:
                 continue
             try:
-                function = getattr(self, getattr(self.data_locations, data_name).cmd)
+                function = getattr(
+                    self, getattr(self.data_locations, str(data_name)).cmd
+                )
                 miner_data[data_name] = await function(**args_to_send)
             except Exception as e:
                 raise APIError(
@@ -543,8 +555,8 @@ class MinerProtocol(Protocol):
     async def get_data(
         self,
         allow_warning: bool = False,
-        include: List[Union[str, DataOptions]] = None,
-        exclude: List[Union[str, DataOptions]] = None,
+        include: list[str | DataOptions] | None = None,
+        exclude: list[str | DataOptions] | None = None,
     ) -> MinerData:
         """Get data from the miner in the form of [`MinerData`][pyasic.data.MinerData].
 
@@ -562,6 +574,7 @@ class MinerProtocol(Protocol):
             expected_chips=(
                 self.expected_chips * self.expected_hashboards
                 if self.expected_chips is not None
+                and self.expected_hashboards is not None
                 else 0
             ),
             expected_hashboards=self.expected_hashboards,

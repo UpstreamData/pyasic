@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any
 
 from betterproto import DATETIME_ZERO, TYPE_MAP, TYPE_MESSAGE, Casing, Message
 
@@ -7,7 +7,7 @@ from betterproto import DATETIME_ZERO, TYPE_MAP, TYPE_MESSAGE, Casing, Message
 # https://github.com/danielgtaylor/python-betterproto/pull/609
 def to_pydict(
     self, casing: Casing = Casing.CAMEL, include_default_values: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Returns a python dict representation of this object.
 
@@ -23,10 +23,10 @@ def to_pydict(
 
     Returns
     --------
-    Dict[:class:`str`, Any]
+    dict[:class:`str`, Any]
         The python dict representation of this object.
     """
-    output: Dict[str, Any] = {}
+    output: dict[str, Any] = {}
     defaults = self._betterproto.default_gen
     for field_name, meta in self._betterproto.meta_by_field_name.items():
         field_is_repeated = defaults[field_name] is list

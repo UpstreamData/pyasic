@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from enum import Enum
-from typing import Optional
+from typing import Any
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, computed_field, model_serializer
@@ -16,7 +17,7 @@ class PoolUrl(BaseModel):
     scheme: Scheme
     host: str
     port: int
-    pubkey: Optional[str] = None
+    pubkey: str | None = None
 
     @model_serializer
     def serialize(self):
@@ -39,6 +40,8 @@ class PoolUrl(BaseModel):
             scheme = Scheme.STRATUM_V1
         host = parsed_url.hostname
         port = parsed_url.port
+        if port is None:
+            return None
         pubkey = parsed_url.path.lstrip("/") if scheme == Scheme.STRATUM_V2 else None
         return cls(scheme=scheme, host=host, port=port, pubkey=pubkey)
 
@@ -70,16 +73,20 @@ class PoolMetrics(BaseModel):
     index: int | None = None
     user: str | None = None
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def pool_rejected_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of rejected shares"""
+        if self.rejected is None or self.accepted is None:
+            return 0.0
         return self._calculate_percentage(self.rejected, self.accepted + self.rejected)
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def pool_stale_percent(self) -> float:  # noqa - Skip PyCharm inspection
         """Calculate and return the percentage of stale shares."""
+        if self.get_failures is None or self.accepted is None or self.rejected is None:
+            return 0.0
         return self._calculate_percentage(
             self.get_failures, self.accepted + self.rejected
         )
@@ -87,10 +94,8 @@ class PoolMetrics(BaseModel):
     @staticmethod
     def _calculate_percentage(value: int, total: int) -> float:
         """Calculate the percentage."""
-        if value is None or total is None:
-            return 0
         if total == 0:
-            return 0
+            return 0.0
         return (value / total) * 100
 
     def as_influxdb(self, key_root: str, level_delimiter: str = ".") -> str:
@@ -103,13 +108,13 @@ class PoolMetrics(BaseModel):
         def serialize_str(key: str, value: str) -> str:
             return f'{key}="{value}"'
 
-        def serialize_pool_url(key: str, value: str) -> str:
+        def serialize_pool_url(key: str, value: PoolUrl) -> str:
             return f'{key}="{str(value)}"'
 
-        def serialize_bool(key: str, value: bool):
+        def serialize_bool(key: str, value: bool) -> str:
             return f"{key}={str(value).lower()}"
 
-        serialization_map = {
+        serialization_map: dict[type, Callable[[str, Any], str]] = {
             int: serialize_int,
             float: serialize_float,
             str: serialize_str,
@@ -129,13 +134,14 @@ class PoolMetrics(BaseModel):
         field_data = []
         for field in include:
             field_val = getattr(self, field)
-            serialization_func = serialization_map.get(
-                type(field_val), lambda _k, _v: None
-            )
-            serialized = serialization_func(
-                f"{key_root}{level_delimiter}{field}", field_val
-            )
-            if serialized is not None:
-                field_data.append(serialized)
+            if field_val is None:
+                continue
+            serialization_func = serialization_map.get(type(field_val))
+            if serialization_func is not None:
+                serialized = serialization_func(
+                    f"{key_root}{level_delimiter}{field}", field_val
+                )
+                if serialized is not None:
+                    field_data.append(serialized)
 
         return ",".join(field_data)

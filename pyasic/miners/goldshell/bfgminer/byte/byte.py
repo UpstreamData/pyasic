@@ -13,13 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional, Union
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
+from pyasic.device.algorithm import AlgoHashRateType, MinerAlgo
 from pyasic.errors import APIError
 from pyasic.miners.backends import GoldshellMiner
 from pyasic.miners.data import (
@@ -94,8 +93,8 @@ class GoldshellByte(GoldshellMiner, Byte):
     async def get_data(
         self,
         allow_warning: bool = False,
-        include: List[Union[str, DataOptions]] = None,
-        exclude: List[Union[str, DataOptions]] = None,
+        include: list[str | DataOptions] | None = None,
+        exclude: list[str | DataOptions] | None = None,
     ) -> MinerData:
         if self.web_devs is None:
             try:
@@ -106,7 +105,7 @@ class GoldshellByte(GoldshellMiner, Byte):
         scrypt_board_count = 0
         zksnark_board_count = 0
 
-        for minfo in self.web_devs.get("minfos", []):
+        for minfo in (self.web_devs or {}).get("minfos", []):
             algo_name = minfo.get("name")
 
             for _ in minfo.get("infos", []):
@@ -123,9 +122,9 @@ class GoldshellByte(GoldshellMiner, Byte):
         )
 
         if scrypt_board_count > 0 and zksnark_board_count == 0:
-            self.algo = MinerAlgo.SCRYPT
+            self.algo = MinerAlgo.SCRYPT  # type: ignore[assignment]
         elif zksnark_board_count > 0 and scrypt_board_count == 0:
-            self.algo = MinerAlgo.ZKSNARK
+            self.algo = MinerAlgo.ZKSNARK  # type: ignore[assignment]
 
         data = await super().get_data(allow_warning, include, exclude)
         data.expected_chips = self.expected_chips
@@ -136,12 +135,12 @@ class GoldshellByte(GoldshellMiner, Byte):
         try:
             pools = await self.web.pools()
         except APIError:
-            return self.config
+            return self.config or MinerConfig()
 
-        self.config = MinerConfig.from_goldshell_byte(pools)
+        self.config = MinerConfig.from_goldshell_byte(pools.get("groups", []))
         return self.config
 
-    async def _get_api_ver(self, web_setting: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, web_setting: dict | None = None) -> str | None:
         if web_setting is None:
             try:
                 web_setting = await self.web.setting()
@@ -160,15 +159,15 @@ class GoldshellByte(GoldshellMiner, Byte):
         return self.api_ver
 
     async def _get_expected_hashrate(
-        self, rpc_devs: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_devs: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
             except APIError:
                 pass
 
-        total_hash_rate_mh = 0
+        total_hash_rate_mh = 0.0
 
         if rpc_devs is not None:
             for board in rpc_devs.get("DEVS", []):
@@ -192,14 +191,16 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return hash_rate
 
-    async def _get_hashrate(self, rpc_devs: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_devs: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
             except APIError:
                 pass
 
-        total_hash_rate_mh = 0
+        total_hash_rate_mh = 0.0
 
         if rpc_devs is not None:
             for board in rpc_devs.get("DEVS", []):
@@ -211,7 +212,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return hash_rate
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -240,8 +241,8 @@ class GoldshellByte(GoldshellMiner, Byte):
         return pools_data
 
     async def _get_hashboards(
-        self, rpc_devs: dict = None, rpc_devdetails: dict = None
-    ) -> List[HashBoard]:
+        self, rpc_devs: dict | None = None, rpc_devdetails: dict | None = None
+    ) -> list[HashBoard]:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -285,7 +286,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return hashboards
 
-    async def _get_fans(self, rpc_devs: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_devs: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -312,7 +313,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return fans
 
-    async def _get_uptime(self, web_devs: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_devs: dict | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()
@@ -321,7 +322,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         if web_devs is not None:
             try:
-                for minfo in self.web_devs.get("minfos", []):
+                for minfo in (self.web_devs or {}).get("minfos", []):
                     for info in minfo.get("infos", []):
                         uptime = int(float(info["time"]))
                         return uptime
@@ -330,7 +331,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return None
 
-    async def _get_wattage(self, web_devs: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_devs: dict | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()
@@ -339,7 +340,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         if web_devs is not None:
             try:
-                for minfo in self.web_devs.get("minfos", []):
+                for minfo in (self.web_devs or {}).get("minfos", []):
                     for info in minfo.get("infos", []):
                         wattage = int(float(info["power"]))
                         return wattage

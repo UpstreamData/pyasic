@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.zksnark import ZkSnarkUnit
 from .unit import HashUnit
 
 
-class ZkSnarkHashRate(AlgoHashRateType):
+class ZkSnarkHashRate(AlgoHashRateType[ZkSnarkUnit]):
     rate: float
     unit: ZkSnarkUnit = HashUnit.ZKSNARK.default
 

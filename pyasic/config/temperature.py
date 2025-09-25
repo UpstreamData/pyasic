@@ -40,7 +40,7 @@ class TemperatureConfig(MinerConfigValue):
         return {"temp_control": temp_cfg}
 
     def as_epic(self) -> dict:
-        temps_config = {"temps": {}, "fans": {"Auto": {}}}
+        temps_config: dict = {"temps": {}, "fans": {"Auto": {}}}
         if self.target is not None:
             temps_config["fans"]["Auto"]["Target Temperature"] = self.target
         else:
@@ -58,7 +58,9 @@ class TemperatureConfig(MinerConfigValue):
         return {"misc": {"restart_temp": self.danger}}
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "TemperatureConfig":
+    def from_dict(cls, dict_conf: dict | None) -> TemperatureConfig:
+        if dict_conf is None:
+            return cls()
         return cls(
             target=dict_conf.get("target"),
             hot=dict_conf.get("hot"),
@@ -66,7 +68,7 @@ class TemperatureConfig(MinerConfigValue):
         )
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict) -> "TemperatureConfig":
+    def from_bosminer(cls, toml_conf: dict) -> TemperatureConfig:
         temp_control = toml_conf.get("temp_control")
         if temp_control is not None:
             return cls(
@@ -77,7 +79,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls()
 
     @classmethod
-    def from_epic(cls, web_conf: dict) -> "TemperatureConfig":
+    def from_epic(cls, web_conf: dict) -> TemperatureConfig:
         try:
             dangerous_temp = web_conf["Misc"]["Critical Temp"]
         except KeyError:
@@ -95,7 +97,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls(target=target_temp, hot=hot_temp, danger=dangerous_temp)
 
     @classmethod
-    def from_vnish(cls, web_settings: dict) -> "TemperatureConfig":
+    def from_vnish(cls, web_settings: dict) -> TemperatureConfig:
         try:
             dangerous_temp = web_settings["misc"]["restart_temp"]
         except KeyError:
@@ -111,7 +113,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls()
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict) -> "TemperatureConfig":
+    def from_boser(cls, grpc_miner_conf: dict) -> TemperatureConfig:
         try:
             temperature_conf = grpc_miner_conf["temperature"]
         except KeyError:
@@ -142,7 +144,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls.default()
 
     @classmethod
-    def from_luxos(cls, rpc_tempctrl: dict) -> "TemperatureConfig":
+    def from_luxos(cls, rpc_tempctrl: dict) -> TemperatureConfig:
         try:
             tempctrl_config = rpc_tempctrl["TEMPCTRL"][0]
             return cls(

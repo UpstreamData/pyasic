@@ -1,23 +1,26 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, field_serializer
 from typing_extensions import Self
 
 from .unit.base import AlgoHashRateUnitType, GenericUnit
 
+UnitType = TypeVar("UnitType", bound=AlgoHashRateUnitType)
 
-class AlgoHashRateType(BaseModel, ABC):
-    unit: AlgoHashRateUnitType
+
+class AlgoHashRateType(BaseModel, ABC, Generic[UnitType]):
+    unit: UnitType
     rate: float
 
     @field_serializer("unit")
-    def serialize_unit(self, unit: AlgoHashRateUnitType):
+    def serialize_unit(self, unit: UnitType):
         return unit.model_dump()
 
     @abstractmethod
-    def into(self, other: "AlgoHashRateUnitType"):
+    def into(self, other: UnitType) -> Self:
         pass
 
     def auto_unit(self):
@@ -46,7 +49,7 @@ class AlgoHashRateType(BaseModel, ABC):
     def __repr__(self):
         return f"{self.rate} {str(self.unit)}"
 
-    def __round__(self, n: int = None):
+    def __round__(self, n: int | None = None):
         return round(self.rate, n)
 
     def __add__(self, other: Self | int | float) -> Self:
@@ -85,11 +88,11 @@ class AlgoHashRateType(BaseModel, ABC):
         return self.__class__(rate=self.rate * other, unit=self.unit)
 
 
-class GenericHashrate(AlgoHashRateType):
+class GenericHashrate(AlgoHashRateType[GenericUnit]):
     rate: float = 0
     unit: GenericUnit = GenericUnit.H
 
-    def into(self, other: GenericUnit):
+    def into(self, other: GenericUnit) -> Self:
         return self.__class__(
             rate=self.rate / (other.value / self.unit.value), unit=other
         )

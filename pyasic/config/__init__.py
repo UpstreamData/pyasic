@@ -14,10 +14,41 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
-from pyasic.config.fans import FanMode, FanModeConfig, FanModeNormal
-from pyasic.config.mining import MiningMode, MiningModeConfig
+from pyasic.config.fans import (
+    FanModeConfig,
+    FanModeImmersion,
+    FanModeManual,
+    FanModeNormal,
+)
+from pyasic.config.mining import (
+    MiningModeConfig,
+    MiningModeHashrateTune,
+    MiningModeHPM,
+    MiningModeLPM,
+    MiningModeManual,
+    MiningModeNormal,
+    MiningModePowerTune,
+    MiningModePreset,
+    MiningModeSleep,
+)
+
+# Type aliases for config field types
+FanModeType = FanModeNormal | FanModeManual | FanModeImmersion | FanModeConfig
+MiningModeType = (
+    MiningModeNormal
+    | MiningModeHPM
+    | MiningModeLPM
+    | MiningModeSleep
+    | MiningModeManual
+    | MiningModePowerTune
+    | MiningModeHashrateTune
+    | MiningModePreset
+    | MiningModeConfig
+)
 from pyasic.config.mining.scaling import ScalingConfig
 from pyasic.config.pools import PoolConfig
 from pyasic.config.temperature import TemperatureConfig
@@ -32,11 +63,11 @@ class MinerConfig(BaseModel):
         arbitrary_types_allowed = True
 
     pools: PoolConfig = Field(default_factory=PoolConfig.default)
-    fan_mode: FanMode = Field(default_factory=FanModeConfig.default)
+    fan_mode: FanModeType = Field(default_factory=FanModeConfig.default)
     temperature: TemperatureConfig = Field(default_factory=TemperatureConfig.default)
-    mining_mode: MiningMode = Field(default_factory=MiningModeConfig.default)
+    mining_mode: MiningModeType = Field(default_factory=MiningModeConfig.default)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:
@@ -88,8 +119,8 @@ class MinerConfig(BaseModel):
     def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
         """Generates the configuration in the format suitable for Whatsminers running BTMiner V3."""
         return {
-            "set.miner.pools": self.pools.as_btminer_v3()
-            ** self.mining_mode.as_btminer_v3()
+            "set.miner.pools": self.pools.as_btminer_v3(),
+            **self.mining_mode.as_btminer_v3(),
         }
 
     def as_am_old(self, user_suffix: str | None = None) -> dict:
@@ -260,7 +291,7 @@ class MinerConfig(BaseModel):
         return cls(pools=PoolConfig.from_goldshell(web_conf))
 
     @classmethod
-    def from_goldshell_byte(cls, web_conf: dict) -> "MinerConfig":
+    def from_goldshell_byte(cls, web_conf: list) -> "MinerConfig":
         """Constructs a MinerConfig object from web configuration for Goldshell Byte miners."""
         return cls(pools=PoolConfig.from_goldshell_byte(web_conf))
 

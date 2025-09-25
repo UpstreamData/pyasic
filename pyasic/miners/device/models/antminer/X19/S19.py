@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.device.algorithm import MinerAlgo
-from pyasic.device.models import MinerModel
+from pyasic.device.models import MinerModel, MinerModelType
 from pyasic.miners.device.makes import AntMinerMake
 
 
@@ -118,7 +118,7 @@ class S19jNoPIC(AntMinerMake):
 
 
 class S19jPro(AntMinerMake):
-    raw_model = MinerModel.ANTMINER.S19jPro
+    raw_model: MinerModelType = MinerModel.ANTMINER.S19jPro
 
     expected_chips = 126
     expected_fans = 4
@@ -163,7 +163,7 @@ class S19jProPlusNoPIC(AntMinerMake):
 
 
 class S19kPro(AntMinerMake):
-    raw_model = MinerModel.ANTMINER.S19kPro
+    raw_model: MinerModelType = MinerModel.ANTMINER.S19kPro
 
     expected_chips = 77
     expected_fans = 4

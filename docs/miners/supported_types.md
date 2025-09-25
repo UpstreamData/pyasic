@@ -696,8 +696,8 @@ details {
         <details>
             <summary>BMM Series:</summary>
                 <ul>
-                    <li><a href="../braiins/BMM#bmm100-bos_1">BMM100 (BOS+)</a></li>
-                    <li><a href="../braiins/BMM#bmm101-bos_1">BMM101 (BOS+)</a></li>
+                    <li><a href="../braiins/BMM#braiinsmodels.bmm100-bos_1">BraiinsModels.BMM100 (BOS+)</a></li>
+                    <li><a href="../braiins/BMM#braiinsmodels.bmm101-bos_1">BraiinsModels.BMM101 (BOS+)</a></li>
                 </ul>
         </details>
     </ul>
@@ -993,9 +993,9 @@ details {
         <details>
             <summary>DGX Series:</summary>
                 <ul>
-                    <li><a href="../elphapex/DGX#dg1_1-stock">DG1+ (Stock)</a></li>
-                    <li><a href="../elphapex/DGX#dg1-stock">DG1 (Stock)</a></li>
-                    <li><a href="../elphapex/DGX#dg1home-stock">DG1Home (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#elphapexmodels.dg1plus-stock">ElphapexModels.DG1Plus (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#elphapexmodels.dg1-stock">ElphapexModels.DG1 (Stock)</a></li>
+                    <li><a href="../elphapex/DGX#elphapexmodels.dg1home-stock">ElphapexModels.DG1Home (Stock)</a></li>
                 </ul>
         </details>
     </ul>

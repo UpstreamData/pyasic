@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 import copy
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any
 
@@ -24,6 +25,7 @@ from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data.pools import PoolMetrics, Scheme
 from pyasic.device.algorithm.hashrate import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import GenericHashrate
 
 from .boards import HashBoard
 from .device import DeviceInfo
@@ -90,7 +92,9 @@ class MinerData(BaseModel):
     hostname: str | None = None
 
     # hashrate
-    raw_hashrate: AlgoHashRateType = Field(exclude=True, default=None, repr=False)
+    raw_hashrate: AlgoHashRateType | None = Field(
+        exclude=True, default=None, repr=False
+    )
 
     # sticker
     sticker_hashrate: AlgoHashRateType | None = None
@@ -194,7 +198,7 @@ class MinerData(BaseModel):
                 setattr(cp, key, item & other_item)
         return cp
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def hashrate(self) -> AlgoHashRateType | None:
         if len(self.hashboards) > 0:
@@ -203,14 +207,24 @@ class MinerData(BaseModel):
                 if item.hashrate is not None:
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
-                return sum(hr_data, start=self.device_info.algo.hashrate(rate=0))
+                if self.device_info is not None and self.device_info.algo is not None:
+                    from pyasic.device.algorithm.hashrate.unit.base import GenericUnit
+
+                    return sum(
+                        hr_data,
+                        start=self.device_info.algo.hashrate(
+                            rate=0, unit=GenericUnit.H
+                        ),
+                    )
+                else:
+                    return sum(hr_data, start=GenericHashrate(rate=0))
         return self.raw_hashrate
 
     @hashrate.setter
     def hashrate(self, val):
         self.raw_hashrate = val
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def wattage_limit(self) -> int | None:
         if self.config is not None:
@@ -222,7 +236,7 @@ class MinerData(BaseModel):
     def wattage_limit(self, val: int):
         self.raw_wattage_limit = val
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def total_chips(self) -> int | None:
         if len(self.hashboards) > 0:
@@ -233,15 +247,16 @@ class MinerData(BaseModel):
             if len(chip_data) > 0:
                 return sum(chip_data)
             return None
+        return 0
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def nominal(self) -> bool | None:
         if self.total_chips is None or self.expected_chips is None:
             return None
         return self.expected_chips == self.total_chips
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def percent_expected_chips(self) -> int | None:
         if self.total_chips is None or self.expected_chips is None:
@@ -250,7 +265,7 @@ class MinerData(BaseModel):
             return 0
         return round((self.total_chips / self.expected_chips) * 100)
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def percent_expected_hashrate(self) -> int | None:
         if self.hashrate is None or self.expected_hashrate is None:
@@ -260,7 +275,7 @@ class MinerData(BaseModel):
         except ZeroDivisionError:
             return 0
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def percent_expected_wattage(self) -> int | None:
         if self.wattage_limit is None or self.wattage is None:
@@ -270,10 +285,10 @@ class MinerData(BaseModel):
         except ZeroDivisionError:
             return 0
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def temperature_avg(self) -> int | None:
-        total_temp = 0
+        total_temp: float = 0
         temp_count = 0
         for hb in self.hashboards:
             if hb.temp is not None:
@@ -283,7 +298,7 @@ class MinerData(BaseModel):
             return None
         return round(total_temp / temp_count)
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def efficiency(self) -> int | None:
         efficiency = self._efficiency(0)
@@ -292,7 +307,7 @@ class MinerData(BaseModel):
         else:
             return int(efficiency)
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def efficiency_fract(self) -> float | None:
         return self._efficiency(2)
@@ -305,39 +320,43 @@ class MinerData(BaseModel):
         except ZeroDivisionError:
             return 0.0
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def datetime(self) -> str:
         return self.raw_datetime.isoformat()
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def timestamp(self) -> int:
         return int(time.mktime(self.raw_datetime.timetuple()))
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def make(self) -> str | None:
-        if self.device_info.make is not None:
+        if self.device_info is not None and self.device_info.make is not None:
             return str(self.device_info.make)
+        return ""
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def model(self) -> str | None:
-        if self.device_info.model is not None:
+        if self.device_info is not None and self.device_info.model is not None:
             return str(self.device_info.model)
+        return ""
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def firmware(self) -> str | None:
-        if self.device_info.firmware is not None:
+        if self.device_info is not None and self.device_info.firmware is not None:
             return str(self.device_info.firmware)
+        return ""
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def algo(self) -> str | None:
-        if self.device_info.algo is not None:
+        if self.device_info is not None and self.device_info.algo is not None:
             return str(self.device_info.algo)
+        return ""
 
     def keys(self) -> list:
         return list(self.model_fields.keys())
@@ -417,7 +436,8 @@ class MinerData(BaseModel):
                 for dt in serialization_map_instance:
                     if item_serialized is None:
                         if isinstance(list_field_val, dt):
-                            item_serialized = serialization_map_instance[dt](
+                            func = serialization_map_instance[dt]
+                            item_serialized = func(
                                 f"{key}{level_delimiter}{idx}", list_field_val
                             )
                 if item_serialized is not None:
@@ -461,11 +481,11 @@ class MinerData(BaseModel):
             "pools",
         ]
 
-        serialization_map_instance = {
+        serialization_map_instance: dict[type, Callable[[str, Any], str | None]] = {
             AlgoHashRateType: serialize_algo_hash_rate,
             BaseMinerError: serialize_miner_error,
         }
-        serialization_map = {
+        serialization_map: dict[type, Callable[[str, Any], str | None]] = {
             int: serialize_int,
             float: serialize_float,
             str: serialize_str,
@@ -499,9 +519,8 @@ class MinerData(BaseModel):
             for datatype in serialization_map_instance:
                 if serialized is None:
                     if isinstance(field_val, datatype):
-                        serialized = serialization_map_instance[datatype](
-                            field, field_val
-                        )
+                        func = serialization_map_instance[datatype]
+                        serialized = func(field, field_val)
             if serialized is not None:
                 field_data.append(serialized)
 

@@ -14,13 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional
+from typing import cast
 
 from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -106,9 +106,11 @@ class BlackMiner(StockFirmware):
         data = await self.web.get_miner_conf()
         if data:
             self.config = MinerConfig.from_hammer(data)
-        return self.config
+        return self.config or MinerConfig()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         await self.web.set_miner_conf(config.as_hammer(user_suffix=user_suffix))
 
@@ -117,14 +119,14 @@ class BlackMiner(StockFirmware):
         if data:
             if data.get("code") == "B000":
                 self.light = True
-        return self.light
+        return self.light or False
 
     async def fault_light_off(self) -> bool:
         data = await self.web.blink(blink=False)
         if data:
             if data.get("code") == "B100":
                 self.light = False
-        return self.light
+        return self.light or False
 
     async def reboot(self) -> bool:
         data = await self.web.reboot()
@@ -132,7 +134,7 @@ class BlackMiner(StockFirmware):
             return True
         return False
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -147,7 +149,7 @@ class BlackMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -162,7 +164,9 @@ class BlackMiner(StockFirmware):
 
         return self.fw_ver
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
             try:
@@ -174,12 +178,13 @@ class BlackMiner(StockFirmware):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -232,8 +237,11 @@ class BlackMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.MH
-                            ).into(self.algo.unit.default)
+                                rate=float(hashrate),
+                                unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                            ).into(
+                                self.algo.unit.default  # type: ignore[attr-defined]
+                            )
 
                         chips = boards[1].get(f"chain_acn{i}")
                         if chips:
@@ -247,7 +255,7 @@ class BlackMiner(StockFirmware):
 
         return hashboards
 
-    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_stats: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -272,14 +280,16 @@ class BlackMiner(StockFirmware):
 
                 for fan in range(self.expected_fans):
                     fans[fan].speed = rpc_stats["STATS"][1].get(
-                        f"fan{fan_offset+fan}", 0
+                        f"fan{fan_offset + fan}", 0
                     )
             except LookupError:
                 pass
 
         return fans
 
-    async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_hostname(
+        self, web_get_system_info: dict | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -291,8 +301,9 @@ class BlackMiner(StockFirmware):
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_mac(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -311,8 +322,11 @@ class BlackMiner(StockFirmware):
                 return data["macaddr"]
         except KeyError:
             pass
+        return None
 
-    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(
+        self, web_summary: dict | None = None
+    ) -> list[MinerErrorData]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -330,11 +344,11 @@ class BlackMiner(StockFirmware):
                         continue
             except LookupError:
                 pass
-        return errors
+        return cast(list[MinerErrorData], errors)
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict = None
-    ) -> Optional[bool]:
+        self, web_get_blink_status: dict | None = None
+    ) -> bool | None:
         if self.light:
             return self.light
 
@@ -352,8 +366,8 @@ class BlackMiner(StockFirmware):
         return self.light
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -364,16 +378,22 @@ class BlackMiner(StockFirmware):
             try:
                 expected_rate = rpc_stats["STATS"][1].get("total_rateideal")
                 if expected_rate is None:
-                    return self.sticker_hashrate.into(self.algo.unit.default)
+                    if (
+                        hasattr(self, "sticker_hashrate")
+                        and self.sticker_hashrate is not None
+                    ):
+                        return self.sticker_hashrate.into(self.algo.unit.default)  # type: ignore[attr-defined]
+                    return None
                 try:
                     rate_unit = rpc_stats["STATS"][1]["rate_unit"]
                 except KeyError:
                     rate_unit = "MH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
     async def set_static_ip(
         self,
@@ -381,10 +401,10 @@ class BlackMiner(StockFirmware):
         dns: str,
         gateway: str,
         subnet_mask: str = "255.255.255.0",
-        hostname: str = None,
+        hostname: str | None = None,
     ):
         if not hostname:
-            hostname = await self.get_hostname()
+            hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
             ip=ip,
             dns=dns,
@@ -394,9 +414,9 @@ class BlackMiner(StockFirmware):
             protocol=2,
         )
 
-    async def set_dhcp(self, hostname: str = None):
+    async def set_dhcp(self, hostname: str | None = None):
         if not hostname:
-            hostname = await self.get_hostname()
+            hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
             ip="", dns="", gateway="", subnet_mask="", hostname=hostname, protocol=1
         )
@@ -417,7 +437,7 @@ class BlackMiner(StockFirmware):
             protocol=protocol,
         )
 
-    async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_get_conf: dict | None = None) -> bool | None:
         if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
@@ -433,8 +453,9 @@ class BlackMiner(StockFirmware):
                 return False
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -446,8 +467,9 @@ class BlackMiner(StockFirmware):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

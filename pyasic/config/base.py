@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -89,61 +90,61 @@ class MinerConfigOption(Enum):
 
 class MinerConfigValue(BaseModel):
     @classmethod
-    def from_dict(cls, dict_conf: dict | None):
+    def from_dict(cls, dict_conf: dict):
         return cls()
 
     def as_dict(self) -> dict:
         return self.model_dump()
 
-    def as_am_modern(self) -> dict:
+    def as_am_modern(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_hiveon_modern(self) -> dict:
+    def as_hiveon_modern(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_am_old(self) -> dict:
+    def as_am_old(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_wm(self) -> dict:
+    def as_wm(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_btminer_v3(self) -> dict:
+    def as_btminer_v3(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_inno(self) -> dict:
+    def as_inno(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_goldshell(self) -> dict:
+    def as_goldshell(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_avalon(self) -> dict:
+    def as_avalon(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_bosminer(self) -> dict:
+    def as_bosminer(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_boser(self) -> dict:
+    def as_boser(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_epic(self) -> dict:
+    def as_epic(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_vnish(self) -> dict:
+    def as_vnish(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_auradine(self) -> dict:
+    def as_auradine(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_mara(self) -> dict:
+    def as_mara(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_espminer(self) -> dict:
+    def as_espminer(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_luxos(self) -> dict:
+    def as_luxos(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
-    def as_elphapex(self) -> dict:
+    def as_elphapex(self, *args: Any, **kwargs: Any) -> Any:
         return {}
 
     def __getitem__(self, item):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import field
-from typing import TypeVar, Union
+from typing import Any, TypeVar
 
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
 
@@ -41,26 +41,26 @@ class TunerAlgo(MinerConfigOption):
     chip_tune = ChipTuneAlgo
 
     @classmethod
-    def default(cls) -> TunerAlgoType:
+    def default(cls) -> StandardTuneAlgo:
         return cls.standard()
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> TunerAlgoType:
+    def from_dict(
+        cls, dict_conf: dict[Any, Any] | None
+    ) -> StandardTuneAlgo | VOptAlgo | BoardTuneAlgo | ChipTuneAlgo:
+        if dict_conf is None:
+            return cls.default()
         mode = dict_conf.get("mode")
         if mode is None:
             return cls.default()
 
-        cls_attr = getattr(cls, mode)
+        cls_attr = getattr(cls, mode, None)
         if cls_attr is not None:
             return cls_attr().from_dict(dict_conf)
+        return cls.default()
 
 
 TunerAlgoType = TypeVar(
     "TunerAlgoType",
-    bound=Union[
-        StandardTuneAlgo,
-        VOptAlgo,
-        BoardTuneAlgo,
-        ChipTuneAlgo,
-    ],
+    bound=StandardTuneAlgo | VOptAlgo | BoardTuneAlgo | ChipTuneAlgo,
 )

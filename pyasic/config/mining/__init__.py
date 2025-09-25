@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from dataclasses import field
-from typing import TypeVar, Union
+from typing import Any, TypeVar
 
 from pyasic import settings
 from pyasic.config.base import MinerConfigOption, MinerConfigValue
@@ -35,7 +35,14 @@ from pyasic.web.braiins_os.proto.braiins.bos.v1 import (
     TunerPerformanceMode,
 )
 
-from .algo import TunerAlgo, TunerAlgoType
+from .algo import (
+    BoardTuneAlgo,
+    ChipTuneAlgo,
+    StandardTuneAlgo,
+    TunerAlgo,
+    TunerAlgoType,
+    VOptAlgo,
+)
 from .presets import MiningPreset
 from .scaling import ScalingConfig
 
@@ -44,7 +51,7 @@ class MiningModeNormal(MinerConfigValue):
     mode: str = field(init=False, default="normal")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeNormal":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeNormal:
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -93,7 +100,7 @@ class MiningModeSleep(MinerConfigValue):
     mode: str = field(init=False, default="sleep")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeSleep":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeSleep:
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -136,7 +143,7 @@ class MiningModeLPM(MinerConfigValue):
     mode: str = field(init=False, default="low")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeLPM":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeLPM:
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -169,7 +176,7 @@ class MiningModeHPM(MinerConfigValue):
     mode: str = field(init=False, default="high")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeHPM":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeHPM:
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -201,11 +208,15 @@ class MiningModePowerTune(MinerConfigValue):
 
     mode: str = field(init=False, default="power_tuning")
     power: int | None = None
-    algo: TunerAlgoType = field(default_factory=TunerAlgo.default)
+    algo: StandardTuneAlgo | VOptAlgo | BoardTuneAlgo | ChipTuneAlgo = field(
+        default_factory=TunerAlgo.default
+    )
     scaling: ScalingConfig | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModePowerTune":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModePowerTune:
+        if dict_conf is None:
+            return cls()
         cls_conf = {}
         if dict_conf.get("power"):
             cls_conf["power"] = dict_conf["power"]
@@ -245,25 +256,27 @@ class MiningModePowerTune(MinerConfigValue):
         cfg = {"autotuning": tuning_cfg}
 
         if self.scaling is not None:
-            scaling_cfg = {"enabled": True}
+            scaling_cfg: dict[str, Any] = {"enabled": True}
             if self.scaling.step is not None:
                 scaling_cfg["power_step"] = self.scaling.step
             if self.scaling.minimum is not None:
                 scaling_cfg["min_power_target"] = self.scaling.minimum
             if self.scaling.shutdown is not None:
-                scaling_cfg = {**scaling_cfg, **self.scaling.shutdown.as_bosminer()}
+                scaling_cfg.update(self.scaling.shutdown.as_bosminer())
             cfg["performance_scaling"] = scaling_cfg
 
         return cfg
 
     def as_boser(self) -> dict:
-        cfg = {
+        cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
-                save_action=SaveAction.SAVE_AND_APPLY,
+                save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         power_target=PowerTargetMode(
                             power_target=Power(watt=self.power)
+                            if self.power is not None
+                            else None  # type: ignore[arg-type]
                         )
                     )
                 ),
@@ -273,13 +286,15 @@ class MiningModePowerTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            power_target_kwargs = {}
+            power_target_kwargs: dict[str, Any] = {}
             if self.scaling.step is not None:
-                power_target_kwargs["power_step"] = Power(self.scaling.step)
+                power_target_kwargs["power_step"] = Power(watt=self.scaling.step)
             if self.scaling.minimum is not None:
-                power_target_kwargs["min_power_target"] = Power(self.scaling.minimum)
+                power_target_kwargs["min_power_target"] = Power(
+                    watt=self.scaling.minimum
+                )
             cfg["set_dps"] = SetDpsRequest(
-                save_action=SaveAction.SAVE_AND_APPLY,
+                save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 enable=True,
                 **sd_cfg,
                 target=DpsTarget(power_target=DpsPowerTarget(**power_target_kwargs)),
@@ -311,11 +326,15 @@ class MiningModeHashrateTune(MinerConfigValue):
 
     mode: str = field(init=False, default="hashrate_tuning")
     hashrate: int | None = None
-    algo: TunerAlgoType = field(default_factory=TunerAlgo.default)
+    algo: StandardTuneAlgo | VOptAlgo | BoardTuneAlgo | ChipTuneAlgo = field(
+        default_factory=TunerAlgo.default
+    )
     scaling: ScalingConfig | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeHashrateTune":
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeHashrateTune:
+        if dict_conf is None:
+            return cls()
         cls_conf = {}
         if dict_conf.get("hashrate"):
             cls_conf["hashrate"] = dict_conf["hashrate"]
@@ -346,14 +365,16 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"autotuning": conf}
 
     def as_boser(self) -> dict:
-        cfg = {
+        cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
-                save_action=SaveAction.SAVE_AND_APPLY,
+                save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         hashrate_target=HashrateTargetMode(
                             hashrate_target=TeraHashrate(
-                                terahash_per_second=self.hashrate
+                                terahash_per_second=float(self.hashrate)
+                                if self.hashrate is not None
+                                else None  # type: ignore[arg-type]
                             )
                         )
                     )
@@ -364,17 +385,17 @@ class MiningModeHashrateTune(MinerConfigValue):
             sd_cfg = {}
             if self.scaling.shutdown is not None:
                 sd_cfg = self.scaling.shutdown.as_boser()
-            hashrate_target_kwargs = {}
+            hashrate_target_kwargs: dict[str, Any] = {}
             if self.scaling.step is not None:
                 hashrate_target_kwargs["hashrate_step"] = TeraHashrate(
-                    self.scaling.step
+                    terahash_per_second=float(self.scaling.step)
                 )
             if self.scaling.minimum is not None:
                 hashrate_target_kwargs["min_hashrate_target"] = TeraHashrate(
-                    self.scaling.minimum
+                    terahash_per_second=float(self.scaling.minimum)
                 )
             cfg["set_dps"] = SetDpsRequest(
-                save_action=SaveAction.SAVE_AND_APPLY,
+                save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 enable=True,
                 **sd_cfg,
                 target=DpsTarget(
@@ -390,7 +411,11 @@ class MiningModeHashrateTune(MinerConfigValue):
     def as_epic(self) -> dict:
         mode = {
             "ptune": {
-                "algo": self.algo.as_epic(),
+                "algo": (
+                    self.algo.as_epic()
+                    if hasattr(self.algo, "as_epic")
+                    else TunerAlgo.default().as_epic()
+                ),
                 "target": self.hashrate,
             }
         }
@@ -431,7 +456,7 @@ class MiningModePreset(MinerConfigValue):
         web_overclock_settings: dict,
         web_presets: list[dict],
         web_perf_summary: dict,
-    ) -> "MiningModePreset":
+    ) -> MiningModePreset:
         active_preset = web_perf_summary.get("current_preset")
 
         if active_preset is None:
@@ -440,12 +465,12 @@ class MiningModePreset(MinerConfigValue):
                     active_preset = preset
 
         return cls(
-            active_preset=MiningPreset.from_vnish(active_preset),
+            active_preset=MiningPreset.from_vnish(active_preset or {}),
             available_presets=[MiningPreset.from_vnish(p) for p in web_presets],
         )
 
     @classmethod
-    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict) -> "MiningModePreset":
+    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict) -> MiningModePreset:
         active_preset = cls.get_active_preset_from_luxos(rpc_config, rpc_profiles)
         return cls(
             active_preset=active_preset,
@@ -463,7 +488,7 @@ class MiningModePreset(MinerConfigValue):
         for profile in rpc_profiles["PROFILES"]:
             if profile["Profile Name"] == active_profile:
                 active_preset = profile
-        return MiningPreset.from_luxos(active_preset)
+        return MiningPreset.from_luxos(active_preset or {})
 
 
 class ManualBoardSettings(MinerConfigValue):
@@ -471,7 +496,7 @@ class ManualBoardSettings(MinerConfigValue):
     volt: float
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "ManualBoardSettings":
+    def from_dict(cls, dict_conf: dict) -> ManualBoardSettings:
         return cls(freq=dict_conf["freq"], volt=dict_conf["volt"])
 
     def as_am_modern(self) -> dict:
@@ -499,11 +524,15 @@ class MiningModeManual(MinerConfigValue):
     boards: dict[int, ManualBoardSettings] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "MiningModeManual":
+    def from_dict(cls, dict_conf: dict) -> MiningModeManual:
         return cls(
             global_freq=dict_conf["global_freq"],
             global_volt=dict_conf["global_volt"],
-            boards={i: ManualBoardSettings.from_dict(dict_conf[i]) for i in dict_conf},
+            boards={
+                i: ManualBoardSettings.from_dict(dict_conf[i])
+                for i in dict_conf
+                if isinstance(i, int)
+            },
         )
 
     def as_am_modern(self) -> dict:
@@ -527,7 +556,7 @@ class MiningModeManual(MinerConfigValue):
         }
 
     @classmethod
-    def from_vnish(cls, web_overclock_settings: dict) -> "MiningModeManual":
+    def from_vnish(cls, web_overclock_settings: dict) -> MiningModeManual:
         # will raise KeyError if it cant find the settings, values cannot be empty
         voltage = web_overclock_settings["globals"]["volt"]
         freq = web_overclock_settings["globals"]["freq"]
@@ -541,7 +570,7 @@ class MiningModeManual(MinerConfigValue):
         return cls(global_freq=freq, global_volt=voltage, boards=boards)
 
     @classmethod
-    def from_epic(cls, epic_conf: dict) -> "MiningModeManual":
+    def from_epic(cls, epic_conf: dict) -> MiningModeManual:
         voltage = 0
         freq = 0
         if epic_conf.get("HwConfig") is not None:
@@ -581,11 +610,11 @@ class MiningModeConfig(MinerConfigOption):
     manual = MiningModeManual
 
     @classmethod
-    def default(cls):
+    def default(cls) -> MiningModeConfig:
         return cls.normal()
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None):
+    def from_dict(cls, dict_conf: dict | None) -> MiningModeConfig:
         if dict_conf is None:
             return cls.default()
 
@@ -593,12 +622,13 @@ class MiningModeConfig(MinerConfigOption):
         if mode is None:
             return cls.default()
 
-        cls_attr = getattr(cls, mode)
+        cls_attr = getattr(cls, mode, None)
         if cls_attr is not None:
             return cls_attr().from_dict(dict_conf)
+        return cls.default()
 
     @classmethod
-    def from_am_modern(cls, web_conf: dict):
+    def from_am_modern(cls, web_conf: dict) -> MiningModeConfig:
         if web_conf.get("bitmain-work-mode") is not None:
             work_mode = web_conf["bitmain-work-mode"]
             if work_mode == "":
@@ -612,7 +642,7 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_hiveon_modern(cls, web_conf: dict):
+    def from_hiveon_modern(cls, web_conf: dict) -> MiningModeConfig:
         if web_conf.get("bitmain-work-mode") is not None:
             work_mode = web_conf["bitmain-work-mode"]
             if work_mode == "":
@@ -626,7 +656,7 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_elphapex(cls, web_conf: dict):
+    def from_elphapex(cls, web_conf: dict) -> MiningModeConfig:
         if web_conf.get("fc-work-mode") is not None:
             work_mode = web_conf["fc-work-mode"]
             if work_mode == "":
@@ -640,7 +670,7 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_epic(cls, web_conf: dict):
+    def from_epic(cls, web_conf: dict) -> MiningModeConfig:
         try:
             tuner_running = web_conf["PerpetualTune"]["Running"]
             if tuner_running:
@@ -679,12 +709,12 @@ class MiningModeConfig(MinerConfigOption):
                         algo=TunerAlgo.chip_tune(),
                     )
             else:
-                return MiningModeManual.from_epic(web_conf)
+                return cls.manual.from_epic(web_conf)
         except KeyError:
             return cls.default()
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict):
+    def from_bosminer(cls, toml_conf: dict) -> MiningModeConfig:
         if toml_conf.get("autotuning") is None:
             return cls.default()
         autotuning_conf = toml_conf["autotuning"]
@@ -726,21 +756,19 @@ class MiningModeConfig(MinerConfigOption):
     @classmethod
     def from_vnish(
         cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
-    ):
+    ) -> MiningModeConfig:
         try:
             mode_settings = web_settings["miner"]["overclock"]
         except KeyError:
             return cls.default()
 
         if mode_settings["preset"] == "disabled":
-            return MiningModeManual.from_vnish(mode_settings)
+            return cls.manual.from_vnish(mode_settings, web_presets, web_perf_summary)
         else:
-            return MiningModePreset.from_vnish(
-                mode_settings, web_presets, web_perf_summary
-            )
+            return cls.preset.from_vnish(mode_settings, web_presets, web_perf_summary)
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict):
+    def from_boser(cls, grpc_miner_conf: dict) -> MiningModeConfig:
         try:
             tuner_conf = grpc_miner_conf["tuner"]
             if not tuner_conf.get("enabled", False):
@@ -786,7 +814,7 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_auradine(cls, web_mode: dict):
+    def from_auradine(cls, web_mode: dict) -> MiningModeConfig:
         try:
             mode_data = web_mode["Mode"][0]
             if mode_data.get("Sleep") == "on":
@@ -803,9 +831,12 @@ class MiningModeConfig(MinerConfigOption):
                 return cls.power_tuning(power=mode_data["Power"])
         except LookupError:
             return cls.default()
+        return cls.default()
 
     @classmethod
-    def from_btminer_v3(cls, rpc_device_info: dict, rpc_settings: dict):
+    def from_btminer_v3(
+        cls, rpc_device_info: dict, rpc_settings: dict
+    ) -> MiningModeConfig:
         try:
             is_mining = rpc_device_info["msg"]["miner"]["working"] == "true"
             if not is_mining:
@@ -823,9 +854,10 @@ class MiningModeConfig(MinerConfigOption):
 
         except LookupError:
             return cls.default()
+        return cls.default()
 
     @classmethod
-    def from_mara(cls, web_config: dict):
+    def from_mara(cls, web_config: dict) -> MiningModeConfig:
         try:
             mode = web_config["mode"]["work-mode-selector"]
             if mode == "Fixed":
@@ -850,24 +882,26 @@ class MiningModeConfig(MinerConfigOption):
         return cls.default()
 
     @classmethod
-    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict):
+    def from_luxos(cls, rpc_config: dict, rpc_profiles: dict) -> MiningModeConfig:
         preset_info = MiningModePreset.from_luxos(rpc_config, rpc_profiles)
         return cls.preset(
             active_preset=preset_info.active_preset,
             available_presets=preset_info.available_presets,
         )
 
+    def as_btminer_v3(self) -> dict:
+        """Delegate to the default instance for btminer v3 configuration."""
+        return self.default().as_btminer_v3()
+
 
 MiningMode = TypeVar(
     "MiningMode",
-    bound=Union[
-        MiningModeNormal,
-        MiningModeHPM,
-        MiningModeLPM,
-        MiningModeSleep,
-        MiningModeManual,
-        MiningModePowerTune,
-        MiningModeHashrateTune,
-        MiningModePreset,
-    ],
+    bound=MiningModeNormal
+    | MiningModeHPM
+    | MiningModeLPM
+    | MiningModeSleep
+    | MiningModeManual
+    | MiningModePowerTune
+    | MiningModeHashrateTune
+    | MiningModePreset,
 )

@@ -51,10 +51,10 @@ class BOSMinerGRPCStub(
 class BOSerWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_bosminer_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_bosminer_password", "root")
         self.port = 50051
-        self._auth_time = None
+        self._auth_time: datetime | None = None
 
     @property
     def commands(self) -> list:
@@ -68,15 +68,17 @@ class BOSerWebAPI(BaseWebAPI):
             dir(self)
             if func
             not in ["send_command", "multicommand", "auth", "commands", "get_commands"]
-            if callable(getattr(self, func)) and
+            if callable(getattr(self, func))
+            and
             # no __ or _ methods
-            not func.startswith("__") and not func.startswith("_")
+            not func.startswith("__")
+            and not func.startswith("_")
         ]
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        result = {"multicommand": True}
+        result: dict[str, Any] = {"multicommand": True}
         tasks = {}
         for command in commands:
             try:
@@ -89,14 +91,14 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
         for cmd, task_result in zip(tasks.keys(), results):
-            if not isinstance(task_result, (GRPCError, APIError, ConnectionError)):
+            if isinstance(task_result, dict):
                 result[cmd] = task_result
 
         return result
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -125,14 +127,16 @@ class BOSerWebAPI(BaseWebAPI):
             raise APIError(f"gRPC command failed - {endpoint}") from e
 
     async def auth(self) -> str | None:
-        if self.token is not None and self._auth_time - datetime.now() < timedelta(
-            seconds=3540
+        if (
+            self.token is not None
+            and self._auth_time is not None
+            and datetime.now() - self._auth_time < timedelta(seconds=3540)
         ):
             return self.token
         await self._get_auth()
         return self.token
 
-    async def _get_auth(self) -> str:
+    async def _get_auth(self) -> str | None:
         async with Channel(self.ip, self.port) as c:
             req = LoginRequest(username=self.username, password=self.pwd)
             async with c.request(
@@ -143,11 +147,13 @@ class BOSerWebAPI(BaseWebAPI):
             ) as stream:
                 await stream.send_message(req, end=True)
                 await stream.recv_initial_metadata()
-                auth = stream.initial_metadata.get("authorization")
-                if auth is not None:
-                    self.token = auth
-                    self._auth_time = datetime.now()
-                    return self.token
+                if stream.initial_metadata is not None:
+                    auth = stream.initial_metadata.get("authorization")
+                    if auth is not None and isinstance(auth, str):
+                        self.token = auth
+                        self._auth_time = datetime.now()
+                        return self.token
+                return None
 
     async def get_api_version(self) -> dict:
         return await self.send_command(
@@ -194,7 +200,7 @@ class BOSerWebAPI(BaseWebAPI):
             privileged=True,
         )
 
-    async def set_password(self, password: str = None) -> dict:
+    async def set_password(self, password: str | None = None) -> dict:
         return await self.send_command(
             "set_password",
             message=SetPasswordRequest(password=password),
@@ -209,7 +215,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_immersion_mode(
         self,
         enable: bool,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "set_immersion_mode",
@@ -230,7 +236,7 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
     async def set_default_power_target(
-        self, save_action: SaveAction = SaveAction.SAVE_AND_APPLY
+        self, save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY)
     ) -> dict:
         return await self.send_command(
             "set_default_power_target",
@@ -241,7 +247,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_power_target(
         self,
         power_target: int,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "set_power_target",
@@ -254,7 +260,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def increment_power_target(
         self,
         power_target_increment: int,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "increment_power_target",
@@ -268,7 +274,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def decrement_power_target(
         self,
         power_target_decrement: int,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "decrement_power_target",
@@ -280,7 +286,7 @@ class BOSerWebAPI(BaseWebAPI):
         )
 
     async def set_default_hashrate_target(
-        self, save_action: SaveAction = SaveAction.SAVE_AND_APPLY
+        self, save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY)
     ) -> dict:
         return await self.send_command(
             "set_default_hashrate_target",
@@ -291,7 +297,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def set_hashrate_target(
         self,
         hashrate_target: float,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "set_hashrate_target",
@@ -305,7 +311,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def increment_hashrate_target(
         self,
         hashrate_target_increment: int,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "increment_hashrate_target",
@@ -321,7 +327,7 @@ class BOSerWebAPI(BaseWebAPI):
     async def decrement_hashrate_target(
         self,
         hashrate_target_decrement: int,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "decrement_hashrate_target",
@@ -339,15 +345,19 @@ class BOSerWebAPI(BaseWebAPI):
         enable: bool,
         power_step: int,
         min_power_target: int,
-        enable_shutdown: bool = None,
-        shutdown_duration: int = None,
+        enable_shutdown: bool | None = None,
+        shutdown_duration: int | None = None,
     ) -> dict:
         return await self.send_command(
             "set_dps",
             message=SetDpsRequest(
                 enable=enable,
                 enable_shutdown=enable_shutdown,
-                shutdown_duration=shutdown_duration,
+                shutdown_duration=(
+                    Hours(hours=shutdown_duration)
+                    if shutdown_duration is not None
+                    else None
+                ),
                 target=DpsTarget(
                     power_target=DpsPowerTarget(
                         power_step=Power(power_step),
@@ -360,50 +370,40 @@ class BOSerWebAPI(BaseWebAPI):
 
     async def set_performance_mode(
         self,
-        wattage_target: int = None,
-        hashrate_target: int = None,
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        wattage_target: int | None = None,
+        hashrate_target: int | None = None,
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         if wattage_target is not None and hashrate_target is not None:
             logging.error(
                 "Cannot use both wattage_target and hashrate_target, using wattage_target."
             )
-        elif wattage_target is None and hashrate_target is None:
+            hashrate_target = None
+
+        tuner_mode: TunerPerformanceMode
+        if wattage_target is not None:
+            tuner_mode = TunerPerformanceMode(
+                power_target=PowerTargetMode(power_target=Power(watt=wattage_target))
+            )
+        elif hashrate_target is not None:
+            tuner_mode = TunerPerformanceMode(
+                hashrate_target=HashrateTargetMode(
+                    hashrate_target=TeraHashrate(terahash_per_second=hashrate_target)
+                )
+            )
+        else:
             raise APIError(
                 "No target supplied, please supply either wattage_target or hashrate_target."
             )
-        if wattage_target is not None:
-            return await self.send_command(
-                "set_performance_mode",
-                message=SetPerformanceModeRequest(
-                    save_action=save_action,
-                    mode=PerformanceMode(
-                        tuner_mode=TunerPerformanceMode(
-                            power_target=PowerTargetMode(
-                                power_target=Power(watt=wattage_target)
-                            )
-                        )
-                    ),
-                ),
-                privileged=True,
-            )
-        if hashrate_target is not None:
-            return await self.send_command(
-                "set_performance_mode",
-                message=SetPerformanceModeRequest(
-                    save_action=save_action,
-                    mode=PerformanceMode(
-                        tuner_mode=TunerPerformanceMode(
-                            hashrate_target=HashrateTargetMode(
-                                hashrate_target=TeraHashrate(
-                                    terahash_per_second=hashrate_target
-                                )
-                            )
-                        )
-                    ),
-                ),
-                privileged=True,
-            )
+
+        return await self.send_command(
+            "set_performance_mode",
+            message=SetPerformanceModeRequest(
+                save_action=save_action,
+                mode=PerformanceMode(tuner_mode=tuner_mode),
+            ),
+            privileged=True,
+        )
 
     async def get_active_performance_mode(self) -> dict:
         return await self.send_command(
@@ -461,8 +461,8 @@ class BOSerWebAPI(BaseWebAPI):
 
     async def enable_hashboards(
         self,
-        hashboard_ids: List[str],
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        hashboard_ids: list[str],
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "enable_hashboards",
@@ -474,8 +474,8 @@ class BOSerWebAPI(BaseWebAPI):
 
     async def disable_hashboards(
         self,
-        hashboard_ids: List[str],
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        hashboard_ids: list[str],
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "disable_hashboards",
@@ -487,8 +487,8 @@ class BOSerWebAPI(BaseWebAPI):
 
     async def set_pool_groups(
         self,
-        pool_groups: List[PoolGroupConfiguration],
-        save_action: SaveAction = SaveAction.SAVE_AND_APPLY,
+        pool_groups: list[PoolGroupConfiguration],
+        save_action: SaveAction = SaveAction(SaveAction.SAVE_AND_APPLY),
     ) -> dict:
         return await self.send_command(
             "set_pool_groups",

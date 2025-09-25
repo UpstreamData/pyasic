@@ -2,6 +2,8 @@ from pydantic import BaseModel
 
 
 class BaseMinerError(BaseModel):
+    error_code: int | None = None
+
     @classmethod
     def fields(cls):
         return list(cls.model_fields.keys())
@@ -24,9 +26,13 @@ class BaseMinerError(BaseModel):
             field_data.append(
                 f"{root_key}{level_delimiter}error_code={self.error_code}"
             )
-        if self.error_message is not None:
-            field_data.append(
-                f'{root_key}{level_delimiter}error_message="{self.error_message}"'
-            )
+
+        # Check if error_message exists as an attribute (either regular or computed field)
+        if hasattr(self, "error_message"):
+            error_message = getattr(self, "error_message")
+            if error_message is not None:
+                field_data.append(
+                    f'{root_key}{level_delimiter}error_message="{error_message}"'
+                )
 
         return ",".join(field_data)

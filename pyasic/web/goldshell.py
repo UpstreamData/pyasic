@@ -17,20 +17,23 @@ from __future__ import annotations
 
 import json
 import warnings
-from typing import Any
+from typing import Any, TypedDict
 
 import httpx
 
 from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
+
+PoolPass = TypedDict("PoolPass", {"pass": str})
 
 
 class GoldshellWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.username = "admin"
-        self.pwd = settings.get("default_goldshell_web_password", "123456789")
-        self.token = None
+        self.username: str = "admin"
+        self.pwd: str = settings.get("default_goldshell_web_password", "123456789")
+        self.token: str | None = None
 
     async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -63,7 +66,7 @@ class GoldshellWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -72,7 +75,12 @@ class GoldshellWebAPI(BaseWebAPI):
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for _ in range(settings.get("get_data_retries", 1)):
+            retries = settings.get("get_data_retries", 1)
+            for attempt in range(retries):
+                if self.token is None:
+                    raise APIError(
+                        f"Could not authenticate web token with miner: {self}"
+                    )
                 try:
                     if not parameters == {}:
                         response = await client.put(
@@ -91,17 +99,33 @@ class GoldshellWebAPI(BaseWebAPI):
                     return json_data
                 except TypeError:
                     await self.auth()
-                except (httpx.HTTPError, json.JSONDecodeError):
-                    pass
+                except httpx.HTTPError as e:
+                    if attempt == retries - 1:
+                        raise APIError(
+                            f"HTTP error sending '{command}' to {self.ip}: {e}"
+                        )
+                except json.JSONDecodeError as e:
+                    if attempt == retries - 1:
+                        response_text = (
+                            response.text if response.text else "empty response"
+                        )
+                        raise APIError(
+                            f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                        )
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
+        data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
+                if self.token is None:
+                    raise APIError(
+                        f"Could not authenticate web token with miner: {self}"
+                    )
                 try:
                     uri_commnand = command
                     if command == "devs":
@@ -127,22 +151,22 @@ class GoldshellWebAPI(BaseWebAPI):
 
     async def newpool(self, url: str, user: str, password: str) -> dict:
         # looks dumb, but cant pass `pass` since it is a built in type
-        return await self.send_command(
-            "newpool", **{"url": url, "user": user, "pass": password}
-        )
+        poolpass: PoolPass = {"pass": password}
+        return await self.send_command("newpool", url=url, user=user, **poolpass)
 
     async def delpool(
         self, url: str, user: str, password: str, dragid: int = 0
     ) -> dict:
         # looks dumb, but cant pass `pass` since it is a built in type
+        poolpass: PoolPass = {"pass": password}
         return await self.send_command(
-            "delpool", **{"url": url, "user": user, "pass": password, "dragid": dragid}
+            "delpool", url=url, user=user, dragid=dragid, **poolpass
         )
 
     async def setting(self) -> dict:
         return await self.send_command("setting")
 
-    async def set_setting(self, values: dict):
+    async def set_setting(self, values: dict) -> None:
         await self.send_command("setting", **values)
 
     async def status(self) -> dict:

@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import Literal, Optional, Union
+from typing import Literal
 
 from pyasic import APIError
 from pyasic.rpc.base import BaseMinerRPCAPI
@@ -37,9 +37,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         super().__init__(*args, **kwargs)
         self.session_token = None
 
-    async def send_privileged_command(
-        self, command: Union[str, bytes], *args, **kwargs
-    ) -> dict:
+    async def send_privileged_command(self, command: str, *args, **kwargs) -> dict:
         if self.session_token is None:
             await self.auth()
         return await self.send_command(
@@ -51,7 +49,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
 
     async def send_command(
         self,
-        command: Union[str, bytes],
+        command: str,
         *args,
         **kwargs,
     ) -> dict:
@@ -59,7 +57,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             return await super().send_command(command, **kwargs)
         return await super().send_command(command, parameters=",".join(args), **kwargs)
 
-    async def auth(self) -> Optional[str]:
+    async def auth(self) -> str | None:
         try:
             data = await self.session()
             if not data["SESSION"][0]["SessionID"] == "":
@@ -74,6 +72,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             return self.session_token
         except (LookupError, APIError):
             pass
+        return None
 
     async def addgroup(self, name: str, quota: int) -> dict:
         """Add a pool group.
@@ -91,7 +90,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         return await self.send_command("addgroup", name, quota)
 
     async def addpool(
-        self, url: str, user: str, pwd: str = "", group_id: str = None
+        self, url: str, user: str, pwd: str = "", group_id: str | None = None
     ) -> dict:
         """Add a pool.
         <details>
@@ -163,13 +162,13 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
 
     async def atmset(
         self,
-        enabled: bool = None,
-        startup_minutes: int = None,
-        post_ramp_minutes: int = None,
-        temp_window: int = None,
-        min_profile: str = None,
-        max_profile: str = None,
-        prevent_oc: bool = None,
+        enabled: bool | None = None,
+        startup_minutes: int | None = None,
+        post_ramp_minutes: int | None = None,
+        temp_window: int | None = None,
+        min_profile: str | None = None,
+        max_profile: str | None = None,
+        prevent_oc: bool | None = None,
     ) -> dict:
         """Sets the ATM configuration.
         <details>
@@ -357,7 +356,10 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         return await self.send_command("fans")
 
     async def fanset(
-        self, speed: int = None, min_fans: int = None, power_off_speed: int = None
+        self,
+        speed: int | None = None,
+        min_fans: int | None = None,
+        power_off_speed: int | None = None,
     ) -> dict:
         """Set fan control.
         <details>
@@ -380,7 +382,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             fanset_data.append(f"power_off_speed={power_off_speed}")
         return await self.send_privileged_command("fanset", *fanset_data)
 
-    async def frequencyget(self, board_n: int, chip_n: int = None) -> dict:
+    async def frequencyget(self, board_n: int, chip_n: int | None = None) -> dict:
         """Get frequency data for a board and chips.
         <details>
             <summary>Expand</summary>
@@ -453,7 +455,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("groups")
 
-    async def healthchipget(self, board_n: int, chip_n: int = None) -> dict:
+    async def healthchipget(self, board_n: int, chip_n: int | None = None) -> dict:
         """Get chip health.
         <details>
             <summary>Expand</summary>
@@ -471,7 +473,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
             healthchipget_data.append(str(chip_n))
         return await self.send_command("healthchipget", *healthchipget_data)
 
-    async def healthchipset(self, board_n: int, chip_n: int = None) -> dict:
+    async def healthchipset(self, board_n: int, chip_n: int | None = None) -> dict:
         """Select the next chip to have its health checked.
         <details>
             <summary>Expand</summary>
@@ -641,7 +643,7 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("profileset", profile)
 
-    async def reboot(self, board_n: int, delay_s: int = None) -> dict:
+    async def reboot(self, board_n: int, delay_s: int | None = None) -> dict:
         """Reboot a board.
         <details>
             <summary>Expand</summary>
@@ -721,7 +723,10 @@ class LUXMinerRPCAPI(BaseMinerRPCAPI):
         return await self.send_command("session")
 
     async def tempctrlset(
-        self, target: int = None, hot: int = None, dangerous: int = None
+        self,
+        target: int | None = None,
+        hot: int | None = None,
+        dangerous: int | None = None,
     ) -> dict:
         """Set temp control values.
         <details>

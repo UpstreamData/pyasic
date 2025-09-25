@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import List, Optional, Tuple
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.data.pools import PoolMetrics
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.miners.base import BaseMiner
 from pyasic.rpc.unknown import UnknownRPCAPI
 
@@ -47,8 +47,8 @@ class UnknownMiner(BaseMiner):
     async def fault_light_on(self) -> bool:
         return False
 
-    async def get_config(self) -> None:
-        return None
+    async def get_config(self) -> MinerConfig:
+        return MinerConfig()
 
     async def reboot(self) -> bool:
         return False
@@ -62,7 +62,9 @@ class UnknownMiner(BaseMiner):
     async def resume_mining(self) -> bool:
         return False
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         return None
 
     async def set_power_limit(self, wattage: int) -> bool:
@@ -72,53 +74,62 @@ class UnknownMiner(BaseMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self) -> Optional[str]:
+    async def _get_mac(self) -> str | None:
         return None
 
-    async def _get_version(self) -> Tuple[Optional[str], Optional[str]]:
+    async def _get_serial_number(self) -> str | None:
+        return None
+
+    async def _get_version(self) -> tuple[str | None, str | None]:
         return None, None
 
-    async def _get_hostname(self) -> Optional[str]:
+    async def _get_hostname(self) -> str | None:
         return None
 
-    async def _get_hashrate(self) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(self) -> AlgoHashRateType | None:
         return None
 
-    async def _get_hashboards(self) -> List[HashBoard]:
+    async def _get_hashboards(self) -> list[HashBoard]:
         return []
 
-    async def _get_env_temp(self) -> Optional[float]:
+    async def _get_env_temp(self) -> float | None:
         return None
 
-    async def _get_wattage(self) -> Optional[int]:
+    async def _get_wattage(self) -> int | None:
         return None
 
-    async def _get_wattage_limit(self) -> Optional[int]:
+    async def _get_wattage_limit(self) -> int | None:
         return None
 
-    async def _get_fans(self) -> List[Fan]:
+    async def _get_fans(self) -> list[Fan]:
         return []
 
-    async def _get_fan_psu(self) -> Optional[int]:
+    async def _get_fan_psu(self) -> int | None:
         return None
 
-    async def _get_api_ver(self) -> Optional[str]:
+    async def _get_api_ver(self) -> str | None:
         return None
 
-    async def _get_fw_ver(self) -> Optional[str]:
+    async def _get_fw_ver(self) -> str | None:
         return None
 
-    async def _get_errors(self) -> List[MinerErrorData]:
+    async def _get_errors(self) -> list[MinerErrorData]:
         return []
 
     async def _get_fault_light(self) -> bool:
         return False
 
-    async def _get_expected_hashrate(self) -> Optional[AlgoHashRate]:
+    async def _get_expected_hashrate(self) -> AlgoHashRateType | None:
         return None
 
-    async def _is_mining(self, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, *args, **kwargs) -> bool | None:
         return None
 
-    async def _get_uptime(self, *args, **kwargs) -> Optional[int]:
+    async def _get_uptime(self, *args, **kwargs) -> int | None:
+        return None
+
+    async def _get_pools(self) -> list[PoolMetrics]:
+        return []
+
+    async def _get_voltage(self) -> float | None:
         return None

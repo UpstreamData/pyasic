@@ -8,9 +8,9 @@ from pyasic.device.algorithm.hashrate.unit.equihash import EquihashUnit
 from .unit import HashUnit
 
 
-class EquihashHashRate(AlgoHashRateType):
+class EquihashHashRate(AlgoHashRateType[EquihashUnit]):
     rate: float
-    unit: EquihashUnit = HashUnit.ETHASH.default
+    unit: EquihashUnit = HashUnit.EQUIHASH.default
 
     def into(self, other: EquihashUnit) -> Self:
         return self.__class__(

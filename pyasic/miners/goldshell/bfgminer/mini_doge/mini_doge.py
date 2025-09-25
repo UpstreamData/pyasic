@@ -13,11 +13,10 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data.boards import HashBoard
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.backends import GoldshellMiner
@@ -80,18 +79,19 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
     supports_shutdown = False
     supports_power_modes = False
 
-    async def get_config(self) -> MinerConfig:
+    async def get_config(self) -> MinerConfig | None:  # type: ignore[override]
         try:
             pools = await self.web.pools()
         except APIError:
-            return self.config
+            if self.config is not None:
+                return self.config
 
-        self.config = MinerConfig.from_goldshell_list(pools)
+        self.config = MinerConfig.from_goldshell(pools)
         return self.config
 
     async def _get_expected_hashrate(
-        self, rpc_devs: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_devs: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -110,8 +110,8 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
         return None
 
     async def _get_hashboards(
-        self, rpc_devs: dict = None, rpc_devdetails: dict = None
-    ) -> List[HashBoard]:
+        self, rpc_devs: dict | None = None, rpc_devdetails: dict | None = None
+    ) -> list[HashBoard]:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
@@ -162,7 +162,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
 
         return hashboards
 
-    async def _get_uptime(self, web_devs: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_devs: dict | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()
