@@ -285,7 +285,7 @@ class AntminerModern(BMMiner):
                 pass
         return errors
 
-    async def _get_hashboards(self) -> list[HashBoard]:
+    async def _get_hashboards(self) -> list[HashBoard]:  # type: ignore[override]
         if self.expected_hashboards is None:
             return []
 
