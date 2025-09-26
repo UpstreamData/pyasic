@@ -1,7 +1,7 @@
 # pyasic
 ## DGX Models
 
-## ElphapexModels.DG1 (Stock)
+## DG1 (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes
@@ -14,7 +14,7 @@
         show_root_heading: false
         heading_level: 0
 
-## ElphapexModels.DG1Plus (Stock)
+## DG1+ (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes
@@ -27,7 +27,7 @@
         show_root_heading: false
         heading_level: 0
 
-## ElphapexModels.DG1Home (Stock)
+## DG1Home (Stock)
 
 - [ ] Shutdowns
 - [ ] Power Modes

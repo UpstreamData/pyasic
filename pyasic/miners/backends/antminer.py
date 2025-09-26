@@ -80,7 +80,7 @@ ANTMINER_MODERN_DATA_LOC = DataLocations(
         ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
-            [RPCAPICommand("rpc_stats", "stats")],
+            [],
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
@@ -285,7 +285,7 @@ class AntminerModern(BMMiner):
                 pass
         return errors
 
-    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(self) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 

@@ -563,11 +563,17 @@ class BraiinsModels(MinerModelType):
     BMM100 = "BMM100"
     BMM101 = "BMM101"
 
+    def __str__(self):
+        return self.value
+
 
 class ElphapexModels(MinerModelType):
     DG1 = "DG1"
     DG1Plus = "DG1+"
     DG1Home = "DG1Home"
+
+    def __str__(self):
+        return self.value
 
 
 class MinerModel:

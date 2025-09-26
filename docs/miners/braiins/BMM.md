@@ -1,7 +1,7 @@
 # pyasic
 ## BMM Models
 
-## BraiinsModels.BMM100 (BOS+)
+## BMM100 (BOS+)
 
 - [x] Shutdowns
 - [ ] Power Modes
@@ -14,7 +14,7 @@
         show_root_heading: false
         heading_level: 0
 
-## BraiinsModels.BMM101 (BOS+)
+## BMM101 (BOS+)
 
 - [x] Shutdowns
 - [ ] Power Modes
