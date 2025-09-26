@@ -24,6 +24,7 @@ import aiofiles
 import httpx
 
 from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
 
 
@@ -35,12 +36,12 @@ class AntminerModernWebAPI(BaseWebAPI):
             ip (str): IP address of the Antminer device.
         """
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_antminer_web_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -49,7 +50,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
-            command (str | bytes): The CGI command to send.
+            command (str): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.
@@ -249,12 +250,12 @@ class AntminerOldWebAPI(BaseWebAPI):
             ip (str): IP address of the Antminer device.
         """
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_antminer_web_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_antminer_web_password", "root")
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -263,7 +264,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
-            command (str | bytes): The CGI command to send.
+            command (str): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.
@@ -293,6 +294,7 @@ class AntminerOldWebAPI(BaseWebAPI):
                     return data.json()
                 except json.decoder.JSONDecodeError:
                     pass
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -411,10 +413,9 @@ class AntminerOldWebAPI(BaseWebAPI):
         async with aiofiles.open(file, "rb") as firmware:
             file_content = await firmware.read()
 
-        parameters = {
-            "file": (file.name, file_content, "application/octet-stream"),
-            "filename": file.name,
-            "keep_settings": keep_settings,
-        }
-
-        return await self.send_command(command="upgrade", **parameters)
+        return await self.send_command(
+            command="upgrade",
+            file=(file.name, file_content, "application/octet-stream"),
+            filename=file.name,
+            keep_settings=keep_settings,
+        )

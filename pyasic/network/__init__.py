@@ -17,7 +17,8 @@
 import asyncio
 import ipaddress
 import logging
-from typing import AsyncIterator, List, Union
+from collections.abc import AsyncIterator
+from typing import cast
 
 from pyasic import settings
 from pyasic.miners.factory import AnyMiner, miner_factory
@@ -30,24 +31,24 @@ class MinerNetwork:
         hosts: A list of `ipaddress.IPv4Address` to be used when scanning.
     """
 
-    def __init__(self, hosts: List[ipaddress.IPv4Address]):
+    def __init__(self, hosts: list[ipaddress.IPv4Address]):
         self.hosts = hosts
         semaphore_limit = settings.get("network_scan_semaphore", 255)
         if semaphore_limit is None:
             semaphore_limit = 255
         self.semaphore = asyncio.Semaphore(semaphore_limit)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.hosts)
 
     @classmethod
-    def from_list(cls, addresses: list) -> "MinerNetwork":
+    def from_list(cls, addresses: list[str]) -> "MinerNetwork":
         """Parse a list of address constructors into a MinerNetwork.
 
         Parameters:
             addresses: A list of address constructors, such as `["10.1-2.1.1-50", "10.4.1-2.1-50"]`.
         """
-        hosts = []
+        hosts: list[ipaddress.IPv4Address] = []
         for address in addresses:
             hosts = [*hosts, *cls.from_address(address).hosts]
         return cls(sorted(list(set(hosts))))
@@ -79,7 +80,7 @@ class MinerNetwork:
             oct_4: An octet constructor, such as `"1-50"`.
         """
 
-        hosts = []
+        hosts: list[ipaddress.IPv4Address] = []
 
         oct_1_start, oct_1_end = compute_oct_range(oct_1)
         for oct_1_idx in range((abs(oct_1_end - oct_1_start)) + 1):
@@ -97,11 +98,11 @@ class MinerNetwork:
                     for oct_4_idx in range((abs(oct_4_end - oct_4_start)) + 1):
                         oct_4_val = str(oct_4_idx + oct_4_start)
 
-                        hosts.append(
-                            ipaddress.ip_address(
-                                ".".join([oct_1_val, oct_2_val, oct_3_val, oct_4_val])
-                            )
+                        ip_addr = ipaddress.ip_address(
+                            ".".join([oct_1_val, oct_2_val, oct_3_val, oct_4_val])
                         )
+                        if isinstance(ip_addr, ipaddress.IPv4Address):
+                            hosts.append(ip_addr)
         return cls(sorted(hosts))
 
     @classmethod
@@ -111,9 +112,13 @@ class MinerNetwork:
         Parameters:
             subnet: A subnet string, such as `"10.0.0.1/24"`.
         """
-        return cls(list(ipaddress.ip_network(subnet, strict=False).hosts()))
+        network = ipaddress.ip_network(subnet, strict=False)
+        hosts = [
+            host for host in network.hosts() if isinstance(host, ipaddress.IPv4Address)
+        ]
+        return cls(hosts)
 
-    async def scan(self) -> List[AnyMiner]:
+    async def scan(self) -> list[AnyMiner]:
         """Scan the network for miners.
 
         Returns:
@@ -121,15 +126,17 @@ class MinerNetwork:
         """
         return await self.scan_network_for_miners()
 
-    async def scan_network_for_miners(self) -> List[AnyMiner]:
+    async def scan_network_for_miners(self) -> list[AnyMiner]:
         logging.debug(f"{self} - (Scan Network For Miners) - Scanning")
 
-        miners = await asyncio.gather(
+        raw_miners: list[AnyMiner | None] = await asyncio.gather(
             *[self.ping_and_get_miner(host) for host in self.hosts]
         )
 
         # remove all None from the miner list
-        miners = list(filter(None, miners))
+        miners: list[AnyMiner] = cast(
+            list[AnyMiner], [miner for miner in raw_miners if miner is not None]
+        )
         logging.debug(
             f"{self} - (Scan Network For Miners) - Found {len(miners)} miners"
         )
@@ -137,7 +144,7 @@ class MinerNetwork:
         # return the miner objects
         return miners
 
-    async def scan_network_generator(self) -> AsyncIterator[AnyMiner]:
+    async def scan_network_generator(self) -> AsyncIterator[AnyMiner | None]:
         """
         Scan the network for miners using an async generator.
 
@@ -145,39 +152,47 @@ class MinerNetwork:
              An asynchronous generator containing found miners.
         """
         # create a list of scan tasks
-        miners = asyncio.as_completed(
-            [asyncio.create_task(self.ping_and_get_miner(host)) for host in self.hosts]
-        )
-        for miner in miners:
+        tasks: list[asyncio.Task[AnyMiner | None]] = [
+            asyncio.create_task(self.ping_and_get_miner(host)) for host in self.hosts
+        ]
+        for miner in asyncio.as_completed(tasks):
             try:
-                yield await miner
+                result = await miner
+                yield result
             except TimeoutError:
                 yield None
+        return
 
     async def ping_and_get_miner(
-        self, ip: ipaddress.ip_address
-    ) -> Union[None, AnyMiner]:
+        self, ip: ipaddress.IPv4Address | ipaddress.IPv6Address
+    ) -> AnyMiner | None:
         if settings.get("network_scan_semaphore") is None:
-            return await self._ping_and_get_miner(ip)
+            return await self._ping_and_get_miner(ip)  # type: ignore[func-returns-value]
         async with self.semaphore:
-            return await self._ping_and_get_miner(ip)
+            return await self._ping_and_get_miner(ip)  # type: ignore[func-returns-value]
 
     @staticmethod
-    async def _ping_and_get_miner(ip: ipaddress.ip_address) -> Union[None, AnyMiner]:
+    async def _ping_and_get_miner(
+        ip: ipaddress.IPv4Address | ipaddress.IPv6Address,
+    ) -> AnyMiner | None:
         try:
-            return await ping_and_get_miner(ip)
+            return await ping_and_get_miner(ip)  # type: ignore[func-returns-value]
         except ConnectionRefusedError:
-            tasks = [ping_and_get_miner(ip, port=port) for port in [4028, 4029, 8889]]
+            tasks: list[asyncio.Task[AnyMiner | None]] = [
+                asyncio.create_task(ping_and_get_miner(ip, port=port))
+                for port in [4028, 4029, 8889]
+            ]
             for miner in asyncio.as_completed(tasks):
                 try:
                     return await miner
                 except ConnectionRefusedError:
                     pass
+        return None
 
 
 async def ping_and_get_miner(
-    ip: ipaddress.ip_address, port=80
-) -> Union[None, AnyMiner]:
+    ip: ipaddress.IPv4Address | ipaddress.IPv6Address, port: int = 80
+) -> AnyMiner | None:
     for _ in range(settings.get("network_ping_retries", 1)):
         try:
             connection_fut = asyncio.open_connection(str(ip), port)
@@ -190,7 +205,7 @@ async def ping_and_get_miner(
             # make sure the writer is closed
             await writer.wait_closed()
             # ping was successful
-            return await miner_factory.get_miner(ip)
+            return await miner_factory.get_miner(ip)  # type: ignore[func-returns-value]
         except asyncio.exceptions.TimeoutError:
             # ping failed if we time out
             continue
@@ -198,11 +213,11 @@ async def ping_and_get_miner(
             raise ConnectionRefusedError from e
         except Exception as e:
             logging.warning(f"{str(ip)}: Unhandled ping exception: {e}")
-            return
-    return
+            return None
+    return None
 
 
-def compute_oct_range(octet: str) -> tuple:
+def compute_oct_range(octet: str) -> tuple[int, int]:
     octet_split = octet.split("-")
     octet_start = int(octet_split[0])
     octet_end = None

@@ -14,13 +14,12 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 import logging
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePreset
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import LuxOSFirmware
@@ -131,6 +130,7 @@ class LUXMiner(LuxOSFirmware):
             return True
         except (APIError, LookupError):
             pass
+        return False
 
     async def reboot(self) -> bool:
         try:
@@ -169,24 +169,40 @@ class LUXMiner(LuxOSFirmware):
 
         return False
 
-    async def atm_enabled(self) -> Optional[bool]:
+    async def atm_enabled(self) -> bool | None:
         try:
             result = await self.rpc.atm()
             return result["ATM"][0]["Enabled"]
         except (APIError, LookupError):
             pass
+        return None
 
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
+
+        # Check if we have preset mode with available presets
+        if not hasattr(config.mining_mode, "available_presets"):
+            logging.warning(f"{self} - Mining mode does not support presets")
+            return False
+
+        available_presets = getattr(config.mining_mode, "available_presets", [])
+        if not available_presets:
+            logging.warning(f"{self} - No available presets found")
+            return False
+
         valid_presets = {
             preset.name: preset.power
-            for preset in config.mining_mode.available_presets
-            if preset.power <= wattage
+            for preset in available_presets
+            if preset.power is not None and preset.power <= wattage
         }
+
+        if not valid_presets:
+            logging.warning(f"{self} - No valid presets found for wattage {wattage}")
+            return False
 
         # Set power to highest preset <= wattage
         # If ATM enabled, must disable it before setting power limit
-        new_preset = max(valid_presets, key=valid_presets.get)
+        new_preset = max(valid_presets, key=lambda x: valid_presets[x])
 
         re_enable_atm = False
         try:
@@ -211,12 +227,13 @@ class LUXMiner(LuxOSFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, rpc_config: dict = None) -> Optional[str]:
+    async def _get_mac(self, rpc_config: dict | None = None) -> str | None:
         if rpc_config is None:
             try:
                 rpc_config = await self.rpc.config()
             except APIError:
                 pass
+        return None
 
         if rpc_config is not None:
             try:
@@ -224,12 +241,15 @@ class LUXMiner(LuxOSFirmware):
             except KeyError:
                 pass
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
+        return None
 
         if rpc_summary is not None:
             try:
@@ -240,7 +260,7 @@ class LUXMiner(LuxOSFirmware):
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -262,8 +282,10 @@ class LUXMiner(LuxOSFirmware):
                     board_n = idx + 1
                     hashboards[idx].hashrate = self.algo.hashrate(
                         rate=float(board_stats[f"chain_rate{board_n}"]),
-                        unit=self.algo.unit.GH,
-                    ).into(self.algo.unit.default)
+                        unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hashboards[idx].chips = int(board_stats[f"chain_acn{board_n}"])
                     chip_temp_data = list(
                         filter(
@@ -288,22 +310,26 @@ class LUXMiner(LuxOSFirmware):
                 pass
         return hashboards
 
-    async def _get_wattage(self, rpc_power: dict = None) -> Optional[int]:
+    async def _get_wattage(self, rpc_power: dict | None = None) -> int | None:
         if rpc_power is None:
             try:
                 rpc_power = await self.rpc.power()
             except APIError:
                 pass
+        return None
 
         if rpc_power is not None:
             try:
                 return rpc_power["POWER"][0]["Watts"]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_wattage_limit(
-        self, rpc_config: dict = None, rpc_profiles: list[dict] = None
-    ) -> Optional[int]:
+        self, rpc_config: dict | None = None, rpc_profiles: dict | None = None
+    ) -> int | None:
+        if rpc_config is None or rpc_profiles is None:
+            return None
         try:
             active_preset = MiningModePreset.get_active_preset_from_luxos(
                 rpc_config, rpc_profiles
@@ -311,8 +337,9 @@ class LUXMiner(LuxOSFirmware):
             return active_preset.power
         except (LookupError, ValueError, TypeError):
             pass
+        return None
 
-    async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_fans: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -333,8 +360,8 @@ class LUXMiner(LuxOSFirmware):
         return fans
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -350,11 +377,12 @@ class LUXMiner(LuxOSFirmware):
                     rate_unit = "GH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -366,8 +394,9 @@ class LUXMiner(LuxOSFirmware):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -379,8 +408,9 @@ class LUXMiner(LuxOSFirmware):
                 return rpc_version["VERSION"][0]["Miner"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -392,8 +422,9 @@ class LUXMiner(LuxOSFirmware):
                 return rpc_version["VERSION"][0]["API"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_fault_light(self, rpc_config: dict = None) -> Optional[bool]:
+    async def _get_fault_light(self, rpc_config: dict | None = None) -> bool | None:
         if rpc_config is None:
             try:
                 rpc_config = await self.rpc.config()
@@ -405,8 +436,9 @@ class LUXMiner(LuxOSFirmware):
                 return not rpc_config["CONFIG"][0]["RedLed"] == "off"
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

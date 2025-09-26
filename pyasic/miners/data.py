@@ -16,7 +16,6 @@
 
 from dataclasses import dataclass, field, make_dataclass
 from enum import Enum
-from typing import List, Union
 
 
 class DataOptions(Enum):
@@ -67,7 +66,7 @@ class WebAPICommand:
 @dataclass
 class DataFunction:
     cmd: str
-    kwargs: List[Union[RPCAPICommand, WebAPICommand]] = field(default_factory=list)
+    kwargs: list[RPCAPICommand | WebAPICommand] = field(default_factory=list)
 
     def __call__(self, *args, **kwargs):
         return self

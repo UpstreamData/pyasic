@@ -1,8 +1,6 @@
-from typing import List, Optional
-
 from pyasic import APIError, MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.device.firmware import MinerFirmware
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -72,24 +70,28 @@ class ESPMiner(BaseMiner):
         web_system_info = await self.web.system_info()
         return MinerConfig.from_espminer(web_system_info)
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         await self.web.update_settings(**config.as_espminer())
 
-    async def _get_wattage(self, web_system_info: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_system_info: dict | None = None) -> int | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
             except APIError:
                 pass
+
         if web_system_info is not None:
             try:
                 return round(web_system_info["power"])
             except KeyError:
                 pass
+        return None
 
     async def _get_hashrate(
-        self, web_system_info: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_system_info: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -99,14 +101,18 @@ class ESPMiner(BaseMiner):
         if web_system_info is not None:
             try:
                 return self.algo.hashrate(
-                    rate=float(web_system_info["hashRate"]), unit=self.algo.unit.GH
-                ).into(self.algo.unit.default)
+                    rate=float(web_system_info["hashRate"]),
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
             except KeyError:
                 pass
+        return None
 
     async def _get_expected_hashrate(
-        self, web_system_info: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_system_info: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -126,15 +132,23 @@ class ESPMiner(BaseMiner):
                     except APIError:
                         pass
 
-                expected_hashrate = small_core_count * asic_count * frequency
-
-                return self.algo.hashrate(
-                    rate=float(expected_hashrate), unit=self.algo.unit.MH
-                ).into(self.algo.unit.default)
+                if (
+                    small_core_count is not None
+                    and asic_count is not None
+                    and frequency is not None
+                ):
+                    expected_hashrate = small_core_count * asic_count * frequency
+                    return self.algo.hashrate(
+                        rate=float(expected_hashrate),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
             except KeyError:
                 pass
+        return None
 
-    async def _get_uptime(self, web_system_info: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_system_info: dict | None = None) -> int | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -146,8 +160,11 @@ class ESPMiner(BaseMiner):
                 return web_system_info["uptimeSeconds"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_hashboards(self, web_system_info: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(
+        self, web_system_info: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -163,8 +180,10 @@ class ESPMiner(BaseMiner):
                     HashBoard(
                         hashrate=self.algo.hashrate(
                             rate=float(web_system_info["hashRate"]),
-                            unit=self.algo.unit.GH,
-                        ).into(self.algo.unit.default),
+                            unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                        ).into(
+                            self.algo.unit.default  # type: ignore[attr-defined]
+                        ),
                         chip_temp=web_system_info.get("temp"),
                         temp=web_system_info.get("vrTemp"),
                         chips=web_system_info.get("asicCount", 1),
@@ -178,7 +197,7 @@ class ESPMiner(BaseMiner):
                 pass
         return []
 
-    async def _get_fans(self, web_system_info: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_system_info: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -195,7 +214,7 @@ class ESPMiner(BaseMiner):
                 pass
         return []
 
-    async def _get_hostname(self, web_system_info: dict = None) -> Optional[str]:
+    async def _get_hostname(self, web_system_info: dict | None = None) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -207,8 +226,9 @@ class ESPMiner(BaseMiner):
                 return web_system_info["hostname"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_api_ver(self, web_system_info: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, web_system_info: dict | None = None) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -220,8 +240,9 @@ class ESPMiner(BaseMiner):
                 return web_system_info["version"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_fw_ver(self, web_system_info: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_system_info: dict | None = None) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -233,8 +254,9 @@ class ESPMiner(BaseMiner):
                 return web_system_info["version"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_mac(self, web_system_info: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_system_info: dict | None = None) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -246,3 +268,4 @@ class ESPMiner(BaseMiner):
                 return web_system_info["macAddr"].upper()
             except KeyError:
                 pass
+        return None

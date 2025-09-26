@@ -224,6 +224,7 @@ class WhatsminerModels(MinerModelType):
     M31V20 = "M31 V20"
     M32V10 = "M32 V10"
     M32V20 = "M32 V20"
+    M32S = "M32S"
     M33SPlusPlusVG40 = "M33S++ VG40"
     M33SPlusPlusVH20 = "M33S++ VH20"
     M33SPlusPlusVH30 = "M33S++ VH30"
@@ -562,11 +563,17 @@ class BraiinsModels(MinerModelType):
     BMM100 = "BMM100"
     BMM101 = "BMM101"
 
+    def __str__(self):
+        return self.value
+
 
 class ElphapexModels(MinerModelType):
     DG1 = "DG1"
     DG1Plus = "DG1+"
     DG1Home = "DG1Home"
+
+    def __str__(self):
+        return self.value
 
 
 class MinerModel:

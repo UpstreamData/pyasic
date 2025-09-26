@@ -151,7 +151,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procidentify", parameters=n)
 
-    async def procset(self, n: int, opt: str, val: int = None) -> dict:
+    async def procset(self, n: int, opt: str, val: int | None = None) -> dict:
         """Set processor option opt to val on processor n.
         <details>
             <summary>Expand</summary>

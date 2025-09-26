@@ -69,7 +69,7 @@ class AuradineWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -78,7 +78,7 @@ class AuradineWebAPI(BaseWebAPI):
         """Send a command to the Auradine miner, handling authentication and retries.
 
         Args:
-            command (str | bytes): The specific command to execute.
+            command (str): The specific command to execute.
             ignore_errors (bool): Whether to ignore HTTP errors.
             allow_warning (bool): Whether to proceed with warnings.
             privileged (bool): Whether the command requires privileged access.
@@ -95,6 +95,10 @@ class AuradineWebAPI(BaseWebAPI):
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for i in range(settings.get("get_data_retries", 1)):
+                if self.token is None:
+                    raise APIError(
+                        f"Could not authenticate web token with miner: {self}"
+                    )
                 try:
                     if post:
                         response = await client.post(
@@ -120,6 +124,7 @@ class AuradineWebAPI(BaseWebAPI):
                     return json_data
                 except (httpx.HTTPError, json.JSONDecodeError):
                     pass
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -145,11 +150,9 @@ class AuradineWebAPI(BaseWebAPI):
             *[tasks[cmd] for cmd in tasks], return_exceptions=True
         )
 
-        data = {"multicommand": True}
+        data: dict[str, Any] = {"multicommand": True}
         for cmd, result in zip(tasks.keys(), results):
-            if not isinstance(result, (APIError, Exception)):
-                if result is None or result == {}:
-                    result = {}
+            if isinstance(result, dict):
                 data[cmd] = result
 
         return data
@@ -182,7 +185,9 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("fan", index=fan, percentage=speed_pct)
 
-    async def firmware_upgrade(self, url: str = None, version: str = "latest") -> dict:
+    async def firmware_upgrade(
+        self, url: str | None = None, version: str = "latest"
+    ) -> dict:
         """Upgrade the firmware of the Auradine miner.
 
         Args:

@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import TypeVar, Union
+from typing import TypeVar
 
 from pydantic import Field
 
@@ -28,7 +28,7 @@ class FanModeNormal(MinerConfigValue):
     minimum_speed: int = 0
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "FanModeNormal":
+    def from_dict(cls, dict_conf: dict) -> FanModeNormal:
         cls_conf = {}
         if dict_conf.get("minimum_fans") is not None:
             cls_conf["minimum_fans"] = dict_conf["minimum_fans"]
@@ -37,7 +37,7 @@ class FanModeNormal(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_vnish(cls, web_cooling_settings: dict) -> "FanModeNormal":
+    def from_vnish(cls, web_cooling_settings: dict) -> FanModeNormal:
         cls_conf = {}
         if web_cooling_settings.get("fan_min_count") is not None:
             cls_conf["minimum_fans"] = web_cooling_settings["fan_min_count"]
@@ -112,7 +112,7 @@ class FanModeManual(MinerConfigValue):
     minimum_fans: int = 1
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "FanModeManual":
+    def from_dict(cls, dict_conf: dict) -> FanModeManual:
         cls_conf = {}
         if dict_conf.get("speed") is not None:
             cls_conf["speed"] = dict_conf["speed"]
@@ -121,7 +121,7 @@ class FanModeManual(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_bosminer(cls, toml_fan_conf: dict) -> "FanModeManual":
+    def from_bosminer(cls, toml_fan_conf: dict) -> FanModeManual:
         cls_conf = {}
         if toml_fan_conf.get("min_fans") is not None:
             cls_conf["minimum_fans"] = toml_fan_conf["min_fans"]
@@ -130,7 +130,7 @@ class FanModeManual(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_vnish(cls, web_cooling_settings: dict) -> "FanModeManual":
+    def from_vnish(cls, web_cooling_settings: dict) -> FanModeManual:
         cls_conf = {}
         if web_cooling_settings.get("fan_min_count") is not None:
             cls_conf["minimum_fans"] = web_cooling_settings["fan_min_count"]
@@ -191,7 +191,7 @@ class FanModeImmersion(MinerConfigValue):
     mode: str = Field(init=False, default="immersion")
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "FanModeImmersion":
+    def from_dict(cls, dict_conf: dict | None) -> FanModeImmersion:
         return cls()
 
     def as_am_modern(self) -> dict:
@@ -417,5 +417,5 @@ class FanModeConfig(MinerConfigOption):
 
 FanMode = TypeVar(
     "FanMode",
-    bound=Union[FanModeNormal, FanModeManual, FanModeImmersion],
+    bound=FanModeNormal | FanModeManual | FanModeImmersion,
 )

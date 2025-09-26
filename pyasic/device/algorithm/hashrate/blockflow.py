@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.blockflow import BlockFlowUnit
 from .unit import HashUnit
 
 
-class BlockFlowHashRate(AlgoHashRateType):
+class BlockFlowHashRate(AlgoHashRateType[BlockFlowUnit]):
     rate: float
     unit: BlockFlowUnit = HashUnit.BLOCKFLOW.default
 

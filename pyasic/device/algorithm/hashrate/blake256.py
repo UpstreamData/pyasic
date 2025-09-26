@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.blake256 import Blake256Unit
 from .unit import HashUnit
 
 
-class Blake256HashRate(AlgoHashRateType):
+class Blake256HashRate(AlgoHashRateType[Blake256Unit]):
     rate: float
     unit: Blake256Unit = HashUnit.BLAKE256.default
 

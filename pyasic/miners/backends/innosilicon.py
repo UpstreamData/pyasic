@@ -13,14 +13,12 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.error_codes.innosilicon import InnosiliconError
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends import CGMiner
 from pyasic.miners.data import (
@@ -113,17 +111,17 @@ class Innosilicon(CGMiner):
         # get pool data
         try:
             pools = await self.web.pools()
+            if pools and "pools" in pools:
+                self.config = MinerConfig.from_inno(pools["pools"])
         except APIError:
-            return self.config
-
-        self.config = MinerConfig.from_inno(pools["pools"])
-        return self.config
+            pass
+        return self.config or MinerConfig()
 
     async def reboot(self) -> bool:
         try:
             data = await self.web.reboot()
         except APIError:
-            pass
+            return False
         else:
             return data["success"]
 
@@ -131,14 +129,16 @@ class Innosilicon(CGMiner):
         try:
             data = await self.web.restart_cgminer()
         except APIError:
-            pass
+            return False
         else:
             return data["success"]
 
     async def restart_backend(self) -> bool:
         return await self.restart_cgminer()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         await self.web.update_pools(config.as_inno(user_suffix=user_suffix))
 
@@ -147,8 +147,8 @@ class Innosilicon(CGMiner):
     ##################################################
 
     async def _get_mac(
-        self, web_get_all: dict = None, web_overview: dict = None
-    ) -> Optional[str]:
+        self, web_get_all: dict | None = None, web_overview: dict | None = None
+    ) -> str | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -171,10 +171,11 @@ class Innosilicon(CGMiner):
                 return mac.upper()
             except KeyError:
                 pass
+        return None
 
     async def _get_hashrate(
-        self, rpc_summary: dict = None, web_get_all: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_summary: dict | None = None, web_get_all: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -189,13 +190,17 @@ class Innosilicon(CGMiner):
                 if "Hash Rate H" in web_get_all["total_hash"].keys():
                     return self.algo.hashrate(
                         rate=float(web_get_all["total_hash"]["Hash Rate H"]),
-                        unit=self.algo.unit.H,
-                    ).into(self.algo.unit.default)
+                        unit=self.algo.unit.H,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                 elif "Hash Rate" in web_get_all["total_hash"].keys():
                     return self.algo.hashrate(
                         rate=float(web_get_all["total_hash"]["Hash Rate"]),
-                        unit=self.algo.unit.MH,
-                    ).into(self.algo.unit.default)
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
             except KeyError:
                 pass
 
@@ -203,14 +208,17 @@ class Innosilicon(CGMiner):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
             except (KeyError, IndexError):
                 pass
+        return None
 
     async def _get_hashboards(
-        self, rpc_stats: dict = None, web_get_all: dict = None
-    ) -> List[HashBoard]:
+        self, rpc_stats: dict | None = None, web_get_all: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -260,8 +268,11 @@ class Innosilicon(CGMiner):
                         hashrate = board.get("Hash Rate H")
                         if hashrate:
                             hashboards[idx].hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.H
-                            ).into(self.algo.unit.default)
+                                rate=float(hashrate),
+                                unit=self.algo.unit.H,  # type: ignore[attr-defined]
+                            ).into(
+                                self.algo.unit.default  # type: ignore[attr-defined]
+                            )
 
                         chip_temp = board.get("Temp max")
                         if chip_temp:
@@ -270,8 +281,8 @@ class Innosilicon(CGMiner):
         return hashboards
 
     async def _get_wattage(
-        self, web_get_all: dict = None, rpc_stats: dict = None
-    ) -> Optional[int]:
+        self, web_get_all: dict | None = None, rpc_stats: dict | None = None
+    ) -> int | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -305,8 +316,9 @@ class Innosilicon(CGMiner):
                     else:
                         wattage = int(wattage)
                         return wattage
+        return None
 
-    async def _get_fans(self, web_get_all: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_get_all: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -328,15 +340,15 @@ class Innosilicon(CGMiner):
             except KeyError:
                 pass
             else:
-                round((int(spd) * 6000) / 100)
+                spd_converted = round((int(spd) * 6000) / 100)
                 for i in range(self.expected_fans):
-                    fans[i].speed = spd
+                    fans[i].speed = spd_converted
 
         return fans
 
-    async def _get_errors(
-        self, web_get_error_detail: dict = None
-    ) -> List[MinerErrorData]:
+    async def _get_errors(  # type: ignore[override]
+        self, web_get_error_detail: dict | None = None
+    ) -> list[InnosiliconError]:
         errors = []
         if web_get_error_detail is None:
             try:
@@ -357,7 +369,7 @@ class Innosilicon(CGMiner):
                     errors.append(InnosiliconError(error_code=err))
         return errors
 
-    async def _get_wattage_limit(self, web_get_all: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(self, web_get_all: dict | None = None) -> int | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -379,8 +391,9 @@ class Innosilicon(CGMiner):
                 level = int(level)
                 limit = 1250 + (250 * level)
                 return limit
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

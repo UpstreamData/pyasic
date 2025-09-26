@@ -29,9 +29,9 @@ from pyasic.web.base import BaseWebAPI
 class InnosiliconWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
-        self.username = "admin"
-        self.pwd = settings.get("default_innosilicon_web_password", "admin")
-        self.token = None
+        self.username: str = "admin"
+        self.pwd: str = settings.get("default_innosilicon_web_password", "admin")
+        self.token: str | None = None
 
     async def auth(self) -> str | None:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -49,7 +49,7 @@ class InnosiliconWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -58,7 +58,12 @@ class InnosiliconWebAPI(BaseWebAPI):
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for _ in range(settings.get("get_data_retries", 1)):
+            retries = settings.get("get_data_retries", 1)
+            for attempt in range(retries):
+                if self.token is None:
+                    raise APIError(
+                        f"Could not authenticate web token with miner: {self}"
+                    )
                 try:
                     response = await client.post(
                         f"http://{self.ip}:{self.port}/api/{command}",
@@ -82,17 +87,33 @@ class InnosiliconWebAPI(BaseWebAPI):
                             raise APIError(json_data["message"])
                         raise APIError("Innosilicon web api command failed.")
                     return json_data
-                except (httpx.HTTPError, json.JSONDecodeError):
-                    pass
+                except httpx.HTTPError as e:
+                    if attempt == retries - 1:
+                        raise APIError(
+                            f"HTTP error sending '{command}' to {self.ip}: {e}"
+                        )
+                except json.JSONDecodeError as e:
+                    if attempt == retries - 1:
+                        response_text = (
+                            response.text if response.text else "empty response"
+                        )
+                        raise APIError(
+                            f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                        )
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
+        data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
+                if self.token is None:
+                    raise APIError(
+                        f"Could not authenticate web token with miner: {self}"
+                    )
                 try:
                     response = await client.post(
                         f"http://{self.ip}:{self.port}/api/{command}",

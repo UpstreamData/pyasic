@@ -2,54 +2,46 @@ from enum import IntEnum
 
 
 class AlgoHashRateUnitType(IntEnum):
-    H: int
-    KH: int
-    MH: int
-    GH: int
-    TH: int
-    PH: int
-    EH: int
-    ZH: int
-
-    default: int
-
     def __str__(self):
-        if self.value == self.H:
+        if hasattr(self.__class__, "H") and self.value == self.__class__.H:
             return "H/s"
-        if self.value == self.KH:
+        if hasattr(self.__class__, "KH") and self.value == self.__class__.KH:
             return "KH/s"
-        if self.value == self.MH:
+        if hasattr(self.__class__, "MH") and self.value == self.__class__.MH:
             return "MH/s"
-        if self.value == self.GH:
+        if hasattr(self.__class__, "GH") and self.value == self.__class__.GH:
             return "GH/s"
-        if self.value == self.TH:
+        if hasattr(self.__class__, "TH") and self.value == self.__class__.TH:
             return "TH/s"
-        if self.value == self.PH:
+        if hasattr(self.__class__, "PH") and self.value == self.__class__.PH:
             return "PH/s"
-        if self.value == self.EH:
+        if hasattr(self.__class__, "EH") and self.value == self.__class__.EH:
             return "EH/s"
-        if self.value == self.ZH:
+        if hasattr(self.__class__, "ZH") and self.value == self.__class__.ZH:
             return "ZH/s"
+        return ""
 
     @classmethod
     def from_str(cls, value: str):
-        if value == "H":
+        if value == "H" and hasattr(cls, "H"):
             return cls.H
-        elif value == "KH":
+        elif value == "KH" and hasattr(cls, "KH"):
             return cls.KH
-        elif value == "MH":
+        elif value == "MH" and hasattr(cls, "MH"):
             return cls.MH
-        elif value == "GH":
+        elif value == "GH" and hasattr(cls, "GH"):
             return cls.GH
-        elif value == "TH":
+        elif value == "TH" and hasattr(cls, "TH"):
             return cls.TH
-        elif value == "PH":
+        elif value == "PH" and hasattr(cls, "PH"):
             return cls.PH
-        elif value == "EH":
+        elif value == "EH" and hasattr(cls, "EH"):
             return cls.EH
-        elif value == "ZH":
+        elif value == "ZH" and hasattr(cls, "ZH"):
             return cls.ZH
-        return cls.default
+        if hasattr(cls, "default"):
+            return cls.default
+        return None
 
     def __repr__(self):
         return str(self)

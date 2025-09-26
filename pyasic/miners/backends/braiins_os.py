@@ -16,8 +16,6 @@
 import base64
 import logging
 import time
-from pathlib import Path
-from typing import List, Optional, Union
 
 import aiofiles
 import tomli_w
@@ -25,14 +23,14 @@ import tomli_w
 try:
     import tomllib
 except ImportError:
-    import tomli as tomllib
+    import tomli as tomllib  # type: ignore
 
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import BraiinsOSError, MinerErrorData
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate, AlgoHashRateType
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -193,7 +191,9 @@ class BOSMiner(BraiinsOSFirmware):
 
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         parsed_cfg = config.as_bosminer(user_suffix=user_suffix)
 
@@ -202,21 +202,18 @@ class BOSMiner(BraiinsOSFirmware):
                 "format": {
                     "version": "2.0",
                     "generator": "pyasic",
-                    "model": f"{self.make.replace('Miner', 'miner')} {self.raw_model.replace('j', 'J')}",
+                    "model": f"{self.make.replace('Miner', 'miner') if self.make else ''} {self.raw_model.replace('j', 'J') if self.raw_model else ''}",
                     "timestamp": int(time.time()),
                 },
                 **parsed_cfg,
             }
         )
         try:
-            conn = await self.ssh._get_connection()
-        except ConnectionError as e:
-            raise APIError("SSH connection failed when sending config.") from e
-
-        async with conn:
-            await conn.run("/etc/init.d/bosminer stop")
-            await conn.run("echo '" + toml_conf + "' > /etc/bosminer.toml")
-            await conn.run("/etc/init.d/bosminer start")
+            await self.ssh.send_command("/etc/init.d/bosminer stop")
+            await self.ssh.send_command("echo '" + toml_conf + "' > /etc/bosminer.toml")
+            await self.ssh.send_command("/etc/init.d/bosminer start")
+        except Exception as e:
+            raise APIError("SSH command failed when sending config.") from e
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -285,12 +282,12 @@ class BOSMiner(BraiinsOSFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, web_net_conf: Union[dict, list] = None) -> Optional[str]:
+    async def _get_mac(self, web_net_conf: dict | list | None = None) -> str | None:
         if web_net_conf is None:
             try:
                 web_net_conf = await self.web.get_net_conf()
             except APIError:
-                pass
+                return None
 
         if isinstance(web_net_conf, dict):
             if "admin/network/iface_status/lan" in web_net_conf.keys():
@@ -301,17 +298,18 @@ class BOSMiner(BraiinsOSFirmware):
                 return web_net_conf[0]["macaddr"]
             except LookupError:
                 pass
+        return None
         # could use ssh, but its slow and buggy
         # result = await self.send_ssh_command("cat /sys/class/net/eth0/address")
         # if result:
         #     return result.upper().strip()
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
             except APIError:
-                pass
+                return None
 
         # Now get the API version
         if rpc_version is not None:
@@ -320,16 +318,19 @@ class BOSMiner(BraiinsOSFirmware):
             except LookupError:
                 rpc_ver = None
             self.api_ver = rpc_ver
-            self.rpc.rpc_ver = self.api_ver
+            self.rpc.rpc_ver = self.api_ver  # type: ignore
 
         return self.api_ver
 
-    async def _get_fw_ver(self, web_bos_info: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_bos_info: dict | None = None) -> str | None:
         if web_bos_info is None:
             try:
                 web_bos_info = await self.web.get_bos_info()
             except APIError:
                 return None
+
+        if web_bos_info is None:
+            return None
 
         if isinstance(web_bos_info, dict):
             if "bos/info" in web_bos_info.keys():
@@ -344,7 +345,7 @@ class BOSMiner(BraiinsOSFirmware):
 
         return self.fw_ver
 
-    async def _get_hostname(self) -> Union[str, None]:
+    async def _get_hostname(self) -> str | None:
         try:
             hostname = (await self.ssh.get_hostname()).strip()
         except AttributeError:
@@ -354,28 +355,31 @@ class BOSMiner(BraiinsOSFirmware):
             return None
         return hostname
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
-                pass
+                return None
 
         if rpc_summary is not None:
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_hashboards(
         self,
-        rpc_temps: dict = None,
-        rpc_devdetails: dict = None,
-        rpc_devs: dict = None,
-    ) -> List[HashBoard]:
+        rpc_temps: dict | None = None,
+        rpc_devdetails: dict | None = None,
+        rpc_devs: dict | None = None,
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -440,19 +444,22 @@ class BOSMiner(BraiinsOSFirmware):
                 for board in rpc_devs["DEVS"]:
                     _id = board["ID"] - offset
                     hashboards[_id].hashrate = self.algo.hashrate(
-                        rate=float(board["MHS 1m"]), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
+                        rate=float(board["MHS 1m"]),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
             except (IndexError, KeyError):
                 pass
 
         return hashboards
 
-    async def _get_wattage(self, rpc_tunerstatus: dict = None) -> Optional[int]:
+    async def _get_wattage(self, rpc_tunerstatus: dict | None = None) -> int | None:
         if rpc_tunerstatus is None:
             try:
                 rpc_tunerstatus = await self.rpc.tunerstatus()
             except APIError:
-                pass
+                return None
 
         if rpc_tunerstatus is not None:
             try:
@@ -461,21 +468,25 @@ class BOSMiner(BraiinsOSFirmware):
                 ]
             except LookupError:
                 pass
+        return None
 
-    async def _get_wattage_limit(self, rpc_tunerstatus: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(
+        self, rpc_tunerstatus: dict | None = None
+    ) -> int | None:
         if rpc_tunerstatus is None:
             try:
                 rpc_tunerstatus = await self.rpc.tunerstatus()
             except APIError:
-                pass
+                return None
 
         if rpc_tunerstatus is not None:
             try:
                 return rpc_tunerstatus["TUNERSTATUS"][0]["PowerLimit"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_fans(self, rpc_fans: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_fans: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -483,7 +494,7 @@ class BOSMiner(BraiinsOSFirmware):
             try:
                 rpc_fans = await self.rpc.fans()
             except APIError:
-                pass
+                return [Fan() for _ in range(self.expected_fans)]
 
         if rpc_fans is not None:
             fans = []
@@ -495,12 +506,14 @@ class BOSMiner(BraiinsOSFirmware):
             return fans
         return [Fan() for _ in range(self.expected_fans)]
 
-    async def _get_errors(self, rpc_tunerstatus: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(
+        self, rpc_tunerstatus: dict | None = None
+    ) -> list[MinerErrorData]:
         if rpc_tunerstatus is None:
             try:
                 rpc_tunerstatus = await self.rpc.tunerstatus()
             except APIError:
-                pass
+                return []
 
         if rpc_tunerstatus is not None:
             errors = []
@@ -523,9 +536,10 @@ class BOSMiner(BraiinsOSFirmware):
                             errors.append(
                                 BraiinsOSError(error_message=f"Slot {_id} {_error}")
                             )
-                return errors
+                return errors  # type: ignore
             except (KeyError, IndexError):
                 pass
+        return []
 
     async def _get_fault_light(self) -> bool:
         if self.light:
@@ -537,16 +551,16 @@ class BOSMiner(BraiinsOSFirmware):
                 self.light = True
             return self.light
         except (TypeError, AttributeError):
-            return self.light
+            return self.light or False
 
     async def _get_expected_hashrate(
-        self, rpc_devs: dict = None
-    ) -> Optional[AlgoHashRateType]:
+        self, rpc_devs: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
             except APIError:
-                pass
+                return None
 
         if rpc_devs is not None:
             try:
@@ -559,52 +573,57 @@ class BOSMiner(BraiinsOSFirmware):
 
                 if len(hr_list) == 0:
                     return self.algo.hashrate(
-                        rate=float(0), unit=self.algo.unit.default
+                        rate=float(0),
+                        unit=self.algo.unit.default,  # type: ignore
                     )
                 else:
                     return self.algo.hashrate(
                         rate=float(
-                            (sum(hr_list) / len(hr_list)) * self.expected_hashboards
+                            (sum(hr_list) / len(hr_list))
+                            * (self.expected_hashboards or 1)
                         ),
-                        unit=self.algo.unit.MH,
-                    ).into(self.algo.unit.default)
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (IndexError, KeyError):
                 pass
+        return None
 
-    async def _is_mining(self, rpc_devdetails: dict = None) -> Optional[bool]:
+    async def _is_mining(self, rpc_devdetails: dict | None = None) -> bool | None:
         if rpc_devdetails is None:
             try:
                 rpc_devdetails = await self.rpc.send_command(
                     "devdetails", ignore_errors=True, allow_warning=False
                 )
             except APIError:
-                pass
+                return None
 
         if rpc_devdetails is not None:
             try:
                 return not rpc_devdetails["STATUS"][0]["Msg"] == "Unavailable"
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_summary: dict | None = None) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
-                pass
+                return None
 
         if rpc_summary is not None:
             try:
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
             except APIError:
-                pass
+                return []
 
         pools_data = []
         if rpc_pools is not None:
@@ -629,15 +648,25 @@ class BOSMiner(BraiinsOSFirmware):
                 pass
         return pools_data
 
-    async def upgrade_firmware(self, file: Path) -> str:
+    async def upgrade_firmware(
+        self,
+        *,
+        file: str | None = None,
+        url: str | None = None,
+        version: str | None = None,
+        keep_settings: bool = True,
+    ) -> bool:
         """
         Upgrade the firmware of the BOSMiner device.
 
         Args:
-            file (Path): The local file path of the firmware to be uploaded.
+            file: The local file path of the firmware to be uploaded.
+            url: URL of firmware to download (not used in this implementation).
+            version: Specific version to upgrade to (not used in this implementation).
+            keep_settings: Whether to keep current settings (not used in this implementation).
 
         Returns:
-            Confirmation message after upgrading the firmware.
+            True if upgrade was successful, False otherwise.
         """
         try:
             logging.info("Starting firmware upgrade process.")
@@ -659,24 +688,24 @@ class BOSMiner(BraiinsOSFirmware):
             )
 
             logging.info("Firmware upgrade process completed successfully.")
-            return "Firmware upgrade completed successfully."
+            return True
         except FileNotFoundError as e:
             logging.error(f"File not found during the firmware upgrade process: {e}")
-            raise
+            return False
         except ValueError as e:
             logging.error(
                 f"Validation error occurred during the firmware upgrade process: {e}"
             )
-            raise
+            return False
         except OSError as e:
             logging.error(f"OS error occurred during the firmware upgrade process: {e}")
-            raise
+            return False
         except Exception as e:
             logging.error(
                 f"An unexpected error occurred during the firmware upgrade process: {e}",
                 exc_info=True,
             )
-            raise
+            return False
 
 
 BOSER_DATA_LOC = DataLocations(
@@ -805,7 +834,9 @@ class BOSer(BraiinsOSFirmware):
 
         return MinerConfig.from_boser(grpc_conf)
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         boser_cfg = config.as_boser(user_suffix=user_suffix)
         for key in boser_cfg:
             await self.web.send_command(key, message=boser_cfg[key])
@@ -813,7 +844,8 @@ class BOSer(BraiinsOSFirmware):
     async def set_power_limit(self, wattage: int) -> bool:
         try:
             result = await self.web.set_power_target(
-                wattage, save_action=SaveAction.SAVE_AND_FORCE_APPLY
+                wattage,
+                save_action=SaveAction(SaveAction.SAVE_AND_FORCE_APPLY),
             )
         except APIError:
             return False
@@ -829,25 +861,26 @@ class BOSer(BraiinsOSFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, grpc_miner_details: dict = None) -> Optional[str]:
+    async def _get_mac(self, grpc_miner_details: dict | None = None) -> str | None:
         if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.get_miner_details()
             except APIError:
-                pass
+                return None
 
         if grpc_miner_details is not None:
             try:
                 return grpc_miner_details["macAddress"].upper()
             except (LookupError, TypeError):
                 pass
+        return None
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
             except APIError:
-                pass
+                return None
 
         if rpc_version is not None:
             try:
@@ -855,16 +888,16 @@ class BOSer(BraiinsOSFirmware):
             except LookupError:
                 rpc_ver = None
             self.api_ver = rpc_ver
-            self.rpc.rpc_ver = self.api_ver
+            self.rpc.rpc_ver = self.api_ver  # type: ignore
 
         return self.api_ver
 
-    async def _get_fw_ver(self, grpc_miner_details: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, grpc_miner_details: dict | None = None) -> str | None:
         if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.get_miner_details()
             except APIError:
-                pass
+                return None
 
         fw_ver = None
 
@@ -882,43 +915,47 @@ class BOSer(BraiinsOSFirmware):
 
         return self.fw_ver
 
-    async def _get_hostname(self, grpc_miner_details: dict = None) -> Optional[str]:
+    async def _get_hostname(self, grpc_miner_details: dict | None = None) -> str | None:
         if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.get_miner_details()
             except APIError:
-                pass
+                return None
 
         if grpc_miner_details is not None:
             try:
                 return grpc_miner_details["hostname"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
-                pass
+                return None
 
         if rpc_summary is not None:
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 1m"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_expected_hashrate(
-        self, grpc_miner_details: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, grpc_miner_details: dict | None = None
+    ) -> AlgoHashRateType | None:
         if grpc_miner_details is None:
             try:
                 grpc_miner_details = await self.web.get_miner_details()
             except APIError:
-                pass
+                return None
 
         if grpc_miner_details is not None:
             try:
@@ -926,12 +963,15 @@ class BOSer(BraiinsOSFirmware):
                     rate=float(
                         grpc_miner_details["stickerHashrate"]["gigahashPerSecond"]
                     ),
-                    unit=self.algo.unit.GH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hashboards(self, grpc_hashboards: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(
+        self, grpc_hashboards: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -944,7 +984,7 @@ class BOSer(BraiinsOSFirmware):
             try:
                 grpc_hashboards = await self.web.get_hashboards()
             except APIError:
-                pass
+                return hashboards
 
         if grpc_hashboards is not None:
             grpc_boards = sorted(
@@ -967,35 +1007,38 @@ class BOSer(BraiinsOSFirmware):
                                     "gigahashPerSecond"
                                 ]
                             ),
-                            unit=self.algo.unit.GH,
-                        ).into(self.algo.unit.default)
+                            unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                        ).into(
+                            self.algo.unit.default  # type: ignore[attr-defined]
+                        )
                 hashboards[idx].missing = False
 
         return hashboards
 
-    async def _get_wattage(self, grpc_miner_stats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, grpc_miner_stats: dict | None = None) -> int | None:
         if grpc_miner_stats is None:
             try:
                 grpc_miner_stats = await self.web.get_miner_stats()
             except APIError:
-                pass
+                return None
 
         if grpc_miner_stats is not None:
             try:
                 return grpc_miner_stats["powerStats"]["approximatedConsumption"]["watt"]
             except KeyError:
                 pass
+        return None
 
     async def _get_wattage_limit(
-        self, grpc_active_performance_mode: dict = None
-    ) -> Optional[int]:
+        self, grpc_active_performance_mode: dict | None = None
+    ) -> int | None:
         if grpc_active_performance_mode is None:
             try:
                 grpc_active_performance_mode = (
                     await self.web.get_active_performance_mode()
                 )
             except APIError:
-                pass
+                return None
 
         if grpc_active_performance_mode is not None:
             try:
@@ -1004,8 +1047,9 @@ class BOSer(BraiinsOSFirmware):
                 ]["watt"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_fans(self, grpc_cooling_state: dict = None) -> List[Fan]:
+    async def _get_fans(self, grpc_cooling_state: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -1013,7 +1057,7 @@ class BOSer(BraiinsOSFirmware):
             try:
                 grpc_cooling_state = await self.web.get_cooling_state()
             except APIError:
-                pass
+                return [Fan() for _ in range(self.expected_fans)]
 
         if grpc_cooling_state is not None:
             fans = []
@@ -1025,12 +1069,14 @@ class BOSer(BraiinsOSFirmware):
             return fans
         return [Fan() for _ in range(self.expected_fans)]
 
-    async def _get_errors(self, rpc_tunerstatus: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(
+        self, rpc_tunerstatus: dict | None = None
+    ) -> list[MinerErrorData]:
         if rpc_tunerstatus is None:
             try:
                 rpc_tunerstatus = await self.rpc.tunerstatus()
             except APIError:
-                pass
+                return []
 
         if rpc_tunerstatus is not None:
             errors = []
@@ -1053,11 +1099,14 @@ class BOSer(BraiinsOSFirmware):
                             errors.append(
                                 BraiinsOSError(error_message=f"Slot {_id} {_error}")
                             )
-                return errors
+                return errors  # type: ignore
             except LookupError:
                 pass
+        return []
 
-    async def _get_fault_light(self, grpc_locate_device_status: dict = None) -> bool:
+    async def _get_fault_light(
+        self, grpc_locate_device_status: dict | None = None
+    ) -> bool:
         if self.light is not None:
             return self.light
 
@@ -1065,7 +1114,7 @@ class BOSer(BraiinsOSFirmware):
             try:
                 grpc_locate_device_status = await self.web.get_locate_device_status()
             except APIError:
-                pass
+                return False
 
         if grpc_locate_device_status is not None:
             if grpc_locate_device_status == {}:
@@ -1074,36 +1123,41 @@ class BOSer(BraiinsOSFirmware):
                 return grpc_locate_device_status["enabled"]
             except LookupError:
                 pass
+        return False
 
-    async def _is_mining(self, rpc_devdetails: dict = None) -> Optional[bool]:
+    async def _is_mining(self, rpc_devdetails: dict | None = None) -> bool | None:
         if rpc_devdetails is None:
             try:
                 rpc_devdetails = await self.rpc.send_command(
                     "devdetails", ignore_errors=True, allow_warning=False
                 )
             except APIError:
-                pass
+                return None
 
         if rpc_devdetails is not None:
             try:
                 return not rpc_devdetails["STATUS"][0]["Msg"] == "Unavailable"
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_summary: dict | None = None) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
-                pass
+                return None
 
         if rpc_summary is not None:
             try:
                 return int(rpc_summary["SUMMARY"][0]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, grpc_pool_groups: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(
+        self, grpc_pool_groups: dict | None = None
+    ) -> list[PoolMetrics]:
         if grpc_pool_groups is None:
             try:
                 grpc_pool_groups = await self.web.get_pool_groups()

@@ -14,11 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -75,7 +74,7 @@ class CGMiner(StockFirmware):
         try:
             pools = await self.rpc.pools()
         except APIError:
-            return self.config
+            return self.config or MinerConfig()
 
         self.config = MinerConfig.from_api(pools)
         return self.config
@@ -84,7 +83,7 @@ class CGMiner(StockFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -99,7 +98,7 @@ class CGMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -114,7 +113,9 @@ class CGMiner(StockFirmware):
 
         return self.fw_ver
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -125,12 +126,15 @@ class CGMiner(StockFirmware):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=self.algo.unit.GH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -142,8 +146,9 @@ class CGMiner(StockFirmware):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

@@ -13,7 +13,7 @@ from pyasic.web.base import BaseWebAPI
 class ESPMinerWebAPI(BaseWebAPI):
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -21,7 +21,8 @@ class ESPMinerWebAPI(BaseWebAPI):
     ) -> dict:
         url = f"http://{self.ip}:{self.port}/api/{command}"
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for _ in range(settings.get("get_data_retries", 1)):
+            retries = settings.get("get_data_retries", 1)
+            for attempt in range(retries):
                 try:
                     if parameters.get("post", False):
                         parameters.pop("post")
@@ -42,14 +43,22 @@ class ESPMinerWebAPI(BaseWebAPI):
                             url,
                             timeout=settings.get("api_function_timeout", 5),
                         )
-                except httpx.HTTPError:
-                    pass
+                except httpx.HTTPError as e:
+                    if attempt == retries - 1:
+                        raise APIError(
+                            f"HTTP error sending '{command}' to {self.ip}: {e}"
+                        )
                 else:
                     if data.status_code == 200:
                         try:
                             return data.json()
-                        except json.decoder.JSONDecodeError:
-                            pass
+                        except json.decoder.JSONDecodeError as e:
+                            response_text = data.text if data.text else "empty response"
+                            if attempt == retries - 1:
+                                raise APIError(
+                                    f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                                )
+        raise APIError(f"Failed to send command to miner API: {url}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -75,26 +84,27 @@ class ESPMinerWebAPI(BaseWebAPI):
             *[tasks[cmd] for cmd in tasks], return_exceptions=True
         )
 
-        data = {"multicommand": True}
+        data: dict[str, Any] = {"multicommand": True}
         for cmd, result in zip(tasks.keys(), results):
             if not isinstance(result, (APIError, Exception)):
                 if result is None or result == {}:
-                    result = {}
-                data[cmd] = result
+                    data[cmd] = {}
+                else:
+                    data[cmd] = result
 
         return data
 
-    async def system_info(self):
+    async def system_info(self) -> dict:
         return await self.send_command("system/info")
 
-    async def swarm_info(self):
+    async def swarm_info(self) -> dict:
         return await self.send_command("swarm/info")
 
-    async def restart(self):
+    async def restart(self) -> dict:
         return await self.send_command("system/restart", post=True)
 
-    async def update_settings(self, **config):
+    async def update_settings(self, **config: Any) -> dict:
         return await self.send_command("system", patch=True, **config)
 
-    async def asic_info(self):
+    async def asic_info(self) -> dict:
         return await self.send_command("system/asic")

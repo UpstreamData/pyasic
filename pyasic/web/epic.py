@@ -38,7 +38,7 @@ class ePICWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -49,15 +49,17 @@ class ePICWebAPI(BaseWebAPI):
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for retry_cnt in range(settings.get("get_data_retries", 1)):
                 try:
-                    if parameters.get("form") is not None:
-                        form_data = parameters["form"]
-                        form_data.add_field("password", self.pwd)
+                    if parameters.get("files") is not None:
+                        files = parameters["files"]
+                        data_fields = parameters.get("data", {})
+                        data_fields["password"] = self.pwd
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
-                            data=form_data,
+                            files=files,
+                            data=data_fields,
                         )
-                    if post:
+                    elif post:
                         response = await client.post(
                             f"http://{self.ip}:{self.port}/{command}",
                             timeout=5,
@@ -89,11 +91,12 @@ class ePICWebAPI(BaseWebAPI):
                     return {"success": True}
                 except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
                     pass
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
+        data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         for command in commands:
             data[command] = await self.send_command(command)
@@ -147,7 +150,7 @@ class ePICWebAPI(BaseWebAPI):
     async def capabilities(self) -> dict:
         return await self.send_command("capabilities")
 
-    async def system_update(self, file: Path | str, keep_settings: bool = True):
+    async def system_update(self, file: Path | str, keep_settings: bool = True) -> None:
         """Perform a system update by uploading a firmware file and sending a
         command to initiate the update."""
 
@@ -159,9 +162,7 @@ class ePICWebAPI(BaseWebAPI):
         checksum = sha256_hash.hexdigest()
 
         # prepare the multipart/form-data request
-        form_data = aiohttp.FormData()
-        form_data.add_field("checksum", checksum)
-        form_data.add_field("keepsettings", str(keep_settings).lower())
-        form_data.add_field("update.zip", open(file, "rb"), filename="update.zip")
-
-        await self.send_command("systemupdate", form=form_data)
+        with open(file, "rb") as f:
+            files = {"update.zip": ("update.zip", f, "application/zip")}
+            data = {"checksum": checksum, "keepsettings": str(keep_settings).lower()}
+            await self.send_command("systemupdate", files=files, data=data)

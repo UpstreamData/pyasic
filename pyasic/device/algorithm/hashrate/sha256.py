@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.sha256 import SHA256Unit
 from .unit import HashUnit
 
 
-class SHA256HashRate(AlgoHashRateType):
+class SHA256HashRate(AlgoHashRateType[SHA256Unit]):
     rate: float
     unit: SHA256Unit = HashUnit.SHA256.default
 

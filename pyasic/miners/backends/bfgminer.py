@@ -14,12 +14,10 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional
-
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -72,7 +70,8 @@ class BFGMiner(StockFirmware):
         try:
             pools = await self.rpc.pools()
         except APIError:
-            return self.config
+            if self.config is not None:
+                return self.config
 
         self.config = MinerConfig.from_api(pools)
         return self.config
@@ -81,7 +80,7 @@ class BFGMiner(StockFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_api_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -96,7 +95,7 @@ class BFGMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -111,7 +110,9 @@ class BFGMiner(StockFirmware):
 
         return self.fw_ver
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
             try:
@@ -123,12 +124,15 @@ class BFGMiner(StockFirmware):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 20s"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -172,8 +176,11 @@ class BFGMiner(StockFirmware):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.GH
-                            ).into(self.algo.unit.default)
+                                rate=float(hashrate),
+                                unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                            ).into(
+                                self.algo.unit.default  # type: ignore[attr-defined]
+                            )
 
                         chips = boards[1].get(f"chain_acn{i}")
                         if chips:
@@ -187,7 +194,7 @@ class BFGMiner(StockFirmware):
 
         return hashboards
 
-    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_stats: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -212,7 +219,7 @@ class BFGMiner(StockFirmware):
 
                 for fan in range(self.expected_fans):
                     fans_data[fan] = rpc_stats["STATS"][1].get(
-                        f"fan{fan_offset+fan}", 0
+                        f"fan{fan_offset + fan}", 0
                     )
             except LookupError:
                 pass
@@ -220,7 +227,7 @@ class BFGMiner(StockFirmware):
 
         return fans
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -251,8 +258,8 @@ class BFGMiner(StockFirmware):
         return pools_data
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         # X19 method, not sure compatibility
         if rpc_stats is None:
             try:
@@ -269,6 +276,7 @@ class BFGMiner(StockFirmware):
                     rate_unit = "GH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None

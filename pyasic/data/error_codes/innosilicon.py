@@ -30,7 +30,7 @@ class InnosiliconError(BaseMinerError):
 
     error_code: int
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def error_message(self) -> str:  # noqa - Skip PyCharm inspection
         if self.error_code in ERROR_CODES:

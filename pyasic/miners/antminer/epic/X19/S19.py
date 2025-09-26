@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic.device.models import MinerModel
+from pyasic.device.models import MinerModel, MinerModelType
 from pyasic.miners.backends import ePIC
 from pyasic.miners.device.models import (
     S19,
@@ -56,12 +56,12 @@ class ePICS19XP(ePIC, S19XP):
 
 
 class ePICS19jProDual(ePIC, S19jPro):
-    raw_model = MinerModel.EPIC.S19jProDual
+    raw_model: MinerModelType = MinerModel.EPIC.S19jProDual
     expected_fans = S19jPro.expected_fans * 2
     expected_hashboards = S19jPro.expected_hashboards * 2
 
 
 class ePICS19kProDual(ePIC, S19kPro):
-    raw_model = MinerModel.EPIC.S19kProDual
+    raw_model: MinerModelType = MinerModel.EPIC.S19kProDual
     expected_fans = S19kPro.expected_fans * 2
     expected_hashboards = S19kPro.expected_hashboards * 2

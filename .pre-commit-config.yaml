@@ -22,16 +22,24 @@ repos:
         name: check-yaml for other YAML files
         exclude: ^mkdocs\.yml$
     -   id: check-added-large-files
--   repo: https://github.com/psf/black
-    rev: 25.9.0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
     hooks:
-    -   id: black
--   repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    -   id: ruff-check
+        args: [--fix]
+    -   id: ruff-format
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
     hooks:
-    -   id: isort
-        name: isort (python)
-
+      - id: mypy
+        additional_dependencies:
+          [
+            betterproto==2.0.0b7,
+            httpx==0.28.1,
+            types-aiofiles==24.1.0.20250822,
+            types-passlib==1.7.7.20250602,
+            pydantic==2.11.9,
+          ]
 -   repo: local
     hooks:
     -   id: unittest

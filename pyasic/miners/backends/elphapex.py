@@ -13,13 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
 
 from pyasic import APIError, MinerConfig
 from pyasic.data import Fan, HashBoard, X19Error
-from pyasic.data.error_codes import MinerErrorData
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -95,9 +93,13 @@ class ElphapexMiner(StockFirmware):
         data = await self.web.get_miner_conf()
         if data:
             self.config = MinerConfig.from_elphapex(data)
+        if self.config is None:
+            self.config = MinerConfig()
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         await self.web.set_miner_conf(config.as_elphapex(user_suffix=user_suffix))
 
@@ -106,14 +108,14 @@ class ElphapexMiner(StockFirmware):
         if data:
             if data.get("code") == "B000":
                 self.light = True
-        return self.light
+        return self.light if self.light is not None else False
 
     async def fault_light_off(self) -> bool:
         data = await self.web.blink(blink=False)
         if data:
             if data.get("code") == "B100":
                 self.light = False
-        return self.light
+        return self.light if self.light is not None else False
 
     async def reboot(self) -> bool:
         data = await self.web.reboot()
@@ -121,7 +123,7 @@ class ElphapexMiner(StockFirmware):
             return True
         return False
 
-    async def _get_api_ver(self, web_summary: dict = None) -> Optional[str]:
+    async def _get_api_ver(self, web_summary: dict | None = None) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -136,7 +138,7 @@ class ElphapexMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_get_system_info: dict | None = None) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -155,7 +157,9 @@ class ElphapexMiner(StockFirmware):
 
         return self.fw_ver
 
-    async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_hostname(
+        self, web_get_system_info: dict | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -167,8 +171,9 @@ class ElphapexMiner(StockFirmware):
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_mac(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -187,8 +192,11 @@ class ElphapexMiner(StockFirmware):
                 return data["macaddr"]
         except KeyError:
             pass
+        return None
 
-    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(  # type: ignore[override]
+        self, web_summary: dict | None = None
+    ) -> list[X19Error]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -208,7 +216,7 @@ class ElphapexMiner(StockFirmware):
                 pass
         return errors
 
-    async def _get_hashboards(self, web_stats: dict | None = None) -> List[HashBoard]:
+    async def _get_hashboards(self, web_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -227,8 +235,11 @@ class ElphapexMiner(StockFirmware):
             try:
                 for board in web_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = self.algo.hashrate(
-                        rate=board["rate_real"], unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
+                        rate=board["rate_real"],
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hashboards[board["index"]].chips = board["asic_num"]
                     board_temp_data = list(
                         filter(lambda x: not x == 0, board["temp_pcb"])
@@ -250,8 +261,8 @@ class ElphapexMiner(StockFirmware):
         return hashboards
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict = None
-    ) -> Optional[bool]:
+        self, web_get_blink_status: dict | None = None
+    ) -> bool | None:
         if self.light:
             return self.light
 
@@ -269,8 +280,8 @@ class ElphapexMiner(StockFirmware):
         return self.light
 
     async def _get_expected_hashrate(
-        self, web_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_stats is None:
             try:
                 web_stats = await self.web.stats()
@@ -286,11 +297,12 @@ class ElphapexMiner(StockFirmware):
                     rate_unit = "MH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
-    async def _is_mining(self, web_get_miner_conf: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_get_miner_conf: dict | None = None) -> bool | None:
         if web_get_miner_conf is None:
             try:
                 web_get_miner_conf = await self.web.get_miner_conf()
@@ -306,8 +318,9 @@ class ElphapexMiner(StockFirmware):
                 return False
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_summary: dict | None = None) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -319,8 +332,9 @@ class ElphapexMiner(StockFirmware):
                 return int(web_summary["SUMMARY"][1]["elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_fans(self, web_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_stats: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -340,12 +354,15 @@ class ElphapexMiner(StockFirmware):
 
         return fans
 
-    async def _get_pools(self, web_pools: list = None) -> List[PoolMetrics]:
+    async def _get_pools(self, web_pools: dict | None = None) -> list[PoolMetrics]:
         if web_pools is None:
             try:
                 web_pools = await self.web.pools()
             except APIError:
                 return []
+
+        if web_pools is None:
+            return []
 
         active_pool_index = None
         highest_priority = float("inf")
@@ -359,23 +376,22 @@ class ElphapexMiner(StockFirmware):
                 active_pool_index = pool_info["index"]
 
         pools_data = []
-        if web_pools is not None:
-            try:
-                for pool_info in web_pools["POOLS"]:
-                    url = pool_info.get("url")
-                    pool_url = PoolUrl.from_str(url) if url else None
-                    pool_data = PoolMetrics(
-                        accepted=pool_info.get("accepted"),
-                        rejected=pool_info.get("rejected"),
-                        get_failures=pool_info.get("stale"),
-                        remote_failures=pool_info.get("discarded"),
-                        active=pool_info.get("index") == active_pool_index,
-                        alive=pool_info.get("status") == "Alive",
-                        url=pool_url,
-                        user=pool_info.get("user"),
-                        index=pool_info.get("index"),
-                    )
-                    pools_data.append(pool_data)
-            except LookupError:
-                pass
+        try:
+            for pool_info in web_pools["POOLS"]:
+                url = pool_info.get("url")
+                pool_url = PoolUrl.from_str(url) if url else None
+                pool_data = PoolMetrics(
+                    accepted=pool_info.get("accepted"),
+                    rejected=pool_info.get("rejected"),
+                    get_failures=pool_info.get("stale"),
+                    remote_failures=pool_info.get("discarded"),
+                    active=pool_info.get("index") == active_pool_index,
+                    alive=pool_info.get("status") == "Alive",
+                    url=pool_url,
+                    user=pool_info.get("user"),
+                    index=pool_info.get("index"),
+                )
+                pools_data.append(pool_data)
+        except LookupError:
+            pass
         return pools_data

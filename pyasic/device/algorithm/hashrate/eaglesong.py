@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.eaglesong import EaglesongUnit
 from .unit import HashUnit
 
 
-class EaglesongHashRate(AlgoHashRateType):
+class EaglesongHashRate(AlgoHashRateType[EaglesongUnit]):
     rate: float
     unit: EaglesongUnit = HashUnit.EAGLESONG.default
 

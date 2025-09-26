@@ -22,6 +22,7 @@ from typing import Any
 import httpx
 
 from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
 
 
@@ -53,21 +54,26 @@ class VNishWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict | None:
+    ) -> dict:
         post = privileged or not parameters == {}
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
-            for _ in range(settings.get("get_data_retries", 1)):
+            retries = settings.get("get_data_retries", 1)
+            for attempt in range(retries):
                 try:
                     auth = self.token
+                    if auth is None:
+                        raise APIError(
+                            f"Could not authenticate web token with miner: {self}"
+                        )
                     if command.startswith("system"):
-                        auth = "Bearer " + self.token
+                        auth = "Bearer " + auth
 
                     if post:
                         response = await client.post(
@@ -90,13 +96,30 @@ class VNishWebAPI(BaseWebAPI):
                     if json_data:
                         return json_data
                     return {"success": True}
-                except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
-                    pass
+                except httpx.HTTPError as e:
+                    if attempt == retries - 1:
+                        raise APIError(
+                            f"HTTP error sending '{command}' to {self.ip}: {e}"
+                        )
+                except json.JSONDecodeError as e:
+                    if attempt == retries - 1:
+                        response_text = (
+                            response.text if response.text else "empty response"
+                        )
+                        raise APIError(
+                            f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                        )
+                except AttributeError as e:
+                    if attempt == retries - 1:
+                        raise APIError(
+                            f"Attribute error sending '{command}' to {self.ip}: {e}"
+                        )
+        raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
-        data = {k: None for k in commands}
+        data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         for command in commands:
             data[command] = await self.send_command(command)
@@ -141,14 +164,14 @@ class VNishWebAPI(BaseWebAPI):
     async def settings(self) -> dict:
         return await self.send_command("settings")
 
-    async def set_power_limit(self, wattage: int) -> bool:
+    async def set_power_limit(self, wattage: int) -> dict:
         # Can only set power limit to tuned preset
         settings = await self.settings()
         settings["miner"]["overclock"]["preset"] = str(wattage)
-        new_settings = {"miner": {"overclock": settings["miner"]["overclock"]}}
+        miner = {"overclock": settings["miner"]["overclock"]}
 
         # response will always be {"restart_required":false,"reboot_required":false} even if unsuccessful
-        return await self.send_command("settings", privileged=True, **new_settings)
+        return await self.send_command("settings", privileged=True, miner=miner)
 
     async def autotune_presets(self) -> dict:
         return await self.send_command("autotune/presets")

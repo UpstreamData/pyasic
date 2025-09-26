@@ -26,7 +26,7 @@ class Fan(BaseModel):
         speed: The speed of the fan.
     """
 
-    speed: int = None
+    speed: int | None = None
 
     def get(self, __key: str, default: Any = None):
         try:

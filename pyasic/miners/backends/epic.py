@@ -14,14 +14,12 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pathlib import Path
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate, ScryptAlgo
+from pyasic.device.algorithm import AlgoHashRateType, ScryptAlgo
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
@@ -116,7 +114,9 @@ class ePIC(ePICFirmware):
         self.config = cfg
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         conf = self.config.as_epic(user_suffix=user_suffix)
 
@@ -180,7 +180,7 @@ class ePIC(ePICFirmware):
                 pass
         return False
 
-    async def _get_mac(self, web_network: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_network: dict | None = None) -> str | None:
         if web_network is None:
             try:
                 web_network = await self.web.network()
@@ -194,8 +194,9 @@ class ePIC(ePICFirmware):
                     return mac
             except KeyError:
                 pass
+        return None
 
-    async def _get_hostname(self, web_summary: dict = None) -> Optional[str]:
+    async def _get_hostname(self, web_summary: dict | None = None) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -208,8 +209,9 @@ class ePIC(ePICFirmware):
                 return hostname
             except KeyError:
                 pass
+        return None
 
-    async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_summary: dict | None = None) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -223,8 +225,11 @@ class ePIC(ePICFirmware):
                 return wattage
             except KeyError:
                 pass
+        return None
 
-    async def _get_hashrate(self, web_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, web_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -238,14 +243,16 @@ class ePIC(ePICFirmware):
                     for hb in web_summary["HBs"]:
                         hashrate += hb["Hashrate"][0]
                     return self.algo.hashrate(
-                        rate=float(hashrate), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.TH)
+                        rate=float(hashrate),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(self.algo.unit.TH)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_expected_hashrate(
-        self, web_summary: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -264,12 +271,14 @@ class ePIC(ePICFirmware):
 
                         hashrate += hb["Hashrate"][0] / ideal
                     return self.algo.hashrate(
-                        rate=float(hashrate), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
+                        rate=float(hashrate),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_summary: dict | None = None) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -283,8 +292,9 @@ class ePIC(ePICFirmware):
                 return fw_ver
             except KeyError:
                 pass
+        return None
 
-    async def _get_fans(self, web_summary: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_summary: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -305,8 +315,8 @@ class ePIC(ePICFirmware):
         return fans
 
     async def _get_hashboards(
-        self, web_summary: dict = None, web_capabilities: dict = None
-    ) -> List[HashBoard]:
+        self, web_summary: dict | None = None, web_capabilities: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -362,16 +372,18 @@ class ePIC(ePICFirmware):
                     # Update the Hashboard object
                     hb_list[hb["Index"]].missing = False
                     hb_list[hb["Index"]].hashrate = self.algo.hashrate(
-                        rate=float(hashrate), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
+                        rate=float(hashrate),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(self.algo.unit.default)  # type: ignore[attr-defined]
                     hb_list[hb["Index"]].chips = num_of_chips
                     hb_list[hb["Index"]].temp = int(hb["Temperature"])
                     hb_list[hb["Index"]].tuned = tuned
                     hb_list[hb["Index"]].active = active
                     hb_list[hb["Index"]].voltage = hb["Input Voltage"]
             return hb_list
+        return hb_list
 
-    async def _is_mining(self, web_summary, *args, **kwargs) -> Optional[bool]:
+    async def _is_mining(self, web_summary: dict | None = None) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -383,8 +395,9 @@ class ePIC(ePICFirmware):
                 return not op_state == "Idling"
             except KeyError:
                 pass
+        return None
 
-    async def _get_uptime(self, web_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_summary: dict | None = None) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -399,7 +412,7 @@ class ePIC(ePICFirmware):
                 pass
         return None
 
-    async def _get_fault_light(self, web_summary: dict = None) -> Optional[bool]:
+    async def _get_fault_light(self, web_summary: dict | None = None) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -414,7 +427,9 @@ class ePIC(ePICFirmware):
                 pass
         return False
 
-    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(
+        self, web_summary: dict | None = None
+    ) -> list[MinerErrorData]:
         if not web_summary:
             try:
                 web_summary = await self.web.summary()
@@ -427,12 +442,11 @@ class ePIC(ePICFirmware):
                 error = web_summary["Status"]["Last Error"]
                 if error is not None:
                     errors.append(X19Error(error_message=str(error)))
-                return errors
             except KeyError:
                 pass
-        return errors
+        return errors  # type: ignore[return-value]
 
-    async def _get_pools(self, web_summary: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, web_summary: dict | None = None) -> list[PoolMetrics]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -466,18 +480,29 @@ class ePIC(ePICFirmware):
                 return pool_data
         except LookupError:
             pass
+        return []
 
     async def upgrade_firmware(
-        self, file: Path | str, keep_settings: bool = True
+        self,
+        *,
+        file: str | None = None,
+        url: str | None = None,
+        version: str | None = None,
+        keep_settings: bool = True,
     ) -> bool:
         """
         Upgrade the firmware of the ePIC miner device.
 
         Args:
-            file (Path | str): The local file path of the firmware to be uploaded.
-            keep_settings (bool): Whether to keep the current settings after the update.
+            file: The local file path of the firmware to be uploaded.
+            url: The URL to download the firmware from. Must be a valid URL if provided.
+            version: The version of the firmware to upgrade to. If None, the version will be inferred from the file or URL.
+            keep_settings: Whether to keep the current settings after the update.
 
         Returns:
             bool: Whether the firmware update succeeded.
         """
-        return await self.web.system_update(file=file, keep_settings=keep_settings)
+        if file is not None:
+            await self.web.system_update(file=file, keep_settings=keep_settings)
+            return True
+        return False

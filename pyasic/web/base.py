@@ -26,24 +26,24 @@ class BaseWebAPI(ABC):
     def __init__(self, ip: str) -> None:
         # ip address of the miner
         self.ip = ip
-        self.username = None
-        self.pwd = None
-        self.port = 80
+        self.username: str | None = None
+        self.pwd: str | None = None
+        self.port: int = 80
 
-        self.token = None
+        self.token: str | None = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> BaseWebAPI:
         if cls is BaseWebAPI:
             raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
         return object.__new__(cls)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}: {str(self.ip)}"
 
     @abstractmethod
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -57,7 +57,7 @@ class BaseWebAPI(ABC):
     ) -> dict:
         pass
 
-    def _check_commands(self, *commands):
+    def _check_commands(self, *commands: str) -> list[str]:
         allowed_commands = self.get_commands()
         return_commands = []
         for command in [*commands]:
@@ -72,10 +72,10 @@ If you are sure you want to use this command please use WebAPI.send_command("{co
         return return_commands
 
     @property
-    def commands(self) -> list:
+    def commands(self) -> list[str]:
         return self.get_commands()
 
-    def get_commands(self) -> list:
+    def get_commands(self) -> list[str]:
         """Get a list of command accessible to a specific type of web API on the miner.
 
         Returns:
@@ -87,9 +87,12 @@ If you are sure you want to use this command please use WebAPI.send_command("{co
             # each function in self
             dir(self)
             if not func == "commands"
-            if callable(getattr(self, func)) and
+            if callable(getattr(self, func))
+            and
             # no __ or _ methods
-            not func.startswith("__") and not func.startswith("_") and
+            not func.startswith("__")
+            and not func.startswith("_")
+            and
             # remove all functions that are in this base class
             func
             not in [

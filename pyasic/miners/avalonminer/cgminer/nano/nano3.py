@@ -13,11 +13,11 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List, Optional
+from typing import Any
 
 from pyasic import APIError
 from pyasic.data.boards import HashBoard
-from pyasic.device.algorithm.hashrate import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.miners.backends import AvalonMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -150,12 +150,12 @@ class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
 
     data_locations = AVALON_NANO_DATA_LOC
 
-    async def _get_mac(self, web_minerinfo: dict) -> Optional[dict]:
+    async def _get_mac(self, web_minerinfo: dict[Any, Any] | None = None) -> str | None:
         if web_minerinfo is None:
             try:
                 web_minerinfo = await self.web.minerinfo()
             except APIError:
-                pass
+                return None
 
         if web_minerinfo is not None:
             try:
@@ -164,17 +164,18 @@ class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
                     return mac.upper()
             except (KeyError, ValueError):
                 pass
+        return None
 
 
 class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
     data_locations = AVALON_NANO3S_DATA_LOC
 
-    async def _get_wattage(self, rpc_estats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, rpc_estats: dict | None = None) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
             except APIError:
-                pass
+                return None
 
         if rpc_estats is not None:
             try:
@@ -182,13 +183,16 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
                 return int(parsed_estats["PS"][6])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashrate(self, rpc_estats: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_estats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
             except APIError:
-                pass
+                return None
 
         if rpc_estats is not None:
             try:
@@ -198,15 +202,16 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
                 ).into(self.algo.unit.default)
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashboards(self, rpc_estats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_estats: dict | None = None) -> list[HashBoard]:
         hashboards = await AvalonMiner._get_hashboards(self, rpc_estats)
 
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
             except APIError:
-                pass
+                return hashboards
 
         if rpc_estats is not None:
             try:

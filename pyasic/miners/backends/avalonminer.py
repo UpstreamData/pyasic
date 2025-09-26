@@ -16,10 +16,9 @@
 import copy
 import re
 import time
-from typing import List, Optional
 
 from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -119,7 +118,7 @@ class AvalonMiner(CGMiner):
                 limit = 1
             else:
                 limit = 0
-            data = await self.rpc.ascset(0, "worklevel,set", 1)
+            data = await self.rpc.ascset(0, "worklevel,set", limit)
         except APIError:
             return False
         if data["STATUS"][0]["Msg"] == "ASC 0 set OK":
@@ -143,7 +142,7 @@ class AvalonMiner(CGMiner):
         try:
             # Shut off 5 seconds from now
             timestamp = int(time.time()) + 5
-            data = await self.rpc.ascset(0, f"softoff", f"1:{timestamp}")
+            data = await self.rpc.ascset(0, "softoff", f"1:{timestamp}")
         except APIError:
             return False
         if "success" in data["STATUS"][0]["Msg"]:
@@ -154,7 +153,7 @@ class AvalonMiner(CGMiner):
         try:
             # Shut off 5 seconds from now
             timestamp = int(time.time()) + 5
-            data = await self.rpc.ascset(0, f"softon", f"1:{timestamp}")
+            data = await self.rpc.ascset(0, "softon", f"1:{timestamp}")
         except APIError:
             return False
         if "success" in data["STATUS"][0]["Msg"]:
@@ -232,7 +231,7 @@ class AvalonMiner(CGMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, rpc_version: dict = None) -> Optional[str]:
+    async def _get_mac(self, rpc_version: dict | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -249,23 +248,28 @@ class AvalonMiner(CGMiner):
                 return mac
             except (KeyError, ValueError):
                 pass
+        return None
 
-    async def _get_hashrate(self, rpc_devs: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_devs: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
                 rpc_devs = await self.rpc.devs()
             except APIError:
-                pass
+                return None
 
         if rpc_devs is not None:
             try:
                 return self.algo.hashrate(
-                    rate=float(rpc_devs["DEVS"][0]["MHS 1m"]), unit=self.algo.unit.MH
-                ).into(self.algo.unit.default)
+                    rate=float(rpc_devs["DEVS"][0]["MHS 1m"]),
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (KeyError, IndexError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashboards(self, rpc_estats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_estats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -291,12 +295,18 @@ class AvalonMiner(CGMiner):
                     board_hr = parsed_estats["STATS"][0]["MM ID0"]["MGHS"]
                     if isinstance(board_hr, list):
                         hashboards[board].hashrate = self.algo.hashrate(
-                            rate=float(board_hr[board]), unit=self.algo.unit.GH
-                        ).into(self.algo.unit.default)
+                            rate=float(board_hr[board]),
+                            unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                        ).into(
+                            self.algo.unit.default  # type: ignore[attr-defined]
+                        )
                     else:
                         hashboards[board].hashrate = self.algo.hashrate(
-                            rate=float(board_hr), unit=self.algo.unit.GH
-                        ).into(self.algo.unit.default)
+                            rate=float(board_hr),
+                            unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                        ).into(
+                            self.algo.unit.default  # type: ignore[attr-defined]
+                        )
 
                 except LookupError:
                     pass
@@ -376,24 +386,26 @@ class AvalonMiner(CGMiner):
         return hashboards
 
     async def _get_expected_hashrate(
-        self, rpc_estats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_estats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
             except APIError:
-                pass
+                return None
 
         if rpc_estats is not None:
             try:
                 parsed_estats = self.parse_estats(rpc_estats)["STATS"][0]["MM ID0"]
                 return self.algo.hashrate(
-                    rate=float(parsed_estats["GHSmm"]), unit=self.algo.unit.GH
-                ).into(self.algo.unit.default)
+                    rate=float(parsed_estats["GHSmm"]),
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_env_temp(self, rpc_estats: dict = None) -> Optional[float]:
+    async def _get_env_temp(self, rpc_estats: dict | None = None) -> float | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -406,13 +418,14 @@ class AvalonMiner(CGMiner):
                 return float(parsed_estats["Temp"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_wattage_limit(self, rpc_estats: dict = None) -> Optional[int]:
+    async def _get_wattage_limit(self, rpc_estats: dict | None = None) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
             except APIError:
-                pass
+                return None
 
         if rpc_estats is not None:
             try:
@@ -420,8 +433,9 @@ class AvalonMiner(CGMiner):
                 return int(parsed_estats["MPO"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_wattage(self, rpc_estats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, rpc_estats: dict | None = None) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -434,8 +448,9 @@ class AvalonMiner(CGMiner):
                 return int(parsed_estats["WALLPOWER"])
             except (IndexError, KeyError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_fans(self, rpc_estats: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_estats: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -459,7 +474,7 @@ class AvalonMiner(CGMiner):
                     pass
         return fans_data
 
-    async def _get_fault_light(self, rpc_estats: dict = None) -> Optional[bool]:
+    async def _get_fault_light(self, rpc_estats: dict | None = None) -> bool | None:
         if self.light:
             return self.light
         if rpc_estats is None:

@@ -20,7 +20,6 @@ import json
 import logging
 import re
 import warnings
-from typing import Union
 
 from pyasic.errors import APIError, APIWarning
 from pyasic.misc import validate_command_output
@@ -35,7 +34,7 @@ class BaseMinerRPCAPI:
         # api version if known
         self.api_ver = api_ver
 
-        self.pwd = None
+        self.pwd: str | None = None
 
     def __new__(cls, *args, **kwargs):
         if cls is BaseMinerRPCAPI:
@@ -47,8 +46,8 @@ class BaseMinerRPCAPI:
 
     async def send_command(
         self,
-        command: Union[str, bytes],
-        parameters: Union[str, int, bool] = None,
+        command: str,
+        parameters: str | int | bool | None = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         **kwargs,
@@ -86,10 +85,10 @@ class BaseMinerRPCAPI:
                 raise APIError(data.decode("utf-8"))
             return {}
 
-        data = self._load_api_data(data)
+        api_data = self._load_api_data(data)
 
         # check for if the user wants to allow errors to return
-        validation = validate_command_output(data)
+        validation = validate_command_output(api_data)
         if not validation[0]:
             if not ignore_errors:
                 # validate the command succeeded
@@ -100,7 +99,7 @@ class BaseMinerRPCAPI:
                 )
 
         logging.debug(f"{self} - (Send Command) - Received data.")
-        return data
+        return api_data
 
     # Privileged command handler, only used by whatsminers, defined here for consistency.
     async def send_privileged_command(self, *args, **kwargs) -> dict:
@@ -115,10 +114,10 @@ class BaseMinerRPCAPI:
 
         """
         # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
+        valid_commands = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
         # doesn't work for S19 which uses the backup _send_split_multicommand
-        command = "+".join(commands)
+        command = "+".join(valid_commands)
         try:
             data = await self.send_command(command, allow_warning=allow_warning)
         except APIError:
@@ -164,10 +163,13 @@ class BaseMinerRPCAPI:
             for func in
             # each function in self
             dir(self)
-            if not func in ["commands", "open_api"]
-            if callable(getattr(self, func)) and
+            if func not in ["commands", "open_api"]
+            if callable(getattr(self, func))
+            and
             # no __ or _ methods
-            not func.startswith("__") and not func.startswith("_") and
+            not func.startswith("__")
+            and not func.startswith("_")
+            and
             # remove all functions that are in this base class
             func
             not in [
@@ -196,7 +198,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         self,
         data: bytes,
         *,
-        port: int = None,
+        port: int | None = None,
         timeout: int = 100,
     ) -> bytes:
         if port is None:

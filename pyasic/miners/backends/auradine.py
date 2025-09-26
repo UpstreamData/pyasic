@@ -15,11 +15,10 @@
 # ------------------------------------------------------------------------------
 import logging
 from enum import Enum
-from typing import List, Optional
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -187,7 +186,9 @@ class Auradine(StockFirmware):
             pass
         return MinerConfig()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
 
         conf = config.as_auradine(user_suffix=user_suffix)
@@ -197,8 +198,8 @@ class Auradine(StockFirmware):
     async def upgrade_firmware(
         self,
         *,
-        url: str = None,
-        version: str = "latest",
+        url: str | None = None,
+        version: str | None = "latest",
         keep_settings: bool = False,
         **kwargs,
     ) -> bool:
@@ -223,8 +224,12 @@ class Auradine(StockFirmware):
 
             if url:
                 result = await self.web.firmware_upgrade(url=url)
-            else:
+            elif version:
                 result = await self.web.firmware_upgrade(version=version)
+            else:
+                raise ValueError(
+                    "Either URL or version must be provided for firmware upgrade."
+                )
 
             if result.get("STATUS", [{}])[0].get("STATUS") == "S":
                 logging.info("Firmware upgrade process completed successfully.")
@@ -245,7 +250,7 @@ class Auradine(StockFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, web_ipreport: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_ipreport: dict | None = None) -> str | None:
         if web_ipreport is None:
             try:
                 web_ipreport = await self.web.ipreport()
@@ -257,8 +262,9 @@ class Auradine(StockFirmware):
                 return web_ipreport["IPReport"][0]["mac"].upper()
             except (LookupError, AttributeError):
                 pass
+        return None
 
-    async def _get_fw_ver(self, web_ipreport: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_ipreport: dict | None = None) -> str | None:
         if web_ipreport is None:
             try:
                 web_ipreport = await self.web.ipreport()
@@ -270,8 +276,9 @@ class Auradine(StockFirmware):
                 return web_ipreport["IPReport"][0]["version"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hostname(self, web_ipreport: dict = None) -> Optional[str]:
+    async def _get_hostname(self, web_ipreport: dict | None = None) -> str | None:
         if web_ipreport is None:
             try:
                 web_ipreport = await self.web.ipreport()
@@ -283,8 +290,11 @@ class Auradine(StockFirmware):
                 return web_ipreport["IPReport"][0]["hostname"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -295,14 +305,15 @@ class Auradine(StockFirmware):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
-                    unit=self.algo.unit.MH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_hashboards(
-        self, rpc_devs: dict = None, web_ipreport: dict = None
-    ) -> List[HashBoard]:
+        self, rpc_devs: dict | None = None, web_ipreport: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -327,8 +338,11 @@ class Auradine(StockFirmware):
                 for board in rpc_devs["DEVS"]:
                     b_id = board["ID"] - 1
                     hashboards[b_id].hashrate = self.algo.hashrate(
-                        rate=float(board["MHS 5s"]), unit=self.algo.unit.MH
-                    ).into(self.algo.unit.default)
+                        rate=float(board["MHS 5s"]),
+                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hashboards[b_id].temp = round(float(board["Temperature"]))
                     hashboards[b_id].missing = False
             except LookupError:
@@ -344,7 +358,7 @@ class Auradine(StockFirmware):
 
         return hashboards
 
-    async def _get_wattage(self, web_psu: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_psu: dict | None = None) -> int | None:
         if web_psu is None:
             try:
                 web_psu = await self.web.get_psu()
@@ -356,10 +370,11 @@ class Auradine(StockFirmware):
                 return int(float(web_psu["PSU"][0]["PowerIn"].replace("W", "")))
             except (LookupError, TypeError, ValueError):
                 pass
+        return None
 
     async def _get_wattage_limit(
-        self, web_mode: dict = None, web_psu: dict = None
-    ) -> Optional[int]:
+        self, web_mode: dict | None = None, web_psu: dict | None = None
+    ) -> int | None:
         if web_mode is None:
             try:
                 web_mode = await self.web.get_mode()
@@ -383,8 +398,9 @@ class Auradine(StockFirmware):
                 return int(float(web_psu["PSU"][0]["PoutMax"].replace("W", "")))
             except (LookupError, TypeError, ValueError):
                 pass
+        return None
 
-    async def _get_fans(self, web_fan: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_fan: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -403,7 +419,7 @@ class Auradine(StockFirmware):
                 pass
         return fans
 
-    async def _get_fault_light(self, web_led: dict = None) -> Optional[bool]:
+    async def _get_fault_light(self, web_led: dict | None = None) -> bool | None:
         if web_led is None:
             try:
                 web_led = await self.web.get_led()
@@ -415,8 +431,9 @@ class Auradine(StockFirmware):
                 return web_led["LED"][0]["Code"] == int(AuradineLEDCodes.LOCATE_MINER)
             except LookupError:
                 pass
+        return None
 
-    async def _is_mining(self, web_mode: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_mode: dict | None = None) -> bool | None:
         if web_mode is None:
             try:
                 web_mode = await self.web.get_mode()
@@ -428,8 +445,9 @@ class Auradine(StockFirmware):
                 return web_mode["Mode"][0]["Sleep"] == "off"
             except (LookupError, TypeError, ValueError):
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_summary: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_summary: dict | None = None) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -441,3 +459,4 @@ class Auradine(StockFirmware):
                 return rpc_summary["SUMMARY"][0]["Elapsed"]
             except LookupError:
                 pass
+        return None

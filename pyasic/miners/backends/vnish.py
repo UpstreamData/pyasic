@@ -15,11 +15,11 @@
 # ------------------------------------------------------------------------------
 
 import logging
-from typing import List, Optional
 
 from pyasic import MinerConfig
-from pyasic.data.error_codes import MinerErrorData, VnishError
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.config.mining import MiningModePreset
+from pyasic.data.error_codes import VnishError
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.data import (
@@ -106,7 +106,9 @@ class VNish(VNishFirmware, BMMiner):
 
     data_locations = VNISH_DATA_LOC
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         await self.web.post_settings(
             miner_settings=config.as_vnish(user_suffix=user_suffix)
         )
@@ -147,7 +149,7 @@ class VNish(VNishFirmware, BMMiner):
                 pass
         return False
 
-    async def _get_mac(self, web_summary: dict = None) -> str:
+    async def _get_mac(self, web_summary: dict | None = None) -> str | None:
         if web_summary is not None:
             try:
                 mac = web_summary["system"]["network_status"]["mac"]
@@ -164,6 +166,8 @@ class VNish(VNishFirmware, BMMiner):
             except KeyError:
                 pass
 
+        return None
+
     async def fault_light_off(self) -> bool:
         result = await self.web.find_miner()
         if result is not None:
@@ -171,6 +175,7 @@ class VNish(VNishFirmware, BMMiner):
                 return True
             else:
                 await self.web.find_miner()
+        return False
 
     async def fault_light_on(self) -> bool:
         result = await self.web.find_miner()
@@ -179,26 +184,27 @@ class VNish(VNishFirmware, BMMiner):
                 return True
             else:
                 await self.web.find_miner()
+        return False
 
-    async def _get_hostname(self, web_summary: dict = None) -> str:
+    async def _get_hostname(self, web_summary: dict | None = None) -> str | None:
         if web_summary is None:
             web_info = await self.web.info()
-
             if web_info is not None:
                 try:
                     hostname = web_info["system"]["network_status"]["hostname"]
                     return hostname
                 except KeyError:
                     pass
-
-        if web_summary is not None:
+        else:
             try:
                 hostname = web_summary["system"]["network_status"]["hostname"]
                 return hostname
             except KeyError:
                 pass
 
-    async def _get_wattage(self, web_summary: dict = None) -> Optional[int]:
+        return None
+
+    async def _get_wattage(self, web_summary: dict | None = None) -> int | None:
         if web_summary is None:
             web_summary = await self.web.summary()
 
@@ -209,25 +215,30 @@ class VNish(VNishFirmware, BMMiner):
                 return wattage
             except KeyError:
                 pass
+        return None
 
-    async def _get_hashrate(self, rpc_summary: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_summary: dict | None = None
+    ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
             except APIError:
-                pass
+                return None
 
         if rpc_summary is not None:
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=self.algo.unit.GH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
 
-    async def _get_wattage_limit(self, web_settings: dict = None) -> Optional[int]:
+        return None
+
+    async def _get_wattage_limit(self, web_settings: dict | None = None) -> int | None:
         if web_settings is None:
             web_settings = await self.web.summary()
 
@@ -240,7 +251,9 @@ class VNish(VNishFirmware, BMMiner):
             except (KeyError, TypeError):
                 pass
 
-    async def _get_fw_ver(self, web_summary: dict = None) -> Optional[str]:
+        return None
+
+    async def _get_fw_ver(self, web_summary: dict | None = None) -> str | None:
         if web_summary is None:
             web_summary = await self.web.summary()
 
@@ -253,16 +266,16 @@ class VNish(VNishFirmware, BMMiner):
             except LookupError:
                 return fw_ver
 
-    async def _is_mining(self, web_summary: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_summary: dict | None = None) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
             except APIError:
-                pass
+                return None
 
         if web_summary is not None:
             try:
-                is_mining = not web_summary["miner"]["miner_status"]["miner_state"] in [
+                is_mining = web_summary["miner"]["miner_status"]["miner_state"] not in [
                     "stopped",
                     "shutting-down",
                     "failure",
@@ -271,8 +284,13 @@ class VNish(VNishFirmware, BMMiner):
             except LookupError:
                 pass
 
-    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
-        errors = []
+        return None
+
+    async def _get_errors(  # type: ignore[override]
+        self, web_summary: dict | None = None
+    ) -> list[VnishError]:
+        errors: list[VnishError] = []
+
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -292,10 +310,13 @@ class VNish(VNishFirmware, BMMiner):
     async def get_config(self) -> MinerConfig:
         try:
             web_settings = await self.web.settings()
-            web_presets = await self.web.autotune_presets()
+            web_presets_dict = await self.web.autotune_presets()
+            web_presets = (
+                web_presets_dict.get("presets", []) if web_presets_dict else []
+            )
             web_perf_summary = (await self.web.perf_summary()) or {}
         except APIError:
-            return self.config
+            return self.config or MinerConfig()
         self.config = MinerConfig.from_vnish(
             web_settings, web_presets, web_perf_summary
         )
@@ -303,11 +324,20 @@ class VNish(VNishFirmware, BMMiner):
 
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
+
+        # Check if mining mode is preset mode and has available presets
+        if not isinstance(config.mining_mode, MiningModePreset):
+            return False
+
         valid_presets = [
             preset.power
             for preset in config.mining_mode.available_presets
-            if preset.tuned and preset.power <= wattage
+            if (preset.tuned and preset.power is not None and preset.power <= wattage)
         ]
+
+        if not valid_presets:
+            return False
+
         new_wattage = max(valid_presets)
 
         # Set power to highest preset <= wattage

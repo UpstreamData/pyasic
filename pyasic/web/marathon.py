@@ -6,13 +6,15 @@ from typing import Any
 
 import httpx
 
-from pyasic import settings
+from pyasic import APIError, settings
 from pyasic.web.base import BaseWebAPI
 
 
 class MaraWebAPI(BaseWebAPI):
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
+        self.username: str = "root"
+        self.pwd: str = "root"
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
@@ -52,7 +54,7 @@ class MaraWebAPI(BaseWebAPI):
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -65,22 +67,26 @@ class MaraWebAPI(BaseWebAPI):
                 transport=settings.transport(),
             ) as client:
                 if parameters:
-                    data = await client.post(
+                    response = await client.post(
                         url,
                         auth=auth,
                         timeout=settings.get("api_function_timeout", 3),
                         json=parameters,
                     )
                 else:
-                    data = await client.get(url, auth=auth)
+                    response = await client.get(url, auth=auth)
         except httpx.HTTPError:
             pass
         else:
-            if data.status_code == 200:
+            if response.status_code == 200:
                 try:
-                    return data.json()
-                except json.decoder.JSONDecodeError:
-                    pass
+                    return response.json()
+                except json.decoder.JSONDecodeError as e:
+                    response_text = response.text if response.text else "empty response"
+                    raise APIError(
+                        f"JSON decode error for '{command}' from {self.ip}: {e} - Response: {response_text}"
+                    )
+        raise APIError(f"Failed to send command to miner API: {url}")
 
     async def brief(self):
         return await self.send_command("brief")

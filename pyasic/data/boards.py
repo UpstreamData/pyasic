@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from pydantic import BaseModel
@@ -89,7 +90,7 @@ class HashBoard(BaseModel):
         def serialize_algo_hash_rate(key: str, value: AlgoHashRateType) -> str:
             return f"{key}={round(float(value), 2)}"
 
-        def serialize_bool(key: str, value: bool):
+        def serialize_bool(key: str, value: bool) -> str:
             return f"{key}={str(value).lower()}"
 
         serialization_map_instance = {
@@ -116,8 +117,11 @@ class HashBoard(BaseModel):
         field_data = []
         for field in include:
             field_val = getattr(self, field)
-            serialization_func = serialization_map.get(
-                type(field_val), lambda _k, _v: None
+            serialization_func: Callable[[str, Any], str | None] = (
+                serialization_map.get(
+                    type(field_val),
+                    lambda _k, _v: None,  # type: ignore
+                )
             )
             serialized = serialization_func(
                 f"{key_root}{level_delimiter}{field}", field_val

@@ -23,13 +23,15 @@ import json
 import logging
 import re
 import struct
+import typing
 import warnings
-from asyncio import Future, StreamReader, StreamWriter
-from typing import Any, AsyncGenerator, Callable, Literal, Union
+from collections.abc import AsyncGenerator
+from typing import Any, Literal
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
+from pydantic import BaseModel, Field
 
 from pyasic import settings
 from pyasic.errors import APIError, APIWarning
@@ -44,11 +46,54 @@ from pyasic.rpc.base import BaseMinerRPCAPI
 # you change the password, you can pass that to this class as pwd,
 # or add it as the Whatsminer_pwd in the settings.toml file.
 
-PrePowerOnMessage = Union[
-    Literal["wait for adjust temp"],
-    Literal["adjust complete"],
-    Literal["adjust continue"],
-]
+
+class TokenResponse(BaseModel):
+    salt: str
+    time: str
+    newsalt: str
+
+    class Config:
+        extra = "allow"
+
+
+class TokenData(BaseModel):
+    host_sign: str
+    host_passwd_md5: str
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class BTMinerPrivilegedCommand(BaseModel):
+    cmd: str
+    token: str
+
+    class Config:
+        extra = "allow"
+
+
+class BTMinerV3Command(BaseModel):
+    cmd: str
+    param: Any | None = None
+
+    class Config:
+        extra = "forbid"
+
+
+class BTMinerV3PrivilegedCommand(BaseModel):
+    cmd: str
+    param: Any | None = None
+    ts: int
+    account: str
+    token: str
+
+    class Config:
+        extra = "forbid"
+
+
+PrePowerOnMessage = (
+    Literal["wait for adjust temp"]
+    | Literal["adjust complete"]
+    | Literal["adjust continue"]
+)
 
 
 def _crypt(word: str, salt: str) -> str:
@@ -93,7 +138,7 @@ def _add_to_16(string: str) -> bytes:
     return str.encode(string)  # return bytes
 
 
-def parse_btminer_priviledge_data(token_data: dict, data: dict) -> dict:
+def parse_btminer_priviledge_data(token_data: TokenData, data: dict) -> dict:
     """Parses data returned from the BTMiner privileged API.
 
     Parses data from the BTMiner privileged API using the token
@@ -109,9 +154,9 @@ def parse_btminer_priviledge_data(token_data: dict, data: dict) -> dict:
     # get the encoded data from the dict
     enc_data = data["enc"]
     # get the aes key from the token data
-    aeskey = hashlib.sha256(token_data["host_passwd_md5"].encode()).hexdigest()
+    aeskey_hex = hashlib.sha256(token_data.host_passwd_md5.encode()).hexdigest()
     # unhexlify the aes key
-    aeskey = binascii.unhexlify(aeskey.encode())
+    aeskey = binascii.unhexlify(aeskey_hex.encode())
     # create the required decryptor
     aes = Cipher(algorithms.AES(aeskey), modes.ECB())
     decryptor = aes.decryptor()
@@ -124,7 +169,7 @@ def parse_btminer_priviledge_data(token_data: dict, data: dict) -> dict:
     return ret_msg
 
 
-def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
+def create_privileged_cmd(token_data: TokenData, command: dict) -> bytes:
     """Create a privileged command to send to the BTMiner API.
 
     Creates a privileged command using the token from the API and the
@@ -138,13 +183,13 @@ def create_privileged_cmd(token_data: dict, command: dict) -> bytes:
     Returns:
         The encrypted privileged command to be sent to the miner.
     """
-    logging.debug(f"(Create Prilileged Command) - Creating Privileged Command")
+    logging.debug("(Create Prilileged Command) - Creating Privileged Command")
     # add token to command
-    command["token"] = token_data["host_sign"]
+    command["token"] = token_data.host_sign
     # encode host_passwd data and get hexdigest
-    aeskey = hashlib.sha256(token_data["host_passwd_md5"].encode()).hexdigest()
+    aeskey_hex = hashlib.sha256(token_data.host_passwd_md5.encode()).hexdigest()
     # unhexlify the encoded host_passwd
-    aeskey = binascii.unhexlify(aeskey.encode())
+    aeskey = binascii.unhexlify(aeskey_hex.encode())
     # create a new AES key
     aes = Cipher(algorithms.AES(aeskey), modes.ECB())
     encryptor = aes.encryptor()
@@ -188,8 +233,8 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     def __init__(self, ip: str, port: int = 4028, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, port, api_ver)
-        self.pwd = settings.get("default_whatsminer_rpc_password", "admin")
-        self.token = None
+        self.pwd: str = settings.get("default_whatsminer_rpc_password", "admin")
+        self.token: TokenData | None = None
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -199,19 +244,19 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             allow_warning: A boolean to supress APIWarnings.
         """
         # make sure we can actually run each command, otherwise they will fail
-        commands = self._check_commands(*commands)
+        commands_list = self._check_commands(*commands)
         # standard multicommand format is "command1+command2"
         # commands starting with "get_" and the "status" command aren't supported, but we can fake that
 
         split_commands = []
 
-        for command in list(commands):
+        for command in commands_list:
             if command.startswith("get_") or command == "status":
-                commands.remove(command)
+                commands_list.remove(command)
                 # send seperately and append later
                 split_commands.append(command)
 
-        command = "+".join(commands)
+        command = "+".join(commands_list)
 
         tasks = []
         if len(split_commands) > 0:
@@ -240,7 +285,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     async def send_privileged_command(
         self,
-        command: Union[str, bytes],
+        command: str,
         ignore_errors: bool = False,
         timeout: int = 10,
         **kwargs,
@@ -252,6 +297,8 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         except APIError as e:
             if not e.message == "can't access write cmd":
                 raise
+            # If we get here, we caught the specific error but didn't handle it
+            raise
         # try:
         #     await self.open_api()
         # except Exception as e:
@@ -262,7 +309,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     async def _send_privileged_command(
         self,
-        command: Union[str, bytes],
+        command: str,
         ignore_errors: bool = False,
         timeout: int = 10,
         **kwargs,
@@ -272,10 +319,10 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             if len(kwargs) > 0
             else ""
         )
-        command = {"cmd": command, **kwargs}
+        cmd = {"cmd": command, **kwargs}
 
         token_data = await self.get_token()
-        enc_command = create_privileged_cmd(token_data, command)
+        enc_command = create_privileged_cmd(token_data, cmd)
 
         logging.debug(f"{self} - (Send Privileged Command) - Sending")
         try:
@@ -289,24 +336,23 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             if ignore_errors:
                 return {}
             raise APIError("No data was returned from the API.")
-        data = self._load_api_data(data)
+        data_dict: dict[Any, Any] = self._load_api_data(data)
 
         try:
-            data = parse_btminer_priviledge_data(self.token, data)
-            print(data)
+            data_dict = parse_btminer_priviledge_data(token_data, data_dict)
         except Exception as e:
             logging.info(f"{str(self.ip)}: {e}")
 
         if not ignore_errors:
             # if it fails to validate, it is likely an error
-            validation = validate_command_output(data)
+            validation = validate_command_output(data_dict)
             if not validation[0]:
                 raise APIError(validation[1])
 
         # return the parsed json as a dict
-        return data
+        return data_dict
 
-    async def get_token(self) -> dict:
+    async def get_token(self) -> TokenData:
         """Gets token information from the API.
         <details>
             <summary>Expand</summary>
@@ -317,7 +363,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         logging.debug(f"{self} - (Get Token) - Getting token")
         if self.token:
-            if self.token["timestamp"] > datetime.datetime.now() - datetime.timedelta(
+            if self.token.timestamp > datetime.datetime.now() - datetime.timedelta(
                 minutes=30
             ):
                 return self.token
@@ -325,26 +371,30 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         # get the token
         data = await self.send_command("get_token")
 
+        token_response = TokenResponse.model_validate(data["Msg"])
+
         # encrypt the admin password with the salt
-        pwd = _crypt(self.pwd, "$1$" + data["Msg"]["salt"] + "$")
-        pwd = pwd.split("$")
+        pwd_str = _crypt(self.pwd, "$1$" + token_response.salt + "$")
+        pwd_parts = pwd_str.split("$")
 
         # take the 4th item from the pwd split
-        host_passwd_md5 = pwd[3]
+        host_passwd_md5 = pwd_parts[3]
 
         # encrypt the pwd with the time and new salt
-        tmp = _crypt(pwd[3] + data["Msg"]["time"], "$1$" + data["Msg"]["newsalt"] + "$")
-        tmp = tmp.split("$")
+        tmp_str = _crypt(
+            pwd_parts[3] + token_response.time, "$1$" + token_response.newsalt + "$"
+        )
+        tmp_parts = tmp_str.split("$")
 
         # take the 4th item from the encrypted pwd split
-        host_sign = tmp[3]
+        host_sign = tmp_parts[3]
 
         # set the current token
-        self.token = {
-            "host_sign": host_sign,
-            "host_passwd_md5": host_passwd_md5,
-            "timestamp": datetime.datetime.now(),
-        }
+        self.token = TokenData(
+            host_sign=host_sign,
+            host_passwd_md5=host_passwd_md5,
+            timestamp=datetime.datetime.now(),
+        )
         logging.debug(f"{self} - (Get Token) - Gathered token data: {self.token}")
         return self.token
 
@@ -388,12 +438,12 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         pool_1: str,
         worker_1: str,
         passwd_1: str,
-        pool_2: str = None,
-        worker_2: str = None,
-        passwd_2: str = None,
-        pool_3: str = None,
-        worker_3: str = None,
-        passwd_3: str = None,
+        pool_2: str | None = None,
+        worker_2: str | None = None,
+        passwd_2: str | None = None,
+        pool_3: str | None = None,
+        worker_3: str | None = None,
+        passwd_3: str | None = None,
     ) -> dict:
         """Update the pools of the miner using the API.
         <details>
@@ -650,11 +700,11 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     async def net_config(
         self,
-        ip: str = None,
-        mask: str = None,
-        gate: str = None,
-        dns: str = None,
-        host: str = None,
+        ip: str | None = None,
+        mask: str | None = None,
+        gate: str | None = None,
+        dns: str | None = None,
+        host: str | None = None,
         dhcp: bool = True,
     ):
         if dhcp:
@@ -683,9 +733,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         if not -100 < percent < 100:
             raise APIError(
-                f"Frequency % is outside of the allowed "
-                f"range.  Please set a % between -100 and "
-                f"100"
+                "Frequency % is outside of the allowed "
+                "range.  Please set a % between -100 and "
+                "100"
             )
         return await self.send_privileged_command(
             "set_target_freq", percent=str(percent)
@@ -786,9 +836,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
         if not 0 < percent < 100:
             raise APIError(
-                f"Power PCT % is outside of the allowed "
-                f"range.  Please set a % between 0 and "
-                f"100"
+                "Power PCT % is outside of the allowed "
+                "range.  Please set a % between 0 and "
+                "100"
             )
         return await self.send_privileged_command("set_power_pct", percent=str(percent))
 
@@ -846,9 +896,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
         if not 0 < percent < 100:
             raise APIError(
-                f"Power PCT % is outside of the allowed "
-                f"range.  Please set a % between 0 and "
-                f"100"
+                "Power PCT % is outside of the allowed "
+                "range.  Please set a % between 0 and "
+                "100"
             )
         return await self.send_privileged_command(
             "set_power_pct_v2", percent=str(percent)
@@ -873,9 +923,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         if not -30 < temp_offset < 0:
             raise APIError(
-                f"Temp offset is outside of the allowed "
-                f"range.  Please set a number between -30 and "
-                f"0."
+                "Temp offset is outside of the allowed "
+                "range.  Please set a number between -30 and "
+                "0."
             )
 
         return await self.send_privileged_command(
@@ -924,9 +974,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         if not 0 < upfreq_speed < 9:
             raise APIError(
-                f"Upfreq speed is outside of the allowed "
-                f"range.  Please set a number between 0 (Normal) and "
-                f"9 (Fastest)."
+                "Upfreq speed is outside of the allowed "
+                "range.  Please set a number between 0 (Normal) and "
+                "9 (Fastest)."
             )
         return await self.send_privileged_command(
             "adjust_upfreq_speed", upfreq_speed=upfreq_speed
@@ -1109,8 +1159,8 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
     def __init__(self, ip: str, port: int = 4433, api_ver: str = "0.0.0"):
         super().__init__(ip, port, api_ver=api_ver)
 
-        self.salt = None
-        self.pwd = "super"
+        self.salt: str | None = None
+        self.pwd: str = "super"
 
     async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
         """Creates and sends multiple commands as one command to the miner.
@@ -1120,47 +1170,52 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
             allow_warning: A boolean to supress APIWarnings.
 
         """
-        commands = self._check_commands(*commands)
-        data = await self._send_split_multicommand(*commands)
+        checked_commands = self._check_commands(*commands)
+        data = await self._send_split_multicommand(*checked_commands)
         data["multicommand"] = True
         return data
 
     async def send_command(
-        self, command: str, parameters: Any = None, **kwargs
+        self,
+        command: str,
+        parameters: Any = None,
+        ignore_errors: bool = False,
+        allow_warning: bool = True,
+        **kwargs,
     ) -> dict:
         if ":" in command:
             parameters = command.split(":")[1]
             command = command.split(":")[0]
-        cmd = {"cmd": command}
-        if parameters is not None:
-            cmd["param"] = parameters
+
+        cmd: BTMinerV3Command | BTMinerV3PrivilegedCommand
 
         if command.startswith("set."):
             salt = await self.get_salt()
             ts = int(datetime.datetime.now().timestamp())
-            cmd["ts"] = ts
-            token_str = cmd["cmd"] + self.pwd + salt + str(ts)
+            token_str = command + self.pwd + salt + str(ts)
             token_hashed = bytearray(
                 base64.b64encode(hashlib.sha256(token_str.encode("utf-8")).digest())
             )
             b_arr = bytearray(token_hashed)
             b_arr[8] = 0
             str_token = b_arr.split(b"\x00")[0].decode("utf-8")
-            cmd["account"] = "super"
-            cmd["token"] = str_token
 
-        # send the command
-        ser = json.dumps(cmd).encode("utf-8")
+            cmd = BTMinerV3PrivilegedCommand(
+                cmd=command, param=parameters, ts=ts, account="super", token=str_token
+            )
+        else:
+            cmd = BTMinerV3Command(cmd=command, param=parameters)
+
+        cmd_dict = cmd.model_dump()
+        ser = json.dumps(cmd_dict).encode("utf-8")
         header = struct.pack("<I", len(ser))
-        return json.loads(
-            await self._send_bytes(header + json.dumps(cmd).encode("utf-8"))
-        )
+        return json.loads(await self._send_bytes(header + ser))
 
     async def _send_bytes(
         self,
         data: bytes,
         *,
-        port: int = None,
+        port: int | None = None,
         timeout: int = 100,
     ) -> bytes:
         if port is None:
@@ -1234,6 +1289,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         self.salt = data["msg"]["salt"]
         return self.salt
 
+    @typing.no_type_check
     async def get_miner_report(self) -> AsyncGenerator[dict, None]:
         if self.writer is None:
             await self.connect()

@@ -243,7 +243,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("removepool", parameters=n)
 
-    async def save(self, filename: str = None) -> dict:
+    async def save(self, filename: str | None = None) -> dict:
         """Save the config.
         <details>
             <summary>Expand</summary>
@@ -484,7 +484,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("usbstats")
 
-    async def pgaset(self, n: int, opt: str, val: int = None) -> dict:
+    async def pgaset(self, n: int, opt: str, val: int | None = None) -> dict:
         """Set PGA option opt to val on PGA n.
         <details>
             <summary>Expand</summary>
@@ -611,7 +611,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asccount")
 
-    async def ascset(self, n: int, opt: str, val: int = None) -> dict:
+    async def ascset(self, n: int, opt: str, val: int | str | None = None) -> dict:
         """Set ASC n option opt to value val.
         <details>
             <summary>Expand</summary>

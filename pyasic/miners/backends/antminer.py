@@ -16,13 +16,12 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.data.error_codes import X19Error
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.backends.cgminer import CGMiner
@@ -120,9 +119,11 @@ class AntminerModern(BMMiner):
         data = await self.web.get_miner_conf()
         if data:
             self.config = MinerConfig.from_am_modern(data)
-        return self.config
+        return self.config or MinerConfig()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         await self.web.set_miner_conf(config.as_am_modern(user_suffix=user_suffix))
         # if data:
@@ -135,54 +136,77 @@ class AntminerModern(BMMiner):
         #         break
         #     await asyncio.sleep(1)
 
-    async def upgrade_firmware(self, file: Path, keep_settings: bool = True) -> str:
+    async def upgrade_firmware(
+        self,
+        *,
+        file: str | None = None,
+        url: str | None = None,
+        version: str | None = None,
+        keep_settings: bool = True,
+    ) -> bool:
         """
         Upgrade the firmware of the AntMiner device.
 
         Args:
-            file (Path): Path to the firmware file.
-            keep_settings (bool): Whether to keep the current settings after the update.
+            file: Path to the firmware file as a string.
+            url: URL to download firmware from (not implemented).
+            version: Version to upgrade to (not implemented).
+            keep_settings: Whether to keep the current settings after the update.
 
         Returns:
-            str: Result of the upgrade process.
+            bool: True if upgrade was successful, False otherwise.
         """
         if not file:
-            raise ValueError("File location must be provided for firmware upgrade.")
+            logging.error("File location must be provided for firmware upgrade.")
+            return False
+
+        if url or version:
+            logging.warning(
+                "URL and version parameters are not implemented for Antminer."
+            )
 
         try:
+            file_path = Path(file)
+
+            if not hasattr(self.web, "update_firmware"):
+                logging.error(
+                    "Firmware upgrade not supported via web API for this Antminer model."
+                )
+                return False
+
             result = await self.web.update_firmware(
-                file=file, keep_settings=keep_settings
+                file=file_path, keep_settings=keep_settings
             )
 
             if result.get("success"):
                 logging.info(
                     "Firmware upgrade process completed successfully for AntMiner."
                 )
-                return "Firmware upgrade completed successfully."
+                return True
             else:
                 error_message = result.get("message", "Unknown error")
                 logging.error(f"Firmware upgrade failed. Response: {error_message}")
-                return f"Firmware upgrade failed. Response: {error_message}"
+                return False
         except Exception as e:
             logging.error(
                 f"An error occurred during the firmware upgrade process: {e}",
                 exc_info=True,
             )
-            raise
+            return False
 
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
         if data:
             if data.get("code") == "B000":
                 self.light = True
-        return self.light
+        return self.light or False
 
     async def fault_light_off(self) -> bool:
         data = await self.web.blink(blink=False)
         if data:
             if data.get("code") == "B100":
                 self.light = False
-        return self.light
+        return self.light or False
 
     async def reboot(self) -> bool:
         data = await self.web.reboot()
@@ -202,7 +226,9 @@ class AntminerModern(BMMiner):
         await self.send_config(cfg)
         return True
 
-    async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_hostname(
+        self, web_get_system_info: dict | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -214,8 +240,9 @@ class AntminerModern(BMMiner):
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_mac(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -234,8 +261,11 @@ class AntminerModern(BMMiner):
                 return data["macaddr"]
         except KeyError:
             pass
+        return None
 
-    async def _get_errors(self, web_summary: dict = None) -> List[MinerErrorData]:
+    async def _get_errors(  # type: ignore[override]
+        self, web_summary: dict | None = None
+    ) -> list[X19Error]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -255,7 +285,7 @@ class AntminerModern(BMMiner):
                 pass
         return errors
 
-    async def _get_hashboards(self) -> List[HashBoard]:
+    async def _get_hashboards(self) -> list[HashBoard]:  # type: ignore[override]
         if self.expected_hashboards is None:
             return []
 
@@ -273,8 +303,11 @@ class AntminerModern(BMMiner):
             try:
                 for board in rpc_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = self.algo.hashrate(
-                        rate=board["rate_real"], unit=self.algo.unit.GH
-                    ).into(self.algo.unit.default)
+                        rate=board["rate_real"],
+                        unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hashboards[board["index"]].chips = board["asic_num"]
 
                     if "S21+ Hyd" in self.model:
@@ -324,8 +357,8 @@ class AntminerModern(BMMiner):
         return hashboards
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict = None
-    ) -> Optional[bool]:
+        self, web_get_blink_status: dict | None = None
+    ) -> bool | None:
         if self.light:
             return self.light
 
@@ -343,8 +376,8 @@ class AntminerModern(BMMiner):
         return self.light
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, rpc_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -360,13 +393,14 @@ class AntminerModern(BMMiner):
                     rate_unit = "GH"
                 return self.algo.hashrate(
                     rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
     async def _get_serial_number(
-        self, web_get_system_info: dict = None
-    ) -> Optional[str]:
+        self, web_get_system_info: dict | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -378,6 +412,7 @@ class AntminerModern(BMMiner):
                 return web_get_system_info["serinum"]
             except LookupError:
                 pass
+        return None
 
     async def set_static_ip(
         self,
@@ -385,10 +420,10 @@ class AntminerModern(BMMiner):
         dns: str,
         gateway: str,
         subnet_mask: str = "255.255.255.0",
-        hostname: str = None,
+        hostname: str | None = None,
     ):
         if not hostname:
-            hostname = await self.get_hostname()
+            hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
             ip=ip,
             dns=dns,
@@ -398,9 +433,9 @@ class AntminerModern(BMMiner):
             protocol=2,
         )
 
-    async def set_dhcp(self, hostname: str = None):
+    async def set_dhcp(self, hostname: str | None = None):
         if not hostname:
-            hostname = await self.get_hostname()
+            hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
             ip="", dns="", gateway="", subnet_mask="", hostname=hostname, protocol=1
         )
@@ -421,7 +456,7 @@ class AntminerModern(BMMiner):
             protocol=protocol,
         )
 
-    async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_get_conf: dict | None = None) -> bool | None:
         if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
@@ -437,8 +472,9 @@ class AntminerModern(BMMiner):
                 return False
             except LookupError:
                 pass
+        return None
 
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -450,8 +486,9 @@ class AntminerModern(BMMiner):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, rpc_pools: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -540,19 +577,22 @@ class AntminerOld(CGMiner):
         data = await self.web.get_miner_conf()
         if data:
             self.config = MinerConfig.from_am_old(data)
-        return self.config
+        return self.config or MinerConfig()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         self.config = config
         await self.web.set_miner_conf(config.as_am_old(user_suffix=user_suffix))
 
-    async def _get_mac(self) -> Optional[str]:
+    async def _get_mac(self) -> str | None:
         try:
             data = await self.web.get_system_info()
             if data:
                 return data["macaddr"]
         except KeyError:
             pass
+        return None
 
     async def fault_light_on(self) -> bool:
         # this should time out, after it does do a check
@@ -564,7 +604,7 @@ class AntminerOld(CGMiner):
                     self.light = True
         except KeyError:
             pass
-        return self.light
+        return self.light or False
 
     async def fault_light_off(self) -> bool:
         await self.web.blink(blink=False)
@@ -575,7 +615,7 @@ class AntminerOld(CGMiner):
                     self.light = False
         except KeyError:
             pass
-        return self.light
+        return self.light or False
 
     async def reboot(self) -> bool:
         data = await self.web.reboot()
@@ -584,8 +624,8 @@ class AntminerOld(CGMiner):
         return False
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict = None
-    ) -> Optional[bool]:
+        self, web_get_blink_status: dict | None = None
+    ) -> bool | None:
         if self.light:
             return self.light
 
@@ -602,7 +642,9 @@ class AntminerOld(CGMiner):
                 pass
         return self.light
 
-    async def _get_hostname(self, web_get_system_info: dict = None) -> Optional[str]:
+    async def _get_hostname(
+        self, web_get_system_info: dict | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -614,8 +656,9 @@ class AntminerOld(CGMiner):
                 return web_get_system_info["hostname"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_fans(self, rpc_stats: dict = None) -> List[Fan]:
+    async def _get_fans(self, rpc_stats: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -640,16 +683,16 @@ class AntminerOld(CGMiner):
 
                 for fan in range(self.expected_fans):
                     fans_data[fan].speed = rpc_stats["STATS"][1].get(
-                        f"fan{fan_offset+fan}", 0
+                        f"fan{fan_offset + fan}", 0
                     )
             except LookupError:
                 pass
         return fans_data
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
-        hashboards = []
+        hashboards: list[HashBoard] = []
 
         if rpc_stats is None:
             try:
@@ -689,8 +732,11 @@ class AntminerOld(CGMiner):
                         hashrate = boards[1].get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
-                                rate=float(hashrate), unit=self.algo.unit.GH
-                            ).into(self.algo.unit.default)
+                                rate=float(hashrate),
+                                unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                            ).into(
+                                self.algo.unit.default  # type: ignore[attr-defined]
+                            )
 
                         chips = boards[1].get(f"chain_acn{i}")
                         if chips:
@@ -707,7 +753,7 @@ class AntminerOld(CGMiner):
 
         return hashboards
 
-    async def _is_mining(self, web_get_conf: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_get_conf: dict | None = None) -> bool | None:
         if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
@@ -732,7 +778,9 @@ class AntminerOld(CGMiner):
             else:
                 return False
 
-    async def _get_uptime(self, rpc_stats: dict = None) -> Optional[int]:
+        return None
+
+    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -744,3 +792,4 @@ class AntminerOld(CGMiner):
                 return int(rpc_stats["STATS"][1]["Elapsed"])
             except LookupError:
                 pass
+        return None

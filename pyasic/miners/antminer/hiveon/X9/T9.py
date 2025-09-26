@@ -14,7 +14,6 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import List, Optional
 
 from pyasic.data import HashBoard
 from pyasic.device.algorithm import AlgoHashRate, HashUnit
@@ -76,7 +75,7 @@ class HiveonT9(HiveonOld, T9):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_hashboards(self, rpc_stats: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
             for board in range(self.expected_hashboards)
@@ -84,7 +83,7 @@ class HiveonT9(HiveonOld, T9):
 
         if rpc_stats is None:
             try:
-                rpc_stats = self.rpc.stats()
+                rpc_stats = await self.rpc.stats()
             except APIError:
                 return []
 
@@ -98,7 +97,7 @@ class HiveonT9(HiveonOld, T9):
             hashrate = 0
             chips = 0
             for chipset in board_map[board]:
-                if hashboards[board].chip_temp is None:
+                if hashboards[board].chip_temp is None and rpc_stats is not None:
                     try:
                         hashboards[board].temp = rpc_stats["STATS"][1][f"temp{chipset}"]
                         hashboards[board].chip_temp = rpc_stats["STATS"][1][
@@ -108,11 +107,12 @@ class HiveonT9(HiveonOld, T9):
                         pass
                     else:
                         hashboards[board].missing = False
-                try:
-                    hashrate += rpc_stats["STATS"][1][f"chain_rate{chipset}"]
-                    chips += rpc_stats["STATS"][1][f"chain_acn{chipset}"]
-                except (KeyError, IndexError):
-                    pass
+                if rpc_stats is not None:
+                    try:
+                        hashrate += rpc_stats["STATS"][1][f"chain_rate{chipset}"]
+                        chips += rpc_stats["STATS"][1][f"chain_acn{chipset}"]
+                    except (KeyError, IndexError):
+                        pass
             hashboards[board].hashrate = AlgoHashRate.SHA256(
                 rate=float(hashrate), unit=HashUnit.SHA256.GH
             ).into(self.algo.unit.default)
@@ -120,8 +120,8 @@ class HiveonT9(HiveonOld, T9):
 
         return hashboards
 
-    async def _get_env_temp(self, rpc_stats: dict = None) -> Optional[float]:
-        env_temp_list = []
+    async def _get_env_temp(self, rpc_stats: dict | None = None) -> float | None:
+        env_temp_list: list[int] = []
         board_map = {
             0: [2, 9, 10],
             1: [3, 11, 12],
@@ -144,3 +144,4 @@ class HiveonT9(HiveonOld, T9):
 
             if not env_temp_list == []:
                 return round(sum(env_temp_list) / len(env_temp_list))
+        return None

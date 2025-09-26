@@ -13,7 +13,6 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from typing import List
 
 from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import HashBoard
@@ -86,12 +85,15 @@ class GoldshellMiner(BFGMiner):
         try:
             pools = await self.web.pools()
         except APIError:
-            return self.config
+            if self.config is not None:
+                return self.config
 
         self.config = MinerConfig.from_goldshell(pools)
         return self.config
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         pools_data = await self.web.pools()
         # have to delete all the pools one at a time first
         for pool in pools_data:
@@ -116,35 +118,37 @@ class GoldshellMiner(BFGMiner):
                 settings["select"] = idx
         await self.web.set_setting(settings)
 
-    async def _get_mac(self, web_setting: dict = None) -> str:
+    async def _get_mac(self, web_setting: dict | None = None) -> str | None:
         if web_setting is None:
             try:
                 web_setting = await self.web.setting()
             except APIError:
-                pass
+                return None
 
         if web_setting is not None:
             try:
                 return web_setting["name"]
             except KeyError:
                 pass
+        return None
 
-    async def _get_fw_ver(self, web_status: dict = None) -> str:
+    async def _get_fw_ver(self, web_status: dict | None = None) -> str | None:
         if web_status is None:
             try:
                 web_status = await self.web.setting()
             except APIError:
-                pass
+                return None
 
         if web_status is not None:
             try:
                 return web_status["firmware"]
             except KeyError:
                 pass
+        return None
 
     async def _get_hashboards(
-        self, rpc_devs: dict = None, rpc_devdetails: dict = None
-    ) -> List[HashBoard]:
+        self, rpc_devs: dict | None = None, rpc_devdetails: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -166,8 +170,11 @@ class GoldshellMiner(BFGMiner):
                         try:
                             b_id = board["ID"]
                             hashboards[b_id].hashrate = self.algo.hashrate(
-                                rate=float(board["MHS 20s"]), unit=self.algo.unit.MH
-                            ).into(self.algo.unit.default)
+                                rate=float(board["MHS 20s"]),
+                                unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                            ).into(
+                                self.algo.unit.default  # type: ignore[attr-defined]
+                            )
                             hashboards[b_id].temp = board["tstemp-2"]
                             hashboards[b_id].missing = False
                         except KeyError:

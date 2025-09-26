@@ -55,7 +55,7 @@ class MinerListenerProtocol(asyncio.Protocol):
 
 class MinerListener:
     def __init__(self, bind_addr: str = "0.0.0.0"):
-        self.found_miners = []
+        self.found_miners: list[dict[str, str]] = []
         self.stop = asyncio.Event()
         self.bind_addr = bind_addr
 

@@ -33,12 +33,12 @@ class ElphapexWebAPI(BaseWebAPI):
             ip (str): IP address of the Elphapex device.
         """
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_elphapex_web_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_elphapex_web_password", "root")
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         privileged: bool = False,
@@ -47,7 +47,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """Send a command to the Elphapex device using HTTP digest authentication.
 
         Args:
-            command (str | bytes): The CGI command to send.
+            command (str): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             privileged (bool): If set to True, requires elevated privileges.

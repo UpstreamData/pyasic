@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.scrypt import ScryptUnit
 from .unit import HashUnit
 
 
-class ScryptHashRate(AlgoHashRateType):
+class ScryptHashRate(AlgoHashRateType[ScryptUnit]):
     rate: float
     unit: ScryptUnit = HashUnit.SCRYPT.default
 

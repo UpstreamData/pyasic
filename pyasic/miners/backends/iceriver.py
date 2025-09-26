@@ -1,9 +1,7 @@
-from typing import List, Optional
-
 from pyasic import MinerConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate, MinerAlgo
+from pyasic.device.algorithm import AlgoHashRateType, MinerAlgo
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -78,7 +76,7 @@ class IceRiver(StockFirmware):
 
         return MinerConfig.from_iceriver(web_userpanel)
 
-    async def _get_fans(self, web_userpanel: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_userpanel: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -86,7 +84,7 @@ class IceRiver(StockFirmware):
             try:
                 web_userpanel = await self.web.userpanel()
             except APIError:
-                pass
+                return []
 
         if web_userpanel is not None:
             try:
@@ -95,13 +93,14 @@ class IceRiver(StockFirmware):
                 ]
             except (LookupError, ValueError, TypeError):
                 pass
+        return []
 
-    async def _get_mac(self, web_userpanel: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_userpanel: dict | None = None) -> str | None:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
             except APIError:
-                pass
+                return None
 
         if web_userpanel is not None:
             try:
@@ -110,26 +109,30 @@ class IceRiver(StockFirmware):
                 )
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hostname(self, web_userpanel: dict = None) -> Optional[str]:
+    async def _get_hostname(self, web_userpanel: dict | None = None) -> str | None:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
             except APIError:
-                pass
+                return None
 
         if web_userpanel is not None:
             try:
                 return web_userpanel["userpanel"]["data"]["host"]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_hashrate(self, web_userpanel: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, web_userpanel: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
             except APIError:
-                pass
+                return None
 
         if web_userpanel is not None:
             try:
@@ -144,8 +147,9 @@ class IceRiver(StockFirmware):
                 ).into(MinerAlgo.SHA256.unit.default)
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_fault_light(self, web_userpanel: dict = None) -> bool:
+    async def _get_fault_light(self, web_userpanel: dict | None = None) -> bool:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
@@ -159,20 +163,23 @@ class IceRiver(StockFirmware):
                 pass
         return False
 
-    async def _is_mining(self, web_userpanel: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_userpanel: dict | None = None) -> bool | None:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
             except APIError:
-                pass
+                return False
 
         if web_userpanel is not None:
             try:
                 return web_userpanel["userpanel"]["data"]["powstate"]
             except (LookupError, ValueError, TypeError):
                 pass
+        return False
 
-    async def _get_hashboards(self, web_userpanel: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(
+        self, web_userpanel: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -195,15 +202,17 @@ class IceRiver(StockFirmware):
                     hb_list[idx].temp = round(board["intmp"])
                     hb_list[idx].hashrate = self.algo.hashrate(
                         rate=float(board["rtpow"].replace("G", "")),
-                        unit=self.algo.unit.GH,
-                    ).into(self.algo.unit.default)
+                        unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hb_list[idx].chips = int(board["chipnum"])
                     hb_list[idx].missing = False
             except LookupError:
                 pass
         return hb_list
 
-    async def _get_uptime(self, web_userpanel: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_userpanel: dict | None = None) -> int | None:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()
@@ -222,8 +231,9 @@ class IceRiver(StockFirmware):
                 )
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_pools(self, web_userpanel: dict = None) -> List[PoolMetrics]:
+    async def _get_pools(self, web_userpanel: dict | None = None) -> list[PoolMetrics]:
         if web_userpanel is None:
             try:
                 web_userpanel = await self.web.userpanel()

@@ -29,7 +29,7 @@ class MinersTest(unittest.TestCase):
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
                 with self.subTest(
-                    msg=f"Test creation of miner",
+                    msg="Test creation of miner",
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):
@@ -42,7 +42,7 @@ class MinersTest(unittest.TestCase):
                 if miner_model is None:
                     continue
                 with self.subTest(
-                    msg=f"Test miner has defined hashboards",
+                    msg="Test miner has defined hashboards",
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):
@@ -56,7 +56,7 @@ class MinersTest(unittest.TestCase):
                 if miner_model is None:
                     continue
                 with self.subTest(
-                    msg=f"Test miner has defined fans",
+                    msg="Test miner has defined fans",
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):
@@ -70,7 +70,7 @@ class MinersTest(unittest.TestCase):
                 if miner_model is None:
                     continue
                 with self.subTest(
-                    msg=f"Test miner has defined algo",
+                    msg="Test miner has defined algo",
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):
@@ -105,7 +105,7 @@ class MinersTest(unittest.TestCase):
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
                 with self.subTest(
-                    msg=f"Data map key check",
+                    msg="Data map key check",
                     miner_type=miner_type,
                     miner_model=miner_model,
                 ):

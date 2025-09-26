@@ -23,7 +23,9 @@ class ScalingShutdown(MinerConfigValue):
     duration: int | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "ScalingShutdown":
+    def from_dict(cls, dict_conf: dict | None) -> ScalingShutdown:
+        if dict_conf is None:
+            return cls()
         return cls(
             enabled=dict_conf.get("enabled", False), duration=dict_conf.get("duration")
         )
@@ -51,7 +53,7 @@ class ScalingShutdown(MinerConfigValue):
         return None
 
     def as_bosminer(self) -> dict:
-        cfg = {"shutdown_enabled": self.enabled}
+        cfg: dict[str, bool | int] = {"shutdown_enabled": self.enabled}
 
         if self.duration is not None:
             cfg["shutdown_duration"] = self.duration
@@ -68,7 +70,9 @@ class ScalingConfig(MinerConfigValue):
     shutdown: ScalingShutdown | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> "ScalingConfig":
+    def from_dict(cls, dict_conf: dict | None) -> ScalingConfig:
+        if dict_conf is None:
+            return cls()
         cls_conf = {
             "step": dict_conf.get("step"),
             "minimum": dict_conf.get("minimum"),

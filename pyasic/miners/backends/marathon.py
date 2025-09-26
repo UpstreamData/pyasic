@@ -1,10 +1,8 @@
-from typing import List, Optional
-
 from pyasic import MinerConfig
 from pyasic.config import MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import MaraFirmware
@@ -90,9 +88,12 @@ class MaraMiner(MaraFirmware):
         data = await self.web.get_miner_config()
         if data:
             self.config = MinerConfig.from_mara(data)
-        return self.config
+            return self.config
+        return MinerConfig()
 
-    async def send_config(self, config: MinerConfig, user_suffix: str = None) -> None:
+    async def send_config(
+        self, config: MinerConfig, user_suffix: str | None = None
+    ) -> None:
         data = await self.web.get_miner_config()
         cfg_data = config.as_mara(user_suffix=user_suffix)
         merged_cfg = merge_dicts(data, cfg_data)
@@ -124,12 +125,13 @@ class MaraMiner(MaraFirmware):
         await self.web.reload()
         return True
 
-    async def _get_wattage(self, web_brief: dict = None) -> Optional[int]:
+    async def _get_wattage(self, web_brief: dict | None = None) -> int | None:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
             except APIError:
                 pass
+        return None
 
         if web_brief is not None:
             try:
@@ -137,12 +139,13 @@ class MaraMiner(MaraFirmware):
             except LookupError:
                 pass
 
-    async def _is_mining(self, web_brief: dict = None) -> Optional[bool]:
+    async def _is_mining(self, web_brief: dict | None = None) -> bool | None:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
             except APIError:
                 pass
+        return None
 
         if web_brief is not None:
             try:
@@ -150,12 +153,13 @@ class MaraMiner(MaraFirmware):
             except LookupError:
                 pass
 
-    async def _get_uptime(self, web_brief: dict = None) -> Optional[int]:
+    async def _get_uptime(self, web_brief: dict | None = None) -> int | None:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
             except APIError:
                 pass
+        return None
 
         if web_brief is not None:
             try:
@@ -163,7 +167,9 @@ class MaraMiner(MaraFirmware):
             except LookupError:
                 pass
 
-    async def _get_hashboards(self, web_hashboards: dict = None) -> List[HashBoard]:
+    async def _get_hashboards(
+        self, web_hashboards: dict | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -183,8 +189,11 @@ class MaraMiner(MaraFirmware):
                 for hb in web_hashboards["hashboards"]:
                     idx = hb["index"]
                     hashboards[idx].hashrate = self.algo.hashrate(
-                        rate=float(hb["hashrate_average"]), unit=self.algo.unit.GH
-                    ).into(self.algo.unit.default)
+                        rate=float(hb["hashrate_average"]),
+                        unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                    ).into(
+                        self.algo.unit.default  # type: ignore[attr-defined]
+                    )
                     hashboards[idx].temp = round(
                         sum(hb["temperature_pcb"]) / len(hb["temperature_pcb"])
                     )
@@ -198,7 +207,7 @@ class MaraMiner(MaraFirmware):
                 pass
         return hashboards
 
-    async def _get_mac(self, web_overview: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_overview: dict | None = None) -> str | None:
         if web_overview is None:
             try:
                 web_overview = await self.web.overview()
@@ -210,8 +219,9 @@ class MaraMiner(MaraFirmware):
                 return web_overview["mac"].upper()
             except LookupError:
                 pass
+        return None
 
-    async def _get_fw_ver(self, web_overview: dict = None) -> Optional[str]:
+    async def _get_fw_ver(self, web_overview: dict | None = None) -> str | None:
         if web_overview is None:
             try:
                 web_overview = await self.web.overview()
@@ -223,8 +233,9 @@ class MaraMiner(MaraFirmware):
                 return web_overview["version_firmware"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hostname(self, web_network_config: dict = None) -> Optional[str]:
+    async def _get_hostname(self, web_network_config: dict | None = None) -> str | None:
         if web_network_config is None:
             try:
                 web_network_config = await self.web.get_network_config()
@@ -236,8 +247,11 @@ class MaraMiner(MaraFirmware):
                 return web_network_config["hostname"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_hashrate(self, web_brief: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, web_brief: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
@@ -247,12 +261,14 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return self.algo.hashrate(
-                    rate=float(web_brief["hashrate_realtime"]), unit=self.algo.unit.TH
-                ).into(self.algo.unit.default)
+                    rate=float(web_brief["hashrate_realtime"]),
+                    unit=self.algo.unit.TH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
-    async def _get_fans(self, web_fans: dict = None) -> List[Fan]:
+    async def _get_fans(self, web_fans: dict | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -272,7 +288,7 @@ class MaraMiner(MaraFirmware):
             return fans
         return [Fan() for _ in range(self.expected_fans)]
 
-    async def _get_fault_light(self, web_locate_miner: dict = None) -> bool:
+    async def _get_fault_light(self, web_locate_miner: dict | None = None) -> bool:
         if web_locate_miner is None:
             try:
                 web_locate_miner = await self.web.get_locate_miner()
@@ -287,8 +303,8 @@ class MaraMiner(MaraFirmware):
         return False
 
     async def _get_expected_hashrate(
-        self, web_brief: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_brief: dict | None = None
+    ) -> AlgoHashRateType | None:
         if web_brief is None:
             try:
                 web_brief = await self.web.brief()
@@ -298,14 +314,16 @@ class MaraMiner(MaraFirmware):
         if web_brief is not None:
             try:
                 return self.algo.hashrate(
-                    rate=float(web_brief["hashrate_ideal"]), unit=self.algo.unit.GH
-                ).into(self.algo.unit.default)
+                    rate=float(web_brief["hashrate_ideal"]),
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except LookupError:
                 pass
+        return None
 
     async def _get_wattage_limit(
-        self, web_miner_config: dict = None
-    ) -> Optional[AlgoHashRate]:
+        self, web_miner_config: dict | None = None
+    ) -> int | None:
         if web_miner_config is None:
             try:
                 web_miner_config = await self.web.get_miner_config()
@@ -317,8 +335,9 @@ class MaraMiner(MaraFirmware):
                 return web_miner_config["mode"]["concorde"]["power-target"]
             except LookupError:
                 pass
+        return None
 
-    async def _get_pools(self, web_pools: list = None) -> List[PoolMetrics]:
+    async def _get_pools(self, web_pools: list | None = None) -> list[PoolMetrics]:
         if web_pools is None:
             try:
                 web_pools = await self.web.pools()

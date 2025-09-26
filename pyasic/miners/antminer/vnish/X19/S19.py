@@ -87,7 +87,3 @@ class VNishS19ProHydro(VNish, S19ProHydro):
 
 class VNishS19kPro(VNish, S19kPro):
     pass
-
-
-class VNishS19ProA(VNish, S19ProA):
-    pass

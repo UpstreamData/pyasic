@@ -1,7 +1,5 @@
-from typing import Optional
-
 from pyasic import APIError
-from pyasic.device.algorithm import AlgoHashRate
+from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.miners.backends import BMMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -66,7 +64,9 @@ class MSKMiner(BMMiner):
     web: MSKMinerWebAPI
     _web_cls = MSKMinerWebAPI
 
-    async def _get_hashrate(self, rpc_stats: dict = None) -> Optional[AlgoHashRate]:
+    async def _get_hashrate(
+        self, rpc_stats: dict | None = None
+    ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_stats is None:
             try:
@@ -78,12 +78,15 @@ class MSKMiner(BMMiner):
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_stats["STATS"][0]["total_rate"]),
-                    unit=self.algo.unit.GH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_wattage(self, rpc_stats: dict = None) -> Optional[int]:
+    async def _get_wattage(self, rpc_stats: dict | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -95,8 +98,9 @@ class MSKMiner(BMMiner):
                 return rpc_stats["STATS"][0]["total_power"]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
-    async def _get_mac(self, web_info_v1: dict = None) -> Optional[str]:
+    async def _get_mac(self, web_info_v1: dict | None = None) -> str | None:
         if web_info_v1 is None:
             try:
                 web_info_v1 = await self.web.info_v1()
@@ -108,3 +112,4 @@ class MSKMiner(BMMiner):
                 return web_info_v1["network_info"]["result"]["macaddr"].upper()
             except (LookupError, ValueError, TypeError):
                 pass
+        return None

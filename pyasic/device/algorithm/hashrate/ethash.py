@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.ethash import EtHashUnit
 from .unit import HashUnit
 
 
-class EtHashHashRate(AlgoHashRateType):
+class EtHashHashRate(AlgoHashRateType[EtHashUnit]):
     rate: float
     unit: EtHashUnit = HashUnit.ETHASH.default
 

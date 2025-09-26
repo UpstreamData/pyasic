@@ -34,20 +34,21 @@ class AvalonMinerWebAPI(BaseWebAPI):
             ip (str): IP address of the Avalonminer device.
         """
         super().__init__(ip)
-        self.username = "root"
-        self.pwd = settings.get("default_avalonminer_web_password", "root")
+        self.username: str = "root"
+        self.pwd: str = settings.get("default_avalonminer_web_password", "root")
 
     async def send_command(
         self,
-        command: str | bytes,
+        command: str,
         ignore_errors: bool = False,
         allow_warning: bool = True,
+        privileged: bool = False,
         **parameters: Any,
     ) -> dict:
         """Send a command to the Avalonminer device using HTTP digest authentication.
 
         Args:
-            command (str | bytes): The CGI command to send.
+            command (str): The CGI command to send.
             ignore_errors (bool): If True, ignore any HTTP errors.
             allow_warning (bool): If True, proceed with warnings.
             **parameters: Arbitrary keyword arguments to be sent as parameters in the request.
