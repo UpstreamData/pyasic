@@ -16,3 +16,5 @@
 from .CK5 import GoldshellCK5
 from .HS5 import GoldshellHS5
 from .KD5 import GoldshellKD5
+
+__all__ = ["GoldshellCK5", "GoldshellHS5", "GoldshellKD5"]

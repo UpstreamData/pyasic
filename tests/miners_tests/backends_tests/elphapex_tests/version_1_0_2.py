@@ -2,7 +2,7 @@
 
 import unittest
 from dataclasses import fields
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from pyasic import APIError, MinerData
 from pyasic.data import Fan, HashBoard
@@ -290,11 +290,11 @@ data = {
 
 class TestElphapexMiners(unittest.IsolatedAsyncioTestCase):
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_all_data_gathering(self, mock_send_bytes):
+    async def test_all_data_gathering(self, mock_send_bytes: MagicMock) -> None:
         mock_send_bytes.raises = APIError()
         for m_type in data:
             gathered_data = {}
-            miner = m_type("127.0.0.1")
+            miner: ElphapexDG1Plus = m_type("127.0.0.1")  # type: ignore[abstract]
             for data_name in fields(miner.data_locations):
                 if data_name.name == "config":
                     # skip
@@ -328,7 +328,9 @@ class TestElphapexMiners(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.api_ver, "1.0.0")
             self.assertEqual(result.fw_ver, "1.0.2")
             self.assertEqual(result.hostname, "DG1+")
-            self.assertEqual(round(result.hashrate.into(ScryptUnit.MH)), 14199)
+            self.assertIsNotNone(result.hashrate)
+            if result.hashrate is not None:
+                self.assertEqual(round(result.hashrate.into(ScryptUnit.MH)), 14199)
             self.assertEqual(
                 result.fans,
                 [Fan(speed=5340), Fan(speed=5400), Fan(speed=5400), Fan(speed=5400)],

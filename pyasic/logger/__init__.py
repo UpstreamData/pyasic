@@ -17,7 +17,7 @@
 import logging
 
 
-def init_logger():
+def init_logger() -> logging.Logger:
     # if PyasicSettings().logfile:
     #     logging.basicConfig(
     #         filename="logfile.txt",

@@ -24,14 +24,30 @@ from pydantic import BaseModel, Field, computed_field
 from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePowerTune
 from pyasic.data.pools import PoolMetrics, Scheme
-from pyasic.device.algorithm.hashrate import AlgoHashRateType
-from pyasic.device.algorithm.hashrate.base import GenericHashrate
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType, GenericHashrate
 
 from .boards import HashBoard
 from .device import DeviceInfo
-from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
 from .error_codes.base import BaseMinerError
+from .error_codes.bos import BraiinsOSError
+from .error_codes.innosilicon import InnosiliconError
+from .error_codes.whatsminer import WhatsminerError
+from .error_codes.X19 import X19Error
 from .fans import Fan
+
+__all__ = [
+    "MinerData",
+    "Fan",
+    "HashBoard",
+    "DeviceInfo",
+    "PoolMetrics",
+    "Scheme",
+    "BaseMinerError",
+    "BraiinsOSError",
+    "InnosiliconError",
+    "WhatsminerError",
+    "X19Error",
+]
 
 
 class MinerData(BaseModel):
@@ -135,12 +151,12 @@ class MinerData(BaseModel):
     pools: list[PoolMetrics] = Field(default_factory=list)
 
     @classmethod
-    def fields(cls) -> set:
+    def fields(cls) -> set[str]:
         all_fields = set(cls.model_fields.keys())
         all_fields.update(set(cls.model_computed_fields.keys()))
         return all_fields
 
-    def get(self, __key: str, default: Any = None):
+    def get(self, __key: str, default: Any = None) -> Any:
         try:
             val = self.__getitem__(__key)
             if val is None:
@@ -149,22 +165,22 @@ class MinerData(BaseModel):
         except KeyError:
             return default
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:
             raise KeyError(f"{item}")
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any) -> None:
         return setattr(self, key, value)
 
-    def __iter__(self):
+    def __iter__(self) -> Any:
         return iter([item for item in self.asdict()])
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: int | float) -> "MinerData":
         return self // other
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: int | float) -> "MinerData":
         cp = copy.deepcopy(self)
         for key in self.fields():
             item = getattr(self, key)
@@ -174,7 +190,7 @@ class MinerData(BaseModel):
                 setattr(cp, key, item / other)
         return cp
 
-    def __add__(self, other):
+    def __add__(self, other: "MinerData") -> "MinerData":
         if not isinstance(other, MinerData):
             raise TypeError("Cannot add MinerData to non MinerData type.")
         cp = copy.deepcopy(self)
@@ -221,7 +237,7 @@ class MinerData(BaseModel):
         return self.raw_hashrate
 
     @hashrate.setter
-    def hashrate(self, val):
+    def hashrate(self, val: AlgoHashRateType | None) -> None:
         self.raw_hashrate = val
 
     @computed_field  # type: ignore[prop-decorator]
@@ -233,7 +249,7 @@ class MinerData(BaseModel):
         return self.raw_wattage_limit
 
     @wattage_limit.setter
-    def wattage_limit(self, val: int):
+    def wattage_limit(self, val: int) -> None:
         self.raw_wattage_limit = val
 
     @computed_field  # type: ignore[prop-decorator]
@@ -271,7 +287,7 @@ class MinerData(BaseModel):
         if self.hashrate is None or self.expected_hashrate is None:
             return None
         try:
-            return round((self.hashrate / self.expected_hashrate) * 100)
+            return round((float(self.hashrate) / float(self.expected_hashrate)) * 100)
         except ZeroDivisionError:
             return 0
 
@@ -358,13 +374,13 @@ class MinerData(BaseModel):
             return str(self.device_info.algo)
         return ""
 
-    def keys(self) -> list:
+    def keys(self) -> list[str]:
         return list(self.model_fields.keys())
 
-    def asdict(self) -> dict:
+    def asdict(self) -> dict[str, Any]:
         return self.model_dump()
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """Get this dataclass as a dictionary.
 
         Returns:
@@ -424,8 +440,8 @@ class MinerData(BaseModel):
 
             list_field_data = []
             for idx, list_field_val in enumerate(value):
-                item_serialization_func = serialization_map.get(
-                    type(list_field_val), lambda _k, _v: None
+                item_serialization_func: Callable[[str, Any], str | None] = (
+                    serialization_map.get(type(list_field_val), lambda _k, _v: None)
                 )
                 item_serialized = item_serialization_func(
                     f"{key}{level_delimiter}{idx}", list_field_val
@@ -436,7 +452,9 @@ class MinerData(BaseModel):
                 for dt in serialization_map_instance:
                     if item_serialized is None:
                         if isinstance(list_field_val, dt):
-                            func = serialization_map_instance[dt]
+                            func: Callable[[str, Any], str | None] = (
+                                serialization_map_instance[dt]
+                            )
                             item_serialized = func(
                                 f"{key}{level_delimiter}{idx}", list_field_val
                             )
@@ -444,7 +462,7 @@ class MinerData(BaseModel):
                     list_field_data.append(item_serialized)
             return ",".join(list_field_data)
 
-        def serialize_miner_error(key: str, value: BaseMinerError):
+        def serialize_miner_error(key: str, value: BaseMinerError) -> str:
             return value.as_influxdb(key, level_delimiter=level_delimiter)
 
         def serialize_fan(key: str, value: Fan) -> str:
@@ -453,10 +471,10 @@ class MinerData(BaseModel):
         def serialize_hashboard(key: str, value: HashBoard) -> str:
             return value.as_influxdb(key, level_delimiter=level_delimiter)
 
-        def serialize_bool(key: str, value: bool):
+        def serialize_bool(key: str, value: bool) -> str:
             return f"{key}={str(value).lower()}"
 
-        def serialize_pool_metrics(key: str, value: PoolMetrics):
+        def serialize_pool_metrics(key: str, value: PoolMetrics) -> str:
             return value.as_influxdb(key, level_delimiter=level_delimiter)
 
         include = [
@@ -481,11 +499,13 @@ class MinerData(BaseModel):
             "pools",
         ]
 
-        serialization_map_instance: dict[type, Callable[[str, Any], str | None]] = {
+        serialization_map_instance: dict[
+            type[Any], Callable[[str, Any], str | None]
+        ] = {
             AlgoHashRateType: serialize_algo_hash_rate,
             BaseMinerError: serialize_miner_error,
         }
-        serialization_map: dict[type, Callable[[str, Any], str | None]] = {
+        serialization_map: dict[type[Any], Callable[[str, Any], str | None]] = {
             int: serialize_int,
             float: serialize_float,
             str: serialize_str,
@@ -509,8 +529,8 @@ class MinerData(BaseModel):
 
         for field in include:
             field_val = getattr(self, field)
-            serialization_func = serialization_map.get(
-                type(field_val), lambda _k, _v: None
+            serialization_func: Callable[[str, Any], str | None] = (
+                serialization_map.get(type(field_val), lambda _k, _v: None)
             )
             serialized = serialization_func(field, field_val)
             if serialized is not None:
@@ -519,7 +539,9 @@ class MinerData(BaseModel):
             for datatype in serialization_map_instance:
                 if serialized is None:
                     if isinstance(field_val, datatype):
-                        func = serialization_map_instance[datatype]
+                        func: Callable[[str, Any], str | None] = (
+                            serialization_map_instance[datatype]
+                        )
                         serialized = func(field, field_val)
             if serialized is not None:
                 field_data.append(serialized)

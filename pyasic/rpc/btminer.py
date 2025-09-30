@@ -26,12 +26,13 @@ import struct
 import typing
 import warnings
 from collections.abc import AsyncGenerator
-from typing import Any, Literal
+from enum import IntEnum
+from typing import Annotated, Any, Literal
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from passlib.handlers.md5_crypt import md5_crypt
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from pyasic import settings
 from pyasic.errors import APIError, APIWarning
@@ -47,13 +48,21 @@ from pyasic.rpc.base import BaseMinerRPCAPI
 # or add it as the Whatsminer_pwd in the settings.toml file.
 
 
+class BTMinerAPICode(IntEnum):
+    MSG_CMDOK = 0
+    MSG_CMDERR = -1
+    MSG_INVCMD = -2
+    MSG_INVJSON = -3
+    MSG_ACCDENY = -4
+    MSG_OUT_OF_MEMORY = -5
+
+
 class TokenResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     salt: str
     time: str
     newsalt: str
-
-    class Config:
-        extra = "allow"
 
 
 class TokenData(BaseModel):
@@ -62,31 +71,21 @@ class TokenData(BaseModel):
     timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class BTMinerPrivilegedCommand(BaseModel):
-    cmd: str
-    token: str
-
-    class Config:
-        extra = "allow"
-
-
 class BTMinerV3Command(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     cmd: str
     param: Any | None = None
 
-    class Config:
-        extra = "forbid"
-
 
 class BTMinerV3PrivilegedCommand(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     cmd: str
     param: Any | None = None
     ts: int
     account: str
     token: str
-
-    class Config:
-        extra = "forbid"
 
 
 PrePowerOnMessage = (
@@ -94,6 +93,254 @@ PrePowerOnMessage = (
     | Literal["adjust complete"]
     | Literal["adjust continue"]
 )
+
+
+class BTMinerV3Pool(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    id: int | None = None
+    url: str | None = None
+    status: str | None = None
+    account: str | None = None
+    stratum_active: bool | None = Field(None, alias="stratum-active")
+    reject_rate: float | None = Field(None, alias="reject-rate")
+    last_share_time: float | None = Field(None, alias="last-share-time")
+
+
+class BTMinerV3Summary(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    elapsed: int
+    bootup_time: int = Field(alias="bootup-time")
+    freq_avg: float = Field(alias="freq-avg")
+    target_freq: int | None = Field(None, alias="target-freq")
+    factory_hash: float = Field(alias="factory-hash")
+    hash_average: float = Field(alias="hash-average")
+    hash_1min: float = Field(alias="hash-1min")
+    hash_15min: float = Field(alias="hash-15min")
+    hash_realtime: float = Field(alias="hash-realtime")
+    power_rate: float = Field(alias="power-rate")
+    power_5min: float = Field(alias="power-5min")
+    power_realtime: float = Field(alias="power-realtime")
+    environment_temperature: float = Field(alias="environment-temperature")
+    board_temperature: list[float] = Field(alias="board-temperature")
+    chip_temp_min: float = Field(alias="chip-temp-min")
+    chip_temp_avg: float = Field(alias="chip-temp-avg")
+    chip_temp_max: float = Field(alias="chip-temp-max")
+    power_limit: int = Field(alias="power-limit")
+    up_freq_finish: int = Field(alias="up-freq-finish")
+    fan_speed_in: int = Field(alias="fan-speed-in")
+    fan_speed_out: int = Field(alias="fan-speed-out")
+
+
+class BTMinerV3EdevItem(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    id: int
+    slot: int
+    hash_average: float = Field(alias="hash-average")
+    factory_hash: float = Field(alias="factory-hash")
+    freq: int
+    effective_chips: int = Field(alias="effective-chips")
+    chip_temp_min: float = Field(alias="chip-temp-min")
+    chip_temp_avg: float = Field(alias="chip-temp-avg")
+    chip_temp_max: float = Field(alias="chip-temp-max")
+
+
+class BTMinerV3MinerStatusMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    pools: list[BTMinerV3Pool] = Field(default_factory=list)
+    summary: BTMinerV3Summary | None = None
+    edevs: list[BTMinerV3EdevItem] = Field(default_factory=list)
+
+
+class BTMinerV3Network(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    mac: str | None = None
+    hostname: str | None = None
+
+
+class BTMinerV3System(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    api: str | None = None
+    fwversion: str | None = None
+    ledstatus: str | None = None
+
+
+class BTMinerV3Hardware(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    boards: int = 3
+
+
+class BTMinerV3Power(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    fanspeed: int | None = None
+
+
+class BTMinerV3Miner(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    power_limit_set: str | None = Field(None, alias="power-limit-set")
+    pcbsn0: str | None = None
+    pcbsn1: str | None = None
+    pcbsn2: str | None = None
+
+
+class BTMinerV3DeviceInfoMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    network: BTMinerV3Network = Field(default_factory=BTMinerV3Network)
+    system: BTMinerV3System = Field(default_factory=BTMinerV3System)
+    hardware: BTMinerV3Hardware = Field(default_factory=BTMinerV3Hardware)
+    power: BTMinerV3Power = Field(default_factory=BTMinerV3Power)
+    miner: BTMinerV3Miner = Field(default_factory=BTMinerV3Miner)
+
+
+class BTMinerV3MinerStatusSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3MinerStatusMsg
+    desc: Literal["get.miner.status"]
+
+
+class BTMinerV3DeviceInfoSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3DeviceInfoMsg
+    desc: Literal["get.device.info"]
+
+
+class BTMinerV3SystemSettingMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+
+class BTMinerV3SystemSettingSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3SystemSettingMsg
+    desc: Literal["get.system.setting"]
+
+
+class BTMinerV3MinerHistoryMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    Data: str
+
+
+class BTMinerV3MinerHistorySuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3MinerHistoryMsg
+    desc: Literal["get.miner.history"]
+
+
+class BTMinerV3MinerSettingMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+
+class BTMinerV3MinerSettingSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3MinerSettingMsg
+    desc: Literal["get.miner.setting"]
+
+
+class BTMinerV3LogDownloadMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    logsize: str
+
+
+class BTMinerV3LogDownloadSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3LogDownloadMsg
+    desc: Literal["get.log.download"]
+
+
+class BTMinerV3FanSettingMsg(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+
+class BTMinerV3FanSettingSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: BTMinerV3FanSettingMsg
+    desc: Literal["get.fan.setting"]
+
+
+class BTMinerV3SetCommandSuccessResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[BTMinerAPICode.MSG_CMDOK]
+    when: int
+    msg: Literal["ok"]
+    desc: Literal[
+        "set.system.reboot",
+        "set.system.led",
+        "set.miner.service",
+        "set.miner.report",
+        "set.miner.power_limit",
+    ]
+
+
+BTMinerV3SuccessResponse = Annotated[
+    BTMinerV3MinerStatusSuccessResponse
+    | BTMinerV3DeviceInfoSuccessResponse
+    | BTMinerV3SystemSettingSuccessResponse
+    | BTMinerV3MinerHistorySuccessResponse
+    | BTMinerV3MinerSettingSuccessResponse
+    | BTMinerV3LogDownloadSuccessResponse
+    | BTMinerV3FanSettingSuccessResponse
+    | BTMinerV3SetCommandSuccessResponse,
+    Field(discriminator="desc"),
+]
+
+
+class BTMinerV3ErrorResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    code: Literal[
+        BTMinerAPICode.MSG_CMDERR,
+        BTMinerAPICode.MSG_INVCMD,
+        BTMinerAPICode.MSG_INVJSON,
+        BTMinerAPICode.MSG_ACCDENY,
+        BTMinerAPICode.MSG_OUT_OF_MEMORY,
+    ]
+    when: int
+    msg: str
+    desc: str
+
+
+BTMinerV3ResponseData = Annotated[
+    BTMinerV3SuccessResponse | BTMinerV3ErrorResponse,
+    Field(discriminator="code"),
+]
+
+
+class BTMinerV3Response(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    data: BTMinerV3ResponseData
 
 
 def _crypt(word: str, salt: str) -> str:
@@ -138,7 +385,9 @@ def _add_to_16(string: str) -> bytes:
     return str.encode(string)  # return bytes
 
 
-def parse_btminer_priviledge_data(token_data: TokenData, data: dict) -> dict:
+def parse_btminer_priviledge_data(
+    token_data: TokenData, data: dict[str, Any]
+) -> dict[str, Any]:
     """Parses data returned from the BTMiner privileged API.
 
     Parses data from the BTMiner privileged API using the token
@@ -161,7 +410,7 @@ def parse_btminer_priviledge_data(token_data: TokenData, data: dict) -> dict:
     aes = Cipher(algorithms.AES(aeskey), modes.ECB())
     decryptor = aes.decryptor()
     # decode the message with the decryptor
-    ret_msg = json.loads(
+    ret_msg: dict[str, Any] = json.loads(
         decryptor.update(base64.decodebytes(bytes(enc_data, encoding="utf8")))
         .rstrip(b"\0")
         .decode("utf8")
@@ -169,7 +418,7 @@ def parse_btminer_priviledge_data(token_data: TokenData, data: dict) -> dict:
     return ret_msg
 
 
-def create_privileged_cmd(token_data: TokenData, command: dict) -> bytes:
+def create_privileged_cmd(token_data: TokenData, command: dict[str, Any]) -> bytes:
     """Create a privileged command to send to the BTMiner API.
 
     Creates a privileged command using the token from the API and the
@@ -236,7 +485,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         self.pwd: str = settings.get("default_whatsminer_rpc_password", "admin")
         self.token: TokenData | None = None
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+    async def multicommand(
+        self, *commands: str, allow_warning: bool = True
+    ) -> dict[str, Any]:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
@@ -276,7 +527,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         except APIError:
             return {}
 
-        data = {}
+        data: dict[str, Any] = {}
         for item in all_data:
             data.update(item)
 
@@ -288,8 +539,8 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         command: str,
         ignore_errors: bool = False,
         timeout: int = 10,
-        **kwargs,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         try:
             return await self._send_privileged_command(
                 command=command, ignore_errors=ignore_errors, timeout=timeout, **kwargs
@@ -312,8 +563,8 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         command: str,
         ignore_errors: bool = False,
         timeout: int = 10,
-        **kwargs,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         logging.debug(
             f"{self} - (Send Privileged Command) - {command} " + f"with args {kwargs}"
             if len(kwargs) > 0
@@ -398,7 +649,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         logging.debug(f"{self} - (Get Token) - Gathered token data: {self.token}")
         return self.token
 
-    async def open_api(self):
+    async def open_api(self) -> bool:
         async with httpx.AsyncClient() as c:
             stage1_req = (
                 await c.post(
@@ -444,7 +695,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         pool_3: str | None = None,
         worker_3: str | None = None,
         passwd_3: str | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Update the pools of the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -480,7 +731,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             passwd3=passwd_3,
         )
 
-    async def restart(self) -> dict:
+    async def restart(self) -> dict[str, Any]:
         """Restart BTMiner using the API.
         <details>
             <summary>Expand</summary>
@@ -494,7 +745,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("restart_btminer")
 
-    async def power_off(self, respbefore: bool = True) -> dict:
+    async def power_off(self, respbefore: bool = True) -> dict[str, Any]:
         """Power off the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -512,7 +763,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             return await self.send_privileged_command("power_off", respbefore="true")
         return await self.send_privileged_command("power_off", respbefore="false")
 
-    async def power_on(self) -> dict:
+    async def power_on(self) -> dict[str, Any]:
         """Power on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -526,7 +777,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("power_on")
 
-    async def reset_led(self) -> dict:
+    async def reset_led(self) -> dict[str, Any]:
         """Reset the LED on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -547,7 +798,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         period: int = 60,
         duration: int = 20,
         start: int = 0,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Set the LED on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -571,7 +822,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             "set_led", color=color, period=period, duration=duration, start=start
         )
 
-    async def set_low_power(self) -> dict:
+    async def set_low_power(self) -> dict[str, Any]:
         """Set low power mode on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -585,7 +836,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_low_power")
 
-    async def set_high_power(self) -> dict:
+    async def set_high_power(self) -> dict[str, Any]:
         """Set low power mode on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -599,7 +850,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_high_power")
 
-    async def set_normal_power(self) -> dict:
+    async def set_normal_power(self) -> dict[str, Any]:
         """Set low power mode on the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -636,7 +887,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         await self._send_bytes(file_size + firmware)
         return True
 
-    async def reboot(self, timeout: int = 10) -> dict:
+    async def reboot(self, timeout: int = 10) -> dict[str, Any]:
         """Reboot the miner using the API.
         <details>
             <summary>Expand</summary>
@@ -654,7 +905,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return d
 
-    async def factory_reset(self) -> dict:
+    async def factory_reset(self) -> dict[str, Any]:
         """Reset the miner to factory defaults.
         <details>
             <summary>Expand</summary>
@@ -665,7 +916,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("factory_reset")
 
-    async def update_pwd(self, old_pwd: str, new_pwd: str) -> dict:
+    async def update_pwd(self, old_pwd: str, new_pwd: str) -> dict[str, Any]:
         """Update the admin user's password.
 
         <details>
@@ -706,7 +957,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         dns: str | None = None,
         host: str | None = None,
         dhcp: bool = True,
-    ):
+    ) -> dict[str, Any]:
         if dhcp:
             return await self.send_privileged_command("net_config", param="dhcp")
         if None in [ip, mask, gate, dns, host]:
@@ -715,7 +966,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             "net_config", ip=ip, mask=mask, gate=gate, dns=dns, host=host
         )
 
-    async def set_target_freq(self, percent: int) -> dict:
+    async def set_target_freq(self, percent: int) -> dict[str, Any]:
         """Update the target frequency.
 
         <details>
@@ -741,7 +992,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             "set_target_freq", percent=str(percent)
         )
 
-    async def enable_fast_boot(self) -> dict:
+    async def enable_fast_boot(self) -> dict[str, Any]:
         """Turn on fast boot.
 
         <details>
@@ -756,7 +1007,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("enable_btminer_fast_boot")
 
-    async def disable_fast_boot(self) -> dict:
+    async def disable_fast_boot(self) -> dict[str, Any]:
         """Turn off fast boot.
 
         <details>
@@ -771,7 +1022,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("disable_btminer_fast_boot")
 
-    async def enable_web_pools(self) -> dict:
+    async def enable_web_pools(self) -> dict[str, Any]:
         """Turn on web pool updates.
 
         <details>
@@ -786,7 +1037,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("enable_web_pools")
 
-    async def disable_web_pools(self) -> dict:
+    async def disable_web_pools(self) -> dict[str, Any]:
         """Turn off web pool updates.
 
         <details>
@@ -801,7 +1052,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("disable_web_pools")
 
-    async def set_hostname(self, hostname: str) -> dict:
+    async def set_hostname(self, hostname: str) -> dict[str, Any]:
         """Set the hostname of the miner.
 
         <details>
@@ -818,7 +1069,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_privileged_command("set_hostname", hostname=hostname)
 
-    async def set_power_pct(self, percent: int) -> dict:
+    async def set_power_pct(self, percent: int) -> dict[str, Any]:
         """Set the power percentage of the miner based on current power.  Used for temporary adjustment.
 
         <details>
@@ -842,7 +1093,9 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
             )
         return await self.send_privileged_command("set_power_pct", percent=str(percent))
 
-    async def pre_power_on(self, complete: bool, msg: PrePowerOnMessage) -> dict:
+    async def pre_power_on(
+        self, complete: bool, msg: PrePowerOnMessage
+    ) -> dict[str, Any]:
         """Configure or check status of pre power on.
 
         <details>
@@ -878,7 +1131,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
     ### ADDED IN V2.0.5 Whatsminer API ###
 
     @api_min_version("2.0.5")
-    async def set_power_pct_v2(self, percent: int) -> dict:
+    async def set_power_pct_v2(self, percent: int) -> dict[str, Any]:
         """Set the power percentage of the miner based on current power.  Used for temporary adjustment.  Added in API v2.0.5.
 
         <details>
@@ -905,7 +1158,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         )
 
     @api_min_version("2.0.5")
-    async def set_temp_offset(self, temp_offset: int) -> dict:
+    async def set_temp_offset(self, temp_offset: int) -> dict[str, Any]:
         """Set the offset of miner hash board target temperature.
 
         <details>
@@ -933,7 +1186,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         )
 
     @api_min_version("2.0.5")
-    async def adjust_power_limit(self, power_limit: int) -> dict:
+    async def adjust_power_limit(self, power_limit: int) -> dict[str, Any]:
         """Set the upper limit of the miner's power. Cannot be higher than the ordinary power of the machine.
 
         <details>
@@ -955,7 +1208,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         )
 
     @api_min_version("2.0.5")
-    async def adjust_upfreq_speed(self, upfreq_speed: int) -> dict:
+    async def adjust_upfreq_speed(self, upfreq_speed: int) -> dict[str, Any]:
         """Set the upfreq speed, 0 is the normal speed, 9 is the fastest speed.
 
         <details>
@@ -983,7 +1236,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         )
 
     @api_min_version("2.0.5")
-    async def set_poweroff_cool(self, poweroff_cool: bool) -> dict:
+    async def set_poweroff_cool(self, poweroff_cool: bool) -> dict[str, Any]:
         """Set whether to cool the machine when mining is stopped.
 
         <details>
@@ -1004,7 +1257,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         )
 
     @api_min_version("2.0.5")
-    async def set_fan_zero_speed(self, fan_zero_speed: bool) -> dict:
+    async def set_fan_zero_speed(self, fan_zero_speed: bool) -> dict[str, Any]:
         """Sets whether the fan speed supports the lowest 0 speed.
 
         <details>
@@ -1026,7 +1279,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
     #### END privileged COMMANDS ####
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get the summary status from the miner.
         <details>
             <summary>Expand</summary>
@@ -1037,7 +1290,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("summary")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Get the pool status from the miner.
         <details>
             <summary>Expand</summary>
@@ -1048,7 +1301,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pools")
 
-    async def devs(self) -> dict:
+    async def devs(self) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details.
         <details>
             <summary>Expand</summary>
@@ -1059,7 +1312,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devs")
 
-    async def edevs(self) -> dict:
+    async def edevs(self) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details, ignoring blacklisted and zombie devices.
         <details>
             <summary>Expand</summary>
@@ -1070,7 +1323,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("edevs")
 
-    async def devdetails(self) -> dict:
+    async def devdetails(self) -> dict[str, Any]:
         """Get data on all devices with their static details.
         <details>
             <summary>Expand</summary>
@@ -1081,7 +1334,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devdetails")
 
-    async def get_psu(self) -> dict:
+    async def get_psu(self) -> dict[str, Any]:
         """Get data on the PSU and power information.
         <details>
             <summary>Expand</summary>
@@ -1092,7 +1345,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("get_psu")
 
-    async def version(self) -> dict:
+    async def version(self) -> dict[str, Any]:
         """Get version data for the miner.  Wraps `self.get_version()`.
         <details>
             <summary>Expand</summary>
@@ -1107,7 +1360,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.get_version()
 
-    async def get_version(self) -> dict:
+    async def get_version(self) -> dict[str, Any]:
         """Get version data for the miner.
         <details>
             <summary>Expand</summary>
@@ -1118,7 +1371,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("get_version")
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         """Get BTMiner status and firmware version.
         <details>
             <summary>Expand</summary>
@@ -1129,7 +1382,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("status")
 
-    async def get_miner_info(self) -> dict:
+    async def get_miner_info(self) -> dict[str, Any]:
         """Get general miner info.
         <details>
             <summary>Expand</summary>
@@ -1141,7 +1394,7 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
         return await self.send_command("get_miner_info", allow_warning=False)
 
     @api_min_version("2.0.1")
-    async def get_error_code(self) -> dict:
+    async def get_error_code(self) -> dict[str, Any]:
         """Get a list of error codes from the miner.
 
         <details>
@@ -1156,13 +1409,15 @@ class BTMinerRPCAPI(BaseMinerRPCAPI):
 
 
 class BTMinerV3RPCAPI(BaseMinerRPCAPI):
-    def __init__(self, ip: str, port: int = 4433, api_ver: str = "0.0.0"):
+    def __init__(self, ip: str, port: int = 4433, api_ver: str = "0.0.0") -> None:
         super().__init__(ip, port, api_ver=api_ver)
 
         self.salt: str | None = None
         self.pwd: str = "super"
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+    async def multicommand(
+        self, *commands: str, allow_warning: bool = True
+    ) -> dict[str, Any]:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
@@ -1171,9 +1426,40 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
 
         """
         checked_commands = self._check_commands(*commands)
-        data = await self._send_split_multicommand(*checked_commands)
-        data["multicommand"] = True
-        return data
+        result: dict[str, Any] = {"multicommand": True}
+
+        for command in checked_commands:
+            try:
+                if ":" in command:
+                    cmd, param = command.split(":", 1)
+                else:
+                    cmd, param = command, None
+
+                response = await self.api_request(cmd, parameters=param)
+
+                if response.desc == "get.device.info":
+                    result[command] = [response.msg]
+                elif response.desc == "get.miner.status":
+                    if param == "summary":
+                        result[command] = [response.msg.summary]
+                    elif param == "edevs":
+                        result[command] = [response.msg.edevs]
+                    elif param == "pools":
+                        result[command] = [response.msg.pools]
+                    else:
+                        result[command] = [response.msg]
+                elif response.desc == "get.system.setting":
+                    result[command] = [response.msg]
+                elif response.desc == "get.miner.setting":
+                    result[command] = [response.msg]
+                elif response.desc == "get.fan.setting":
+                    result[command] = [response.msg]
+                else:
+                    result[command] = [response.msg]
+            except APIError:
+                continue
+
+        return result
 
     async def send_command(
         self,
@@ -1181,8 +1467,8 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         parameters: Any = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **kwargs,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         if ":" in command:
             parameters = command.split(":")[1]
             command = command.split(":")[0]
@@ -1209,7 +1495,26 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
         cmd_dict = cmd.model_dump()
         ser = json.dumps(cmd_dict).encode("utf-8")
         header = struct.pack("<I", len(ser))
-        return json.loads(await self._send_bytes(header + ser))
+        result: dict[str, Any] = json.loads(await self._send_bytes(header + ser))
+        return result
+
+    async def api_request(
+        self,
+        command: str,
+        parameters: Any = None,
+        **kwargs: Any,
+    ) -> BTMinerV3SuccessResponse:
+        data = await self.send_command(command, parameters=parameters, **kwargs)
+        response = BTMinerV3Response.model_validate({"data": data})
+
+        if response.data.code != BTMinerAPICode.MSG_CMDOK:
+            logging.error(
+                f"BTMiner API error: code={response.data.code.name}, msg={response.data.msg}"
+            )
+            raise APIError(
+                f"BTMiner API error: {response.data.code.name} - {response.data.msg}"
+            )
+        return response.data
 
     async def _send_bytes(
         self,
@@ -1253,7 +1558,7 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
 
         return ret_data
 
-    def _check_commands(self, *commands) -> list:
+    def _check_commands(self, *commands: str) -> list[str]:
         return_commands = []
 
         for command in commands:
@@ -1290,13 +1595,13 @@ If you are sure you want to use this command please use API.send_command("{comma
         return self.salt
 
     @typing.no_type_check
-    async def get_miner_report(self) -> AsyncGenerator[dict, None]:
+    async def get_miner_report(self) -> AsyncGenerator[dict[str, Any], None]:
         if self.writer is None:
             await self.connect()
 
         result = asyncio.Queue()
 
-        async def callback(data: dict):
+        async def callback(data: dict[str, Any]) -> None:
             await result.put(data)
 
         cb_fn = callback
@@ -1310,167 +1615,251 @@ If you are sure you want to use this command please use API.send_command("{comma
         finally:
             self.cmd_callbacks["get.miner.report"].remove(cb_fn)
 
-    async def get_system_setting(self) -> dict | None:
-        return await self.send_command("get.system.setting")
+    async def get_system_setting(self) -> BTMinerV3SystemSettingMsg:
+        response = await self.api_request("get.system.setting")
+        if not response.desc == "get.system.setting":
+            raise APIError(f'Expected "get.system.setting" but got "{response.desc}"')
+        return response.msg
 
-    async def get_miner_status_summary(self) -> dict | None:
-        return await self.send_command("get.miner.status", parameters="summary")
+    async def get_miner_status_summary(
+        self,
+    ) -> BTMinerV3Summary:
+        response = await self.api_request("get.miner.status", parameters="summary")
+        if not response.desc == "get.miner.status":
+            raise APIError(f'Expected "get.miner.status" but got "{response.desc}"')
+        if response.msg.summary is None:
+            raise APIError("No summary data returned")
+        return response.msg.summary
 
-    async def get_miner_status_edevs(self) -> dict | None:
-        return await self.send_command("get.miner.status", parameters="edevs")
+    async def get_miner_status_edevs(self) -> list[BTMinerV3EdevItem]:
+        response = await self.api_request("get.miner.status", parameters="edevs")
+        if not response.desc == "get.miner.status":
+            raise APIError(f'Expected "get.miner.status" but got "{response.desc}"')
+        return response.msg.edevs
 
-    async def get_miner_status_pools(self) -> dict | None:
-        return await self.send_command("get.miner.status", parameters="pools")
+    async def get_miner_status_pools(
+        self,
+    ) -> list[BTMinerV3Pool]:
+        response = await self.api_request("get.miner.status", parameters="pools")
+        if not response.desc == "get.miner.status":
+            raise APIError(f'Expected "get.miner.status" but got "{response.desc}"')
+        return response.msg.pools
 
-    async def get_miner_history(self) -> dict | None:
-        data = await self.send_command(
+    async def get_miner_history(self) -> dict[int, list[str]]:
+        response = await self.api_request(
             "get.miner.history",
             parameters={
                 "start": "1",
                 "stop": str(datetime.datetime.now().timestamp()),
             },
         )
-        ret = {}
-        result = data.get("msg")
-        if result is not None:
-            unparsed = result["Data"].strip()
-            for item in unparsed.split(" "):
-                list_item = item.split(",")
-                timestamp = int(list_item.pop(0))
-                ret[timestamp] = list_item
+        if not response.desc == "get.miner.history":
+            raise APIError(f'Expected "get.miner.history" but got "{response.desc}"')
+
+        ret: dict[int, list[str]] = {}
+        unparsed = response.msg.Data.strip()
+        for item in unparsed.split(" "):
+            list_item = item.split(",")
+            timestamp = int(list_item.pop(0))
+            ret[timestamp] = list_item
         return ret
 
-    async def get_psu_command(self):
-        return await self.send_command("get.psu.command")
+    async def get_miner_setting(self) -> BTMinerV3MinerSettingMsg:
+        response = await self.api_request("get.miner.setting")
+        if not response.desc == "get.miner.setting":
+            raise APIError(f'Expected "get.miner.setting" but got "{response.desc}"')
+        return response.msg
 
-    async def get_miner_setting(self) -> dict | None:
-        return await self.send_command("get.miner.setting")
+    async def get_device_info(self) -> BTMinerV3DeviceInfoMsg:
+        response = await self.api_request("get.device.info")
+        if not response.desc == "get.device.info":
+            raise APIError(f'Expected "get.device.info" but got "{response.desc}"')
+        return response.msg
 
-    async def get_device_info(self) -> dict | None:
-        return await self.send_command("get.device.info")
+    async def get_log_download(self) -> BTMinerV3LogDownloadMsg:
+        response = await self.api_request("get.log.download")
+        if not response.desc == "get.log.download":
+            raise APIError(f'Expected "get.log.download" but got "{response.desc}"')
+        return response.msg
 
-    async def get_log_download(self) -> dict | None:
-        return await self.send_command("get.log.download")
+    async def get_fan_setting(self) -> BTMinerV3FanSettingMsg:
+        response = await self.api_request("get.fan.setting")
+        if not response.desc == "get.fan.setting":
+            raise APIError(f'Expected "get.fan.setting" but got "{response.desc}"')
+        return response.msg
 
-    async def get_fan_setting(self) -> dict | None:
-        return await self.send_command("get.fan.setting")
+    async def set_system_reboot(self) -> None:
+        response = await self.api_request("set.system.reboot")
+        if response.desc != "set.system.reboot":
+            raise APIError(f'Expected "set.system.reboot" but got "{response.desc}"')
 
-    async def set_system_reboot(self) -> dict | None:
-        return await self.send_command("set.system.reboot")
-
-    async def set_system_factory_reset(self, *args, **kwargs) -> dict | None:
+    async def set_system_factory_reset(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.factory_reset")
 
-    async def set_system_update_firmware(self, *args, **kwargs) -> dict | None:
+    async def set_system_update_firmware(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.update_firmware")
 
-    async def set_system_net_config(self, *args, **kwargs) -> dict | None:
+    async def set_system_net_config(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.net_config")
 
-    async def set_system_led(self, leds: list | None = None) -> dict | None:
+    async def set_system_led(self, leds: list[Any] | None = None) -> None:
         if leds is None:
-            return await self.send_command("set.system.led", parameters="auto")
+            response = await self.api_request("set.system.led", parameters="auto")
         else:
-            return await self.send_command("set.system.led", parameters=leds)
+            response = await self.api_request("set.system.led", parameters=leds)
+        if response.desc != "set.system.led":
+            raise APIError(f'Expected "set.system.led" but got "{response.desc}"')
 
-    async def set_system_time_randomized(self, *args, **kwargs) -> dict | None:
+    async def set_system_time_randomized(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.time_randomized")
 
-    async def set_system_timezone(self, *args, **kwargs) -> dict | None:
+    async def set_system_timezone(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.timezone")
 
-    async def set_system_hostname(self, *args, **kwargs) -> dict | None:
+    async def set_system_hostname(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.hostname")
 
-    async def set_system_webpools(self, *args, **kwargs) -> dict | None:
+    async def set_system_webpools(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.webpools")
 
-    async def set_miner_target_freq(self, *args, **kwargs) -> dict | None:
+    async def set_miner_target_freq(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.target_freq")
 
-    async def set_miner_heat_mode(self, *args, **kwargs) -> dict | None:
+    async def set_miner_heat_mode(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.heat_mode")
 
-    async def set_system_ntp_server(self, *args, **kwargs) -> dict | None:
+    async def set_system_ntp_server(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.system.ntp_server")
 
-    async def set_miner_service(self, value: str) -> dict | None:
-        return await self.send_command("set.miner.service", parameters=value)
+    async def set_miner_service(self, value: str) -> None:
+        response = await self.api_request("set.miner.service", parameters=value)
+        if response.desc != "set.miner.service":
+            raise APIError(f'Expected "set.miner.service" but got "{response.desc}"')
 
-    async def set_miner_power_mode(self, *args, **kwargs) -> dict | None:
+    async def set_miner_power_mode(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.power_mode")
 
-    async def set_miner_cointype(self, *args, **kwargs) -> dict | None:
+    async def set_miner_cointype(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.cointype")
 
-    async def set_miner_pools(self, *args, **kwargs) -> dict | None:
+    async def set_miner_pools(self, *args: Any, **kwargs: Any) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.pools")
 
-    async def set_miner_fastboot(self, *args, **kwargs) -> dict | None:
+    async def set_miner_fastboot(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.fastboot")
 
-    async def set_miner_power_percent(self, *args, **kwargs) -> dict | None:
+    async def set_miner_power_percent(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.power_percent")
 
-    async def set_miner_pre_power_on(self, *args, **kwargs) -> dict | None:
+    async def set_miner_pre_power_on(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.pre_power_on")
 
-    async def set_miner_restore_setting(self, *args, **kwargs) -> dict | None:
+    async def set_miner_restore_setting(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.restore_setting")
 
-    async def set_miner_report(self, frequency: int = 1) -> dict | None:
-        return await self.send_command(
+    async def set_miner_report(self, frequency: int = 1) -> None:
+        response = await self.api_request(
             "set.miner.report", parameters={"gap": frequency}
         )
+        if response.desc != "set.miner.report":
+            raise APIError(f'Expected "set.miner.report" but got "{response.desc}"')
 
-    async def set_miner_power_limit(self, power: int) -> dict | None:
-        return await self.send_command("set.miner.power_limit", parameters=power)
+    async def set_miner_power_limit(self, power: int) -> None:
+        response = await self.api_request("set.miner.power_limit", parameters=power)
+        if response.desc != "set.miner.power_limit":
+            raise APIError(
+                f'Expected "set.miner.power_limit" but got "{response.desc}"'
+            )
 
-    async def set_miner_upfreq_speed(self, *args, **kwargs) -> dict | None:
+    async def set_miner_upfreq_speed(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.miner.upfreq_speed")
 
-    async def set_log_upload(self, *args, **kwargs) -> dict | None:
+    async def set_log_upload(self, *args: Any, **kwargs: Any) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.log.upload")
 
-    async def set_user_change_passwd(self, *args, **kwargs) -> dict | None:
+    async def set_user_change_passwd(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.user.change_passwd")
 
-    async def set_user_permission(self, *args, **kwargs) -> dict | None:
+    async def set_user_permission(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.user.permission")
 
-    async def set_fan_temp_offset(self, *args, **kwargs) -> dict | None:
+    async def set_fan_temp_offset(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.fan.temp_offset")
 
-    async def set_fan_poweroff_cool(self, *args, **kwargs) -> dict | None:
+    async def set_fan_poweroff_cool(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.fan.poweroff_cool")
 
-    async def set_fan_zero_speed(self, *args, **kwargs) -> dict | None:
+    async def set_fan_zero_speed(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.fan.zero_speed")
 
-    async def set_shell_debug(self, *args, **kwargs) -> dict | None:
+    async def set_shell_debug(self, *args: Any, **kwargs: Any) -> dict[str, Any] | None:
         raise NotImplementedError
         return await self.send_command("set.shell.debug")

@@ -13,8 +13,19 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .byte import *
-from .mini_doge import *
-from .X5 import *
-from .XBox import *
-from .XMax import *
+from .byte import GoldshellByte
+from .mini_doge import GoldshellMiniDoge
+from .X5 import GoldshellCK5, GoldshellHS5, GoldshellKD5
+from .XBox import GoldshellKDBoxII, GoldshellKDBoxPro
+from .XMax import GoldshellKDMax
+
+__all__ = [
+    "GoldshellByte",
+    "GoldshellMiniDoge",
+    "GoldshellCK5",
+    "GoldshellHS5",
+    "GoldshellKD5",
+    "GoldshellKDBoxII",
+    "GoldshellKDBoxPro",
+    "GoldshellKDMax",
+]

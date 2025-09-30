@@ -33,5 +33,5 @@ class MinerMake(str, Enum):
     ELPHAPEX = "Elphapex"
     BRAIINS = "Braiins"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value

@@ -32,3 +32,22 @@ from .S19 import (
     BOSMinerS19XPHydro,
 )
 from .T19 import BOSMinerT19
+
+__all__ = [
+    "BOSMinerS19",
+    "BOSMinerS19a",
+    "BOSMinerS19aPro",
+    "BOSMinerS19j",
+    "BOSMinerS19jNoPIC",
+    "BOSMinerS19jPro",
+    "BOSMinerS19jProNoPIC",
+    "BOSMinerS19jProPlus",
+    "BOSMinerS19jProPlusNoPIC",
+    "BOSMinerS19kProNoPIC",
+    "BOSMinerS19Plus",
+    "BOSMinerS19Pro",
+    "BOSMinerS19ProPlusHydro",
+    "BOSMinerS19XP",
+    "BOSMinerS19XPHydro",
+    "BOSMinerT19",
+]

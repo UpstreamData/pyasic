@@ -14,12 +14,32 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
-from .A15X import *
-from .nano import *
-from .Q import *
+from .A7X import CGMinerAvalon721, CGMinerAvalon741, CGMinerAvalon761
+from .A8X import CGMinerAvalon821, CGMinerAvalon841, CGMinerAvalon851
+from .A9X import CGMinerAvalon921
+from .A10X import CGMinerAvalon1026, CGMinerAvalon1047, CGMinerAvalon1066
+from .A11X import CGMinerAvalon1126Pro, CGMinerAvalon1166Pro
+from .A12X import CGMinerAvalon1246
+from .A15X import CGMinerAvalon1566
+from .nano import CGMinerAvalonNano3, CGMinerAvalonNano3s
+from .Q import CGMinerAvalonQHome
+
+__all__ = [
+    "CGMinerAvalon721",
+    "CGMinerAvalon741",
+    "CGMinerAvalon761",
+    "CGMinerAvalon821",
+    "CGMinerAvalon841",
+    "CGMinerAvalon851",
+    "CGMinerAvalon921",
+    "CGMinerAvalon1026",
+    "CGMinerAvalon1047",
+    "CGMinerAvalon1066",
+    "CGMinerAvalon1126Pro",
+    "CGMinerAvalon1166Pro",
+    "CGMinerAvalon1246",
+    "CGMinerAvalon1566",
+    "CGMinerAvalonNano3",
+    "CGMinerAvalonNano3s",
+    "CGMinerAvalonQHome",
+]

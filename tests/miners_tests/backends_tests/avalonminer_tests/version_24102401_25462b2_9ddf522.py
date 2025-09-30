@@ -2,11 +2,11 @@
 
 import unittest
 from dataclasses import fields
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from pyasic import APIError, MinerData
 from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import SHA256Unit
+from pyasic.device.algorithm.hashrate.unit.sha256 import SHA256Unit
 from pyasic.miners.avalonminer import CGMinerAvalon1566
 
 POOLS = [
@@ -470,11 +470,11 @@ data = {
 
 class TestAvalonMiners(unittest.IsolatedAsyncioTestCase):
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_all_data_gathering(self, mock_send_bytes):
+    async def test_all_data_gathering(self, mock_send_bytes: MagicMock) -> None:
         mock_send_bytes.raises = APIError()
         for m_type in data:
             gathered_data = {}
-            miner = m_type("127.0.0.1")
+            miner = m_type("127.0.0.1")  # type: ignore[abstract]
             for data_name in fields(miner.data_locations):
                 if data_name.name == "config":
                     # skip
@@ -507,7 +507,9 @@ class TestAvalonMiners(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.mac, "12:34:56:78:90:12")
             self.assertEqual(result.api_ver, "3.7")
             self.assertEqual(result.fw_ver, "4.11.1")
-            self.assertEqual(round(result.hashrate.into(SHA256Unit.TH)), 184)
+            self.assertIsNotNone(result.hashrate)
+            if result.hashrate is not None:
+                self.assertEqual(round(result.hashrate.into(SHA256Unit.TH)), 184)
             self.assertEqual(
                 result.fans,
                 [Fan(speed=4275), Fan(speed=4282)],

@@ -22,31 +22,685 @@ import json
 import re
 import warnings
 from collections.abc import AsyncGenerator, Callable
-from typing import Any, cast
+from typing import Any
 
 import anyio
 import httpx
 
 from pyasic import settings
 from pyasic.logger import logger
-from pyasic.miners.antminer import *
-from pyasic.miners.auradine import *
-from pyasic.miners.avalonminer import *
-from pyasic.miners.backends import *
+from pyasic.miners.antminer.bmminer.X3 import (
+    BMMinerHS3,
+    BMMinerKA3,
+    BMMinerKS3,
+    BMMinerL3Plus,
+)
+from pyasic.miners.antminer.bmminer.X5 import (
+    BMMinerKS5,
+    BMMinerKS5Pro,
+)
+from pyasic.miners.antminer.bmminer.X7 import (
+    BMMinerD7,
+    BMMinerK7,
+    BMMinerL7,
+)
+from pyasic.miners.antminer.bmminer.X9 import (
+    BMMinerD9,
+    BMMinerE9Pro,
+    BMMinerL9,
+    BMMinerS9,
+    BMMinerS9i,
+    BMMinerS9j,
+    BMMinerT9,
+)
+from pyasic.miners.antminer.bmminer.X15 import (
+    BMMinerZ15Pro,
+)
+from pyasic.miners.antminer.bmminer.X17 import (
+    BMMinerS17,
+    BMMinerS17e,
+    BMMinerS17Plus,
+    BMMinerS17Pro,
+    BMMinerT17,
+    BMMinerT17e,
+    BMMinerT17Plus,
+)
+from pyasic.miners.antminer.bmminer.X19 import (
+    BMMinerS19,
+    BMMinerS19a,
+    BMMinerS19aPro,
+    BMMinerS19Hydro,
+    BMMinerS19i,
+    BMMinerS19j,
+    BMMinerS19jNoPIC,
+    BMMinerS19jPlus,
+    BMMinerS19jPro,
+    BMMinerS19jProPlus,
+    BMMinerS19jXP,
+    BMMinerS19KPro,
+    BMMinerS19L,
+    BMMinerS19Plus,
+    BMMinerS19Pro,
+    BMMinerS19ProHydro,
+    BMMinerS19ProPlus,
+    BMMinerS19ProPlusHydro,
+    BMMinerS19XP,
+    BMMinerT19,
+)
+from pyasic.miners.antminer.bmminer.X21 import (
+    BMMinerS21,
+    BMMinerS21Hydro,
+    BMMinerS21Plus,
+    BMMinerS21PlusHydro,
+    BMMinerS21Pro,
+    BMMinerT21,
+)
+from pyasic.miners.antminer.bosminer import (
+    BOSMinerS9,
+    BOSMinerS17,
+    BOSMinerS17e,
+    BOSMinerS17Plus,
+    BOSMinerS17Pro,
+    BOSMinerS19,
+    BOSMinerS19a,
+    BOSMinerS19aPro,
+    BOSMinerS19j,
+    BOSMinerS19jNoPIC,
+    BOSMinerS19jPro,
+    BOSMinerS19jProNoPIC,
+    BOSMinerS19jProPlus,
+    BOSMinerS19jProPlusNoPIC,
+    BOSMinerS19kProNoPIC,
+    BOSMinerS19Plus,
+    BOSMinerS19Pro,
+    BOSMinerS19ProPlusHydro,
+    BOSMinerS19XP,
+    BOSMinerS19XPHydro,
+    BOSMinerS21,
+    BOSMinerS21Hydro,
+    BOSMinerS21Plus,
+    BOSMinerS21PlusHydro,
+    BOSMinerS21Pro,
+    BOSMinerT17,
+    BOSMinerT17e,
+    BOSMinerT17Plus,
+    BOSMinerT19,
+    BOSMinerT21,
+)
+from pyasic.miners.antminer.cgminer.X3 import (
+    CGMinerD3,
+)
+from pyasic.miners.antminer.cgminer.X5 import (
+    CGMinerDR5,
+)
+from pyasic.miners.antminer.cgminer.X15 import (
+    CGMinerZ15,
+)
+from pyasic.miners.antminer.epic import (
+    ePICS19,
+    ePICS19j,
+    ePICS19jPro,
+    ePICS19jProDual,
+    ePICS19jProPlus,
+    ePICS19kPro,
+    ePICS19kProDual,
+    ePICS19Pro,
+    ePICS19XP,
+    ePICS21,
+    ePICS21Pro,
+    ePICT21,
+)
+from pyasic.miners.antminer.hiveon import (
+    HiveonS19,
+    HiveonS19jPro,
+    HiveonS19kPro,
+    HiveonS19NoPIC,
+    HiveonT9,
+)
+from pyasic.miners.antminer.luxos import (
+    LUXMinerS9,
+    LUXMinerS19,
+    LUXMinerS19jPro,
+    LUXMinerS19jProPlus,
+    LUXMinerS19kPro,
+    LUXMinerS19Pro,
+    LUXMinerS19XP,
+    LUXMinerS21,
+    LUXMinerT19,
+    LUXMinerT21,
+)
+from pyasic.miners.antminer.marathon import (
+    MaraS19,
+    MaraS19j,
+    MaraS19jNoPIC,
+    MaraS19jPro,
+    MaraS19KPro,
+    MaraS19Pro,
+    MaraS19XP,
+    MaraS21,
+    MaraT21,
+)
+from pyasic.miners.antminer.mskminer import (
+    MSKMinerS19NoPIC,
+)
+from pyasic.miners.antminer.vnish import (
+    VNishL3Plus,
+    VNishL7,
+    VNishL9,
+    VNishS17Plus,
+    VNishS17Pro,
+    VNishS19,
+    VNishS19a,
+    VNishS19aPro,
+    VNishS19Hydro,
+    VNishS19i,
+    VNishS19j,
+    VNishS19jPro,
+    VNishS19kPro,
+    VNishS19NoPIC,
+    VNishS19Pro,
+    VNishS19ProA,
+    VNishS19ProHydro,
+    VNishS19XP,
+    VNishS19XPHydro,
+    VNishS21,
+    VNishS21Hydro,
+    VNishS21Plus,
+    VNishS21PlusHydro,
+    VNishS21Pro,
+    VNishT19,
+    VNishT21,
+)
+from pyasic.miners.auradine.flux import (
+    AuradineFluxAD2500,
+    AuradineFluxAD3500,
+    AuradineFluxAI2500,
+    AuradineFluxAI3680,
+    AuradineFluxAT1500,
+    AuradineFluxAT2860,
+    AuradineFluxAT2880,
+)
+from pyasic.miners.avalonminer.cgminer import (
+    CGMinerAvalon721,
+    CGMinerAvalon741,
+    CGMinerAvalon761,
+    CGMinerAvalon821,
+    CGMinerAvalon841,
+    CGMinerAvalon851,
+    CGMinerAvalon921,
+    CGMinerAvalon1026,
+    CGMinerAvalon1047,
+    CGMinerAvalon1066,
+    CGMinerAvalon1126Pro,
+    CGMinerAvalon1166Pro,
+    CGMinerAvalon1246,
+    CGMinerAvalon1566,
+    CGMinerAvalonNano3,
+    CGMinerAvalonNano3s,
+    CGMinerAvalonQHome,
+)
+from pyasic.miners.backends.auradine import Auradine
+from pyasic.miners.backends.avalonminer import AvalonMiner
+from pyasic.miners.backends.bitaxe import BitAxe
+from pyasic.miners.backends.bmminer import BMMiner
+from pyasic.miners.backends.braiins_os import BOSMiner
+from pyasic.miners.backends.btminer import BTMiner
+from pyasic.miners.backends.elphapex import ElphapexMiner
+from pyasic.miners.backends.epic import ePIC
+from pyasic.miners.backends.goldshell import GoldshellMiner
+from pyasic.miners.backends.hammer import BlackMiner
+from pyasic.miners.backends.hiveon import HiveonModern
+from pyasic.miners.backends.iceriver import IceRiver
+from pyasic.miners.backends.innosilicon import Innosilicon
+from pyasic.miners.backends.luckyminer import LuckyMiner
+from pyasic.miners.backends.luxminer import LUXMiner
+from pyasic.miners.backends.marathon import MaraMiner
+from pyasic.miners.backends.mskminer import MSKMiner
+from pyasic.miners.backends.unknown import UnknownMiner
+from pyasic.miners.backends.vnish import VNish
 from pyasic.miners.base import AnyMiner
-from pyasic.miners.bitaxe import *
-from pyasic.miners.blockminer import *
-from pyasic.miners.braiins import *
-from pyasic.miners.device.makes import *
-from pyasic.miners.elphapex import *
-from pyasic.miners.goldshell import *
-from pyasic.miners.hammer import *
-from pyasic.miners.iceriver import *
+from pyasic.miners.bitaxe import (
+    BitAxeGamma,
+    BitAxeMax,
+    BitAxeSupra,
+    BitAxeUltra,
+)
+from pyasic.miners.blockminer.epic import (
+    ePICBlockMiner520i,
+    ePICBlockMiner720i,
+    ePICBlockMinerELITE1,
+)
+from pyasic.miners.braiins import (
+    BraiinsBMM100,
+    BraiinsBMM101,
+)
+from pyasic.miners.device.makes import (
+    AntMinerMake,
+    AuradineMake,
+    AvalonMinerMake,
+    ElphapexMake,
+    GoldshellMake,
+    HammerMake,
+    IceRiverMake,
+    InnosiliconMake,
+    VolcMinerMake,
+    WhatsMinerMake,
+)
+from pyasic.miners.elphapex import (
+    ElphapexDG1,
+    ElphapexDG1Home,
+    ElphapexDG1Plus,
+)
+from pyasic.miners.goldshell import (
+    GoldshellByte,
+    GoldshellCK5,
+    GoldshellHS5,
+    GoldshellKD5,
+    GoldshellKDBoxII,
+    GoldshellKDBoxPro,
+    GoldshellKDMax,
+    GoldshellMiniDoge,
+)
+from pyasic.miners.hammer import (
+    HammerD10,
+)
 from pyasic.miners.iceriver.iceminer.ALX import IceRiverAL3
-from pyasic.miners.innosilicon import *
-from pyasic.miners.luckyminer import *
-from pyasic.miners.volcminer import *
-from pyasic.miners.whatsminer import *
+from pyasic.miners.iceriver.iceminer.KSX import (
+    IceRiverKS0,
+    IceRiverKS1,
+    IceRiverKS2,
+    IceRiverKS3,
+    IceRiverKS3L,
+    IceRiverKS3M,
+    IceRiverKS5,
+    IceRiverKS5L,
+    IceRiverKS5M,
+)
+from pyasic.miners.innosilicon import (
+    InnosiliconA10X,
+    InnosiliconA11,
+    InnosiliconA11MX,
+    InnosiliconT3HPlus,
+)
+from pyasic.miners.luckyminer import (
+    LuckyMinerLV07,
+    LuckyMinerLV08,
+)
+from pyasic.miners.volcminer import (
+    VolcMinerD1,
+)
+from pyasic.miners.whatsminer.btminer.M2X import (
+    BTMinerM20PV10,
+    BTMinerM20PV30,
+    BTMinerM20SPlusV30,
+    BTMinerM20SV10,
+    BTMinerM20SV20,
+    BTMinerM20SV30,
+    BTMinerM20V10,
+    BTMinerM21SPlusV20,
+    BTMinerM21SV20,
+    BTMinerM21SV60,
+    BTMinerM21SV70,
+    BTMinerM21V10,
+    BTMinerM29V10,
+)
+from pyasic.miners.whatsminer.btminer.M3X import (
+    BTMinerM30KV10,
+    BTMinerM30LV10,
+    BTMinerM30SPlusPlusV10,
+    BTMinerM30SPlusPlusV20,
+    BTMinerM30SPlusPlusVE30,
+    BTMinerM30SPlusPlusVE40,
+    BTMinerM30SPlusPlusVE50,
+    BTMinerM30SPlusPlusVF40,
+    BTMinerM30SPlusPlusVG30,
+    BTMinerM30SPlusPlusVG40,
+    BTMinerM30SPlusPlusVG50,
+    BTMinerM30SPlusPlusVH10,
+    BTMinerM30SPlusPlusVH20,
+    BTMinerM30SPlusPlusVH30,
+    BTMinerM30SPlusPlusVH40,
+    BTMinerM30SPlusPlusVH50,
+    BTMinerM30SPlusPlusVH60,
+    BTMinerM30SPlusPlusVH70,
+    BTMinerM30SPlusPlusVH80,
+    BTMinerM30SPlusPlusVH90,
+    BTMinerM30SPlusPlusVH100,
+    BTMinerM30SPlusPlusVH110,
+    BTMinerM30SPlusPlusVI30,
+    BTMinerM30SPlusPlusVJ20,
+    BTMinerM30SPlusPlusVJ30,
+    BTMinerM30SPlusPlusVJ50,
+    BTMinerM30SPlusPlusVJ60,
+    BTMinerM30SPlusPlusVJ70,
+    BTMinerM30SPlusPlusVK30,
+    BTMinerM30SPlusPlusVK40,
+    BTMinerM30SPlusV10,
+    BTMinerM30SPlusV20,
+    BTMinerM30SPlusV30,
+    BTMinerM30SPlusV40,
+    BTMinerM30SPlusV50,
+    BTMinerM30SPlusV60,
+    BTMinerM30SPlusV70,
+    BTMinerM30SPlusV80,
+    BTMinerM30SPlusV90,
+    BTMinerM30SPlusV100,
+    BTMinerM30SPlusVE30,
+    BTMinerM30SPlusVE40,
+    BTMinerM30SPlusVE50,
+    BTMinerM30SPlusVE60,
+    BTMinerM30SPlusVE70,
+    BTMinerM30SPlusVE80,
+    BTMinerM30SPlusVE90,
+    BTMinerM30SPlusVE100,
+    BTMinerM30SPlusVF20,
+    BTMinerM30SPlusVF30,
+    BTMinerM30SPlusVG20,
+    BTMinerM30SPlusVG30,
+    BTMinerM30SPlusVG40,
+    BTMinerM30SPlusVG50,
+    BTMinerM30SPlusVG60,
+    BTMinerM30SPlusVH10,
+    BTMinerM30SPlusVH20,
+    BTMinerM30SPlusVH30,
+    BTMinerM30SPlusVH40,
+    BTMinerM30SPlusVH50,
+    BTMinerM30SPlusVH60,
+    BTMinerM30SPlusVH70,
+    BTMinerM30SPlusVI30,
+    BTMinerM30SPlusVJ30,
+    BTMinerM30SPlusVJ40,
+    BTMinerM30SV10,
+    BTMinerM30SV20,
+    BTMinerM30SV30,
+    BTMinerM30SV40,
+    BTMinerM30SV50,
+    BTMinerM30SV60,
+    BTMinerM30SV70,
+    BTMinerM30SV80,
+    BTMinerM30SVE10,
+    BTMinerM30SVE20,
+    BTMinerM30SVE30,
+    BTMinerM30SVE40,
+    BTMinerM30SVE50,
+    BTMinerM30SVE60,
+    BTMinerM30SVE70,
+    BTMinerM30SVF10,
+    BTMinerM30SVF20,
+    BTMinerM30SVF30,
+    BTMinerM30SVG10,
+    BTMinerM30SVG20,
+    BTMinerM30SVG30,
+    BTMinerM30SVG40,
+    BTMinerM30SVH10,
+    BTMinerM30SVH20,
+    BTMinerM30SVH30,
+    BTMinerM30SVH40,
+    BTMinerM30SVH50,
+    BTMinerM30SVH60,
+    BTMinerM30SVI20,
+    BTMinerM30SVJ30,
+    BTMinerM30V10,
+    BTMinerM30V20,
+    BTMinerM31HV10,
+    BTMinerM31HV40,
+    BTMinerM31LV10,
+    BTMinerM31SEV10,
+    BTMinerM31SEV20,
+    BTMinerM31SEV30,
+    BTMinerM31SPlusV10,
+    BTMinerM31SPlusV20,
+    BTMinerM31SPlusV30,
+    BTMinerM31SPlusV40,
+    BTMinerM31SPlusV50,
+    BTMinerM31SPlusV60,
+    BTMinerM31SPlusV80,
+    BTMinerM31SPlusV90,
+    BTMinerM31SPlusV100,
+    BTMinerM31SPlusVE10,
+    BTMinerM31SPlusVE20,
+    BTMinerM31SPlusVE30,
+    BTMinerM31SPlusVE40,
+    BTMinerM31SPlusVE50,
+    BTMinerM31SPlusVE60,
+    BTMinerM31SPlusVE80,
+    BTMinerM31SPlusVF20,
+    BTMinerM31SPlusVF30,
+    BTMinerM31SPlusVG20,
+    BTMinerM31SPlusVG30,
+    BTMinerM31SV10,
+    BTMinerM31SV20,
+    BTMinerM31SV30,
+    BTMinerM31SV40,
+    BTMinerM31SV50,
+    BTMinerM31SV60,
+    BTMinerM31SV70,
+    BTMinerM31SV80,
+    BTMinerM31SV90,
+    BTMinerM31SVE10,
+    BTMinerM31SVE20,
+    BTMinerM31SVE30,
+    BTMinerM31V10,
+    BTMinerM31V20,
+    BTMinerM32V10,
+    BTMinerM32V20,
+    BTMinerM33SPlusPlusVG40,
+    BTMinerM33SPlusPlusVH20,
+    BTMinerM33SPlusPlusVH30,
+    BTMinerM33SPlusVG20,
+    BTMinerM33SPlusVG30,
+    BTMinerM33SPlusVH20,
+    BTMinerM33SPlusVH30,
+    BTMinerM33SVG30,
+    BTMinerM33V10,
+    BTMinerM33V20,
+    BTMinerM33V30,
+    BTMinerM34SPlusVE10,
+    BTMinerM36SPlusPlusVH30,
+    BTMinerM36SPlusVG30,
+    BTMinerM36SVE10,
+    BTMinerM39V10,
+    BTMinerM39V20,
+    BTMinerM39V30,
+)
+from pyasic.miners.whatsminer.btminer.M5X import (
+    BTMinerM50SPlusPlusVK10,
+    BTMinerM50SPlusPlusVK20,
+    BTMinerM50SPlusPlusVK30,
+    BTMinerM50SPlusPlusVK40,
+    BTMinerM50SPlusPlusVK50,
+    BTMinerM50SPlusPlusVK60,
+    BTMinerM50SPlusPlusVL20,
+    BTMinerM50SPlusPlusVL30,
+    BTMinerM50SPlusPlusVL40,
+    BTMinerM50SPlusPlusVL50,
+    BTMinerM50SPlusPlusVL60,
+    BTMinerM50SPlusVH30,
+    BTMinerM50SPlusVH40,
+    BTMinerM50SPlusVJ30,
+    BTMinerM50SPlusVJ40,
+    BTMinerM50SPlusVJ60,
+    BTMinerM50SPlusVK10,
+    BTMinerM50SPlusVK20,
+    BTMinerM50SPlusVK30,
+    BTMinerM50SPlusVL10,
+    BTMinerM50SPlusVL20,
+    BTMinerM50SPlusVL30,
+    BTMinerM50SVH10,
+    BTMinerM50SVH20,
+    BTMinerM50SVH30,
+    BTMinerM50SVH40,
+    BTMinerM50SVH50,
+    BTMinerM50SVJ10,
+    BTMinerM50SVJ20,
+    BTMinerM50SVJ30,
+    BTMinerM50SVJ40,
+    BTMinerM50SVJ50,
+    BTMinerM50SVK10,
+    BTMinerM50SVK20,
+    BTMinerM50SVK30,
+    BTMinerM50SVK50,
+    BTMinerM50SVK60,
+    BTMinerM50SVK70,
+    BTMinerM50SVK80,
+    BTMinerM50SVL20,
+    BTMinerM50SVL30,
+    BTMinerM50VE30,
+    BTMinerM50VG30,
+    BTMinerM50VH10,
+    BTMinerM50VH20,
+    BTMinerM50VH30,
+    BTMinerM50VH40,
+    BTMinerM50VH50,
+    BTMinerM50VH60,
+    BTMinerM50VH70,
+    BTMinerM50VH80,
+    BTMinerM50VH90,
+    BTMinerM50VJ10,
+    BTMinerM50VJ20,
+    BTMinerM50VJ30,
+    BTMinerM50VJ40,
+    BTMinerM50VJ60,
+    BTMinerM50VK40,
+    BTMinerM50VK50,
+    BTMinerM52SPlusPlusVL10,
+    BTMinerM52SVK30,
+    BTMinerM53HVH10,
+    BTMinerM53SPlusPlusVK10,
+    BTMinerM53SPlusPlusVK20,
+    BTMinerM53SPlusPlusVK30,
+    BTMinerM53SPlusPlusVK50,
+    BTMinerM53SPlusPlusVL10,
+    BTMinerM53SPlusPlusVL30,
+    BTMinerM53SPlusVJ30,
+    BTMinerM53SPlusVJ40,
+    BTMinerM53SPlusVJ50,
+    BTMinerM53SPlusVK30,
+    BTMinerM53SVH20,
+    BTMinerM53SVH30,
+    BTMinerM53SVJ30,
+    BTMinerM53SVJ40,
+    BTMinerM53SVK30,
+    BTMinerM53VH30,
+    BTMinerM53VH40,
+    BTMinerM53VH50,
+    BTMinerM53VK30,
+    BTMinerM53VK60,
+    BTMinerM54SPlusPlusVK30,
+    BTMinerM54SPlusPlusVL30,
+    BTMinerM54SPlusPlusVL40,
+    BTMinerM56SPlusPlusVK10,
+    BTMinerM56SPlusPlusVK30,
+    BTMinerM56SPlusPlusVK40,
+    BTMinerM56SPlusPlusVK50,
+    BTMinerM56SPlusVJ30,
+    BTMinerM56SPlusVK30,
+    BTMinerM56SPlusVK40,
+    BTMinerM56SPlusVK50,
+    BTMinerM56SVH30,
+    BTMinerM56SVJ30,
+    BTMinerM56SVJ40,
+    BTMinerM56VH30,
+    BTMinerM59VH30,
+)
+from pyasic.miners.whatsminer.btminer.M6X import (
+    BTMinerM60SPlusPlusVL30,
+    BTMinerM60SPlusPlusVL40,
+    BTMinerM60SPlusVK30,
+    BTMinerM60SPlusVK40,
+    BTMinerM60SPlusVK50,
+    BTMinerM60SPlusVK60,
+    BTMinerM60SPlusVK70,
+    BTMinerM60SPlusVL10,
+    BTMinerM60SPlusVL30,
+    BTMinerM60SPlusVL40,
+    BTMinerM60SPlusVL50,
+    BTMinerM60SPlusVL60,
+    BTMinerM60SVK10,
+    BTMinerM60SVK20,
+    BTMinerM60SVK30,
+    BTMinerM60SVK40,
+    BTMinerM60SVL10,
+    BTMinerM60SVL20,
+    BTMinerM60SVL30,
+    BTMinerM60SVL40,
+    BTMinerM60SVL50,
+    BTMinerM60SVL60,
+    BTMinerM60SVL70,
+    BTMinerM60VK6A,
+    BTMinerM60VK10,
+    BTMinerM60VK20,
+    BTMinerM60VK30,
+    BTMinerM60VK40,
+    BTMinerM60VL10,
+    BTMinerM60VL20,
+    BTMinerM60VL30,
+    BTMinerM60VL40,
+    BTMinerM60VL50,
+    BTMinerM61SPlusVL30,
+    BTMinerM61SVL10,
+    BTMinerM61SVL20,
+    BTMinerM61SVL30,
+    BTMinerM61VK10,
+    BTMinerM61VK20,
+    BTMinerM61VK30,
+    BTMinerM61VK40,
+    BTMinerM61VL10,
+    BTMinerM61VL30,
+    BTMinerM61VL40,
+    BTMinerM61VL50,
+    BTMinerM61VL60,
+    BTMinerM62SPlusVK30,
+    BTMinerM63SPlusPlusVL20,
+    BTMinerM63SPlusVK30,
+    BTMinerM63SPlusVL10,
+    BTMinerM63SPlusVL20,
+    BTMinerM63SPlusVL30,
+    BTMinerM63SPlusVL50,
+    BTMinerM63SVK10,
+    BTMinerM63SVK20,
+    BTMinerM63SVK30,
+    BTMinerM63SVK60,
+    BTMinerM63SVL10,
+    BTMinerM63SVL50,
+    BTMinerM63SVL60,
+    BTMinerM63VK10,
+    BTMinerM63VK20,
+    BTMinerM63VK30,
+    BTMinerM63VL10,
+    BTMinerM63VL30,
+    BTMinerM64SVL30,
+    BTMinerM64VL30,
+    BTMinerM64VL40,
+    BTMinerM65SPlusVK30,
+    BTMinerM65SVK20,
+    BTMinerM65SVL60,
+    BTMinerM66SPlusPlusVL20,
+    BTMinerM66SPlusVK30,
+    BTMinerM66SPlusVL10,
+    BTMinerM66SPlusVL20,
+    BTMinerM66SPlusVL30,
+    BTMinerM66SPlusVL40,
+    BTMinerM66SPlusVL60,
+    BTMinerM66SVK20,
+    BTMinerM66SVK30,
+    BTMinerM66SVK40,
+    BTMinerM66SVK50,
+    BTMinerM66SVK60,
+    BTMinerM66SVL10,
+    BTMinerM66SVL20,
+    BTMinerM66SVL30,
+    BTMinerM66SVL40,
+    BTMinerM66SVL50,
+    BTMinerM66VK20,
+    BTMinerM66VK30,
+    BTMinerM66VL20,
+    BTMinerM66VL30,
+    BTMinerM67SVK30,
+)
+from pyasic.miners.whatsminer.btminer.M7X import (
+    BTMinerM70VM30,
+)
 
 
 class MinerTypes(enum.Enum):
@@ -713,7 +1367,9 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
 }
 
 
-async def concurrent_get_first_result(tasks: list, verification_func: Callable) -> Any:
+async def concurrent_get_first_result(
+    tasks: list[Any], verification_func: Callable[..., Any]
+) -> Any:
     res = None
     for fut in asyncio.as_completed(tasks):
         res = await fut
@@ -741,7 +1397,7 @@ class MinerFactory:
         return results
 
     async def get_miner_generator(
-        self, ips: list, limit: int = 200
+        self, ips: list[str], limit: int = 200
     ) -> AsyncGenerator[AnyMiner, None]:
         tasks = []
         semaphore = asyncio.Semaphore(limit)
@@ -832,7 +1488,7 @@ class MinerFactory:
             asyncio.create_task(self._get_miner_socket(ip)),
         ]
 
-        return await concurrent_get_first_result(tasks, lambda x: x is not None)
+        return await concurrent_get_first_result(tasks, lambda x: x is not None)  # type: ignore[no-any-return]
 
     async def _get_miner_web(self, ip: str) -> MinerTypes | None:
         urls = [f"http://{ip}/", f"https://{ip}/"]
@@ -1029,7 +1685,7 @@ class MinerFactory:
         ip: str,
         location: str,
         auth: httpx.DigestAuth | None = None,
-    ) -> dict | None:
+    ) -> dict[str, Any] | None:
         async with httpx.AsyncClient(transport=settings.transport()) as session:
             try:
                 data = await session.get(
@@ -1046,13 +1702,13 @@ class MinerFactory:
             json_data = data.json()
         except (json.JSONDecodeError, asyncio.TimeoutError):
             try:
-                return json.loads(data.text)
+                return json.loads(data.text)  # type: ignore[no-any-return]
             except (json.JSONDecodeError, httpx.HTTPError):
                 return None
         else:
-            return json_data
+            return json_data  # type: ignore[no-any-return]
 
-    async def send_api_command(self, ip: str, command: str) -> dict | None:
+    async def send_api_command(self, ip: str, command: str) -> dict[str, Any] | None:
         data = b""
         try:
             reader, writer = await asyncio.open_connection(ip, 4028)
@@ -1090,9 +1746,11 @@ class MinerFactory:
         except json.JSONDecodeError:
             return {}
 
-        return data_dict
+        return data_dict  # type: ignore[no-any-return]
 
-    async def send_btminer_v3_api_command(self, ip, command):
+    async def send_btminer_v3_api_command(
+        self, ip: str, command: str
+    ) -> dict[str, Any] | None:
         try:
             reader, writer = await asyncio.open_connection(ip, 4433)
         except (ConnectionError, OSError):
@@ -1129,7 +1787,7 @@ class MinerFactory:
         except json.JSONDecodeError:
             return {}
 
-        return data
+        return data  # type: ignore[no-any-return]
 
     @staticmethod
     async def _fix_api_data(data: bytes) -> str:
@@ -1177,10 +1835,10 @@ class MinerFactory:
             miner_type = MinerTypes.HIVEON
 
         if miner_type is None:
-            return cast(AnyMiner, UnknownMiner(str(ip), version))
+            return UnknownMiner(str(ip), version)  # type: ignore[return-value]
 
         try:
-            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, version)
+            return MINER_CLASSES[miner_type][str(miner_model).upper()](ip, version)  # type: ignore[no-any-return]
         except LookupError:
             if miner_type in MINER_CLASSES:
                 if miner_model is not None:
@@ -1188,8 +1846,8 @@ class MinerFactory:
                         f"Partially supported miner found: {miner_model}, type: {miner_type}, please open an issue with miner data "
                         f"and this model on GitHub (https://github.com/UpstreamData/pyasic/issues)."
                     )
-                return MINER_CLASSES[miner_type][None](ip, version)
-            return cast(AnyMiner, UnknownMiner(str(ip), version))
+                return MINER_CLASSES[miner_type][None](ip, version)  # type: ignore[no-any-return]
+            return UnknownMiner(str(ip), version)  # type: ignore[return-value]
 
     async def get_miner_model_antminer(self, ip: str) -> str | None:
         tasks = [
@@ -1197,7 +1855,7 @@ class MinerFactory:
             asyncio.create_task(self._get_model_antminer_sock(ip)),
         ]
 
-        return await concurrent_get_first_result(tasks, lambda x: x is not None)
+        return await concurrent_get_first_result(tasks, lambda x: x is not None)  # type: ignore[no-any-return]
 
     async def _get_model_antminer_web(self, ip: str) -> str | None:
         # last resort, this is slow
@@ -1211,7 +1869,7 @@ class MinerFactory:
         if web_json_data is not None:
             try:
                 miner_model = web_json_data["minertype"]
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1226,7 +1884,7 @@ class MinerFactory:
                     split_miner_model = miner_model.split(" (")
                     miner_model = split_miner_model[0]
 
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1250,7 +1908,7 @@ class MinerFactory:
         if json_data is not None:
             try:
                 miner_model = json_data["model"].replace("-", " ")
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1261,20 +1919,23 @@ class MinerFactory:
             try:
                 miner_model = sock_json_data["DEVDETAILS"][0]["Model"].replace("_", "")
                 miner_model = miner_model[:-1] + "0"
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         else:
             sock_json_data_v3 = await self.send_btminer_v3_api_command(
                 ip, "get.device.info"
             )
-            try:
-                miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace("_", "")
-                miner_model = miner_model[:-1] + "0"
+            if sock_json_data_v3 is not None:
+                try:
+                    miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace(
+                        "_", ""
+                    )
+                    miner_model = miner_model[:-1] + "0"
 
-                return miner_model
-            except (TypeError, LookupError):
-                pass
+                    return miner_model  # type: ignore[no-any-return]
+                except (TypeError, LookupError):
+                    pass
         return None
 
     async def get_miner_version_whatsminer(self, ip: str) -> str | None:
@@ -1282,7 +1943,7 @@ class MinerFactory:
         if sock_json_data is not None:
             try:
                 version = sock_json_data["Msg"]["fw_ver"]
-                return version
+                return version  # type: ignore[no-any-return]
             except LookupError:
                 pass
         return None
@@ -1297,7 +1958,7 @@ class MinerFactory:
                 if miner_model in ["AVALONNANO", "AVALON0O", "AVALONMINER 15"]:
                     subtype = sock_json_data["VERSION"][0]["MODEL"].upper()
                     miner_model = f"AVALONMINER {subtype}"
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1327,7 +1988,7 @@ class MinerFactory:
                         data={},
                     )
                 ).json()
-                return web_data["type"]
+                return web_data["type"]  # type: ignore[no-any-return]
         except (httpx.HTTPError, LookupError):
             pass
         return None
@@ -1354,7 +2015,7 @@ class MinerFactory:
                     .replace("Bitmain ", "")
                     .replace("S19XP", "S19 XP")
                 )
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1390,7 +2051,7 @@ class MinerFactory:
                 if " AML" in miner_model:
                     miner_model = miner_model.replace(" AML", "")
 
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1401,7 +2062,7 @@ class MinerFactory:
             if sock_json_data is not None:
                 try:
                     miner_model = sock_json_data["Model"]
-                    return miner_model
+                    return miner_model  # type: ignore[no-any-return]
                 except (TypeError, LookupError):
                     pass
             else:
@@ -1416,7 +2077,7 @@ class MinerFactory:
         if sock_json_data is not None:
             try:
                 miner_type = sock_json_data["VERSION"][0]["Type"]
-                return miner_type.replace(" HIVEON", "")
+                return miner_type.replace(" HIVEON", "")  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1429,7 +2090,7 @@ class MinerFactory:
                 if " (" in miner_model:
                     split_miner_model = miner_model.split(" (")
                     miner_model = split_miner_model[0]
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1438,7 +2099,7 @@ class MinerFactory:
         sock_json_data = await self.send_api_command(ip, "devdetails")
         if sock_json_data is not None:
             try:
-                return sock_json_data["DEVDETAILS"][0]["Model"]
+                return sock_json_data["DEVDETAILS"][0]["Model"]  # type: ignore[no-any-return]
             except LookupError:
                 pass
         return None
@@ -1454,7 +2115,7 @@ class MinerFactory:
                 miner_model = web_json_data["model"]
                 if miner_model == "":
                     return None
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1467,7 +2128,7 @@ class MinerFactory:
                 miner_model = web_json_data["ASICModel"]
                 if miner_model == "":
                     return None
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1480,7 +2141,7 @@ class MinerFactory:
                 miner_model = web_json_data["minerModel"]
                 if miner_model == "":
                     return None
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1514,7 +2175,7 @@ class MinerFactory:
                     miner_ver = split_ver[-2]
                 else:
                     miner_ver = split_ver[-1].replace("miner", "")
-                return miner_ver.upper()
+                return miner_ver.upper()  # type: ignore[no-any-return]
             except httpx.HTTPError:
                 pass
         return None
@@ -1530,7 +2191,7 @@ class MinerFactory:
         if web_json_data is not None:
             try:
                 miner_model = web_json_data["minertype"]
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1546,7 +2207,7 @@ class MinerFactory:
         if web_json_data is not None:
             try:
                 miner_model = web_json_data["minertype"]
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1562,7 +2223,7 @@ class MinerFactory:
         if web_json_data is not None:
             try:
                 miner_model = web_json_data["minertype"]
-                return miner_model
+                return miner_model  # type: ignore[no-any-return]
             except (TypeError, LookupError):
                 pass
         return None
@@ -1571,7 +2232,7 @@ class MinerFactory:
         sock_json_data = await self.send_api_command(ip, "version")
         if sock_json_data is not None:
             try:
-                return sock_json_data["VERSION"][0]["Type"].split(" ")[0]
+                return sock_json_data["VERSION"][0]["Type"].split(" ")[0]  # type: ignore[no-any-return]
             except LookupError:
                 pass
         return None

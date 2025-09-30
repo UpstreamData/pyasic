@@ -17,3 +17,5 @@
 
 from .A1126 import Avalon1126Pro
 from .A1166 import Avalon1166Pro
+
+__all__ = ["Avalon1126Pro", "Avalon1166Pro"]

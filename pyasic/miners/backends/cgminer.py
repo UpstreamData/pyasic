@@ -15,9 +15,11 @@
 # ------------------------------------------------------------------------------
 
 
+from typing import Any
+
 from pyasic.config import MinerConfig
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -83,7 +85,9 @@ class CGMiner(StockFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -98,7 +102,9 @@ class CGMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -114,7 +120,7 @@ class CGMiner(StockFirmware):
         return self.fw_ver
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
@@ -134,7 +140,7 @@ class CGMiner(StockFirmware):
                 pass
         return None
 
-    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
+    async def _get_uptime(self, rpc_stats: dict[str, Any] | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -148,7 +154,9 @@ class CGMiner(StockFirmware):
                 pass
         return None
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

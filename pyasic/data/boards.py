@@ -20,7 +20,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from pyasic.device.algorithm.hashrate import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 
 
 class HashBoard(BaseModel):
@@ -57,12 +57,12 @@ class HashBoard(BaseModel):
     voltage: float | None = None
 
     @classmethod
-    def fields(cls) -> set:
+    def fields(cls) -> set[str]:
         all_fields = set(cls.model_fields.keys())
         all_fields.update(set(cls.model_computed_fields.keys()))
         return all_fields
 
-    def get(self, __key: str, default: Any = None):
+    def get(self, __key: str, default: Any = None) -> Any:
         try:
             val = self.__getitem__(__key)
             if val is None:
@@ -71,7 +71,7 @@ class HashBoard(BaseModel):
         except KeyError:
             return default
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:
@@ -93,10 +93,10 @@ class HashBoard(BaseModel):
         def serialize_bool(key: str, value: bool) -> str:
             return f"{key}={str(value).lower()}"
 
-        serialization_map_instance = {
+        serialization_map_instance: dict[type[Any], Callable[[str, Any], str]] = {
             AlgoHashRateType: serialize_algo_hash_rate,
         }
-        serialization_map = {
+        serialization_map: dict[type[Any], Callable[[str, Any], str]] = {
             int: serialize_int,
             float: serialize_float,
             str: serialize_str,
@@ -120,7 +120,7 @@ class HashBoard(BaseModel):
             serialization_func: Callable[[str, Any], str | None] = (
                 serialization_map.get(
                     type(field_val),
-                    lambda _k, _v: None,  # type: ignore
+                    lambda _k, _v: None,
                 )
             )
             serialized = serialization_func(

@@ -78,7 +78,7 @@ requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
-warn_unused_ignores = true
+strict = true
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
@@ -109,9 +109,7 @@ fixable = ["ALL"]
 ignore = [
     "E402",
     "E501",
-    "F401",
     "F403",
-    "F405",
     "F601",
 ]
 

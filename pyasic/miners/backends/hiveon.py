@@ -14,8 +14,11 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic import APIError
-from pyasic.config import MinerConfig, MiningModeConfig
+from typing import Any
+
+from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModeConfig
+from pyasic.errors import APIError
 from pyasic.miners.backends import BMMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -135,7 +138,7 @@ class HiveonModern(HiveonFirmware, BMMiner):
             return True
         return False
 
-    async def _get_wattage(self, rpc_stats: dict | None = None) -> int | None:
+    async def _get_wattage(self, rpc_stats: dict[str, Any] | None = None) -> int | None:
         if not rpc_stats:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -155,7 +158,7 @@ class HiveonModern(HiveonFirmware, BMMiner):
         return None
 
     async def _get_hostname(
-        self, web_get_system_info: dict | None = None
+        self, web_get_system_info: dict[str, Any] | None = None
     ) -> str | None:
         if web_get_system_info is None:
             try:
@@ -165,12 +168,14 @@ class HiveonModern(HiveonFirmware, BMMiner):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["hostname"]
+                return str(web_get_system_info["hostname"])
             except KeyError:
                 pass
         return None
 
-    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
+    async def _get_mac(
+        self, web_get_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -179,20 +184,20 @@ class HiveonModern(HiveonFirmware, BMMiner):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["macaddr"]
+                return str(web_get_system_info["macaddr"])
             except KeyError:
                 pass
 
         try:
             data = await self.web.get_network_info()
             if data:
-                return data["macaddr"]
+                return str(data["macaddr"])
         except KeyError:
             pass
         return None
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict | None = None
+        self, web_get_blink_status: dict[str, Any] | None = None
     ) -> bool | None:
         if self.light:
             return self.light
@@ -210,7 +215,9 @@ class HiveonModern(HiveonFirmware, BMMiner):
                 pass
         return self.light
 
-    async def _is_mining(self, web_get_conf: dict | None = None) -> bool | None:
+    async def _is_mining(
+        self, web_get_conf: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
@@ -274,7 +281,7 @@ HIVEON_OLD_DATA_LOC = DataLocations(
 class HiveonOld(HiveonFirmware, BMMiner):
     data_locations = HIVEON_OLD_DATA_LOC
 
-    async def _get_wattage(self, rpc_stats: dict | None = None) -> int | None:
+    async def _get_wattage(self, rpc_stats: dict[str, Any] | None = None) -> int | None:
         if not rpc_stats:
             try:
                 rpc_stats = await self.rpc.stats()

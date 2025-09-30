@@ -13,11 +13,35 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+import unittest
 
 from tests.config_tests import TestConfig
-from tests.miners_tests import *
+from tests.miners_tests import MinersTest
 from tests.network_tests import NetworkTest
-from tests.rpc_tests import *
+from tests.rpc_tests import (
+    TestAPIBase,
+    TestBFGMinerAPI,
+    TestBMMinerAPI,
+    TestBOSMinerAPI,
+    TestBTMinerAPI,
+    TestCGMinerAPI,
+    TestGCMinerRPCAPI,
+    TestLuxOSAPI,
+)
+
+__all__ = [
+    "TestConfig",
+    "NetworkTest",
+    "MinersTest",
+    "TestAPIBase",
+    "TestBFGMinerAPI",
+    "TestBMMinerAPI",
+    "TestBOSMinerAPI",
+    "TestBTMinerAPI",
+    "TestCGMinerAPI",
+    "TestGCMinerRPCAPI",
+    "TestLuxOSAPI",
+]
 
 if __name__ == "__main__":
     # `coverage run --source pyasic -m unittest discover` will give code coverage data

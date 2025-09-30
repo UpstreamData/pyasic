@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.handshake import HandshakeUnit
 from .unit import HashUnit
 
 
-class HandshakeHashRate(AlgoHashRateType[HandshakeUnit]):
+class HandshakeHashRate(AlgoHashRateType):
     rate: float
     unit: HandshakeUnit = HashUnit.HANDSHAKE.default
 

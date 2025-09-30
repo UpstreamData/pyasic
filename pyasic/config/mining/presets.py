@@ -1,3 +1,5 @@
+from typing import Any
+
 from pyasic.config.base import MinerConfigValue
 
 
@@ -10,13 +12,13 @@ class MiningPreset(MinerConfigValue):
     frequency: int | None = None
     voltage: float | None = None
 
-    def as_vnish(self) -> dict:
+    def as_vnish(self) -> dict[str, Any]:
         if self.name is not None:
             return {"preset": self.name}
         return {}
 
     @classmethod
-    def from_vnish(cls, web_preset: dict):
+    def from_vnish(cls, web_preset: dict[str, Any]) -> "MiningPreset":
         name = web_preset["name"]
         hr_power_split = web_preset["pretty"].split("~")
         if len(hr_power_split) == 1:
@@ -43,7 +45,7 @@ class MiningPreset(MinerConfigValue):
         )
 
     @classmethod
-    def from_luxos(cls, profile: dict):
+    def from_luxos(cls, profile: dict[str, Any]) -> "MiningPreset":
         return cls(
             name=profile["Profile Name"],
             power=profile["Watts"],

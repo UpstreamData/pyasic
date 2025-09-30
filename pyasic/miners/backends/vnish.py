@@ -15,11 +15,14 @@
 # ------------------------------------------------------------------------------
 
 import logging
+from typing import Any
 
-from pyasic import MinerConfig
+from pydantic import BaseModel, ValidationError
+
+from pyasic.config import MinerConfig
 from pyasic.config.mining import MiningModePreset
 from pyasic.data.error_codes import VnishError
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends.bmminer import BMMiner
 from pyasic.miners.data import (
@@ -94,6 +97,94 @@ VNISH_DATA_LOC = DataLocations(
 )
 
 
+class VnishSuccessResponse(BaseModel):
+    success: bool
+
+
+class VnishNetworkStatus(BaseModel):
+    mac: str
+    hostname: str
+
+    class Config:
+        extra = "allow"
+
+
+class VnishSystemInfo(BaseModel):
+    network_status: VnishNetworkStatus
+
+    class Config:
+        extra = "allow"
+
+
+class VnishMinerStatus(BaseModel):
+    miner_state: str
+
+    class Config:
+        extra = "allow"
+
+
+class VnishOverclock(BaseModel):
+    preset: str
+
+    class Config:
+        extra = "allow"
+
+
+class VnishMinerInfo(BaseModel):
+    power_usage: float
+    miner_type: str
+    miner_status: VnishMinerStatus
+    overclock: VnishOverclock
+
+    class Config:
+        extra = "allow"
+
+
+class VnishChainStatus(BaseModel):
+    state: str
+    description: str = ""
+
+    class Config:
+        extra = "allow"
+
+
+class VnishChain(BaseModel):
+    status: VnishChainStatus
+
+    class Config:
+        extra = "allow"
+
+
+class VnishWebSummary(BaseModel):
+    system: VnishSystemInfo
+    miner: VnishMinerInfo
+    chains: list[VnishChain] = []
+
+    class Config:
+        extra = "allow"
+
+
+class VnishWebInfo(BaseModel):
+    system: VnishSystemInfo
+
+    class Config:
+        extra = "allow"
+
+
+class VnishWebSettings(BaseModel):
+    miner: VnishMinerInfo
+
+    class Config:
+        extra = "allow"
+
+
+class VnishFindMinerResponse(BaseModel):
+    on: bool
+
+    class Config:
+        extra = "allow"
+
+
 class VNish(VNishFirmware, BMMiner):
     """Handler for VNish miners"""
 
@@ -117,8 +208,9 @@ class VNish(VNishFirmware, BMMiner):
         data = await self.web.restart_vnish()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = VnishSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -126,8 +218,9 @@ class VNish(VNishFirmware, BMMiner):
         data = await self.web.stop_mining()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = VnishSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -135,8 +228,9 @@ class VNish(VNishFirmware, BMMiner):
         data = await self.web.resume_mining()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = VnishSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -144,26 +238,27 @@ class VNish(VNishFirmware, BMMiner):
         data = await self.web.reboot()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = VnishSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
-    async def _get_mac(self, web_summary: dict | None = None) -> str | None:
+    async def _get_mac(self, web_summary: dict[str, Any] | None = None) -> str | None:
         if web_summary is not None:
             try:
-                mac = web_summary["system"]["network_status"]["mac"]
-                return mac
-            except KeyError:
+                summary = VnishWebSummary.model_validate(web_summary)
+                return summary.system.network_status.mac
+            except ValidationError:
                 pass
 
         web_info = await self.web.info()
 
         if web_info is not None:
             try:
-                mac = web_info["system"]["network_status"]["mac"]
-                return mac
-            except KeyError:
+                info = VnishWebInfo.model_validate(web_info)
+                return info.system.network_status.mac
+            except ValidationError:
                 pass
 
         return None
@@ -171,54 +266,65 @@ class VNish(VNishFirmware, BMMiner):
     async def fault_light_off(self) -> bool:
         result = await self.web.find_miner()
         if result is not None:
-            if result.get("on") is False:
-                return True
-            else:
-                await self.web.find_miner()
+            try:
+                response = VnishFindMinerResponse.model_validate(result)
+                if not response.on:
+                    return True
+                else:
+                    await self.web.find_miner()
+            except ValidationError:
+                pass
         return False
 
     async def fault_light_on(self) -> bool:
         result = await self.web.find_miner()
         if result is not None:
-            if result.get("on") is True:
-                return True
-            else:
-                await self.web.find_miner()
+            try:
+                response = VnishFindMinerResponse.model_validate(result)
+                if response.on:
+                    return True
+                else:
+                    await self.web.find_miner()
+            except ValidationError:
+                pass
         return False
 
-    async def _get_hostname(self, web_summary: dict | None = None) -> str | None:
+    async def _get_hostname(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> str | None:
         if web_summary is None:
             web_info = await self.web.info()
             if web_info is not None:
                 try:
-                    hostname = web_info["system"]["network_status"]["hostname"]
-                    return hostname
-                except KeyError:
+                    info = VnishWebInfo.model_validate(web_info)
+                    return info.system.network_status.hostname
+                except ValidationError:
                     pass
         else:
             try:
-                hostname = web_summary["system"]["network_status"]["hostname"]
-                return hostname
-            except KeyError:
+                summary = VnishWebSummary.model_validate(web_summary)
+                return summary.system.network_status.hostname
+            except ValidationError:
                 pass
 
         return None
 
-    async def _get_wattage(self, web_summary: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if web_summary is None:
             web_summary = await self.web.summary()
 
         if web_summary is not None:
             try:
-                wattage = web_summary["miner"]["power_usage"]
-                wattage = round(wattage)
-                return wattage
-            except KeyError:
+                summary = VnishWebSummary.model_validate(web_summary)
+                return round(summary.miner.power_usage)
+            except ValidationError:
                 pass
         return None
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
@@ -238,35 +344,45 @@ class VNish(VNishFirmware, BMMiner):
 
         return None
 
-    async def _get_wattage_limit(self, web_settings: dict | None = None) -> int | None:
+    async def _get_wattage_limit(
+        self, web_settings: dict[str, Any] | None = None
+    ) -> int | None:
         if web_settings is None:
             web_settings = await self.web.summary()
 
         if web_settings is not None:
             try:
-                wattage_limit = web_settings["miner"]["overclock"]["preset"]
-                if wattage_limit == "disabled":
+                summary = VnishWebSummary.model_validate(web_settings)
+                preset = summary.miner.overclock.preset
+                if preset == "disabled":
                     return None
-                return int(wattage_limit)
-            except (KeyError, TypeError):
+                if preset.isdigit():
+                    return int(preset)
+            except ValidationError:
                 pass
 
         return None
 
-    async def _get_fw_ver(self, web_summary: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> str | None:
         if web_summary is None:
             web_summary = await self.web.summary()
 
-        fw_ver = None
         if web_summary is not None:
             try:
-                fw_ver = web_summary["miner"]["miner_type"]
-                fw_ver = fw_ver.split("(Vnish ")[1].replace(")", "")
-                return fw_ver
-            except LookupError:
-                return fw_ver
+                summary = VnishWebSummary.model_validate(web_summary)
+                fw_ver = summary.miner.miner_type
+                if "(Vnish " in fw_ver:
+                    fw_ver = fw_ver.split("(Vnish ")[1].replace(")", "")
+                    return fw_ver
+            except (ValidationError, IndexError):
+                pass
+        return None
 
-    async def _is_mining(self, web_summary: dict | None = None) -> bool | None:
+    async def _is_mining(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -275,19 +391,16 @@ class VNish(VNishFirmware, BMMiner):
 
         if web_summary is not None:
             try:
-                is_mining = web_summary["miner"]["miner_status"]["miner_state"] not in [
-                    "stopped",
-                    "shutting-down",
-                    "failure",
-                ]
-                return is_mining
-            except LookupError:
+                summary = VnishWebSummary.model_validate(web_summary)
+                state = summary.miner.miner_status.miner_state
+                return state not in ["stopped", "shutting-down", "failure"]
+            except ValidationError:
                 pass
 
         return None
 
     async def _get_errors(  # type: ignore[override]
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> list[VnishError]:
         errors: list[VnishError] = []
 
@@ -298,12 +411,15 @@ class VNish(VNishFirmware, BMMiner):
                 return errors
 
         if web_summary is not None:
-            chains = web_summary.get("miner", {}).get("chains", [])
-            for chain in chains:
-                state = chain.get("status", {}).get("state")
-                description = chain.get("status", {}).get("description", "")
-                if state == "failure":
-                    errors.append(VnishError(error_message=description))
+            try:
+                summary = VnishWebSummary.model_validate(web_summary)
+                for chain in summary.chains:
+                    if chain.status.state == "failure":
+                        errors.append(
+                            VnishError(error_message=chain.status.description)
+                        )
+            except ValidationError:
+                pass
 
         return errors
 

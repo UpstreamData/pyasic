@@ -16,3 +16,8 @@
 
 from .S21 import LUXMinerS21
 from .T21 import LUXMinerT21
+
+__all__ = [
+    "LUXMinerS21",
+    "LUXMinerT21",
+]

@@ -15,3 +15,8 @@
 # ------------------------------------------------------------------------------
 from .antminer import AntminerModernSSH
 from .braiins_os import BOSMinerSSH
+
+__all__ = [
+    "AntminerModernSSH",
+    "BOSMinerSSH",
+]

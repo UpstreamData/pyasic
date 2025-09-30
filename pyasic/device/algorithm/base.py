@@ -7,7 +7,7 @@ from .hashrate.unit.base import AlgoHashRateUnitType, GenericUnit
 class MinerAlgoMeta(type):
     name: str
 
-    def __str__(cls):
+    def __str__(cls) -> str:
         return cls.name
 
 

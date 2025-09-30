@@ -1,5 +1,7 @@
-from pyasic import APIError
-from pyasic.device.algorithm import AlgoHashRateType
+from typing import Any
+
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.errors import APIError
 from pyasic.miners.backends import BMMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -65,7 +67,7 @@ class MSKMiner(BMMiner):
     _web_cls = MSKMinerWebAPI
 
     async def _get_hashrate(
-        self, rpc_stats: dict | None = None
+        self, rpc_stats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_stats is None:
@@ -86,7 +88,7 @@ class MSKMiner(BMMiner):
                 pass
         return None
 
-    async def _get_wattage(self, rpc_stats: dict | None = None) -> int | None:
+    async def _get_wattage(self, rpc_stats: dict[str, Any] | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -95,12 +97,12 @@ class MSKMiner(BMMiner):
 
         if rpc_stats is not None:
             try:
-                return rpc_stats["STATS"][0]["total_power"]
+                return int(rpc_stats["STATS"][0]["total_power"])
             except (LookupError, ValueError, TypeError):
                 pass
         return None
 
-    async def _get_mac(self, web_info_v1: dict | None = None) -> str | None:
+    async def _get_mac(self, web_info_v1: dict[str, Any] | None = None) -> str | None:
         if web_info_v1 is None:
             try:
                 web_info_v1 = await self.web.info_v1()
@@ -109,7 +111,10 @@ class MSKMiner(BMMiner):
 
         if web_info_v1 is not None:
             try:
-                return web_info_v1["network_info"]["result"]["macaddr"].upper()
+                return str(web_info_v1["network_info"]["result"]["macaddr"]).upper()
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
+
+    async def _get_serial_number(self) -> str | None:
         return None

@@ -15,27 +15,179 @@
 # ------------------------------------------------------------------------------
 import asyncio
 import logging
+from typing import Any
 
 import aiofiles
 import semver
+from pydantic import BaseModel, Field, ValidationError
 
-from pyasic.config import MinerConfig, MiningModeConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.config import MinerConfig
+from pyasic.config.mining import MiningModeConfig
+from pyasic.data.boards import HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
-from pyasic.rpc.btminer import BTMinerRPCAPI, BTMinerV3RPCAPI
+from pyasic.rpc.btminer import (
+    BTMinerRPCAPI,
+    BTMinerV3DeviceInfoMsg,
+    BTMinerV3EdevItem,
+    BTMinerV3Pool,
+    BTMinerV3RPCAPI,
+    BTMinerV3Summary,
+)
+
+
+class BTMinerMsgInfo(BaseModel):
+    hostname: str | None = None
+    mac: str | None = None
+    model: str | None = None
+    nettype: str | None = None
+
+    class Config:
+        extra = "allow"
+
+
+class BTMinerGetMinerInfoResponse(BaseModel):
+    msg: BTMinerMsgInfo = Field(alias="Msg")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerGetVersionResponse(BaseModel):
+    code: int = Field(alias="Code")
+    msg: dict[str, Any] | str = Field(alias="Msg")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerSummaryItem(BaseModel):
+    mac: str | None = Field(None, alias="MAC")
+    firmware_version: str | None = Field(None, alias="Firmware Version")
+    mhs_1m: float | None = Field(None, alias="MHS 1m")
+    env_temp: float | None = Field(None, alias="Env Temp")
+    power: int | None = Field(None, alias="Power")
+    power_limit: int | None = Field(None, alias="Power Limit")
+    fan_speed_in: int | None = Field(None, alias="Fan Speed In")
+    fan_speed_out: int | None = Field(None, alias="Fan Speed Out")
+    power_fanspeed: int | None = Field(None, alias="Power Fanspeed")
+    factory_ghs: float | None = Field(None, alias="Factory GHS")
+    error_code_count: int = Field(0, alias="Error Code Count")
+    elapsed: int | None = Field(None, alias="Elapsed")
+    power_mode: str | None = Field(None, alias="Power Mode")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerSummaryResponse(BaseModel):
+    summary: list[BTMinerSummaryItem] = Field([], alias="SUMMARY")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerDevItem(BaseModel):
+    asc: int | None = Field(None, alias="ASC")
+    slot: int | None = Field(None, alias="Slot")
+    chip_temp_avg: float | None = Field(None, alias="Chip Temp Avg")
+    temperature: float | None = Field(None, alias="Temperature")
+    mhs_1m: float | None = Field(None, alias="MHS 1m")
+    effective_chips: int | None = Field(None, alias="Effective Chips")
+    pcb_sn: str | None = Field(None, alias="PCB SN")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerDevsResponse(BaseModel):
+    devs: list[BTMinerDevItem] = Field([], alias="DEVS")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerStatusMsg(BaseModel):
+    btmineroff: bool | None = None
+    mineroff: str | None = None
+
+    class Config:
+        extra = "allow"
+
+
+class BTMinerStatusResponse(BaseModel):
+    msg: BTMinerStatusMsg = Field(alias="Msg")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerGetPSUResponse(BaseModel):
+    msg: dict[str, Any] = Field(alias="Msg")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerGetErrorCodeResponse(BaseModel):
+    msg: dict[str, Any] = Field(alias="Msg")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerPoolItem(BaseModel):
+    pool: int | None = Field(None, alias="POOL")
+    url: str | None = Field(None, alias="URL")
+    user: str | None = Field(None, alias="User")
+    accepted: int | None = Field(None, alias="Accepted")
+    rejected: int | None = Field(None, alias="Rejected")
+    get_failures: int | None = Field(None, alias="Get Failures")
+    remote_failures: int | None = Field(None, alias="Remote Failures")
+    stratum_active: bool | None = Field(None, alias="Stratum Active")
+    status: str | None = Field(None, alias="Status")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerPoolsResponse(BaseModel):
+    pools: list[BTMinerPoolItem] = Field([], alias="POOLS")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class BTMinerV3CommandResponse(BaseModel):
+    code: int | None = None
+    msg: str | None = None
+
+    class Config:
+        extra = "allow"
 
 
 class BTMiner(StockFirmware):
-    def __new__(cls, ip: str, version: str | None = None):
+    def __new__(cls, ip: str, version: str | None = None) -> Any:
         bases = cls.__bases__
         bases = bases[1:]
 
-        def get_new(v: str | None):
+        def get_new(v: str | None) -> type[BTMinerV2] | type[BTMinerV3]:
             if v is None:
                 return BTMinerV2
             try:
@@ -54,8 +206,8 @@ class BTMiner(StockFirmware):
 
         bases = (inject,) + bases
 
-        cls = type(cls.__name__, bases, {})(ip=ip, version=version)
-        return cls
+        new_class = type(cls.__name__, bases, {})
+        return new_class(ip=ip, version=version)
 
 
 BTMINER_DATA_LOC = DataLocations(
@@ -158,7 +310,7 @@ class BTMinerV2(StockFirmware):
     supports_shutdown = True
     supports_power_modes = True
 
-    async def _reset_rpc_pwd_to_admin(self, pwd: str):
+    async def _reset_rpc_pwd_to_admin(self, pwd: str) -> bool:
         try:
             data = await self.rpc.update_pwd(pwd, "admin")
         except APIError:
@@ -284,11 +436,17 @@ class BTMinerV2(StockFirmware):
             return cfg
 
         if summary is not None:
-            mining_mode = None
             try:
-                mining_mode = summary["SUMMARY"][0]["Power Mode"]
-            except LookupError:
-                pass
+                response = BTMinerSummaryResponse.model_validate(summary)
+                if response.summary:
+                    mining_mode = response.summary[0].power_mode
+                    power_lim = response.summary[0].power_limit
+                else:
+                    mining_mode = None
+                    power_lim = None
+            except ValidationError:
+                mining_mode = None
+                power_lim = None
 
             if mining_mode == "High":
                 cfg.mining_mode = MiningModeConfig.high()
@@ -296,10 +454,6 @@ class BTMinerV2(StockFirmware):
             elif mining_mode == "Low":
                 cfg.mining_mode = MiningModeConfig.low()
                 return cfg
-            try:
-                power_lim = summary["SUMMARY"][0]["Power Limit"]
-            except LookupError:
-                power_lim = None
 
             if power_lim is None:
                 cfg.mining_mode = MiningModeConfig.normal()
@@ -327,7 +481,9 @@ class BTMinerV2(StockFirmware):
     ##################################################
 
     async def _get_mac(
-        self, rpc_summary: dict | None = None, rpc_get_miner_info: dict | None = None
+        self,
+        rpc_summary: dict[str, Any] | None = None,
+        rpc_get_miner_info: dict[str, Any] | None = None,
     ) -> str | None:
         if rpc_get_miner_info is None:
             try:
@@ -337,9 +493,12 @@ class BTMinerV2(StockFirmware):
 
         if rpc_get_miner_info is not None:
             try:
-                mac = rpc_get_miner_info["Msg"]["mac"]
-                return str(mac).upper()
-            except KeyError:
+                response = BTMinerGetMinerInfoResponse.model_validate(
+                    rpc_get_miner_info
+                )
+                if response.msg.mac:
+                    return str(response.msg.mac).upper()
+            except ValidationError:
                 pass
 
         if rpc_summary is None:
@@ -350,37 +509,16 @@ class BTMinerV2(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                mac = rpc_summary["SUMMARY"][0]["MAC"]
-                return str(mac).upper()
-            except LookupError:
+                summary_response = BTMinerSummaryResponse.model_validate(rpc_summary)
+                if summary_response.summary and summary_response.summary[0].mac:
+                    return str(summary_response.summary[0].mac).upper()
+            except ValidationError:
                 pass
 
         return None
 
-    async def _get_api_ver(self, rpc_get_version: dict | None = None) -> str | None:
-        if rpc_get_version is None:
-            try:
-                rpc_get_version = await self.rpc.get_version()
-            except APIError:
-                pass
-
-        if rpc_get_version is not None:
-            if "Code" in rpc_get_version.keys():
-                if rpc_get_version["Code"] == 131:
-                    try:
-                        rpc_ver = rpc_get_version["Msg"]
-                        if not isinstance(rpc_ver, str):
-                            rpc_ver = rpc_ver["rpc_ver"]
-                        self.api_ver = rpc_ver.replace("whatsminer v", "")
-                    except (KeyError, TypeError):
-                        pass
-                    else:
-                        return self.api_ver
-
-        return self.api_ver
-
-    async def _get_fw_ver(
-        self, rpc_get_version: dict | None = None, rpc_summary: dict | None = None
+    async def _get_api_ver(
+        self, rpc_get_version: dict[str, Any] | None = None
     ) -> str | None:
         if rpc_get_version is None:
             try:
@@ -389,14 +527,44 @@ class BTMinerV2(StockFirmware):
                 pass
 
         if rpc_get_version is not None:
-            if "Code" in rpc_get_version.keys():
-                if rpc_get_version["Code"] == 131:
-                    try:
-                        self.fw_ver = rpc_get_version["Msg"]["fw_ver"]
-                    except (KeyError, TypeError):
-                        pass
-                    else:
-                        return self.fw_ver
+            try:
+                response = BTMinerGetVersionResponse.model_validate(rpc_get_version)
+                if response.code == 131:
+                    if isinstance(response.msg, str):
+                        self.api_ver = response.msg.replace("whatsminer v", "")
+                    elif isinstance(response.msg, dict) and "rpc_ver" in response.msg:
+                        self.api_ver = response.msg["rpc_ver"].replace(
+                            "whatsminer v", ""
+                        )
+                    return self.api_ver
+            except ValidationError:
+                pass
+
+        return self.api_ver
+
+    async def _get_fw_ver(
+        self,
+        rpc_get_version: dict[str, Any] | None = None,
+        rpc_summary: dict[str, Any] | None = None,
+    ) -> str | None:
+        if rpc_get_version is None:
+            try:
+                rpc_get_version = await self.rpc.get_version()
+            except APIError:
+                pass
+
+        if rpc_get_version is not None:
+            try:
+                response = BTMinerGetVersionResponse.model_validate(rpc_get_version)
+                if (
+                    response.code == 131
+                    and isinstance(response.msg, dict)
+                    and "fw_ver" in response.msg
+                ):
+                    self.fw_ver = response.msg["fw_ver"]
+                    return self.fw_ver
+            except ValidationError:
+                pass
 
         if rpc_summary is None:
             try:
@@ -406,16 +574,23 @@ class BTMinerV2(StockFirmware):
 
         if rpc_summary:
             try:
-                self.fw_ver = rpc_summary["SUMMARY"][0]["Firmware Version"].replace(
-                    "'", ""
-                )
-            except LookupError:
+                summary_response = BTMinerSummaryResponse.model_validate(rpc_summary)
+                if (
+                    summary_response.summary
+                    and summary_response.summary[0].firmware_version
+                ):
+                    self.fw_ver = summary_response.summary[0].firmware_version.replace(
+                        "'", ""
+                    )
+                    return self.fw_ver
+            except ValidationError:
                 pass
 
         return self.fw_ver
 
-    async def _get_hostname(self, rpc_get_miner_info: dict | None = None) -> str | None:
-        hostname = None
+    async def _get_hostname(
+        self, rpc_get_miner_info: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_get_miner_info is None:
             try:
                 rpc_get_miner_info = await self.rpc.get_miner_info()
@@ -424,14 +599,16 @@ class BTMinerV2(StockFirmware):
 
         if rpc_get_miner_info is not None:
             try:
-                hostname = rpc_get_miner_info["Msg"]["hostname"]
-            except KeyError:
-                return None
-
-        return hostname
+                response = BTMinerGetMinerInfoResponse.model_validate(
+                    rpc_get_miner_info
+                )
+                return response.msg.hostname
+            except ValidationError:
+                pass
+        return None
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
@@ -449,7 +626,9 @@ class BTMinerV2(StockFirmware):
                 pass
         return None
 
-    async def _get_hashboards(self, rpc_devs: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_devs: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -491,7 +670,9 @@ class BTMinerV2(StockFirmware):
 
         return hashboards
 
-    async def _get_env_temp(self, rpc_summary: dict | None = None) -> float | None:
+    async def _get_env_temp(
+        self, rpc_summary: dict[str, Any] | None = None
+    ) -> float | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -500,12 +681,14 @@ class BTMinerV2(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return rpc_summary["SUMMARY"][0]["Env Temp"]
+                return float(rpc_summary["SUMMARY"][0]["Env Temp"])
             except LookupError:
                 pass
         return None
 
-    async def _get_wattage(self, rpc_summary: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, rpc_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -520,7 +703,9 @@ class BTMinerV2(StockFirmware):
                 pass
         return None
 
-    async def _get_wattage_limit(self, rpc_summary: dict | None = None) -> int | None:
+    async def _get_wattage_limit(
+        self, rpc_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -529,13 +714,15 @@ class BTMinerV2(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                return rpc_summary["SUMMARY"][0]["Power Limit"]
+                return int(rpc_summary["SUMMARY"][0]["Power Limit"])
             except LookupError:
                 pass
         return None
 
     async def _get_fans(
-        self, rpc_summary: dict | None = None, rpc_get_psu: dict | None = None
+        self,
+        rpc_summary: dict[str, Any] | None = None,
+        rpc_get_psu: dict[str, Any] | None = None,
     ) -> list[Fan]:
         if self.expected_fans is None:
             return []
@@ -560,7 +747,9 @@ class BTMinerV2(StockFirmware):
         return fans
 
     async def _get_fan_psu(
-        self, rpc_summary: dict | None = None, rpc_get_psu: dict | None = None
+        self,
+        rpc_summary: dict[str, Any] | None = None,
+        rpc_get_psu: dict[str, Any] | None = None,
     ) -> int | None:
         if rpc_summary is None:
             try:
@@ -588,7 +777,9 @@ class BTMinerV2(StockFirmware):
         return None
 
     async def _get_errors(
-        self, rpc_summary: dict | None = None, rpc_get_error_code: dict | None = None
+        self,
+        rpc_summary: dict[str, Any] | None = None,
+        rpc_get_error_code: dict[str, Any] | None = None,
     ) -> list[MinerErrorData]:
         errors = []
         if rpc_get_error_code is None and rpc_summary is None:
@@ -599,14 +790,19 @@ class BTMinerV2(StockFirmware):
 
         if rpc_get_error_code is not None:
             try:
-                for err in rpc_get_error_code["Msg"]["error_code"]:
-                    if isinstance(err, dict):
-                        for code in err:
-                            errors.append(WhatsminerError(error_code=int(code)))
-                    else:
-                        errors.append(WhatsminerError(error_code=int(err)))
-            except KeyError:
-                pass
+                error_response = BTMinerGetErrorCodeResponse.model_validate(
+                    rpc_get_error_code
+                )
+                if "error_code" in error_response.msg:
+                    for err in error_response.msg["error_code"]:
+                        if isinstance(err, dict):
+                            for code in err:
+                                errors.append(WhatsminerError(error_code=int(code)))
+                        else:
+                            errors.append(WhatsminerError(error_code=int(err)))
+            except (ValidationError, ValueError, TypeError) as e:
+                if isinstance(e, ValidationError):
+                    logging.warning(f"{self} - Failed to parse error codes: {e}")
 
         if rpc_summary is None:
             try:
@@ -616,16 +812,20 @@ class BTMinerV2(StockFirmware):
 
         if rpc_summary is not None:
             try:
-                for i in range(rpc_summary["SUMMARY"][0]["Error Code Count"]):
-                    err = rpc_summary["SUMMARY"][0].get(f"Error Code {i}")
-                    if err:
-                        errors.append(WhatsminerError(error_code=err))
-            except (LookupError, ValueError, TypeError):
-                pass
+                response = BTMinerSummaryResponse.model_validate(rpc_summary)
+                if response.summary:
+                    for i in range(response.summary[0].error_code_count):
+                        raw_data = rpc_summary["SUMMARY"][0]
+                        err = raw_data.get(f"Error Code {i}")
+                        if err:
+                            errors.append(WhatsminerError(error_code=err))
+            except (ValidationError, ValueError, TypeError) as e:
+                if isinstance(e, ValidationError):
+                    logging.warning(f"{self} - Failed to parse summary for errors: {e}")
         return errors  # type: ignore[return-value]
 
     async def _get_expected_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_summary is None:
             try:
@@ -647,7 +847,7 @@ class BTMinerV2(StockFirmware):
         return None
 
     async def _get_fault_light(
-        self, rpc_get_miner_info: dict | None = None
+        self, rpc_get_miner_info: dict[str, Any] | None = None
     ) -> bool | None:
         if rpc_get_miner_info is None:
             try:
@@ -671,7 +871,7 @@ class BTMinerV2(StockFirmware):
         gateway: str,
         subnet_mask: str = "255.255.255.0",
         hostname: str | None = None,
-    ):
+    ) -> None:
         if not hostname:
             hostname = await self.get_hostname()
         if hostname is None:
@@ -680,15 +880,15 @@ class BTMinerV2(StockFirmware):
             ip=ip, mask=subnet_mask, dns=dns, gate=gateway, host=hostname, dhcp=False
         )
 
-    async def set_dhcp(self, hostname: str | None = None):
+    async def set_dhcp(self, hostname: str | None = None) -> None:
         if hostname:
             await self.set_hostname(hostname)
         await self.rpc.net_config()
 
-    async def set_hostname(self, hostname: str):
+    async def set_hostname(self, hostname: str) -> None:
         await self.rpc.set_hostname(hostname)
 
-    async def _is_mining(self, rpc_status: dict | None = None) -> bool | None:
+    async def _is_mining(self, rpc_status: dict[str, Any] | None = None) -> bool | None:
         if rpc_status is None:
             try:
                 rpc_status = await self.rpc.status()
@@ -708,7 +908,9 @@ class BTMinerV2(StockFirmware):
                 pass
         return False
 
-    async def _get_uptime(self, rpc_summary: dict | None = None) -> int | None:
+    async def _get_uptime(
+        self, rpc_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_summary is None:
             try:
                 rpc_summary = await self.rpc.summary()
@@ -722,7 +924,9 @@ class BTMinerV2(StockFirmware):
                 pass
         return None
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -850,7 +1054,7 @@ BTMINERV3_DATA_LOC = DataLocations(
         ),
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
-            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
+            [RPCAPICommand("rpc_get_miner_status_pools", "get.miner.status:pools")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -891,9 +1095,16 @@ class BTMinerV3(StockFirmware):
         settings = None
         device_info = None
         try:
-            pools = await self.rpc.get_miner_status_pools()
-            settings = await self.rpc.get_miner_setting()
-            device_info = await self.rpc.get_device_info()
+            pools_list = await self.rpc.get_miner_status_pools()
+            pools = {
+                "msg": {
+                    "pools": [pool.model_dump(by_alias=True) for pool in pools_list]
+                }
+            }
+            settings_msg = await self.rpc.get_miner_setting()
+            settings = settings_msg.model_dump(by_alias=True)
+            device_info_msg = await self.rpc.get_device_info()
+            device_info = device_info_msg.model_dump(by_alias=True)
         except APIError as e:
             logging.warning(e)
         except LookupError:
@@ -921,69 +1132,49 @@ class BTMinerV3(StockFirmware):
 
     async def fault_light_off(self) -> bool:
         try:
-            data = await self.rpc.set_system_led()
+            await self.rpc.set_system_led()
+            self.light = False
+            return True
         except APIError:
             return False
-        if data:
-            if "code" in data.keys():
-                if data["code"] == 0:
-                    self.light = False
-                    return True
-        return False
 
     async def fault_light_on(self) -> bool:
         try:
-            data = await self.rpc.set_system_led(
+            await self.rpc.set_system_led(
                 leds=[{"color": "red", "period": 60, "duration": 20, "start": 0}]
             )
+            self.light = True
+            return True
         except APIError:
             return False
-        if data:
-            if "code" in data.keys():
-                if data["code"] == 0:
-                    self.light = True
-                    return True
-        return False
 
     async def reboot(self) -> bool:
         try:
-            data = await self.rpc.set_system_reboot()
+            await self.rpc.set_system_reboot()
+            return True
         except APIError:
             return False
-        if data and data.get("msg"):
-            if data["msg"] == "ok":
-                return True
-        return False
 
     async def restart_backend(self) -> bool:
         try:
-            data = await self.rpc.set_miner_service("restart")
+            await self.rpc.set_miner_service("restart")
+            return True
         except APIError:
             return False
-        if data and data.get("msg"):
-            if data["msg"] == "ok":
-                return True
-        return False
 
     async def stop_mining(self) -> bool:
         try:
-            data = await self.rpc.set_miner_service("stop")
+            await self.rpc.set_miner_service("stop")
+            return True
         except APIError:
             return False
-        if data and data.get("msg"):
-            if data["msg"] == "ok":
-                return True
-        return False
 
     async def resume_mining(self) -> bool:
         try:
-            data = await self.rpc.set_miner_service("start")
+            await self.rpc.set_miner_service("start")
+            return True
         except APIError:
             return False
-        if data and data.get("msg"):
-            if data["msg"] == "ok":
-                return True
-        return False
 
     async def set_power_limit(self, wattage: int) -> bool:
         try:
@@ -994,85 +1185,90 @@ class BTMinerV3(StockFirmware):
         else:
             return True
 
-    async def _get_mac(self, rpc_get_device_info: dict | None = None) -> str | None:
+    async def _get_mac(
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
+    ) -> str | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        return rpc_get_device_info.get("msg", {}).get("network", {}).get("mac")
+        if rpc_get_device_info.network.mac:
+            return rpc_get_device_info.network.mac
+        return None
 
     async def _get_api_version(
-        self, rpc_get_device_info: dict | None = None
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
     ) -> str | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        return rpc_get_device_info.get("msg", {}).get("system", {}).get("api")
+        if rpc_get_device_info.system.api:
+            return rpc_get_device_info.system.api
+        return None
 
     async def _get_firmware_version(
-        self, rpc_get_device_info: dict | None = None
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
     ) -> str | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        return rpc_get_device_info.get("msg", {}).get("system", {}).get("fwversion")
+        if rpc_get_device_info.system.fwversion:
+            return rpc_get_device_info.system.fwversion
+        return None
 
     async def _get_hostname(
-        self, rpc_get_device_info: dict | None = None
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
     ) -> str | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        return rpc_get_device_info.get("msg", {}).get("network", {}).get("hostname")
+        if rpc_get_device_info.network.hostname:
+            return rpc_get_device_info.network.hostname
+        return None
 
     async def _get_light_flashing(
-        self, rpc_get_device_info: dict | None = None
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
     ) -> bool | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        val = rpc_get_device_info.get("msg", {}).get("system", {}).get("ledstatus")
-        if isinstance(val, str):
-            return val != "auto"
+        if rpc_get_device_info.system.ledstatus is not None:
+            return rpc_get_device_info.system.ledstatus != "auto"
         return None
 
     async def _get_wattage_limit(
-        self, rpc_get_device_info: dict | None = None
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
     ) -> int | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
-            return None
-        val = rpc_get_device_info.get("msg", {}).get("miner", {}).get("power-limit-set")
         try:
-            return int(float(val))
+            if rpc_get_device_info.miner.power_limit_set is not None:
+                return int(float(rpc_get_device_info.miner.power_limit_set))
         except (ValueError, TypeError):
-            return None
+            pass
+        return None
 
     async def _get_fans(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
     ) -> list[Fan]:
         if rpc_get_miner_status_summary is None:
             try:
@@ -1080,30 +1276,28 @@ class BTMinerV3(StockFirmware):
             except APIError:
                 return []
         fans = []
-        if rpc_get_miner_status_summary is None:
-            return []
-        summary = rpc_get_miner_status_summary.get("msg", {}).get("summary", {})
-        for idx, direction in enumerate(["in", "out"]):
-            rpm = summary.get(f"fan-speed-{direction}")
-            if rpm is not None:
-                fans.append(Fan(speed=rpm))
+        if rpc_get_miner_status_summary.fan_speed_in is not None:
+            fans.append(Fan(speed=rpc_get_miner_status_summary.fan_speed_in))
+        if rpc_get_miner_status_summary.fan_speed_out is not None:
+            fans.append(Fan(speed=rpc_get_miner_status_summary.fan_speed_out))
         return fans
 
-    async def _get_psu_fans(self, rpc_get_device_info: dict | None = None) -> list[Fan]:
+    async def _get_psu_fans(
+        self,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
+    ) -> list[Fan]:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
             except APIError:
                 return []
-        if rpc_get_device_info is None:
-            return []
-        rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
+        rpm = rpc_get_device_info.power.fanspeed
         return [Fan(speed=rpm)] if rpm is not None else []
 
     async def _get_hashboards(
         self,
-        rpc_get_device_info: dict | None = None,
-        rpc_get_miner_status_edevs: dict | None = None,
+        rpc_get_device_info: BTMinerV3DeviceInfoMsg | None = None,
+        rpc_get_miner_status_edevs: list[BTMinerV3EdevItem] | None = None,
     ) -> list[HashBoard]:
         if rpc_get_device_info is None:
             try:
@@ -1117,32 +1311,37 @@ class BTMinerV3(StockFirmware):
                 return []
 
         boards = []
-        if rpc_get_device_info is None or rpc_get_miner_status_edevs is None:
-            return []
-        board_count = (
-            rpc_get_device_info.get("msg", {}).get("hardware", {}).get("boards", 3)
-        )
-        edevs = rpc_get_miner_status_edevs.get("msg", {}).get("edevs", [])
+        board_count = rpc_get_device_info.hardware.boards
+        edevs = rpc_get_miner_status_edevs
         for idx in range(board_count):
-            board_data = edevs[idx] if idx < len(edevs) else {}
+            board_data = edevs[idx] if idx < len(edevs) else None
+            if board_data is None:
+                boards.append(
+                    HashBoard(
+                        slot=idx,
+                        expected_chips=self.expected_chips,
+                        missing=True,
+                    )
+                )
+                continue
             boards.append(
                 HashBoard(
                     slot=idx,
                     hashrate=self.algo.hashrate(
-                        rate=board_data.get("hash-average", 0),
+                        rate=board_data.hash_average or 0,
                         unit=self.algo.unit.TH,  # type: ignore[attr-defined]
                     ).into(
                         self.algo.unit.default  # type: ignore[attr-defined]
                     ),
-                    temp=board_data.get("chip-temp-min"),
-                    inlet_temp=board_data.get("chip-temp-min"),
-                    outlet_temp=board_data.get("chip-temp-max"),
-                    serial_number=rpc_get_device_info.get("msg", {})
-                    .get("miner", {})
-                    .get(f"pcbsn{idx}"),
-                    chips=board_data.get("effective-chips"),
+                    temp=board_data.chip_temp_min,
+                    inlet_temp=board_data.chip_temp_min,
+                    outlet_temp=board_data.chip_temp_max,
+                    serial_number=getattr(
+                        rpc_get_device_info.miner, f"pcbsn{idx}", None
+                    ),
+                    chips=board_data.effective_chips,
                     expected_chips=self.expected_chips,
-                    active=(board_data.get("hash-average") or 0) > 0,
+                    active=(board_data.hash_average or 0) > 0,
                     missing=False,
                     tuned=True,
                 )
@@ -1150,117 +1349,98 @@ class BTMinerV3(StockFirmware):
         return boards
 
     async def _get_pools(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_pools: list[BTMinerV3Pool] | None = None,
     ) -> list[PoolMetrics]:
-        if rpc_get_miner_status_summary is None:
+        if rpc_get_miner_status_pools is None:
             try:
-                rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
+                rpc_get_miner_status_pools = await self.rpc.get_miner_status_pools()
             except APIError:
                 return []
         pools = []
-        if rpc_get_miner_status_summary is None:
-            return []
-        msg_pools = rpc_get_miner_status_summary.get("msg", {}).get("pools", [])
-        for idx, pool in enumerate(msg_pools):
+        for idx, pool in enumerate(rpc_get_miner_status_pools):
             pools.append(
                 PoolMetrics(
                     index=idx,
-                    user=pool.get("account"),
-                    alive=pool.get("status") == "alive",
-                    active=pool.get("stratum-active"),
-                    url=pool.get("url"),
+                    user=pool.account,
+                    alive=pool.status == "alive",
+                    active=pool.stratum_active,
+                    url=PoolUrl.from_str(pool.url) if pool.url else None,
                 )
             )
         return pools
 
     async def _get_uptime(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
     ) -> int | None:
         if rpc_get_miner_status_summary is None:
             try:
                 rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-        if rpc_get_miner_status_summary is None:
-            return None
-        return (
-            rpc_get_miner_status_summary.get("msg", {})
-            .get("summary", {})
-            .get("elapsed")
-        )
-
-    async def _get_wattage(
-        self, rpc_get_miner_status_summary: dict | None = None
-    ) -> int | None:
-        if rpc_get_miner_status_summary is None:
-            try:
-                rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
-            except APIError:
-                return None
-        if rpc_get_miner_status_summary is None:
-            return None
-        power_val = (
-            rpc_get_miner_status_summary.get("msg", {})
-            .get("summary", {})
-            .get("power-realtime")
-        )
-        try:
-            return int(float(power_val)) if power_val is not None else None
-        except (ValueError, TypeError):
-            return None
+        if rpc_get_miner_status_summary.elapsed is not None:
+            return rpc_get_miner_status_summary.elapsed
+        return None
 
     async def _get_hashrate(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
     ) -> AlgoHashRateType | None:
         if rpc_get_miner_status_summary is None:
             try:
                 rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-
-        if rpc_get_miner_status_summary is None:
-            return None
-
-        return (
-            rpc_get_miner_status_summary.get("msg", {})
-            .get("summary", {})
-            .get("hash-realtime")
-        )
+        try:
+            return self.algo.hashrate(
+                rate=rpc_get_miner_status_summary.hash_1min,
+                unit=self.algo.unit.TH,  # type: ignore[attr-defined]
+            ).into(self.algo.unit.default)  # type: ignore[attr-defined]
+        except (ValueError, TypeError):
+            pass
+        return None
 
     async def _get_expected_hashrate(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
     ) -> AlgoHashRateType | None:
         if rpc_get_miner_status_summary is None:
             try:
                 rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-        if rpc_get_miner_status_summary is None:
-            return None
-        res = (
-            rpc_get_miner_status_summary.get("msg", {})
-            .get("summary", {})
-            .get("factory-hash")
-        )
+        try:
+            return self.algo.hashrate(
+                rate=rpc_get_miner_status_summary.factory_hash,
+                unit=self.algo.unit.TH,  # type: ignore[attr-defined]
+            ).into(self.algo.unit.default)  # type: ignore[attr-defined]
+        except (ValueError, TypeError):
+            pass
+        return None
 
-        if self.expected_hashboards is not None and res == (
-            -0.001 * self.expected_hashboards
-        ):
-            return None
-        return res
+    async def _get_wattage(
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
+    ) -> int | None:
+        if rpc_get_miner_status_summary is None:
+            try:
+                rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
+            except APIError:
+                return None
+        try:
+            return int(rpc_get_miner_status_summary.power_rate)
+        except (ValueError, TypeError):
+            pass
+        return None
 
     async def _get_env_temp(
-        self, rpc_get_miner_status_summary: dict | None = None
+        self,
+        rpc_get_miner_status_summary: BTMinerV3Summary | None = None,
     ) -> float | None:
         if rpc_get_miner_status_summary is None:
             try:
                 rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-        if rpc_get_miner_status_summary is None:
-            return None
-        return (
-            rpc_get_miner_status_summary.get("msg", {})
-            .get("summary", {})
-            .get("environment-temperature")
-        )
+        return rpc_get_miner_status_summary.environment_temperature

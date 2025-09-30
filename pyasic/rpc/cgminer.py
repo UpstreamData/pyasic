@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 
@@ -31,7 +33,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    async def version(self) -> dict:
+    async def version(self) -> dict[str, Any]:
         """Get miner version info.
         <details>
             <summary>Expand</summary>
@@ -42,7 +44,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("version")
 
-    async def config(self) -> dict:
+    async def config(self) -> dict[str, Any]:
         """Get some basic configuration info.
         <details>
             <summary>Expand</summary>
@@ -64,7 +66,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("config")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get the status summary of the miner.
         <details>
             <summary>Expand</summary>
@@ -75,7 +77,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("summary")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Get pool information.
         <details>
             <summary>Expand</summary>
@@ -86,7 +88,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pools")
 
-    async def devs(self) -> dict:
+    async def devs(self) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details.
         <details>
             <summary>Expand</summary>
@@ -97,7 +99,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devs")
 
-    async def edevs(self, old: bool = False) -> dict:
+    async def edevs(self, old: bool = False) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details, ignoring blacklisted and zombie devices.
         <details>
             <summary>Expand</summary>
@@ -114,7 +116,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("edevs")
 
-    async def pga(self, n: int) -> dict:
+    async def pga(self, n: int) -> dict[str, Any]:
         """Get data from PGA n.
         <details>
             <summary>Expand</summary>
@@ -128,7 +130,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pga", parameters=n)
 
-    async def pgacount(self) -> dict:
+    async def pgacount(self) -> dict[str, Any]:
         """Get data fon all PGAs.
         <details>
             <summary>Expand</summary>
@@ -139,7 +141,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pgacount")
 
-    async def switchpool(self, n: int) -> dict:
+    async def switchpool(self, n: int) -> dict[str, Any]:
         """Switch pools to pool n.
         <details>
             <summary>Expand</summary>
@@ -153,7 +155,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("switchpool", parameters=n)
 
-    async def enablepool(self, n: int) -> dict:
+    async def enablepool(self, n: int) -> dict[str, Any]:
         """Enable pool n.
         <details>
             <summary>Expand</summary>
@@ -167,7 +169,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("enablepool", parameters=n)
 
-    async def addpool(self, url: str, username: str, password: str) -> dict:
+    async def addpool(self, url: str, username: str, password: str) -> dict[str, Any]:
         """Add a pool to the miner.
         <details>
             <summary>Expand</summary>
@@ -185,7 +187,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
             "addpool", parameters=f"{url},{username},{password}"
         )
 
-    async def poolpriority(self, *n: int) -> dict:
+    async def poolpriority(self, *n: int) -> dict[str, Any]:
         """Set pool priority.
         <details>
             <summary>Expand</summary>
@@ -200,7 +202,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         pools = f"{','.join([str(item) for item in n])}"
         return await self.send_command("poolpriority", parameters=pools)
 
-    async def poolquota(self, n: int, q: int) -> dict:
+    async def poolquota(self, n: int, q: int) -> dict[str, Any]:
         """Set pool quota.
         <details>
             <summary>Expand</summary>
@@ -215,7 +217,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("poolquota", parameters=f"{n},{q}")
 
-    async def disablepool(self, n: int) -> dict:
+    async def disablepool(self, n: int) -> dict[str, Any]:
         """Disable a pool.
         <details>
             <summary>Expand</summary>
@@ -229,7 +231,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("disablepool", parameters=n)
 
-    async def removepool(self, n: int) -> dict:
+    async def removepool(self, n: int) -> dict[str, Any]:
         """Remove a pool.
         <details>
             <summary>Expand</summary>
@@ -243,7 +245,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("removepool", parameters=n)
 
-    async def save(self, filename: str | None = None) -> dict:
+    async def save(self, filename: str | None = None) -> dict[str, Any]:
         """Save the config.
         <details>
             <summary>Expand</summary>
@@ -260,7 +262,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("save")
 
-    async def quit(self) -> dict:
+    async def quit(self) -> dict[str, Any]:
         """Quit CGMiner.
         <details>
             <summary>Expand</summary>
@@ -271,7 +273,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("quit")
 
-    async def notify(self) -> dict:
+    async def notify(self) -> dict[str, Any]:
         """Notify the user of past errors.
         <details>
             <summary>Expand</summary>
@@ -282,7 +284,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("notify")
 
-    async def privileged(self) -> dict:
+    async def privileged(self) -> dict[str, Any]:
         """Check if you have privileged access.
         <details>
             <summary>Expand</summary>
@@ -293,7 +295,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("privileged")
 
-    async def pgaenable(self, n: int) -> dict:
+    async def pgaenable(self, n: int) -> dict[str, Any]:
         """Enable PGA n.
         <details>
             <summary>Expand</summary>
@@ -307,7 +309,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pgaenable", parameters=n)
 
-    async def pgadisable(self, n: int) -> dict:
+    async def pgadisable(self, n: int) -> dict[str, Any]:
         """Disable PGA n.
         <details>
             <summary>Expand</summary>
@@ -321,7 +323,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pgadisable", parameters=n)
 
-    async def pgaidentify(self, n: int) -> dict:
+    async def pgaidentify(self, n: int) -> dict[str, Any]:
         """Identify PGA n.
         <details>
             <summary>Expand</summary>
@@ -335,7 +337,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pgaidentify", parameters=n)
 
-    async def devdetails(self) -> dict:
+    async def devdetails(self) -> dict[str, Any]:
         """Get data on all devices with their static details.
         <details>
             <summary>Expand</summary>
@@ -346,7 +348,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devdetails")
 
-    async def restart(self) -> dict:
+    async def restart(self) -> dict[str, Any]:
         """Restart CGMiner using the API.
         <details>
             <summary>Expand</summary>
@@ -357,7 +359,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("restart")
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Get stats of each device/pool with more than 1 getwork.
         <details>
             <summary>Expand</summary>
@@ -368,7 +370,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("stats")
 
-    async def estats(self, old: bool = False) -> dict:
+    async def estats(self, old: bool = False) -> dict[str, Any]:
         """Get stats of each device/pool with more than 1 getwork, ignoring zombie devices.
         <details>
             <summary>Expand</summary>
@@ -385,7 +387,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("estats")
 
-    async def check(self, command: str) -> dict:
+    async def check(self, command: str) -> dict[str, Any]:
         """Check if the command command exists in CGMiner.
         <details>
             <summary>Expand</summary>
@@ -401,7 +403,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("check", parameters=command)
 
-    async def failover_only(self, failover: bool) -> dict:
+    async def failover_only(self, failover: bool) -> dict[str, Any]:
         """Set failover-only.
         <details>
             <summary>Expand</summary>
@@ -415,7 +417,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("failover-only", parameters=failover)
 
-    async def coin(self) -> dict:
+    async def coin(self) -> dict[str, Any]:
         """Get information on the current coin.
         <details>
             <summary>Expand</summary>
@@ -431,7 +433,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("coin")
 
-    async def debug(self, setting: str) -> dict:
+    async def debug(self, setting: str) -> dict[str, Any]:
         """Set a debug setting.
         <details>
             <summary>Expand</summary>
@@ -454,7 +456,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("debug", parameters=setting)
 
-    async def setconfig(self, name: str, n: int) -> dict:
+    async def setconfig(self, name: str, n: int) -> dict[str, Any]:
         """Set config of name to value n.
         <details>
             <summary>Expand</summary>
@@ -473,7 +475,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("setconfig", parameters=f"{name},{n}")
 
-    async def usbstats(self) -> dict:
+    async def usbstats(self) -> dict[str, Any]:
         """Get stats of all USB devices except ztex.
         <details>
             <summary>Expand</summary>
@@ -484,7 +486,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("usbstats")
 
-    async def pgaset(self, n: int, opt: str, val: int | None = None) -> dict:
+    async def pgaset(self, n: int, opt: str, val: int | None = None) -> dict[str, Any]:
         """Set PGA option opt to val on PGA n.
         <details>
             <summary>Expand</summary>
@@ -513,7 +515,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("pgaset", parameters=f"{n},{opt}")
 
-    async def zero(self, which: str, summary: bool) -> dict:
+    async def zero(self, which: str, summary: bool) -> dict[str, Any]:
         """Zero a device.
         <details>
             <summary>Expand</summary>
@@ -530,7 +532,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("zero", parameters=f"{which},{summary}")
 
-    async def hotplug(self, n: int) -> dict:
+    async def hotplug(self, n: int) -> dict[str, Any]:
         """Enable hotplug.
         <details>
             <summary>Expand</summary>
@@ -544,7 +546,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("hotplug", parameters=n)
 
-    async def asc(self, n: int) -> dict:
+    async def asc(self, n: int) -> dict[str, Any]:
         """Get data for ASC device n.
         <details>
             <summary>Expand</summary>
@@ -558,7 +560,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asc", parameters=n)
 
-    async def ascenable(self, n: int) -> dict:
+    async def ascenable(self, n: int) -> dict[str, Any]:
         """Enable ASC device n.
         <details>
             <summary>Expand</summary>
@@ -572,7 +574,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("ascenable", parameters=n)
 
-    async def ascdisable(self, n: int) -> dict:
+    async def ascdisable(self, n: int) -> dict[str, Any]:
         """Disable ASC device n.
         <details>
             <summary>Expand</summary>
@@ -586,7 +588,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("ascdisable", parameters=n)
 
-    async def ascidentify(self, n: int) -> dict:
+    async def ascidentify(self, n: int) -> dict[str, Any]:
         """Identify ASC device n.
         <details>
             <summary>Expand</summary>
@@ -600,7 +602,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("ascidentify", parameters=n)
 
-    async def asccount(self) -> dict:
+    async def asccount(self) -> dict[str, Any]:
         """Get data on the number of ASC devices and their info.
         <details>
             <summary>Expand</summary>
@@ -611,7 +613,9 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asccount")
 
-    async def ascset(self, n: int, opt: str, val: int | str | None = None) -> dict:
+    async def ascset(
+        self, n: int, opt: str, val: int | str | None = None
+    ) -> dict[str, Any]:
         """Set ASC n option opt to value val.
         <details>
             <summary>Expand</summary>
@@ -667,7 +671,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("ascset", parameters=f"{n},{opt}")
 
-    async def lcd(self) -> dict:
+    async def lcd(self) -> dict[str, Any]:
         """Get a general all-in-one status summary of the miner.
         <details>
             <summary>Expand</summary>
@@ -678,7 +682,7 @@ class CGMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("lcd")
 
-    async def lockstats(self) -> dict:
+    async def lockstats(self) -> dict[str, Any]:
         """Write lockstats to STDERR.
         <details>
             <summary>Expand</summary>

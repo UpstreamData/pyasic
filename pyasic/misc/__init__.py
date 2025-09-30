@@ -15,15 +15,19 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import functools
+from collections.abc import Callable
 from copy import deepcopy
+from typing import Any
 
 from pyasic.errors import APIError
 
 
-def api_min_version(version: str):
-    def decorator(func):
+def api_min_version(version: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         # handle the inner function that the decorator is wrapping
-        async def inner(*args, **kwargs):
+        @functools.wraps(func)
+        async def inner(*args: Any, **kwargs: Any) -> Any:
             api_ver = args[0].api_ver
 
             if not api_ver == "0.0.0" and isinstance(api_ver, str):
@@ -73,7 +77,7 @@ def api_min_version(version: str):
     return decorator
 
 
-def merge_dicts(a: dict, b: dict) -> dict:
+def merge_dicts(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     result = deepcopy(a)
     for b_key, b_val in b.items():
         a_val = result.get(b_key)
@@ -84,7 +88,7 @@ def merge_dicts(a: dict, b: dict) -> dict:
     return result
 
 
-def validate_command_output(data: dict) -> tuple[bool, str | None]:
+def validate_command_output(data: dict[str, Any]) -> tuple[bool, str | None]:
     if "STATUS" in data.keys():
         status = data["STATUS"]
         if isinstance(status, str):

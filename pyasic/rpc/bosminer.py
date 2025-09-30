@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 
@@ -31,7 +33,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    async def asccount(self) -> dict:
+    async def asccount(self) -> dict[str, Any]:
         """Get data on the number of ASC devices and their info.
         <details>
             <summary>Expand</summary>
@@ -42,7 +44,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asccount")
 
-    async def asc(self, n: int) -> dict:
+    async def asc(self, n: int) -> dict[str, Any]:
         """Get data for ASC device n.
         <details>
             <summary>Expand</summary>
@@ -56,7 +58,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asc", parameters=n)
 
-    async def devdetails(self) -> dict:
+    async def devdetails(self) -> dict[str, Any]:
         """Get data on all devices with their static details.
         <details>
             <summary>Expand</summary>
@@ -67,7 +69,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devdetails")
 
-    async def devs(self) -> dict:
+    async def devs(self) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details.
         <details>
             <summary>Expand</summary>
@@ -78,7 +80,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devs")
 
-    async def edevs(self, old: bool = False) -> dict:
+    async def edevs(self, old: bool = False) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details, ignoring blacklisted and zombie devices.
         <details>
             <summary>Expand</summary>
@@ -95,7 +97,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("edevs")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Get pool information.
 
         <details>
@@ -107,7 +109,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pools")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get the status summary of the miner.
 
         <details>
@@ -119,7 +121,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("summary")
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Get stats of each device/pool with more than 1 getwork.
 
         <details>
@@ -131,7 +133,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("stats")
 
-    async def version(self) -> dict:
+    async def version(self) -> dict[str, Any]:
         """Get miner version info.
 
         <details>
@@ -143,7 +145,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("version")
 
-    async def estats(self, old: bool = False) -> dict:
+    async def estats(self, old: bool = False) -> dict[str, Any]:
         """Get stats of each device/pool with more than 1 getwork, ignoring zombie devices.
         <details>
             <summary>Expand</summary>
@@ -160,7 +162,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         else:
             return await self.send_command("estats")
 
-    async def check(self, command: str) -> dict:
+    async def check(self, command: str) -> dict[str, Any]:
         """Check if the command `command` exists in BOSMiner.
         <details>
             <summary>Expand</summary>
@@ -176,7 +178,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("check", parameters=command)
 
-    async def coin(self) -> dict:
+    async def coin(self) -> dict[str, Any]:
         """Get information on the current coin.
         <details>
             <summary>Expand</summary>
@@ -192,7 +194,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("coin")
 
-    async def lcd(self) -> dict:
+    async def lcd(self) -> dict[str, Any]:
         """Get a general all-in-one status summary of the miner.
         <details>
             <summary>Expand</summary>
@@ -203,7 +205,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("lcd")
 
-    async def fans(self) -> dict:
+    async def fans(self) -> dict[str, Any]:
         """Get fan data.
         <details>
             <summary>Expand</summary>
@@ -214,7 +216,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("fans")
 
-    async def tempctrl(self) -> dict:
+    async def tempctrl(self) -> dict[str, Any]:
         """Get temperature control data.
         <details>
             <summary>Expand</summary>
@@ -225,7 +227,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("tempctrl")
 
-    async def temps(self) -> dict:
+    async def temps(self) -> dict[str, Any]:
         """Get temperature data.
         <details>
             <summary>Expand</summary>
@@ -236,7 +238,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("temps")
 
-    async def tunerstatus(self) -> dict:
+    async def tunerstatus(self) -> dict[str, Any]:
         """Get tuner status data
         <details>
             <summary>Expand</summary>
@@ -247,7 +249,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("tunerstatus")
 
-    async def pause(self) -> dict:
+    async def pause(self) -> dict[str, Any]:
         """Pause mining.
         <details>
             <summary>Expand</summary>
@@ -258,7 +260,7 @@ class BOSMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pause")
 
-    async def resume(self) -> dict:
+    async def resume(self) -> dict[str, Any]:
         """Resume mining.
         <details>
             <summary>Expand</summary>

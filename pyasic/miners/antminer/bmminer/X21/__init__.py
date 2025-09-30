@@ -21,3 +21,12 @@ from .S21 import (
     BMMinerS21Pro,
 )
 from .T21 import BMMinerT21
+
+__all__ = [
+    "BMMinerS21",
+    "BMMinerS21Hydro",
+    "BMMinerS21Plus",
+    "BMMinerS21PlusHydro",
+    "BMMinerS21Pro",
+    "BMMinerT21",
+]

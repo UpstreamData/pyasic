@@ -16,3 +16,13 @@
 
 from .S17 import BMMinerS17, BMMinerS17e, BMMinerS17Plus, BMMinerS17Pro
 from .T17 import BMMinerT17, BMMinerT17e, BMMinerT17Plus
+
+__all__ = [
+    "BMMinerS17",
+    "BMMinerS17e",
+    "BMMinerS17Plus",
+    "BMMinerS17Pro",
+    "BMMinerT17",
+    "BMMinerT17e",
+    "BMMinerT17Plus",
+]

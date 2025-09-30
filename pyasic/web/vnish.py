@@ -59,7 +59,7 @@ class VNishWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         post = privileged or not parameters == {}
         if self.token is None:
             await self.auth()
@@ -92,7 +92,7 @@ class VNishWebAPI(BaseWebAPI):
                         # refresh the token, retry
                         await self.auth()
                         continue
-                    json_data = response.json()
+                    json_data: dict[str, Any] = response.json()
                     if json_data:
                         return json_data
                     return {"success": True}
@@ -118,53 +118,53 @@ class VNishWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         for command in commands:
             data[command] = await self.send_command(command)
         return data
 
-    async def restart_vnish(self) -> dict:
+    async def restart_vnish(self) -> dict[str, Any]:
         return await self.send_command("mining/restart", privileged=True)
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         return await self.send_command("system/reboot", privileged=True)
 
-    async def pause_mining(self) -> dict:
+    async def pause_mining(self) -> dict[str, Any]:
         return await self.send_command("mining/pause", privileged=True)
 
-    async def resume_mining(self) -> dict:
+    async def resume_mining(self) -> dict[str, Any]:
         return await self.send_command("mining/resume", privileged=True)
 
-    async def stop_mining(self) -> dict:
+    async def stop_mining(self) -> dict[str, Any]:
         return await self.send_command("mining/stop", privileged=True)
 
-    async def start_mining(self) -> dict:
+    async def start_mining(self) -> dict[str, Any]:
         return await self.send_command("mining/start", privileged=True)
 
-    async def info(self) -> dict:
+    async def info(self) -> dict[str, Any]:
         return await self.send_command("info")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         return await self.send_command("summary")
 
-    async def perf_summary(self) -> dict:
+    async def perf_summary(self) -> dict[str, Any]:
         return await self.send_command("perf-summary")
 
-    async def chips(self) -> dict:
+    async def chips(self) -> dict[str, Any]:
         return await self.send_command("chips")
 
-    async def layout(self) -> dict:
+    async def layout(self) -> dict[str, Any]:
         return await self.send_command("layout")
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         return await self.send_command("status")
 
-    async def settings(self) -> dict:
+    async def settings(self) -> dict[str, Any]:
         return await self.send_command("settings")
 
-    async def set_power_limit(self, wattage: int) -> dict:
+    async def set_power_limit(self, wattage: int) -> dict[str, Any]:
         # Can only set power limit to tuned preset
         settings = await self.settings()
         settings["miner"]["overclock"]["preset"] = str(wattage)
@@ -173,11 +173,11 @@ class VNishWebAPI(BaseWebAPI):
         # response will always be {"restart_required":false,"reboot_required":false} even if unsuccessful
         return await self.send_command("settings", privileged=True, miner=miner)
 
-    async def autotune_presets(self) -> dict:
+    async def autotune_presets(self) -> dict[str, Any]:
         return await self.send_command("autotune/presets")
 
-    async def find_miner(self) -> dict:
+    async def find_miner(self) -> dict[str, Any]:
         return await self.send_command("find-miner", privileged=True)
 
-    async def post_settings(self, miner_settings: dict):
+    async def post_settings(self, miner_settings: dict[str, Any]) -> dict[str, Any]:
         return await self.send_command("settings", post=True, **miner_settings)

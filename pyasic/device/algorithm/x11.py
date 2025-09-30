@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import X11HashRate
-from .hashrate.unit import X11Unit
+from .hashrate.unit.x11 import X11Unit
+from .hashrate.x11 import X11HashRate
+
+__all__ = ["X11Algo", "X11HashRate", "X11Unit"]
 
 
 # make this json serializable

@@ -19,3 +19,13 @@ from .E9 import BMMinerE9Pro
 from .L9 import BMMinerL9
 from .S9 import BMMinerS9, BMMinerS9i, BMMinerS9j
 from .T9 import BMMinerT9
+
+__all__ = [
+    "BMMinerD9",
+    "BMMinerE9Pro",
+    "BMMinerL9",
+    "BMMinerS9",
+    "BMMinerS9i",
+    "BMMinerS9j",
+    "BMMinerT9",
+]

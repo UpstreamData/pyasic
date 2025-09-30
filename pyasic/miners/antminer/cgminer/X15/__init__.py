@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .Z15 import CGMinerZ15
+
+__all__ = ["CGMinerZ15"]

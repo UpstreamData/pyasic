@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.config import MinerConfig
 from pyasic.data.boards import HashBoard
 from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
@@ -90,7 +92,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
         return self.config
 
     async def _get_expected_hashrate(
-        self, rpc_devs: dict | None = None
+        self, rpc_devs: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
@@ -110,7 +112,9 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
         return None
 
     async def _get_hashboards(
-        self, rpc_devs: dict | None = None, rpc_devdetails: dict | None = None
+        self,
+        rpc_devs: dict[str, Any] | None = None,
+        rpc_devdetails: dict[str, Any] | None = None,
     ) -> list[HashBoard]:
         if rpc_devs is None:
             try:
@@ -162,7 +166,7 @@ class GoldshellMiniDoge(GoldshellMiner, MiniDoge):
 
         return hashboards
 
-    async def _get_uptime(self, web_devs: dict | None = None) -> int | None:
+    async def _get_uptime(self, web_devs: dict[str, Any] | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()

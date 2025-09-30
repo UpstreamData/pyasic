@@ -36,3 +36,38 @@ from .mskminer import MSKMiner
 from .unknown import UnknownMiner
 from .vnish import VNish
 from .whatsminer import M2X, M3X, M5X, M6X, M7X
+
+__all__ = [
+    "AntminerModern",
+    "AntminerOld",
+    "Auradine",
+    "AvalonMiner",
+    "BFGMiner",
+    "BitAxe",
+    "BMMiner",
+    "BOSer",
+    "BOSMiner",
+    "BTMiner",
+    "BTMinerV2",
+    "BTMinerV3",
+    "CGMiner",
+    "ElphapexMiner",
+    "ePIC",
+    "GoldshellMiner",
+    "BlackMiner",
+    "HiveonModern",
+    "HiveonOld",
+    "IceRiver",
+    "Innosilicon",
+    "LuckyMiner",
+    "LUXMiner",
+    "MaraMiner",
+    "MSKMiner",
+    "UnknownMiner",
+    "VNish",
+    "M2X",
+    "M3X",
+    "M5X",
+    "M6X",
+    "M7X",
+]

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import KadenaHashRate
-from .hashrate.unit import KadenaUnit
+from .hashrate.kadena import KadenaHashRate
+from .hashrate.unit.kadena import KadenaUnit
+
+__all__ = ["KadenaAlgo", "KadenaHashRate", "KadenaUnit"]
 
 
 # make this json serializable

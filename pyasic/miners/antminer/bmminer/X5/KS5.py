@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.device.models.antminer import KS5, KS5Pro
+from pyasic.miners.device.models.antminer.X5.KS5 import KS5, KS5Pro
 
 
 class BMMinerKS5(AntminerModern, KS5):

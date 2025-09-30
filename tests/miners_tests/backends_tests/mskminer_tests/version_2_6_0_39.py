@@ -2,11 +2,11 @@
 
 import unittest
 from dataclasses import fields
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from pyasic import APIError, MinerData
 from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import SHA256Unit
+from pyasic.device.algorithm.sha256 import SHA256Unit
 from pyasic.miners.antminer import MSKMinerS19NoPIC
 
 POOLS = [
@@ -455,7 +455,7 @@ data = {
 
 class TestMSKMiners(unittest.IsolatedAsyncioTestCase):
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_all_data_gathering(self, mock_send_bytes):
+    async def test_all_data_gathering(self, mock_send_bytes: MagicMock) -> None:
         mock_send_bytes.raises = APIError()
         for m_type in data:
             gathered_data = {}
@@ -492,7 +492,9 @@ class TestMSKMiners(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result.mac, "12:34:56:78:90:12")
             self.assertEqual(result.api_ver, "3.1")
             self.assertEqual(result.fw_ver, "10 Dec 2024 14:34:31 GMT")
-            self.assertEqual(round(result.hashrate.into(SHA256Unit.TH)), 100)
+            self.assertIsNotNone(result.hashrate)
+            if result.hashrate is not None:
+                self.assertEqual(round(result.hashrate.into(SHA256Unit.TH)), 100)
             self.assertEqual(
                 result.fans,
                 [Fan(speed=5010), Fan(speed=5160), Fan(speed=5070), Fan(speed=5040)],

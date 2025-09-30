@@ -23,3 +23,13 @@ from .S19 import (
     LUXMinerS19XP,
 )
 from .T19 import LUXMinerT19
+
+__all__ = [
+    "LUXMinerS19",
+    "LUXMinerS19jPro",
+    "LUXMinerS19jProPlus",
+    "LUXMinerS19kPro",
+    "LUXMinerS19Pro",
+    "LUXMinerS19XP",
+    "LUXMinerT19",
+]

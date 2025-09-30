@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import EtHashHashRate
-from .hashrate.unit import EtHashUnit
+from .hashrate.ethash import EtHashHashRate
+from .hashrate.unit.ethash import EtHashUnit
+
+__all__ = ["EtHashAlgo", "EtHashHashRate", "EtHashUnit"]
 
 
 class EtHashAlgo(MinerAlgoType):

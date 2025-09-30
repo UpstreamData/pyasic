@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .KDMax import KDMax
+
+__all__ = ["KDMax"]

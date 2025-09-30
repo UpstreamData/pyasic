@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import BlockFlowHashRate
-from .hashrate.unit import BlockFlowUnit
+from .hashrate.blockflow import BlockFlowHashRate
+from .hashrate.unit.blockflow import BlockFlowUnit
+
+__all__ = ["BlockFlowAlgo", "BlockFlowHashRate", "BlockFlowUnit"]
 
 
 class BlockFlowAlgo(MinerAlgoType):

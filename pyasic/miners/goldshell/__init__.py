@@ -13,4 +13,24 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
-from .bfgminer import *
+from .bfgminer import (
+    GoldshellByte,
+    GoldshellCK5,
+    GoldshellHS5,
+    GoldshellKD5,
+    GoldshellKDBoxII,
+    GoldshellKDBoxPro,
+    GoldshellKDMax,
+    GoldshellMiniDoge,
+)
+
+__all__ = [
+    "GoldshellByte",
+    "GoldshellCK5",
+    "GoldshellHS5",
+    "GoldshellKD5",
+    "GoldshellKDBoxII",
+    "GoldshellKDBoxPro",
+    "GoldshellKDMax",
+    "GoldshellMiniDoge",
+]

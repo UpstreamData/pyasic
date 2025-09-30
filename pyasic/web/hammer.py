@@ -43,7 +43,7 @@ class HammerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Hammer device using HTTP digest authentication.
 
         Args:
@@ -74,14 +74,15 @@ class HammerWebAPI(BaseWebAPI):
         else:
             if data.status_code == 200:
                 try:
-                    return data.json()
+                    result: dict[str, Any] = data.json()
+                    return result
                 except json.decoder.JSONDecodeError:
                     return {"success": False, "message": "Failed to decode JSON"}
         return {"success": False, "message": "Unknown error occurred"}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously.
 
         Args:
@@ -108,7 +109,7 @@ class HammerWebAPI(BaseWebAPI):
 
     async def _handle_multicommand(
         self, client: httpx.AsyncClient, command: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Helper function for handling individual commands in a multicommand execution.
 
         Args:
@@ -128,13 +129,13 @@ class HammerWebAPI(BaseWebAPI):
         else:
             if ret.status_code == 200:
                 try:
-                    json_data = ret.json()
+                    json_data: dict[str, Any] = ret.json()
                     return {command: json_data}
                 except json.decoder.JSONDecodeError:
                     pass
         return {command: {}}
 
-    async def get_miner_conf(self) -> dict:
+    async def get_miner_conf(self) -> dict[str, Any]:
         """Retrieve the miner configuration from the Hammer device.
 
         Returns:
@@ -142,7 +143,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_miner_conf")
 
-    async def set_miner_conf(self, conf: dict) -> dict:
+    async def set_miner_conf(self, conf: dict[str, Any]) -> dict[str, Any]:
         """Set the configuration for the miner.
 
         Args:
@@ -153,7 +154,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("set_miner_conf", **conf)
 
-    async def blink(self, blink: bool) -> dict:
+    async def blink(self, blink: bool) -> dict[str, Any]:
         """Control the blinking of the LED on the miner device.
 
         Args:
@@ -166,7 +167,7 @@ class HammerWebAPI(BaseWebAPI):
             return await self.send_command("blink", blink="true")
         return await self.send_command("blink", blink="false")
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the miner device.
 
         Returns:
@@ -174,7 +175,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
-    async def get_system_info(self) -> dict:
+    async def get_system_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -182,7 +183,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_system_info")
 
-    async def get_network_info(self) -> dict:
+    async def get_network_info(self) -> dict[str, Any]:
         """Retrieve network configuration information from the miner.
 
         Returns:
@@ -190,7 +191,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_network_info")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get a summary of the miner's status and performance.
 
         Returns:
@@ -198,7 +199,7 @@ class HammerWebAPI(BaseWebAPI):
         """
         return await self.send_command("summary")
 
-    async def get_blink_status(self) -> dict:
+    async def get_blink_status(self) -> dict[str, Any]:
         """Check the status of the LED blinking on the miner.
 
         Returns:
@@ -214,7 +215,7 @@ class HammerWebAPI(BaseWebAPI):
         subnet_mask: str,
         hostname: str,
         protocol: int,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Set the network configuration of the miner.
 
         Args:

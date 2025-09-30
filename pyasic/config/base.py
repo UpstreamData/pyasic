@@ -16,72 +16,76 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
+_T = TypeVar("_T", bound="MinerConfigValue")
+
 
 class MinerConfigOption(Enum):
+    value: type[MinerConfigValue]
+
     @classmethod
-    def from_dict(cls, dict_conf: dict | None):
+    def from_dict(cls, dict_conf: dict[str, Any] | None) -> MinerConfigOption:
         return cls.default()
 
-    def as_am_modern(self) -> dict:
-        return self.value.as_am_modern()
+    def as_am_modern(self) -> dict[str, Any]:
+        return self.value().as_am_modern()
 
-    def as_hiveon_modern(self) -> dict:
-        return self.value.as_hiveon_modern()
+    def as_hiveon_modern(self) -> dict[str, Any]:
+        return self.value().as_hiveon_modern()
 
-    def as_am_old(self) -> dict:
-        return self.value.as_am_old()
+    def as_am_old(self) -> dict[str, Any]:
+        return self.value().as_am_old()
 
-    def as_wm(self) -> dict:
-        return self.value.as_wm()
+    def as_wm(self) -> dict[str, Any]:
+        return self.value().as_wm()
 
-    def as_inno(self) -> dict:
-        return self.value.as_inno()
+    def as_inno(self) -> dict[str, Any]:
+        return self.value().as_inno()
 
-    def as_goldshell(self) -> dict:
-        return self.value.as_goldshell()
+    def as_goldshell(self) -> dict[str, Any]:
+        return self.value().as_goldshell()
 
-    def as_avalon(self) -> dict:
-        return self.value.as_avalon()
+    def as_avalon(self) -> dict[str, Any]:
+        return self.value().as_avalon()
 
-    def as_bosminer(self) -> dict:
-        return self.value.as_bosminer()
+    def as_bosminer(self) -> dict[str, Any]:
+        return self.value().as_bosminer()
 
-    def as_boser(self) -> dict:
-        return self.value.as_boser
+    def as_boser(self) -> dict[str, Any]:
+        return self.value().as_boser()
 
-    def as_epic(self) -> dict:
-        return self.value.as_epic()
+    def as_epic(self) -> dict[str, Any]:
+        return self.value().as_epic()
 
-    def as_vnish(self) -> dict:
-        return self.value.as_vnish()
+    def as_vnish(self) -> dict[str, Any]:
+        return self.value().as_vnish()
 
-    def as_auradine(self) -> dict:
-        return self.value.as_auradine()
+    def as_auradine(self) -> dict[str, Any]:
+        return self.value().as_auradine()
 
-    def as_mara(self) -> dict:
-        return self.value.as_mara()
+    def as_mara(self) -> dict[str, Any]:
+        return self.value().as_mara()
 
-    def as_espminer(self) -> dict:
-        return self.value.as_espminer()
+    def as_espminer(self) -> dict[str, Any]:
+        return self.value().as_espminer()
 
-    def as_luxos(self) -> dict:
-        return self.value.as_luxos()
+    def as_luxos(self) -> dict[str, Any]:
+        return self.value().as_luxos()
 
-    def as_elphapex(self) -> dict:
-        return self.value.as_elphapex()
+    def as_elphapex(self) -> dict[str, Any]:
+        return self.value().as_elphapex()
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.value(*args, **kwargs)
 
     @classmethod
-    def default(cls):
-        pass
+    def default(cls) -> MinerConfigOption:
+        raise NotImplementedError
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:
@@ -90,64 +94,64 @@ class MinerConfigOption(Enum):
 
 class MinerConfigValue(BaseModel):
     @classmethod
-    def from_dict(cls, dict_conf: dict):
+    def from_dict(cls, dict_conf: dict[str, Any]) -> MinerConfigValue:
         return cls()
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         return self.model_dump()
 
-    def as_am_modern(self, *args: Any, **kwargs: Any) -> Any:
+    def as_am_modern(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_hiveon_modern(self, *args: Any, **kwargs: Any) -> Any:
+    def as_hiveon_modern(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_am_old(self, *args: Any, **kwargs: Any) -> Any:
+    def as_am_old(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_wm(self, *args: Any, **kwargs: Any) -> Any:
+    def as_wm(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_btminer_v3(self, *args: Any, **kwargs: Any) -> Any:
+    def as_btminer_v3(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_inno(self, *args: Any, **kwargs: Any) -> Any:
+    def as_inno(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_goldshell(self, *args: Any, **kwargs: Any) -> Any:
+    def as_goldshell(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_avalon(self, *args: Any, **kwargs: Any) -> Any:
+    def as_avalon(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_bosminer(self, *args: Any, **kwargs: Any) -> Any:
+    def as_bosminer(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_boser(self, *args: Any, **kwargs: Any) -> Any:
+    def as_boser(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_epic(self, *args: Any, **kwargs: Any) -> Any:
+    def as_epic(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_vnish(self, *args: Any, **kwargs: Any) -> Any:
+    def as_vnish(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_auradine(self, *args: Any, **kwargs: Any) -> Any:
+    def as_auradine(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_mara(self, *args: Any, **kwargs: Any) -> Any:
+    def as_mara(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_espminer(self, *args: Any, **kwargs: Any) -> Any:
+    def as_espminer(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_luxos(self, *args: Any, **kwargs: Any) -> Any:
+    def as_luxos(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def as_elphapex(self, *args: Any, **kwargs: Any) -> Any:
+    def as_elphapex(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {}
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:

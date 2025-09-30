@@ -21,7 +21,8 @@ from collections.abc import AsyncIterator
 from typing import cast
 
 from pyasic import settings
-from pyasic.miners.factory import AnyMiner, miner_factory
+from pyasic.miners.base import AnyMiner
+from pyasic.miners.factory import miner_factory
 
 
 class MinerNetwork:
@@ -31,7 +32,7 @@ class MinerNetwork:
         hosts: A list of `ipaddress.IPv4Address` to be used when scanning.
     """
 
-    def __init__(self, hosts: list[ipaddress.IPv4Address]):
+    def __init__(self, hosts: list[ipaddress.IPv4Address]) -> None:
         self.hosts = hosts
         semaphore_limit = settings.get("network_scan_semaphore", 255)
         if semaphore_limit is None:

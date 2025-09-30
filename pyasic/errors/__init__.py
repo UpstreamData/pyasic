@@ -16,13 +16,15 @@
 
 
 class APIError(Exception):
-    def __init__(self, *args):
+    message: object | None
+
+    def __init__(self, *args: object) -> None:
         if args:
             self.message = args[0]
         else:
             self.message = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.message:
             if self.message == "can't access write cmd":
                 return f"{self.message}, please make sure your miner has been unlocked."
@@ -32,13 +34,15 @@ class APIError(Exception):
 
 
 class PhaseBalancingError(Exception):
-    def __init__(self, *args):
+    message: object | None
+
+    def __init__(self, *args: object) -> None:
         if args:
             self.message = args[0]
         else:
             self.message = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.message:
             return f"{self.message}"
         else:
@@ -46,13 +50,15 @@ class PhaseBalancingError(Exception):
 
 
 class APIWarning(Warning):
-    def __init__(self, *args):
+    message: object | None
+
+    def __init__(self, *args: object) -> None:
         if args:
             self.message = args[0]
         else:
             self.message = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.message:
             return f"{self.message}"
         else:

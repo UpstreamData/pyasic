@@ -14,3 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .Z15 import BMMinerZ15Pro
+
+__all__ = [
+    "BMMinerZ15Pro",
+]

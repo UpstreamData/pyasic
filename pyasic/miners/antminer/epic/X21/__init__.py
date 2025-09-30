@@ -16,3 +16,9 @@
 
 from .S21 import ePICS21, ePICS21Pro
 from .T21 import ePICT21
+
+__all__ = [
+    "ePICS21",
+    "ePICS21Pro",
+    "ePICT21",
+]

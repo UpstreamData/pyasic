@@ -34,7 +34,7 @@ class IceRiverWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         tasks = {c: asyncio.create_task(getattr(self, c)()) for c in commands}
         await asyncio.gather(*[t for t in tasks.values()])
         return {t: tasks[t].result() for t in tasks}
@@ -46,7 +46,7 @@ class IceRiverWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 # auth
@@ -64,14 +64,15 @@ class IceRiverWebAPI(BaseWebAPI):
                     if not ignore_errors:
                         raise APIError(f"Command failed: {command}")
                     warnings.warn(f"Command failed: {command}")
-                return resp.json()
+                result: dict[str, Any] = resp.json()
+                return result
             except httpx.HTTPError:
                 raise APIError(f"Command failed: {command}")
 
-    async def locate(self, enable: bool):
+    async def locate(self, enable: bool) -> dict[str, Any]:
         return await self.send_command(
             "userpanel", post="5", locate="1" if enable else "0"
         )
 
-    async def userpanel(self):
+    async def userpanel(self) -> dict[str, Any]:
         return await self.send_command("userpanel", post="4")

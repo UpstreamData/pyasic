@@ -16,7 +16,7 @@
 import asyncio
 import ipaddress
 import warnings
-from typing import Any, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, HashBoard, MinerData
@@ -33,6 +33,7 @@ from pyasic.logger import logger
 from pyasic.miners.data import DataOptions, RPCAPICommand, WebAPICommand
 
 
+@runtime_checkable
 class MinerProtocol(Protocol):
     _rpc_cls: type[Any] | None = None
     _web_cls: type[Any] | None = None
@@ -64,16 +65,40 @@ class MinerProtocol(Protocol):
     light: bool | None = None
     config: MinerConfig | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.model}: {str(self.ip)}"
 
-    def __lt__(self, other):
-        return ipaddress.ip_address(self.ip) < ipaddress.ip_address(other.ip)
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, MinerProtocol):
+            return NotImplemented
+        if self.ip is None or other.ip is None:
+            return NotImplemented
+        # Convert to strings to compare regardless of IPv4/IPv6
+        self_ip = ipaddress.ip_address(self.ip)
+        other_ip = ipaddress.ip_address(other.ip)
+        # Compare by string if different families
+        if type(self_ip) is not type(other_ip):
+            return str(self_ip) < str(other_ip)
+        return self_ip < other_ip  # type: ignore[operator]
 
-    def __gt__(self, other):
-        return ipaddress.ip_address(self.ip) > ipaddress.ip_address(other.ip)
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, MinerProtocol):
+            return NotImplemented
+        if self.ip is None or other.ip is None:
+            return NotImplemented
+        # Convert to strings to compare regardless of IPv4/IPv6
+        self_ip = ipaddress.ip_address(self.ip)
+        other_ip = ipaddress.ip_address(other.ip)
+        # Compare by string if different families
+        if type(self_ip) is not type(other_ip):
+            return str(self_ip) > str(other_ip)
+        return self_ip > other_ip  # type: ignore[operator]
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, MinerProtocol):
+            return NotImplemented
+        if self.ip is None or other.ip is None:
+            return False
         return ipaddress.ip_address(self.ip) == ipaddress.ip_address(other.ip)
 
     @property
@@ -95,7 +120,7 @@ class MinerProtocol(Protocol):
         )
 
     @property
-    def api(self):
+    def api(self) -> Any:
         return self.rpc
 
     async def check_light(self) -> bool:
@@ -451,7 +476,7 @@ class MinerProtocol(Protocol):
         allow_warning: bool,
         include: list[str | DataOptions] | None = None,
         exclude: list[str | DataOptions] | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         # handle include
         if include is not None:
             include = [str(i) for i in include]
@@ -517,7 +542,7 @@ class MinerProtocol(Protocol):
         if api_command_data is None:
             api_command_data = {}
 
-        miner_data = {}
+        miner_data: dict[str, Any] = {}
 
         for data_name in include:
             try:
@@ -545,7 +570,7 @@ class MinerProtocol(Protocol):
                 function = getattr(
                     self, getattr(self.data_locations, str(data_name)).cmd
                 )
-                miner_data[data_name] = await function(**args_to_send)
+                miner_data[str(data_name)] = await function(**args_to_send)
             except Exception as e:
                 raise APIError(
                     f"Failed to call {data_name} on {self} while getting data."

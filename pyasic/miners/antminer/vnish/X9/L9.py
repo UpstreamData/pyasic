@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.device.models import L9
+from pyasic.miners.device.models.antminer.X9.L9 import L9
 
 
 class VNishL9(VNish, L9):

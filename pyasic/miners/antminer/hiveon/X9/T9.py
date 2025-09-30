@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 
 
+from typing import Any
+
 from pyasic.data import HashBoard
 from pyasic.device.algorithm import AlgoHashRate, HashUnit
 from pyasic.errors import APIError
@@ -75,7 +77,9 @@ class HiveonT9(HiveonOld, T9):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_stats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         hashboards = [
             HashBoard(slot=board, expected_chips=self.expected_chips)
             for board in range(self.expected_hashboards)
@@ -120,7 +124,9 @@ class HiveonT9(HiveonOld, T9):
 
         return hashboards
 
-    async def _get_env_temp(self, rpc_stats: dict | None = None) -> float | None:
+    async def _get_env_temp(
+        self, rpc_stats: dict[str, Any] | None = None
+    ) -> float | None:
         env_temp_list: list[int] = []
         board_map = {
             0: [2, 9, 10],

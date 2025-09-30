@@ -10,7 +10,7 @@ class AntminerModernSSH(BaseSSH):
         ip (str): The IP address of the Antminer device.
     """
 
-    def __init__(self, ip: str):
+    def __init__(self, ip: str) -> None:
         super().__init__(ip)
         self.pwd = settings.get("default_antminer_ssh_password", "root")
         self.username = "miner"

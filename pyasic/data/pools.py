@@ -20,7 +20,7 @@ class PoolUrl(BaseModel):
     pubkey: str | None = None
 
     @model_serializer
-    def serialize(self):
+    def serialize(self) -> str:
         return str(self)
 
     def __str__(self) -> str:
@@ -114,7 +114,7 @@ class PoolMetrics(BaseModel):
         def serialize_bool(key: str, value: bool) -> str:
             return f"{key}={str(value).lower()}"
 
-        serialization_map: dict[type, Callable[[str, Any], str]] = {
+        serialization_map: dict[type[Any], Callable[[str, Any], str]] = {
             int: serialize_int,
             float: serialize_float,
             str: serialize_str,

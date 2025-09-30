@@ -14,13 +14,17 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import cast
+from typing import Any
 
-from pyasic import MinerConfig
-from pyasic.data import Fan, HashBoard
-from pyasic.data.error_codes import MinerErrorData, X19Error
+from pydantic import BaseModel, Field, ValidationError
+
+from pyasic.config import MinerConfig
+from pyasic.data.boards import HashBoard
+from pyasic.data.error_codes import MinerErrorData
+from pyasic.data.error_codes.X19 import X19Error
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
@@ -32,6 +36,140 @@ from pyasic.miners.data import (
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.ccminer import CCMinerRPCAPI
 from pyasic.web.hammer import HammerWebAPI
+
+
+class HammerSystemInfo(BaseModel):
+    hostname: str
+    macaddr: str
+
+    class Config:
+        extra = "allow"
+
+
+class HammerNetworkInfo(BaseModel):
+    macaddr: str
+    conf_dnsservers: str
+    conf_gateway: str
+    conf_ipaddress: str
+    conf_netmask: str
+    conf_nettype: str
+
+    class Config:
+        extra = "allow"
+
+
+class HammerBlinkStatus(BaseModel):
+    blink: bool
+
+    class Config:
+        extra = "allow"
+
+
+class HammerBlinkResponse(BaseModel):
+    code: str
+
+    class Config:
+        extra = "allow"
+
+
+class HammerMinerConf(BaseModel):
+    bitmain_work_mode: str | int = Field(alias="bitmain-work-mode")
+
+    class Config:
+        extra = "allow"
+        populate_by_name = True
+
+
+class HammerVersionInfo(BaseModel):
+    API: str
+    CompileTime: str
+
+    class Config:
+        extra = "allow"
+
+
+class HammerVersionWrapper(BaseModel):
+    VERSION: list[HammerVersionInfo]
+
+    class Config:
+        extra = "allow"
+
+
+class HammerSummaryInfo(BaseModel):
+    MHS_5s: float = Field(alias="MHS 5s")
+
+    class Config:
+        extra = "allow"
+        populate_by_name = True
+
+
+class HammerSummaryWrapper(BaseModel):
+    SUMMARY: list[HammerSummaryInfo]
+
+    class Config:
+        extra = "allow"
+
+
+class HammerStatsInfo(BaseModel):
+    Elapsed: int
+    total_rateideal: float | None = None
+    rate_unit: str = "MH"
+
+    class Config:
+        extra = "allow"
+
+
+class HammerStatsWrapper(BaseModel):
+    STATS: list[Any]  # Mixed list with different structures
+
+    class Config:
+        extra = "allow"
+
+
+class HammerPoolInfo(BaseModel):
+    URL: str | None = None
+    User: str | None = None
+    Status: str = ""
+    Stratum_Active: bool = Field(False, alias="Stratum Active")
+    Accepted: int = 0
+    Rejected: int = 0
+    Get_Failures: int = Field(0, alias="Get Failures")
+    Remote_Failures: int = Field(0, alias="Remote Failures")
+    POOL: int = 0
+
+    class Config:
+        extra = "allow"
+        populate_by_name = True
+
+
+class HammerPoolsWrapper(BaseModel):
+    POOLS: list[HammerPoolInfo]
+
+    class Config:
+        extra = "allow"
+
+
+class HammerStatusItem(BaseModel):
+    status: str
+    msg: str
+
+    class Config:
+        extra = "allow"
+
+
+class HammerWebSummaryInfo(BaseModel):
+    status: list[HammerStatusItem]
+
+    class Config:
+        extra = "allow"
+
+
+class HammerWebSummaryWrapper(BaseModel):
+    SUMMARY: list[HammerWebSummaryInfo]
+
+    class Config:
+        extra = "allow"
+
 
 HAMMER_DATA_LOC = DataLocations(
     **{
@@ -117,15 +255,23 @@ class BlackMiner(StockFirmware):
     async def fault_light_on(self) -> bool:
         data = await self.web.blink(blink=True)
         if data:
-            if data.get("code") == "B000":
-                self.light = True
+            try:
+                response = HammerBlinkResponse.model_validate(data)
+                if response.code == "B000":
+                    self.light = True
+            except ValidationError:
+                pass
         return self.light or False
 
     async def fault_light_off(self) -> bool:
         data = await self.web.blink(blink=False)
         if data:
-            if data.get("code") == "B100":
-                self.light = False
+            try:
+                response = HammerBlinkResponse.model_validate(data)
+                if response.code == "B100":
+                    self.light = False
+            except ValidationError:
+                pass
         return self.light or False
 
     async def reboot(self) -> bool:
@@ -134,7 +280,9 @@ class BlackMiner(StockFirmware):
             return True
         return False
 
-    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -143,13 +291,16 @@ class BlackMiner(StockFirmware):
 
         if rpc_version is not None:
             try:
-                self.api_ver = rpc_version["VERSION"][0]["API"]
-            except LookupError:
+                version_response = HammerVersionWrapper.model_validate(rpc_version)
+                self.api_ver = version_response.VERSION[0].API
+            except ValidationError:
                 pass
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -158,14 +309,15 @@ class BlackMiner(StockFirmware):
 
         if rpc_version is not None:
             try:
-                self.fw_ver = rpc_version["VERSION"][0]["CompileTime"]
-            except LookupError:
+                version_response = HammerVersionWrapper.model_validate(rpc_version)
+                self.fw_ver = version_response.VERSION[0].CompileTime
+            except ValidationError:
                 pass
 
         return self.fw_ver
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
@@ -176,15 +328,18 @@ class BlackMiner(StockFirmware):
 
         if rpc_summary is not None:
             try:
+                summary_response = HammerSummaryWrapper.model_validate(rpc_summary)
                 return self.algo.hashrate(
-                    rate=float(rpc_summary["SUMMARY"][0]["MHS 5s"]),
+                    rate=summary_response.SUMMARY[0].MHS_5s,
                     unit=self.algo.unit.MH,  # type: ignore[attr-defined]
                 ).into(self.algo.unit.default)  # type: ignore[attr-defined]
-            except (LookupError, ValueError, TypeError):
+            except ValidationError:
                 pass
         return None
 
-    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_stats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -198,12 +353,14 @@ class BlackMiner(StockFirmware):
 
         if rpc_stats is not None:
             try:
-                board_offset = -1
-                boards = rpc_stats["STATS"]
+                stats_wrapper = HammerStatsWrapper.model_validate(rpc_stats)
+                boards = stats_wrapper.STATS
                 if len(boards) > 1:
+                    board_data = boards[1]
+                    board_offset = -1
                     for board_num in range(1, 16, 5):
                         for _b_num in range(5):
-                            b = boards[1].get(f"chain_acn{board_num + _b_num}")
+                            b = board_data.get(f"chain_acn{board_num + _b_num}")
 
                             if b and not b == 0 and board_offset == -1:
                                 board_offset = board_num
@@ -213,12 +370,9 @@ class BlackMiner(StockFirmware):
                     real_slots = []
 
                     for i in range(board_offset, board_offset + 4):
-                        try:
-                            key = f"chain_acs{i}"
-                            if boards[1].get(key, "") != "":
-                                real_slots.append(i)
-                        except LookupError:
-                            pass
+                        key = f"chain_acs{i}"
+                        if board_data.get(key, "") != "":
+                            real_slots.append(i)
 
                     if len(real_slots) < 3:
                         real_slots = list(
@@ -229,12 +383,12 @@ class BlackMiner(StockFirmware):
                         hashboard = HashBoard(
                             slot=i - board_offset, expected_chips=self.expected_chips
                         )
-                        temp = boards[1].get(f"temp{i}")
+                        temp = board_data.get(f"temp{i}")
                         if temp:
                             hashboard.chip_temp = round(temp)
                             hashboard.temp = round(temp)
 
-                        hashrate = boards[1].get(f"chain_rate{i}")
+                        hashrate = board_data.get(f"chain_rate{i}")
                         if hashrate:
                             hashboard.hashrate = self.algo.hashrate(
                                 rate=float(hashrate),
@@ -243,19 +397,19 @@ class BlackMiner(StockFirmware):
                                 self.algo.unit.default  # type: ignore[attr-defined]
                             )
 
-                        chips = boards[1].get(f"chain_acn{i}")
+                        chips = board_data.get(f"chain_acn{i}")
                         if chips:
                             hashboard.chips = chips
                             hashboard.missing = False
                         if (not chips) or (not chips > 0):
                             hashboard.missing = True
                         hashboards.append(hashboard)
-            except (LookupError, ValueError, TypeError):
+            except (ValidationError, ValueError, TypeError):
                 pass
 
         return hashboards
 
-    async def _get_fans(self, rpc_stats: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, rpc_stats: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -268,27 +422,28 @@ class BlackMiner(StockFirmware):
         fans = [Fan() for _ in range(self.expected_fans)]
         if rpc_stats is not None:
             try:
-                fan_offset = -1
+                stats_wrapper = HammerStatsWrapper.model_validate(rpc_stats)
+                if len(stats_wrapper.STATS) > 1:
+                    fan_data = stats_wrapper.STATS[1]
+                    fan_offset = -1
 
-                for fan_num in range(1, 8, 4):
-                    for _f_num in range(4):
-                        f = rpc_stats["STATS"][1].get(f"fan{fan_num + _f_num}", 0)
-                        if f and not f == 0 and fan_offset == -1:
-                            fan_offset = fan_num
-                if fan_offset == -1:
-                    fan_offset = 1
+                    for fan_num in range(1, 8, 4):
+                        for _f_num in range(4):
+                            f = fan_data.get(f"fan{fan_num + _f_num}", 0)
+                            if f and not f == 0 and fan_offset == -1:
+                                fan_offset = fan_num
+                    if fan_offset == -1:
+                        fan_offset = 1
 
-                for fan in range(self.expected_fans):
-                    fans[fan].speed = rpc_stats["STATS"][1].get(
-                        f"fan{fan_offset + fan}", 0
-                    )
-            except LookupError:
+                    for fan in range(self.expected_fans):
+                        fans[fan].speed = fan_data.get(f"fan{fan_offset + fan}", 0)
+            except ValidationError:
                 pass
 
         return fans
 
     async def _get_hostname(
-        self, web_get_system_info: dict | None = None
+        self, web_get_system_info: dict[str, Any] | None = None
     ) -> str | None:
         if web_get_system_info is None:
             try:
@@ -298,12 +453,15 @@ class BlackMiner(StockFirmware):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["hostname"]
-            except KeyError:
+                system_info = HammerSystemInfo.model_validate(web_get_system_info)
+                return system_info.hostname
+            except ValidationError:
                 pass
         return None
 
-    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
+    async def _get_mac(
+        self, web_get_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -312,20 +470,22 @@ class BlackMiner(StockFirmware):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["macaddr"]
-            except KeyError:
+                system_info = HammerSystemInfo.model_validate(web_get_system_info)
+                return system_info.macaddr
+            except ValidationError:
                 pass
 
         try:
             data = await self.web.get_network_info()
             if data:
-                return data["macaddr"]
-        except KeyError:
+                network_info = HammerNetworkInfo.model_validate(data)
+                return network_info.macaddr
+        except (APIError, ValidationError):
             pass
         return None
 
     async def _get_errors(
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> list[MinerErrorData]:
         if web_summary is None:
             try:
@@ -336,18 +496,16 @@ class BlackMiner(StockFirmware):
         errors = []
         if web_summary is not None:
             try:
-                for item in web_summary["SUMMARY"][0]["status"]:
-                    try:
-                        if not item["status"] == "s":
-                            errors.append(X19Error(error_message=item["msg"]))
-                    except KeyError:
-                        continue
-            except LookupError:
+                summary_response = HammerWebSummaryWrapper.model_validate(web_summary)
+                for item in summary_response.SUMMARY[0].status:
+                    if item.status != "s":
+                        errors.append(X19Error(error_message=item.msg))
+            except ValidationError:
                 pass
-        return cast(list[MinerErrorData], errors)
+        return errors  # type: ignore[return-value]
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict | None = None
+        self, web_get_blink_status: dict[str, Any] | None = None
     ) -> bool | None:
         if self.light:
             return self.light
@@ -360,13 +518,14 @@ class BlackMiner(StockFirmware):
 
         if web_get_blink_status is not None:
             try:
-                self.light = web_get_blink_status["blink"]
-            except KeyError:
+                blink_status = HammerBlinkStatus.model_validate(web_get_blink_status)
+                self.light = blink_status.blink
+            except ValidationError:
                 pass
         return self.light
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict | None = None
+        self, rpc_stats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_stats is None:
             try:
@@ -376,22 +535,23 @@ class BlackMiner(StockFirmware):
 
         if rpc_stats is not None:
             try:
-                expected_rate = rpc_stats["STATS"][1].get("total_rateideal")
-                if expected_rate is None:
-                    if (
-                        hasattr(self, "sticker_hashrate")
-                        and self.sticker_hashrate is not None
-                    ):
-                        return self.sticker_hashrate.into(self.algo.unit.default)  # type: ignore[attr-defined]
-                    return None
-                try:
-                    rate_unit = rpc_stats["STATS"][1]["rate_unit"]
-                except KeyError:
-                    rate_unit = "MH"
-                return self.algo.hashrate(
-                    rate=float(expected_rate), unit=self.algo.unit.from_str(rate_unit)
-                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
-            except LookupError:
+                stats_wrapper = HammerStatsWrapper.model_validate(rpc_stats)
+                if len(stats_wrapper.STATS) > 1:
+                    stats_info = HammerStatsInfo.model_validate(stats_wrapper.STATS[1])
+                    expected_rate = stats_info.total_rateideal
+                    if expected_rate is None:
+                        if (
+                            hasattr(self, "sticker_hashrate")
+                            and self.sticker_hashrate is not None
+                        ):
+                            result = self.sticker_hashrate.into(self.algo.unit.default)  # type: ignore[attr-defined]
+                            return result  # type: ignore[no-any-return]
+                        return None
+                    return self.algo.hashrate(
+                        rate=expected_rate,
+                        unit=self.algo.unit.from_str(stats_info.rate_unit),
+                    ).into(self.algo.unit.default)  # type: ignore[attr-defined]
+            except ValidationError:
                 pass
         return None
 
@@ -402,7 +562,7 @@ class BlackMiner(StockFirmware):
         gateway: str,
         subnet_mask: str = "255.255.255.0",
         hostname: str | None = None,
-    ):
+    ) -> None:
         if not hostname:
             hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
@@ -414,20 +574,21 @@ class BlackMiner(StockFirmware):
             protocol=2,
         )
 
-    async def set_dhcp(self, hostname: str | None = None):
+    async def set_dhcp(self, hostname: str | None = None) -> None:
         if not hostname:
             hostname = await self.get_hostname() or ""
         await self.web.set_network_conf(
             ip="", dns="", gateway="", subnet_mask="", hostname=hostname, protocol=1
         )
 
-    async def set_hostname(self, hostname: str):
+    async def set_hostname(self, hostname: str) -> None:
         cfg = await self.web.get_network_info()
-        dns = cfg["conf_dnsservers"]
-        gateway = cfg["conf_gateway"]
-        ip = cfg["conf_ipaddress"]
-        subnet_mask = cfg["conf_netmask"]
-        protocol = 1 if cfg["conf_nettype"] == "DHCP" else 2
+        network_info = HammerNetworkInfo.model_validate(cfg)
+        dns = network_info.conf_dnsservers
+        gateway = network_info.conf_gateway
+        ip = network_info.conf_ipaddress
+        subnet_mask = network_info.conf_netmask
+        protocol = 1 if network_info.conf_nettype == "DHCP" else 2
         await self.web.set_network_conf(
             ip=ip,
             dns=dns,
@@ -437,7 +598,9 @@ class BlackMiner(StockFirmware):
             protocol=protocol,
         )
 
-    async def _is_mining(self, web_get_conf: dict | None = None) -> bool | None:
+    async def _is_mining(
+        self, web_get_conf: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_get_conf is None:
             try:
                 web_get_conf = await self.web.get_miner_conf()
@@ -446,16 +609,16 @@ class BlackMiner(StockFirmware):
 
         if web_get_conf is not None:
             try:
-                if str(web_get_conf["bitmain-work-mode"]).isdigit():
-                    return (
-                        False if int(web_get_conf["bitmain-work-mode"]) == 1 else True
-                    )
+                miner_conf = HammerMinerConf.model_validate(web_get_conf)
+                work_mode = str(miner_conf.bitmain_work_mode)
+                if work_mode.isdigit():
+                    return int(work_mode) != 1
                 return False
-            except LookupError:
+            except ValidationError:
                 pass
         return None
 
-    async def _get_uptime(self, rpc_stats: dict | None = None) -> int | None:
+    async def _get_uptime(self, rpc_stats: dict[str, Any] | None = None) -> int | None:
         if rpc_stats is None:
             try:
                 rpc_stats = await self.rpc.stats()
@@ -464,12 +627,17 @@ class BlackMiner(StockFirmware):
 
         if rpc_stats is not None:
             try:
-                return int(rpc_stats["STATS"][1]["Elapsed"])
-            except LookupError:
+                stats_wrapper = HammerStatsWrapper.model_validate(rpc_stats)
+                if len(stats_wrapper.STATS) > 1:
+                    stats_info = HammerStatsInfo.model_validate(stats_wrapper.STATS[1])
+                    return stats_info.Elapsed
+            except ValidationError:
                 pass
         return None
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -479,22 +647,23 @@ class BlackMiner(StockFirmware):
         pools_data = []
         if rpc_pools is not None:
             try:
-                pools = rpc_pools.get("POOLS", [])
-                for pool_info in pools:
-                    url = pool_info.get("URL")
-                    pool_url = PoolUrl.from_str(url) if url else None
+                pools_response = HammerPoolsWrapper.model_validate(rpc_pools)
+                for pool_info in pools_response.POOLS:
+                    pool_url = (
+                        PoolUrl.from_str(pool_info.URL) if pool_info.URL else None
+                    )
                     pool_data = PoolMetrics(
-                        accepted=pool_info.get("Accepted"),
-                        rejected=pool_info.get("Rejected"),
-                        get_failures=pool_info.get("Get Failures"),
-                        remote_failures=pool_info.get("Remote Failures"),
-                        active=pool_info.get("Stratum Active"),
-                        alive=pool_info.get("Status") == "Alive",
+                        accepted=pool_info.Accepted,
+                        rejected=pool_info.Rejected,
+                        get_failures=pool_info.Get_Failures,
+                        remote_failures=pool_info.Remote_Failures,
+                        active=pool_info.Stratum_Active,
+                        alive=pool_info.Status == "Alive",
                         url=pool_url,
-                        user=pool_info.get("User"),
-                        index=pool_info.get("POOL"),
+                        user=pool_info.User,
+                        index=pool_info.POOL,
                     )
                     pools_data.append(pool_data)
-            except LookupError:
+            except ValidationError:
                 pass
         return pools_data

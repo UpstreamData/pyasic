@@ -39,7 +39,7 @@ class BOSMinerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         try:
             async with httpx.AsyncClient(transport=settings.transport()) as client:
                 await self.auth(client)
@@ -48,7 +48,8 @@ class BOSMinerWebAPI(BaseWebAPI):
                     headers={"User-Agent": "BTC Tools v0.1"},
                 )
                 if data.status_code == 200:
-                    return data.json()
+                    json_data: dict[str, Any] = data.json()
+                    return json_data
                 if ignore_errors:
                     return {}
                 raise APIError(
@@ -61,7 +62,7 @@ class BOSMinerWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         data = {}
         for command in commands:
             data[command] = await self.send_command(
@@ -80,22 +81,22 @@ class BOSMinerWebAPI(BaseWebAPI):
         }
         await session.post(url, headers=headers, data=login)
 
-    async def get_net_conf(self) -> dict:
+    async def get_net_conf(self) -> dict[str, Any]:
         return await self.send_command("admin/network/iface_status/lan")
 
-    async def get_cfg_metadata(self) -> dict:
+    async def get_cfg_metadata(self) -> dict[str, Any]:
         return await self.send_command("admin/miner/cfg_metadata")
 
-    async def get_cfg_data(self) -> dict:
+    async def get_cfg_data(self) -> dict[str, Any]:
         return await self.send_command("admin/miner/cfg_data")
 
-    async def get_bos_info(self) -> dict:
+    async def get_bos_info(self) -> dict[str, Any]:
         return await self.send_command("bos/info")
 
-    async def get_overview(self) -> dict:
+    async def get_overview(self) -> dict[str, Any]:
         return await self.send_command(
             "admin/status/overview?status=1"
         )  # needs status=1 or it fails
 
-    async def get_api_status(self) -> dict:
+    async def get_api_status(self) -> dict[str, Any]:
         return await self.send_command("admin/miner/api_status")

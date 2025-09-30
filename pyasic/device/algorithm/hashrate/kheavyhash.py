@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.kheavyhash import KHeavyHashUnit
 from .unit import HashUnit
 
 
-class KHeavyHashHashRate(AlgoHashRateType[KHeavyHashUnit]):
+class KHeavyHashHashRate(AlgoHashRateType):
     rate: float
     unit: KHeavyHashUnit = HashUnit.KHEAVYHASH.default
 

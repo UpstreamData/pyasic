@@ -14,4 +14,42 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .cgminer import *
+from .cgminer import (
+    CGMinerAvalon721,
+    CGMinerAvalon741,
+    CGMinerAvalon761,
+    CGMinerAvalon821,
+    CGMinerAvalon841,
+    CGMinerAvalon851,
+    CGMinerAvalon921,
+    CGMinerAvalon1026,
+    CGMinerAvalon1047,
+    CGMinerAvalon1066,
+    CGMinerAvalon1126Pro,
+    CGMinerAvalon1166Pro,
+    CGMinerAvalon1246,
+    CGMinerAvalon1566,
+    CGMinerAvalonNano3,
+    CGMinerAvalonNano3s,
+    CGMinerAvalonQHome,
+)
+
+__all__ = [
+    "CGMinerAvalon721",
+    "CGMinerAvalon741",
+    "CGMinerAvalon761",
+    "CGMinerAvalon821",
+    "CGMinerAvalon841",
+    "CGMinerAvalon851",
+    "CGMinerAvalon921",
+    "CGMinerAvalon1026",
+    "CGMinerAvalon1047",
+    "CGMinerAvalon1066",
+    "CGMinerAvalon1126Pro",
+    "CGMinerAvalon1166Pro",
+    "CGMinerAvalon1246",
+    "CGMinerAvalon1566",
+    "CGMinerAvalonNano3",
+    "CGMinerAvalonNano3s",
+    "CGMinerAvalonQHome",
+]

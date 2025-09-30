@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 
@@ -23,5 +25,5 @@ class AvalonMinerRPCAPI(CGMinerRPCAPI):
     Each method corresponds to an API command in AvalonMiner.
     """
 
-    async def litestats(self):
+    async def litestats(self) -> dict[str, Any]:
         return await self.send_command("litestats")

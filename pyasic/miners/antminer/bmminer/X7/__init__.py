@@ -16,3 +16,9 @@
 from .D7 import BMMinerD7
 from .K7 import BMMinerK7
 from .L7 import BMMinerL7
+
+__all__ = [
+    "BMMinerD7",
+    "BMMinerK7",
+    "BMMinerL7",
+]

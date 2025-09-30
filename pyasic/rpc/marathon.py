@@ -1,3 +1,5 @@
+from typing import Any
+
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 
@@ -17,17 +19,17 @@ class MaraRPCAPI(BaseMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    async def summary(self):
+    async def summary(self) -> dict[str, Any]:
         return await self.send_command("summary")
 
-    async def devs(self):
+    async def devs(self) -> dict[str, Any]:
         return await self.send_command("devs")
 
-    async def pools(self):
+    async def pools(self) -> dict[str, Any]:
         return await self.send_command("pools")
 
-    async def stats(self):
+    async def stats(self) -> dict[str, Any]:
         return await self.send_command("stats")
 
-    async def version(self):
+    async def version(self) -> dict[str, Any]:
         return await self.send_command("version")

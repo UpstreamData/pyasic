@@ -6,7 +6,7 @@ from betterproto import DATETIME_ZERO, TYPE_MAP, TYPE_MESSAGE, Casing, Message
 
 # https://github.com/danielgtaylor/python-betterproto/pull/609
 def to_pydict(
-    self, casing: Casing = Casing.CAMEL, include_default_values: bool = False
+    self: Message, casing: Casing = Casing.CAMEL, include_default_values: bool = False
 ) -> dict[str, Any]:
     """
     Returns a python dict representation of this object.
@@ -27,8 +27,8 @@ def to_pydict(
         The python dict representation of this object.
     """
     output: dict[str, Any] = {}
-    defaults = self._betterproto.default_gen
-    for field_name, meta in self._betterproto.meta_by_field_name.items():
+    defaults = self._betterproto.default_gen  # type: ignore
+    for field_name, meta in self._betterproto.meta_by_field_name.items():  # type: ignore
         field_is_repeated = defaults[field_name] is list
         try:
             value = getattr(self, field_name)
@@ -89,5 +89,5 @@ def to_pydict(
     return output
 
 
-def patch():
-    Message.to_pydict = to_pydict
+def patch() -> None:
+    setattr(Message, "to_pydict", to_pydict)

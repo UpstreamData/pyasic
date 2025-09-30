@@ -22,7 +22,8 @@ from typing import Any
 import aiofiles
 import httpx
 
-from pyasic import APIError, settings
+from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
 
 
@@ -44,7 +45,7 @@ class HiveonWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
@@ -75,7 +76,8 @@ class HiveonWebAPI(BaseWebAPI):
         else:
             if response.status_code == 200:
                 try:
-                    return response.json()
+                    result: dict[str, Any] = response.json()
+                    return result
                 except json.decoder.JSONDecodeError as e:
                     response_text = response.text if response.text else "empty response"
                     raise APIError(
@@ -85,7 +87,7 @@ class HiveonWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously.
 
         Args:
@@ -96,7 +98,7 @@ class HiveonWebAPI(BaseWebAPI):
         Returns:
             dict: A dictionary containing the results of all commands executed.
         """
-        data = {k: None for k in commands}
+        data: dict[str, Any] = {k: None for k in commands}
         auth = httpx.DigestAuth(self.username, self.pwd)
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             for command in commands:
@@ -108,13 +110,13 @@ class HiveonWebAPI(BaseWebAPI):
                 else:
                     if ret.status_code == 200:
                         try:
-                            json_data = ret.json()
+                            json_data: dict[str, Any] = ret.json()
                             data[command] = json_data
                         except json.decoder.JSONDecodeError:
                             pass
         return data
 
-    async def get_system_info(self) -> dict:
+    async def get_system_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -122,7 +124,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_system_info")
 
-    async def get_network_info(self) -> dict:
+    async def get_network_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -130,7 +132,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_network_info")
 
-    async def blink(self, blink: bool) -> dict:
+    async def blink(self, blink: bool) -> dict[str, Any]:
         """Control the blinking of the LED on the miner device.
 
         Args:
@@ -143,7 +145,7 @@ class HiveonWebAPI(BaseWebAPI):
             return await self.send_command("blink", action="startBlink")
         return await self.send_command("blink", action="stopBlink")
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the miner device.
 
         Returns:
@@ -151,7 +153,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
-    async def get_blink_status(self) -> dict:
+    async def get_blink_status(self) -> dict[str, Any]:
         """Check the status of the LED blinking on the miner.
 
         Returns:
@@ -159,7 +161,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("blink", action="onPageLoaded")
 
-    async def get_miner_conf(self) -> dict:
+    async def get_miner_conf(self) -> dict[str, Any]:
         """Retrieve the miner configuration from the Antminer device.
 
         Returns:
@@ -167,7 +169,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_miner_conf")
 
-    async def set_miner_conf(self, conf: dict) -> dict:
+    async def set_miner_conf(self, conf: dict[str, Any]) -> dict[str, Any]:
         """Set the configuration for the miner.
 
         Args:
@@ -178,7 +180,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("set_miner_conf", **conf)
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Retrieve detailed statistical data of the mining operation.
 
         Returns:
@@ -186,7 +188,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_stats")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get a summary of the miner's status and performance.
 
         Returns:
@@ -194,7 +196,7 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_summary")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Retrieve current pool information associated with the miner.
 
         Returns:
@@ -202,7 +204,9 @@ class HiveonWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_pools")
 
-    async def update_firmware(self, file: Path, keep_settings: bool = True) -> dict:
+    async def update_firmware(
+        self, file: Path, keep_settings: bool = True
+    ) -> dict[str, Any]:
         """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
 
         async with aiofiles.open(file, "rb") as firmware:

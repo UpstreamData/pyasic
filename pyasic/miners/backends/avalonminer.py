@@ -16,9 +16,11 @@
 import copy
 import re
 import time
+from typing import Any
 
-from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.data.boards import HashBoard
+from pyasic.data.fans import Fan
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends.cgminer import CGMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -161,11 +163,11 @@ class AvalonMiner(CGMiner):
         return False
 
     @staticmethod
-    def parse_estats(data):
+    def parse_estats(data: dict[str, Any]) -> dict[str, Any]:
         # Deep copy to preserve original structure
         new_data = copy.deepcopy(data)
 
-        def convert_value(val, key):
+        def convert_value(val: str, key: str) -> Any:
             val = val.strip()
 
             if key == "SYSTEMSTATU":
@@ -173,7 +175,7 @@ class AvalonMiner(CGMiner):
 
             if " " in val:
                 parts = val.split()
-                result = []
+                result: list[Any] = []
                 for part in parts:
                     if part.isdigit():
                         result.append(int(part))
@@ -191,7 +193,7 @@ class AvalonMiner(CGMiner):
                 except ValueError:
                     return val
 
-        def parse_info_block(info_str):
+        def parse_info_block(info_str: str) -> dict[str, Any]:
             pattern = re.compile(r"(\w+)\[([^\]]*)\]")
             return {
                 key: convert_value(val, key) for key, val in pattern.findall(info_str)
@@ -231,7 +233,7 @@ class AvalonMiner(CGMiner):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_mac(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_mac(self, rpc_version: dict[str, Any] | None = None) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -251,7 +253,7 @@ class AvalonMiner(CGMiner):
         return None
 
     async def _get_hashrate(
-        self, rpc_devs: dict | None = None
+        self, rpc_devs: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
@@ -269,7 +271,9 @@ class AvalonMiner(CGMiner):
                 pass
         return None
 
-    async def _get_hashboards(self, rpc_estats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -386,7 +390,7 @@ class AvalonMiner(CGMiner):
         return hashboards
 
     async def _get_expected_hashrate(
-        self, rpc_estats: dict | None = None
+        self, rpc_estats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_estats is None:
             try:
@@ -405,7 +409,9 @@ class AvalonMiner(CGMiner):
                 pass
         return None
 
-    async def _get_env_temp(self, rpc_estats: dict | None = None) -> float | None:
+    async def _get_env_temp(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> float | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -420,7 +426,9 @@ class AvalonMiner(CGMiner):
                 pass
         return None
 
-    async def _get_wattage_limit(self, rpc_estats: dict | None = None) -> int | None:
+    async def _get_wattage_limit(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -435,7 +443,9 @@ class AvalonMiner(CGMiner):
                 pass
         return None
 
-    async def _get_wattage(self, rpc_estats: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -450,7 +460,7 @@ class AvalonMiner(CGMiner):
                 pass
         return None
 
-    async def _get_fans(self, rpc_estats: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, rpc_estats: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -474,7 +484,9 @@ class AvalonMiner(CGMiner):
                     pass
         return fans_data
 
-    async def _get_fault_light(self, rpc_estats: dict | None = None) -> bool | None:
+    async def _get_fault_light(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> bool | None:
         if self.light:
             return self.light
         if rpc_estats is None:

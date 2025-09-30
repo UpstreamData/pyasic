@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .S17 import VNishS17Plus, VNishS17Pro
+
+__all__ = ["VNishS17Plus", "VNishS17Pro"]

@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.config import MinerConfig
 from pyasic.data import Fan, MinerData
 from pyasic.data.boards import HashBoard
@@ -88,7 +90,7 @@ class GoldshellByte(GoldshellMiner, Byte):
     data_locations = GOLDSHELL_BYTE_DATA_LOC
     supports_shutdown = False
     supports_power_modes = False
-    web_devs: dict | None = None
+    web_devs: dict[str, Any] | None = None
 
     async def get_data(
         self,
@@ -140,7 +142,9 @@ class GoldshellByte(GoldshellMiner, Byte):
         self.config = MinerConfig.from_goldshell_byte(pools.get("groups", []))
         return self.config
 
-    async def _get_api_ver(self, web_setting: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, web_setting: dict[str, Any] | None = None
+    ) -> str | None:
         if web_setting is None:
             try:
                 web_setting = await self.web.setting()
@@ -159,7 +163,7 @@ class GoldshellByte(GoldshellMiner, Byte):
         return self.api_ver
 
     async def _get_expected_hashrate(
-        self, rpc_devs: dict | None = None
+        self, rpc_devs: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
@@ -192,7 +196,7 @@ class GoldshellByte(GoldshellMiner, Byte):
         return hash_rate
 
     async def _get_hashrate(
-        self, rpc_devs: dict | None = None
+        self, rpc_devs: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_devs is None:
             try:
@@ -212,7 +216,9 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return hash_rate
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -241,7 +247,9 @@ class GoldshellByte(GoldshellMiner, Byte):
         return pools_data
 
     async def _get_hashboards(
-        self, rpc_devs: dict | None = None, rpc_devdetails: dict | None = None
+        self,
+        rpc_devs: dict[str, Any] | None = None,
+        rpc_devdetails: dict[str, Any] | None = None,
     ) -> list[HashBoard]:
         if rpc_devs is None:
             try:
@@ -286,7 +294,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return hashboards
 
-    async def _get_fans(self, rpc_devs: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, rpc_devs: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -313,7 +321,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return fans
 
-    async def _get_uptime(self, web_devs: dict | None = None) -> int | None:
+    async def _get_uptime(self, web_devs: dict[str, Any] | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()
@@ -331,7 +339,7 @@ class GoldshellByte(GoldshellMiner, Byte):
 
         return None
 
-    async def _get_wattage(self, web_devs: dict | None = None) -> int | None:
+    async def _get_wattage(self, web_devs: dict[str, Any] | None = None) -> int | None:
         if web_devs is None:
             try:
                 web_devs = await self.web.devs()

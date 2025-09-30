@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.x11 import X11Unit
 from .unit import HashUnit
 
 
-class X11HashRate(AlgoHashRateType[X11Unit]):
+class X11HashRate(AlgoHashRateType):
     rate: float
     unit: X11Unit = HashUnit.X11.default
 

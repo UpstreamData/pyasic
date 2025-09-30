@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .DR5 import CGMinerDR5
+
+__all__ = ["CGMinerDR5"]
