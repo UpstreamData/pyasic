@@ -1,10 +1,44 @@
-from pyasic import APIError, MinerConfig
-from pyasic.data import Fan, HashBoard
-from pyasic.device.algorithm import AlgoHashRateType
+from typing import Any
+
+from pydantic import BaseModel, ValidationError
+
+from pyasic.config import MinerConfig
+from pyasic.data.boards import HashBoard
+from pyasic.data.fans import Fan
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.device.firmware import MinerFirmware
+from pyasic.errors import APIError
+from pyasic.logger import logger
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.web.espminer import ESPMinerWebAPI
+
+
+class ESPMinerSystemInfo(BaseModel):
+    power: float | int | None = None
+    hashRate: float = 0
+    smallCoreCount: int | None = None
+    asicCount: int | None = None
+    frequency: float | None = None
+    uptimeSeconds: int = 0
+    temp: float | None = None
+    vrTemp: float | None = None
+    voltage: float | None = None
+    fanrpm: int | None = None
+    hostname: str = ""
+    version: str = ""
+    macAddr: str = ""
+
+    class Config:
+        extra = "allow"
+
+
+class ESPMinerAsicInfo(BaseModel):
+    asicCount: int | None = None
+
+    class Config:
+        extra = "allow"
+
 
 ESPMINER_DATA_LOC = DataLocations(
     **{
@@ -75,7 +109,9 @@ class ESPMiner(BaseMiner):
     ) -> None:
         await self.web.update_settings(**config.as_espminer())
 
-    async def _get_wattage(self, web_system_info: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> int | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -84,13 +120,15 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return round(web_system_info["power"])
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                if system_info.power is not None:
+                    return round(system_info.power)
+            except ValidationError as e:
+                logger.warning(f"{self} - Failed to parse system info for wattage: {e}")
         return None
 
     async def _get_hashrate(
-        self, web_system_info: dict | None = None
+        self, web_system_info: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if web_system_info is None:
             try:
@@ -100,18 +138,21 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
                 return self.algo.hashrate(
-                    rate=float(web_system_info["hashRate"]),
+                    rate=system_info.hashRate,
                     unit=self.algo.unit.GH,  # type: ignore[attr-defined]
                 ).into(
                     self.algo.unit.default  # type: ignore[attr-defined]
                 )
-            except KeyError:
-                pass
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for hashrate: {e}"
+                )
         return None
 
     async def _get_expected_hashrate(
-        self, web_system_info: dict | None = None
+        self, web_system_info: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if web_system_info is None:
             try:
@@ -121,15 +162,17 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                small_core_count = web_system_info.get("smallCoreCount")
-                asic_count = web_system_info.get("asicCount")
-                frequency = web_system_info.get("frequency")
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                small_core_count = system_info.smallCoreCount
+                asic_count = system_info.asicCount
+                frequency = system_info.frequency
 
                 if asic_count is None:
                     try:
-                        asic_info = await self.web.asic_info()
-                        asic_count = asic_info.get("asicCount")
-                    except APIError:
+                        asic_info_data = await self.web.asic_info()
+                        asic_info = ESPMinerAsicInfo.model_validate(asic_info_data)
+                        asic_count = asic_info.asicCount
+                    except (APIError, ValidationError):
                         pass
 
                 if (
@@ -144,11 +187,15 @@ class ESPMiner(BaseMiner):
                     ).into(
                         self.algo.unit.default  # type: ignore[attr-defined]
                     )
-            except KeyError:
-                pass
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for expected hashrate: {e}"
+                )
         return None
 
-    async def _get_uptime(self, web_system_info: dict | None = None) -> int | None:
+    async def _get_uptime(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> int | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -157,13 +204,14 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return web_system_info["uptimeSeconds"]
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                return system_info.uptimeSeconds
+            except ValidationError as e:
+                logger.warning(f"{self} - Failed to parse system info for uptime: {e}")
         return None
 
     async def _get_hashboards(
-        self, web_system_info: dict | None = None
+        self, web_system_info: dict[str, Any] | None = None
     ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
@@ -176,28 +224,33 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
                 return [
                     HashBoard(
                         hashrate=self.algo.hashrate(
-                            rate=float(web_system_info["hashRate"]),
+                            rate=system_info.hashRate,
                             unit=self.algo.unit.GH,  # type: ignore[attr-defined]
                         ).into(
                             self.algo.unit.default  # type: ignore[attr-defined]
                         ),
-                        chip_temp=web_system_info.get("temp"),
-                        temp=web_system_info.get("vrTemp"),
-                        chips=web_system_info.get("asicCount", 1),
+                        chip_temp=system_info.temp,
+                        temp=system_info.vrTemp,
+                        chips=system_info.asicCount or 1,
                         expected_chips=self.expected_chips,
                         missing=False,
                         active=True,
-                        voltage=web_system_info.get("voltage"),
+                        voltage=system_info.voltage,
                     )
                 ]
-            except KeyError:
-                pass
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for hashboards: {e}"
+                )
         return []
 
-    async def _get_fans(self, web_system_info: dict | None = None) -> list[Fan]:
+    async def _get_fans(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -209,12 +262,16 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return [Fan(speed=web_system_info["fanrpm"])]
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                if system_info.fanrpm is not None:
+                    return [Fan(speed=system_info.fanrpm)]
+            except ValidationError as e:
+                logger.warning(f"{self} - Failed to parse system info for fans: {e}")
         return []
 
-    async def _get_hostname(self, web_system_info: dict | None = None) -> str | None:
+    async def _get_hostname(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -223,12 +280,17 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return web_system_info["hostname"]
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                return system_info.hostname if system_info.hostname else None
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for hostname: {e}"
+                )
         return None
 
-    async def _get_api_ver(self, web_system_info: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -237,12 +299,17 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return web_system_info["version"]
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                return system_info.version if system_info.version else None
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for API version: {e}"
+                )
         return None
 
-    async def _get_fw_ver(self, web_system_info: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -251,12 +318,17 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return web_system_info["version"]
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                return system_info.version if system_info.version else None
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for firmware version: {e}"
+                )
         return None
 
-    async def _get_mac(self, web_system_info: dict | None = None) -> str | None:
+    async def _get_mac(
+        self, web_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_system_info is None:
             try:
                 web_system_info = await self.web.system_info()
@@ -265,7 +337,10 @@ class ESPMiner(BaseMiner):
 
         if web_system_info is not None:
             try:
-                return web_system_info["macAddr"].upper()
-            except KeyError:
-                pass
+                system_info = ESPMinerSystemInfo.model_validate(web_system_info)
+                return system_info.macAddr.upper() if system_info.macAddr else None
+            except ValidationError as e:
+                logger.warning(
+                    f"{self} - Failed to parse system info for MAC address: {e}"
+                )
         return None

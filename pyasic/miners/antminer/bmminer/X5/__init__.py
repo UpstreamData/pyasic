@@ -14,3 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .KS5 import BMMinerKS5, BMMinerKS5Pro
+
+__all__ = [
+    "BMMinerKS5",
+    "BMMinerKS5Pro",
+]

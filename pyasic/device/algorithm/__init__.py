@@ -6,6 +6,7 @@ from .equihash import EquihashAlgo
 from .ethash import EtHashAlgo
 from .handshake import HandshakeAlgo
 from .hashrate import *
+from .hashrate.base import AlgoHashRateType
 from .hashrate.unit import *
 from .kadena import KadenaAlgo
 from .kheavyhash import KHeavyHashAlgo
@@ -13,6 +14,24 @@ from .scrypt import ScryptAlgo
 from .sha256 import SHA256Algo
 from .x11 import X11Algo
 from .zksnark import ZkSnarkAlgo
+
+__all__ = [
+    "MinerAlgoType",
+    "AlgoHashRateType",
+    "Blake256Algo",
+    "BlockFlowAlgo",
+    "EaglesongAlgo",
+    "EquihashAlgo",
+    "EtHashAlgo",
+    "HandshakeAlgo",
+    "KadenaAlgo",
+    "KHeavyHashAlgo",
+    "ScryptAlgo",
+    "SHA256Algo",
+    "X11Algo",
+    "ZkSnarkAlgo",
+    "MinerAlgo",
+]
 
 
 class MinerAlgo:

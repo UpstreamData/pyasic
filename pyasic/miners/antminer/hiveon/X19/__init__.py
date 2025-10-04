@@ -34,3 +34,24 @@ from .S19 import (
     HiveonS19XP,
 )
 from .T19 import HiveonT19
+
+__all__ = [
+    "HiveonS19",
+    "HiveonS19a",
+    "HiveonS19aPro",
+    "HiveonS19Hydro",
+    "HiveonS19i",
+    "HiveonS19j",
+    "HiveonS19jNoPIC",
+    "HiveonS19jPro",
+    "HiveonS19kPro",
+    "HiveonS19L",
+    "HiveonS19NoPIC",
+    "HiveonS19Plus",
+    "HiveonS19Pro",
+    "HiveonS19ProHydro",
+    "HiveonS19ProPlus",
+    "HiveonS19ProPlusHydro",
+    "HiveonS19XP",
+    "HiveonT19",
+]

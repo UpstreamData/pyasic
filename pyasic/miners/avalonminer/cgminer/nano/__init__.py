@@ -15,3 +15,5 @@
 # ------------------------------------------------------------------------------
 
 from .nano3 import CGMinerAvalonNano3, CGMinerAvalonNano3s
+
+__all__ = ["CGMinerAvalonNano3", "CGMinerAvalonNano3s"]

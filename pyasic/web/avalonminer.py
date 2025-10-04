@@ -44,7 +44,7 @@ class AvalonMinerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Avalonminer device using HTTP digest authentication.
 
         Args:
@@ -64,14 +64,15 @@ class AvalonMinerWebAPI(BaseWebAPI):
                 client.cookies.set("auth", cookie_data)
                 resp = await client.get(url)
                 raw_data = resp.text.replace("minerinfoCallback(", "").replace(");", "")
-                return json.loads(raw_data)
+                result: dict[str, Any] = json.loads(raw_data)
+                return result
         except (httpx.HTTPError, json.JSONDecodeError):
             pass
         return {}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             cookie_data = (
                 "ff0000ff" + hashlib.sha256(self.pwd.encode()).hexdigest()[:24]
@@ -92,18 +93,19 @@ class AvalonMinerWebAPI(BaseWebAPI):
 
     async def _handle_multicommand(
         self, client: httpx.AsyncClient, command: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         try:
             url = f"http://{self.ip}:{self.port}/{command}.cgi"
             resp = await client.get(url)
             raw_data = resp.text.replace("minerinfoCallback(", "").replace(");", "")
-            return json.loads(raw_data)
+            result: dict[str, Any] = json.loads(raw_data)
+            return result
         except httpx.HTTPError:
             pass
         return {}
 
-    async def minerinfo(self):
+    async def minerinfo(self) -> dict[str, Any]:
         return await self.send_command("get_minerinfo")
 
-    async def home(self):
+    async def home(self) -> dict[str, Any]:
         return await self.send_command("get_home")

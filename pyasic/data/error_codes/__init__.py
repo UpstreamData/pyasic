@@ -16,11 +16,22 @@
 
 from typing import TypeVar
 
+from .base import BaseMinerError
 from .bos import BraiinsOSError
 from .innosilicon import InnosiliconError
 from .vnish import VnishError
 from .whatsminer import WhatsminerError
 from .X19 import X19Error
+
+__all__ = [
+    "BaseMinerError",
+    "BraiinsOSError",
+    "InnosiliconError",
+    "VnishError",
+    "WhatsminerError",
+    "X19Error",
+    "MinerErrorData",
+]
 
 MinerErrorData = TypeVar(
     "MinerErrorData",

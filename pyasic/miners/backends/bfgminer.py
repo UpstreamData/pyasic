@@ -14,10 +14,13 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data.boards import HashBoard
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
@@ -80,7 +83,9 @@ class BFGMiner(StockFirmware):
     ### DATA GATHERING FUNCTIONS (get_{some_data}) ###
     ##################################################
 
-    async def _get_api_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -95,7 +100,9 @@ class BFGMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, rpc_version: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, rpc_version: dict[str, Any] | None = None
+    ) -> str | None:
         if rpc_version is None:
             try:
                 rpc_version = await self.rpc.version()
@@ -111,7 +118,7 @@ class BFGMiner(StockFirmware):
         return self.fw_ver
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None
+        self, rpc_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         # get hr from API
         if rpc_summary is None:
@@ -132,7 +139,9 @@ class BFGMiner(StockFirmware):
                 pass
         return None
 
-    async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_stats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -194,7 +203,7 @@ class BFGMiner(StockFirmware):
 
         return hashboards
 
-    async def _get_fans(self, rpc_stats: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, rpc_stats: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -227,7 +236,9 @@ class BFGMiner(StockFirmware):
 
         return fans
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()
@@ -258,7 +269,7 @@ class BFGMiner(StockFirmware):
         return pools_data
 
     async def _get_expected_hashrate(
-        self, rpc_stats: dict | None = None
+        self, rpc_stats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         # X19 method, not sure compatibility
         if rpc_stats is None:

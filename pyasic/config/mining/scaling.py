@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from typing import Any
+
 from pyasic.config.base import MinerConfigValue
 
 
@@ -23,7 +25,7 @@ class ScalingShutdown(MinerConfigValue):
     duration: int | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> ScalingShutdown:
+    def from_dict(cls, dict_conf: dict[str, Any] | None) -> ScalingShutdown:
         if dict_conf is None:
             return cls()
         return cls(
@@ -31,7 +33,9 @@ class ScalingShutdown(MinerConfigValue):
         )
 
     @classmethod
-    def from_bosminer(cls, power_scaling_conf: dict):
+    def from_bosminer(
+        cls, power_scaling_conf: dict[str, Any]
+    ) -> ScalingShutdown | None:
         sd_enabled = power_scaling_conf.get("shutdown_enabled")
         if sd_enabled is not None:
             return cls(
@@ -40,7 +44,7 @@ class ScalingShutdown(MinerConfigValue):
         return None
 
     @classmethod
-    def from_boser(cls, power_scaling_conf: dict):
+    def from_boser(cls, power_scaling_conf: dict[str, Any]) -> ScalingShutdown | None:
         sd_enabled = power_scaling_conf.get("shutdownEnabled")
         if sd_enabled is not None:
             try:
@@ -52,7 +56,7 @@ class ScalingShutdown(MinerConfigValue):
                 return cls(enabled=sd_enabled)
         return None
 
-    def as_bosminer(self) -> dict:
+    def as_bosminer(self) -> dict[str, Any]:
         cfg: dict[str, bool | int] = {"shutdown_enabled": self.enabled}
 
         if self.duration is not None:
@@ -60,7 +64,7 @@ class ScalingShutdown(MinerConfigValue):
 
         return cfg
 
-    def as_boser(self) -> dict:
+    def as_boser(self) -> dict[str, Any]:
         return {"enable_shutdown": self.enabled, "shutdown_duration": self.duration}
 
 
@@ -70,7 +74,7 @@ class ScalingConfig(MinerConfigValue):
     shutdown: ScalingShutdown | None = None
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> ScalingConfig:
+    def from_dict(cls, dict_conf: dict[str, Any] | None) -> ScalingConfig:
         if dict_conf is None:
             return cls()
         cls_conf = {
@@ -83,15 +87,18 @@ class ScalingConfig(MinerConfigValue):
         return cls(**cls_conf)
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict, mode: str | None = None):
+    def from_bosminer(
+        cls, toml_conf: dict[str, Any], mode: str | None = None
+    ) -> ScalingConfig | None:
         if mode == "power":
             return cls._from_bosminer_power(toml_conf)
         if mode == "hashrate":
             # not implemented yet
             pass
+        return None
 
     @classmethod
-    def _from_bosminer_power(cls, toml_conf: dict):
+    def _from_bosminer_power(cls, toml_conf: dict[str, Any]) -> ScalingConfig | None:
         power_scaling = toml_conf.get("power_scaling")
         if power_scaling is None:
             power_scaling = toml_conf.get("performance_scaling")
@@ -106,17 +113,21 @@ class ScalingConfig(MinerConfigValue):
             sd_mode = ScalingShutdown.from_bosminer(power_scaling)
 
             return cls(step=power_step, minimum=min_power, shutdown=sd_mode)
+        return None
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict, mode: str | None = None):
+    def from_boser(
+        cls, grpc_miner_conf: dict[str, Any], mode: str | None = None
+    ) -> ScalingConfig | None:
         if mode == "power":
             return cls._from_boser_power(grpc_miner_conf)
         if mode == "hashrate":
             # not implemented yet
             pass
+        return None
 
     @classmethod
-    def _from_boser_power(cls, grpc_miner_conf: dict):
+    def _from_boser_power(cls, grpc_miner_conf: dict[str, Any]) -> ScalingConfig | None:
         try:
             dps_conf = grpc_miner_conf["dps"]
             if not dps_conf.get("enabled", False):
@@ -124,10 +135,12 @@ class ScalingConfig(MinerConfigValue):
         except LookupError:
             return None
 
-        conf = {"shutdown": ScalingShutdown.from_boser(dps_conf)}
+        step: int | None = None
+        minimum: int | None = None
+        shutdown = ScalingShutdown.from_boser(dps_conf)
 
         if dps_conf.get("minPowerTarget") is not None:
-            conf["minimum"] = dps_conf["minPowerTarget"]["watt"]
+            minimum = dps_conf["minPowerTarget"]["watt"]
         if dps_conf.get("powerStep") is not None:
-            conf["step"] = dps_conf["powerStep"]["watt"]
-        return cls(**conf)
+            step = dps_conf["powerStep"]["watt"]
+        return cls(step=step, minimum=minimum, shutdown=shutdown)

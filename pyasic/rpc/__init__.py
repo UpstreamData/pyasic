@@ -22,3 +22,15 @@ from .cgminer import CGMinerRPCAPI
 from .gcminer import GCMinerRPCAPI
 from .luxminer import LUXMinerRPCAPI
 from .unknown import UnknownRPCAPI
+
+__all__ = [
+    "BFGMinerRPCAPI",
+    "BMMinerRPCAPI",
+    "BOSMinerRPCAPI",
+    "BTMinerRPCAPI",
+    "CCMinerRPCAPI",
+    "CGMinerRPCAPI",
+    "GCMinerRPCAPI",
+    "LUXMinerRPCAPI",
+    "UnknownRPCAPI",
+]

@@ -43,3 +43,33 @@ from .S19 import (
     S19XPHydro,
 )
 from .T19 import T19
+
+__all__ = [
+    "S19",
+    "S19L",
+    "S19XP",
+    "S19a",
+    "S19aPro",
+    "S19Hydro",
+    "S19i",
+    "S19j",
+    "S19jNoPIC",
+    "S19jPlus",
+    "S19jPro",
+    "S19jProNoPIC",
+    "S19jProPlus",
+    "S19jProPlusNoPIC",
+    "S19jXP",
+    "S19KPro",
+    "S19kPro",
+    "S19kProNoPIC",
+    "S19NoPIC",
+    "S19Plus",
+    "S19Pro",
+    "S19ProA",
+    "S19ProHydro",
+    "S19ProPlus",
+    "S19ProPlusHydro",
+    "S19XPHydro",
+    "T19",
+]

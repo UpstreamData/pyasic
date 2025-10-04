@@ -16,3 +16,13 @@
 
 from .S17 import BOSMinerS17, BOSMinerS17e, BOSMinerS17Plus, BOSMinerS17Pro
 from .T17 import BOSMinerT17, BOSMinerT17e, BOSMinerT17Plus
+
+__all__ = [
+    "BOSMinerS17",
+    "BOSMinerS17e",
+    "BOSMinerS17Plus",
+    "BOSMinerS17Pro",
+    "BOSMinerT17",
+    "BOSMinerT17e",
+    "BOSMinerT17Plus",
+]

@@ -22,9 +22,11 @@ from pyasic.miners.factory import MINER_CLASSES
 
 from .backends_tests import *
 
+__all__ = ["MinersTest"]
+
 
 class MinersTest(unittest.TestCase):
-    def test_miner_type_creation(self):
+    def test_miner_type_creation(self) -> None:
         warnings.filterwarnings("ignore")
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
@@ -35,7 +37,7 @@ class MinersTest(unittest.TestCase):
                 ):
                     MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
 
-    def test_miner_has_hashboards(self):
+    def test_miner_has_hashboards(self) -> None:
         warnings.filterwarnings("ignore")
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
@@ -49,7 +51,7 @@ class MinersTest(unittest.TestCase):
                     miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                     self.assertTrue(miner.expected_hashboards is not None)
 
-    def test_miner_has_fans(self):
+    def test_miner_has_fans(self) -> None:
         warnings.filterwarnings("ignore")
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
@@ -63,7 +65,7 @@ class MinersTest(unittest.TestCase):
                     miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                     self.assertTrue(miner.expected_fans is not None)
 
-    def test_miner_has_algo(self):
+    def test_miner_has_algo(self) -> None:
         warnings.filterwarnings("ignore")
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():
@@ -77,7 +79,7 @@ class MinersTest(unittest.TestCase):
                     miner = MINER_CLASSES[miner_type][miner_model]("127.0.0.1")
                     self.assertTrue(miner.algo is not None)
 
-    def test_miner_data_map_keys(self):
+    def test_miner_data_map_keys(self) -> None:
         keys = sorted(
             [
                 "api_ver",
@@ -115,7 +117,7 @@ class MinersTest(unittest.TestCase):
                     )
                     self.assertEqual(miner_keys, keys)
 
-    def test_data_locations_match_signatures_command(self):
+    def test_data_locations_match_signatures_command(self) -> None:
         warnings.filterwarnings("ignore")
         for miner_type in MINER_CLASSES.keys():
             for miner_model in MINER_CLASSES[miner_type].keys():

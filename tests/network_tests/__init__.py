@@ -21,7 +21,7 @@ from pyasic.network import MinerNetwork
 
 
 class NetworkTest(unittest.TestCase):
-    def test_net_range(self):
+    def test_net_range(self) -> None:
         net_range_str = ["192.168.1.29", "192.168.1.40-43", "192.168.1.60"]
         net_range_list = [
             "192.168.1.29",
@@ -47,7 +47,7 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual(net_1, correct_net)
         self.assertEqual(net_2, correct_net)
 
-    def test_net(self):
+    def test_net(self) -> None:
         net_1_str = "192.168.1.0"
         net_1_mask = "/29"
 
@@ -67,7 +67,7 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual(net_1, correct_net)
         self.assertEqual(net_2, correct_net)
 
-    def test_net_defaults(self):
+    def test_net_defaults(self) -> None:
         net = MinerNetwork.from_subnet("192.168.1.1/24")
         self.assertEqual(
             net.hosts, list(ipaddress.ip_network("192.168.1.0/24").hosts())

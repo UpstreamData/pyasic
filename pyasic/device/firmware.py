@@ -26,5 +26,5 @@ class MinerFirmware(str, Enum):
     LUXOS = "LuxOS"
     MARATHON = "MaraFW"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value

@@ -16,3 +16,5 @@
 
 from .A1126 import CGMinerAvalon1126Pro
 from .A1166 import CGMinerAvalon1166Pro
+
+__all__ = ["CGMinerAvalon1126Pro", "CGMinerAvalon1166Pro"]

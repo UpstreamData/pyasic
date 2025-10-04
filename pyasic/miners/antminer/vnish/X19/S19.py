@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import VNish
-from pyasic.miners.device.models import (
+from pyasic.miners.device.models.antminer.X19.S19 import (
     S19,
     S19XP,
     S19a,

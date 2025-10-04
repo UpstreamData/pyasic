@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from __future__ import annotations
+
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -54,6 +56,28 @@ from pyasic.config.pools import PoolConfig
 from pyasic.config.temperature import TemperatureConfig
 from pyasic.misc import merge_dicts
 
+__all__ = [
+    "MinerConfig",
+    "MiningModeConfig",
+    "FanModeConfig",
+    "PoolConfig",
+    "TemperatureConfig",
+    "ScalingConfig",
+    "FanModeType",
+    "MiningModeType",
+    "FanModeNormal",
+    "FanModeManual",
+    "FanModeImmersion",
+    "MiningModeNormal",
+    "MiningModeHPM",
+    "MiningModeLPM",
+    "MiningModeSleep",
+    "MiningModeManual",
+    "MiningModePowerTune",
+    "MiningModeHashrateTune",
+    "MiningModePreset",
+]
+
 
 class MinerConfig(BaseModel):
     """Represents the configuration for a miner including pool configuration,
@@ -73,11 +97,11 @@ class MinerConfig(BaseModel):
         except AttributeError:
             raise KeyError
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """Converts the MinerConfig object to a dictionary."""
         return self.model_dump()
 
-    def as_am_modern(self, user_suffix: str | None = None) -> dict:
+    def as_am_modern(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for modern Antminers."""
         return {
             **self.fan_mode.as_am_modern(),
@@ -87,7 +111,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_am_modern(),
         }
 
-    def as_hiveon_modern(self, user_suffix: str | None = None) -> dict:
+    def as_hiveon_modern(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for modern Hiveon."""
         return {
             **self.fan_mode.as_hiveon_modern(),
@@ -97,7 +121,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_hiveon_modern(),
         }
 
-    def as_elphapex(self, user_suffix: str | None = None) -> dict:
+    def as_elphapex(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for modern Elphapex."""
         return {
             **self.fan_mode.as_elphapex(),
@@ -107,7 +131,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_elphapex(),
         }
 
-    def as_wm(self, user_suffix: str | None = None) -> dict:
+    def as_wm(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Whatsminers."""
         return {
             **self.fan_mode.as_wm(),
@@ -116,14 +140,14 @@ class MinerConfig(BaseModel):
             **self.temperature.as_wm(),
         }
 
-    def as_btminer_v3(self, user_suffix: str | None = None) -> dict:
+    def as_btminer_v3(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Whatsminers running BTMiner V3."""
         return {
             "set.miner.pools": self.pools.as_btminer_v3(),
             **self.mining_mode.as_btminer_v3(),
         }
 
-    def as_am_old(self, user_suffix: str | None = None) -> dict:
+    def as_am_old(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for old versions of Antminers."""
         return {
             **self.fan_mode.as_am_old(),
@@ -132,7 +156,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_am_old(),
         }
 
-    def as_goldshell(self, user_suffix: str | None = None) -> dict:
+    def as_goldshell(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Goldshell miners."""
         return {
             **self.fan_mode.as_goldshell(),
@@ -141,7 +165,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_goldshell(),
         }
 
-    def as_avalon(self, user_suffix: str | None = None) -> dict:
+    def as_avalon(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Avalonminers."""
         return {
             **self.fan_mode.as_avalon(),
@@ -150,7 +174,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_avalon(),
         }
 
-    def as_inno(self, user_suffix: str | None = None) -> dict:
+    def as_inno(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Innosilicon miners."""
         return {
             **self.fan_mode.as_inno(),
@@ -159,7 +183,7 @@ class MinerConfig(BaseModel):
             **self.temperature.as_inno(),
         }
 
-    def as_bosminer(self, user_suffix: str | None = None) -> dict:
+    def as_bosminer(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the bosminer.toml format."""
         return {
             **merge_dicts(self.fan_mode.as_bosminer(), self.temperature.as_bosminer()),
@@ -167,7 +191,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_bosminer(user_suffix=user_suffix),
         }
 
-    def as_boser(self, user_suffix: str | None = None) -> dict:
+    def as_boser(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for BOSer."""
         return {
             **self.fan_mode.as_boser(),
@@ -176,7 +200,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_boser(user_suffix=user_suffix),
         }
 
-    def as_epic(self, user_suffix: str | None = None) -> dict:
+    def as_epic(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for ePIC miners."""
         return {
             **merge_dicts(self.fan_mode.as_epic(), self.temperature.as_epic()),
@@ -184,7 +208,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_epic(user_suffix=user_suffix),
         }
 
-    def as_auradine(self, user_suffix: str | None = None) -> dict:
+    def as_auradine(self, user_suffix: str | None = None) -> dict[str, Any]:
         """Generates the configuration in the format suitable for Auradine miners."""
         return {
             **self.fan_mode.as_auradine(),
@@ -193,7 +217,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_auradine(user_suffix=user_suffix),
         }
 
-    def as_mara(self, user_suffix: str | None = None) -> dict:
+    def as_mara(self, user_suffix: str | None = None) -> dict[str, Any]:
         return {
             **self.fan_mode.as_mara(),
             **self.temperature.as_mara(),
@@ -201,7 +225,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_mara(user_suffix=user_suffix),
         }
 
-    def as_espminer(self, user_suffix: str | None = None) -> dict:
+    def as_espminer(self, user_suffix: str | None = None) -> dict[str, Any]:
         return {
             **self.fan_mode.as_espminer(),
             **self.temperature.as_espminer(),
@@ -209,7 +233,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_espminer(user_suffix=user_suffix),
         }
 
-    def as_luxos(self, user_suffix: str | None = None) -> dict:
+    def as_luxos(self, user_suffix: str | None = None) -> dict[str, Any]:
         return {
             **self.fan_mode.as_luxos(),
             **self.temperature.as_luxos(),
@@ -217,7 +241,7 @@ class MinerConfig(BaseModel):
             **self.pools.as_luxos(user_suffix=user_suffix),
         }
 
-    def as_vnish(self, user_suffix: str | None = None) -> dict:
+    def as_vnish(self, user_suffix: str | None = None) -> dict[str, Any]:
         main_cfg = {
             "miner": {
                 **self.fan_mode.as_vnish(),
@@ -230,11 +254,11 @@ class MinerConfig(BaseModel):
             main_cfg["miner"]["cooling"]["mode"]["param"] = self.temperature.target
         return main_cfg
 
-    def as_hammer(self, *args, **kwargs) -> dict:
+    def as_hammer(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return self.as_am_modern(*args, **kwargs)
 
     @classmethod
-    def from_dict(cls, dict_conf: dict) -> "MinerConfig":
+    def from_dict(cls, dict_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from a dictionary."""
         return cls(
             pools=PoolConfig.from_dict(dict_conf.get("pools")),
@@ -244,12 +268,12 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_api(cls, api_pools: dict) -> "MinerConfig":
+    def from_api(cls, api_pools: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from API pool data."""
         return cls(pools=PoolConfig.from_api(api_pools))
 
     @classmethod
-    def from_am_modern(cls, web_conf: dict) -> "MinerConfig":
+    def from_am_modern(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for modern Antminers."""
         return cls(
             pools=PoolConfig.from_am_modern(web_conf),
@@ -258,7 +282,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_hiveon_modern(cls, web_conf: dict) -> "MinerConfig":
+    def from_hiveon_modern(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Hiveon."""
         return cls(
             pools=PoolConfig.from_hiveon_modern(web_conf),
@@ -267,7 +291,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_elphapex(cls, web_conf: dict) -> "MinerConfig":
+    def from_elphapex(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for modern Antminers."""
         return cls(
             pools=PoolConfig.from_elphapex(web_conf),
@@ -276,32 +300,32 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_am_old(cls, web_conf: dict) -> "MinerConfig":
+    def from_am_old(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for old versions of Antminers."""
         return cls.from_am_modern(web_conf)
 
     @classmethod
-    def from_goldshell(cls, web_conf: dict) -> "MinerConfig":
+    def from_goldshell(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Goldshell miners."""
         return cls(pools=PoolConfig.from_am_modern(web_conf))
 
     @classmethod
-    def from_goldshell_list(cls, web_conf: list) -> "MinerConfig":
+    def from_goldshell_list(cls, web_conf: list[dict[str, Any]]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Goldshell miners."""
         return cls(pools=PoolConfig.from_goldshell(web_conf))
 
     @classmethod
-    def from_goldshell_byte(cls, web_conf: list) -> "MinerConfig":
+    def from_goldshell_byte(cls, web_conf: list[dict[str, Any]]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Goldshell Byte miners."""
         return cls(pools=PoolConfig.from_goldshell_byte(web_conf))
 
     @classmethod
-    def from_inno(cls, web_pools: list) -> "MinerConfig":
+    def from_inno(cls, web_pools: list[dict[str, Any]]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Innosilicon miners."""
         return cls(pools=PoolConfig.from_inno(web_pools))
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict) -> "MinerConfig":
+    def from_bosminer(cls, toml_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from the bosminer.toml file, same as the `as_bosminer` dumps a dict for writing to that file as toml."""
         return cls(
             pools=PoolConfig.from_bosminer(toml_conf),
@@ -311,7 +335,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict) -> "MinerConfig":
+    def from_boser(cls, grpc_miner_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from gRPC configuration for BOSer."""
         return cls(
             pools=PoolConfig.from_boser(grpc_miner_conf),
@@ -321,7 +345,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_epic(cls, web_conf: dict) -> "MinerConfig":
+    def from_epic(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for ePIC miners."""
         return cls(
             pools=PoolConfig.from_epic(web_conf),
@@ -332,8 +356,11 @@ class MinerConfig(BaseModel):
 
     @classmethod
     def from_vnish(
-        cls, web_settings: dict, web_presets: list[dict], web_perf_summary: dict
-    ) -> "MinerConfig":
+        cls,
+        web_settings: dict[str, Any],
+        web_presets: list[dict[str, Any]],
+        web_perf_summary: dict[str, Any],
+    ) -> MinerConfig:
         """Constructs a MinerConfig object from web settings for VNish miners."""
         return cls(
             pools=PoolConfig.from_vnish(web_settings),
@@ -345,7 +372,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_auradine(cls, web_conf: dict) -> "MinerConfig":
+    def from_auradine(cls, web_conf: dict[str, Any]) -> MinerConfig:
         """Constructs a MinerConfig object from web configuration for Auradine miners."""
         return cls(
             pools=PoolConfig.from_api(web_conf["pools"]),
@@ -354,7 +381,7 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_mara(cls, web_miner_config: dict) -> "MinerConfig":
+    def from_mara(cls, web_miner_config: dict[str, Any]) -> MinerConfig:
         return cls(
             pools=PoolConfig.from_mara(web_miner_config),
             fan_mode=FanModeConfig.from_mara(web_miner_config),
@@ -362,14 +389,14 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_espminer(cls, web_system_info: dict) -> "MinerConfig":
+    def from_espminer(cls, web_system_info: dict[str, Any]) -> MinerConfig:
         return cls(
             pools=PoolConfig.from_espminer(web_system_info),
             fan_mode=FanModeConfig.from_espminer(web_system_info),
         )
 
     @classmethod
-    def from_iceriver(cls, web_userpanel: dict) -> "MinerConfig":
+    def from_iceriver(cls, web_userpanel: dict[str, Any]) -> MinerConfig:
         return cls(
             pools=PoolConfig.from_iceriver(web_userpanel),
         )
@@ -377,13 +404,13 @@ class MinerConfig(BaseModel):
     @classmethod
     def from_luxos(
         cls,
-        rpc_tempctrl: dict,
-        rpc_fans: dict,
-        rpc_pools: dict,
-        rpc_groups: dict,
-        rpc_config: dict,
-        rpc_profiles: dict,
-    ) -> "MinerConfig":
+        rpc_tempctrl: dict[str, Any],
+        rpc_fans: dict[str, Any],
+        rpc_pools: dict[str, Any],
+        rpc_groups: dict[str, Any],
+        rpc_config: dict[str, Any],
+        rpc_profiles: dict[str, Any],
+    ) -> MinerConfig:
         return cls(
             temperature=TemperatureConfig.from_luxos(rpc_tempctrl=rpc_tempctrl),
             fan_mode=FanModeConfig.from_luxos(
@@ -396,13 +423,16 @@ class MinerConfig(BaseModel):
         )
 
     @classmethod
-    def from_hammer(cls, *args, **kwargs) -> "MinerConfig":
+    def from_hammer(cls, *args: Any, **kwargs: Any) -> MinerConfig:
         return cls.from_am_modern(*args, **kwargs)
 
     @classmethod
     def from_btminer_v3(
-        cls, rpc_pools: dict, rpc_settings: dict, rpc_device_info: dict
-    ) -> "MinerConfig":
+        cls,
+        rpc_pools: dict[str, Any],
+        rpc_settings: dict[str, Any],
+        rpc_device_info: dict[str, Any],
+    ) -> MinerConfig:
         return cls(
             pools=PoolConfig.from_btminer_v3(rpc_pools=rpc_pools["msg"]),
             mining_mode=MiningModeConfig.from_btminer_v3(

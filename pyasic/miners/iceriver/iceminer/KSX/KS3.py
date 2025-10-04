@@ -1,5 +1,5 @@
 from pyasic.miners.backends.iceriver import IceRiver
-from pyasic.miners.device.models.iceriver import KS3, KS3L, KS3M
+from pyasic.miners.device.models.iceriver.KSX.KS3 import KS3, KS3L, KS3M
 
 
 class IceRiverKS3(IceRiver, KS3):

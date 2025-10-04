@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -5,13 +7,13 @@ class BaseMinerError(BaseModel):
     error_code: int | None = None
 
     @classmethod
-    def fields(cls):
+    def fields(cls) -> list[str]:
         return list(cls.model_fields.keys())
 
-    def asdict(self) -> dict:
+    def asdict(self) -> dict[str, Any]:
         return self.model_dump()
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """Get this dataclass as a dictionary.
 
         Returns:

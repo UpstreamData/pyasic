@@ -14,4 +14,9 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .braiins import *
+from .braiins import BraiinsBMM100, BraiinsBMM101
+
+__all__ = [
+    "BraiinsBMM100",
+    "BraiinsBMM101",
+]

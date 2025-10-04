@@ -31,3 +31,21 @@ from .S19 import (
     VNishS19XPHydro,
 )
 from .T19 import VNishT19
+
+__all__ = [
+    "VNishS19",
+    "VNishS19a",
+    "VNishS19aPro",
+    "VNishS19Hydro",
+    "VNishS19i",
+    "VNishS19j",
+    "VNishS19jPro",
+    "VNishS19kPro",
+    "VNishS19NoPIC",
+    "VNishS19Pro",
+    "VNishS19ProA",
+    "VNishS19ProHydro",
+    "VNishS19XP",
+    "VNishS19XPHydro",
+    "VNishT19",
+]

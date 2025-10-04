@@ -16,7 +16,7 @@
 import json
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from pyasic import APIError
 from pyasic.rpc.bfgminer import BFGMinerRPCAPI
@@ -27,19 +27,39 @@ from pyasic.rpc.cgminer import CGMinerRPCAPI
 from pyasic.rpc.gcminer import GCMinerRPCAPI
 from pyasic.rpc.luxminer import LUXMinerRPCAPI
 
+__all__ = [
+    "TestAPIBase",
+    "TestBFGMinerAPI",
+    "TestBMMinerAPI",
+    "TestBOSMinerAPI",
+    "TestBTMinerAPI",
+    "TestCGMinerAPI",
+    "TestGCMinerRPCAPI",
+    "TestLuxOSAPI",
+]
+
 
 class TestAPIBase(unittest.IsolatedAsyncioTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.ip = "10.0.0.50"
         self.port = 4028
         self.api_str = ""
-        self.api = None
+        self.api: (
+            BFGMinerRPCAPI
+            | BMMinerRPCAPI
+            | BOSMinerRPCAPI
+            | BTMinerRPCAPI
+            | CGMinerRPCAPI
+            | GCMinerRPCAPI
+            | LUXMinerRPCAPI
+            | None
+        ) = None
         self.setUpData()
 
-    def setUpData(self):
+    def setUpData(self) -> None:
         pass
 
-    def get_error_value(self):
+    def get_error_value(self) -> bytes:
         return json.dumps(
             {
                 "STATUS": [
@@ -49,7 +69,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
             }
         ).encode("utf-8")
 
-    def get_success_value(self, command: str):
+    def get_success_value(self, command: str) -> bytes:
         if self.api_str == "BTMiner":
             if command == "status":
                 return json.dumps(
@@ -99,7 +119,9 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
         ).encode("utf-8")
 
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_command_error_raises_api_error(self, mock_send_bytes):
+    async def test_command_error_raises_api_error(
+        self, mock_send_bytes: MagicMock
+    ) -> None:
         if self.api is None:
             return
 
@@ -108,7 +130,9 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
             await self.api.send_command("summary")
 
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_command_error_ignored_by_flag(self, mock_send_bytes):
+    async def test_command_error_ignored_by_flag(
+        self, mock_send_bytes: MagicMock
+    ) -> None:
         if self.api is None:
             return
 
@@ -123,7 +147,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
             )
 
     @patch("pyasic.rpc.base.BaseMinerRPCAPI._send_bytes")
-    async def test_all_read_command_success(self, mock_send_bytes):
+    async def test_all_read_command_success(self, mock_send_bytes: MagicMock) -> None:
         if self.api is None:
             return
 
@@ -140,7 +164,7 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
                 # Use a list to track calls and return different values
                 if self.api_str == "BTMiner":
 
-                    def btminer_side_effect(data):
+                    def btminer_side_effect(data: bytes) -> bytes:
                         # Parse the command from the sent data
                         try:
                             # data is already bytes
@@ -173,44 +197,44 @@ class TestAPIBase(unittest.IsolatedAsyncioTestCase):
 
 
 class TestBFGMinerAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = BFGMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: BFGMinerRPCAPI = BFGMinerRPCAPI(self.ip)
         self.api_str = "BFGMiner"
 
 
 class TestBMMinerAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = BMMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: BMMinerRPCAPI = BMMinerRPCAPI(self.ip)
         self.api_str = "BMMiner"
 
 
 class TestBOSMinerAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = BOSMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: BOSMinerRPCAPI = BOSMinerRPCAPI(self.ip)
         self.api_str = "BOSMiner"
 
 
 class TestBTMinerAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = BTMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: BTMinerRPCAPI = BTMinerRPCAPI(self.ip)
         self.api_str = "BTMiner"
 
 
 class TestCGMinerAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = CGMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: CGMinerRPCAPI = CGMinerRPCAPI(self.ip)
         self.api_str = "CGMiner"
 
 
 class TestGCMinerRPCAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = GCMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: GCMinerRPCAPI = GCMinerRPCAPI(self.ip)
         self.api_str = "GCMiner"
 
 
 class TestLuxOSAPI(TestAPIBase):
-    def setUpData(self):
-        self.api = LUXMinerRPCAPI(self.ip)
+    def setUpData(self) -> None:
+        self.api: LUXMinerRPCAPI = LUXMinerRPCAPI(self.ip)
         self.api_str = "LuxOS"
 
 

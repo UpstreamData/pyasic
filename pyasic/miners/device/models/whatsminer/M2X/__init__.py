@@ -6,3 +6,19 @@ from .M21 import M21V10
 from .M21S import M21SV20, M21SV60, M21SV70
 from .M21S_Plus import M21SPlusV20
 from .M29 import M29V10
+
+__all__ = [
+    "M20V10",
+    "M20PV10",
+    "M20PV30",
+    "M20SV10",
+    "M20SV20",
+    "M20SV30",
+    "M20SPlusV30",
+    "M21V10",
+    "M21SV20",
+    "M21SV60",
+    "M21SV70",
+    "M21SPlusV20",
+    "M29V10",
+]

@@ -15,7 +15,7 @@ class EquihashUnit(AlgoHashRateUnitType):
 
     default = KH
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.value == self.H:
             return "Sol/s"
         if self.value == self.KH:
@@ -32,3 +32,4 @@ class EquihashUnit(AlgoHashRateUnitType):
             return "ESol/s"
         if self.value == self.ZH:
             return "ZSol/s"
+        return ""

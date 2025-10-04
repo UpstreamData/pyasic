@@ -1,5 +1,5 @@
-from .ALX import *
-from .KSX import *
+from .ALX import AL3
+from .KSX import KS0, KS1, KS2, KS3L, KS3M, KS5L, KS5M
 
 # Define what gets exported with wildcard to exclude KS3 and KS5
 # which conflict with antminer models

@@ -13,13 +13,42 @@
 #  See the License for the specific language governing permissions and         -
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from .antminer import AntminerModernWebAPI, AntminerOldWebAPI
 from .auradine import AuradineWebAPI
+from .avalonminer import AvalonMinerWebAPI
 from .base import BaseWebAPI
 from .braiins_os import BOSerWebAPI, BOSMinerWebAPI
+from .elphapex import ElphapexWebAPI
 from .epic import ePICWebAPI
+from .espminer import ESPMinerWebAPI
 from .goldshell import GoldshellWebAPI
 from .hammer import HammerWebAPI
+from .hiveon import HiveonWebAPI
 from .iceriver import IceRiverWebAPI
 from .innosilicon import InnosiliconWebAPI
+from .marathon import MaraWebAPI
+from .mskminer import MSKMinerWebAPI
 from .vnish import VNishWebAPI
+
+__all__ = [
+    "BaseWebAPI",
+    "AntminerModernWebAPI",
+    "AntminerOldWebAPI",
+    "AuradineWebAPI",
+    "AvalonMinerWebAPI",
+    "BOSerWebAPI",
+    "BOSMinerWebAPI",
+    "ElphapexWebAPI",
+    "ePICWebAPI",
+    "ESPMinerWebAPI",
+    "GoldshellWebAPI",
+    "HammerWebAPI",
+    "HiveonWebAPI",
+    "IceRiverWebAPI",
+    "InnosiliconWebAPI",
+    "MaraWebAPI",
+    "MSKMinerWebAPI",
+    "VNishWebAPI",
+]

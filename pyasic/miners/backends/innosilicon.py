@@ -14,11 +14,14 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data.boards import HashBoard
 from pyasic.data.error_codes.innosilicon import InnosiliconError
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.backends import CGMiner
 from pyasic.miners.data import (
@@ -123,7 +126,7 @@ class Innosilicon(CGMiner):
         except APIError:
             return False
         else:
-            return data["success"]
+            return bool(data["success"])
 
     async def restart_cgminer(self) -> bool:
         try:
@@ -131,7 +134,7 @@ class Innosilicon(CGMiner):
         except APIError:
             return False
         else:
-            return data["success"]
+            return bool(data["success"])
 
     async def restart_backend(self) -> bool:
         return await self.restart_cgminer()
@@ -147,7 +150,9 @@ class Innosilicon(CGMiner):
     ##################################################
 
     async def _get_mac(
-        self, web_get_all: dict | None = None, web_overview: dict | None = None
+        self,
+        web_get_all: dict[str, Any] | None = None,
+        web_overview: dict[str, Any] | None = None,
     ) -> str | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
@@ -161,20 +166,22 @@ class Innosilicon(CGMiner):
         if web_get_all is not None:
             try:
                 mac = web_get_all["mac"]
-                return mac.upper()
+                return str(mac).upper()
             except KeyError:
                 pass
 
         if web_overview is not None:
             try:
                 mac = web_overview["version"]["ethaddr"]
-                return mac.upper()
+                return str(mac).upper()
             except KeyError:
                 pass
         return None
 
     async def _get_hashrate(
-        self, rpc_summary: dict | None = None, web_get_all: dict | None = None
+        self,
+        rpc_summary: dict[str, Any] | None = None,
+        web_get_all: dict[str, Any] | None = None,
     ) -> AlgoHashRateType | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
@@ -217,7 +224,9 @@ class Innosilicon(CGMiner):
         return None
 
     async def _get_hashboards(
-        self, rpc_stats: dict | None = None, web_get_all: dict | None = None
+        self,
+        rpc_stats: dict[str, Any] | None = None,
+        web_get_all: dict[str, Any] | None = None,
     ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
@@ -281,7 +290,9 @@ class Innosilicon(CGMiner):
         return hashboards
 
     async def _get_wattage(
-        self, web_get_all: dict | None = None, rpc_stats: dict | None = None
+        self,
+        web_get_all: dict[str, Any] | None = None,
+        rpc_stats: dict[str, Any] | None = None,
     ) -> int | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
@@ -296,7 +307,7 @@ class Innosilicon(CGMiner):
 
         if web_get_all is not None:
             try:
-                return web_get_all["power"]
+                return int(web_get_all["power"])
             except KeyError:
                 pass
 
@@ -318,7 +329,7 @@ class Innosilicon(CGMiner):
                         return wattage
         return None
 
-    async def _get_fans(self, web_get_all: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, web_get_all: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -347,7 +358,7 @@ class Innosilicon(CGMiner):
         return fans
 
     async def _get_errors(  # type: ignore[override]
-        self, web_get_error_detail: dict | None = None
+        self, web_get_error_detail: dict[str, Any] | None = None
     ) -> list[InnosiliconError]:
         errors = []
         if web_get_error_detail is None:
@@ -369,7 +380,9 @@ class Innosilicon(CGMiner):
                     errors.append(InnosiliconError(error_code=err))
         return errors
 
-    async def _get_wattage_limit(self, web_get_all: dict | None = None) -> int | None:
+    async def _get_wattage_limit(
+        self, web_get_all: dict[str, Any] | None = None
+    ) -> int | None:
         if web_get_all:
             web_get_all = web_get_all["all"]
 
@@ -393,7 +406,9 @@ class Innosilicon(CGMiner):
                 return limit
         return None
 
-    async def _get_pools(self, rpc_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, rpc_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if rpc_pools is None:
             try:
                 rpc_pools = await self.rpc.pools()

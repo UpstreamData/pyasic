@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends.mskminer import MSKMiner
-from pyasic.miners.device.models import (
+from pyasic.miners.device.models.antminer.X19.S19 import (
     S19NoPIC,
 )
 

@@ -8,7 +8,7 @@ from pyasic.device.algorithm.hashrate.unit.kadena import KadenaUnit
 from .unit import HashUnit
 
 
-class KadenaHashRate(AlgoHashRateType[KadenaUnit]):
+class KadenaHashRate(AlgoHashRateType):
     rate: float
     unit: KadenaUnit = HashUnit.KADENA.default
 

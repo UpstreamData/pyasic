@@ -43,7 +43,7 @@ class ePICWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         post = privileged or not parameters == {}
 
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -79,7 +79,7 @@ class ePICWebAPI(BaseWebAPI):
                                 f"Web command {command} failed with status code {response.status_code}"
                             )
                         return {}
-                    json_data = response.json()
+                    json_data: dict[str, Any] = response.json()
                     if json_data:
                         # The API can return a fail status if the miner cannot return the requested data. Catch this and pass
                         if not json_data.get("result", True) and not post:
@@ -95,62 +95,64 @@ class ePICWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         for command in commands:
             data[command] = await self.send_command(command)
         return data
 
-    async def restart_epic(self) -> dict:
+    async def restart_epic(self) -> dict[str, Any]:
         return await self.send_command("softreboot", privileged=True)
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         return await self.send_command("reboot", privileged=True)
 
-    async def set_shutdown_temp(self, params: int) -> dict:
+    async def set_shutdown_temp(self, params: int) -> dict[str, Any]:
         return await self.send_command("shutdowntemp", param=params)
 
-    async def set_critical_temp(self, params: int) -> dict:
+    async def set_critical_temp(self, params: int) -> dict[str, Any]:
         return await self.send_command("criticaltemp", param=params)
 
-    async def set_fan(self, params: dict) -> dict:
+    async def set_fan(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self.send_command("fanspeed", param=params)
 
-    async def set_ptune_enable(self, params: bool) -> dict:
+    async def set_ptune_enable(self, params: bool) -> dict[str, Any]:
         return await self.send_command("perpetualtune", param=params)
 
-    async def set_ptune_algo(self, params: dict) -> dict:
+    async def set_ptune_algo(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self.send_command("perpetualtune/algo", param=params)
 
-    async def set_pools(self, params: dict) -> dict:
+    async def set_pools(self, params: dict[str, Any]) -> dict[str, Any]:
         return await self.send_command("coin", param=params)
 
-    async def pause_mining(self) -> dict:
+    async def pause_mining(self) -> dict[str, Any]:
         return await self.send_command("miner", param="Stop")
 
-    async def resume_mining(self) -> dict:
+    async def resume_mining(self) -> dict[str, Any]:
         return await self.send_command("miner", param="Autostart")
 
-    async def stop_mining(self) -> dict:
+    async def stop_mining(self) -> dict[str, Any]:
         return await self.send_command("miner", param="Stop")
 
-    async def start_mining(self) -> dict:
+    async def start_mining(self) -> dict[str, Any]:
         return await self.send_command("miner", param="Autostart")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         return await self.send_command("summary")
 
-    async def hashrate(self) -> dict:
+    async def hashrate(self) -> dict[str, Any]:
         return await self.send_command("hashrate")
 
-    async def network(self) -> dict:
+    async def network(self) -> dict[str, Any]:
         return await self.send_command("network")
 
-    async def capabilities(self) -> dict:
+    async def capabilities(self) -> dict[str, Any]:
         return await self.send_command("capabilities")
 
-    async def system_update(self, file: Path | str, keep_settings: bool = True) -> None:
+    async def system_update(
+        self, file: Path | str, keep_settings: bool = True
+    ) -> dict[str, Any]:
         """Perform a system update by uploading a firmware file and sending a
         command to initiate the update."""
 
@@ -165,4 +167,4 @@ class ePICWebAPI(BaseWebAPI):
         with open(file, "rb") as f:
             files = {"update.zip": ("update.zip", f, "application/zip")}
             data = {"checksum": checksum, "keepsettings": str(keep_settings).lower()}
-            await self.send_command("systemupdate", files=files, data=data)
+            return await self.send_command("systemupdate", files=files, data=data)

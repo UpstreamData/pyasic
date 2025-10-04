@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .mini_doge import GoldshellMiniDoge
+
+__all__ = ["GoldshellMiniDoge"]

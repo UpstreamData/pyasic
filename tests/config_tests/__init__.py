@@ -27,7 +27,7 @@ from pyasic.config.mining.scaling import ScalingShutdown
 
 
 class TestConfig(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.cfg = MinerConfig(
             pools=PoolConfig.simple(
                 [
@@ -50,12 +50,12 @@ class TestConfig(unittest.TestCase):
             ),
         )
 
-    def test_dict_deserialize_and_serialize(self):
+    def test_dict_deserialize_and_serialize(self) -> None:
         dict_config = self.cfg.as_dict()
         loaded_cfg = MinerConfig.from_dict(dict_config)
         self.assertEqual(loaded_cfg, self.cfg)
 
-    def test_dict_serialize_and_deserialize(self):
+    def test_dict_serialize_and_deserialize(self) -> None:
         dict_config = {
             "pools": {
                 "groups": [
@@ -90,12 +90,12 @@ class TestConfig(unittest.TestCase):
         dumped_config = loaded_config.as_dict()
         self.assertEqual(dumped_config, dict_config)
 
-    def test_bosminer_deserialize_and_serialize(self):
+    def test_bosminer_deserialize_and_serialize(self) -> None:
         bosminer_config = self.cfg.as_bosminer()
         loaded_config = MinerConfig.from_bosminer(bosminer_config)
         self.assertEqual(loaded_config, self.cfg)
 
-    def test_bosminer_serialize_and_deserialize(self):
+    def test_bosminer_serialize_and_deserialize(self) -> None:
         bosminer_config = {
             "temp_control": {
                 "mode": "manual",
@@ -134,7 +134,7 @@ class TestConfig(unittest.TestCase):
         dumped_config = loaded_config.as_bosminer()
         self.assertEqual(dumped_config, bosminer_config)
 
-    def test_am_modern_serialize(self):
+    def test_am_modern_serialize(self) -> None:
         correct_config = {
             "bitmain-fan-ctrl": True,
             "bitmain-fan-pwm": "90",
@@ -153,7 +153,7 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(correct_config, self.cfg.as_am_modern())
 
-    def test_am_old_serialize(self):
+    def test_am_old_serialize(self) -> None:
         correct_config = {
             "_ant_pool1url": "stratum+tcp://stratum.test.io:3333",
             "_ant_pool1user": "test.test",
@@ -168,7 +168,7 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(correct_config, self.cfg.as_am_old())
 
-    def test_wm_serialize(self):
+    def test_wm_serialize(self) -> None:
         correct_config = {
             "mode": "power_tuning",
             "power_tuning": {"wattage": 3000},
@@ -187,7 +187,7 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(correct_config, self.cfg.as_wm())
 
-    def test_goldshell_serialize(self):
+    def test_goldshell_serialize(self) -> None:
         correct_config = {
             "pools": [
                 {
@@ -200,12 +200,12 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(correct_config, self.cfg.as_goldshell())
 
-    def test_avalon_serialize(self):
+    def test_avalon_serialize(self) -> None:
         correct_config = {"pools": "stratum+tcp://stratum.test.io:3333,test.test,123"}
 
         self.assertEqual(correct_config, self.cfg.as_avalon())
 
-    def test_inno_serialize(self):
+    def test_inno_serialize(self) -> None:
         correct_config = {
             "Pool1": "stratum+tcp://stratum.test.io:3333",
             "UserName1": "test.test",

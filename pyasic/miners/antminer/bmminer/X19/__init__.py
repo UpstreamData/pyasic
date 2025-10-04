@@ -36,3 +36,26 @@ from .S19 import (
     BMMinerS19XP,
 )
 from .T19 import BMMinerT19
+
+__all__ = [
+    "BMMinerS19",
+    "BMMinerS19a",
+    "BMMinerS19aPro",
+    "BMMinerS19Hydro",
+    "BMMinerS19i",
+    "BMMinerS19j",
+    "BMMinerS19jNoPIC",
+    "BMMinerS19jPlus",
+    "BMMinerS19jPro",
+    "BMMinerS19jProPlus",
+    "BMMinerS19jXP",
+    "BMMinerS19KPro",
+    "BMMinerS19L",
+    "BMMinerS19Plus",
+    "BMMinerS19Pro",
+    "BMMinerS19ProHydro",
+    "BMMinerS19ProPlus",
+    "BMMinerS19ProPlusHydro",
+    "BMMinerS19XP",
+    "BMMinerT19",
+]

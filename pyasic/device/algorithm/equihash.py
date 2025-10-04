@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import EquihashHashRate
-from .hashrate.unit import EquihashUnit
+from .hashrate.equihash import EquihashHashRate
+from .hashrate.unit.equihash import EquihashUnit
+
+__all__ = ["EquihashAlgo", "EquihashHashRate", "EquihashUnit"]
 
 
 # make this json serializable

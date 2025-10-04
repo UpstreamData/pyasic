@@ -15,9 +15,12 @@
 # ------------------------------------------------------------------------------
 from typing import Any
 
+from pydantic import BaseModel, ValidationError
+
 from pyasic import APIError
 from pyasic.data.boards import HashBoard
 from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.logger import logger
 from pyasic.miners.backends import AvalonMiner
 from pyasic.miners.data import (
     DataFunction,
@@ -28,6 +31,14 @@ from pyasic.miners.data import (
 )
 from pyasic.miners.device.models import AvalonNano3, AvalonNano3s
 from pyasic.web.avalonminer import AvalonMinerWebAPI
+
+
+class AvalonMinerInfo(BaseModel):
+    mac: str | None = None
+
+    class Config:
+        extra = "allow"
+
 
 AVALON_NANO_DATA_LOC = DataLocations(
     **{
@@ -159,18 +170,20 @@ class CGMinerAvalonNano3(AvalonMiner, AvalonNano3):
 
         if web_minerinfo is not None:
             try:
-                mac = web_minerinfo.get("mac")
-                if mac is not None:
-                    return mac.upper()
-            except (KeyError, ValueError):
-                pass
+                response = AvalonMinerInfo.model_validate(web_minerinfo)
+                if response.mac:
+                    return response.mac.upper()
+            except ValidationError as e:
+                logger.warning(f"{self} - Failed to parse miner info for MAC: {e}")
         return None
 
 
 class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
     data_locations = AVALON_NANO3S_DATA_LOC
 
-    async def _get_wattage(self, rpc_estats: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> int | None:
         if rpc_estats is None:
             try:
                 rpc_estats = await self.rpc.estats()
@@ -186,7 +199,7 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
         return None
 
     async def _get_hashrate(
-        self, rpc_estats: dict | None = None
+        self, rpc_estats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if rpc_estats is None:
             try:
@@ -204,7 +217,9 @@ class CGMinerAvalonNano3s(AvalonMiner, AvalonNano3s):
                 pass
         return None
 
-    async def _get_hashboards(self, rpc_estats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, rpc_estats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         hashboards = await AvalonMiner._get_hashboards(self, rpc_estats)
 
         if rpc_estats is None:

@@ -13,11 +13,14 @@
 #  limitations under the License.
 
 
+from typing import Any
+
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data.boards import HashBoard
 from pyasic.data.error_codes import MinerErrorData
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
 from pyasic.miners.base import BaseMiner
 from pyasic.rpc.unknown import UnknownRPCAPI
 
@@ -26,8 +29,8 @@ class UnknownMiner(BaseMiner):
     def __init__(
         self,
         ip: str,
-        *args,
-        **kwargs,  # noqa - ignore *args and **kwargs for signature consistency
+        *args: Any,
+        **kwargs: Any,  # noqa - ignore *args and **kwargs for signature consistency
     ) -> None:
         super().__init__(ip)
         self.ip = ip
@@ -122,10 +125,10 @@ class UnknownMiner(BaseMiner):
     async def _get_expected_hashrate(self) -> AlgoHashRateType | None:
         return None
 
-    async def _is_mining(self, *args, **kwargs) -> bool | None:
+    async def _is_mining(self, *args: Any, **kwargs: Any) -> bool | None:
         return None
 
-    async def _get_uptime(self, *args, **kwargs) -> int | None:
+    async def _get_uptime(self, *args: Any, **kwargs: Any) -> int | None:
         return None
 
     async def _get_pools(self) -> list[PoolMetrics]:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .bitaxe import ESPMinerWebAPI
+from .espminer import ESPMinerWebAPI
 
 
 class LuckyMinerWebAPI(ESPMinerWebAPI):

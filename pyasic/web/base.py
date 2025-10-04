@@ -48,13 +48,13 @@ class BaseWebAPI(ABC):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         pass
 
     @abstractmethod
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         pass
 
     def _check_commands(self, *commands: str) -> list[str]:

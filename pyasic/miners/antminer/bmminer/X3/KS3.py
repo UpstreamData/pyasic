@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import AntminerModern
-from pyasic.miners.device.models.antminer import KS3
+from pyasic.miners.device.models.antminer.X3.KS3 import KS3
 
 
 class BMMinerKS3(AntminerModern, KS3):

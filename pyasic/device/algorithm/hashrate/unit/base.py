@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from enum import IntEnum
+from typing import Any
 
 
 class AlgoHashRateUnitType(IntEnum):
-    def __str__(self):
+    def __str__(self) -> str:
         if hasattr(self.__class__, "H") and self.value == self.__class__.H:
             return "H/s"
         if hasattr(self.__class__, "KH") and self.value == self.__class__.KH:
@@ -22,31 +25,31 @@ class AlgoHashRateUnitType(IntEnum):
         return ""
 
     @classmethod
-    def from_str(cls, value: str):
+    def from_str(cls, value: str) -> AlgoHashRateUnitType | None:
         if value == "H" and hasattr(cls, "H"):
-            return cls.H
+            return cls.H  # type: ignore[no-any-return]
         elif value == "KH" and hasattr(cls, "KH"):
-            return cls.KH
+            return cls.KH  # type: ignore[no-any-return]
         elif value == "MH" and hasattr(cls, "MH"):
-            return cls.MH
+            return cls.MH  # type: ignore[no-any-return]
         elif value == "GH" and hasattr(cls, "GH"):
-            return cls.GH
+            return cls.GH  # type: ignore[no-any-return]
         elif value == "TH" and hasattr(cls, "TH"):
-            return cls.TH
+            return cls.TH  # type: ignore[no-any-return]
         elif value == "PH" and hasattr(cls, "PH"):
-            return cls.PH
+            return cls.PH  # type: ignore[no-any-return]
         elif value == "EH" and hasattr(cls, "EH"):
-            return cls.EH
+            return cls.EH  # type: ignore[no-any-return]
         elif value == "ZH" and hasattr(cls, "ZH"):
-            return cls.ZH
+            return cls.ZH  # type: ignore[no-any-return]
         if hasattr(cls, "default"):
-            return cls.default
+            return cls.default  # type: ignore[no-any-return]
         return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
-    def model_dump(self):
+    def model_dump(self) -> dict[str, Any]:
         return {"value": self.value, "suffix": str(self)}
 
 

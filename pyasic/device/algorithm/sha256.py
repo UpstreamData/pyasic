@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import SHA256HashRate
-from .hashrate.unit import SHA256Unit
+from .hashrate.sha256 import SHA256HashRate
+from .hashrate.unit.sha256 import SHA256Unit
+
+__all__ = ["SHA256Algo", "SHA256HashRate", "SHA256Unit"]
 
 
 # make this json serializable

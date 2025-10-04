@@ -60,7 +60,7 @@ class AuradineWebAPI(BaseWebAPI):
             except httpx.HTTPError:
                 warnings.warn(f"Could not authenticate web token with miner: {self}")
             else:
-                json_auth = auth.json()
+                json_auth: dict[str, Any] = auth.json()
                 try:
                     self.token = json_auth["Token"][0]["Token"]
                 except LookupError:
@@ -74,7 +74,7 @@ class AuradineWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Auradine miner, handling authentication and retries.
 
         Args:
@@ -113,7 +113,7 @@ class AuradineWebAPI(BaseWebAPI):
                             headers={"Token": self.token},
                             timeout=settings.get("api_function_timeout", 5),
                         )
-                    json_data = response.json()
+                    json_data: dict[str, Any] = response.json()
                     validation = validate_command_output(json_data)
                     if not validation[0]:
                         if i == settings.get("get_data_retries", 1):
@@ -128,7 +128,7 @@ class AuradineWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously on the Auradine miner.
 
         Args:
@@ -157,7 +157,7 @@ class AuradineWebAPI(BaseWebAPI):
 
         return data
 
-    async def factory_reset(self) -> dict:
+    async def factory_reset(self) -> dict[str, Any]:
         """Perform a factory reset on the Auradine miner.
 
         Returns:
@@ -165,7 +165,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("factory-reset", privileged=True)
 
-    async def get_fan(self) -> dict:
+    async def get_fan(self) -> dict[str, Any]:
         """Retrieve the current fan status from the Auradine miner.
 
         Returns:
@@ -173,7 +173,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("fan")
 
-    async def set_fan(self, fan: int, speed_pct: int) -> dict:
+    async def set_fan(self, fan: int, speed_pct: int) -> dict[str, Any]:
         """Set the speed of a specific fan on the Auradine miner.
 
         Args:
@@ -187,7 +187,7 @@ class AuradineWebAPI(BaseWebAPI):
 
     async def firmware_upgrade(
         self, url: str | None = None, version: str = "latest"
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Upgrade the firmware of the Auradine miner.
 
         Args:
@@ -201,7 +201,7 @@ class AuradineWebAPI(BaseWebAPI):
             return await self.send_command("firmware-upgrade", url=url)
         return await self.send_command("firmware-upgrade", version=version)
 
-    async def get_frequency(self) -> dict:
+    async def get_frequency(self) -> dict[str, Any]:
         """Retrieve the current frequency settings of the Auradine miner.
 
         Returns:
@@ -209,7 +209,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("frequency")
 
-    async def set_frequency(self, board: int, frequency: float) -> dict:
+    async def set_frequency(self, board: int, frequency: float) -> dict[str, Any]:
         """Set the frequency for a specific board on the Auradine miner.
 
         Args:
@@ -221,7 +221,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("frequency", board=board, frequency=frequency)
 
-    async def ipreport(self) -> dict:
+    async def ipreport(self) -> dict[str, Any]:
         """Generate an IP report for the Auradine miner.
 
         Returns:
@@ -229,7 +229,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("ipreport")
 
-    async def get_led(self) -> dict:
+    async def get_led(self) -> dict[str, Any]:
         """Retrieve the current LED status from the Auradine miner.
 
         Returns:
@@ -237,7 +237,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("led")
 
-    async def set_led(self, code: int) -> dict:
+    async def set_led(self, code: int) -> dict[str, Any]:
         """Set the LED code on the Auradine miner.
 
         Args:
@@ -248,7 +248,9 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("led", code=code)
 
-    async def set_led_custom(self, code: int, led_1: int, led_2: int, msg: str) -> dict:
+    async def set_led_custom(
+        self, code: int, led_1: int, led_2: int, msg: str
+    ) -> dict[str, Any]:
         """Set custom LED configurations including messages.
 
         Args:
@@ -264,7 +266,7 @@ class AuradineWebAPI(BaseWebAPI):
             "led", code=code, led1=led_1, led2=led_2, msg=msg
         )
 
-    async def get_mode(self) -> dict:
+    async def get_mode(self) -> dict[str, Any]:
         """Retrieve the current operational mode of the Auradine miner.
 
         Returns:
@@ -272,7 +274,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("mode")
 
-    async def set_mode(self, **kwargs: Any) -> dict:
+    async def set_mode(self, **kwargs: Any) -> dict[str, Any]:
         """Set the operational mode of the Auradine miner.
 
         Args:
@@ -283,7 +285,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("mode", **kwargs)
 
-    async def get_network(self) -> dict:
+    async def get_network(self) -> dict[str, Any]:
         """Retrieve the network configuration settings of the Auradine miner.
 
         Returns:
@@ -291,7 +293,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("network")
 
-    async def set_network(self, **kwargs: Any) -> dict:
+    async def set_network(self, **kwargs: Any) -> dict[str, Any]:
         """Set the network configuration of the Auradine miner.
 
         Args:
@@ -302,7 +304,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("network", **kwargs)
 
-    async def password(self, password: str) -> dict:
+    async def password(self, password: str) -> dict[str, Any]:
         """Change the password used for accessing the Auradine miner.
 
         Args:
@@ -317,7 +319,7 @@ class AuradineWebAPI(BaseWebAPI):
         self.pwd = password
         return res
 
-    async def get_psu(self) -> dict:
+    async def get_psu(self) -> dict[str, Any]:
         """Retrieve the status of the power supply unit (PSU) from the Auradine miner.
 
         Returns:
@@ -325,7 +327,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("psu")
 
-    async def set_psu(self, voltage: float) -> dict:
+    async def set_psu(self, voltage: float) -> dict[str, Any]:
         """Set the voltage for the power supply unit of the Auradine miner.
 
         Args:
@@ -336,7 +338,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("psu", voltage=voltage)
 
-    async def get_register(self) -> dict:
+    async def get_register(self) -> dict[str, Any]:
         """Retrieve registration information from the Auradine miner.
 
         Returns:
@@ -344,7 +346,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("register")
 
-    async def set_register(self, company: str) -> dict:
+    async def set_register(self, company: str) -> dict[str, Any]:
         """Set the registration information for the Auradine miner.
 
         Args:
@@ -355,7 +357,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("register", parameter=company)
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the Auradine miner.
 
         Returns:
@@ -363,7 +365,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("restart", privileged=True)
 
-    async def restart_gcminer(self) -> dict:
+    async def restart_gcminer(self) -> dict[str, Any]:
         """Restart the GCMiner application on the Auradine miner.
 
         Returns:
@@ -371,7 +373,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("restart", parameter="gcminer")
 
-    async def restart_api_server(self) -> dict:
+    async def restart_api_server(self) -> dict[str, Any]:
         """Restart the API server on the Auradine miner.
 
         Returns:
@@ -379,7 +381,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("restart", parameter="api-server")
 
-    async def temperature(self) -> dict:
+    async def temperature(self) -> dict[str, Any]:
         """Retrieve the current temperature readings from the Auradine miner.
 
         Returns:
@@ -387,7 +389,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("temperature")
 
-    async def timedate(self, ntp: str, timezone: str) -> dict:
+    async def timedate(self, ntp: str, timezone: str) -> dict[str, Any]:
         """Set the time and date settings for the Auradine miner.
 
         Args:
@@ -399,7 +401,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("timedate", ntp=ntp, timezone=timezone)
 
-    async def get_token(self) -> dict:
+    async def get_token(self) -> dict[str, Any]:
         """Retrieve the current authentication token for the Auradine miner.
 
         Returns:
@@ -407,7 +409,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("token", user=self.username, password=self.pwd)
 
-    async def update_pools(self, pools: list[dict]) -> dict:
+    async def update_pools(self, pools: list[dict[str, Any]]) -> dict[str, Any]:
         """Update the mining pools configuration on the Auradine miner.
 
         Args:
@@ -418,7 +420,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("updatepools", pools=pools)
 
-    async def voltage(self) -> dict:
+    async def voltage(self) -> dict[str, Any]:
         """Retrieve the voltage settings of the Auradine miner.
 
         Returns:
@@ -426,7 +428,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("voltage")
 
-    async def get_ztp(self) -> dict:
+    async def get_ztp(self) -> dict[str, Any]:
         """Retrieve the zero-touch provisioning status from the Auradine miner.
 
         Returns:
@@ -434,7 +436,7 @@ class AuradineWebAPI(BaseWebAPI):
         """
         return await self.send_command("ztp")
 
-    async def set_ztp(self, enable: bool) -> dict:
+    async def set_ztp(self, enable: bool) -> dict[str, Any]:
         """Enable or disable zero-touch provisioning (ZTP) on the Auradine miner.
 
         Args:

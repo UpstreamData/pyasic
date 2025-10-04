@@ -1,5 +1,5 @@
 from pyasic.miners.backends.elphapex import ElphapexMiner
-from pyasic.miners.device.models import DG1, DG1Home, DG1Plus
+from pyasic.miners.device.models.elphapex.DGX import DG1, DG1Home, DG1Plus
 
 
 class ElphapexDG1Plus(ElphapexMiner, DG1Plus):

@@ -12,6 +12,23 @@ from .sha256 import SHA256HashRate
 from .x11 import X11HashRate
 from .zksnark import ZkSnarkHashRate
 
+__all__ = [
+    "AlgoHashRateType",
+    "Blake256HashRate",
+    "BlockFlowHashRate",
+    "EaglesongHashRate",
+    "EquihashHashRate",
+    "EtHashHashRate",
+    "HandshakeHashRate",
+    "KadenaHashRate",
+    "KHeavyHashHashRate",
+    "ScryptHashRate",
+    "SHA256HashRate",
+    "X11HashRate",
+    "ZkSnarkHashRate",
+    "AlgoHashRate",
+]
+
 
 class AlgoHashRate:
     SHA256 = SHA256HashRate

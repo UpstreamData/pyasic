@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.base import BaseMinerRPCAPI
 
 
@@ -31,7 +33,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    async def asc(self, n: int) -> dict:
+    async def asc(self, n: int) -> dict[str, Any]:
         """Get data for ASC device n.
         <details>
             <summary>Expand</summary>
@@ -45,7 +47,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asc", parameters=n)
 
-    async def asccount(self) -> dict:
+    async def asccount(self) -> dict[str, Any]:
         """Get data on the number of ASC devices and their info.
         <details>
             <summary>Expand</summary>
@@ -56,7 +58,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("asccount")
 
-    async def check(self, command: str) -> dict:
+    async def check(self, command: str) -> dict[str, Any]:
         """Check if the command `command` exists in LUXMiner.
         <details>
             <summary>Expand</summary>
@@ -72,7 +74,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("check", parameters=command)
 
-    async def coin(self) -> dict:
+    async def coin(self) -> dict[str, Any]:
         """Get information on the current coin.
         <details>
             <summary>Expand</summary>
@@ -88,7 +90,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("coin")
 
-    async def config(self) -> dict:
+    async def config(self) -> dict[str, Any]:
         """Get some basic configuration info.
         <details>
             <summary>Expand</summary>
@@ -99,7 +101,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("config")
 
-    async def devdetails(self) -> dict:
+    async def devdetails(self) -> dict[str, Any]:
         """Get data on all devices with their static details.
         <details>
             <summary>Expand</summary>
@@ -110,7 +112,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devdetails")
 
-    async def devs(self) -> dict:
+    async def devs(self) -> dict[str, Any]:
         """Get data on each PGA/ASC with their details.
         <details>
             <summary>Expand</summary>
@@ -121,11 +123,11 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("devs")
 
-    async def edevs(self) -> dict:
+    async def edevs(self) -> dict[str, Any]:
         """Alias for devs"""
         return await self.send_command("edevs")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Get pool information.
 
         <details>
@@ -137,7 +139,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("pools")
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Get stats of each device/pool with more than 1 getwork.
 
         <details>
@@ -149,11 +151,11 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("stats")
 
-    async def estats(self) -> dict:
+    async def estats(self) -> dict[str, Any]:
         """Alias for stats"""
         return await self.send_command("estats")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get the status summary of the miner.
 
         <details>
@@ -165,7 +167,7 @@ class GCMinerRPCAPI(BaseMinerRPCAPI):
         """
         return await self.send_command("summary")
 
-    async def version(self) -> dict:
+    async def version(self) -> dict[str, Any]:
         """Get miner version info.
 
         <details>

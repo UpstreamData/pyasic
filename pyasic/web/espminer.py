@@ -6,7 +6,8 @@ from typing import Any
 
 import httpx
 
-from pyasic import APIError, settings
+from pyasic import settings
+from pyasic.errors import APIError
 from pyasic.web.base import BaseWebAPI
 
 
@@ -18,7 +19,7 @@ class ESPMinerWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         url = f"http://{self.ip}:{self.port}/api/{command}"
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             retries = settings.get("get_data_retries", 1)
@@ -51,7 +52,8 @@ class ESPMinerWebAPI(BaseWebAPI):
                 else:
                     if data.status_code == 200:
                         try:
-                            return data.json()
+                            result: dict[str, Any] = data.json()
+                            return result
                         except json.decoder.JSONDecodeError as e:
                             response_text = data.text if data.text else "empty response"
                             if attempt == retries - 1:
@@ -62,7 +64,7 @@ class ESPMinerWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously on the BitAxe miner.
 
         Args:
@@ -94,17 +96,17 @@ class ESPMinerWebAPI(BaseWebAPI):
 
         return data
 
-    async def system_info(self) -> dict:
+    async def system_info(self) -> dict[str, Any]:
         return await self.send_command("system/info")
 
-    async def swarm_info(self) -> dict:
+    async def swarm_info(self) -> dict[str, Any]:
         return await self.send_command("swarm/info")
 
-    async def restart(self) -> dict:
+    async def restart(self) -> dict[str, Any]:
         return await self.send_command("system/restart", post=True)
 
-    async def update_settings(self, **config: Any) -> dict:
+    async def update_settings(self, **config: Any) -> dict[str, Any]:
         return await self.send_command("system", patch=True, **config)
 
-    async def asic_info(self) -> dict:
+    async def asic_info(self) -> dict[str, Any]:
         return await self.send_command("system/asic")

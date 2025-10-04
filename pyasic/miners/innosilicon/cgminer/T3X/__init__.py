@@ -15,3 +15,5 @@
 # ------------------------------------------------------------------------------
 
 from .T3H import InnosiliconT3HPlus
+
+__all__ = ["InnosiliconT3HPlus"]

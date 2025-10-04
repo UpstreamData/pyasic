@@ -46,7 +46,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
@@ -77,14 +77,15 @@ class AntminerModernWebAPI(BaseWebAPI):
         else:
             if data.status_code == 200:
                 try:
-                    return data.json()
+                    result: dict[str, Any] = data.json()
+                    return result
                 except json.decoder.JSONDecodeError:
                     return {"success": False, "message": "Failed to decode JSON"}
         return {"success": False, "message": "Unknown error occurred"}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously.
 
         Args:
@@ -111,7 +112,7 @@ class AntminerModernWebAPI(BaseWebAPI):
 
     async def _handle_multicommand(
         self, client: httpx.AsyncClient, command: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Helper function for handling individual commands in a multicommand execution.
 
         Args:
@@ -137,7 +138,7 @@ class AntminerModernWebAPI(BaseWebAPI):
                     pass
         return {command: {}}
 
-    async def get_miner_conf(self) -> dict:
+    async def get_miner_conf(self) -> dict[str, Any]:
         """Retrieve the miner configuration from the Antminer device.
 
         Returns:
@@ -145,7 +146,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_miner_conf")
 
-    async def set_miner_conf(self, conf: dict) -> dict:
+    async def set_miner_conf(self, conf: dict[str, Any]) -> dict[str, Any]:
         """Set the configuration for the miner.
 
         Args:
@@ -156,7 +157,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("set_miner_conf", **conf)
 
-    async def blink(self, blink: bool) -> dict:
+    async def blink(self, blink: bool) -> dict[str, Any]:
         """Control the blinking of the LED on the miner device.
 
         Args:
@@ -169,7 +170,7 @@ class AntminerModernWebAPI(BaseWebAPI):
             return await self.send_command("blink", blink="true")
         return await self.send_command("blink", blink="false")
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the miner device.
 
         Returns:
@@ -177,7 +178,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
-    async def get_system_info(self) -> dict:
+    async def get_system_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -185,7 +186,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_system_info")
 
-    async def get_network_info(self) -> dict:
+    async def get_network_info(self) -> dict[str, Any]:
         """Retrieve network configuration information from the miner.
 
         Returns:
@@ -193,7 +194,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_network_info")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get a summary of the miner's status and performance.
 
         Returns:
@@ -201,7 +202,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("summary")
 
-    async def get_blink_status(self) -> dict:
+    async def get_blink_status(self) -> dict[str, Any]:
         """Check the status of the LED blinking on the miner.
 
         Returns:
@@ -217,7 +218,7 @@ class AntminerModernWebAPI(BaseWebAPI):
         subnet_mask: str,
         hostname: str,
         protocol: int,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Set the network configuration of the miner.
 
         Args:
@@ -260,7 +261,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Antminer device using HTTP digest authentication.
 
         Args:
@@ -291,14 +292,15 @@ class AntminerOldWebAPI(BaseWebAPI):
         else:
             if data.status_code == 200:
                 try:
-                    return data.json()
+                    result: dict[str, Any] = data.json()
+                    return result
                 except json.decoder.JSONDecodeError:
                     pass
         raise APIError(f"Failed to send command to miner: {self}")
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously.
 
         Args:
@@ -327,7 +329,7 @@ class AntminerOldWebAPI(BaseWebAPI):
                             pass
         return data
 
-    async def get_system_info(self) -> dict:
+    async def get_system_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -335,7 +337,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_system_info")
 
-    async def blink(self, blink: bool) -> dict:
+    async def blink(self, blink: bool) -> dict[str, Any]:
         """Control the blinking of the LED on the miner device.
 
         Args:
@@ -348,7 +350,7 @@ class AntminerOldWebAPI(BaseWebAPI):
             return await self.send_command("blink", action="startBlink")
         return await self.send_command("blink", action="stopBlink")
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the miner device.
 
         Returns:
@@ -356,7 +358,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
-    async def get_blink_status(self) -> dict:
+    async def get_blink_status(self) -> dict[str, Any]:
         """Check the status of the LED blinking on the miner.
 
         Returns:
@@ -364,7 +366,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("blink", action="onPageLoaded")
 
-    async def get_miner_conf(self) -> dict:
+    async def get_miner_conf(self) -> dict[str, Any]:
         """Retrieve the miner configuration from the Antminer device.
 
         Returns:
@@ -372,7 +374,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_miner_conf")
 
-    async def set_miner_conf(self, conf: dict) -> dict:
+    async def set_miner_conf(self, conf: dict[str, Any]) -> dict[str, Any]:
         """Set the configuration for the miner.
 
         Args:
@@ -383,7 +385,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("set_miner_conf", **conf)
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Retrieve detailed statistical data of the mining operation.
 
         Returns:
@@ -391,7 +393,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_stats")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get a summary of the miner's status and performance.
 
         Returns:
@@ -399,7 +401,7 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_summary")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Retrieve current pool information associated with the miner.
 
         Returns:
@@ -407,7 +409,9 @@ class AntminerOldWebAPI(BaseWebAPI):
         """
         return await self.send_command("miner_pools")
 
-    async def update_firmware(self, file: Path, keep_settings: bool = True) -> dict:
+    async def update_firmware(
+        self, file: Path, keep_settings: bool = True
+    ) -> dict[str, Any]:
         """Perform a system update by uploading a firmware file and sending a command to initiate the update."""
 
         async with aiofiles.open(file, "rb") as firmware:

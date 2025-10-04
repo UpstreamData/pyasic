@@ -52,19 +52,19 @@ class Settings(BaseModel):
         extra = "allow"
 
 
-_settings = Settings()
+_settings: Settings = Settings()
 
 
-ssl_cxt = httpx.create_ssl_context()
+ssl_cxt: SSLContext = httpx.create_ssl_context()
 
 
 # this function returns an AsyncHTTPTransport instance to perform asynchronous HTTP requests
 # using those options.
-def transport(verify: str | bool | SSLContext = ssl_cxt):
+def transport(verify: str | bool | SSLContext = ssl_cxt) -> AsyncHTTPTransport:
     return AsyncHTTPTransport(verify=verify)
 
 
-def get(key: str, other: Any = None) -> Any:
+def get(key: str, other: Any | None = None) -> Any:
     try:
         return getattr(_settings, key)
     except AttributeError:

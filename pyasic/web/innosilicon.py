@@ -43,7 +43,7 @@ class InnosiliconWebAPI(BaseWebAPI):
             except httpx.HTTPError:
                 warnings.warn(f"Could not authenticate web token with miner: {self}")
             else:
-                json_auth = auth.json()
+                json_auth: dict[str, Any] = auth.json()
                 self.token = json_auth.get("jwt")
             return self.token
 
@@ -54,7 +54,7 @@ class InnosiliconWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         if self.token is None:
             await self.auth()
         async with httpx.AsyncClient(transport=settings.transport()) as client:
@@ -71,7 +71,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                         timeout=settings.get("api_function_timeout", 5),
                         json=parameters,
                     )
-                    json_data = response.json()
+                    json_data: dict[str, Any] = response.json()
                     if (
                         not json_data.get("success")
                         and "token" in json_data
@@ -104,7 +104,7 @@ class InnosiliconWebAPI(BaseWebAPI):
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         data: dict[str, Any] = {k: None for k in commands}
         data["multicommand"] = True
         await self.auth()
@@ -120,7 +120,7 @@ class InnosiliconWebAPI(BaseWebAPI):
                         headers={"Authorization": "Bearer " + self.token},
                         timeout=settings.get("api_function_timeout", 5),
                     )
-                    json_data = response.json()
+                    json_data: dict[str, Any] = response.json()
                     data[command] = json_data
                 except httpx.HTTPError:
                     pass
@@ -130,32 +130,32 @@ class InnosiliconWebAPI(BaseWebAPI):
                     await self.auth()
         return data
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         return await self.send_command("reboot")
 
-    async def restart_cgminer(self) -> dict:
+    async def restart_cgminer(self) -> dict[str, Any]:
         return await self.send_command("restartCgMiner")
 
-    async def update_pools(self, conf: dict) -> dict:
+    async def update_pools(self, conf: dict[str, Any]) -> dict[str, Any]:
         return await self.send_command("updatePools", **conf)
 
-    async def overview(self) -> dict:
+    async def overview(self) -> dict[str, Any]:
         return await self.send_command("overview")
 
-    async def type(self) -> dict:
+    async def type(self) -> dict[str, Any]:
         return await self.send_command("type")
 
-    async def get_all(self) -> dict:
+    async def get_all(self) -> dict[str, Any]:
         return await self.send_command("getAll")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         return await self.send_command("summary")
 
-    async def get_error_detail(self) -> dict:
+    async def get_error_detail(self) -> dict[str, Any]:
         return await self.send_command("getErrorDetail")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         return await self.send_command("pools")
 
-    async def poweroff(self) -> dict:
+    async def poweroff(self) -> dict[str, Any]:
         return await self.send_command("poweroff")

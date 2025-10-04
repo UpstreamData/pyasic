@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.bmminer import BMMinerRPCAPI
 
 
@@ -29,6 +31,6 @@ class CCMinerRPCAPI(BMMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.port = 8359

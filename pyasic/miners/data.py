@@ -39,10 +39,10 @@ class DataOptions(Enum):
     CONFIG = "config"
     POOLS = "pools"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
-    def default_command(self):
+    def default_command(self) -> str:
         if str(self.value) == "config":
             return "get_config"
         elif str(self.value) == "is_mining":
@@ -68,7 +68,7 @@ class DataFunction:
     cmd: str
     kwargs: list[RPCAPICommand | WebAPICommand] = field(default_factory=list)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: object, **kwargs: object) -> "DataFunction":
         return self
 
 

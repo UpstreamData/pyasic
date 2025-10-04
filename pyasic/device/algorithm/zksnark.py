@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from .base import MinerAlgoType
-from .hashrate import ZkSnarkHashRate
-from .hashrate.unit import ZkSnarkUnit
+from .hashrate.unit.zksnark import ZkSnarkUnit
+from .hashrate.zksnark import ZkSnarkHashRate
+
+__all__ = ["ZkSnarkAlgo", "ZkSnarkHashRate", "ZkSnarkUnit"]
 
 
 class ZkSnarkAlgo(MinerAlgoType):

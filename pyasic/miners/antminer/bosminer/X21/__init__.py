@@ -22,3 +22,12 @@ from .S21 import (
     BOSMinerS21Pro,
 )
 from .T21 import BOSMinerT21
+
+__all__ = [
+    "BOSMinerS21",
+    "BOSMinerS21Hydro",
+    "BOSMinerS21Plus",
+    "BOSMinerS21PlusHydro",
+    "BOSMinerS21Pro",
+    "BOSMinerT21",
+]

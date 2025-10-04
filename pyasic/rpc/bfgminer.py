@@ -14,6 +14,8 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
+from typing import Any
+
 from pyasic.rpc.cgminer import CGMinerRPCAPI
 
 
@@ -31,7 +33,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
     rely on it to send the command for them.
     """
 
-    async def procs(self) -> dict:
+    async def procs(self) -> dict[str, Any]:
         """Get data on each processor with their details.
         <details>
             <summary>Expand</summary>
@@ -42,7 +44,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procs")
 
-    async def devscan(self, info: str = "") -> dict:
+    async def devscan(self, info: str = "") -> dict[str, Any]:
         """Get data on each processor with their details.
         <details>
             <summary>Expand</summary>
@@ -56,7 +58,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("devscan", parameters=info)
 
-    async def proc(self, n: int = 0) -> dict:
+    async def proc(self, n: int = 0) -> dict[str, Any]:
         """Get data processor n.
         <details>
             <summary>Expand</summary>
@@ -70,7 +72,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("proc", parameters=n)
 
-    async def proccount(self) -> dict:
+    async def proccount(self) -> dict[str, Any]:
         """Get data fon all processors.
         <details>
             <summary>Expand</summary>
@@ -81,7 +83,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("proccount")
 
-    async def pgarestart(self, n: int) -> dict:
+    async def pgarestart(self, n: int) -> dict[str, Any]:
         """Restart PGA n.
         <details>
             <summary>Expand</summary>
@@ -95,7 +97,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("pgadisable", parameters=n)
 
-    async def procenable(self, n: int) -> dict:
+    async def procenable(self, n: int) -> dict[str, Any]:
         """Enable processor n.
         <details>
             <summary>Expand</summary>
@@ -109,7 +111,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procenable", parameters=n)
 
-    async def procdisable(self, n: int) -> dict:
+    async def procdisable(self, n: int) -> dict[str, Any]:
         """Disable processor n.
         <details>
             <summary>Expand</summary>
@@ -123,7 +125,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procdisable", parameters=n)
 
-    async def procrestart(self, n: int) -> dict:
+    async def procrestart(self, n: int) -> dict[str, Any]:
         """Restart processor n.
         <details>
             <summary>Expand</summary>
@@ -137,7 +139,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procdisable", parameters=n)
 
-    async def procidentify(self, n: int) -> dict:
+    async def procidentify(self, n: int) -> dict[str, Any]:
         """Identify processor n.
         <details>
             <summary>Expand</summary>
@@ -151,7 +153,7 @@ class BFGMinerRPCAPI(CGMinerRPCAPI):
         """
         return await self.send_command("procidentify", parameters=n)
 
-    async def procset(self, n: int, opt: str, val: int | None = None) -> dict:
+    async def procset(self, n: int, opt: str, val: int | None = None) -> dict[str, Any]:
         """Set processor option opt to val on processor n.
         <details>
             <summary>Expand</summary>

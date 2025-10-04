@@ -20,6 +20,7 @@ import json
 import logging
 import re
 import warnings
+from typing import Any
 
 from pyasic.errors import APIError, APIWarning
 from pyasic.misc import validate_command_output
@@ -36,7 +37,7 @@ class BaseMinerRPCAPI:
 
         self.pwd: str | None = None
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> "BaseMinerRPCAPI":
         if cls is BaseMinerRPCAPI:
             raise TypeError(f"Only children of '{cls.__name__}' may be instantiated")
         return object.__new__(cls)
@@ -50,8 +51,8 @@ class BaseMinerRPCAPI:
         parameters: str | int | bool | None = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
-        **kwargs,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Send an API command to the miner and return the result.
 
         Parameters:
@@ -102,10 +103,14 @@ class BaseMinerRPCAPI:
         return api_data
 
     # Privileged command handler, only used by whatsminers, defined here for consistency.
-    async def send_privileged_command(self, *args, **kwargs) -> dict:
+    async def send_privileged_command(
+        self, *args: Any, **kwargs: Any
+    ) -> dict[str, Any]:
         return await self.send_command(*args, **kwargs)
 
-    async def multicommand(self, *commands: str, allow_warning: bool = True) -> dict:
+    async def multicommand(
+        self, *commands: str, allow_warning: bool = True
+    ) -> dict[str, Any]:
         """Creates and sends multiple commands as one command to the miner.
 
         Parameters:
@@ -126,9 +131,9 @@ class BaseMinerRPCAPI:
         return data
 
     async def _send_split_multicommand(
-        self, *commands, allow_warning: bool = True
-    ) -> dict:
-        tasks = {}
+        self, *commands: str, allow_warning: bool = True
+    ) -> dict[str, Any]:
+        tasks: dict[str, asyncio.Task[dict[str, Any]]] = {}
         # send all commands individually
         for cmd in commands:
             tasks[cmd] = asyncio.create_task(
@@ -139,7 +144,7 @@ class BaseMinerRPCAPI:
             *[tasks[cmd] for cmd in tasks], return_exceptions=True
         )
 
-        data = {}
+        data: dict[str, Any] = {}
         for cmd, result in zip(tasks.keys(), results):
             if not isinstance(result, (APIError, Exception)):
                 if result is None or result == {}:
@@ -149,10 +154,10 @@ class BaseMinerRPCAPI:
         return data
 
     @property
-    def commands(self) -> list:
+    def commands(self) -> list[str]:
         return self.get_commands()
 
-    def get_commands(self) -> list:
+    def get_commands(self) -> list[str]:
         """Get a list of command accessible to a specific type of API on the miner.
 
         Returns:
@@ -179,7 +184,7 @@ class BaseMinerRPCAPI:
             ]
         ]
 
-    def _check_commands(self, *commands) -> list:
+    def _check_commands(self, *commands: str) -> list[str]:
         allowed_commands = self.commands
         return_commands = []
 
@@ -250,7 +255,7 @@ If you are sure you want to use this command please use API.send_command("{comma
         return ret_data
 
     @staticmethod
-    def _load_api_data(data: bytes) -> dict:
+    def _load_api_data(data: bytes) -> dict[str, Any]:
         # some json from the API returns with a null byte (\x00) on the end
         if data.endswith(b"\x00"):
             # handle the null byte
@@ -289,4 +294,9 @@ If you are sure you want to use this command please use API.send_command("{comma
             parsed_data = json.loads(str_data)
         except json.decoder.JSONDecodeError as e:
             raise APIError(f"Decode Error {e}: {str_data}")
+        # Ensure we return a dict as declared in the type annotation
+        if not isinstance(parsed_data, dict):
+            raise APIError(
+                f"Expected dict from JSON, got {type(parsed_data)}: {parsed_data}"
+            )
         return parsed_data

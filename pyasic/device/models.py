@@ -67,7 +67,7 @@ class AntminerModels(MinerModelType):
     T21 = "T21"
     S19XPHydro = "S19 XP Hydro"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -436,7 +436,7 @@ class WhatsminerModels(MinerModelType):
     M67SVK30 = "M67S VK30"
     M70VM30 = "M70 VM30"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -459,7 +459,7 @@ class AvalonminerModels(MinerModelType):
     AvalonNano3s = "Avalon Nano 3s"
     AvalonQHome = "Avalon Q Home"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -469,7 +469,7 @@ class InnosiliconModels(MinerModelType):
     A11 = "A11"
     A11MX = "A11MX"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -483,7 +483,7 @@ class GoldshellModels(MinerModelType):
     Byte = "Byte"
     MiniDoge = "Mini Doge"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -494,7 +494,7 @@ class ePICModels(MinerModelType):
     S19jProDual = "S19j Pro Dual"
     S19kProDual = "S19k Pro Dual"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -507,7 +507,7 @@ class AuradineModels(MinerModelType):
     AD2500 = "AD2500"
     AD3500 = "AD3500"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -517,7 +517,7 @@ class BitAxeModels(MinerModelType):
     BM1397 = "Max"
     BM1370 = "Gamma"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -525,7 +525,7 @@ class LuckyMinerModels(MinerModelType):
     LV07 = "LV07"
     LV08 = "LV08"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -541,21 +541,21 @@ class IceRiverModels(MinerModelType):
     KS5M = "KS5M"
     AL3 = "AL3"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
 class HammerModels(MinerModelType):
     D10 = "D10"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
 class VolcMinerModels(MinerModelType):
     D1 = "D1"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -563,7 +563,7 @@ class BraiinsModels(MinerModelType):
     BMM100 = "BMM100"
     BMM101 = "BMM101"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -572,7 +572,7 @@ class ElphapexModels(MinerModelType):
     DG1Plus = "DG1+"
     DG1Home = "DG1Home"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 

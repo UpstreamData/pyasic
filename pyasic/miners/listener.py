@@ -15,15 +15,17 @@
 # ------------------------------------------------------------------------------
 
 import asyncio
+from collections.abc import AsyncGenerator
+from typing import Any
 
 
-class MinerListenerProtocol(asyncio.Protocol):
-    def __init__(self):
-        self.responses = {}
-        self.transport = None
-        self.new_miner = None
+class MinerListenerProtocol(asyncio.DatagramProtocol):
+    def __init__(self) -> None:
+        self.responses: dict[str, Any] = {}
+        self.transport: asyncio.DatagramTransport | None = None
+        self.new_miner: dict[str, str] | None = None
 
-    async def get_new_miner(self):
+    async def get_new_miner(self) -> dict[str, str] | None:
         try:
             while self.new_miner is None:
                 await asyncio.sleep(0)
@@ -31,10 +33,10 @@ class MinerListenerProtocol(asyncio.Protocol):
         finally:
             self.new_miner = None
 
-    def connection_made(self, transport):
+    def connection_made(self, transport: asyncio.DatagramTransport) -> None:  # type: ignore[override]
         self.transport = transport
 
-    def datagram_received(self, data, _addr):
+    def datagram_received(self, data: bytes, _addr: tuple[str, int]) -> None:
         if data == b"OK\x00\x00\x00\x00\x00\x00\x00\x00":
             return
         m = data.decode()
@@ -49,17 +51,17 @@ class MinerListenerProtocol(asyncio.Protocol):
 
         self.new_miner = {"IP": ip, "MAC": mac.upper()}
 
-    def connection_lost(self, _):
+    def connection_lost(self, _: Exception | None) -> None:
         pass
 
 
 class MinerListener:
-    def __init__(self, bind_addr: str = "0.0.0.0"):
+    def __init__(self, bind_addr: str = "0.0.0.0") -> None:
         self.found_miners: list[dict[str, str]] = []
         self.stop = asyncio.Event()
         self.bind_addr = bind_addr
 
-    async def listen(self):
+    async def listen(self) -> AsyncGenerator[dict[str, str], None]:
         loop = asyncio.get_running_loop()
 
         transport_14235, protocol_14235 = await loop.create_datagram_endpoint(
@@ -77,11 +79,13 @@ class MinerListener:
                 await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for t in tasks:
                     if t.done():
-                        yield t.result()
+                        result = t.result()
+                        if result is not None:
+                            yield result
 
         finally:
             transport_14235.close()
             transport_8888.close()
 
-    async def cancel(self):
-        self.stop = True
+    async def cancel(self) -> None:
+        self.stop.set()

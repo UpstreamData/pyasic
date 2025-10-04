@@ -26,3 +26,12 @@ from pyasic.ssh import *
 from pyasic.web import *
 
 __version__ = importlib.metadata.version("pyasic")
+
+__all__ = [
+    "settings",
+    "MinerConfig",
+    "MinerData",
+    "APIError",
+    "APIWarning",
+    "MinerNetwork",
+]

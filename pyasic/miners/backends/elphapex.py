@@ -14,10 +14,15 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from pyasic import APIError, MinerConfig
-from pyasic.data import Fan, HashBoard, X19Error
+from typing import Any
+
+from pyasic.config import MinerConfig
+from pyasic.data.boards import HashBoard
+from pyasic.data.error_codes import X19Error
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.errors import APIError
 from pyasic.miners.data import (
     DataFunction,
     DataLocations,
@@ -123,7 +128,9 @@ class ElphapexMiner(StockFirmware):
             return True
         return False
 
-    async def _get_api_ver(self, web_summary: dict | None = None) -> str | None:
+    async def _get_api_ver(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -138,7 +145,9 @@ class ElphapexMiner(StockFirmware):
 
         return self.api_ver
 
-    async def _get_fw_ver(self, web_get_system_info: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, web_get_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -158,7 +167,7 @@ class ElphapexMiner(StockFirmware):
         return self.fw_ver
 
     async def _get_hostname(
-        self, web_get_system_info: dict | None = None
+        self, web_get_system_info: dict[str, Any] | None = None
     ) -> str | None:
         if web_get_system_info is None:
             try:
@@ -168,12 +177,14 @@ class ElphapexMiner(StockFirmware):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["hostname"]
+                return str(web_get_system_info["hostname"])
             except KeyError:
                 pass
         return None
 
-    async def _get_mac(self, web_get_system_info: dict | None = None) -> str | None:
+    async def _get_mac(
+        self, web_get_system_info: dict[str, Any] | None = None
+    ) -> str | None:
         if web_get_system_info is None:
             try:
                 web_get_system_info = await self.web.get_system_info()
@@ -182,20 +193,20 @@ class ElphapexMiner(StockFirmware):
 
         if web_get_system_info is not None:
             try:
-                return web_get_system_info["macaddr"]
+                return str(web_get_system_info["macaddr"])
             except KeyError:
                 pass
 
         try:
             data = await self.web.get_network_info()
             if data:
-                return data["macaddr"]
+                return str(data["macaddr"])
         except KeyError:
             pass
         return None
 
     async def _get_errors(  # type: ignore[override]
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> list[X19Error]:
         if web_summary is None:
             try:
@@ -216,7 +227,9 @@ class ElphapexMiner(StockFirmware):
                 pass
         return errors
 
-    async def _get_hashboards(self, web_stats: dict | None = None) -> list[HashBoard]:
+    async def _get_hashboards(
+        self, web_stats: dict[str, Any] | None = None
+    ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
 
@@ -261,7 +274,7 @@ class ElphapexMiner(StockFirmware):
         return hashboards
 
     async def _get_fault_light(
-        self, web_get_blink_status: dict | None = None
+        self, web_get_blink_status: dict[str, Any] | None = None
     ) -> bool | None:
         if self.light:
             return self.light
@@ -280,7 +293,7 @@ class ElphapexMiner(StockFirmware):
         return self.light
 
     async def _get_expected_hashrate(
-        self, web_stats: dict | None = None
+        self, web_stats: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if web_stats is None:
             try:
@@ -302,7 +315,9 @@ class ElphapexMiner(StockFirmware):
                 pass
         return None
 
-    async def _is_mining(self, web_get_miner_conf: dict | None = None) -> bool | None:
+    async def _is_mining(
+        self, web_get_miner_conf: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_get_miner_conf is None:
             try:
                 web_get_miner_conf = await self.web.get_miner_conf()
@@ -320,7 +335,9 @@ class ElphapexMiner(StockFirmware):
                 pass
         return None
 
-    async def _get_uptime(self, web_summary: dict | None = None) -> int | None:
+    async def _get_uptime(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -334,7 +351,7 @@ class ElphapexMiner(StockFirmware):
                 pass
         return None
 
-    async def _get_fans(self, web_stats: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, web_stats: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -354,7 +371,9 @@ class ElphapexMiner(StockFirmware):
 
         return fans
 
-    async def _get_pools(self, web_pools: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, web_pools: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if web_pools is None:
             try:
                 web_pools = await self.web.pools()

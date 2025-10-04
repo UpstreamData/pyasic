@@ -9,17 +9,17 @@ from pyasic.miners.factory import MINER_CLASSES, MinerTypes
 warnings.filterwarnings("ignore")
 
 
-def path(cls):
+def path(cls: type[Any]) -> str:
     module = importlib.import_module(cls.__module__)
     return module.__name__ + "." + cls.__name__
 
 
-def make(cls):
+def make(cls: type[Any]) -> str:
     p = path(cls)
     return p.split(".")[2]
 
 
-def model_type(cls):
+def model_type(cls: type[Any]) -> str:
     p = path(cls)
     return p.split(".")[4]
 
@@ -67,7 +67,7 @@ def backend_str(backend: MinerTypes) -> str:
     raise TypeError("Unknown miner backend, cannot generate docs")
 
 
-def create_url_str(mtype: str):
+def create_url_str(mtype: str) -> str:
     return (
         mtype.lower()
         .replace(" ", "-")
@@ -143,7 +143,7 @@ for m in MINER_CLASSES:
             done.append(miner)
 
 
-def create_directory_structure(directory, data):
+def create_directory_structure(directory: str | Path, data: dict[str, Any]) -> None:
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -171,11 +171,11 @@ def create_directory_structure(directory, data):
                     )
 
 
-def create_supported_types(directory):
+def create_supported_types(directory: str | Path) -> None:
     with open(os.path.join(directory, "supported_types.md"), "w") as file:
         file.write(SUPPORTED_TYPES_HEADER)
         for mback in MINER_CLASSES:
-            backend_types = {}
+            backend_types: dict[str, list[type[Any]]] = {}
             file.write(BACKEND_TYPE_HEADER.format(backend_str(mback)))
             for mtype in MINER_CLASSES[mback]:
                 if mtype is None:

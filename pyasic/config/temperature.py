@@ -15,6 +15,8 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from typing import Any
+
 from pyasic.config.base import MinerConfigValue
 
 
@@ -24,10 +26,10 @@ class TemperatureConfig(MinerConfigValue):
     danger: int | None = None
 
     @classmethod
-    def default(cls):
+    def default(cls) -> TemperatureConfig:
         return cls()
 
-    def as_bosminer(self) -> dict:
+    def as_bosminer(self) -> dict[str, Any]:
         temp_cfg = {}
         if self.target is not None:
             temp_cfg["target_temp"] = self.target
@@ -39,8 +41,8 @@ class TemperatureConfig(MinerConfigValue):
             return {}
         return {"temp_control": temp_cfg}
 
-    def as_epic(self) -> dict:
-        temps_config: dict = {"temps": {}, "fans": {"Auto": {}}}
+    def as_epic(self) -> dict[str, Any]:
+        temps_config: dict[str, Any] = {"temps": {}, "fans": {"Auto": {}}}
         if self.target is not None:
             temps_config["fans"]["Auto"]["Target Temperature"] = self.target
         else:
@@ -51,14 +53,14 @@ class TemperatureConfig(MinerConfigValue):
             temps_config["temps"]["shutdown"] = self.hot
         return temps_config
 
-    def as_luxos(self) -> dict:
+    def as_luxos(self) -> dict[str, Any]:
         return {"tempctrlset": [self.target or "", self.hot or "", self.danger or ""]}
 
-    def as_vnish(self) -> dict:
+    def as_vnish(self) -> dict[str, Any]:
         return {"misc": {"restart_temp": self.danger}}
 
     @classmethod
-    def from_dict(cls, dict_conf: dict | None) -> TemperatureConfig:
+    def from_dict(cls, dict_conf: dict[str, Any] | None) -> TemperatureConfig:
         if dict_conf is None:
             return cls()
         return cls(
@@ -68,7 +70,7 @@ class TemperatureConfig(MinerConfigValue):
         )
 
     @classmethod
-    def from_bosminer(cls, toml_conf: dict) -> TemperatureConfig:
+    def from_bosminer(cls, toml_conf: dict[str, Any]) -> TemperatureConfig:
         temp_control = toml_conf.get("temp_control")
         if temp_control is not None:
             return cls(
@@ -79,7 +81,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls()
 
     @classmethod
-    def from_epic(cls, web_conf: dict) -> TemperatureConfig:
+    def from_epic(cls, web_conf: dict[str, Any]) -> TemperatureConfig:
         try:
             dangerous_temp = web_conf["Misc"]["Critical Temp"]
         except KeyError:
@@ -97,7 +99,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls(target=target_temp, hot=hot_temp, danger=dangerous_temp)
 
     @classmethod
-    def from_vnish(cls, web_settings: dict) -> TemperatureConfig:
+    def from_vnish(cls, web_settings: dict[str, Any]) -> TemperatureConfig:
         try:
             dangerous_temp = web_settings["misc"]["restart_temp"]
         except KeyError:
@@ -113,7 +115,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls()
 
     @classmethod
-    def from_boser(cls, grpc_miner_conf: dict) -> TemperatureConfig:
+    def from_boser(cls, grpc_miner_conf: dict[str, Any]) -> TemperatureConfig:
         try:
             temperature_conf = grpc_miner_conf["temperature"]
         except KeyError:
@@ -144,7 +146,7 @@ class TemperatureConfig(MinerConfigValue):
         return cls.default()
 
     @classmethod
-    def from_luxos(cls, rpc_tempctrl: dict) -> TemperatureConfig:
+    def from_luxos(cls, rpc_tempctrl: dict[str, Any]) -> TemperatureConfig:
         try:
             tempctrl_config = rpc_tempctrl["TEMPCTRL"][0]
             return cls(

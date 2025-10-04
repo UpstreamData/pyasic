@@ -28,7 +28,7 @@ class Fan(BaseModel):
 
     speed: int | None = None
 
-    def get(self, __key: str, default: Any = None):
+    def get(self, __key: str, default: Any = None) -> Any:
         try:
             val = self.__getitem__(__key)
             if val is None:
@@ -37,7 +37,7 @@ class Fan(BaseModel):
         except KeyError:
             return default
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, item: str) -> Any:
         try:
             return getattr(self, item)
         except AttributeError:

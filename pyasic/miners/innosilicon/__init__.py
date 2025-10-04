@@ -14,4 +14,16 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .cgminer import *
+from .cgminer import (
+    InnosiliconA10X,
+    InnosiliconA11,
+    InnosiliconA11MX,
+    InnosiliconT3HPlus,
+)
+
+__all__ = [
+    "InnosiliconA10X",
+    "InnosiliconA11",
+    "InnosiliconA11MX",
+    "InnosiliconT3HPlus",
+]

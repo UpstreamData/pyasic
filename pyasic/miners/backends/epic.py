@@ -15,16 +15,68 @@
 # ------------------------------------------------------------------------------
 
 
+from typing import Any
+
+from pydantic import BaseModel, Field, RootModel, ValidationError
+
 from pyasic.config import MinerConfig
-from pyasic.data import Fan, HashBoard
+from pyasic.data.boards import HashBoard
 from pyasic.data.error_codes import MinerErrorData, X19Error
+from pyasic.data.fans import Fan
 from pyasic.data.pools import PoolMetrics, PoolUrl
-from pyasic.device.algorithm import AlgoHashRateType, ScryptAlgo
+from pyasic.device.algorithm.hashrate.base import AlgoHashRateType
+from pyasic.device.algorithm.scrypt import ScryptAlgo
 from pyasic.errors import APIError
 from pyasic.logger import logger
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, WebAPICommand
 from pyasic.miners.device.firmware import ePICFirmware
 from pyasic.web.epic import ePICWebAPI
+
+
+class EpicSuccessResponse(BaseModel):
+    success: bool
+
+
+class PowerSupplyStats(BaseModel):
+    input_power: float = Field(alias="Input Power")
+
+
+class SessionInfo(BaseModel):
+    uptime: int = Field(alias="Uptime")
+
+
+class MiscInfo(BaseModel):
+    locate_miner_state: bool = Field(alias="Locate Miner State")
+
+
+class EpicSummaryResponse(BaseModel):
+    hostname: str | None = Field(None, alias="Hostname")
+    software: str | None = Field(None, alias="Software")
+    power_supply_stats: PowerSupplyStats | None = Field(
+        None, alias="Power Supply Stats"
+    )
+    session: SessionInfo | None = Field(None, alias="Session")
+    misc: MiscInfo | None = Field(None, alias="Misc")
+
+    class Config:
+        populate_by_name = True
+        extra = "allow"
+
+
+class EpicNetworkInterface(BaseModel):
+    mac_address: str
+
+    class Config:
+        extra = "allow"
+
+
+class EpicNetworkResponse(RootModel[dict[str, EpicNetworkInterface]]):
+    def __getitem__(self, key: str) -> EpicNetworkInterface:
+        return self.root[key]
+
+    def __iter__(self) -> Any:
+        return iter(self.root)
+
 
 EPIC_DATA_LOC = DataLocations(
     **{
@@ -148,8 +200,9 @@ class ePIC(ePICFirmware):
         data = await self.web.restart_epic()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = EpicSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -157,8 +210,9 @@ class ePIC(ePICFirmware):
         data = await self.web.stop_mining()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = EpicSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -166,8 +220,9 @@ class ePIC(ePICFirmware):
         data = await self.web.resume_mining()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = EpicSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
@@ -175,12 +230,13 @@ class ePIC(ePICFirmware):
         data = await self.web.reboot()
         if data:
             try:
-                return data["success"]
-            except KeyError:
+                response = EpicSuccessResponse.model_validate(data)
+                return response.success
+            except ValidationError:
                 pass
         return False
 
-    async def _get_mac(self, web_network: dict | None = None) -> str | None:
+    async def _get_mac(self, web_network: dict[str, Any] | None = None) -> str | None:
         if web_network is None:
             try:
                 web_network = await self.web.network()
@@ -189,14 +245,16 @@ class ePIC(ePICFirmware):
 
         if web_network is not None:
             try:
-                for network in web_network:
-                    mac = web_network[network]["mac_address"]
-                    return mac
-            except KeyError:
+                network_response = EpicNetworkResponse.model_validate(web_network)
+                for network in network_response:
+                    return network_response[network].mac_address
+            except ValidationError:
                 pass
         return None
 
-    async def _get_hostname(self, web_summary: dict | None = None) -> str | None:
+    async def _get_hostname(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -205,13 +263,15 @@ class ePIC(ePICFirmware):
 
         if web_summary is not None:
             try:
-                hostname = web_summary["Hostname"]
-                return hostname
-            except KeyError:
+                summary = EpicSummaryResponse.model_validate(web_summary)
+                return summary.hostname
+            except ValidationError:
                 pass
         return None
 
-    async def _get_wattage(self, web_summary: dict | None = None) -> int | None:
+    async def _get_wattage(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -220,15 +280,15 @@ class ePIC(ePICFirmware):
 
         if web_summary is not None:
             try:
-                wattage = web_summary["Power Supply Stats"]["Input Power"]
-                wattage = round(wattage)
-                return wattage
-            except KeyError:
+                summary = EpicSummaryResponse.model_validate(web_summary)
+                if summary.power_supply_stats:
+                    return round(summary.power_supply_stats.input_power)
+            except ValidationError:
                 pass
         return None
 
     async def _get_hashrate(
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if web_summary is None:
             try:
@@ -251,7 +311,7 @@ class ePIC(ePICFirmware):
         return None
 
     async def _get_expected_hashrate(
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> AlgoHashRateType | None:
         if web_summary is None:
             try:
@@ -278,7 +338,9 @@ class ePIC(ePICFirmware):
                 pass
         return None
 
-    async def _get_fw_ver(self, web_summary: dict | None = None) -> str | None:
+    async def _get_fw_ver(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> str | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -287,14 +349,15 @@ class ePIC(ePICFirmware):
 
         if web_summary is not None:
             try:
-                fw_ver = web_summary["Software"]
-                fw_ver = fw_ver.split(" ")[1].replace("v", "")
-                return fw_ver
-            except KeyError:
+                summary = EpicSummaryResponse.model_validate(web_summary)
+                if summary.software:
+                    fw_ver = summary.software.split(" ")[1].replace("v", "")
+                    return fw_ver
+            except ValidationError:
                 pass
         return None
 
-    async def _get_fans(self, web_summary: dict | None = None) -> list[Fan]:
+    async def _get_fans(self, web_summary: dict[str, Any] | None = None) -> list[Fan]:
         if self.expected_fans is None:
             return []
 
@@ -315,7 +378,9 @@ class ePIC(ePICFirmware):
         return fans
 
     async def _get_hashboards(
-        self, web_summary: dict | None = None, web_capabilities: dict | None = None
+        self,
+        web_summary: dict[str, Any] | None = None,
+        web_capabilities: dict[str, Any] | None = None,
     ) -> list[HashBoard]:
         if self.expected_hashboards is None:
             return []
@@ -383,7 +448,9 @@ class ePIC(ePICFirmware):
             return hb_list
         return hb_list
 
-    async def _is_mining(self, web_summary: dict | None = None) -> bool | None:
+    async def _is_mining(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -397,7 +464,9 @@ class ePIC(ePICFirmware):
                 pass
         return None
 
-    async def _get_uptime(self, web_summary: dict | None = None) -> int | None:
+    async def _get_uptime(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> int | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -406,13 +475,16 @@ class ePIC(ePICFirmware):
 
         if web_summary is not None:
             try:
-                uptime = web_summary["Session"]["Uptime"]
-                return uptime
-            except KeyError:
+                summary = EpicSummaryResponse.model_validate(web_summary)
+                if summary.session:
+                    return summary.session.uptime
+            except ValidationError:
                 pass
         return None
 
-    async def _get_fault_light(self, web_summary: dict | None = None) -> bool | None:
+    async def _get_fault_light(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> bool | None:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()
@@ -421,14 +493,15 @@ class ePIC(ePICFirmware):
 
         if web_summary is not None:
             try:
-                light = web_summary["Misc"]["Locate Miner State"]
-                return light
-            except KeyError:
+                summary = EpicSummaryResponse.model_validate(web_summary)
+                if summary.misc:
+                    return summary.misc.locate_miner_state
+            except ValidationError:
                 pass
         return False
 
     async def _get_errors(
-        self, web_summary: dict | None = None
+        self, web_summary: dict[str, Any] | None = None
     ) -> list[MinerErrorData]:
         if not web_summary:
             try:
@@ -446,7 +519,9 @@ class ePIC(ePICFirmware):
                 pass
         return errors  # type: ignore[return-value]
 
-    async def _get_pools(self, web_summary: dict | None = None) -> list[PoolMetrics]:
+    async def _get_pools(
+        self, web_summary: dict[str, Any] | None = None
+    ) -> list[PoolMetrics]:
         if web_summary is None:
             try:
                 web_summary = await self.web.summary()

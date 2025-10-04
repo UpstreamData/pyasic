@@ -14,3 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from .KDBox import GoldshellKDBoxII, GoldshellKDBoxPro
+
+__all__ = ["GoldshellKDBoxII", "GoldshellKDBoxPro"]

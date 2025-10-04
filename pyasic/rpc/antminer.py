@@ -1,36 +1,38 @@
+from typing import Any
+
 from pyasic.rpc.bmminer import BMMinerRPCAPI
 
 
 class AntminerRPCAPI(BMMinerRPCAPI):
-    async def stats(self, new_api: bool = False) -> dict:
+    async def stats(self, new_api: bool = False) -> dict[str, Any]:
         if new_api:
             return await self.send_command("stats", new_api=True)
         return await super().stats()
 
-    async def rate(self):
+    async def rate(self) -> dict[str, Any]:
         return await self.send_command("rate", new_api=True)
 
-    async def pools(self, new_api: bool = False):
+    async def pools(self, new_api: bool = False) -> dict[str, Any]:
         if new_api:
             return await self.send_command("pools", new_api=True)
         return await self.send_command("pools")
 
-    async def reload(self):
+    async def reload(self) -> dict[str, Any]:
         return await self.send_command("reload", new_api=True)
 
-    async def summary(self, new_api: bool = False):
+    async def summary(self, new_api: bool = False) -> dict[str, Any]:
         if new_api:
             return await self.send_command("summary", new_api=True)
         return await self.send_command("summary")
 
-    async def warning(self):
+    async def warning(self) -> dict[str, Any]:
         return await self.send_command("warning", new_api=True)
 
-    async def new_api_pools(self):
+    async def new_api_pools(self) -> dict[str, Any]:
         return await self.pools(new_api=True)
 
-    async def new_api_stats(self):
+    async def new_api_stats(self) -> dict[str, Any]:
         return await self.stats(new_api=True)
 
-    async def new_api_summary(self):
+    async def new_api_summary(self) -> dict[str, Any]:
         return await self.summary(new_api=True)

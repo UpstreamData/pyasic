@@ -43,7 +43,7 @@ class ElphapexWebAPI(BaseWebAPI):
         allow_warning: bool = True,
         privileged: bool = False,
         **parameters: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a command to the Elphapex device using HTTP digest authentication.
 
         Args:
@@ -74,14 +74,15 @@ class ElphapexWebAPI(BaseWebAPI):
         else:
             if data.status_code == 200:
                 try:
-                    return data.json()
+                    result: dict[str, Any] = data.json()
+                    return result
                 except json.decoder.JSONDecodeError:
                     return {"success": False, "message": "Failed to decode JSON"}
         return {"success": False, "message": "Unknown error occurred"}
 
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Execute multiple commands simultaneously.
 
         Args:
@@ -108,7 +109,7 @@ class ElphapexWebAPI(BaseWebAPI):
 
     async def _handle_multicommand(
         self, client: httpx.AsyncClient, command: str
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Helper function for handling individual commands in a multicommand execution.
 
         Args:
@@ -120,7 +121,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         auth = httpx.DigestAuth(self.username, self.pwd)
 
-        async def _send():
+        async def _send() -> dict[str, Any] | None:
             try:
                 url = f"http://{self.ip}/cgi-bin/{command}.cgi"
                 ret = await client.get(url, auth=auth)
@@ -129,7 +130,7 @@ class ElphapexWebAPI(BaseWebAPI):
             else:
                 if ret.status_code == 200:
                     try:
-                        json_data = ret.json()
+                        json_data: dict[str, Any] = ret.json()
                         if json_data.get("STATUS", {}).get("STATUS") not in ["S", "I"]:
                             return None
                         return {command: json_data}
@@ -144,7 +145,7 @@ class ElphapexWebAPI(BaseWebAPI):
                 return res
         return {command: {}}
 
-    async def get_miner_conf(self) -> dict:
+    async def get_miner_conf(self) -> dict[str, Any]:
         """Retrieve the miner configuration from the Elphapex device.
 
         Returns:
@@ -152,7 +153,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_miner_conf")
 
-    async def set_miner_conf(self, conf: dict) -> dict:
+    async def set_miner_conf(self, conf: dict[str, Any]) -> dict[str, Any]:
         """Set the configuration for the miner.
 
         Args:
@@ -163,7 +164,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("set_miner_conf", **conf)
 
-    async def blink(self, blink: bool) -> dict:
+    async def blink(self, blink: bool) -> dict[str, Any]:
         """Control the blinking of the LED on the miner device.
 
         Args:
@@ -176,7 +177,7 @@ class ElphapexWebAPI(BaseWebAPI):
             return await self.send_command("blink", blink="true")
         return await self.send_command("blink", blink="false")
 
-    async def reboot(self) -> dict:
+    async def reboot(self) -> dict[str, Any]:
         """Reboot the miner device.
 
         Returns:
@@ -184,7 +185,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("reboot")
 
-    async def get_system_info(self) -> dict:
+    async def get_system_info(self) -> dict[str, Any]:
         """Retrieve system information from the miner.
 
         Returns:
@@ -192,7 +193,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_system_info")
 
-    async def get_network_info(self) -> dict:
+    async def get_network_info(self) -> dict[str, Any]:
         """Retrieve network configuration information from the miner.
 
         Returns:
@@ -200,7 +201,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_network_info")
 
-    async def summary(self) -> dict:
+    async def summary(self) -> dict[str, Any]:
         """Get a summary of the miner's status and performance.
 
         Returns:
@@ -208,7 +209,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("summary")
 
-    async def stats(self) -> dict:
+    async def stats(self) -> dict[str, Any]:
         """Get miners stats.
 
         Returns:
@@ -216,7 +217,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("stats")
 
-    async def get_blink_status(self) -> dict:
+    async def get_blink_status(self) -> dict[str, Any]:
         """Check the status of the LED blinking on the miner.
 
         Returns:
@@ -224,7 +225,7 @@ class ElphapexWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_blink_status")
 
-    async def pools(self) -> dict:
+    async def pools(self) -> dict[str, Any]:
         """Check the status of the miner's pools.
 
         Returns:
