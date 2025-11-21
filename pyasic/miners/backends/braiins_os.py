@@ -93,7 +93,7 @@ BOSMINER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
-            [RPCAPICommand("rpc_devdetails", "devdetails")],
+            [RPCAPICommand("rpc_devs", "devs")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -588,18 +588,18 @@ class BOSMiner(BraiinsOSFirmware):
                 pass
         return None
 
-    async def _is_mining(self, rpc_devdetails: dict | None = None) -> bool | None:
-        if rpc_devdetails is None:
+    async def _is_mining(self, rpc_devs: dict | None = None) -> bool | None:
+        if rpc_devs is None:
             try:
-                rpc_devdetails = await self.rpc.send_command(
-                    "devdetails", ignore_errors=True, allow_warning=False
+                rpc_devs = await self.rpc.send_command(
+                    "devs", ignore_errors=True, allow_warning=False
                 )
             except APIError:
                 return None
 
-        if rpc_devdetails is not None:
+        if rpc_devs is not None:
             try:
-                return not rpc_devdetails["STATUS"][0]["Msg"] == "Unavailable"
+                return any(dev["MHS 5s"] > 0 for dev in rpc_devs["DEVS"])
             except LookupError:
                 pass
         return None
@@ -764,7 +764,7 @@ BOSER_DATA_LOC = DataLocations(
         ),
         str(DataOptions.IS_MINING): DataFunction(
             "_is_mining",
-            [RPCAPICommand("rpc_devdetails", "devdetails")],
+            [RPCAPICommand("rpc_devs", "devs")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -1125,18 +1125,18 @@ class BOSer(BraiinsOSFirmware):
                 pass
         return False
 
-    async def _is_mining(self, rpc_devdetails: dict | None = None) -> bool | None:
-        if rpc_devdetails is None:
+    async def _is_mining(self, rpc_devs: dict | None = None) -> bool | None:
+        if rpc_devs is None:
             try:
-                rpc_devdetails = await self.rpc.send_command(
-                    "devdetails", ignore_errors=True, allow_warning=False
+                rpc_devs = await self.rpc.send_command(
+                    "devs", ignore_errors=True, allow_warning=False
                 )
             except APIError:
                 return None
 
-        if rpc_devdetails is not None:
+        if rpc_devs is not None:
             try:
-                return not rpc_devdetails["STATUS"][0]["Msg"] == "Unavailable"
+                return any(dev["MHS 5s"] > 0 for dev in rpc_devs["DEVS"])
             except LookupError:
                 pass
         return None
