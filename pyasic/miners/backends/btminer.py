@@ -106,6 +106,10 @@ BTMINER_DATA_LOC = DataLocations(
             "_get_wattage_limit",
             [RPCAPICommand("rpc_summary", "summary")],
         ),
+        str(DataOptions.SERIAL_NUMBER): DataFunction(
+            "_get_serial_number",
+            [RPCAPICommand("rpc_get_miner_info", "get_miner_info")],
+        ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
             [
@@ -624,6 +628,22 @@ class BTMinerV2(StockFirmware):
                 pass
         return errors  # type: ignore[return-value]
 
+    async def _get_serial_number(
+        self, rpc_get_miner_info: dict = None
+    ) -> Optional[str]:
+        if rpc_get_miner_info is None:
+            try:
+                rpc_get_miner_info = await self.rpc.get_miner_info()
+            except APIError:
+                pass
+
+        if rpc_get_miner_info is not None:
+            try:
+                return rpc_summary["Msg"]["minersn"]
+            except LookupError:
+                pass
+        return None
+
     async def _get_expected_hashrate(
         self, rpc_summary: dict | None = None
     ) -> AlgoHashRateType | None:
@@ -851,6 +871,10 @@ BTMINERV3_DATA_LOC = DataLocations(
         str(DataOptions.POOLS): DataFunction(
             "_get_pools",
             [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
+        ),
+        str(DataOptions.SERIAL_NUMBER): DataFunction(
+            "_get_serial_number",
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
         ),
         str(DataOptions.UPTIME): DataFunction(
             "_get_uptime",
@@ -1099,6 +1123,22 @@ class BTMinerV3(StockFirmware):
             return []
         rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
         return [Fan(speed=rpm)] if rpm is not None else []
+
+    async def _get_serial_number(
+        self, rpc_get_device_info: dict = None
+    ) -> Optional[str]:
+        if rpc_get_device_info is None:
+            try:
+                rpc_get_device_info = await self.rpc.get_device_info()
+            except APIError:
+                pass
+
+        if rpc_get_device_info is not None:
+            try:
+                return rpc_get_device_info["msg"]["miner"]["miner-sn"]
+            except LookupError:
+                pass
+        return None
 
     async def _get_hashboards(
         self,
