@@ -519,6 +519,7 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "AVALON NANO3S": CGMinerAvalonNano3s,
         "AVALONMINER 15-194": CGMinerAvalon1566,
         "AVALON Q": CGMinerAvalonQHome,
+        "AVALON MINI3": CGMinerAvalonMini3,
     },
     MinerTypes.INNOSILICON: {
         None: type("InnosiliconUnknown", (Innosilicon, InnosiliconMake), {}),
