@@ -611,6 +611,7 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S19 XP+": VNishS19XPPlus,
         "ANTMINER S19J PRO+": VNishS19jProPlus,
         "ANTMINER S19J XP": VNishS19jXP,
+        "ANTMINER S21 HYDRO": VNishS21Hydro,
     },
     MinerTypes.EPIC: {
         None: ePIC,
