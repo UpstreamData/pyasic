@@ -61,3 +61,12 @@ class S21Hydro(AntMinerMake):
     expected_hashboards = 3
     expected_fans = 0
     algo = MinerAlgo.SHA256
+
+
+class S21XP(AntMinerMake):
+    raw_model = MinerModel.ANTMINER.S21XP
+
+    expected_chips = 91
+    expected_hashboards = 3
+    expected_fans = 4
+    algo = MinerAlgo.SHA256

@@ -14,5 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import S21, S21Hydro, S21Plus, S21PlusHydro, S21Pro
+from .S21 import S21, S21XP, S21Hydro, S21Plus, S21PlusHydro, S21Pro
 from .T21 import T21

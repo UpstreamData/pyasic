@@ -19,5 +19,6 @@ from .S21 import (
     BMMinerS21Plus,
     BMMinerS21PlusHydro,
     BMMinerS21Pro,
+    BMMinerS21XP,
 )
 from .T21 import BMMinerT21
