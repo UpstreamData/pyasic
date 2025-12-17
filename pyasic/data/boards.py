@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
@@ -62,7 +62,7 @@ class HashBoard(BaseModel):
         all_fields.update(set(cls.model_computed_fields.keys()))
         return all_fields
 
-    def get(self, __key: str, default: Any = None):
+    def get(self, __key: str, default: Optional[Any] = None):
         try:
             val = self.__getitem__(__key)
             if val is None:

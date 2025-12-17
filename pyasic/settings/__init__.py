@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 from ssl import SSLContext
-from typing import Any
+from typing import Optional, Any
 
 import httpx
 from httpx import AsyncHTTPTransport
@@ -64,7 +64,7 @@ def transport(verify: str | bool | SSLContext = ssl_cxt):
     return AsyncHTTPTransport(verify=verify)
 
 
-def get(key: str, other: Any = None) -> Any:
+def get(key: str, other: Optional[Any] = None) -> Any:
     try:
         return getattr(_settings, key)
     except AttributeError:

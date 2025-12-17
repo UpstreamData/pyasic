@@ -774,6 +774,7 @@ details {
                     <li><a href="../antminer/X21#s21_1-hydro-vnish">S21+ Hydro (VNish)</a></li>
                     <li><a href="../antminer/X21#s21-pro-vnish">S21 Pro (VNish)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-vnish">S21 Hydro (VNish)</a></li>
+                    <li><a href="../antminer/X21#s21-hydro-vnish">S21 Hydro (VNish)</a></li>
                 </ul>
         </details>
     </ul>

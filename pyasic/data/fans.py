@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import Any
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
@@ -28,7 +28,7 @@ class Fan(BaseModel):
 
     speed: int | None = None
 
-    def get(self, __key: str, default: Any = None):
+    def get(self, __key: str, default: Optional[Any] = None):
         try:
             val = self.__getitem__(__key)
             if val is None:
