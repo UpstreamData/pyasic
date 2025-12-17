@@ -28,6 +28,7 @@ from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
 from pyasic.miners.device.firmware import StockFirmware
 from pyasic.rpc.btminer import BTMinerRPCAPI, BTMinerV3RPCAPI
+from typing import Optional
 
 
 class BTMiner(StockFirmware):
@@ -628,7 +629,7 @@ class BTMinerV2(StockFirmware):
                 pass
         return errors  # type: ignore[return-value]
 
-    async def _get_serial_number(self, rpc_get_miner_info: dict = None) -> str | None:
+    async def _get_serial_number(self, rpc_get_miner_info: Optional[dict] = None) -> str | None:
         if rpc_get_miner_info is None:
             try:
                 rpc_get_miner_info = await self.rpc.get_miner_info()
@@ -1122,7 +1123,7 @@ class BTMinerV3(StockFirmware):
         rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
         return [Fan(speed=rpm)] if rpm is not None else []
 
-    async def _get_serial_number(self, rpc_get_device_info: dict = None) -> str | None:
+    async def _get_serial_number(self, rpc_get_device_info: Optional[dict] = None) -> str | None:
         if rpc_get_device_info is None:
             try:
                 rpc_get_device_info = await self.rpc.get_device_info()
