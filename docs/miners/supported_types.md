@@ -90,6 +90,7 @@ details {
                     <li><a href="../antminer/X19#s19j-pro-stock">S19j Pro (Stock)</a></li>
                     <li><a href="../antminer/X19#s19j_1-stock">S19j+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19j-pro_1-stock">S19j Pro+ (Stock)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-stock">S19j Pro+ (Stock)</a></li>
                     <li><a href="../antminer/X19#s19-xp-stock">S19 XP (Stock)</a></li>
                     <li><a href="../antminer/X19#s19a-stock">S19a (Stock)</a></li>
                     <li><a href="../antminer/X19#s19a-pro-stock">S19a Pro (Stock)</a></li>
@@ -113,6 +114,7 @@ details {
                     <li><a href="../antminer/X21#s21-pro-stock">S21 Pro (Stock)</a></li>
                     <li><a href="../antminer/X21#t21-stock">T21 (Stock)</a></li>
                     <li><a href="../antminer/X21#s21-hydro-stock">S21 Hydro (Stock)</a></li>
+                    <li><a href="../antminer/X21#s21-xp-stock">S21 XP (Stock)</a></li>
                 </ul>
         </details>
     </ul>
@@ -752,6 +754,9 @@ details {
                     <li><a href="../antminer/X19#s19-pro-hydro-vnish">S19 Pro Hydro (VNish)</a></li>
                     <li><a href="../antminer/X19#s19k-pro-vnish">S19k Pro (VNish)</a></li>
                     <li><a href="../antminer/X19#t19-vnish">T19 (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19-xp_1-vnish">S19 XP+ (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19j-pro_1-vnish">S19j Pro+ (VNish)</a></li>
+                    <li><a href="../antminer/X19#s19j-xp-vnish">S19j XP (VNish)</a></li>
                 </ul>
         </details>
         <details>

@@ -114,6 +114,7 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S19J PRO": BMMinerS19jPro,
         "ANTMINER S19J+": BMMinerS19jPlus,
         "ANTMINER S19J PRO+": BMMinerS19jProPlus,
+        "BHB42XXXX": BMMinerS19jProPlus,
         "ANTMINER S19 XP": BMMinerS19XP,
         "ANTMINER S19A": BMMinerS19a,
         "ANTMINER S19A PRO": BMMinerS19aPro,
@@ -132,6 +133,7 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S21 PRO": BMMinerS21Pro,
         "ANTMINER T21": BMMinerT21,
         "ANTMINER S21 HYD.": BMMinerS21Hydro,
+        "ANTMINER S21 XP": BMMinerS21XP,
     },
     MinerTypes.WHATSMINER: {
         None: type("WhatsminerUnknown", (BTMiner, WhatsMinerMake), {}),
@@ -605,6 +607,9 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S21+ HYD.": VNishS21PlusHydro,
         "ANTMINER S21 PRO": VNishS21Pro,
         "ANTMINER S21 HYD.": VNishS21Hydro,
+        "ANTMINER S19 XP+": VNishS19XPPlus,
+        "ANTMINER S19J PRO+": VNishS19jProPlus,
+        "ANTMINER S19J XP": VNishS19jXP,
     },
     MinerTypes.EPIC: {
         None: ePIC,

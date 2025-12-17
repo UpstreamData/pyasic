@@ -22,6 +22,8 @@ from .S19 import (
     VNishS19i,
     VNishS19j,
     VNishS19jPro,
+    VNishS19jProPlus,
+    VNishS19jXP,
     VNishS19kPro,
     VNishS19NoPIC,
     VNishS19Pro,
@@ -29,5 +31,6 @@ from .S19 import (
     VNishS19ProHydro,
     VNishS19XP,
     VNishS19XPHydro,
+    VNishS19XPPlus,
 )
 from .T19 import VNishT19
