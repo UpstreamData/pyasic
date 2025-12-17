@@ -14,13 +14,4 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .A7X import *
-from .A8X import *
-from .A9X import *
-from .A10X import *
-from .A11X import *
-from .A12X import *
-from .A15X import *
-from .mini import *
-from .nano import *
-from .Q import *
+from .mini3 import CGMinerAvalonMini3

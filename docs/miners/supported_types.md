@@ -576,6 +576,12 @@ details {
                     <li><a href="../avalonminer/Q#avalon-q-home-stock">Avalon Q Home (Stock)</a></li>
                 </ul>
         </details>
+        <details>
+            <summary>mini Series:</summary>
+                <ul>
+                    <li><a href="../avalonminer/mini#avalon-mini-3-stock">Avalon Mini 3 (Stock)</a></li>
+                </ul>
+        </details>
     </ul>
 </details>
 <details>
