@@ -26,7 +26,7 @@ import struct
 import typing
 import warnings
 from collections.abc import AsyncGenerator
-from typing import Optional, Any, Literal
+from typing import Any, Literal, Optional
 
 import httpx
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -1178,7 +1178,7 @@ class BTMinerV3RPCAPI(BaseMinerRPCAPI):
     async def send_command(
         self,
         command: str,
-        parameters: Optional[Any] = None,
+        parameters: Any | None = None,
         ignore_errors: bool = False,
         allow_warning: bool = True,
         **kwargs,

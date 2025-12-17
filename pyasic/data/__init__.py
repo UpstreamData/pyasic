@@ -17,7 +17,7 @@ import copy
 import time
 from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Optional, Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, computed_field
 
@@ -140,7 +140,7 @@ class MinerData(BaseModel):
         all_fields.update(set(cls.model_computed_fields.keys()))
         return all_fields
 
-    def get(self, __key: str, default: Optional[Any] = None):
+    def get(self, __key: str, default: Any | None = None):
         try:
             val = self.__getitem__(__key)
             if val is None:
