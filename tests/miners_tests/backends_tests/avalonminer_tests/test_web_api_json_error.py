@@ -12,6 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 
+from pyasic.miners.avalonminer.cgminer.mini.mini3 import CGMinerAvalonMini3
+from pyasic.miners.avalonminer.cgminer.nano.nano3 import CGMinerAvalonNano3
 from pyasic.web.avalonminer import AvalonMinerWebAPI
 
 
@@ -130,6 +132,65 @@ class TestAvalonMinerWebAPIJsonErrors(unittest.IsolatedAsyncioTestCase):
 
             # Should return a dict with only multicommand=True
             self.assertEqual(result, {"multicommand": True})
+
+    async def test_mini3_mac_address_fallback(self):
+        """Test that Mini3 can fetch MAC address even without get_minerinfo.cgi.
+
+        The Mini3 data locations do not include the get_minerinfo command,
+        so the _get_mac method must fall back to calling web.minerinfo()
+        directly. This test ensures it handles the response correctly.
+        """
+        miner = CGMinerAvalonMini3("192.168.1.100")
+
+        with patch.object(
+            miner.web, "minerinfo", new_callable=AsyncMock
+        ) as mock_minerinfo:
+            # Simulate successful response
+            mock_minerinfo.return_value = {"mac": "00:11:22:33:44:55"}
+
+            result = await miner._get_mac()
+
+            self.assertEqual(result, "00:11:22:33:44:55")
+            mock_minerinfo.assert_called_once()
+
+    async def test_mini3_mac_address_fallback_failure(self):
+        """Test that Mini3 handles MAC fetch failure gracefully.
+
+        When web.minerinfo() fails or returns no MAC address,
+        the _get_mac method should return None.
+        """
+        from pyasic import APIError
+
+        miner = CGMinerAvalonMini3("192.168.1.100")
+
+        with patch.object(
+            miner.web, "minerinfo", new_callable=AsyncMock
+        ) as mock_minerinfo:
+            # Simulate failure with APIError
+            mock_minerinfo.side_effect = APIError("Connection failed")
+
+            result = await miner._get_mac()
+
+            self.assertIsNone(result)
+
+    async def test_nano3_mac_address_fallback(self):
+        """Test that Nano3 can fetch MAC address even without get_minerinfo.cgi.
+
+        Similar to Mini3, Nano3 data locations do not include the
+        get_minerinfo command, so fallback is required.
+        """
+        miner = CGMinerAvalonNano3("192.168.1.100")
+
+        with patch.object(
+            miner.web, "minerinfo", new_callable=AsyncMock
+        ) as mock_minerinfo:
+            # Simulate successful response
+            mock_minerinfo.return_value = {"mac": "aa:bb:cc:dd:ee:ff"}
+
+            result = await miner._get_mac()
+
+            self.assertEqual(result, "AA:BB:CC:DD:EE:FF")
+            mock_minerinfo.assert_called_once()
 
 
 if __name__ == "__main__":
