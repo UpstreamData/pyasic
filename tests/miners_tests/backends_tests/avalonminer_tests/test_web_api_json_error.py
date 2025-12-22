@@ -163,11 +163,14 @@ class TestAvalonMinerWebAPIJsonErrors(unittest.IsolatedAsyncioTestCase):
 
         miner = CGMinerAvalonMini3("192.168.1.100")
 
-        with patch.object(
-            miner.web, "miner_info", new_callable=AsyncMock
-        ) as mock_miner_info, patch.object(
-            miner.web, "minerinfo", new_callable=AsyncMock
-        ) as mock_minerinfo:
+        with (
+            patch.object(
+                miner.web, "miner_info", new_callable=AsyncMock
+            ) as mock_miner_info,
+            patch.object(
+                miner.web, "minerinfo", new_callable=AsyncMock
+            ) as mock_minerinfo,
+        ):
             # Simulate get_miner_info failing but minerinfo succeeding
             mock_miner_info.side_effect = APIError("Not found")
             mock_minerinfo.return_value = {"mac": "aa:bb:cc:dd:ee:ff"}
@@ -188,11 +191,14 @@ class TestAvalonMinerWebAPIJsonErrors(unittest.IsolatedAsyncioTestCase):
 
         miner = CGMinerAvalonMini3("192.168.1.100")
 
-        with patch.object(
-            miner.web, "miner_info", new_callable=AsyncMock
-        ) as mock_miner_info, patch.object(
-            miner.web, "minerinfo", new_callable=AsyncMock
-        ) as mock_minerinfo:
+        with (
+            patch.object(
+                miner.web, "miner_info", new_callable=AsyncMock
+            ) as mock_miner_info,
+            patch.object(
+                miner.web, "minerinfo", new_callable=AsyncMock
+            ) as mock_minerinfo,
+        ):
             # Simulate both endpoints failing
             mock_miner_info.side_effect = APIError("Not found")
             mock_minerinfo.side_effect = APIError("Connection failed")
