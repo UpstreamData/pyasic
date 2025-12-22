@@ -7,6 +7,7 @@ from typing import Any
 from pyasic.miners.base import BaseMiner
 from pyasic.miners.data import DataOptions
 from pyasic.miners.factory import MinerFactory
+from pyasic.web.espminer import ESPMinerWebAPI
 
 
 class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
@@ -98,14 +99,14 @@ class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
     async def test_swarm_and_asic_info(self):
         # Only run if the miner exposes the ESPMiner web API methods
         web = getattr(self.miner, "web", None)
-        if web is None:
+        if web is None or not isinstance(web, ESPMinerWebAPI):
             self.skipTest("No web client available")
 
         swarm_info: dict[str, Any] | None = None
         asic_info: dict[str, Any] | None = None
         try:
-            swarm_info = await web.swarm_info()  # type: ignore[attr-defined]
-            asic_info = await web.asic_info()  # type: ignore[attr-defined]
+            swarm_info = await web.swarm_info()
+            asic_info = await web.asic_info()
         except Exception:
             self.skipTest("Web API not reachable or not supported")
 
