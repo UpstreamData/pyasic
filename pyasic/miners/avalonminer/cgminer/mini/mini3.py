@@ -31,7 +31,7 @@ AVALON_MINI_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
-            [WebAPICommand("web_minerinfo", "get_minerinfo")],
+            [],
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
