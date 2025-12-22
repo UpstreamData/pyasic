@@ -1,4 +1,4 @@
-## Lokales Testen mit einem echten Braiins OS Miner
+# Lokales Testen mit einem echten Braiins OS Miner
 
 Dieses Verzeichnis enthält Test-Skripte für manuelle Tests mit
 echter Hardware (Braiins OS Miner).
