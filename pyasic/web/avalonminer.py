@@ -105,5 +105,8 @@ class AvalonMinerWebAPI(BaseWebAPI):
     async def minerinfo(self):
         return await self.send_command("get_minerinfo")
 
+    async def miner_info(self):
+        return await self.send_command("get_miner_info")
+
     async def home(self):
         return await self.send_command("get_home")
