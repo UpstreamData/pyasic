@@ -12,20 +12,21 @@ Example:
 
 import asyncio
 import sys
+
 from pyasic.miners.factory import miner_factory
 
 
 async def test_braiins_serials(ip: str, username: str = "root", password: str = "root"):
     """Test serial number retrieval from a Braiins OS miner."""
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Testing Braiins Serial Numbers on {ip}")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
     try:
         # Create miner instance via factory
         print(f"Connecting to miner at {ip}...")
         miner = await miner_factory(ip)
-        
+
         if miner is None:
             print(f"❌ Failed to detect miner type at {ip}")
             return False
@@ -34,10 +35,10 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
         print(f"   Firmware: {miner.firmware}\n")
 
         # Set credentials if needed (for BOSer)
-        if hasattr(miner, 'web') and hasattr(miner.web, 'pwd'):
+        if hasattr(miner, "web") and hasattr(miner.web, "pwd"):
             miner.web.pwd = password
             miner.web.username = username
-        if hasattr(miner, 'rpc') and hasattr(miner.rpc, 'pwd'):
+        if hasattr(miner, "rpc") and hasattr(miner.rpc, "pwd"):
             miner.rpc.pwd = password
 
         # Test 1: Get miner serial number
@@ -47,7 +48,9 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
             if serial:
                 print(f"   ✅ Miner Serial: {serial}\n")
             else:
-                print(f"   ⚠️  Miner Serial: Not available (may require firmware 25.03+)\n")
+                print(
+                    "   ⚠️  Miner Serial: Not available (may require firmware 25.03+)\n"
+                )
         except Exception as e:
             print(f"   ❌ Error: {e}\n")
 
@@ -58,7 +61,7 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
             if psu_serial:
                 print(f"   ✅ PSU Serial: {psu_serial}\n")
             else:
-                print(f"   ⚠️  PSU Serial: Not available (may require firmware 25.03+)\n")
+                print("   ⚠️  PSU Serial: Not available (may require firmware 25.03+)\n")
         except Exception as e:
             print(f"   ❌ Error: {e}\n")
 
@@ -66,26 +69,30 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
         print("3️⃣  Retrieving Full Miner Data (including hashboard serials)...")
         try:
             data = await miner.get_data()
-            
+
             # Display summary
-            print(f"   ✅ Data retrieved successfully\n")
+            print("   ✅ Data retrieved successfully\n")
             print(f"   Miner IP: {data.ip}")
             print(f"   Serial Number: {data.serial_number or 'N/A'}")
             print(f"   PSU Serial Number: {data.psu_serial_number or 'N/A'}")
             print(f"   MAC Address: {data.mac or 'N/A'}")
             print(f"   Firmware: {data.fw_ver or 'N/A'}")
             print(f"   API Version: {data.api_ver or 'N/A'}")
-            
+
             # Display hashboard serials
             if data.hashboards:
                 print(f"\n   Hashboards ({len(data.hashboards)}):")
                 for hb in data.hashboards:
-                    serial_str = f"SN: {hb.serial_number}" if hb.serial_number else "SN: N/A"
+                    serial_str = (
+                        f"SN: {hb.serial_number}" if hb.serial_number else "SN: N/A"
+                    )
                     chips_str = f"{hb.chips or '?'}" if hb.chips else "?"
                     temp_str = f"{hb.temp or '?'}°C" if hb.temp else "?"
-                    print(f"      Slot {hb.slot}: {serial_str} | Chips: {chips_str} | Temp: {temp_str}")
-            
-            print(f"\n{'='*70}\n")
+                    print(
+                        f"      Slot {hb.slot}: {serial_str} | Chips: {chips_str} | Temp: {temp_str}"
+                    )
+
+            print(f"\n{'=' * 70}\n")
             return True
 
         except Exception as e:
