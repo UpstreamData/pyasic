@@ -9,13 +9,13 @@ Dieses Verzeichnis enthält Test-Skripte für manuelle Tests mit echter Hardware
 
 ## 🚀 Schnellanleitung
 
-### Mit Standard-Zugangsdaten (root/root):
+### Mit Standard-Zugangsdaten (root/root)
 ```bash
 cd /workspaces/pyasic
 python tests/local_tests/test_braiins_serials.py 192.168.1.100
 ```
 
-### Mit benutzerdefinierten Zugangsdaten:
+### Mit benutzerdefinierten Zugangsdaten
 ```bash
 python tests/local_tests/test_braiins_serials.py 192.168.1.100 admin meinpasswort
 ```
@@ -67,6 +67,7 @@ Falls das Skript Fehler meldet:
 ## 📚 Weitere Informationen
 
 Die neuen Features sind implementiert in:
+
 - `pyasic/miners/backends/braiins_os.py` (BOSer-Backend)
 - `pyasic/miners/base.py` (Basis-Interface)
 - `pyasic/data/__init__.py` (Datenmodell)
