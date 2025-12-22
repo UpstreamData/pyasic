@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# mypy: ignore-errors
 """
 Test script to verify Braiins serial number support.
 
@@ -23,7 +24,7 @@ async def _connect_to_miner(ip: str, username: str, password: str) -> BaseMiner 
     print(f"Connecting to miner at {ip}...")
     miner = await miner_factory.get_miner(ip)
 
-    if miner is None:
+    if not isinstance(miner, BaseMiner):
         print(f"❌ Failed to detect miner type at {ip}")
         return None
 
