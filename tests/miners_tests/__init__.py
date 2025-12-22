@@ -93,6 +93,7 @@ class MinersTest(unittest.TestCase):
                 "hostname",
                 "is_mining",
                 "serial_number",
+                "psu_serial_number",
                 "mac",
                 "expected_hashrate",
                 "uptime",
