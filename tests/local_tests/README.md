@@ -10,12 +10,14 @@ Dieses Verzeichnis enthält Test-Skripte für manuelle Tests mit echter Hardware
 ## 🚀 Schnellanleitung
 
 ### Mit Standard-Zugangsdaten (root/root)
+
 ```bash
 cd /workspaces/pyasic
 python tests/local_tests/test_braiins_serials.py 192.168.1.100
 ```
 
 ### Mit benutzerdefinierten Zugangsdaten
+
 ```bash
 python tests/local_tests/test_braiins_serials.py 192.168.1.100 admin meinpasswort
 ```
