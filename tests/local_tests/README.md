@@ -1,10 +1,11 @@
-# Lokales Testen mit einem echten Braiins OS Miner
+## Lokales Testen mit einem echten Braiins OS Miner
 
-Dieses Verzeichnis enthält Test-Skripte für manuelle Tests mit echter Hardware (Braiins OS Miner).
+Dieses Verzeichnis enthält Test-Skripte für manuelle Tests mit
+echter Hardware (Braiins OS Miner).
 
 ## 📋 Dateien
 
-- **test_braiins_serials.py** - Test-Skript für Braiins Serial Number Feature
+- **test_braiins_serials.py** - Test-Skript für Serial Numbers
 - **README.md** - Diese Dokumentation
 
 ## 🚀 Schnellanleitung
@@ -19,7 +20,8 @@ python tests/local_tests/test_braiins_serials.py 192.168.1.100
 ### Mit benutzerdefinierten Zugangsdaten
 
 ```bash
-python tests/local_tests/test_braiins_serials.py 192.168.1.100 admin meinpasswort
+python tests/local_tests/test_braiins_serials.py 192.168.1.100 \
+    admin meinpasswort
 ```
 
 ## ✅ Was wird getestet
@@ -46,25 +48,25 @@ Das Skript `test_braiins_serials.py` prüft:
 ## 📋 Voraussetzungen
 
 - Python 3.8+
-- Braiins OS Plus Miner mit Firmware 25.03 oder neuer (für Serial Number Support)
+- Braiins OS Plus Miner mit Firmware 25.03 oder neuer
 - Netzwerkzugriff zum Miner
 - Miner-IP-Adresse und Zugangsdaten (Standard: root/root)
 
 ## 💡 Hinweise
 
-- **Für ältere Firmware**: Wenn dein Miner Firmware < 25.03 hat, werden Serial Numbers nicht verfügbar sein
-- **Standard-Zugangsdaten**: Die meisten Braiins OS Miner verwenden root/root als Standard
-- **Netzwerk**: Der Miner muss über SSH (Port 22) und gRPC (Port 50051) erreichbar sein
-- **Timeout**: Die Anfrage kann bis zu 30 Sekunden dauern, je nach Miner-Auslastung
+- **Für ältere Firmware**: Serial Numbers benötigen Firmware >= 25.03
+- **Standard-Zugangsdaten**: Meist root/root als Standard
+- **Netzwerk**: SSH (Port 22) und gRPC (Port 50051) erforderlich
+- **Timeout**: Bis zu 30 Sekunden je nach Miner-Auslastung
 
 ## 🔧 Debuggen bei Fehlern
 
 Falls das Skript Fehler meldet:
 
-1. **Verbindungsfehler**: Überprüfe die IP-Adresse und Netzwerkverbindung
-2. **Authentifizierung fehlgeschlagen**: Überprüfe Username und Passwort
-3. **Firmware zu alt**: Überprüfe die Firmware-Version auf dem Miner (Mindestens 25.03)
-4. **Service nicht erreichbar**: Überprüfe, ob der Miner online und erreichbar ist
+1. **Verbindungsfehler**: IP-Adresse und Netzwerk überprüfen
+2. **Authentifizierung fehlgeschlagen**: Username/Passwort prüfen
+3. **Firmware zu alt**: Firmware-Version prüfen (mind. 25.03)
+4. **Service nicht erreichbar**: Miner-Status überprüfen
 
 ## 📚 Weitere Informationen
 
