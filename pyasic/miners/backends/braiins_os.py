@@ -947,10 +947,7 @@ class BOSer(BraiinsOSFirmware):
                 return None
 
         if grpc_miner_details is not None:
-            try:
-                return grpc_miner_details.get("serialNumber")
-            except AttributeError:
-                pass
+            return grpc_miner_details.get("serialNumber")
         return None
 
     async def _get_psu_serial_number(
@@ -963,12 +960,9 @@ class BOSer(BraiinsOSFirmware):
                 return None
 
         if grpc_miner_details is not None:
-            try:
-                psu_info = grpc_miner_details.get("psuInfo")
-                if psu_info:
-                    return psu_info.get("serialNumber")
-            except AttributeError:
-                pass
+            psu_info = grpc_miner_details.get("psuInfo")
+            if psu_info:
+                return psu_info.get("serialNumber")
         return None
 
     async def _get_hashrate(
