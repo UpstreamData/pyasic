@@ -21,7 +21,7 @@ from pyasic.miners.factory import miner_factory
 async def _connect_to_miner(ip: str, username: str, password: str) -> BaseMiner | None:
     """Connect to miner and set credentials."""
     print(f"Connecting to miner at {ip}...")
-    miner = await miner_factory(ip)  # type: ignore[operator]
+    miner = await miner_factory.get_miner(ip)
 
     if miner is None:
         print(f"❌ Failed to detect miner type at {ip}")
