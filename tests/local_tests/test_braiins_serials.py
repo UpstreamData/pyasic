@@ -13,6 +13,7 @@ Example:
 import asyncio
 import sys
 
+from pyasic.miners.base import BaseMiner
 from pyasic.miners.factory import miner_factory
 
 
@@ -25,7 +26,7 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
     try:
         # Create miner instance via factory
         print(f"Connecting to miner at {ip}...")
-        miner = await miner_factory(ip)
+        miner: BaseMiner | None = await miner_factory(ip)  # type: ignore[operator]
 
         if miner is None:
             print(f"❌ Failed to detect miner type at {ip}")
@@ -35,10 +36,10 @@ async def test_braiins_serials(ip: str, username: str = "root", password: str = 
         print(f"   Firmware: {miner.firmware}\n")
 
         # Set credentials if needed (for BOSer)
-        if hasattr(miner, "web") and hasattr(miner.web, "pwd"):
+        if miner.web is not None:
             miner.web.pwd = password
             miner.web.username = username
-        if hasattr(miner, "rpc") and hasattr(miner.rpc, "pwd"):
+        if miner.rpc is not None:
             miner.rpc.pwd = password
 
         # Test 1: Get miner serial number
