@@ -102,6 +102,98 @@ class TestAvalonMinerWebAPIJsonErrors(unittest.IsolatedAsyncioTestCase):
             self.assertIn("multicommand", result)
             self.assertTrue(result["multicommand"])
 
+    async def test_multicommand_fallback_get_miner_info(self):
+        """Test multicommand falls back from get_minerinfo to get_miner_info."""
+
+        api = AvalonMinerWebAPI("192.168.1.100")
+
+        with patch("pyasic.web.avalonminer.httpx.AsyncClient") as mock_client_class:
+            mock_client = AsyncMock()
+            mock_client.cookies = MagicMock()
+
+            async def mock_get(url):
+                response = MagicMock()
+                if "get_minerinfo" in url:
+                    response.text = "<html><body>Error</body></html>"
+                elif "get_miner_info" in url:
+                    response.text = '{"status": "ok", "mac": "aa:bb"}'
+                else:
+                    response.text = "{}"
+                return response
+
+            mock_client.get = mock_get
+            mock_client.__aenter__.return_value = mock_client
+            mock_client.__aexit__.return_value = None
+            mock_client_class.return_value = mock_client
+
+            result = await api.multicommand("get_minerinfo")
+
+            self.assertIn("status", result)
+            self.assertEqual(result["status"], "ok")
+            self.assertTrue(result["multicommand"])
+
+    async def test_multicommand_fallback_status(self):
+        """Test multicommand falls back from get_status to status."""
+
+        api = AvalonMinerWebAPI("192.168.1.100")
+
+        with patch("pyasic.web.avalonminer.httpx.AsyncClient") as mock_client_class:
+            mock_client = AsyncMock()
+            mock_client.cookies = MagicMock()
+
+            async def mock_get(url):
+                response = MagicMock()
+                if "get_status" in url:
+                    response.text = "<html><body>Error</body></html>"
+                elif "status" in url:
+                    response.text = '{"status": "ok", "temp": 42}'
+                else:
+                    response.text = "{}"
+                return response
+
+            mock_client.get = mock_get
+            mock_client.__aenter__.return_value = mock_client
+            mock_client.__aexit__.return_value = None
+            mock_client_class.return_value = mock_client
+
+            result = await api.multicommand("get_status")
+
+            self.assertIn("status", result)
+            self.assertEqual(result["status"], "ok")
+            self.assertTrue(result["multicommand"])
+
+    async def test_minerinfo_method_fallback(self):
+        """Test minerinfo() tries get_minerinfo then get_miner_info."""
+
+        api = AvalonMinerWebAPI("192.168.1.100")
+
+        with patch.object(api, "send_command", new_callable=AsyncMock) as mock_send:
+            mock_send.side_effect = [
+                {},
+                {"mac": "de:ad:be:ef:00:01"},
+            ]
+
+            result = await api.minerinfo()
+
+            self.assertEqual(result.get("mac"), "de:ad:be:ef:00:01")
+            self.assertEqual(mock_send.await_count, 2)
+
+    async def test_status_method_fallback(self):
+        """Test status() tries get_status then status."""
+
+        api = AvalonMinerWebAPI("192.168.1.100")
+
+        with patch.object(api, "send_command", new_callable=AsyncMock) as mock_send:
+            mock_send.side_effect = [
+                {},
+                {"temp": 42, "status": "ok"},
+            ]
+
+            result = await api.status()
+
+            self.assertEqual(result.get("temp"), 42)
+            self.assertEqual(mock_send.await_count, 2)
+
     async def test_multicommand_all_failures(self):
         """Test multicommand when all endpoints fail.
 
