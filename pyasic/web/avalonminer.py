@@ -69,6 +69,18 @@ class AvalonMinerWebAPI(BaseWebAPI):
             pass
         return {}
 
+    async def _send_with_fallbacks(self, *commands: str) -> dict:
+        """Try a list of command names until one returns data.
+
+        The first successful JSON parse wins; errors/empty responses fall through.
+        """
+
+        for cmd in commands:
+            data = await self.send_command(cmd)
+            if data:
+                return data
+        return {}
+
     async def multicommand(
         self, *commands: str, ignore_errors: bool = False, allow_warning: bool = True
     ) -> dict:
@@ -93,17 +105,45 @@ class AvalonMinerWebAPI(BaseWebAPI):
     async def _handle_multicommand(
         self, client: httpx.AsyncClient, command: str
     ) -> dict:
-        try:
-            url = f"http://{self.ip}:{self.port}/{command}.cgi"
-            resp = await client.get(url)
-            raw_data = resp.text.replace("minerinfoCallback(", "").replace(");", "")
-            return json.loads(raw_data)
-        except httpx.HTTPError:
-            pass
+        fallback_variants = {
+            "get_minerinfo": ("get_miner_info",),
+            "get_miner_info": ("get_minerinfo",),
+            "get_status": ("status",),
+            "status": ("get_status",),
+            "get_pool": ("pool",),
+            "pool": ("get_pool",),
+            "summary": ("get_summary",),
+            "get_summary": ("summary",),
+        }
+
+        candidates = (command,) + fallback_variants.get(command, ())
+
+        for cmd in candidates:
+            try:
+                url = f"http://{self.ip}:{self.port}/{cmd}.cgi"
+                resp = await client.get(url)
+                raw_data = resp.text.replace("minerinfoCallback(", "").replace(");", "")
+                parsed = json.loads(raw_data)
+                if parsed:
+                    return parsed
+            except (httpx.HTTPError, json.JSONDecodeError):
+                continue
         return {}
 
     async def minerinfo(self):
-        return await self.send_command("get_minerinfo")
+        return await self._send_with_fallbacks("get_minerinfo", "get_miner_info")
+
+    async def miner_info(self):
+        return await self.send_command("get_miner_info")
+
+    async def status(self):
+        return await self._send_with_fallbacks("get_status", "status")
+
+    async def summary(self):
+        return await self._send_with_fallbacks("summary", "get_summary")
+
+    async def pools(self):
+        return await self._send_with_fallbacks("get_pool", "pool")
 
     async def home(self):
         return await self.send_command("get_home")

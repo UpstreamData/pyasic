@@ -31,7 +31,7 @@ AVALON_MINI_DATA_LOC = DataLocations(
     **{
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
-            [WebAPICommand("web_minerinfo", "get_minerinfo")],
+            [WebAPICommand("web_minerinfo", "minerinfo")],
         ),
         str(DataOptions.API_VERSION): DataFunction(
             "_get_api_ver",
@@ -94,9 +94,14 @@ class CGMinerAvalonMini3(AvalonMiner, AvalonMini3):
     async def _get_mac(self, web_minerinfo: dict[Any, Any] | None = None) -> str | None:
         if web_minerinfo is None:
             try:
-                web_minerinfo = await self.web.minerinfo()
+                # Try get_miner_info first (with underscore)
+                web_minerinfo = await self.web.miner_info()
             except APIError:
-                return None
+                try:
+                    # Fallback to get_minerinfo
+                    web_minerinfo = await self.web.minerinfo()
+                except APIError:
+                    return None
 
         if web_minerinfo is not None:
             try:
