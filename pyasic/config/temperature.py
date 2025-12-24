@@ -114,32 +114,44 @@ class TemperatureConfig(MinerConfigValue):
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict) -> TemperatureConfig:
-        try:
-            temperature_conf = grpc_miner_conf["temperature"]
-        except KeyError:
+        temperature_conf = grpc_miner_conf.get("temperature")
+        if not isinstance(temperature_conf, dict):
             return cls.default()
 
         root_key = None
         for key in ["auto", "manual", "disabled"]:
-            if key in temperature_conf.keys():
+            if key in temperature_conf:
                 root_key = key
                 break
         if root_key is None:
             return cls.default()
 
-        conf = {}
-        keys = temperature_conf[root_key].keys()
-        if "targetTemperature" in keys:
-            conf["target"] = int(
-                temperature_conf[root_key]["targetTemperature"]["degreeC"]
-            )
-        if "hotTemperature" in keys:
-            conf["hot"] = int(temperature_conf[root_key]["hotTemperature"]["degreeC"])
-        if "dangerousTemperature" in keys:
-            conf["danger"] = int(
-                temperature_conf[root_key]["dangerousTemperature"]["degreeC"]
-            )
+        raw_conf = temperature_conf.get(root_key) or {}
+        if not isinstance(raw_conf, dict):
+            return cls.default()
 
+        def _read_temp(temp_block: object) -> int | None:
+            if isinstance(temp_block, dict):
+                temp_value = temp_block.get("degreeC")
+            else:
+                temp_value = temp_block
+            try:
+                return int(temp_value) if temp_value is not None else None
+            except (TypeError, ValueError):
+                return None
+
+        conf: dict = {}
+        target_temp = _read_temp(raw_conf.get("targetTemperature"))
+        if target_temp is not None:
+            conf["target"] = target_temp
+        hot_temp = _read_temp(raw_conf.get("hotTemperature"))
+        if hot_temp is not None:
+            conf["hot"] = hot_temp
+        danger_temp = _read_temp(raw_conf.get("dangerousTemperature"))
+        if danger_temp is not None:
+            conf["danger"] = danger_temp
+
+        if conf:
             return cls(**conf)
         return cls.default()
 
