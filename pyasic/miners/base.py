@@ -218,6 +218,14 @@ class MinerProtocol(Protocol):
         """
         return await self._get_serial_number()
 
+    async def get_psu_serial_number(self) -> str | None:
+        """Get the PSU serial number reported by the miner.
+
+        Returns:
+            A string representing the PSU serial number of the miner.
+        """
+        return await self._get_psu_serial_number()
+
     async def get_mac(self) -> str | None:
         """Get the MAC address of the miner and return it as a string.
 
@@ -391,6 +399,9 @@ class MinerProtocol(Protocol):
 
     async def _get_serial_number(self) -> str | None:
         pass
+
+    async def _get_psu_serial_number(self) -> str | None:
+        return None
 
     async def _get_mac(self) -> str | None:
         return None

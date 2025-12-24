@@ -20,6 +20,7 @@ from enum import Enum
 
 class DataOptions(Enum):
     SERIAL_NUMBER = "serial_number"
+    PSU_SERIAL_NUMBER = "psu_serial_number"
     MAC = "mac"
     API_VERSION = "api_ver"
     FW_VERSION = "fw_ver"

@@ -84,6 +84,17 @@ class BosMode(betterproto.Enum):
     EMMC = 5
 
 
+class ControlBoardSocFamily(betterproto.Enum):
+    """Control board SoC family"""
+
+    UNSPECIFIED = 0
+    CVITEK = 1
+    BBB = 2
+    AML = 3
+    ZYNQ = 4
+    BRAIINS = 5
+
+
 class MinerBrand(betterproto.Enum):
     UNSPECIFIED = 0
     ANTMINER = 1
@@ -1418,6 +1429,35 @@ class GetMinerStatusResponse(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class PsuInfo(betterproto.Message):
+    version: Optional[int] = betterproto.message_field(
+        1, wraps=betterproto.TYPE_UINT32, optional=True
+    )
+    """PSU version"""
+
+    fw_version: Optional[int] = betterproto.message_field(
+        2, wraps=betterproto.TYPE_UINT32, optional=True
+    )
+    """PSU firmware version"""
+
+    serial_number: Optional[str] = betterproto.string_field(3, optional=True)
+    """PSU serial number"""
+
+    model_name: Optional[str] = betterproto.string_field(4, optional=True)
+    """PSU model name"""
+
+    min_voltage: Optional["Voltage"] = betterproto.message_field(
+        5, optional=True
+    )
+    """Minimum supported PSU voltage"""
+
+    max_voltage: Optional["Voltage"] = betterproto.message_field(
+        6, optional=True
+    )
+    """Maximum supported PSU voltage"""
+
+
+@dataclass(eq=False, repr=False)
 class GetMinerDetailsRequest(betterproto.Message):
     pass
 
@@ -1464,6 +1504,15 @@ class GetMinerDetailsResponse(betterproto.Message):
 
     kernel_version: str = betterproto.string_field(13)
     """Kernel version"""
+
+    psu_info: "PsuInfo" = betterproto.message_field(14)
+    """Information about connected PSU"""
+
+    control_board_soc_family: "ControlBoardSocFamily" = betterproto.enum_field(15)
+    """Control board SoC family"""
+
+    serial_number: Optional[str] = betterproto.string_field(16, optional=True)
+    """Miner serial number"""
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -1543,6 +1592,21 @@ class Hashboard(betterproto.Message):
 
     model: Optional[str] = betterproto.string_field(9, optional=True)
     """Hashboard model"""
+
+    lowest_inlet_temp: "Temperature" = betterproto.message_field(10)
+    """Lowest inlet temperature across the board"""
+
+    highest_outlet_temp: "Temperature" = betterproto.message_field(11)
+    """Highest outlet temperature across the board"""
+
+    serial_number: Optional[str] = betterproto.string_field(12, optional=True)
+    """Hashboard serial number"""
+
+    board_name: Optional[str] = betterproto.string_field(13, optional=True)
+    """Hashboard board name"""
+
+    chip_type: Optional[str] = betterproto.string_field(14, optional=True)
+    """Chip type identifier"""
 
 
 @dataclass(eq=False, repr=False)
