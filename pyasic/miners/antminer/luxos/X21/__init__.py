@@ -14,5 +14,5 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from .S21 import LUXMinerS21
+from .S21 import LUXMinerS21, LUXMinerS21Pro
 from .T21 import LUXMinerT21
