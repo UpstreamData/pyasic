@@ -15,8 +15,12 @@
 # ------------------------------------------------------------------------------
 
 from pyasic.miners.backends import LUXMiner
-from pyasic.miners.device.models import S21
+from pyasic.miners.device.models import S21, S21Pro
 
 
 class LUXMinerS21(LUXMiner, S21):
+    pass
+
+
+class LUXMinerS21Pro(LUXMiner, S21Pro):
     pass

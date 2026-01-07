@@ -654,6 +654,7 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S19 XP": LUXMinerS19XP,
         "ANTMINER T19": LUXMinerT19,
         "ANTMINER S21": LUXMinerS21,
+        "ANTMINER S21 PRO": LUXMinerS21Pro,
         "ANTMINER T21": LUXMinerT21,
     },
     MinerTypes.AURADINE: {
