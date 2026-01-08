@@ -710,6 +710,14 @@ class BOSMiner(BraiinsOSFirmware):
 
 BOSER_DATA_LOC = DataLocations(
     **{
+        str(DataOptions.SERIAL_NUMBER): DataFunction(
+            "_get_serial_number",
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
+        ),
+        str(DataOptions.PSU_SERIAL_NUMBER): DataFunction(
+            "_get_psu_serial_number",
+            [WebAPICommand("grpc_miner_details", "get_miner_details")],
+        ),
         str(DataOptions.MAC): DataFunction(
             "_get_mac",
             [WebAPICommand("grpc_miner_details", "get_miner_details")],
@@ -929,6 +937,34 @@ class BOSer(BraiinsOSFirmware):
                 pass
         return None
 
+    async def _get_serial_number(
+        self, grpc_miner_details: dict | None = None
+    ) -> str | None:
+        if grpc_miner_details is None:
+            try:
+                grpc_miner_details = await self.web.get_miner_details()
+            except APIError:
+                return None
+
+        if grpc_miner_details is not None:
+            return grpc_miner_details.get("serialNumber")
+        return None
+
+    async def _get_psu_serial_number(
+        self, grpc_miner_details: dict | None = None
+    ) -> str | None:
+        if grpc_miner_details is None:
+            try:
+                grpc_miner_details = await self.web.get_miner_details()
+            except APIError:
+                return None
+
+        if grpc_miner_details is not None:
+            psu_info = grpc_miner_details.get("psuInfo")
+            if psu_info:
+                return psu_info.get("serialNumber")
+        return None
+
     async def _get_hashrate(
         self, rpc_summary: dict | None = None
     ) -> AlgoHashRateType | None:
@@ -1011,6 +1047,8 @@ class BOSer(BraiinsOSFirmware):
                         ).into(
                             self.algo.unit.default  # type: ignore[attr-defined]
                         )
+                if board.get("serialNumber") is not None:
+                    hashboards[idx].serial_number = board["serialNumber"]
                 hashboards[idx].missing = False
 
         return hashboards
