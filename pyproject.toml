@@ -1,6 +1,6 @@
 [project]
 name = "pyasic"
-version = "0.78.0"
+version = "0.78.1"
 
 description = "A simplified and standardized interface for Bitcoin ASICs."
 authors = [{name = "UpstreamData", email = "brett@upstreamdata.ca"}]
