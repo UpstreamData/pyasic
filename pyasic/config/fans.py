@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import Field
 
@@ -337,28 +337,45 @@ class FanModeConfig(MinerConfigOption):
 
     @classmethod
     def from_boser(cls, grpc_miner_conf: dict):
-        try:
-            temperature_conf = grpc_miner_conf["temperature"]
-        except LookupError:
+        temperature_conf = grpc_miner_conf.get("temperature")
+        if not isinstance(temperature_conf, dict):
             return cls.default()
 
-        keys = temperature_conf.keys()
-        if "auto" in keys:
-            if "minimumRequiredFans" in keys:
-                return cls.normal(minimum_fans=temperature_conf["minimumRequiredFans"])
+        def _maybe_int(value: Any) -> int | None:
+            if isinstance(value, (int, float, str)) and value != "":
+                try:
+                    return int(value)
+                except (TypeError, ValueError):
+                    return None
+            return None
+
+        min_fans = _maybe_int(temperature_conf.get("minimumRequiredFans"))
+
+        def _build_conf(conf_section: object) -> dict:
+            conf: dict = {}
+            if isinstance(conf_section, dict):
+                speed = _maybe_int(conf_section.get("fanSpeedRatio"))
+                if speed is not None:
+                    conf["speed"] = speed
+            if min_fans is not None:
+                conf["minimum_fans"] = min_fans
+            return conf
+
+        if "auto" in temperature_conf:
+            if min_fans is not None:
+                return cls.normal(minimum_fans=min_fans)
             return cls.normal()
-        if "manual" in keys:
-            conf = {}
-            if "fanSpeedRatio" in temperature_conf["manual"].keys():
-                conf["speed"] = int(temperature_conf["manual"]["fanSpeedRatio"])
-            if "minimumRequiredFans" in keys:
-                conf["minimum_fans"] = int(temperature_conf["minimumRequiredFans"])
+
+        if "manual" in temperature_conf:
+            conf = _build_conf(temperature_conf.get("manual"))
             return cls.manual(**conf)
-        if "disabled" in keys:
-            conf = {}
-            if "fanSpeedRatio" in temperature_conf["disabled"].keys():
-                conf["speed"] = int(temperature_conf["disabled"]["fanSpeedRatio"])
-            return cls.manual(**conf)
+
+        if "disabled" in temperature_conf:
+            conf = _build_conf(temperature_conf.get("disabled"))
+            if conf.get("speed") is not None:
+                return cls.manual(**conf)
+            return cls.immersion()
+
         return cls.default()
 
     @classmethod
