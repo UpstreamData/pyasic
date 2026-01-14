@@ -96,6 +96,34 @@ class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(len(data.hashboards), 0)
         self.assertGreater(len(data.fans), 0)
 
+    async def test_bitaxe_specific_fields(self):
+        # Check BitAxe / ESPMiner-specific metrics if they are exposed
+        data = await self.miner.get_data(
+            include=[
+                DataOptions.BEST_DIFFICULTY,
+                DataOptions.BEST_SESSION_DIFFICULTY,
+                DataOptions.SHARES_ACCEPTED,
+                DataOptions.SHARES_REJECTED,
+            ]
+        )
+
+        if (
+            data.best_difficulty is None
+            and data.best_session_difficulty is None
+            and data.shares_accepted is None
+            and data.shares_rejected is None
+        ):
+            self.skipTest("BitAxe-specific fields not reported; skipping")
+
+        if data.best_difficulty is not None:
+            self.assertIsInstance(data.best_difficulty, int)
+        if data.best_session_difficulty is not None:
+            self.assertIsInstance(data.best_session_difficulty, int)
+        if data.shares_accepted is not None:
+            self.assertIsInstance(data.shares_accepted, int)
+        if data.shares_rejected is not None:
+            self.assertIsInstance(data.shares_rejected, int)
+
     async def test_swarm_and_asic_info(self):
         # Only run if the miner exposes the ESPMiner web API methods
         web = getattr(self.miner, "web", None)

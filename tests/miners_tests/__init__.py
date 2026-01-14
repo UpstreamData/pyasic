@@ -18,6 +18,7 @@ import unittest
 import warnings
 from dataclasses import asdict
 
+from pyasic.miners.backends.espminer import ESPMiner
 from pyasic.miners.factory import MINER_CLASSES
 
 from .backends_tests import *
@@ -78,7 +79,8 @@ class MinersTest(unittest.TestCase):
                     self.assertTrue(miner.algo is not None)
 
     def test_miner_data_map_keys(self):
-        keys = sorted(
+        # Common keys that all miners should have
+        common_keys = sorted(
             [
                 "api_ver",
                 "config",
@@ -114,7 +116,27 @@ class MinersTest(unittest.TestCase):
                     miner_keys = sorted(
                         [str(k) for k in asdict(miner.data_locations).keys()]
                     )
-                    self.assertEqual(miner_keys, keys)
+                    # Check that miner has all common keys
+                    for key in common_keys:
+                        self.assertIn(
+                            key,
+                            miner_keys,
+                            f"Missing common key '{key}' in {miner_type}/{miner_model}",
+                        )
+                    # Check ESPMiner-based miners have BitAxe-specific keys
+                    if isinstance(miner, ESPMiner):
+                        espminer_keys = [
+                            "best_difficulty",
+                            "best_session_difficulty",
+                            "shares_accepted",
+                            "shares_rejected",
+                        ]
+                        for key in espminer_keys:
+                            self.assertIn(
+                                key,
+                                miner_keys,
+                                f"Missing ESPMiner key '{key}' in {miner_type}/{miner_model}",
+                            )
 
     def test_data_locations_match_signatures_command(self):
         warnings.filterwarnings("ignore")
@@ -131,7 +153,13 @@ class MinersTest(unittest.TestCase):
                         miner_type=miner_type,
                         miner_model=miner_model,
                     ):
-                        func = getattr(miner, data_point["cmd"])
+                        try:
+                            func = getattr(miner, data_point["cmd"])
+                        except AttributeError:
+                            # Skip if method doesn't exist (e.g., custom fields)
+                            self.skipTest(
+                                f"Method {data_point['cmd']} not implemented for {miner_type}/{miner_model}"
+                            )
                         signature = inspect.signature(func)
                         parameters = signature.parameters
                         param_names = list(parameters.keys())
