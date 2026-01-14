@@ -48,6 +48,22 @@ ESPMINER_DATA_LOC = DataLocations(
             "_get_mac",
             [WebAPICommand("web_system_info", "system/info")],
         ),
+        str(DataOptions.BEST_DIFFICULTY): DataFunction(
+            "_get_best_difficulty",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
+        str(DataOptions.BEST_SESSION_DIFFICULTY): DataFunction(
+            "_get_best_session_difficulty",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
+        str(DataOptions.SHARES_ACCEPTED): DataFunction(
+            "_get_shares_accepted",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
+        str(DataOptions.SHARES_REJECTED): DataFunction(
+            "_get_shares_rejected",
+            [WebAPICommand("web_system_info", "system/info")],
+        ),
     }
 )
 
@@ -62,6 +78,18 @@ class ESPMiner(BaseMiner):
 
     data_locations = ESPMINER_DATA_LOC
 
+    def _parse_difficulty_value(self, value) -> int | None:
+        if value is None:
+            return None
+        try:
+            if isinstance(value, str):
+                value = value.strip()
+                if not value:
+                    return None
+            return int(value)
+        except (ValueError, TypeError):
+            return None
+
     async def reboot(self) -> bool:
         await self.web.restart()
         return True
@@ -74,6 +102,66 @@ class ESPMiner(BaseMiner):
         self, config: MinerConfig, user_suffix: str | None = None
     ) -> None:
         await self.web.update_settings(**config.as_espminer())
+
+    async def _get_best_difficulty(
+        self, web_system_info: dict | None = None
+    ) -> int | None:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            value = web_system_info.get("bestDiff")
+            return self._parse_difficulty_value(value)
+        return None
+
+    async def _get_best_session_difficulty(
+        self, web_system_info: dict | None = None
+    ) -> int | None:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            value = web_system_info.get("bestSessionDiff")
+            return self._parse_difficulty_value(value)
+        return None
+
+    async def _get_shares_accepted(
+        self, web_system_info: dict | None = None
+    ) -> int | None:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return int(web_system_info.get("sharesAccepted"))
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    async def _get_shares_rejected(
+        self, web_system_info: dict | None = None
+    ) -> int | None:
+        if web_system_info is None:
+            try:
+                web_system_info = await self.web.system_info()
+            except APIError:
+                pass
+
+        if web_system_info is not None:
+            try:
+                return int(web_system_info.get("sharesRejected"))
+            except (TypeError, ValueError):
+                return None
+        return None
 
     async def _get_wattage(self, web_system_info: dict | None = None) -> int | None:
         if web_system_info is None:

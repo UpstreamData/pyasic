@@ -115,6 +115,14 @@ class MinerData(BaseModel):
     voltage: float | None = None
     raw_wattage_limit: int | None = Field(exclude=True, default=None, repr=False)
 
+    # difficulty (BitAxe / ESPMiner-specific, optional)
+    best_difficulty: int | None = None
+    best_session_difficulty: int | None = None
+
+    # shares (BitAxe / ESPMiner-specific, optional)
+    shares_accepted: int | None = None
+    shares_rejected: int | None = None
+
     # fans
     fans: list[Fan] = Field(default_factory=list)
     fan_psu: int | None = None
@@ -476,6 +484,10 @@ class MinerData(BaseModel):
             "fan_psu",
             "total_chips",
             "expected_chips",
+            "best_difficulty",
+            "best_session_difficulty",
+            "shares_accepted",
+            "shares_rejected",
             "efficiency",
             "fault_light",
             "is_mining",

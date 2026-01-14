@@ -40,6 +40,12 @@ class DataOptions(Enum):
     CONFIG = "config"
     POOLS = "pools"
 
+    # BitAxe / ESPMiner-specific optional fields
+    BEST_DIFFICULTY = "best_difficulty"
+    BEST_SESSION_DIFFICULTY = "best_session_difficulty"
+    SHARES_ACCEPTED = "shares_accepted"
+    SHARES_REJECTED = "shares_rejected"
+
     def __str__(self):
         return self.value
 

@@ -451,6 +451,22 @@ class MinerProtocol(Protocol):
     async def _is_mining(self) -> bool | None:
         return None
 
+    # Optional BitAxe / ESPMiner-specific fields.
+    # Default implementations return None so that non-ESPMiner backends
+    # are not required to override them.
+
+    async def _get_best_difficulty(self) -> int | None:
+        return None
+
+    async def _get_best_session_difficulty(self) -> int | None:
+        return None
+
+    async def _get_shares_accepted(self) -> int | None:
+        return None
+
+    async def _get_shares_rejected(self) -> int | None:
+        return None
+
     async def _get_uptime(self) -> int | None:
         return None
 
