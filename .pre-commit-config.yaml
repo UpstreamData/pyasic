@@ -29,7 +29,7 @@ repos:
         args: [--fix]
     -   id: ruff-format
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.2
+    rev: v1.19.1
     hooks:
       - id: mypy
         additional_dependencies:
@@ -38,7 +38,7 @@ repos:
             httpx==0.28.1,
             types-aiofiles==24.1.0.20250822,
             types-passlib==1.7.7.20250602,
-            pydantic==2.11.9,
+            pydantic==2.12.5,
           ]
 -   repo: local
     hooks:
