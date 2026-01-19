@@ -51,7 +51,7 @@ dependencies = [
     "tomli-w>=1.0.0",
     "aiofiles>=23.2.1",
     "betterproto==2.0.0b7",
-    "pydantic>=2.11.0",
+    "pydantic>=2.12.5",
     "semver (>=3.0.4,<4.0.0)",
 ]
 

@@ -80,7 +80,7 @@ class MinerData(BaseModel):
 
     # general
     ip: str
-    raw_datetime: datetime = Field(
+    raw_datetime: Any = Field(
         exclude=True, default_factory=datetime.now(timezone.utc).astimezone, repr=False
     )
 
