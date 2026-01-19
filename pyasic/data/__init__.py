@@ -215,7 +215,7 @@ class MinerData(BaseModel):
                     return sum(
                         hr_data,
                         start=self.device_info.algo.hashrate(
-                            rate=0, unit=GenericUnit.H
+                            rate=0, unit=self.device_info.algo.unit.default
                         ),
                     )
                 else:

@@ -994,7 +994,7 @@ class MinerFactory:
             try:
                 await writer.wait_closed()
             except (ConnectionError, OSError):
-                return None
+                pass
         if data:
             return data.decode("utf-8")
         return None
@@ -1272,10 +1272,11 @@ class MinerFactory:
                 return miner_model
             except (TypeError, LookupError):
                 pass
-        else:
-            sock_json_data_v3 = await self.send_btminer_v3_api_command(
-                ip, "get.device.info"
-            )
+
+        sock_json_data_v3 = await self.send_btminer_v3_api_command(
+            ip, "get.device.info"
+        )
+        if sock_json_data_v3 is not None:
             try:
                 miner_model = sock_json_data_v3["msg"]["miner"]["type"].replace("_", "")
                 miner_model = miner_model[:-1] + "0"

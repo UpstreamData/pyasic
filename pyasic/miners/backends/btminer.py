@@ -24,6 +24,7 @@ from pyasic.config import MinerConfig, MiningModeConfig
 from pyasic.data import Fan, HashBoard
 from pyasic.data.error_codes import MinerErrorData, WhatsminerError
 from pyasic.data.pools import PoolMetrics, PoolUrl
+from pyasic.device import MinerAlgo
 from pyasic.device.algorithm import AlgoHashRateType
 from pyasic.errors import APIError
 from pyasic.miners.data import DataFunction, DataLocations, DataOptions, RPCAPICommand
@@ -1163,7 +1164,11 @@ class BTMinerV3(StockFirmware):
         board_count = (
             rpc_get_device_info.get("msg", {}).get("hardware", {}).get("boards", 3)
         )
-        edevs = rpc_get_miner_status_edevs.get("msg", {}).get("edevs", [])
+        edevs_base = rpc_get_miner_status_edevs.get("msg", {})
+        if isinstance(edevs_base, dict):
+            edevs = edevs_base.get("edevs", [])
+        else:
+            edevs = []
         for idx in range(board_count):
             board_data = edevs[idx] if idx < len(edevs) else {}
             boards.append(
@@ -1262,11 +1267,18 @@ class BTMinerV3(StockFirmware):
         if rpc_get_miner_status_summary is None:
             return None
 
-        return (
+        res = (
             rpc_get_miner_status_summary.get("msg", {})
             .get("summary", {})
             .get("hash-realtime")
         )
+
+        if res is not None:
+            return self.algo.hashrate(
+                rate=float(res),
+                unit=self.algo.unit.TH,  # type: ignore[attr-defined]
+            ).into(self.algo.unit.default)  # type: ignore[attr-defined]
+        return None
 
     async def _get_expected_hashrate(
         self, rpc_get_miner_status_summary: dict | None = None
@@ -1288,7 +1300,13 @@ class BTMinerV3(StockFirmware):
             -0.001 * self.expected_hashboards
         ):
             return None
-        return res
+
+        if res is not None:
+            return self.algo.hashrate(
+                rate=float(res),
+                unit=self.algo.unit.TH,  # type: ignore[attr-defined]
+            ).into(self.algo.unit.default)  # type: ignore[attr-defined]
+        return None
 
     async def _get_env_temp(
         self, rpc_get_miner_status_summary: dict | None = None
