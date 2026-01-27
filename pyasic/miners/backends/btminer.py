@@ -851,7 +851,7 @@ BTMINERV3_DATA_LOC = DataLocations(
         ),
         str(DataOptions.WATTAGE_LIMIT): DataFunction(
             "_get_wattage_limit",
-            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
+            [RPCAPICommand("rpc_get_miner_status_summary", "get.miner.status:summary")],
         ),
         str(DataOptions.FANS): DataFunction(
             "_get_fans",
@@ -1082,16 +1082,20 @@ class BTMinerV3(StockFirmware):
         return None
 
     async def _get_wattage_limit(
-        self, rpc_get_device_info: dict | None = None
+        self, rpc_get_miner_status_summary: dict | None = None
     ) -> int | None:
-        if rpc_get_device_info is None:
+        if rpc_get_miner_status_summary is None:
             try:
-                rpc_get_device_info = await self.rpc.get_device_info()
+                rpc_get_miner_status_summary = await self.rpc.get_miner_status_summary()
             except APIError:
                 return None
-        if rpc_get_device_info is None:
+        if rpc_get_miner_status_summary is None:
             return None
-        val = rpc_get_device_info.get("msg", {}).get("miner", {}).get("power-limit-set")
+        val = (
+            rpc_get_miner_status_summary.get("msg", {})
+            .get("summary", {})
+            .get("power-limit")
+        )
         try:
             return int(float(val))
         except (ValueError, TypeError):

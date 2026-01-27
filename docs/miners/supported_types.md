@@ -870,6 +870,7 @@ details {
             <summary>X21 Series:</summary>
                 <ul>
                     <li><a href="../antminer/X21#s21-luxos">S21 (LuxOS)</a></li>
+                    <li><a href="../antminer/X21#s21-pro-luxos">S21 Pro (LuxOS)</a></li>
                     <li><a href="../antminer/X21#t21-luxos">T21 (LuxOS)</a></li>
                 </ul>
         </details>

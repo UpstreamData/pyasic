@@ -29,7 +29,7 @@ class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
         self.miner = miner
         return None
 
-    async def test_get_data_basics(self):
+    async def test_get_data_basics(self) -> None:
         data = await self.miner.get_data(
             include=[
                 DataOptions.HOSTNAME,
@@ -50,11 +50,11 @@ class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(data.hashrate)
         self.assertIsNotNone(data.mac)
 
-    async def test_get_config(self):
+    async def test_get_config(self) -> None:
         cfg = await self.miner.get_config()
         self.assertIsNotNone(cfg)
 
-    async def test_get_data_extended(self):
+    async def test_get_data_extended(self) -> None:
         data = await self.miner.get_data(
             include=[
                 DataOptions.HOSTNAME,
@@ -96,7 +96,7 @@ class TestBitAxeLocal(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(len(data.hashboards), 0)
         self.assertGreater(len(data.fans), 0)
 
-    async def test_swarm_and_asic_info(self):
+    async def test_swarm_and_asic_info(self) -> None:
         # Only run if the miner exposes the ESPMiner web API methods
         web = getattr(self.miner, "web", None)
         if web is None or not isinstance(web, ESPMinerWebAPI):

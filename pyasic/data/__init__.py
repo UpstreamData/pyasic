@@ -17,7 +17,7 @@ import copy
 import time
 from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, computed_field
 
@@ -210,12 +210,11 @@ class MinerData(BaseModel):
                     hr_data.append(item.hashrate)
             if len(hr_data) > 0:
                 if self.device_info is not None and self.device_info.algo is not None:
-                    from pyasic.device.algorithm.hashrate.unit.base import GenericUnit
-
                     return sum(
                         hr_data,
                         start=self.device_info.algo.hashrate(
-                            rate=0, unit=self.device_info.algo.unit.default
+                            rate=0,
+                            unit=self.device_info.algo.unit.default,  # type: ignore[attr-defined]
                         ),
                     )
                 else:
