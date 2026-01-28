@@ -916,10 +916,12 @@ class BTMinerV3(StockFirmware):
         pools = None
         settings = None
         device_info = None
+        miner_summary = None
         try:
             pools = await self.rpc.get_miner_status_pools()
             settings = await self.rpc.get_miner_setting()
             device_info = await self.rpc.get_device_info()
+            miner_summary = await self.rpc.get_miner_status_summary()
         except APIError as e:
             logging.warning(e)
         except LookupError:
@@ -927,7 +929,10 @@ class BTMinerV3(StockFirmware):
 
         if pools is not None and settings is not None and device_info is not None:
             self.config = MinerConfig.from_btminer_v3(
-                rpc_pools=pools, rpc_settings=settings, rpc_device_info=device_info
+                rpc_pools=pools,
+                rpc_settings=settings,
+                rpc_device_info=device_info,
+                rpc_miner_status_summary=miner_summary,
             )
         else:
             self.config = MinerConfig()
@@ -1097,7 +1102,7 @@ class BTMinerV3(StockFirmware):
             .get("power-limit")
         )
         try:
-            return int(float(val))
+            return val
         except (ValueError, TypeError):
             return None
 
@@ -1255,7 +1260,7 @@ class BTMinerV3(StockFirmware):
             .get("power-realtime")
         )
         try:
-            return int(float(power_val)) if power_val is not None else None
+            return power_val
         except (ValueError, TypeError):
             return None
 

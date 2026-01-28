@@ -274,9 +274,11 @@ class MiningModePowerTune(MinerConfigValue):
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         power_target=PowerTargetMode(
-                            power_target=Power(watt=self.power)
-                            if self.power is not None
-                            else None  # type: ignore[arg-type]
+                            power_target=(
+                                Power(watt=self.power)
+                                if self.power is not None
+                                else None
+                            )  # type: ignore[arg-type]
                         )
                     )
                 ),
@@ -372,9 +374,11 @@ class MiningModeHashrateTune(MinerConfigValue):
                     tuner_mode=TunerPerformanceMode(
                         hashrate_target=HashrateTargetMode(
                             hashrate_target=TeraHashrate(
-                                terahash_per_second=float(self.hashrate)
-                                if self.hashrate is not None
-                                else None  # type: ignore[arg-type]
+                                terahash_per_second=(
+                                    float(self.hashrate)
+                                    if self.hashrate is not None
+                                    else None
+                                )  # type: ignore[arg-type]
                             )
                         )
                     )
@@ -835,13 +839,13 @@ class MiningModeConfig(MinerConfigOption):
 
     @classmethod
     def from_btminer_v3(
-        cls, rpc_device_info: dict, rpc_settings: dict
+        cls, rpc_device_info: dict, rpc_settings: dict, rpc_miner_status_summary: dict
     ) -> MiningModeConfig:
         try:
             is_mining = rpc_device_info["msg"]["miner"]["working"] == "true"
             if not is_mining:
                 return cls.sleep()
-            power_limit = rpc_settings["msg"]["power-limit"]
+            power_limit = rpc_miner_status_summary["msg"]["power-limit"]
             if not power_limit == 0:
                 return cls.power_tuning(power=power_limit)
             power_mode = rpc_settings["msg"]["power-mode"]

@@ -401,11 +401,17 @@ class MinerConfig(BaseModel):
 
     @classmethod
     def from_btminer_v3(
-        cls, rpc_pools: dict, rpc_settings: dict, rpc_device_info: dict
+        cls,
+        rpc_pools: dict,
+        rpc_settings: dict,
+        rpc_device_info: dict,
+        rpc_miner_status_summary: dict,
     ) -> "MinerConfig":
         return cls(
             pools=PoolConfig.from_btminer_v3(rpc_pools=rpc_pools["msg"]),
             mining_mode=MiningModeConfig.from_btminer_v3(
-                rpc_device_info=rpc_device_info, rpc_settings=rpc_settings
+                rpc_device_info=rpc_device_info,
+                rpc_settings=rpc_settings,
+                rpc_miner_status_summary=rpc_miner_status_summary,
             ),
         )
