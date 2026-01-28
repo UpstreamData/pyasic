@@ -316,7 +316,6 @@ class LUXMiner(LuxOSFirmware):
                 rpc_power = await self.rpc.power()
             except APIError:
                 pass
-        return None
 
         if rpc_power is not None:
             try:
