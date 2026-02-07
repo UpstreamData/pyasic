@@ -174,6 +174,17 @@ class MinerProtocol(Protocol):
         """
         return False
 
+    async def set_preset(self, name: str) -> bool:
+        """Set the mining preset by name.
+
+        Parameters:
+            name: The name of the preset to switch to.
+
+        Returns:
+            A boolean value of the success of setting the preset.
+        """
+        return False
+
     async def set_power_limit(self, wattage: int) -> bool:
         """Set the power limit to be used by the miner.
 
