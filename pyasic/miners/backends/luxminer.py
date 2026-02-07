@@ -177,6 +177,47 @@ class LUXMiner(LuxOSFirmware):
             pass
         return None
 
+    async def set_preset(self, name: str) -> bool:
+        config = await self.get_config()
+
+        # Validate preset name exists
+        if not hasattr(config.mining_mode, "available_presets"):
+            logging.warning(f"{self} - Mining mode does not support presets")
+            return False
+
+        available_presets = getattr(config.mining_mode, "available_presets", [])
+        preset_names = [p.name for p in available_presets if p.name is not None]
+
+        if name not in preset_names:
+            logging.warning(f"{self} - Preset '{name}' not found in available presets: {preset_names}")
+            return False
+
+        # If ATM enabled, must disable it before switching profile
+        re_enable_atm = False
+        try:
+            if await self.atm_enabled():
+                re_enable_atm = True
+                await self.rpc.atmset(enabled=False)
+
+            result = await self.rpc.profileset(name)
+        except APIError:
+            raise
+        except Exception as e:
+            logging.warning(f"{self} - Failed to set preset: {e}")
+            return False
+
+        # Re-enable ATM if it was on (separate try so preset switch isn't rolled back)
+        if re_enable_atm:
+            try:
+                await self.rpc.atmset(enabled=True)
+            except Exception as e:
+                logging.warning(f"{self} - Preset switched to '{name}' but failed to re-enable ATM: {e}")
+
+        if result["PROFILE"][0]["Profile"] == name:
+            return True
+        else:
+            return False
+
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
 
