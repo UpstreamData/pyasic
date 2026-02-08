@@ -177,6 +177,38 @@ class LUXMiner(LuxOSFirmware):
             pass
         return None
 
+    async def _switch_profile(self, preset_name: str) -> dict:
+        """Switch LuxOS profile with ATM temporarily disabled if needed.
+
+        Handles the ATM disable/re-enable dance required by LuxOS when
+        switching profiles. ATM is always re-enabled if it was on, even
+        if the profile switch fails.
+
+        Parameters:
+            preset_name: The name of the preset/profile to switch to.
+
+        Returns:
+            The raw response dict from profileset.
+
+        Raises:
+            APIError: If the RPC call returns an API-level error.
+            Exception: If the profile switch fails for other reasons.
+        """
+        re_enable_atm = False
+        try:
+            if await self.atm_enabled():
+                re_enable_atm = True
+                await self.rpc.atmset(enabled=False)
+            return await self.rpc.profileset(preset_name)
+        finally:
+            if re_enable_atm:
+                try:
+                    await self.rpc.atmset(enabled=True)
+                except Exception as e:
+                    logging.warning(
+                        f"{self} - Failed to re-enable ATM after profile switch: {e}"
+                    )
+
     async def set_preset(self, name: str) -> bool:
         config = await self.get_config()
 
@@ -192,26 +224,13 @@ class LUXMiner(LuxOSFirmware):
             logging.warning(f"{self} - Preset '{name}' not found in available presets: {preset_names}")
             return False
 
-        # If ATM enabled, must disable it before switching profile
-        re_enable_atm = False
         try:
-            if await self.atm_enabled():
-                re_enable_atm = True
-                await self.rpc.atmset(enabled=False)
-
-            result = await self.rpc.profileset(name)
+            result = await self._switch_profile(name)
         except APIError:
             raise
         except Exception as e:
             logging.warning(f"{self} - Failed to set preset: {e}")
             return False
-
-        # Re-enable ATM if it was on (separate try so preset switch isn't rolled back)
-        if re_enable_atm:
-            try:
-                await self.rpc.atmset(enabled=True)
-            except Exception as e:
-                logging.warning(f"{self} - Preset switched to '{name}' but failed to re-enable ATM: {e}")
 
         if result["PROFILE"][0]["Profile"] == name:
             return True
@@ -242,17 +261,10 @@ class LUXMiner(LuxOSFirmware):
             return False
 
         # Set power to highest preset <= wattage
-        # If ATM enabled, must disable it before setting power limit
         new_preset = max(valid_presets, key=lambda x: valid_presets[x])
 
-        re_enable_atm = False
         try:
-            if await self.atm_enabled():
-                re_enable_atm = True
-                await self.rpc.atmset(enabled=False)
-            result = await self.rpc.profileset(new_preset)
-            if re_enable_atm:
-                await self.rpc.atmset(enabled=True)
+            result = await self._switch_profile(new_preset)
         except APIError:
             raise
         except Exception as e:
