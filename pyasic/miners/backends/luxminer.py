@@ -177,7 +177,7 @@ class LUXMiner(LuxOSFirmware):
             pass
         return None
 
-    async def _switch_profile(self, preset_name: str) -> dict:
+    async def _switch_profile(self, profile_name: str) -> dict:
         """Switch LuxOS profile with ATM temporarily disabled if needed.
 
         Handles the ATM disable/re-enable dance required by LuxOS when
@@ -185,7 +185,7 @@ class LUXMiner(LuxOSFirmware):
         if the profile switch fails.
 
         Parameters:
-            preset_name: The name of the preset/profile to switch to.
+            profile_name: The name of the profile to switch to.
 
         Returns:
             The raw response dict from profileset.
@@ -199,7 +199,7 @@ class LUXMiner(LuxOSFirmware):
             if await self.atm_enabled():
                 re_enable_atm = True
                 await self.rpc.atmset(enabled=False)
-            return await self.rpc.profileset(preset_name)
+            return await self.rpc.profileset(profile_name)
         finally:
             if re_enable_atm:
                 try:
@@ -209,30 +209,52 @@ class LUXMiner(LuxOSFirmware):
                         f"{self} - Failed to re-enable ATM after profile switch: {e}"
                     )
 
-    async def set_preset(self, name: str) -> bool:
+    @staticmethod
+    def _match_profile_name(name: str, profile_names: list[str]) -> str | None:
+        """Match user input to an available profile name.
+
+        Tries exact match first, then case-insensitive, then checks if
+        appending "MHz" yields a match (so "190" matches "190MHz").
+        """
+        if name in profile_names:
+            return name
+
+        lower = name.lower()
+        for p in profile_names:
+            if p.lower() == lower:
+                return p
+
+        for p in profile_names:
+            if p.lower() == lower + "mhz":
+                return p
+
+        return None
+
+    async def set_profile(self, name: str) -> bool:
         config = await self.get_config()
 
-        # Validate preset name exists
+        # Validate profile name exists
         if not hasattr(config.mining_mode, "available_presets"):
-            logging.warning(f"{self} - Mining mode does not support presets")
+            logging.warning(f"{self} - Mining mode does not support profiles")
             return False
 
         available_presets = getattr(config.mining_mode, "available_presets", [])
-        preset_names = [p.name for p in available_presets if p.name is not None]
+        profile_names = [p.name for p in available_presets if p.name is not None]
 
-        if name not in preset_names:
-            logging.warning(f"{self} - Preset '{name}' not found in available presets: {preset_names}")
+        matched_name = self._match_profile_name(name, profile_names)
+        if matched_name is None:
+            logging.warning(f"{self} - Profile '{name}' not found in available profiles: {profile_names}")
             return False
 
         try:
-            result = await self._switch_profile(name)
+            result = await self._switch_profile(matched_name)
         except APIError:
             raise
         except Exception as e:
-            logging.warning(f"{self} - Failed to set preset: {e}")
+            logging.warning(f"{self} - Failed to set profile: {e}")
             return False
 
-        if result["PROFILE"][0]["Profile"] == name:
+        if result["PROFILE"][0]["Profile"] == matched_name:
             return True
         else:
             return False

@@ -1,4 +1,4 @@
-"""Tests for LuxOS set_preset() method."""
+"""Tests for LuxOS set_profile() method."""
 
 import logging
 import unittest
@@ -31,8 +31,8 @@ def _make_config(active_preset_name="415MHz", available_preset_names=("190MHz", 
     return config
 
 
-class TestSetPreset(unittest.IsolatedAsyncioTestCase):
-    """Test LuxOS set_preset() behavior."""
+class TestSetProfile(unittest.IsolatedAsyncioTestCase):
+    """Test LuxOS set_profile() behavior."""
 
     def _make_miner(self, atm_enabled=True, config=None, profileset_result=None):
         """Create a mock LuxOS miner with controllable behavior."""
@@ -56,7 +56,7 @@ class TestSetPreset(unittest.IsolatedAsyncioTestCase):
             profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
         )
 
-        result = await miner.set_preset("190MHz")
+        result = await miner.set_profile("190MHz")
 
         self.assertTrue(result)
         miner.rpc.atmset.assert_any_call(enabled=False)
@@ -70,7 +70,7 @@ class TestSetPreset(unittest.IsolatedAsyncioTestCase):
             profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
         )
 
-        result = await miner.set_preset("190MHz")
+        result = await miner.set_profile("190MHz")
 
         self.assertTrue(result)
         miner.rpc.atmset.assert_not_called()
@@ -80,7 +80,7 @@ class TestSetPreset(unittest.IsolatedAsyncioTestCase):
         """Should return False when preset name doesn't exist."""
         miner = self._make_miner()
 
-        result = await miner.set_preset("nonexistent_profile")
+        result = await miner.set_profile("nonexistent_profile")
 
         self.assertFalse(result)
         miner.rpc.profileset.assert_not_called()
@@ -95,7 +95,31 @@ class TestSetPreset(unittest.IsolatedAsyncioTestCase):
         miner.rpc.atmset.side_effect = [None, Exception("ATM re-enable failed")]
 
         with self.assertLogs(level=logging.WARNING):
-            result = await miner.set_preset("190MHz")
+            result = await miner.set_profile("190MHz")
+
+        self.assertTrue(result)
+        miner.rpc.profileset.assert_called_once_with("190MHz")
+
+    async def test_fuzzy_match_case_insensitive(self):
+        """Should match preset name case-insensitively."""
+        miner = self._make_miner(
+            atm_enabled=False,
+            profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
+        )
+
+        result = await miner.set_profile("190mhz")
+
+        self.assertTrue(result)
+        miner.rpc.profileset.assert_called_once_with("190MHz")
+
+    async def test_fuzzy_match_number_only(self):
+        """Should match '190' to '190MHz'."""
+        miner = self._make_miner(
+            atm_enabled=False,
+            profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
+        )
+
+        result = await miner.set_profile("190")
 
         self.assertTrue(result)
         miner.rpc.profileset.assert_called_once_with("190MHz")
@@ -105,6 +129,6 @@ class TestSetPreset(unittest.IsolatedAsyncioTestCase):
         miner = self._make_miner(atm_enabled=False)
         miner.rpc.profileset.side_effect = Exception("RPC error")
 
-        result = await miner.set_preset("190MHz")
+        result = await miner.set_profile("190MHz")
 
         self.assertFalse(result)
