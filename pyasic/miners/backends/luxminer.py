@@ -243,7 +243,9 @@ class LUXMiner(LuxOSFirmware):
 
         matched_name = self._match_profile_name(name, profile_names)
         if matched_name is None:
-            logging.warning(f"{self} - Profile '{name}' not found in available profiles: {profile_names}")
+            logging.warning(
+                f"{self} - Profile '{name}' not found in available profiles: {profile_names}"
+            )
             return False
 
         try:

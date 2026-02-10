@@ -21,7 +21,9 @@ def _make_preset(name, power=1000, frequency=400, voltage=8.9):
     )
 
 
-def _make_config(active_preset_name="415MHz", available_preset_names=("190MHz", "415MHz", "565MHz")):
+def _make_config(
+    active_preset_name="415MHz", available_preset_names=("190MHz", "415MHz", "565MHz")
+):
     """Helper to create a mock config with presets."""
     presets = [_make_preset(n) for n in available_preset_names]
     active = next((p for p in presets if p.name == active_preset_name), presets[0])
