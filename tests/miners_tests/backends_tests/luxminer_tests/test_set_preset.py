@@ -1,10 +1,8 @@
 """Tests for LuxOS set_profile() method."""
 
-import logging
 import unittest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
-from pyasic.config.mining import MiningModeConfig
 from pyasic.config.mining.presets import MiningPreset
 
 
@@ -36,46 +34,28 @@ def _make_config(
 class TestSetProfile(unittest.IsolatedAsyncioTestCase):
     """Test LuxOS set_profile() behavior."""
 
-    def _make_miner(self, atm_enabled=True, config=None, profileset_result=None):
+    def _make_miner(self, config=None, profileset_result=None):
         """Create a mock LuxOS miner with controllable behavior."""
         from pyasic.miners.backends.luxminer import LUXMiner
 
         miner = LUXMiner.__new__(LUXMiner)
         miner.rpc = MagicMock()
-        miner.rpc.atmset = AsyncMock()
         miner.rpc.profileset = AsyncMock(
             return_value=profileset_result or {"PROFILE": [{"Profile": "415MHz"}]}
         )
-        miner.atm_enabled = AsyncMock(return_value=atm_enabled)
         miner.get_config = AsyncMock(return_value=config or _make_config())
         miner.ip = "192.168.1.237"
         return miner
 
-    async def test_switches_preset_with_atm_on(self):
-        """When ATM is on, should disable ATM, switch, then re-enable ATM."""
+    async def test_switches_profile(self):
+        """Should call profileset directly (ATM handled natively by LuxOS)."""
         miner = self._make_miner(
-            atm_enabled=True,
             profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
         )
 
         result = await miner.set_profile("190MHz")
 
         self.assertTrue(result)
-        miner.rpc.atmset.assert_any_call(enabled=False)
-        miner.rpc.profileset.assert_called_once_with("190MHz")
-        miner.rpc.atmset.assert_any_call(enabled=True)
-
-    async def test_switches_preset_with_atm_off(self):
-        """When ATM is off, should switch without toggling ATM."""
-        miner = self._make_miner(
-            atm_enabled=False,
-            profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
-        )
-
-        result = await miner.set_profile("190MHz")
-
-        self.assertTrue(result)
-        miner.rpc.atmset.assert_not_called()
         miner.rpc.profileset.assert_called_once_with("190MHz")
 
     async def test_invalid_preset_name_returns_false(self):
@@ -87,25 +67,9 @@ class TestSetProfile(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result)
         miner.rpc.profileset.assert_not_called()
 
-    async def test_atm_re_enable_failure_returns_true_and_warns(self):
-        """If preset switches but ATM re-enable fails, return True and log warning."""
-        miner = self._make_miner(
-            atm_enabled=True,
-            profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
-        )
-        # First call (disable) succeeds, second call (re-enable) fails
-        miner.rpc.atmset.side_effect = [None, Exception("ATM re-enable failed")]
-
-        with self.assertLogs(level=logging.WARNING):
-            result = await miner.set_profile("190MHz")
-
-        self.assertTrue(result)
-        miner.rpc.profileset.assert_called_once_with("190MHz")
-
     async def test_fuzzy_match_case_insensitive(self):
         """Should match preset name case-insensitively."""
         miner = self._make_miner(
-            atm_enabled=False,
             profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
         )
 
@@ -117,7 +81,6 @@ class TestSetProfile(unittest.IsolatedAsyncioTestCase):
     async def test_fuzzy_match_number_only(self):
         """Should match '190' to '190MHz'."""
         miner = self._make_miner(
-            atm_enabled=False,
             profileset_result={"PROFILE": [{"Profile": "190MHz"}]},
         )
 
@@ -128,7 +91,7 @@ class TestSetProfile(unittest.IsolatedAsyncioTestCase):
 
     async def test_profileset_failure_returns_false(self):
         """If RPC profileset fails, should return False."""
-        miner = self._make_miner(atm_enabled=False)
+        miner = self._make_miner()
         miner.rpc.profileset.side_effect = Exception("RPC error")
 
         result = await miner.set_profile("190MHz")

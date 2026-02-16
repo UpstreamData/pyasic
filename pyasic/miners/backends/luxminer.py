@@ -177,38 +177,6 @@ class LUXMiner(LuxOSFirmware):
             pass
         return None
 
-    async def _switch_profile(self, profile_name: str) -> dict:
-        """Switch LuxOS profile with ATM temporarily disabled if needed.
-
-        Handles the ATM disable/re-enable dance required by LuxOS when
-        switching profiles. ATM is always re-enabled if it was on, even
-        if the profile switch fails.
-
-        Parameters:
-            profile_name: The name of the profile to switch to.
-
-        Returns:
-            The raw response dict from profileset.
-
-        Raises:
-            APIError: If the RPC call returns an API-level error.
-            Exception: If the profile switch fails for other reasons.
-        """
-        re_enable_atm = False
-        try:
-            if await self.atm_enabled():
-                re_enable_atm = True
-                await self.rpc.atmset(enabled=False)
-            return await self.rpc.profileset(profile_name)
-        finally:
-            if re_enable_atm:
-                try:
-                    await self.rpc.atmset(enabled=True)
-                except Exception as e:
-                    logging.warning(
-                        f"{self} - Failed to re-enable ATM after profile switch: {e}"
-                    )
-
     @staticmethod
     def _match_profile_name(name: str, profile_names: list[str]) -> str | None:
         """Match user input to an available profile name.
@@ -249,7 +217,7 @@ class LUXMiner(LuxOSFirmware):
             return False
 
         try:
-            result = await self._switch_profile(matched_name)
+            result = await self.rpc.profileset(matched_name)
         except APIError:
             raise
         except Exception as e:
@@ -288,7 +256,7 @@ class LUXMiner(LuxOSFirmware):
         new_preset = max(valid_presets, key=lambda x: valid_presets[x])
 
         try:
-            result = await self._switch_profile(new_preset)
+            result = await self.rpc.profileset(new_preset)
         except APIError:
             raise
         except Exception as e:
