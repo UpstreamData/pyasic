@@ -310,10 +310,13 @@ class VNish(VNishFirmware, BMMiner):
     async def get_config(self) -> MinerConfig:
         try:
             web_settings = await self.web.settings()
-            web_presets_dict = await self.web.autotune_presets()
-            web_presets = (
-                web_presets_dict.get("presets", []) if web_presets_dict else []
-            )
+            web_presets_response = await self.web.autotune_presets()
+            if isinstance(web_presets_response, dict):
+                web_presets = web_presets_response.get("presets", [])
+            elif isinstance(web_presets_response, list):
+                web_presets = web_presets_response
+            else:
+                web_presets = []
             web_perf_summary = (await self.web.perf_summary()) or {}
         except APIError:
             return self.config or MinerConfig()
