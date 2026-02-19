@@ -1131,6 +1131,16 @@ class BTMinerV3(StockFirmware):
         if rpc_get_device_info is None:
             return []
         rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
+        if rpm is None:
+            return []
+        
+        # Ensure rpm is an integer, as some models may return it as a string or float
+        if not isinstance(rpm, int):
+            try:
+                rpm = int(round(float(rpm)))
+            except (TypeError, ValueError):
+                return []
+
         return [Fan(speed=rpm)] if rpm is not None else []
 
     async def _get_serial_number(
