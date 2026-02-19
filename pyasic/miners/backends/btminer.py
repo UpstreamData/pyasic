@@ -1133,7 +1133,7 @@ class BTMinerV3(StockFirmware):
         rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
         if rpm is None:
             return []
-        
+
         # Ensure rpm is an integer, as some models may return it as a string or float
         if not isinstance(rpm, int):
             try:
