@@ -858,6 +858,10 @@ BTMINERV3_DATA_LOC = DataLocations(
         str(DataOptions.FAN_PSU): DataFunction(
             "_get_psu_fans", [RPCAPICommand("rpc_get_device_info", "get.device.info")]
         ),
+        str(DataOptions.ERRORS): DataFunction(
+            "_get_errors",
+            [RPCAPICommand("rpc_get_device_info", "get.device.info")],
+        ),
         str(DataOptions.HASHBOARDS): DataFunction(
             "_get_hashboards",
             [
@@ -1132,6 +1136,40 @@ class BTMinerV3(StockFirmware):
             return []
         rpm = rpc_get_device_info.get("msg", {}).get("power", {}).get("fanspeed")
         return [Fan(speed=rpm)] if rpm is not None else []
+
+    async def _get_errors(
+        self, rpc_get_device_info: dict | None = None
+    ) -> list[MinerErrorData]:
+        if rpc_get_device_info is None:
+            try:
+                rpc_get_device_info = await self.rpc.get_device_info()
+            except APIError:
+                return []
+
+        if rpc_get_device_info is None:
+            return []
+
+        raw_errors = rpc_get_device_info.get("msg", {}).get("error-code", [])
+        if not isinstance(raw_errors, list):
+            return []
+
+        parsed_codes: list[int] = []
+        for item in raw_errors:
+            if isinstance(item, dict):
+                for key in item.keys():
+                    if str(key).lower() == "reason":
+                        continue
+                    try:
+                        parsed_codes.append(int(key))
+                    except (TypeError, ValueError):
+                        continue
+            else:
+                try:
+                    parsed_codes.append(int(item))
+                except (TypeError, ValueError):
+                    continue
+
+        return [WhatsminerError(error_code=code) for code in sorted(set(parsed_codes))]
 
     async def _get_serial_number(
         self, rpc_get_device_info: dict | None = None
