@@ -233,13 +233,13 @@ class LUXMiner(LuxOSFirmware):
                 rpc_config = await self.rpc.config()
             except APIError:
                 pass
-        return None
 
         if rpc_config is not None:
             try:
                 return rpc_config["CONFIG"][0]["MACAddr"].upper()
             except KeyError:
                 pass
+        return None
 
     async def _get_hashrate(
         self, rpc_summary: dict | None = None
@@ -249,16 +249,16 @@ class LUXMiner(LuxOSFirmware):
                 rpc_summary = await self.rpc.summary()
             except APIError:
                 pass
-        return None
 
         if rpc_summary is not None:
             try:
                 return self.algo.hashrate(
                     rate=float(rpc_summary["SUMMARY"][0]["GHS 5s"]),
-                    unit=self.algo.unit.GH,
-                ).into(self.algo.unit.default)
+                    unit=self.algo.unit.GH,  # type: ignore[attr-defined]
+                ).into(self.algo.unit.default)  # type: ignore[attr-defined]
             except (LookupError, ValueError, TypeError):
                 pass
+        return None
 
     async def _get_hashboards(self, rpc_stats: dict | None = None) -> list[HashBoard]:
         if self.expected_hashboards is None:
