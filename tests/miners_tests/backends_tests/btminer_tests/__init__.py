@@ -1,0 +1,1 @@
+from .test_v3_psu_fans import TestBTMinerV3PSUFans
