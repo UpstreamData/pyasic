@@ -277,9 +277,7 @@ class MiningModePowerTune(MinerConfigValue):
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
-                    tuner_mode=TunerPerformanceMode(
-                        power_target=power_target
-                    )
+                    tuner_mode=TunerPerformanceMode(power_target=power_target)
                 ),
             ),
         }
@@ -368,9 +366,7 @@ class MiningModeHashrateTune(MinerConfigValue):
     def as_boser(self) -> dict:
         hashrate_target = (
             HashrateTargetMode(
-                hashrate_target=TeraHashrate(
-                    terahash_per_second=float(self.hashrate)
-                )
+                hashrate_target=TeraHashrate(terahash_per_second=float(self.hashrate))
             )
             if self.hashrate is not None
             else HashrateTargetMode()
@@ -379,9 +375,7 @@ class MiningModeHashrateTune(MinerConfigValue):
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
-                    tuner_mode=TunerPerformanceMode(
-                        hashrate_target=hashrate_target
-                    )
+                    tuner_mode=TunerPerformanceMode(hashrate_target=hashrate_target)
                 ),
             )
         }
