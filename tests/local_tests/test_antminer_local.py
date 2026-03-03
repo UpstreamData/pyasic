@@ -58,7 +58,7 @@ class TestAntminerLocal(unittest.IsolatedAsyncioTestCase):
             self.skipTest("Miner does not support change_password")
 
         original_password = self.password or "root"
-        temp_password = "test_pyasic_pwd"
+        temp_password = "test_pyasic_pwd"  # nosec B105 - test fixture
 
         # Change to temp password
         success = await self.miner.change_password(temp_password)

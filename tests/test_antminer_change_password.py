@@ -13,7 +13,7 @@ class TestAntminerModernChangePassword(unittest.IsolatedAsyncioTestCase):
         """Successful passwd.cgi response updates self.pwd."""
         # Arrange
         api = AntminerModernWebAPI("192.168.1.1")
-        api.pwd = "old_password"
+        api.pwd = "old_password"  # nosec B105 - test fixture
 
         with patch.object(api, "send_command", new_callable=AsyncMock) as mock_send:
             mock_send.return_value = {
@@ -39,7 +39,7 @@ class TestAntminerModernChangePassword(unittest.IsolatedAsyncioTestCase):
         """Failed passwd.cgi response leaves self.pwd unchanged."""
         # Arrange
         api = AntminerModernWebAPI("192.168.1.1")
-        api.pwd = "old_password"
+        api.pwd = "old_password"  # nosec B105 - test fixture
 
         with patch.object(api, "send_command", new_callable=AsyncMock) as mock_send:
             mock_send.return_value = {
