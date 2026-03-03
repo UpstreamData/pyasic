@@ -214,6 +214,10 @@ class AntminerModern(BMMiner):
             return True
         return False
 
+    async def change_password(self, new_password: str) -> bool:
+        data = await self.web.change_password(new_password)
+        return data.get("stats") == "success"
+
     async def stop_mining(self) -> bool:
         cfg = await self.get_config()
         cfg.mining_mode = MiningModeConfig.sleep()
