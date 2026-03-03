@@ -268,19 +268,16 @@ class MiningModePowerTune(MinerConfigValue):
         return cfg
 
     def as_boser(self) -> dict:
+        power_target = (
+            PowerTargetMode(power_target=Power(watt=self.power))
+            if self.power is not None
+            else PowerTargetMode()
+        )
         cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
-                    tuner_mode=TunerPerformanceMode(
-                        power_target=PowerTargetMode(
-                            power_target=(
-                                Power(watt=self.power)
-                                if self.power is not None
-                                else None
-                            )  # type: ignore[arg-type]
-                        )
-                    )
+                    tuner_mode=TunerPerformanceMode(power_target=power_target)
                 ),
             ),
         }
@@ -367,21 +364,18 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"autotuning": conf}
 
     def as_boser(self) -> dict:
+        hashrate_target = (
+            HashrateTargetMode(
+                hashrate_target=TeraHashrate(terahash_per_second=float(self.hashrate))
+            )
+            if self.hashrate is not None
+            else HashrateTargetMode()
+        )
         cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
-                    tuner_mode=TunerPerformanceMode(
-                        hashrate_target=HashrateTargetMode(
-                            hashrate_target=TeraHashrate(
-                                terahash_per_second=(
-                                    float(self.hashrate)
-                                    if self.hashrate is not None
-                                    else None
-                                )  # type: ignore[arg-type]
-                            )
-                        )
-                    )
+                    tuner_mode=TunerPerformanceMode(hashrate_target=hashrate_target)
                 ),
             )
         }

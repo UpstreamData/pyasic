@@ -185,6 +185,17 @@ class MinerProtocol(Protocol):
         """
         return False
 
+    async def change_password(self, new_password: str) -> bool:
+        """Change the miner's web password.
+
+        Parameters:
+            new_password: The new password to set.
+
+        Returns:
+            A boolean value of the success of changing the password.
+        """
+        return False
+
     async def upgrade_firmware(
         self,
         *,
