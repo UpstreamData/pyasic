@@ -922,7 +922,7 @@ class BTMinerV3(StockFirmware):
         except LookupError:
             pass
 
-        if pools is not None and settings is not None and device_info is not None:
+        if pools is not None and settings is not None and device_info is not None and miner_summary is not None:
             self.config = MinerConfig.from_btminer_v3(
                 rpc_pools=pools,
                 rpc_settings=settings,

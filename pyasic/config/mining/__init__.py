@@ -273,12 +273,12 @@ class MiningModePowerTune(MinerConfigValue):
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
-                        power_target=PowerTargetMode(
+                        power_target=PowerTargetMode(  # type: ignore[arg-type]
                             power_target=(
                                 Power(watt=self.power)
                                 if self.power is not None
                                 else None
-                            )  # type: ignore[arg-type]
+                            )
                         )
                     )
                 ),
@@ -373,12 +373,12 @@ class MiningModeHashrateTune(MinerConfigValue):
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
                         hashrate_target=HashrateTargetMode(
-                            hashrate_target=TeraHashrate(
+                            hashrate_target=TeraHashrate(  # type: ignore[arg-type]
                                 terahash_per_second=(
                                     float(self.hashrate)
                                     if self.hashrate is not None
                                     else None
-                                )  # type: ignore[arg-type]
+                                )
                             )
                         )
                     )
