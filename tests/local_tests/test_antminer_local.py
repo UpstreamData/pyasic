@@ -21,7 +21,8 @@ class TestAntminerLocal(unittest.IsolatedAsyncioTestCase):
             raise unittest.SkipTest("Set ANTMINER_IP to run local Antminer tests")
 
     async def asyncSetUp(self) -> None:
-        assert self.ip is not None
+        if self.ip is None:
+            self.skipTest("ANTMINER_IP not set")
         factory = MinerFactory()
         miner = await factory.get_miner(self.ip)  # type: ignore[func-returns-value]
         if miner is None:
