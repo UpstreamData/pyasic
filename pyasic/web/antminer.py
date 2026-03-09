@@ -209,6 +209,25 @@ class AntminerModernWebAPI(BaseWebAPI):
         """
         return await self.send_command("get_blink_status")
 
+    async def change_password(self, new_password: str) -> dict:
+        """Change the web password on the miner.
+
+        Args:
+            new_password (str): The new password to set.
+
+        Returns:
+            dict: A dictionary response from the device after the command execution.
+        """
+        result = await self.send_command(
+            "passwd",
+            curPwd=self.pwd,
+            newPwd=new_password,
+            confirmPwd=new_password,
+        )
+        if result.get("stats") == "success":
+            self.pwd = new_password
+        return result
+
     async def set_network_conf(
         self,
         ip: str,
