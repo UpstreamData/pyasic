@@ -29,7 +29,13 @@ from pyasic.device.algorithm.hashrate.base import GenericHashrate
 
 from .boards import HashBoard
 from .device import DeviceInfo
-from .error_codes import BraiinsOSError, InnosiliconError, WhatsminerError, X19Error
+from .error_codes import (
+    BraiinsOSError,
+    InnosiliconError,
+    MinerErrorData,
+    WhatsminerError,
+    X19Error,
+)
 from .error_codes.base import BaseMinerError
 from .fans import Fan
 
@@ -127,7 +133,7 @@ class MinerData(BaseModel):
     fault_light: bool | None = None
 
     # errors
-    errors: list[BaseMinerError] = Field(default_factory=list)
+    errors: list[MinerErrorData] = Field(default_factory=list)
 
     # mining state
     is_mining: bool = True
