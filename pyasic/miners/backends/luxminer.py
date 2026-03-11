@@ -280,12 +280,11 @@ class LUXMiner(LuxOSFirmware):
                 board_stats = rpc_stats["STATS"][1]
                 for idx in range(3):
                     board_n = idx + 1
-                    hashboards[idx].hashrate = self.algo.hashrate(
-                        rate=float(board_stats[f"chain_rate{board_n}"]),
-                        unit=self.algo.unit.GH,  # type: ignore[attr-defined]
-                    ).into(
-                        self.algo.unit.default  # type: ignore[attr-defined]
-                    )
+                    # NOTE: chain_rate is NOT set here. The stats API's
+                    # chain_rate{n} matches GHS av, not GHS 5s. Leaving
+                    # hashboard.hashrate as None causes MinerData.hashrate
+                    # to fall through to raw_hashrate, which is set by
+                    # _get_hashrate() from the summary API's GHS 5s field.
                     hashboards[idx].chips = int(board_stats[f"chain_acn{board_n}"])
                     chip_temp_data = list(
                         filter(
