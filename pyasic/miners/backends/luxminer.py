@@ -177,6 +177,58 @@ class LUXMiner(LuxOSFirmware):
             pass
         return None
 
+    @staticmethod
+    def _match_profile_name(name: str, profile_names: list[str]) -> str | None:
+        """Match user input to an available profile name.
+
+        Tries exact match first, then case-insensitive, then checks if
+        appending "MHz" yields a match (so "190" matches "190MHz").
+        """
+        if name in profile_names:
+            return name
+
+        lower = name.lower()
+        for p in profile_names:
+            if p.lower() == lower:
+                return p
+
+        for p in profile_names:
+            if p.lower() == lower + "mhz":
+                return p
+
+        return None
+
+    async def set_profile(self, name: str) -> bool:
+        config = await self.get_config()
+
+        # Validate profile name exists
+        if not hasattr(config.mining_mode, "available_presets"):
+            logging.warning(f"{self} - Mining mode does not support profiles")
+            return False
+
+        available_presets = getattr(config.mining_mode, "available_presets", [])
+        profile_names = [p.name for p in available_presets if p.name is not None]
+
+        matched_name = self._match_profile_name(name, profile_names)
+        if matched_name is None:
+            logging.warning(
+                f"{self} - Profile '{name}' not found in available profiles: {profile_names}"
+            )
+            return False
+
+        try:
+            result = await self.rpc.profileset(matched_name)
+        except APIError:
+            raise
+        except Exception as e:
+            logging.warning(f"{self} - Failed to set profile: {e}")
+            return False
+
+        if result["PROFILE"][0]["Profile"] == matched_name:
+            return True
+        else:
+            return False
+
     async def set_power_limit(self, wattage: int) -> bool:
         config = await self.get_config()
 
@@ -201,17 +253,10 @@ class LUXMiner(LuxOSFirmware):
             return False
 
         # Set power to highest preset <= wattage
-        # If ATM enabled, must disable it before setting power limit
         new_preset = max(valid_presets, key=lambda x: valid_presets[x])
 
-        re_enable_atm = False
         try:
-            if await self.atm_enabled():
-                re_enable_atm = True
-                await self.rpc.atmset(enabled=False)
             result = await self.rpc.profileset(new_preset)
-            if re_enable_atm:
-                await self.rpc.atmset(enabled=True)
         except APIError:
             raise
         except Exception as e:
