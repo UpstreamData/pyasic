@@ -643,7 +643,7 @@ class PoolConfig(MinerConfigValue):
     def from_btminer_v3(cls, rpc_pools: dict) -> PoolConfig:
         try:
             pool_data = rpc_pools["pools"]
-        except KeyError:
+        except (KeyError, TypeError):
             return PoolConfig.default()
         pool_data = sorted(pool_data, key=lambda x: int(x["id"]))
 
