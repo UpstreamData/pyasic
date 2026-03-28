@@ -73,6 +73,9 @@ LUXMINER_DATA_LOC = DataLocations(
         str(DataOptions.FAULT_LIGHT): DataFunction(
             "_get_fault_light", [RPCAPICommand("rpc_config", "config")]
         ),
+        str(DataOptions.IS_MINING): DataFunction(
+            "_is_mining", [RPCAPICommand("rpc_config", "config")]
+        ),
     }
 )
 
@@ -434,6 +437,21 @@ class LUXMiner(LuxOSFirmware):
             try:
                 return not rpc_config["CONFIG"][0]["RedLed"] == "off"
             except LookupError:
+                pass
+        return None
+
+    async def _is_mining(self, rpc_config: dict | None = None) -> bool | None:
+        if rpc_config is None:
+            try:
+                rpc_config = await self.rpc.config()
+            except APIError:
+                pass
+
+        if rpc_config is not None:
+            try:
+                curtail_mode = rpc_config["CONFIG"][0].get("CurtailMode")
+                return curtail_mode != "Sleep"
+            except (LookupError, IndexError):
                 pass
         return None
 
