@@ -851,8 +851,9 @@ class MinerFactory:
 
             text, resp = await concurrent_get_first_result(
                 tasks,
-                lambda x: x[0] is not None
-                and self._parse_web_type(x[0], x[1]) is not None,
+                lambda x: (
+                    x[0] is not None and self._parse_web_type(x[0], x[1]) is not None
+                ),
             )
             if text is not None:
                 mtype = self._parse_web_type(text, resp)
