@@ -944,8 +944,16 @@ class MinerFactory:
             lambda x: x is not None and self._parse_socket_type(x) is not None,
         )
         if data is not None:
-            d = self._parse_socket_type(data)
-            return d
+            return self._parse_socket_type(data)
+
+        data_v3 = await self._socket_ping_btminer_v3(ip, "get.device.info")
+        if data_v3 is not None:
+            try:
+                parsed = json.loads(data_v3)
+                if isinstance(parsed.get("msg"), dict) and "miner" in parsed["msg"]:
+                    return MinerTypes.WHATSMINER
+            except (json.JSONDecodeError, AttributeError):
+                pass
         return None
 
     @staticmethod
@@ -995,6 +1003,46 @@ class MinerFactory:
                 await writer.wait_closed()
             except (ConnectionError, OSError):
                 pass
+        if data:
+            return data.decode("utf-8")
+        return None
+    
+    @staticmethod
+    async def _socket_ping_btminer_v3(ip: str, cmd: str) -> str | None:
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(str(ip), 4433),
+                timeout=settings.get("factory_get_timeout", 3),
+            )
+        except (ConnectionError, OSError, asyncio.TimeoutError):
+            return None
+
+        command_dict = {"cmd": cmd}
+        json_cmd = json.dumps(command_dict).encode("utf-8")
+        try:
+            writer.write(len(json_cmd).to_bytes(4, byteorder="little"))
+            writer.write(json_cmd)
+            await writer.drain()
+
+            resp_len_bytes = await asyncio.wait_for(
+                reader.readexactly(4),
+                timeout=settings.get("btminer_v3_ping_timeout", 1),
+            )
+            data = await asyncio.wait_for(
+                reader.readexactly(int.from_bytes(resp_len_bytes, byteorder="little")),
+                timeout=settings.get("factory_get_timeout", 3),
+            )
+        except (ConnectionError, OSError, asyncio.TimeoutError, asyncio.IncompleteReadError):
+            return None
+        except asyncio.CancelledError:
+            raise
+        finally:
+            writer.close()
+            try:
+                await writer.wait_closed()
+            except (ConnectionError, OSError):
+                pass
+
         if data:
             return data.decode("utf-8")
         return None
@@ -1294,6 +1342,14 @@ class MinerFactory:
                 return version
             except LookupError:
                 pass
+
+            sock_json_data_v3 = await self.send_btminer_v3_api_command(ip, "get.device.info")
+            if sock_json_data_v3 is not None:
+                try:
+                    version = sock_json_data_v3["msg"]["system"]["fwversion"]
+                    return version
+                except (TypeError, LookupError):
+                    pass
         return None
 
     async def get_miner_model_avalonminer(self, ip: str) -> str | None:
