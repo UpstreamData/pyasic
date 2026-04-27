@@ -318,13 +318,15 @@ class VNish(VNishFirmware, BMMiner):
             else:
                 web_presets = []
             _perf_summary_raw = await self.web.perf_summary()
-            web_perf_summary = _perf_summary_raw if isinstance(_perf_summary_raw, dict) else {}
+            web_perf_summary = (
+                _perf_summary_raw if isinstance(_perf_summary_raw, dict) else {}
+            )
             self.config = MinerConfig.from_vnish(
                 web_settings, web_presets, web_perf_summary
             )
         except APIError:
             return self.config or MinerConfig()
-        except Exception as e:
+        except Exception:
             return self.config or MinerConfig()
         return self.config
 
