@@ -1006,7 +1006,7 @@ class MinerFactory:
         if data:
             return data.decode("utf-8")
         return None
-    
+
     @staticmethod
     async def _socket_ping_btminer_v3(ip: str, cmd: str) -> str | None:
         try:
@@ -1032,7 +1032,12 @@ class MinerFactory:
                 reader.readexactly(int.from_bytes(resp_len_bytes, byteorder="little")),
                 timeout=settings.get("factory_get_timeout", 3),
             )
-        except (ConnectionError, OSError, asyncio.TimeoutError, asyncio.IncompleteReadError):
+        except (
+            ConnectionError,
+            OSError,
+            asyncio.TimeoutError,
+            asyncio.IncompleteReadError,
+        ):
             return None
         except asyncio.CancelledError:
             raise
@@ -1343,7 +1348,9 @@ class MinerFactory:
             except LookupError:
                 pass
 
-            sock_json_data_v3 = await self.send_btminer_v3_api_command(ip, "get.device.info")
+            sock_json_data_v3 = await self.send_btminer_v3_api_command(
+                ip, "get.device.info"
+            )
             if sock_json_data_v3 is not None:
                 try:
                     version = sock_json_data_v3["msg"]["system"]["fwversion"]
