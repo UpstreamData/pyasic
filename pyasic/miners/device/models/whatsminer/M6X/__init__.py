@@ -35,7 +35,7 @@ from .M60S_Plus import (
     M60SPlusVL50,
     M60SPlusVL60,
 )
-from .M60S_Plus_Plus import M60SPlusPlusVL30, M60SPlusPlusVL40
+from .M60S_Plus_Plus import M60SPlusPlusVLA0, M60SPlusPlusVL30, M60SPlusPlusVL40, M60SPlusPlusVL80, M60SPlusPlusVLB0
 from .M61 import (
     M61VK10,
     M61VK20,
