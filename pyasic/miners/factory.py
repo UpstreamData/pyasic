@@ -936,7 +936,7 @@ class MinerFactory:
         return None
 
     async def _get_miner_socket(self, ip: str) -> MinerTypes | None:
-        commands = ["version", "devdetails"]
+        commands = ["version", "devdetails", "stats"]
         tasks = [asyncio.create_task(self._socket_ping(ip, cmd)) for cmd in commands]
 
         data = await concurrent_get_first_result(
@@ -1014,6 +1014,8 @@ class MinerFactory:
             return MinerTypes.MARATHON
         if "RWGLR" in upper_data:
             return MinerTypes.MSKMINER
+        if "VNISH" in upper_data:
+            return MinerTypes.VNISH
         if "ANTMINER" in upper_data and "DEVDETAILS" not in upper_data:
             return MinerTypes.ANTMINER
         if (
@@ -1028,8 +1030,6 @@ class MinerFactory:
             return MinerTypes.AVALONMINER
         if "GCMINER" in upper_data or "FLUXOS" in upper_data:
             return MinerTypes.AURADINE
-        if "VNISH" in upper_data:
-            return MinerTypes.VNISH
         return None
 
     async def send_web_command(
