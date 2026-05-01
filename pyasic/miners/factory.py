@@ -93,7 +93,6 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "ANTMINER S9J": BMMinerS9j,
         "ANTMINER T9": BMMinerT9,
         "ANTMINER L9": BMMinerL9,
-        "ANTMINER L9_I": BMMinerL9,
         "ANTMINER Z15": CGMinerZ15,
         "ANTMINER Z15 PRO": BMMinerZ15Pro,
         "ANTMINER S17": BMMinerS17,
@@ -1233,6 +1232,8 @@ class MinerFactory:
                 if " (" in miner_model:
                     split_miner_model = miner_model.split(" (")
                     miner_model = split_miner_model[0]
+
+                miner_model = miner_model.upper().rstrip("_I")
 
                 return miner_model
             except (TypeError, LookupError):
