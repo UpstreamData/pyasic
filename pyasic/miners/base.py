@@ -528,6 +528,8 @@ class MinerProtocol(Protocol):
         if api_command_data is None:
             api_command_data = {}
 
+        print(api_command_data)
+        print(web_command_data)
         miner_data = {}
 
         for data_name in include:
