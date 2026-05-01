@@ -295,13 +295,13 @@ class AntminerModern(BMMiner):
         ]
 
         try:
-            rpc_stats = await self.rpc.stats(new_api=True)
+            web_stats = await self.web.send_command("stats")
         except APIError:
             return hashboards
 
-        if rpc_stats is not None:
+        if web_stats is not None:
             try:
-                for board in rpc_stats["STATS"][0]["chain"]:
+                for board in web_stats["STATS"][0]["chain"]:
                     hashboards[board["index"]].hashrate = self.algo.hashrate(
                         rate=board["rate_real"],
                         unit=self.algo.unit.GH,  # type: ignore[attr-defined]
