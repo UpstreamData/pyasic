@@ -1,6 +1,14 @@
 # pyasic
 *A simplified and standardized interface for Bitcoin ASICs.*
 
+## Deprecated
+
+`pyasic` is deprecated and is no longer the recommended choice for new projects.
+
+See the maintainer announcement in [Deprecation in favour of `asic-rs` (Discussion #425)](https://github.com/UpstreamData/pyasic/discussions/425).
+
+Use [`asic-rs`](https://github.com/256foundation/asic-rs) instead. Existing `pyasic` users should plan to migrate there where practical.
+
 [![PyPI - Version](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pyasic)](https://pypi.org/project/pyasic/)
 
