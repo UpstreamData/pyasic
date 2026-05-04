@@ -14,7 +14,7 @@
 #  limitations under the License.                                              -
 # ------------------------------------------------------------------------------
 
-from typing import TypeVar
+from typing import TypeAlias
 
 from .bos import BraiinsOSError
 from .innosilicon import InnosiliconError
@@ -22,11 +22,6 @@ from .vnish import VnishError
 from .whatsminer import WhatsminerError
 from .X19 import X19Error
 
-MinerErrorData = TypeVar(
-    "MinerErrorData",
-    WhatsminerError,
-    BraiinsOSError,
-    X19Error,
-    InnosiliconError,
-    VnishError,
+MinerErrorData: TypeAlias = (
+    WhatsminerError | BraiinsOSError | X19Error | InnosiliconError | VnishError
 )
