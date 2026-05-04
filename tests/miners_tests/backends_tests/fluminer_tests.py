@@ -1,3 +1,5 @@
+"""Tests for Fluminer stock firmware backend data handling."""
+
 import unittest
 
 from pyasic.miners.backends.fluminer import Fluminer
@@ -59,10 +61,13 @@ POOLS = {
 
 
 class TestFluminer(unittest.IsolatedAsyncioTestCase):
+    """Tests for Fluminer T3 data parsing and factory detection."""
+
     def setUp(self):
         self.miner = FluminerT3("127.0.0.1")
 
     async def test_summary_data(self):
+        """Fluminer summary payloads map into standard pyasic data."""
         self.assertEqual(
             await self.miner._get_serial_number(OVERVIEW),
             OVERVIEW["data"]["minerInfo"]["sn"],
@@ -77,6 +82,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.miner._is_mining(SUMMARY))
 
     async def test_fans_and_hashboards(self):
+        """Fan and hashboard data are parsed from the summary payload."""
         fans = await self.miner._get_fans(SUMMARY)
         self.assertEqual([fan.speed for fan in fans], [3524, 3583, 3583, 3613])
 
@@ -90,6 +96,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(hashboards[0].voltage, 26.38)
 
     async def test_empty_summary_preserves_expected_hashboard_placeholder(self):
+        """Missing summary data keeps expected hashboard placeholders."""
         hashboards = await self.miner._get_hashboards({"code": 0, "data": {}})
 
         self.assertEqual(len(hashboards), 1)
@@ -97,6 +104,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(hashboards[0].hashrate)
 
     async def test_partial_fan_data_preserves_expected_fan_count(self):
+        """Partial fan payloads preserve the static expected fan count."""
         summary = {
             **SUMMARY,
             "data": {
@@ -110,6 +118,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([fan.speed for fan in fans], [3524, 3583, None, None])
 
     async def test_pools(self):
+        """Configured pools map to pool metrics with active pool share counts."""
         pools = await self.miner._get_pools(web_summary=SUMMARY, web_pools=POOLS)
 
         self.assertEqual(len(pools), 2)
@@ -121,6 +130,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(pools[1].accepted)
 
     async def test_active_pool_matching_requires_exact_host_and_port(self):
+        """Active pool detection requires exact URL host and port matches."""
         pools = await self.miner._get_pools(
             web_summary=SUMMARY,
             web_pools={
@@ -150,6 +160,7 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([pool.active for pool in pools], [False, False, True])
 
     async def test_malformed_payloads_return_empty_data(self):
+        """Malformed nested payload values return empty data instead of raising."""
         self.assertIsNone(
             await self.miner._get_serial_number({"code": 0, "data": None})
         )
@@ -174,11 +185,13 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_unknown_fluminer_has_no_expected_hashboards(self):
+        """Unknown Fluminer models do not invent expected hashboards."""
         miner = Fluminer("127.0.0.1")
 
         self.assertEqual(await miner._get_hashboards(SUMMARY), [])
 
     def test_factory_detects_fluminer_before_generic_miner_ui(self):
+        """Factory parsing prefers Fluminer branding over generic UI text."""
         self.assertEqual(
             MinerFactory._parse_web_type(
                 "<html><title>Fluminer</title>Miner UI</html>",

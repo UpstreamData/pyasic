@@ -1,3 +1,5 @@
+"""Web API client for Fluminer stock firmware."""
+
 from __future__ import annotations
 
 import asyncio
@@ -13,6 +15,8 @@ from pyasic.web.base import BaseWebAPI
 
 
 class FluminerWebAPI(BaseWebAPI):
+    """Read-oriented client for Fluminer native web API endpoints."""
+
     def __init__(self, ip: str) -> None:
         super().__init__(ip)
         parsed = urlsplit(f"//{ip}")
@@ -25,6 +29,7 @@ class FluminerWebAPI(BaseWebAPI):
         self._session_cookie: str | None = None
 
     async def auth(self) -> str | None:
+        """Authenticate with the web UI and cache the session cookie."""
         async with httpx.AsyncClient(transport=settings.transport()) as client:
             try:
                 response = await client.post(
@@ -111,13 +116,17 @@ class FluminerWebAPI(BaseWebAPI):
         return data
 
     async def overview(self) -> dict:
+        """Return miner overview and identity information."""
         return await self.send_command("api/overview")
 
     async def summary(self) -> dict:
+        """Return current mining summary information."""
         return await self.send_command("api/summary")
 
     async def network(self) -> dict:
+        """Return current network configuration information."""
         return await self.send_command("api/getNetwork")
 
     async def pools(self) -> dict:
+        """Return configured pool information."""
         return await self.send_command("api/getPools", privileged=True)

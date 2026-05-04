@@ -1,3 +1,5 @@
+"""Backend support for Fluminer stock firmware miners."""
+
 from pyasic import MinerConfig
 from pyasic.config.pools import Pool, PoolConfig, PoolGroup
 from pyasic.data import Fan, HashBoard
@@ -167,6 +169,8 @@ class Fluminer(StockFirmware):
     async def _get_uptime(self, web_summary: dict | None = None) -> int | None:
         summary = await self._get_summary(web_summary)
         uptime = summary.get("uptime")
+        if uptime is None:
+            return None
         try:
             return int(uptime)
         except (TypeError, ValueError):
@@ -264,6 +268,8 @@ class Fluminer(StockFirmware):
 
     @staticmethod
     def _float_or_none(value: object) -> float | None:
+        if not isinstance(value, (float, int, str)):
+            return None
         try:
             return float(value)
         except (TypeError, ValueError):
@@ -271,6 +277,8 @@ class Fluminer(StockFirmware):
 
     @staticmethod
     def _int_or_none(value: object) -> int | None:
+        if not isinstance(value, (float, int, str)):
+            return None
         try:
             return int(value)
         except (TypeError, ValueError):
