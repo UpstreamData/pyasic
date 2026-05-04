@@ -64,8 +64,6 @@ FLUMINER_DATA_LOC = DataLocations(
 
 
 class Fluminer(StockFirmware):
-    """Base handler for Fluminer stock firmware."""
-
     _web_cls = FluminerWebAPI
     web: FluminerWebAPI
 

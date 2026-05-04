@@ -61,8 +61,6 @@ POOLS = {
 
 
 class TestFluminer(unittest.IsolatedAsyncioTestCase):
-    """Tests for Fluminer T3 data parsing and factory detection."""
-
     def setUp(self):
         self.miner = FluminerT3("127.0.0.1")
 

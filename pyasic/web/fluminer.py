@@ -15,9 +15,8 @@ from pyasic.web.base import BaseWebAPI
 
 
 class FluminerWebAPI(BaseWebAPI):
-    """Read-oriented client for Fluminer native web API endpoints."""
-
     def __init__(self, ip: str) -> None:
+        """Initialize the web API client and parse optional host ports."""
         super().__init__(ip)
         parsed = urlsplit(f"//{ip}")
         if parsed.hostname is not None:
