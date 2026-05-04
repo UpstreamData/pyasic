@@ -18,6 +18,7 @@ from .auradine import AuradineWebAPI
 from .base import BaseWebAPI
 from .braiins_os import BOSerWebAPI, BOSMinerWebAPI
 from .epic import ePICWebAPI
+from .fluminer import FluminerWebAPI
 from .goldshell import GoldshellWebAPI
 from .hammer import HammerWebAPI
 from .iceriver import IceRiverWebAPI

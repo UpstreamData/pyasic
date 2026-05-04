@@ -1012,3 +1012,14 @@ details {
         </details>
     </ul>
 </details>
+<details>
+<summary>Stock Firmware Fluminer Miners:</summary>
+    <ul>
+        <details>
+            <summary>T Series:</summary>
+                <ul>
+                    <li><a href="../fluminer/T#t3-stock">T3 (Stock)</a></li>
+                </ul>
+        </details>
+    </ul>
+</details>

@@ -32,6 +32,7 @@ class MinerMake(str, Enum):
     VOLCMINER = "VolcMiner"
     ELPHAPEX = "Elphapex"
     BRAIINS = "Braiins"
+    FLUMINER = "Fluminer"
 
     def __str__(self):
         return self.value

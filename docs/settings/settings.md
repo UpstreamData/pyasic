@@ -22,6 +22,10 @@ Settings options:
 - `default_auradine_web_password`
 - `default_epic_web_password`
 - `default_hive_web_password`
+- `default_iceriver_web_password`
+- `default_elphapex_web_password`
+- `default_fluminer_web_password`
+- `default_mskminer_web_password`
 - `default_antminer_ssh_password`
 - `default_bosminer_ssh_password`
 

@@ -579,6 +579,13 @@ class ElphapexModels(MinerModelType):
         return self.value
 
 
+class FluminerModels(MinerModelType):
+    T3 = "T3"
+
+    def __str__(self):
+        return self.value
+
+
 class MinerModel:
     ANTMINER = AntminerModels
     WHATSMINER = WhatsminerModels
@@ -594,3 +601,4 @@ class MinerModel:
     VOLCMINER = VolcMinerModels
     ELPHAPEX = ElphapexModels
     BRAIINS = BraiinsModels
+    FLUMINER = FluminerModels

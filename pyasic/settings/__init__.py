@@ -43,6 +43,7 @@ class Settings(BaseModel):
     default_hive_web_password: str = Field(default="root")
     default_iceriver_web_password: str = Field(default="12345678")
     default_elphapex_web_password: str = Field(default="root")
+    default_fluminer_web_password: str = Field(default="root")
     default_mskminer_web_password: str = Field(default="root")
     default_antminer_ssh_password: str = Field(default="miner")
     default_bosminer_ssh_password: str = Field(default="root")

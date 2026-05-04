@@ -24,6 +24,7 @@ from .btminer import BTMiner, BTMinerV2, BTMinerV3
 from .cgminer import CGMiner
 from .elphapex import ElphapexMiner
 from .epic import ePIC
+from .fluminer import Fluminer
 from .goldshell import GoldshellMiner
 from .hammer import BlackMiner
 from .hiveon import HiveonModern, HiveonOld
