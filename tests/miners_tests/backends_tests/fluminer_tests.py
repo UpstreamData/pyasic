@@ -99,7 +99,9 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
     async def test_partial_fan_data_preserves_expected_fan_count(self):
         summary = {
             **SUMMARY,
-            "data": {"summary": [{**SUMMARY["data"]["summary"][0], "fan": "3524|3583"}]},
+            "data": {
+                "summary": [{**SUMMARY["data"]["summary"][0], "fan": "3524|3583"}]
+            },
         }
 
         fans = await self.miner._get_fans(summary)
@@ -148,11 +150,11 @@ class TestFluminer(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([pool.active for pool in pools], [False, False, True])
 
     async def test_malformed_payloads_return_empty_data(self):
-        self.assertIsNone(await self.miner._get_serial_number({"code": 0, "data": None}))
         self.assertIsNone(
-            await self.miner._get_hashrate(
-                {"code": 0, "data": {"summary": [None]}}
-            )
+            await self.miner._get_serial_number({"code": 0, "data": None})
+        )
+        self.assertIsNone(
+            await self.miner._get_hashrate({"code": 0, "data": {"summary": [None]}})
         )
         self.assertEqual(
             await self.miner._get_pools(
