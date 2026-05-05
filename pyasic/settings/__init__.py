@@ -27,6 +27,7 @@ class Settings(BaseModel):
     network_scan_semaphore: int | None = Field(default=None)
     factory_get_retries: int = Field(default=1)
     factory_get_timeout: int = Field(default=3)
+    btminer_v3_ping_timeout: int = Field(default=1)
     get_data_retries: int = Field(default=1)
     api_function_timeout: int = Field(default=5)
     antminer_mining_mode_as_str: bool = Field(default=False)
