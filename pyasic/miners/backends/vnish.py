@@ -310,16 +310,24 @@ class VNish(VNishFirmware, BMMiner):
     async def get_config(self) -> MinerConfig:
         try:
             web_settings = await self.web.settings()
-            web_presets_dict = await self.web.autotune_presets()
-            web_presets = (
-                web_presets_dict.get("presets", []) if web_presets_dict else []
+            web_presets_response = await self.web.autotune_presets()
+            if isinstance(web_presets_response, dict):
+                web_presets = web_presets_response.get("presets", [])
+            elif isinstance(web_presets_response, list):
+                web_presets = web_presets_response
+            else:
+                web_presets = []
+            _perf_summary_raw = await self.web.perf_summary()
+            web_perf_summary = (
+                _perf_summary_raw if isinstance(_perf_summary_raw, dict) else {}
             )
-            web_perf_summary = (await self.web.perf_summary()) or {}
+            self.config = MinerConfig.from_vnish(
+                web_settings, web_presets, web_perf_summary
+            )
         except APIError:
             return self.config or MinerConfig()
-        self.config = MinerConfig.from_vnish(
-            web_settings, web_presets, web_perf_summary
-        )
+        except Exception:
+            return self.config or MinerConfig()
         return self.config
 
     async def set_power_limit(self, wattage: int) -> bool:
