@@ -35,7 +35,13 @@ from .M60S_Plus import (
     BTMinerM60SPlusVL50,
     BTMinerM60SPlusVL60,
 )
-from .M60S_Plus_Plus import BTMinerM60SPlusPlusVL30, BTMinerM60SPlusPlusVL40
+from .M60S_Plus_Plus import (
+    BTMinerM60SPlusPlusVL30,
+    BTMinerM60SPlusPlusVL40,
+    BTMinerM60SPlusPlusVL80,
+    BTMinerM60SPlusPlusVLA0,
+    BTMinerM60SPlusPlusVLB0,
+)
 from .M61 import (
     BTMinerM61VK10,
     BTMinerM61VK20,
