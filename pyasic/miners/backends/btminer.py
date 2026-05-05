@@ -926,7 +926,12 @@ class BTMinerV3(StockFirmware):
         except LookupError:
             pass
 
-        if pools is not None and settings is not None and device_info is not None:
+        if (
+            pools is not None
+            and settings is not None
+            and device_info is not None
+            and miner_summary is not None
+        ):
             self.config = MinerConfig.from_btminer_v3(
                 rpc_pools=pools,
                 rpc_settings=settings,
@@ -1166,7 +1171,10 @@ class BTMinerV3(StockFirmware):
                 except (TypeError, ValueError):
                     continue
 
-        return [WhatsminerError(error_code=code) for code in sorted(set(parsed_codes))]
+        errors: list[MinerErrorData] = [
+            WhatsminerError(error_code=code) for code in sorted(set(parsed_codes))
+        ]
+        return errors
 
     async def _get_serial_number(
         self, rpc_get_device_info: dict | None = None

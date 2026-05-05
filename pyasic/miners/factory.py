@@ -39,6 +39,7 @@ from pyasic.miners.blockminer import *
 from pyasic.miners.braiins import *
 from pyasic.miners.device.makes import *
 from pyasic.miners.elphapex import *
+from pyasic.miners.fluminer import *
 from pyasic.miners.goldshell import *
 from pyasic.miners.hammer import *
 from pyasic.miners.iceriver import *
@@ -69,6 +70,7 @@ class MinerTypes(enum.Enum):
     LUCKYMINER = 16
     ELPHAPEX = 17
     MSKMINER = 18
+    FLUMINER = 19
 
 
 MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
@@ -717,6 +719,10 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         "DG1": ElphapexDG1,
         "DG1-Home": ElphapexDG1Home,
     },
+    MinerTypes.FLUMINER: {
+        None: type("FluminerUnknown", (Fluminer, FluminerMake), {}),
+        "T3": FluminerT3,
+    },
 }
 
 
@@ -802,6 +808,7 @@ class MinerFactory:
                 MinerTypes.HAMMER: self.get_miner_model_hammer,
                 MinerTypes.VOLCMINER: self.get_miner_model_volcminer,
                 MinerTypes.ELPHAPEX: self.get_miner_model_elphapex,
+                MinerTypes.FLUMINER: self.get_miner_model_fluminer,
             }
             version: str | None = None
             miner_version_fns = {
@@ -850,8 +857,9 @@ class MinerFactory:
 
             text, resp = await concurrent_get_first_result(
                 tasks,
-                lambda x: x[0] is not None
-                and self._parse_web_type(x[0], x[1]) is not None,
+                lambda x: (
+                    x[0] is not None and self._parse_web_type(x[0], x[1]) is not None
+                ),
             )
             if text is not None:
                 mtype = self._parse_web_type(text, resp)
@@ -930,6 +938,8 @@ class MinerFactory:
             return MinerTypes.AVALONMINER
         if "DragonMint" in web_text:
             return MinerTypes.INNOSILICON
+        if "<title>Fluminer</title>" in web_text or "Fluminer" in web_text:
+            return MinerTypes.FLUMINER
         if "Miner UI" in web_text:
             return MinerTypes.AURADINE
         return None
@@ -1573,6 +1583,16 @@ class MinerFactory:
             try:
                 miner_model = web_json_data["minertype"]
                 return miner_model
+            except (TypeError, LookupError):
+                pass
+        return None
+
+    async def get_miner_model_fluminer(self, ip: str) -> str | None:
+        web_json_data = await self.send_web_command(ip, "/api/overview")
+
+        if web_json_data is not None:
+            try:
+                return web_json_data["data"]["minerInfo"]["model"]
             except (TypeError, LookupError):
                 pass
         return None

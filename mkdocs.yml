@@ -110,6 +110,7 @@ nav:
         - Hammer DX: "miners/hammer/DX.md"
         - Iceriver KSX: "miners/iceriver/KSX.md"
         - Volcminer DX: "miners/volcminer/DX.md"
+        - Fluminer T: "miners/fluminer/T.md"
     - Base Miner: "miners/base_miner.md"
 - Settings:
       - Settings: "settings/settings.md"

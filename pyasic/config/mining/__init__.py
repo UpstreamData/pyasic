@@ -268,18 +268,15 @@ class MiningModePowerTune(MinerConfigValue):
         return cfg
 
     def as_boser(self) -> dict:
+        performance_power_target_kwargs: dict[str, Any] = {}
+        if self.power is not None:
+            performance_power_target_kwargs["power_target"] = Power(watt=self.power)
         cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
                 mode=PerformanceMode(
                     tuner_mode=TunerPerformanceMode(
-                        power_target=PowerTargetMode(
-                            power_target=(
-                                Power(watt=self.power)
-                                if self.power is not None
-                                else None
-                            )  # type: ignore[arg-type]
-                        )
+                        power_target=PowerTargetMode(**performance_power_target_kwargs)
                     )
                 ),
             ),
@@ -367,6 +364,11 @@ class MiningModeHashrateTune(MinerConfigValue):
         return {"autotuning": conf}
 
     def as_boser(self) -> dict:
+        performance_hashrate_target_kwargs: dict[str, Any] = {}
+        if self.hashrate is not None:
+            performance_hashrate_target_kwargs["terahash_per_second"] = float(
+                self.hashrate
+            )
         cfg: dict[str, Any] = {
             "set_performance_mode": SetPerformanceModeRequest(
                 save_action=SaveAction(SaveAction.SAVE_AND_APPLY),
@@ -374,11 +376,7 @@ class MiningModeHashrateTune(MinerConfigValue):
                     tuner_mode=TunerPerformanceMode(
                         hashrate_target=HashrateTargetMode(
                             hashrate_target=TeraHashrate(
-                                terahash_per_second=(
-                                    float(self.hashrate)
-                                    if self.hashrate is not None
-                                    else None
-                                )  # type: ignore[arg-type]
+                                **performance_hashrate_target_kwargs
                             )
                         )
                     )

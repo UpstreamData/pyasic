@@ -20,6 +20,7 @@ from .avalonminer import *
 from .braiins import *
 from .elphapex import *
 from .epic import *
+from .fluminer import *
 from .goldshell import *
 from .hammer import *
 from .iceriver import *
