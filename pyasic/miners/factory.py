@@ -720,7 +720,12 @@ MINER_CLASSES: dict[MinerTypes, dict[str | None, Any]] = {
         None: type("ElphapexUnknown", (ElphapexMiner, ElphapexMake), {}),
         "DG1+": ElphapexDG1Plus,
         "DG1": ElphapexDG1,
-        "DG1-Home": ElphapexDG1Home,
+        # NOTE: lookups apply ``str(miner_model).upper()`` so keys must be uppercase.
+        # The DG-Home1 firmware reports ``INFO.type = "DG-Home1"`` from
+        # ``/cgi-bin/stats.cgi``; ``get_miner_model_elphapex`` normalises that to
+        # ``"DG1-HOME"`` for consistency with ``DG1`` / ``DG1+`` naming.
+        "DG1-HOME": ElphapexDG1Home,
+        "DG-HOME1": ElphapexDG1Home,
     },
     MinerTypes.FLUMINER: {
         None: type("FluminerUnknown", (Fluminer, FluminerMake), {}),
@@ -1645,13 +1650,46 @@ class MinerFactory:
             ip, "/cgi-bin/get_system_info.cgi", auth=auth
         )
 
+        # Try ``get_system_info.cgi`` first — older Elphapex firmware exposes
+        # ``minertype`` here. Newer DG-Home1 firmware (V1.0.5) does not, so we
+        # also accept ``type`` / ``model`` / ``hostname`` from the same response.
         if web_json_data is not None:
-            try:
-                miner_model = web_json_data["minertype"]
-                return miner_model
-            except (TypeError, LookupError):
-                pass
+            for key in ("minertype", "type", "model", "hostname"):
+                try:
+                    miner_model = web_json_data[key]
+                except (TypeError, LookupError):
+                    continue
+                if miner_model:
+                    return self._normalize_elphapex_model(miner_model)
+
+        # Fallback: ``stats.cgi`` includes ``INFO.type`` (e.g. ``"DG-Home1"``)
+        # on firmware that omits ``minertype`` from ``get_system_info.cgi``.
+        stats_data = await self.send_web_command(ip, "/cgi-bin/stats.cgi", auth=auth)
+        if stats_data is not None:
+            info = stats_data.get("INFO") if isinstance(stats_data, dict) else None
+            if isinstance(info, dict):
+                for key in ("type", "model", "miner_version"):
+                    miner_model = info.get(key)
+                    if miner_model:
+                        return self._normalize_elphapex_model(miner_model)
         return None
+
+    @staticmethod
+    def _normalize_elphapex_model(miner_model: str) -> str:
+        """Normalise Elphapex model strings to the lookup-table form.
+
+        DG-Home1 firmware V1.0.5 reports ``"DG-Home1"`` from ``stats.cgi``
+        (and the firmware version string is ``"DG-Home1_V1.0.5"``), but the
+        lookup table is keyed on the upstream-canonical ``"DG1-Home"``.
+        Strip any firmware-version suffix and remap known aliases.
+        """
+        model = str(miner_model).strip()
+        # Drop firmware suffix like ``_V1.0.5`` if we got fed ``miner_version``.
+        model = model.split("_")[0]
+        # Known aliases for the DG-Home1 (also covers ``DG-HOME1``, ``DG_Home1``).
+        if model.upper().replace("_", "-") in ("DG-HOME1", "DG-HOME"):
+            return "DG1-Home"
+        return model
 
     async def get_miner_model_fluminer(self, ip: str) -> str | None:
         web_json_data = await self.send_web_command(ip, "/api/overview")

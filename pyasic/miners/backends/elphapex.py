@@ -217,47 +217,98 @@ class ElphapexMiner(StockFirmware):
         return errors
 
     async def _get_hashboards(self, web_stats: dict | None = None) -> list[HashBoard]:
-        if self.expected_hashboards is None:
-            return []
-
-        hashboards = [
-            HashBoard(slot=idx, expected_chips=self.expected_chips)
-            for idx in range(self.expected_hashboards)
-        ]
-
         if web_stats is None:
             try:
                 web_stats = await self.web.stats()
             except APIError:
-                return hashboards
+                web_stats = None
 
-        if web_stats is not None:
+        # Derive ``expected_hashboards`` from ``stats.cgi`` when the device
+        # model is only partially supported (``self.expected_hashboards`` is
+        # ``None``) and the response advertises ``chain_num``. Without this,
+        # ``range(self.expected_hashboards)`` raises ``TypeError`` and bubbles
+        # up as an ``APIError`` for DG-Home1 on pyasic 0.79.0
+        # (see UpstreamData/pyasic#311, #428).
+        expected_hashboards = self.expected_hashboards
+        if expected_hashboards is None and isinstance(web_stats, dict):
             try:
-                for board in web_stats["STATS"][0]["chain"]:
-                    hashboards[board["index"]].hashrate = self.algo.hashrate(
-                        rate=board["rate_real"],
-                        unit=self.algo.unit.MH,  # type: ignore[attr-defined]
-                    ).into(
-                        self.algo.unit.default  # type: ignore[attr-defined]
-                    )
-                    hashboards[board["index"]].chips = board["asic_num"]
-                    board_temp_data = list(
-                        filter(lambda x: not x == 0, board["temp_pcb"])
-                    )
-                    if not len(board_temp_data) == 0:
-                        hashboards[board["index"]].temp = sum(board_temp_data) / len(
-                            board_temp_data
-                        )
-                    chip_temp_data = list(
-                        filter(lambda x: not x == "", board["temp_chip"])
-                    )
-                    hashboards[board["index"]].chip_temp = sum(
-                        [int(i) / 1000 for i in chip_temp_data]
-                    ) / len(chip_temp_data)
-                    hashboards[board["index"]].serial_number = board["sn"]
-                    hashboards[board["index"]].missing = False
-            except LookupError:
+                stats0 = web_stats["STATS"][0]
+                chain_num = stats0.get("chain_num")
+                if chain_num is None and isinstance(stats0.get("chain"), list):
+                    chain_num = len(stats0["chain"])
+                if isinstance(chain_num, int) and chain_num > 0:
+                    expected_hashboards = chain_num
+            except (LookupError, TypeError):
                 pass
+
+        if expected_hashboards is None:
+            return []
+
+        hashboards = [
+            HashBoard(slot=idx, expected_chips=self.expected_chips)
+            for idx in range(expected_hashboards)
+        ]
+
+        if web_stats is None:
+            return hashboards
+
+        try:
+            chains = web_stats["STATS"][0]["chain"]
+        except (LookupError, TypeError):
+            return hashboards
+
+        for board in chains:
+            try:
+                board_index = board["index"]
+            except (KeyError, TypeError):
+                continue
+            if not isinstance(board_index, int) or board_index >= len(hashboards):
+                # Unknown / out-of-range chain index; skip rather than crash.
+                continue
+
+            hb = hashboards[board_index]
+            try:
+                hb.hashrate = self.algo.hashrate(
+                    rate=board.get("rate_real", 0),
+                    unit=self.algo.unit.MH,  # type: ignore[attr-defined]
+                ).into(
+                    self.algo.unit.default  # type: ignore[attr-defined]
+                )
+            except (TypeError, ValueError):
+                pass
+
+            asic_num = board.get("asic_num")
+            if isinstance(asic_num, int):
+                hb.chips = asic_num
+
+            board_temp_data = [
+                t
+                for t in board.get("temp_pcb", [])
+                if isinstance(t, (int, float)) and t != 0
+            ]
+            if board_temp_data:
+                hb.temp = sum(board_temp_data) / len(board_temp_data)
+
+            # ``temp_chip`` is a list of strings on Elphapex; entries are empty
+            # strings on inactive chains. Only compute the average when at
+            # least one numeric reading is present — dividing by zero here was
+            # the proximate cause of the original DG-Home1 traceback.
+            chip_temp_data = []
+            for raw in board.get("temp_chip", []):
+                if raw in (None, ""):
+                    continue
+                try:
+                    chip_temp_data.append(int(raw) / 1000)
+                except (TypeError, ValueError):
+                    continue
+            if chip_temp_data:
+                hb.chip_temp = sum(chip_temp_data) / len(chip_temp_data)
+
+            hb.serial_number = board.get("sn") or None
+            # Treat a chain with no live ASICs as missing so downstream
+            # consumers can distinguish a populated-but-broken board from an
+            # empty slot (DG-Home1 ships with 1 of 4 chains populated).
+            hb.missing = not (isinstance(asic_num, int) and asic_num > 0)
         return hashboards
 
     async def _get_fault_light(
