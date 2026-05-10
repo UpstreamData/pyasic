@@ -217,15 +217,12 @@ class ElphapexMiner(StockFirmware):
         return errors
 
     async def _get_hashboards(self, web_stats: dict | None = None) -> list[HashBoard]:
-        """
-        Build the list of ``HashBoard`` records from ``stats.cgi``.
-
-        Tolerates partially-supported devices (model resolved but
-        ``expected_hashboards`` ``None``), missing/malformed payloads, and
-        sparsely-populated chains (e.g. DG-Home1 ships with 1 of 4 chains
-        populated). See ``_resolve_expected_hashboards`` for the slot-count
-        fallback rationale.
-        """
+        """Build the list of ``HashBoard`` records from ``stats.cgi``."""
+        # Tolerates partially-supported devices (model resolved but
+        # ``expected_hashboards`` is ``None``), missing/malformed payloads,
+        # and sparsely-populated chains (e.g. DG-Home1 ships with 1 of 4
+        # chains populated). See ``_resolve_expected_hashboards`` for the
+        # slot-count fallback rationale.
         if web_stats is None:
             try:
                 web_stats = await self.web.stats()
@@ -245,15 +242,13 @@ class ElphapexMiner(StockFirmware):
         return hashboards
 
     def _resolve_expected_hashboards(self, web_stats: dict | None) -> int | None:
-        """
-        Return the number of hashboard slots to model.
-
-        Falls back to ``STATS[0].chain_num`` (or ``len(STATS[0].chain)``) when
-        the device is only partially supported and ``self.expected_hashboards``
-        is ``None``. Without this, ``range(self.expected_hashboards)`` raises
-        ``TypeError`` and bubbles up as ``APIError`` for DG-Home1 on pyasic
-        0.79.0 (see UpstreamData/pyasic#311, #428).
-        """
+        """Return the number of hashboard slots to model."""
+        # Falls back to ``STATS[0].chain_num`` (or ``len(STATS[0].chain)``)
+        # when the device is only partially supported and
+        # ``self.expected_hashboards`` is ``None``. Without this,
+        # ``range(self.expected_hashboards)`` raises ``TypeError`` and bubbles
+        # up as ``APIError`` for DG-Home1 on pyasic 0.79.0
+        # (see UpstreamData/pyasic#311, #428).
         if self.expected_hashboards is not None:
             return self.expected_hashboards
         if not isinstance(web_stats, dict):
@@ -332,12 +327,10 @@ class ElphapexMiner(StockFirmware):
 
     @staticmethod
     def _average_chip_temp(temps: object) -> float | None:
-        """
-        Average ``temp_chip`` entries (millidegree strings on Elphapex).
-
-        Inactive chains report empty strings here; a single ``None`` chain on
-        DG-Home1 used to trigger ``ZeroDivisionError`` in the legacy parser.
-        """
+        """Average ``temp_chip`` entries (millidegree strings on Elphapex)."""
+        # Inactive chains report empty strings here; a single ``None`` chain
+        # on DG-Home1 used to trigger ``ZeroDivisionError`` in the legacy
+        # parser.
         if not isinstance(temps, list):
             return None
         readings: list[float] = []
