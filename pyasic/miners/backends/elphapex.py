@@ -217,6 +217,15 @@ class ElphapexMiner(StockFirmware):
         return errors
 
     async def _get_hashboards(self, web_stats: dict | None = None) -> list[HashBoard]:
+        """
+        Build the list of ``HashBoard`` records from ``stats.cgi``.
+
+        Tolerates partially-supported devices (model resolved but
+        ``expected_hashboards`` ``None``), missing/malformed payloads, and
+        sparsely-populated chains (e.g. DG-Home1 ships with 1 of 4 chains
+        populated). See ``_resolve_expected_hashboards`` for the slot-count
+        fallback rationale.
+        """
         if web_stats is None:
             try:
                 web_stats = await self.web.stats()
@@ -236,7 +245,8 @@ class ElphapexMiner(StockFirmware):
         return hashboards
 
     def _resolve_expected_hashboards(self, web_stats: dict | None) -> int | None:
-        """Return the number of hashboard slots to model.
+        """
+        Return the number of hashboard slots to model.
 
         Falls back to ``STATS[0].chain_num`` (or ``len(STATS[0].chain)``) when
         the device is only partially supported and ``self.expected_hashboards``
@@ -299,6 +309,7 @@ class ElphapexMiner(StockFirmware):
         hb.missing = not (isinstance(asic_num, int) and asic_num > 0)
 
     def _set_board_hashrate(self, hb: HashBoard, rate_real: float | int) -> None:
+        """Convert ``rate_real`` (MH/s on Elphapex) into the algo's default unit."""
         try:
             hb.hashrate = self.algo.hashrate(
                 rate=rate_real,
@@ -311,6 +322,7 @@ class ElphapexMiner(StockFirmware):
 
     @staticmethod
     def _average_pcb_temp(temps: object) -> float | None:
+        """Average non-zero PCB temperature readings, or ``None`` if empty."""
         if not isinstance(temps, list):
             return None
         readings = [t for t in temps if isinstance(t, (int, float)) and t != 0]
@@ -320,7 +332,8 @@ class ElphapexMiner(StockFirmware):
 
     @staticmethod
     def _average_chip_temp(temps: object) -> float | None:
-        """Average ``temp_chip`` entries (millidegree strings on Elphapex).
+        """
+        Average ``temp_chip`` entries (millidegree strings on Elphapex).
 
         Inactive chains report empty strings here; a single ``None`` chain on
         DG-Home1 used to trigger ``ZeroDivisionError`` in the legacy parser.

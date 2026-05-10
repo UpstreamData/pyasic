@@ -1676,7 +1676,8 @@ class MinerFactory:
 
     @staticmethod
     def _normalize_elphapex_model(miner_model: str) -> str:
-        """Normalise Elphapex model strings to the lookup-table form.
+        """
+        Normalise Elphapex model strings to the lookup-table form.
 
         DG-Home1 firmware V1.0.5 reports ``"DG-Home1"`` from ``stats.cgi``
         (and the firmware version string is ``"DG-Home1_V1.0.5"``), but the
