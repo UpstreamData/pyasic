@@ -23,3 +23,11 @@
     options:
         show_root_heading: false
         heading_level: 4
+<br>
+
+## Innosilicon Error Codes
+::: pyasic.data.error_codes.InnosiliconError
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4

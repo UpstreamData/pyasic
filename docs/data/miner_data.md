@@ -6,3 +6,10 @@
     options:
         show_root_heading: false
         heading_level: 4
+
+## HashBoard Data
+::: pyasic.data.HashBoard
+    handler: python
+    options:
+        show_root_heading: false
+        heading_level: 4

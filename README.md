@@ -7,66 +7,46 @@
 [![Read the Docs](https://img.shields.io/readthedocs/pyasic)](https://pyasic.readthedocs.io/en/latest/)
 [![GitHub](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/UpstreamData/pyasic)](https://www.codefactor.io/repository/github/upstreamdata/pyasic)
-## Supported Miners
-Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/)
+## Documentation and Supported Miners
+Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/).
 
-## Documentation
-Documentation is located on Read the Docs as [pyasic](https://pyasic.readthedocs.io/en/latest/)
+Supported miners are listed in the docs, [here](https://pyasic.readthedocs.io/en/latest/miners/supported_types/).
 
-## Usage
+## Installation
+You can install pyasic directly from pip with the command `pip install pyasic`.
 
-### Standard Usage
-You can install pyasic directly from pip with the command `pip install pyasic`
+For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library [here](https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing).
 
-For those of you who aren't comfortable with code and developer tools, there are windows builds of GUI applications that use this library here -> (https://drive.google.com/drive/folders/1DjR8UOS_g0ehfiJcgmrV0FFoqFvE9akW?usp=sharing)
+## Developer Setup
+It is highly reccommended that you contribute to this project through [`pyasic-super`](https://github.com/UpstreamData/pyasic-super) using its submodules.  This allows testing in conjunction with other `pyasic` related programs.
 
-### Developers
-To use this repo, first download it, create a virtual environment, enter the virtual environment, and install relevant packages by navigating to this directory and running ```pip install -r requirements-dev.txt``` on Windows or ```pip3 install -r requirements-dev.txt``` on Mac or UNIX if the first command fails.
-
-You can also use poetry by initializing and running ```poetry install```, and you will have to install `pre-commit` (`pip install pre-commit`).
-
-Finally, initialize pre-commit hooks with `pre-commit install`
-
-### Interfacing with miners programmatically
-
-##### Note: If you are trying to interface with Whatsminers, there is a bug in the way they are interacted with on Windows, so to fix that you need to change the event loop policy using this code:
-```python
-# need to import these 2 libraries, you need asyncio anyway so make sure you have sys imported
-import sys
-import asyncio
-
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-```
-
-##### It is likely a good idea to use this code in your program anyway to be preventative.
 <br>
 
-To write your own custom programs with this repo, you have many options.
+This repo uses poetry for dependencies, which can be installed by following the guide on their website [here](https://python-poetry.org/docs/#installation).
 
-It is recommended that you explore the files in this repo to familiarize yourself with them, try starting with the miners module and going from there.
+After you have poetry installed, run `poetry install --with dev`, or `poetry install --with dev,docs` if you want to include packages required for documentation.
 
-There are 2 main ways to get a miner and it's functions via scanning or via the MinerFactory.
+Finally, initialize pre-commit hooks with `poetry run pre-commit install`.
+
+### Documentation Testing
+Testing the documentation can be done by running `poetry run mkdocs serve`, whcih will serve the documentation locally on port 8000.
+
+## Interfacing with miners programmatically
+
+There are 2 main ways to get a miner (and the functions attached to it), via scanning or via the `MinerFactory()`.
 
 #### Scanning for miners
 ```python
 import asyncio
-import sys
 
 from pyasic.network import MinerNetwork
-
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 # define asynchronous function to scan for miners
 async def scan_and_get_data():
     # Define network range to be used for scanning
     # This can take a list of IPs, a constructor string, or an IP and subnet mask
-    # The standard mask is /24, and you can pass any IP address in the subnet
+    # The standard mask is /24 (x.x.x.0-255), and you can pass any IP address in the subnet
     net = MinerNetwork("192.168.1.69", mask=24)
     # Scan the network for miners
     # This function returns a list of miners of the correct type as a class
@@ -87,19 +67,21 @@ if __name__ == "__main__":
     asyncio.run(scan_and_get_data())
 ```
 
-</br>
 
 #### Getting a miner if you know the IP
 ```python
 import asyncio
-import sys
 
+<<<<<<< HEAD
 from pyasic.miners import get_miner
 
 # Fix whatsminer bug
 # if the computer is windows, set the event loop policy to a WindowsSelector policy
 if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+=======
+from pyasic import get_miner
+>>>>>>> c73dfad01acde89a42052a97f3a8bcd1b5b04274
 
 
 # define asynchronous function to get miner and data
@@ -120,17 +102,21 @@ if __name__ == "__main__":
 
 If needed, this library exposes a wrapper for the miner API that can be used for advanced data gathering.
 
+You can see more information on basic usage of the APIs past this example in the docs [here](https://pyasic.readthedocs.io/en/latest/API/api/).
+
+Please see the appropriate API documentation page (pyasic docs -> Advanced -> Miner APIs -> your API type) for a link to that specific miner's API documentation page and more information.
+
 #### List available API commands
 ```python
 import asyncio
+<<<<<<< HEAD
 import sys
 
 from pyasic.miners import get_miner
+=======
+>>>>>>> c73dfad01acde89a42052a97f3a8bcd1b5b04274
 
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+from pyasic import get_miner
 
 
 async def get_api_commands(miner_ip: str):
@@ -138,7 +124,8 @@ async def get_api_commands(miner_ip: str):
     miner = await get_miner(miner_ip)
 
     # List all available commands
-    print(miner.api.get_commands())
+    # Can also be called explicitly with the function miner.api.get_commands()
+    print(miner.api.commands)
 
 
 if __name__ == "__main__":
@@ -151,14 +138,14 @@ The miner API commands will raise an `APIError` if they fail with a bad status c
 
 ```python
 import asyncio
+<<<<<<< HEAD
 import sys
 
 from pyasic.miners import get_miner
+=======
+>>>>>>> c73dfad01acde89a42052a97f3a8bcd1b5b04274
 
-# Fix whatsminer bug
-# if the computer is windows, set the event loop policy to a WindowsSelector policy
-if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+from pyasic import get_miner
 
 
 async def get_api_commands(miner_ip: str):
