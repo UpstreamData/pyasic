@@ -27,6 +27,7 @@ from .S19 import (
     BOSMinerS19kProNoPIC,
     BOSMinerS19Plus,
     BOSMinerS19Pro,
+    BOSMinerS19ProHydro,
     BOSMinerS19ProPlusHydro,
     BOSMinerS19XP,
     BOSMinerS19XPHydro,
